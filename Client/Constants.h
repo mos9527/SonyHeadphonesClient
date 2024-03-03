@@ -52,22 +52,13 @@ enum class NC_ASM_INQUIRED_TYPE : signed char
 enum class NC_ASM_EFFECT : signed char
 {
 	OFF = 0,
-	ON = 1,
-	ADJUSTMENT_IN_PROGRESS = 16,
-	ADJUSTMENT_COMPLETION = 17
+	ON = 1
 };
 
 enum class NC_ASM_SETTING_TYPE : signed char
 {
-	ON_OFF = 0,
-	LEVEL_ADJUSTMENT = 1,
-	DUAL_SINGLE_OFF = 2
-};
-
-enum class ASM_SETTING_TYPE : signed char
-{
-	ON_OFF = 0,
-	LEVEL_ADJUSTMENT = 1
+	NOISE_CANCELLING = 0,
+	AMBIENT_SOUND = 1
 };
 
 enum class ASM_ID : signed char
@@ -86,7 +77,7 @@ enum class NC_DUAL_SINGLE_VALUE : signed char
 enum class COMMAND_TYPE : signed char
 {
 	VPT_SET_PARAM = 72,
-	NCASM_SET_PARAM = 104
+	NCASM_SET_PARAM = 0x68
 };
 
 enum class VPT_PRESET_ID : signed char

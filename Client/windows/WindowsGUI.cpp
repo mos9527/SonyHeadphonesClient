@@ -8,6 +8,7 @@ Don't try to understand it.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 */
 
+constexpr float BASE_FONTSIZE = 15.0f;
 // Data
 static ID3D11Device* g_pd3dDevice = NULL;
 static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
@@ -46,8 +47,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-
-	CrossPlatformGUI gui(std::move(bt));
+	static const float baseFontSize = BASE_FONTSIZE * ImGui_ImplWin32_GetDpiScaleForHwnd(hwnd);
+	CrossPlatformGUI gui(std::move(bt), baseFontSize);
 
 	UINT presentFlags = 0;
 

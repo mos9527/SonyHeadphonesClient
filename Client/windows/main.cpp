@@ -8,6 +8,8 @@
 
 int main()
 {
+	SetProcessDPIAware();
+	SetConsoleOutputCP(65001);
 	std::cout << "Initializing... If can't see the GUI, something has gone wrong." << std::endl;
 	try
 	{

@@ -25,7 +25,7 @@ const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 class CrossPlatformGUI
 {
 public:
-	CrossPlatformGUI(BluetoothWrapper bt);
+	CrossPlatformGUI(BluetoothWrapper bt, const float font_size = FONT_SIZE);
 
 	//Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
 	//O: true if the user wants to close the window

@@ -27,7 +27,7 @@ bool CrossPlatformGUI::performGUIPass()
 		{
 			ImGui::Spacing();
 			this->_drawASMControls();
-			this->_drawSurroundControls();
+			// this->_drawSurroundControls();
 			this->_setHeadphoneSettings();
 		}
 	}
@@ -67,7 +67,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 			ImGui::Text("Connected to %s", this->_connectedDevice.name.c_str());
 			if (ImGui::Button("Disconnect"))
 			{
-				selectedDevice = -1;
+				selectedDevice = -1;				
 				this->_bt.disconnect();
 			}
 		}
@@ -157,7 +157,7 @@ void CrossPlatformGUI::_drawASMControls()
 {
 	static bool ambientSoundControl = true;
 	static bool focusOnVoice = false;
-	static int asmLevel = 0;
+	static int asmLevel = 10;
 
 	if (ImGui::CollapsingHeader("Ambient Sound Mode   ", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -166,8 +166,8 @@ void CrossPlatformGUI::_drawASMControls()
 		if (this->_headphones.isSetAsmLevelAvailable())
 		{
 			ImGui::Text("Control ambient sound for your %ss", this->_connectedDevice.name.c_str());
-
-			ImGui::SliderInt("Ambient Sound Level", &asmLevel, 0, 19);
+			ImGui::SliderInt("Ambient Sound Level", &asmLevel, 0, 20);
+			ImGui::Text("NOTE: Set to 0 for Noise Cancelling");
 
 			if (this->_headphones.isFocusOnVoiceAvailable())
 			{
@@ -179,7 +179,7 @@ void CrossPlatformGUI::_drawASMControls()
 			}
 		}
 
-		this->_headphones.setAmbientSoundControl(ambientSoundControl);
+		this->_headphones.setAmbientSoundControl(ambientSoundControl);		
 		this->_headphones.setAsmLevel(asmLevel);
 		this->_headphones.setFocusOnVoice(focusOnVoice);
 	}
@@ -252,7 +252,7 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 	}
 }
 
-CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt) : _bt(std::move(bt)), _headphones(_bt)
+CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt)), _headphones(_bt)
 {
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -266,6 +266,6 @@ CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt) : _bt(std::move(bt)), _h
 	//AddFontFromMemory will own the pointer, so there's no leak
 	char* fileData = new char[sizeof(CascadiaCodeTTF)];
 	memcpy(fileData, CascadiaCodeTTF, sizeof(CascadiaCodeTTF));
-	ImFont* font = io.Fonts->AddFontFromMemoryTTF(reinterpret_cast<void*>(fileData), sizeof(CascadiaCodeTTF), FONT_SIZE);
+	ImFont* font = io.Fonts->AddFontFromMemoryTTF(reinterpret_cast<void*>(fileData), sizeof(CascadiaCodeTTF), font_size);
 	IM_ASSERT(font != NULL);
 }

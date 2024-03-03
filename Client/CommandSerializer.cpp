@@ -171,16 +171,16 @@ namespace CommandSerializer
 		return val;
 	}
 
-	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_SETTING_TYPE asmSettingType, ASM_ID asmId, char asmLevel)
+	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel)
 	{
+		// 0x68 | 0x17 | [Not Dragging ASM Slider?] | [NC & ASM On?] | [NC:0 ASM:1] | [Voice Passthrough?] | [ASM Level]
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::NCASM_SET_PARAM));
-		ret.push_back(static_cast<unsigned char>(NC_ASM_INQUIRED_TYPE::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE));
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::NCASM_SET_PARAM)); // 0x68		
+		ret.push_back(0x17);
+		ret.push_back(0x01);
 		ret.push_back(static_cast<unsigned char>(ncAsmEffect));
 		ret.push_back(static_cast<unsigned char>(ncAsmSettingType));
-		ret.push_back(static_cast<unsigned char>(getDualSingleForAsmLevel(asmLevel)));
-		ret.push_back(static_cast<unsigned char>(asmSettingType));
-		ret.push_back(static_cast<unsigned char>(asmId));
+		ret.push_back(static_cast<unsigned char>(voicePassthrough));
 		ret.push_back(asmLevel);
 		return ret;
 	}

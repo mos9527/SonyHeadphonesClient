@@ -54,6 +54,9 @@ WindowsBluetoothConnector::~WindowsBluetoothConnector()
 int WindowsBluetoothConnector::send(char* buf, size_t length)
 {
 	auto bytesSent = ::send(this->_socket, buf, length, 0);
+	printf("[send] ");
+	for (int i = 0; i < length; i++) printf("%2x ", (unsigned char)buf[i]);
+	printf("\n");
 	if (bytesSent == SOCKET_ERROR)
 	{
 		throw RecoverableException("Couldn't send (" + std::to_string(WSAGetLastError()) + ")", true);
@@ -64,6 +67,9 @@ int WindowsBluetoothConnector::send(char* buf, size_t length)
 int WindowsBluetoothConnector::recv(char* buf, size_t length)
 {
 	auto bytesReceived = ::recv(this->_socket, buf, length, 0);
+	printf("[recv] ");
+	for (int i = 0; i < length; i++) printf("%2x ", (unsigned char)buf[i]);
+	printf("\n");
 	if (bytesReceived == SOCKET_ERROR)
 	{
 		throw RecoverableException("Couldn't recv (" + std::to_string(WSAGetLastError()) + ")", true);
@@ -146,7 +152,11 @@ void WindowsBluetoothConnector::_initSocket()
 	{
 		throw std::runtime_error("Couldn't set SO_BTH_ENCRYPT: " + std::to_string(WSAGetLastError()));
 	}
-
+	DWORD timeout = 1000;
+	if (::setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof timeout))
+	{
+		throw std::runtime_error("Couldn't set SO_RCVTIMEO: " + std::to_string(WSAGetLastError()));
+	}
 	this->_socket = sock;
 }
 

@@ -30,10 +30,10 @@ public:
 
 	std::vector<BluetoothDevice> getConnectedDevices();
 
+	std::unique_ptr<IBluetoothConnector> connector;
 private:
 	void _waitForAck();
 
-	std::unique_ptr<IBluetoothConnector> _connector;
 	std::mutex _connectorMtx;
 	unsigned int _seqNumber = 0;
 };

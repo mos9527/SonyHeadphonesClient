@@ -81,16 +81,11 @@ void Headphones::setChanges()
 {
 	if (!(this->_ambientSoundControl.isFulfilled() && this->_focusOnVoice.isFulfilled() && this->_asmLevel.isFulfilled()))
 	{
-		auto ncAsmEffect = this->_ambientSoundControl.desired ? NC_ASM_EFFECT::ADJUSTMENT_COMPLETION : NC_ASM_EFFECT::OFF;
-		auto asmId = this->_focusOnVoice.desired ? ASM_ID::VOICE : ASM_ID::NORMAL;
-		auto asmLevel = this->_ambientSoundControl.desired ? this->_asmLevel.desired : ASM_LEVEL_DISABLED;
-
 		this->_conn.sendCommand(CommandSerializer::serializeNcAndAsmSetting(
-			ncAsmEffect,
-			NC_ASM_SETTING_TYPE::LEVEL_ADJUSTMENT,
-			ASM_SETTING_TYPE::LEVEL_ADJUSTMENT,
-			asmId,
-			asmLevel
+			this->_ambientSoundControl.desired ? NC_ASM_EFFECT::ON : NC_ASM_EFFECT::OFF,
+			this->_asmLevel.desired > 0 ? NC_ASM_SETTING_TYPE::AMBIENT_SOUND : NC_ASM_SETTING_TYPE::NOISE_CANCELLING,
+			this->_focusOnVoice.desired ? ASM_ID::VOICE : ASM_ID::NORMAL,
+			std::max(this->_asmLevel.desired, 1)
 		));
 		
 		std::lock_guard guard(this->_propertyMtx);
@@ -98,7 +93,8 @@ void Headphones::setChanges()
 		this->_asmLevel.fulfill();
 		this->_focusOnVoice.fulfill();
 	}
-
+	return;
+	// XXX
 	if (!(this->_vptType.isFulfilled() && this->_surroundPosition.isFulfilled())) {
 		VPT_INQUIRED_TYPE command;
 		unsigned char preset;

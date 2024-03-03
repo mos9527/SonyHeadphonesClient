@@ -3,7 +3,7 @@
 #include <vector>
 #include "Exceptions.h"
 
-inline constexpr auto SONY_UUID = "96CC203E-5068-46ad-B32D-E316F5E069BA";
+inline constexpr auto SONY_UUID = "956C7B26-D49A-4BA8-B03F-B17D393CB6E2";
 
 inline constexpr auto NO_BLUETOOTH_DEVICES_ERROR = "No Bluetooth radios were found - is your adapter connected?";
 
