@@ -67,8 +67,6 @@ void LinuxBluetoothConnector::connect(const std::string &addrStr)
   uint32_t linkmode = RFCOMM_LM_AUTH | RFCOMM_LM_ENCRYPT;
   int sl = sizeof(linkmode);
   setsockopt(this->_socket, SOL_RFCOMM, RFCOMM_LM, &linkmode, sl);
-  uint32_t timeout = 1000;
-  setsockopt(this->_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof timeout);
   // set the connection parameters (who to connect to)
   addr.rc_family = AF_BLUETOOTH;
   uint8_t channel = sdp_getServiceChannel(addrStr.c_str(), SERVICE_UUID_IN_BYTES);

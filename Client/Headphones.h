@@ -3,6 +3,7 @@
 #include "Constants.h"
 
 #include <mutex>
+#include <thread>
 
 template <class T>
 struct Property {
@@ -34,14 +35,20 @@ public:
 	void setVptType(int val);
 	int getVptType();
 	
+	void setVoiceGuidanceVolume(int val);
+	int getVoiceGuidanceVolume();
+
 	bool isChanged();
-	void setChanges();
+	int setChanges();
+	
+	BluetoothWrapper& getConn() { return _conn; }
 private:
 	Property<bool> _ambientSoundControl = { 0 };
 	Property<bool> _focusOnVoice = { 0 };
 	Property<int> _asmLevel = { 0 };
 	Property<SOUND_POSITION_PRESET> _surroundPosition = { SOUND_POSITION_PRESET::OUT_OF_RANGE, SOUND_POSITION_PRESET::OFF };
 	Property<int> _vptType = { 0 };
+	Property<int> _voiceGuidanceVolume = { 0 };
 	std::mutex _propertyMtx;
 
 	BluetoothWrapper& _conn;

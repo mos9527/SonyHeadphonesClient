@@ -25,7 +25,7 @@ public:
 	virtual int recv(char* buf, size_t length) noexcept(false);
 	virtual void disconnect() noexcept;
 	virtual bool isConnected() noexcept;
-
+	
 	virtual std::vector<BluetoothDevice> getConnectedDevices() noexcept(false);
 
 private:

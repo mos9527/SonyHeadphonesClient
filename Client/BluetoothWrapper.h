@@ -7,12 +7,29 @@
 #include <vector>
 #include <string>
 #include <mutex>
-
+#include <ranges>
 
 //Thread-safety: This class is thread-safe.
 class BluetoothWrapper
 {
 public:
+	struct Command
+	{
+		friend BluetoothWrapper;
+
+		DATA_TYPE dataType{};
+		unsigned char seqNumber{};
+		unsigned char chkSum{};
+
+		const size_t size() { return messageSize; }
+		auto begin() { return messageBytes.begin() + 7; }
+		auto end() { return begin() + messageSize; }
+		char operator[](int i) { return *(begin() + i); }
+	private:
+		Buffer messageBytes{};
+		unsigned int messageSize{};
+	};
+
 	BluetoothWrapper(std::unique_ptr<IBluetoothConnector> connector);
 
 	BluetoothWrapper(const BluetoothWrapper&) = delete;
@@ -21,7 +38,8 @@ public:
 	BluetoothWrapper(BluetoothWrapper&& other) noexcept;
 	BluetoothWrapper& operator=(BluetoothWrapper&& other) noexcept;
 
-	int sendCommand(const std::vector<char>& bytes);
+	int sendCommand(const std::vector<char>& bytes, DATA_TYPE dataType = DATA_TYPE::DATA_MDR);
+	void sendAck();
 
 	bool isConnected() noexcept;
 	//Try to connect to the headphones
@@ -31,9 +49,10 @@ public:
 	std::vector<BluetoothDevice> getConnectedDevices();
 
 	std::unique_ptr<IBluetoothConnector> connector;
+
+	void recvCommand(Command& msg);
 private:
-	void _waitForAck();
 
 	std::mutex _connectorMtx;
-	unsigned int _seqNumber = 0;
+	unsigned int _seqNumber = 0;	
 };

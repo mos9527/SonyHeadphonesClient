@@ -130,7 +130,7 @@ void WindowsBluetoothConnector::disconnect() noexcept
 }
 
 bool WindowsBluetoothConnector::isConnected() noexcept
-{
+{	
 	return this->_connected;
 }
 
@@ -151,11 +151,6 @@ void WindowsBluetoothConnector::_initSocket()
 	if (::setsockopt(sock, SOL_RFCOMM, SO_BTH_ENCRYPT, reinterpret_cast<char*>(&enable), sizeof(enable)))
 	{
 		throw std::runtime_error("Couldn't set SO_BTH_ENCRYPT: " + std::to_string(WSAGetLastError()));
-	}
-	DWORD timeout = 1000;
-	if (::setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof timeout))
-	{
-		throw std::runtime_error("Couldn't set SO_RCVTIMEO: " + std::to_string(WSAGetLastError()));
 	}
 	this->_socket = sock;
 }

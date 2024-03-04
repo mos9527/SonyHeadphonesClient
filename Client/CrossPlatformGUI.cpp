@@ -9,16 +9,40 @@ bool CrossPlatformGUI::performGUIPass()
 	bool open = true;
 
 	ImGui::SetNextWindowPos({ 0,0 });
-
+	ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 	{
 		//TODO: Figure out how to get rid of the Windows window, make everything transparent, and just use ImGui for everything.
 		//TODO: ImGuiWindowFlags_AlwaysAutoResize causes some flickering. Figure out how to stop it
-		ImGui::Begin("Sony Headphones", &open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+		ImGui::Begin("Sony Headphones", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
 		//Legal disclaimer
 		ImGui::Text("! This product is not affiliated with Sony. Use at your own risk. !");
 		ImGui::Text("Source: https://github.com/Plutoberth/SonyHeadphonesClient");
 		ImGui::Spacing();
+
+		if (this->_recvFuture.ready()) {
+			auto cmd = this->_recvFuture.get();
+			if (cmd.has_value()) {
+				auto& value = cmd.value();
+				std::cout << "[command] recv type: " << static_cast<int>(value.dataType) << '\n';
+				switch (value.dataType)
+				{
+				case DATA_TYPE::ACK:
+				case DATA_TYPE::DATA_MDR:
+				case DATA_TYPE::DATA_MDR_NO2:
+					std::cout << "[command] sending ack\n";
+					this->getHeadphones().getConn().sendAck();
+					_ackCount++;
+					break;
+				default:
+					break;
+				}
+				this->_recvAsync();
+			}
+			else {
+				std::cout << "[command] connection closed\n";
+			}
+		}
 
 		this->_drawErrors();
 		this->_drawDeviceDiscovery();
@@ -69,7 +93,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 			{
 				selectedDevice = -1;				
 				this->_bt.disconnect();
-			}
+			}			
 		}
 		else
 		{
@@ -112,7 +136,12 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 					if (selectedDevice != -1)
 					{
 						this->_connectedDevice = connectedDevices[selectedDevice];
-						this->_connectFuture.setFromAsync([this]() { this->_bt.connect(this->_connectedDevice.mac); });
+						this->_connectFuture.setFromAsync([this]() { 
+							this->_cmdCount = 0;
+							this->_ackCount = 0;
+							this->_bt.connect(this->_connectedDevice.mac);
+							this->_recvAsync();
+						});
 					}
 				}
 			}
@@ -158,6 +187,7 @@ void CrossPlatformGUI::_drawASMControls()
 	static bool ambientSoundControl = true;
 	static bool focusOnVoice = false;
 	static int asmLevel = 10;
+	static int voiceGuidanceVol = 0;
 
 	if (ImGui::CollapsingHeader("Ambient Sound Mode   ", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -183,6 +213,10 @@ void CrossPlatformGUI::_drawASMControls()
 		this->_headphones.setAsmLevel(asmLevel);
 		this->_headphones.setFocusOnVoice(focusOnVoice);
 	}
+	if (ImGui::CollapsingHeader("Etc   ", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::SliderInt("Voice Guidance Volume", &voiceGuidanceVol, -2, 2);
+		this->_headphones.setVoiceGuidanceVolume(voiceGuidanceVol);
+	}
 }
 
 void CrossPlatformGUI::_drawSurroundControls()
@@ -200,7 +234,7 @@ void CrossPlatformGUI::_drawSurroundControls()
 			vptType = 0;
 		}
 
-		if (ImGui::Combo("Surround (VPT)", &vptType, "Off\0Outdoor Festival\0Arena\0"
+		if (ImGui::Combo("Surround (VPT)", &vptType, "Off\0Outdoor 1stival\0Arena\0"
 			"Concert Hall\0Club\0\0"))
 		{
 			soundPosition = 0;
@@ -214,13 +248,13 @@ void CrossPlatformGUI::_drawSurroundControls()
 void CrossPlatformGUI::_setHeadphoneSettings() {
 	//Don't show if the command only takes a few frames to send
 	static int commandLinger = 0;
-
+	ImGui::Text("Cmd:%d Ack:%d", _cmdCount, _ackCount);
 	if (this->_sendCommandFuture.ready())
 	{
 		commandLinger = 0;
 		try
 		{
-			this->_sendCommandFuture.get();
+			this->_cmdCount += this->_sendCommandFuture.get();
 		}
 		catch (const RecoverableException& exc)
 		{
@@ -250,6 +284,31 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 			return this->_headphones.setChanges();
 		});
 	}
+}
+
+void CrossPlatformGUI::_recvAsync()
+{
+	this->_recvFuture.setFromAsync([=]() -> std::optional<BluetoothWrapper::Command> {
+		auto& conn = this->getHeadphones().getConn();
+		BluetoothWrapper::Command cmd;
+		try
+		{
+			conn.recvCommand(cmd);
+			return cmd;
+		}
+		catch (const RecoverableException& exc)
+		{
+			if (exc.shouldDisconnect)
+			{
+				this->_bt.disconnect();
+				this->_mq.addMessage(exc.what());	
+				return std::nullopt;
+			}
+			else {
+				throw exc;
+			}
+		}		
+	});
 }
 
 CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt)), _headphones(_bt)

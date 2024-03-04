@@ -10,6 +10,10 @@ unsigned int byteOrderSwap(unsigned int num)
 		(num << 24);
 }
 
+int bytesToIntBE(char* buf) {
+	return (int)buf[3] | (int)buf[2] << 8 | (int)buf[1] << 16 | (int)buf[0] << 24;
+}
+
 std::vector<unsigned char> intToBytesBE(unsigned int num)
 {
 	std::vector<unsigned char> ret(sizeof(num));

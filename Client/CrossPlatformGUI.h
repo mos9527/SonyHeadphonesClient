@@ -12,6 +12,7 @@
 #include "Headphones.h"
 
 #include <future>
+#include <iostream>
 
 constexpr auto GUI_MAX_MESSAGES = 5;
 constexpr auto GUI_HEIGHT = 380;
@@ -30,6 +31,7 @@ public:
 	//Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
 	//O: true if the user wants to close the window
 	bool performGUIPass();
+	inline Headphones& getHeadphones() { return _headphones; }
 private:
 	void _drawErrors();
 	void _drawDeviceDiscovery();
@@ -40,8 +42,15 @@ private:
 	BluetoothDevice _connectedDevice;
 	BluetoothWrapper _bt;
 	SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
-	SingleInstanceFuture<void> _sendCommandFuture;
+	SingleInstanceFuture<int> _sendCommandFuture;
 	SingleInstanceFuture<void> _connectFuture;
+
+	SingleInstanceFuture<std::optional<BluetoothWrapper::Command>> _recvFuture;
+	void _recvAsync();
+	
+	int _ackCount{};
+	int _cmdCount{};
+
 	TimedMessageQueue _mq;
 	Headphones _headphones;
 };

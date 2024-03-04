@@ -76,7 +76,8 @@ enum class NC_DUAL_SINGLE_VALUE : signed char
 
 enum class COMMAND_TYPE : signed char
 {
-	VPT_SET_PARAM = 72,
+	UNK_0E = 0x0E,
+	VPT_SET_PARAM = 0x48,
 	NCASM_SET_PARAM = 0x68
 };
 

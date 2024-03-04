@@ -124,32 +124,12 @@ namespace CommandSerializer
 		ret.push_back(END_MARKER);
 
 
-		// Message will be chunked if it's larger than MAX_BLUETOOTH_MESSAGE_SIZE, just crash to deal with it for now
+		// Command will be chunked if it's larger than MAX_BLUETOOTH_MESSAGE_SIZE, just crash to deal with it for now
 		if (ret.size() > MAX_BLUETOOTH_MESSAGE_SIZE)
 		{
 			throw std::runtime_error("Exceeded the max bluetooth message size, and I can't handle chunked messages");
 		}
 
-		return ret;
-	}
-
-	Message unpackBtMessage(const Buffer& src)
-	{
-		//Message data format: ESCAPE_SPECIALS(<DATA_TYPE><SEQ_NUMBER><BIG ENDIAN 4 BYTE SIZE OF UNESCAPED DATA><DATA><1 BYTE CHECKSUM>)
-		auto unescaped = _unescapeSpecials(src);
-
-		if (src.size() < 7)
-		{
-			throw std::runtime_error("Invalid message: Smaller than the minimum message size");
-		}
-
-		Message ret;
-		ret.dataType = static_cast<DATA_TYPE>(src[0]);
-		ret.seqNumber = src[1];
-		if ((unsigned char)src[src.size() - 1] != _sumChecksum(src.data(), src.size() - 1))
-		{
-			throw RecoverableException("Invalid checksum!", true);
-		}
 		return ret;
 	}
 
@@ -195,5 +175,13 @@ namespace CommandSerializer
 		return ret;
 	}
 
+	Buffer serializeVoiceGuidanceSetting(char volume) {
+		Buffer ret;
+		ret.push_back(0x48);
+		ret.push_back(0x20);
+		ret.push_back(volume); // Guidance Volume
+		ret.push_back(0x00);
+		return ret;
+	}
 }
 

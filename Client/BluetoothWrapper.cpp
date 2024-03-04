@@ -22,15 +22,19 @@ BluetoothWrapper& BluetoothWrapper::operator=(BluetoothWrapper&& other) noexcept
 	return *this;
 }
 
-int BluetoothWrapper::sendCommand(const std::vector<char>& bytes)
+int BluetoothWrapper::sendCommand(const std::vector<char>& bytes, DATA_TYPE dataType)
 {
 	std::lock_guard guard(this->_connectorMtx);
-	auto data = CommandSerializer::packageDataForBt(bytes, DATA_TYPE::DATA_MDR, this->_seqNumber++);
+	auto data = CommandSerializer::packageDataForBt(bytes, dataType, this->_seqNumber++);
 	auto bytesSent = this->connector->send(data.data(), data.size());
 
-	this->_waitForAck();
-
 	return bytesSent;
+}
+
+void BluetoothWrapper::sendAck()
+{
+	auto data = CommandSerializer::packageDataForBt({}, DATA_TYPE::ACK, this->_seqNumber++);
+	this->connector->send(data.data(), data.size());
 }
 
 bool BluetoothWrapper::isConnected() noexcept
@@ -57,12 +61,13 @@ std::vector<BluetoothDevice> BluetoothWrapper::getConnectedDevices()
 	return this->connector->getConnectedDevices();
 }
 
-void BluetoothWrapper::_waitForAck()
+void BluetoothWrapper::recvCommand(Command& msg)
 {
 	char buf[MAX_BLUETOOTH_MESSAGE_SIZE] = { 0 };
-	
-	Buffer msgBytes;
-	msgBytes.reserve(MAX_BLUETOOTH_MESSAGE_SIZE);
+
+	msg.messageBytes.clear();
+	msg.messageBytes.reserve(MAX_BLUETOOTH_MESSAGE_SIZE);
+	msg.messageBytes.resize(6);
 
 	const auto recvOne = [=]() {
 		char buf;
@@ -73,21 +78,28 @@ void BluetoothWrapper::_waitForAck()
 
 	while (recvOne() != START_MARKER);
 
-	msgBytes.push_back(recvOne()); // dataType
-	msgBytes.push_back(recvOne()); // seq
+	msg.messageBytes[0] = recvOne();
+	msg.dataType = static_cast<DATA_TYPE>(msg.messageBytes[0]);
 
-	this->connector->recv(buf, 4);
-	int size = (int)buf[3] | (int)buf[2] << 8 | (int)buf[1] << 16 | (int)buf[0] << 24;
-	msgBytes.insert(msgBytes.end(), buf, buf + 4); // size (int BE)
-
-	this->connector->recv(buf, size);
-	msgBytes.insert(msgBytes.end(), buf, buf + size); // command
-
-	msgBytes.push_back(recvOne()); // chksum
-
-	if (recvOne() != END_MARKER) throw RecoverableException("Invalid message pack recevied", true);
-
-	auto msg = CommandSerializer::unpackBtMessage(msgBytes);
+	msg.messageBytes[1] = recvOne();
+	msg.seqNumber = msg.messageBytes[1];
 	this->_seqNumber = msg.seqNumber;
-}
 
+	this->connector->recv(&msg.messageBytes[2], 4);
+	msg.messageSize = bytesToIntBE(&msg.messageBytes[2]);
+
+	int recvSize = this->connector->recv(buf, msg.messageSize);
+	if (msg.messageSize != recvSize) throw RecoverableException("Recv size mismatch", true);
+	if (msg.messageSize) 
+		msg.messageBytes.insert(msg.messageBytes.end(), buf, buf + msg.messageSize);
+
+	msg.messageBytes.push_back(recvOne());
+	msg.chkSum = msg.messageBytes.back();	
+
+	if (recvOne() != END_MARKER) 
+		throw RecoverableException("Invalid message pack recevied", true);
+	if (msg.chkSum != CommandSerializer::_sumChecksum(msg.messageBytes.data(), msg.messageBytes.size() - 1 /* chksum itself is not contained*/))
+		throw RecoverableException("Invalid checksum!", true);
+
+	return;
+}

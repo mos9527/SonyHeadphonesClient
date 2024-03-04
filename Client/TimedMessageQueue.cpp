@@ -16,7 +16,7 @@ void TimedMessageQueue::addMessage(std::string message)
 	this->_messages.emplace_back(std::move(message), Clock::now() + std::chrono::milliseconds(this->_durationMs));
 }
 
-std::deque<Message>::const_iterator TimedMessageQueue::begin()
+std::deque<Command>::const_iterator TimedMessageQueue::begin()
 {
 	while (this->_messages.size() > 0)
 	{
@@ -34,7 +34,7 @@ std::deque<Message>::const_iterator TimedMessageQueue::begin()
 	return this->_messages.cbegin();
 }
 
-std::deque<Message>::const_iterator TimedMessageQueue::end() const
+std::deque<Command>::const_iterator TimedMessageQueue::end() const
 {
 	return this->_messages.cend();
 }

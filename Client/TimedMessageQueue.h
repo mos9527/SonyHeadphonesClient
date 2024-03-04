@@ -14,10 +14,10 @@ using TimePoint = std::chrono::time_point<Clock>;
 auto constexpr DEFAULT_MAX_MESSAGES = 13371337;
 constexpr auto DEFAULT_ERROR_MESSAGE_MS = 10000;
 
-struct Message
+struct Command
 {
 public:
-	Message(std::string message, TimePoint releaseTime) 
+	Command(std::string message, TimePoint releaseTime) 
 	{
 		this->message = std::move(message);
 		this->_releaseTime = releaseTime;
@@ -39,10 +39,10 @@ public:
 	void addMessage(std::string message);
 
 	//The iteators returned are guaranteed to stay valid only until the next `begin()` or `addMessage` call.
-	std::deque<Message>::const_iterator begin();
-	std::deque<Message>::const_iterator end() const;
+	std::deque<Command>::const_iterator begin();
+	std::deque<Command>::const_iterator end() const;
 private:
-	std::deque<Message> _messages;
+	std::deque<Command> _messages;
 	unsigned int _maxMessages = DEFAULT_MAX_MESSAGES;
 	unsigned long long _durationMs;
 };

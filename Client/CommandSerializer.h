@@ -11,13 +11,6 @@ constexpr unsigned int ASM_LEVEL_DISABLED = -1;
 
 namespace CommandSerializer
 {
-	struct Message
-	{
-		DATA_TYPE dataType;
-		unsigned char seqNumber;
-		//Not really needed for now
-		//Buffer messageBytes;
-	};
 
 	//escape special chars
 
@@ -36,10 +29,9 @@ namespace CommandSerializer
 	*/
 	Buffer packageDataForBt(const Buffer& src, DATA_TYPE dataType, unsigned int seqNumber);
 
-	Message unpackBtMessage(const Buffer& src);
-
 	NC_DUAL_SINGLE_VALUE getDualSingleForAsmLevel(char asmLevel);
 	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel);
 	Buffer serializeVPTSetting(VPT_INQUIRED_TYPE type, unsigned char preset);
+	Buffer serializeVoiceGuidanceSetting(char volume);
 }
 

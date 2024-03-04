@@ -72,13 +72,25 @@ int Headphones::getVptType()
 	return this->_vptType.current;
 }
 
-bool Headphones::isChanged()
+void Headphones::setVoiceGuidanceVolume(int val)
 {
-	return !(this->_ambientSoundControl.isFulfilled() && this->_asmLevel.isFulfilled() && this->_focusOnVoice.isFulfilled() && this->_surroundPosition.isFulfilled() && this->_vptType.isFulfilled());
+	std::lock_guard guard(this->_propertyMtx);
+	this->_voiceGuidanceVolume.desired = val;
 }
 
-void Headphones::setChanges()
+int Headphones::getVoiceGuidanceVolume()
 {
+	return this->_voiceGuidanceVolume.current;
+}
+
+bool Headphones::isChanged()
+{
+	return !(this->_ambientSoundControl.isFulfilled() && this->_asmLevel.isFulfilled() && this->_focusOnVoice.isFulfilled() && this->_surroundPosition.isFulfilled() && this->_vptType.isFulfilled() && this->_voiceGuidanceVolume.isFulfilled());
+}
+
+int Headphones::setChanges()
+{
+	int numCommands = 0;
 	if (!(this->_ambientSoundControl.isFulfilled() && this->_focusOnVoice.isFulfilled() && this->_asmLevel.isFulfilled()))
 	{
 		this->_conn.sendCommand(CommandSerializer::serializeNcAndAsmSetting(
@@ -92,8 +104,19 @@ void Headphones::setChanges()
 		this->_ambientSoundControl.fulfill();
 		this->_asmLevel.fulfill();
 		this->_focusOnVoice.fulfill();
+		numCommands++;
 	}
-	return;
+	if (!(this->_voiceGuidanceVolume.isFulfilled()))
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeVoiceGuidanceSetting(
+				static_cast<char>(this->_voiceGuidanceVolume.desired)
+			), DATA_TYPE::DATA_MDR_NO2 // 0x0e
+		);
+		this->_voiceGuidanceVolume.fulfill();
+		numCommands++;
+	}
+
 	// XXX
 	if (!(this->_vptType.isFulfilled() && this->_surroundPosition.isFulfilled())) {
 		VPT_INQUIRED_TYPE command;
@@ -127,5 +150,9 @@ void Headphones::setChanges()
 		std::lock_guard guard(this->_propertyMtx);
 		this->_vptType.fulfill();
 		this->_surroundPosition.fulfill();
+		numCommands++;
 	}
+
+	return numCommands;
 }
+
