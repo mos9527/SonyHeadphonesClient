@@ -31,7 +31,7 @@ int BluetoothWrapper::sendCommand(CommandSerializer::CommandMessage const& cmd)
 	return bytesSent;
 }
 
-int BluetoothWrapper::sendCommand(const std::vector<char>& command, DATA_TYPE dataType)
+int BluetoothWrapper::sendCommand(const Buffer& command, DATA_TYPE dataType)
 {
 	return sendCommand(CommandSerializer::CommandMessage(dataType, command, this->_seqNumber));
 }
@@ -97,9 +97,11 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 
 	msg.messageBytes.push_back(recvOne()); // chkSum
 	
-	if (recvOne() != END_MARKER) 
-		throw RecoverableException("Invalid message pack recevied", true);
-	msg.messageBytes.push_back(END_MARKER);
+	// XXX: Some responses (i.e. INIT) has extra data before it?
+	while (msg.messageBytes.back() != END_MARKER) 
+		msg.messageBytes.push_back(recvOne()); 
+	
+	msg.messageBytes = CommandSerializer::_unescapeSpecials(msg.messageBytes);
 
 	if (!msg.verify())
 		throw RecoverableException("Invalid checksum!", true);

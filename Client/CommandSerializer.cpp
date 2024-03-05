@@ -137,7 +137,7 @@ namespace CommandSerializer
 	{
 		// 0x68 | 0x17 | [Not Dragging ASM Slider?] | [NC & ASM On?] | [NC:0 ASM:1] | [Voice Passthrough?] | [ASM Level]
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::NCASM_SET_PARAM)); // 0x68		
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68		
 		ret.push_back(0x17);
 		ret.push_back(0x01);
 		ret.push_back(static_cast<unsigned char>(ncAsmEffect));
@@ -149,10 +149,18 @@ namespace CommandSerializer
 
 	Buffer serializeVoiceGuidanceSetting(char volume) {
 		Buffer ret;
-		ret.push_back(0x48);
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Guidance Volume
 		ret.push_back(0x00);
+		return ret;
+	}
+	Buffer serializeVolumeSetting(char volume)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::PLAYBACK_STATUS_SET));
+		ret.push_back(0x20);
+		ret.push_back(volume); // Volume
 		return ret;
 	}
 }

@@ -75,17 +75,36 @@ enum class NC_DUAL_SINGLE_VALUE : signed char
 };
 
 // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
-enum class COMMAND_TYPE : signed char
+enum class COMMAND_TYPE : unsigned char
 {
-	UNK_0E = 0x0E,
-	VPT_SET_PARAM = 0x48,
-	NCASM_SET_PARAM = 0x68,
-	NCASM_NOTIFY_PARAM = 0x69,
+	INIT_REQUEST = 0x00,
+	INIT_RESPONSE = 0x01,
 
-	BATTERY_LEVEL_REQUEST = 0x22,
-	BATTERY_LEVEL_REPLY = 0x23,
+	BATTERY_LEVEL_GET = 0x22,
+	BATTERY_LEVEL_RET = 0x23,
 
-	UNKNOWN = -1
+	CONNECTED_DEVIECES_GET = 0x36,
+	CONNECTED_DEVIECES_RET = 0x37,
+
+	VOICEGUIDANCE_PARAM_GET = 0x46,
+	VOICEGUIDANCE_PARAM_RET = 0x47,
+	VOICEGUIDANCE_PARAM_SET = 0x48,
+	VOICEGUIDANCE_PARAM_NOTIFY = 0x49,
+
+	PLAYBACK_SND_PRESSURE_GET = 0x5a,
+	PLAYBACK_SND_PRESSURE_RET = 0x5b,
+
+	NCASM_PARAM_GET = 0x66,
+	NCASM_PARAM_RET = 0x67,
+	NCASM_PARAM_SET = 0x68,
+	NCASM_PARAM_NOTIFY = 0x69,
+
+	PLAYBACK_STATUS_GET = 0xa6,
+	PLAYBACK_STATUS_RET = 0xa7,
+	PLAYBACK_STATUS_SET = 0xa8,
+	PLAYBACK_STATUS_NOTIFY = 0xa9,
+
+	UNKNOWN = 0xFF
 };
 
 enum class VPT_PRESET_ID : signed char

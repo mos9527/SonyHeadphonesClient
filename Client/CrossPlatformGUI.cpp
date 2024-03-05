@@ -27,19 +27,22 @@ bool CrossPlatformGUI::performGUIPass()
 		if (_headphones)
 		{
 			ImGui::Spacing();
+			// Polling & state updates are only done on the main thread
 			_headphones->pollMessages();
 			this->_drawControls();			
 			this->_setHeadphoneSettings();
-
 			// Timed sync
-			if (_syncFuture.ready()) {
-				_syncFuture.get();
-			}
 			static const double syncInterval = 1.0;
-			static double lastSync = 0;
-			if (ImGui::GetTime() - lastSync >= syncInterval) {
-				lastSync = ImGui::GetTime();
-				_syncFuture.setFromAsync([=]() {this->_headphones->requestSync(); });
+			static double lastSync = -syncInterval;
+			if (_requestFuture.ready()) {
+				if (ImGui::GetTime() - lastSync >= syncInterval) {
+					_requestFuture.get();
+					lastSync = ImGui::GetTime();
+					_requestFuture.setFromAsync([=]() {this->_headphones->requestSync(); });
+				}
+			}
+			else {
+				ImGui::Text("Syncing...");
 			}
 		}
 	}
@@ -127,6 +130,9 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 						this->_connectFuture.setFromAsync([this]() { 
 							this->_bt.connect(this->_connectedDevice.mac);
 							this->_headphones = std::make_unique<Headphones>(this->_bt);
+							this->_requestFuture.setFromAsync([this]() {
+								this->_headphones->requestInit();
+							});
 						});
 					}
 				}
@@ -172,14 +178,22 @@ void CrossPlatformGUI::_drawControls()
 {
 	assert(_headphones);
 	if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
-		ImGui::Text("Battery Levels");
-		ImGui::Text("L:"); ImGui::SameLine();
-		ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
-		ImGui::Text("R:"); ImGui::SameLine();
-		ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
-		ImGui::Text("Case:"); ImGui::SameLine();
-		ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
+		if (ImGui::CollapsingHeader("Playback", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ImGui::Text(_headphones->playback.title.c_str());
+			ImGui::Text(_headphones->playback.album.c_str());
+			ImGui::Text(_headphones->playback.artist.c_str());
+			ImGui::Text("Sound Pressure: %d", _headphones->playback.sndPressure);
+		}
+		if (ImGui::CollapsingHeader("Battery", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ImGui::Text("L:"); ImGui::SameLine();
+			ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
+			ImGui::Text("R:"); ImGui::SameLine();
+			ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
+			ImGui::Text("Case:"); ImGui::SameLine();
+			ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
+		}
 	}
+	ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
 	if (ImGui::CollapsingHeader("Ambient Sound / Noise Cancelling", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
 		ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);

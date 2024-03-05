@@ -12,8 +12,15 @@ bool Headphones::isChanged()
 {
 	return !(
 		asmEnabled.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
-		miscVoiceGuidanceVol.isFulfilled()
+		miscVoiceGuidanceVol.isFulfilled() &&
+		volume.isFulfilled() // XXX 
 	);
+}
+
+void Headphones::waitForAck(int timeout)
+{
+	std::unique_lock lck(_ackMtx);
+	_ackCV.wait_for(lck, std::chrono::seconds(timeout));
 }
 
 void Headphones::setChanges()
@@ -26,6 +33,7 @@ void Headphones::setChanges()
 			asmFoucsOnVoice.desired ? ASM_ID::VOICE : ASM_ID::NORMAL,
 			std::max(asmLevel.desired, 1)
 		));
+		waitForAck();
 		this->_cmdCount++;
 
 		std::lock_guard guard(this->_propertyMtx);
@@ -39,24 +47,74 @@ void Headphones::setChanges()
 		this->_conn.sendCommand(
 			CommandSerializer::serializeVoiceGuidanceSetting(
 				static_cast<char>(miscVoiceGuidanceVol.desired)
-			), DATA_TYPE::DATA_MDR_NO2 // 0x0e
+			), DATA_TYPE::DATA_MDR_NO2
 		);
+		waitForAck();
 		this->_cmdCount++;
 
 		this->miscVoiceGuidanceVol.fulfill();
 	}
+
+	if (!(volume.isFulfilled()))
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeVolumeSetting(
+				static_cast<char>(volume.desired)
+			), DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+
+		this->volume.fulfill();
+	}
 }
 
-void Headphones::waitForAck()
+void Headphones::requestInit()
 {
-	std::unique_lock lck(_ackMtx);
-	_ackCV.wait(lck);
+	/* Init */
+	// NOTE: It's observed that playback metadata NOTIFYs (see _handleMessage) is sent by the device after this...
+	_conn.sendCommand({
+	static_cast<char>(COMMAND_TYPE::INIT_REQUEST),
+		0x00
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	/* Playback Metadata */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
+		0x01
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
+		0x20 // Playback Volume
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	/* NC/ASM Params */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::NCASM_PARAM_GET),
+		0x17
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	/* Misc Params */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
+		0x20 // Voice Guidance Volume
+	}, DATA_TYPE::DATA_MDR_NO2);
+	waitForAck();
 }
 
 void Headphones::requestSync()
 {
+	// Some values are taken from:
+	// https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
+	
+	/* Battery */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_REQUEST),
+		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_GET),
 		0x01 // DUAL
 	}, DATA_TYPE::DATA_MDR);
 	this->_cmdCount++;
@@ -64,9 +122,17 @@ void Headphones::requestSync()
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_REQUEST),
+		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_GET),
 		0x02 // CASE
 	}, DATA_TYPE::DATA_MDR);
+
+	waitForAck();
+
+	/* Playback */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::PLAYBACK_SND_PRESSURE_GET),
+		0x03 // Sound Pressure(?)
+	}, DATA_TYPE::DATA_MDR_NO2);
 
 	waitForAck();
 }
@@ -95,10 +161,10 @@ void Headphones::recvAsync()
 }
 
 void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
-{
-	std::cout << "[message] type: " << static_cast<int>(msg.getDataType()) << '\n';	
+{	
+	bool dirty = false;
 	switch (msg.getDataType())
-	{
+	{		
 		case DATA_TYPE::ACK:			
 			_ackCount++;
 			_ackCV.notify_one();
@@ -107,12 +173,13 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 		case DATA_TYPE::DATA_MDR_NO2:
 		{
 			auto cmd = static_cast<COMMAND_TYPE>(msg[0]);
-			std::cout << "[message] command: " << std::hex << (int)cmd << "\n[message] ";
-			for (int byte : msg) std::cout << std::hex << (byte & 0xff) << ' ';
-			std::cout << '\n';
 			switch (cmd)
 			{
-			case COMMAND_TYPE::NCASM_NOTIFY_PARAM:
+			case COMMAND_TYPE::INIT_RESPONSE:
+				hasInit = true;
+				break;
+			case COMMAND_TYPE::NCASM_PARAM_RET:
+			case COMMAND_TYPE::NCASM_PARAM_NOTIFY:
 				// see serializeNcAndAsmSetting
 				asmEnabled.overwrite(msg[3]);
 				asmFoucsOnVoice.overwrite(msg[5]);
@@ -121,7 +188,7 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				else
 					asmLevel.overwrite(0);
 				break;
-			case COMMAND_TYPE::BATTERY_LEVEL_REPLY:
+			case COMMAND_TYPE::BATTERY_LEVEL_RET:
 				switch (msg[1])
 				{
 				case 1:
@@ -134,14 +201,78 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				default:
 					break;
 				}
-			default:
 				break;
+			case COMMAND_TYPE::PLAYBACK_STATUS_RET:
+			case COMMAND_TYPE::PLAYBACK_STATUS_NOTIFY:
+			{
+				auto type = msg[1];
+				switch (type)
+				{
+				case 0x01:
+				{
+					auto it = msg.begin() + 3;
+					auto type = *it;
+					auto len = *it++;
+					playback.title = std::string(it, it + len);
+					it += len;
+					type = *it++;
+					len = *it++;
+					playback.album = std::string(it, it + len);
+					it += len;
+					type = *it++;
+					len = *it++;
+					playback.artist = std::string(it, it + len);
+					break;
+				}
+				case 0x20:
+					volume.overwrite(msg[2]);
+					break;
+				default:
+					dirty = true;
+					break;
+				}
+				break;
+			}
+			case COMMAND_TYPE::PLAYBACK_SND_PRESSURE_RET:
+				switch (msg[1]) {
+				case 0x03:
+					playback.sndPressure = msg[2];
+					break;
+				default:
+					dirty = true;
+					break;
+				}
+				break;
+			case COMMAND_TYPE::VOICEGUIDANCE_PARAM_RET:
+			case COMMAND_TYPE::VOICEGUIDANCE_PARAM_NOTIFY:
+				switch (msg[1])
+				{
+				case 0x20:
+					miscVoiceGuidanceVol.overwrite(msg[2]);
+					break;
+				default:
+					dirty = true;
+					break;
+				}
+				break;
+			default:
+				dirty = true;
 			}
 			_conn.sendAck(msg.getSeqNumber());
 			break;
 		}
 		default:
-			break;
+			dirty = true;
+	}
+	if (dirty) {
+		std::cout << "[message] message not handled. \n";
+		std::cout << "[message] type: " << static_cast<int>(msg.getDataType()) << '\n';
+		std::cout << "[message] (hex) \n";
+		for (int byte : msg) std::cout << std::setfill('0') << std::setw(2) << std::hex << (byte & 0xff) << ' ';
+		std::cout << '\n';
+		std::cout << "[message] (plaintext) \n";
+		for (char c : msg) std::cout << c;
+		std::cout << '\n';
 	}
 }
 

@@ -13,7 +13,6 @@ struct Property {
 	void fulfill();
 	bool isFulfilled();	
 	void overwrite(T value);
-
 };
 
 class Headphones {
@@ -33,10 +32,23 @@ public:
 	// Battery levels
 	Property<int> statBatteryL{}, statBatteryR{}, statBatteryCase{};
 
+	// Volume. 0-30
+	Property<int> volume{};
+
+	// Playback
+	struct {
+		std::string title;
+		std::string album;
+		std::string artist;
+		int sndPressure{};
+	} playback;
+
 	bool isChanged();
 	void setChanges();
 		
-	void waitForAck();
+	void waitForAck(int timeout = 1);
+
+	void requestInit();
 	void requestSync();
 
 	void recvAsync();
@@ -59,6 +71,7 @@ private:
 
 	void _handleMessage(CommandSerializer::CommandMessage const& msg);
 
+	bool hasInit = false;
 
 	int _ackCount{};
 	int _cmdCount{};

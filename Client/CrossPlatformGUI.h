@@ -43,7 +43,7 @@ private:
 	SingleInstanceFuture<void> _sendCommandFuture;
 	SingleInstanceFuture<void> _connectFuture;
 	
-	SingleInstanceFuture<void> _syncFuture;
+	SingleInstanceFuture<void> _requestFuture;
 
 	TimedMessageQueue _mq;
 

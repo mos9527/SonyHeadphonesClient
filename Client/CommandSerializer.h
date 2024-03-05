@@ -31,7 +31,7 @@ namespace CommandSerializer
 
 	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel);
 	Buffer serializeVoiceGuidanceSetting(char volume);
-
+	Buffer serializeVolumeSetting(char volume);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{
