@@ -22,19 +22,23 @@ BluetoothWrapper& BluetoothWrapper::operator=(BluetoothWrapper&& other) noexcept
 	return *this;
 }
 
-int BluetoothWrapper::sendCommand(const std::vector<char>& bytes, DATA_TYPE dataType)
+int BluetoothWrapper::sendCommand(CommandSerializer::CommandMessage const& cmd)
 {
 	std::lock_guard guard(this->_connectorMtx);
-	auto data = CommandSerializer::packageDataForBt(bytes, dataType, this->_seqNumber);
-	auto bytesSent = this->connector->send(data.data(), data.size());
+	auto const& data = cmd.messageBytes;
+	auto bytesSent = this->connector->send((char*)data.data(), data.size());
 
 	return bytesSent;
 }
 
-void BluetoothWrapper::sendAck(int seqNumber)
+int BluetoothWrapper::sendCommand(const std::vector<char>& command, DATA_TYPE dataType)
 {
-	auto data = CommandSerializer::packageDataForBt({}, DATA_TYPE::ACK, 1 - seqNumber);
-	this->connector->send(data.data(), data.size());
+	return sendCommand(CommandSerializer::CommandMessage(dataType, command, this->_seqNumber));
+}
+
+int BluetoothWrapper::sendAck(int seqNumber)
+{	
+	return sendCommand(CommandSerializer::CommandMessage(DATA_TYPE::ACK, {}, 1 - seqNumber));
 }
 
 bool BluetoothWrapper::isConnected() noexcept
@@ -61,13 +65,13 @@ std::vector<BluetoothDevice> BluetoothWrapper::getConnectedDevices()
 	return this->connector->getConnectedDevices();
 }
 
-void BluetoothWrapper::recvCommand(Command& msg)
+void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 {
 	char buf[MAX_BLUETOOTH_MESSAGE_SIZE] = { 0 };
 
 	msg.messageBytes.clear();
 	msg.messageBytes.reserve(MAX_BLUETOOTH_MESSAGE_SIZE);
-	msg.messageBytes.resize(6);
+	msg.messageBytes.resize(7);
 
 	const auto recvOne = [=]() {
 		char buf;
@@ -77,29 +81,26 @@ void BluetoothWrapper::recvCommand(Command& msg)
 	};
 
 	while (recvOne() != START_MARKER);
+	msg.messageBytes[0] = START_MARKER;
 
-	msg.messageBytes[0] = recvOne();
-	msg.dataType = static_cast<DATA_TYPE>(msg.messageBytes[0]);
+	msg.messageBytes[1] = recvOne(); // dataType
+	msg.messageBytes[2] = recvOne(); // seqNumber
+	this->_seqNumber = msg.getSeqNumber();
 
-	msg.messageBytes[1] = recvOne();
-	msg.seqNumber = msg.messageBytes[1];
-	this->_seqNumber = msg.seqNumber;
+	this->connector->recv(&msg.messageBytes[3], 4);
+	int msgSize = msg.getSize();
 
-	this->connector->recv(&msg.messageBytes[2], 4);
-	msg.messageSize = bytesToIntBE(&msg.messageBytes[2]);
+	int recvSize = this->connector->recv(buf, msgSize);
+	if (msgSize != recvSize) throw RecoverableException("Recv size mismatch", true);
+	if (msgSize)
+		msg.messageBytes.insert(msg.messageBytes.end(), buf, buf + msgSize);
 
-	int recvSize = this->connector->recv(buf, msg.messageSize);
-	if (msg.messageSize != recvSize) throw RecoverableException("Recv size mismatch", true);
-	if (msg.messageSize) 
-		msg.messageBytes.insert(msg.messageBytes.end(), buf, buf + msg.messageSize);
-
-	msg.messageBytes.push_back(recvOne());
-	msg.chkSum = msg.messageBytes.back();	
-
+	msg.messageBytes.push_back(recvOne()); // chkSum
+	
 	if (recvOne() != END_MARKER) 
 		throw RecoverableException("Invalid message pack recevied", true);
-	if (msg.chkSum != CommandSerializer::_sumChecksum(msg.messageBytes.data(), msg.messageBytes.size() - 1 /* chksum itself is not contained*/))
-		throw RecoverableException("Invalid checksum!", true);
+	msg.messageBytes.push_back(END_MARKER);
 
-	return;
+	if (!msg.verify())
+		throw RecoverableException("Invalid checksum!", true);
 }

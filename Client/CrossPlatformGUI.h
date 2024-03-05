@@ -45,7 +45,7 @@ private:
 	SingleInstanceFuture<int> _sendCommandFuture;
 	SingleInstanceFuture<void> _connectFuture;
 
-	SingleInstanceFuture<std::optional<BluetoothWrapper::Command>> _recvFuture;
+	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
 	void _recvAsync();
 	
 	int _ackCount{};

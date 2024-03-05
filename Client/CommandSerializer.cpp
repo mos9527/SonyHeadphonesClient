@@ -124,31 +124,13 @@ namespace CommandSerializer
 		ret.push_back(END_MARKER);
 
 
-		// Command will be chunked if it's larger than MAX_BLUETOOTH_MESSAGE_SIZE, just crash to deal with it for now
+		// CommandMessage will be chunked if it's larger than MAX_BLUETOOTH_MESSAGE_SIZE, just crash to deal with it for now
 		if (ret.size() > MAX_BLUETOOTH_MESSAGE_SIZE)
 		{
 			throw std::runtime_error("Exceeded the max bluetooth message size, and I can't handle chunked messages");
 		}
 
 		return ret;
-	}
-
-	NC_DUAL_SINGLE_VALUE getDualSingleForAsmLevel(char asmLevel)
-	{
-		NC_DUAL_SINGLE_VALUE val = NC_DUAL_SINGLE_VALUE::OFF;
-		if (asmLevel > MAX_STEPS_WH_1000_XM3)
-		{
-			throw std::runtime_error("Exceeded max steps");
-		}
-		else if (asmLevel == 1)
-		{
-			val = NC_DUAL_SINGLE_VALUE::SINGLE;
-		}
-		else if (asmLevel == 0)
-		{
-			val = NC_DUAL_SINGLE_VALUE::DUAL;
-		}
-		return val;
 	}
 
 	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel)

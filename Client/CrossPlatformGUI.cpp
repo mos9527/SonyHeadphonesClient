@@ -24,8 +24,8 @@ bool CrossPlatformGUI::performGUIPass()
 			auto cmd = this->_recvFuture.get();
 			if (cmd.has_value()) {
 				auto& value = cmd.value();
-				std::cout << "[command] recv type: " << static_cast<int>(value.dataType) << '\n';
-				switch (value.dataType)
+				std::cout << "[command] recv type: " << static_cast<int>(value.getDataType()) << '\n';
+				switch (value.getDataType())
 				{
 				case DATA_TYPE::ACK:
 					_ackCount++;
@@ -33,7 +33,7 @@ bool CrossPlatformGUI::performGUIPass()
 				case DATA_TYPE::DATA_MDR:
 				case DATA_TYPE::DATA_MDR_NO2:
 					std::cout << "[command] resp ack\n";
-					this->getHeadphones().getConn().sendAck(value.seqNumber);
+					this->getHeadphones().getConn().sendAck(value.getSeqNumber());
 					break;
 				default:
 					break;
@@ -290,9 +290,9 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 
 void CrossPlatformGUI::_recvAsync()
 {
-	this->_recvFuture.setFromAsync([=]() -> std::optional<BluetoothWrapper::Command> {
+	this->_recvFuture.setFromAsync([=]() -> std::optional<CommandSerializer::CommandMessage> {
 		auto& conn = this->getHeadphones().getConn();
-		BluetoothWrapper::Command cmd;
+		CommandSerializer::CommandMessage cmd;
 		try
 		{
 			conn.recvCommand(cmd);
