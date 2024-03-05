@@ -25,15 +25,15 @@ BluetoothWrapper& BluetoothWrapper::operator=(BluetoothWrapper&& other) noexcept
 int BluetoothWrapper::sendCommand(const std::vector<char>& bytes, DATA_TYPE dataType)
 {
 	std::lock_guard guard(this->_connectorMtx);
-	auto data = CommandSerializer::packageDataForBt(bytes, dataType, this->_seqNumber++);
+	auto data = CommandSerializer::packageDataForBt(bytes, dataType, this->_seqNumber);
 	auto bytesSent = this->connector->send(data.data(), data.size());
 
 	return bytesSent;
 }
 
-void BluetoothWrapper::sendAck()
+void BluetoothWrapper::sendAck(int seqNumber)
 {
-	auto data = CommandSerializer::packageDataForBt({}, DATA_TYPE::ACK, this->_seqNumber++);
+	auto data = CommandSerializer::packageDataForBt({}, DATA_TYPE::ACK, 1 - seqNumber);
 	this->connector->send(data.data(), data.size());
 }
 

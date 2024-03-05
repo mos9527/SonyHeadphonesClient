@@ -22,7 +22,7 @@ public:
 		unsigned char chkSum{};
 
 		const size_t size() { return messageSize; }
-		auto begin() { return messageBytes.begin() + 7; }
+		auto begin() { return messageBytes.begin() + 6; }
 		auto end() { return begin() + messageSize; }
 		char operator[](int i) { return *(begin() + i); }
 	private:
@@ -39,7 +39,7 @@ public:
 	BluetoothWrapper& operator=(BluetoothWrapper&& other) noexcept;
 
 	int sendCommand(const std::vector<char>& bytes, DATA_TYPE dataType = DATA_TYPE::DATA_MDR);
-	void sendAck();
+	void sendAck(int seqNumber);
 
 	bool isConnected() noexcept;
 	//Try to connect to the headphones
@@ -54,5 +54,5 @@ public:
 private:
 
 	std::mutex _connectorMtx;
-	unsigned int _seqNumber = 0;	
+	unsigned int _seqNumber = 0;
 };

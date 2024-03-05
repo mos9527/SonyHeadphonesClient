@@ -11,7 +11,7 @@ unsigned int byteOrderSwap(unsigned int num)
 }
 
 int bytesToIntBE(char* buf) {
-	return (int)buf[3] | (int)buf[2] << 8 | (int)buf[1] << 16 | (int)buf[0] << 24;
+	return (int)buf[3] | (((int)buf[2] << 8) & 0x0000FF00) | (((int)buf[1] << 16) & 0x00FF0000) | (((int)buf[0] << 24) & 0xFF000000);
 }
 
 std::vector<unsigned char> intToBytesBE(unsigned int num)

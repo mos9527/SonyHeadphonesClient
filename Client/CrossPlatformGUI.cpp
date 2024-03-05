@@ -28,11 +28,12 @@ bool CrossPlatformGUI::performGUIPass()
 				switch (value.dataType)
 				{
 				case DATA_TYPE::ACK:
+					_ackCount++;
+					break;
 				case DATA_TYPE::DATA_MDR:
 				case DATA_TYPE::DATA_MDR_NO2:
-					std::cout << "[command] sending ack\n";
-					this->getHeadphones().getConn().sendAck();
-					_ackCount++;
+					std::cout << "[command] resp ack\n";
+					this->getHeadphones().getConn().sendAck(value.seqNumber);
 					break;
 				default:
 					break;
@@ -196,7 +197,8 @@ void CrossPlatformGUI::_drawASMControls()
 		if (this->_headphones.isSetAsmLevelAvailable())
 		{
 			ImGui::Text("Control ambient sound for your %ss", this->_connectedDevice.name.c_str());
-			ImGui::SliderInt("Ambient Sound Level", &asmLevel, 0, 20);
+			asmLevel = this->_headphones.getAsmLevel();
+			ImGui::SliderInt("Ambient Sound Level", &asmLevel, 0, 20);			
 			ImGui::Text("NOTE: Set to 0 for Noise Cancelling");
 
 			if (this->_headphones.isFocusOnVoiceAvailable())
