@@ -199,12 +199,12 @@ void CrossPlatformGUI::_drawControls()
 		if (ImGui::TreeNode("Ambient Sound / Noise Cancelling")) {
 			ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
 			ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
+			ImGui::Text("NOTE: Set to 0 to enable Noise Cancelling.");
 			ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Misc")) {
 			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
-			ImGui::Separator();
 			ImGui::TreePop();
 		}
 	}
@@ -228,7 +228,7 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 			//static, but I'm not sure if I wanna do that.
 			if (exc.shouldDisconnect)
 			{
-				this->_bt.disconnect();
+				this->_headphones.reset();
 				excString = "Disconnected due to: ";
 			}
 			this->_mq.addMessage(excString + exc.what());
