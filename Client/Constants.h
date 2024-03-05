@@ -74,11 +74,18 @@ enum class NC_DUAL_SINGLE_VALUE : signed char
 	DUAL = 2
 };
 
+// https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
 enum class COMMAND_TYPE : signed char
 {
 	UNK_0E = 0x0E,
 	VPT_SET_PARAM = 0x48,
-	NCASM_SET_PARAM = 0x68
+	NCASM_SET_PARAM = 0x68,
+	NCASM_NOTIFY_PARAM = 0x69,
+
+	BATTERY_LEVEL_REQUEST = 0x22,
+	BATTERY_LEVEL_REPLY = 0x23,
+
+	UNKNOWN = -1
 };
 
 enum class VPT_PRESET_ID : signed char

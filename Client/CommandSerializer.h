@@ -30,7 +30,6 @@ namespace CommandSerializer
 	Buffer packageDataForBt(const Buffer& src, DATA_TYPE dataType, unsigned int seqNumber);
 
 	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel);
-	Buffer serializeVPTSetting(VPT_INQUIRED_TYPE type, unsigned char preset);
 	Buffer serializeVoiceGuidanceSetting(char volume);
 
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
@@ -51,9 +50,9 @@ namespace CommandSerializer
 		inline const int getSize() const { return bytesToIntBE(&messageBytes[3]); }
 		inline const unsigned char getChkSum() const { return messageBytes[7 + getSize()]; }
 
-		inline Buffer::const_iterator cbegin() const { return messageBytes.cbegin() + 7; }
-		inline Buffer::const_iterator cend() const { return cbegin() + getSize(); }
-		inline const char operator[](int i) const { return *(cbegin() + i); }
+		inline Buffer::const_iterator begin() const { return messageBytes.begin() + 7; }
+		inline Buffer::const_iterator end() const { return begin() + getSize(); }
+		inline const char operator[](int i) const { return *(begin() + i); }
 
 		inline Buffer const& getMessage() const { return messageBytes; }
 

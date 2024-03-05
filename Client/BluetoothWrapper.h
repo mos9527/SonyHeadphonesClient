@@ -34,6 +34,7 @@ public:
 
 	std::unique_ptr<IBluetoothConnector> connector;
 
+	std::condition_variable recvCV;
 	void recvCommand(CommandSerializer::CommandMessage& msg);
 private:
 

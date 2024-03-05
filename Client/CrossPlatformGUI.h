@@ -42,10 +42,9 @@ private:
 	SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
 	SingleInstanceFuture<void> _sendCommandFuture;
 	SingleInstanceFuture<void> _connectFuture;
-
-	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
-	void _recvAsync();
 	
+	SingleInstanceFuture<void> _syncFuture;
+
 	TimedMessageQueue _mq;
 
 	std::unique_ptr<Headphones> _headphones;

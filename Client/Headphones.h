@@ -13,33 +13,52 @@ struct Property {
 	void fulfill();
 	bool isFulfilled();	
 	void overwrite(T value);
+
 };
 
 class Headphones {
 public:
 	Headphones(BluetoothWrapper& conn);
 
+	// Is NC & Ambient sound enabled?
 	Property<bool> asmEnabled{};
+	// Is Foucs On Voice enabled?
 	Property<bool> asmFoucsOnVoice{};
+	// Ambient sound level. 0-20. 0 for enabling Noise Cancelling
 	Property<int> asmLevel{};
 
+	// Volume for voice guidance. -2 - 2
 	Property<int> miscVoiceGuidanceVol{};
+
+	// Battery levels
+	Property<int> statBatteryL{}, statBatteryR{}, statBatteryCase{};
 
 	bool isChanged();
 	void setChanges();
-	
-	void handleMessage(CommandSerializer::CommandMessage const& msg);
+		
+	void waitForAck();
+	void requestSync();
+
+	void recvAsync();
 	BluetoothWrapper& getConn() { return _conn; }
+
+	void pollMessages();
 
 	void disconnect();
 	~Headphones();
 
-	inline int const getAckCount() { return _ackCount; }
-	inline int const getCmdCount() { return _cmdCount; }
+	inline int const getAckCount() const { return _ackCount; }
+	inline int const getCmdCount() const { return _cmdCount; }
 
 private:
-	std::mutex _propertyMtx;
+	std::mutex _propertyMtx, _ackMtx;
 	BluetoothWrapper& _conn;
+	std::condition_variable _ackCV;
+
+	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
+
+	void _handleMessage(CommandSerializer::CommandMessage const& msg);
+
 
 	int _ackCount{};
 	int _cmdCount{};

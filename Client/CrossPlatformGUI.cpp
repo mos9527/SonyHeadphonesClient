@@ -27,14 +27,19 @@ bool CrossPlatformGUI::performGUIPass()
 		if (_headphones)
 		{
 			ImGui::Spacing();
+			_headphones->pollMessages();
 			this->_drawControls();			
 			this->_setHeadphoneSettings();
-			if (this->_recvFuture.ready()) {
-				auto cmd = this->_recvFuture.get();
-				if (cmd.has_value()) {
-					this->_headphones->handleMessage(cmd.value());
-					this->_recvAsync();
-				}
+
+			// Timed sync
+			if (_syncFuture.ready()) {
+				_syncFuture.get();
+			}
+			static const double syncInterval = 1.0;
+			static double lastSync = 0;
+			if (ImGui::GetTime() - lastSync >= syncInterval) {
+				lastSync = ImGui::GetTime();
+				_syncFuture.setFromAsync([=]() {this->_headphones->requestSync(); });
 			}
 		}
 	}
@@ -122,7 +127,6 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 						this->_connectFuture.setFromAsync([this]() { 
 							this->_bt.connect(this->_connectedDevice.mac);
 							this->_headphones = std::make_unique<Headphones>(this->_bt);
-							this->_recvAsync();
 						});
 					}
 				}
@@ -167,6 +171,15 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 void CrossPlatformGUI::_drawControls()
 {
 	assert(_headphones);
+	if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::Text("Battery Levels");
+		ImGui::Text("L:"); ImGui::SameLine();
+		ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
+		ImGui::Text("R:"); ImGui::SameLine();
+		ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
+		ImGui::Text("Case:"); ImGui::SameLine();
+		ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
+	}
 	if (ImGui::CollapsingHeader("Ambient Sound / Noise Cancelling", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
 		ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
@@ -174,6 +187,7 @@ void CrossPlatformGUI::_drawControls()
 	}
 	if (ImGui::CollapsingHeader("Misc", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+		ImGui::Separator();
 	}
 }
 
@@ -218,33 +232,6 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 	}
 }
 
-void CrossPlatformGUI::_recvAsync()
-{
-	assert(_headphones);
-	this->_recvFuture.setFromAsync([=]() -> std::optional<CommandSerializer::CommandMessage> {
-		if (this->_headphones) {
-			auto& conn = this->_headphones->getConn();
-			CommandSerializer::CommandMessage cmd;
-			try
-			{
-				conn.recvCommand(cmd);
-				return cmd;
-			}
-			catch (const RecoverableException& exc)
-			{
-				if (exc.shouldDisconnect)
-				{
-					this->_bt.disconnect();
-					this->_mq.addMessage(exc.what());
-					return std::nullopt;
-				}
-				else {
-					throw exc;
-				}
-			}
-		}
-	});
-}
 
 CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt))
 {

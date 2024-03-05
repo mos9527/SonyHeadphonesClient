@@ -103,4 +103,6 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 
 	if (!msg.verify())
 		throw RecoverableException("Invalid checksum!", true);
+
+	recvCV.notify_one();
 }
