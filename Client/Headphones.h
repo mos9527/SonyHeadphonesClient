@@ -3,7 +3,7 @@
 #include "Constants.h"
 
 #include <mutex>
-#include <thread>
+#include <iostream>
 
 template <class T>
 struct Property {
@@ -11,47 +11,38 @@ struct Property {
 	T desired;
 
 	void fulfill();
-	bool isFulfilled();
+	bool isFulfilled();	
+	void overwrite(T value);
 };
 
 class Headphones {
 public:
 	Headphones(BluetoothWrapper& conn);
 
-	void setAmbientSoundControl(bool val);
-	bool getAmbientSoundControl();
+	Property<bool> asmEnabled{};
+	Property<bool> asmFoucsOnVoice{};
+	Property<int> asmLevel{};
 
-	bool isFocusOnVoiceAvailable();
-	void setFocusOnVoice(bool val);
-	bool getFocusOnVoice();
-
-	bool isSetAsmLevelAvailable();
-	void setAsmLevel(int val);
-	int getAsmLevel();
-
-	void setSurroundPosition(SOUND_POSITION_PRESET val);
-	SOUND_POSITION_PRESET getSurroundPosition();
-
-	void setVptType(int val);
-	int getVptType();
-	
-	void setVoiceGuidanceVolume(int val);
-	int getVoiceGuidanceVolume();
+	Property<int> miscVoiceGuidanceVol{};
 
 	bool isChanged();
-	int setChanges();
+	void setChanges();
 	
+	void handleMessage(CommandSerializer::CommandMessage const& msg);
 	BluetoothWrapper& getConn() { return _conn; }
-private:
-	Property<bool> _ambientSoundControl = { 0 };
-	Property<bool> _focusOnVoice = { 0 };
-	Property<int> _asmLevel = { 0 };
-	Property<SOUND_POSITION_PRESET> _surroundPosition = { SOUND_POSITION_PRESET::OUT_OF_RANGE, SOUND_POSITION_PRESET::OFF };
-	Property<int> _vptType = { 0 };
-	Property<int> _voiceGuidanceVolume = { 0 };
-	std::mutex _propertyMtx;
 
+	void disconnect();
+	~Headphones();
+
+	inline int const getAckCount() { return _ackCount; }
+	inline int const getCmdCount() { return _cmdCount; }
+
+private:
+	std::mutex _propertyMtx;
 	BluetoothWrapper& _conn;
+
+	int _ackCount{};
+	int _cmdCount{};
 };
 
 template<class T>
@@ -64,4 +55,10 @@ template<class T>
 inline bool Property<T>::isFulfilled()
 {
 	return this->desired == this->current;
+}
+
+template<class T>
+inline void Property<T>::overwrite(T value)
+{
+	current = desired = value;
 }

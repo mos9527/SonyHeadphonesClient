@@ -31,28 +31,24 @@ public:
 	//Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
 	//O: true if the user wants to close the window
 	bool performGUIPass();
-	inline Headphones& getHeadphones() { return _headphones; }
 private:
 	void _drawErrors();
 	void _drawDeviceDiscovery();
-	void _drawASMControls();
-	void _drawSurroundControls();
+	void _drawControls();
 	void _setHeadphoneSettings();
 
 	BluetoothDevice _connectedDevice;
 	BluetoothWrapper _bt;
 	SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
-	SingleInstanceFuture<int> _sendCommandFuture;
+	SingleInstanceFuture<void> _sendCommandFuture;
 	SingleInstanceFuture<void> _connectFuture;
 
 	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
 	void _recvAsync();
 	
-	int _ackCount{};
-	int _cmdCount{};
-
 	TimedMessageQueue _mq;
-	Headphones _headphones;
+
+	std::unique_ptr<Headphones> _headphones;
 };
 
 

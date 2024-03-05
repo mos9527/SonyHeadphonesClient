@@ -54,9 +54,6 @@ WindowsBluetoothConnector::~WindowsBluetoothConnector()
 int WindowsBluetoothConnector::send(char* buf, size_t length)
 {
 	auto bytesSent = ::send(this->_socket, buf, length, 0);
-	printf("[send] ");
-	for (int i = 0; i < length; i++) printf("%2x ", (unsigned char)buf[i]);
-	printf("\n");
 	if (bytesSent == SOCKET_ERROR)
 	{
 		throw RecoverableException("Couldn't send (" + std::to_string(WSAGetLastError()) + ")", true);
@@ -67,9 +64,6 @@ int WindowsBluetoothConnector::send(char* buf, size_t length)
 int WindowsBluetoothConnector::recv(char* buf, size_t length)
 {
 	auto bytesReceived = ::recv(this->_socket, buf, length, 0);
-	printf("[recv] ");
-	for (int i = 0; i < length; i++) printf("%2x ", (unsigned char)buf[i]);
-	printf("\n");
 	if (bytesReceived == SOCKET_ERROR)
 	{
 		throw RecoverableException("Couldn't recv (" + std::to_string(WSAGetLastError()) + ")", true);

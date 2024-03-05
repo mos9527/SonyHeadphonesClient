@@ -29,7 +29,6 @@ namespace CommandSerializer
 	*/
 	Buffer packageDataForBt(const Buffer& src, DATA_TYPE dataType, unsigned int seqNumber);
 
-	NC_DUAL_SINGLE_VALUE getDualSingleForAsmLevel(char asmLevel);
 	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel);
 	Buffer serializeVPTSetting(VPT_INQUIRED_TYPE type, unsigned char preset);
 	Buffer serializeVoiceGuidanceSetting(char volume);
@@ -47,19 +46,19 @@ namespace CommandSerializer
 			messageBytes = CommandSerializer::packageDataForBt(buffer, dataType, seqNumber);
 		}
 
-		inline const DATA_TYPE getDataType() { return static_cast<DATA_TYPE>(messageBytes[1]); }
-		inline const unsigned char getSeqNumber() { return messageBytes[2]; }
-		inline const int getSize() { return bytesToIntBE(&messageBytes[3]); }
-		inline const unsigned char getChkSum() { return messageBytes[7 + getSize()]; }
+		inline const DATA_TYPE getDataType() const { return static_cast<DATA_TYPE>(messageBytes[1]); }
+		inline const unsigned char getSeqNumber() const { return messageBytes[2]; }
+		inline const int getSize() const { return bytesToIntBE(&messageBytes[3]); }
+		inline const unsigned char getChkSum() const { return messageBytes[7 + getSize()]; }
 
-		inline Buffer::iterator begin() { return messageBytes.begin() + 7; }
-		inline Buffer::iterator end() { return begin() + getSize(); }
-		inline const char operator[](int i) { return *(begin() + i); }
+		inline Buffer::const_iterator cbegin() const { return messageBytes.cbegin() + 7; }
+		inline Buffer::const_iterator cend() const { return cbegin() + getSize(); }
+		inline const char operator[](int i) const { return *(cbegin() + i); }
 
-		inline Buffer const& getMessage() { return messageBytes; }
+		inline Buffer const& getMessage() const { return messageBytes; }
 
-		inline const unsigned char calcChkSum() { return CommandSerializer::_sumChecksum(messageBytes.data() + 1, messageBytes.size() - 3); }
-		inline const bool verify() { return messageBytes.size() >= 7 && getChkSum() == calcChkSum(); }
+		inline const unsigned char calcChkSum() const { return CommandSerializer::_sumChecksum(messageBytes.data() + 1, messageBytes.size() - 3); }
+		inline const bool verify() const { return messageBytes.size() >= 7 && getChkSum() == calcChkSum(); }
 	};
 }
 
