@@ -21,18 +21,21 @@ public:
 
 	// Is NC & Ambient sound enabled?
 	Property<bool> asmEnabled{};
+
 	// Is Foucs On Voice enabled?
 	Property<bool> asmFoucsOnVoice{};
-	// Ambient sound level. 0-20. 0 for enabling Noise Cancelling
+
+	// Ambient sound level. 0 ~ 20.
+	// 0 shouldn't be a possible value on the app. It's used here as a fallback to Noise Cancelling
 	Property<int> asmLevel{};
 
-	// Volume for voice guidance. -2 - 2
+	// Volume for voice guidance. -2 ~ 2
 	Property<int> miscVoiceGuidanceVol{};
 
-	// Battery levels
+	// Battery levels 0 ~ 100
 	Property<int> statBatteryL{}, statBatteryR{}, statBatteryCase{};
 
-	// Volume. 0-30
+	// Volume. 0 ~ 30
 	Property<int> volume{};
 
 	// Playback

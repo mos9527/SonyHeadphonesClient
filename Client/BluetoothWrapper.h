@@ -7,7 +7,8 @@
 #include <vector>
 #include <string>
 #include <mutex>
-#include <ranges>
+#include <condition_variable>
+#include <optional>
 
 //Thread-safety: This class is thread-safe.
 class BluetoothWrapper

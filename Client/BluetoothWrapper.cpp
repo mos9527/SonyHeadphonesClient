@@ -73,7 +73,7 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	msg.messageBytes.reserve(MAX_BLUETOOTH_MESSAGE_SIZE);
 	msg.messageBytes.resize(7);
 
-	const auto recvOne = [=]() {
+	const auto recvOne = [this]() {
 		char buf;
 		if (this->connector->recv(&buf, 1) != 1)
 			throw RecoverableException("Connection closed", true);
@@ -89,7 +89,7 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 
 	this->connector->recv(&msg.messageBytes[3], 4);
 	int msgSize = msg.getSize();
-
+	
 	int recvSize = this->connector->recv(buf, msgSize);
 	if (msgSize != recvSize) throw RecoverableException("Recv size mismatch", true);
 	if (msgSize)

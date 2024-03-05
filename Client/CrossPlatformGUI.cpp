@@ -17,7 +17,8 @@ bool CrossPlatformGUI::performGUIPass()
 
 		//Legal disclaimer
 		ImGui::Text("! This product is not affiliated with Sony. Use at your own risk. !");
-		ImGui::Text("Source: https://github.com/Plutoberth/SonyHeadphonesClient");
+		ImGui::Text("Source (original) : https://github.com/Plutoberth/SonyHeadphonesClient");
+		ImGui::Text("Source (this fork): https://github.com/mos9527/SonyHeadphonesClient");
 		ImGui::Spacing();
 
 
@@ -40,9 +41,6 @@ bool CrossPlatformGUI::performGUIPass()
 					lastSync = ImGui::GetTime();
 					_requestFuture.setFromAsync([=]() {this->_headphones->requestSync(); });
 				}
-			}
-			else {
-				ImGui::Text("Syncing...");
 			}
 		}
 	}
@@ -178,30 +176,37 @@ void CrossPlatformGUI::_drawControls()
 {
 	assert(_headphones);
 	if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
-		if (ImGui::CollapsingHeader("Playback", ImGuiTreeNodeFlags_DefaultOpen)) {
-			ImGui::Text(_headphones->playback.title.c_str());
-			ImGui::Text(_headphones->playback.album.c_str());
-			ImGui::Text(_headphones->playback.artist.c_str());
+		if (ImGui::TreeNode("Playback")) {
+			ImGui::Text("Title:  %s",_headphones->playback.title.c_str());
+			ImGui::Text("Album:  %s",_headphones->playback.album.c_str());
+			ImGui::Text("Artist: %s",_headphones->playback.artist.c_str());
+			ImGui::Separator();
 			ImGui::Text("Sound Pressure: %d", _headphones->playback.sndPressure);
+			ImGui::TreePop();
 		}
-		if (ImGui::CollapsingHeader("Battery", ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (ImGui::TreeNode("Battery")) {
 			ImGui::Text("L:"); ImGui::SameLine();
 			ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
 			ImGui::Text("R:"); ImGui::SameLine();
 			ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
 			ImGui::Text("Case:"); ImGui::SameLine();
 			ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
+			ImGui::TreePop();
 		}
-	}
-	ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
-	if (ImGui::CollapsingHeader("Ambient Sound / Noise Cancelling", ImGuiTreeNodeFlags_DefaultOpen)) {
-		ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
-		ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
-		ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
-	}
-	if (ImGui::CollapsingHeader("Misc", ImGuiTreeNodeFlags_DefaultOpen)) {
-		ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
-		ImGui::Separator();
+	}	
+	if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
+		if (ImGui::TreeNode("Ambient Sound / Noise Cancelling")) {
+			ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
+			ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
+			ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Misc")) {
+			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+			ImGui::Separator();
+			ImGui::TreePop();
+		}
 	}
 }
 
@@ -261,6 +266,13 @@ CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) :
 	//AddFontFromMemory will own the pointer, so there's no leak
 	char* fileData = new char[sizeof(CascadiaCodeTTF)];
 	memcpy(fileData, CascadiaCodeTTF, sizeof(CascadiaCodeTTF));
-	ImFont* font = io.Fonts->AddFontFromMemoryTTF(reinterpret_cast<void*>(fileData), sizeof(CascadiaCodeTTF), font_size);
+
+	ImFont* font = io.Fonts->AddFontFromMemoryTTF(
+		reinterpret_cast<void*>(fileData), 
+		sizeof(CascadiaCodeTTF),
+		font_size,
+		nullptr,
+		io.Fonts->GetGlyphRangesDefault()
+	);
 	IM_ASSERT(font != NULL);
 }
