@@ -88,20 +88,20 @@ jobs:
         tag_name: ${{ steps.get_version.outputs.version }}
         release_name: Version ${{ steps.get_version.outputs.version }}
 
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
-        name: SonyHeadphonesClient-linux-x64
+        path: ./artifacts
+        merge-multiple: true
 
-    - uses: actions/download-artifact@v3
-      with:
-        name: SonyHeadphonesClient-win-x64.exe
+    - name: Display structure of downloaded files
+      run: ls -R ./artifacts
 
     - uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./SonyHeadphonesClient-linux-x64
+        asset_path: ./artifacts/SonyHeadphonesClient-linux-x64
         asset_name: SonyHeadphonesClient-linux-x64
         asset_content_type: application/octet-stream
 
@@ -110,7 +110,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./SonyHeadphonesClient-win-x64.exe
+        asset_path: ./artifacts/SonyHeadphonesClient-win-x64.exe
         asset_name: SonyHeadphonesClient-win-x64.exe
         asset_content_type: application/vnd.microsoft.portable-executable        
 
