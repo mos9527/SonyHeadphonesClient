@@ -101,7 +101,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-linux-x64
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient
         asset_name: SonyHeadphonesClient-linux-x64
         asset_content_type: application/octet-stream
 
@@ -110,7 +110,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-x64.exe
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient.exe
         asset_name: SonyHeadphonesClient-win-x64.exe
         asset_content_type: application/vnd.microsoft.portable-executable        
 
