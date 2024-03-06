@@ -101,7 +101,7 @@ std::vector<BluetoothDevice> LinuxBluetoothConnector::getConnectedDevices()
     printf("%s\n", adapter.c_str());
     std::string name = dbus_get_property(connection, adapter.c_str(), "Name");
     std::string address = dbus_get_property(connection, adapter.c_str(), "Address");
-    res.push_back({.name = name, .mac = address});
+    res.push_back(BluetoothDevice(name,address));
   }
 
   return res;

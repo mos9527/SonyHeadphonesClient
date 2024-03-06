@@ -33,7 +33,7 @@ bool CrossPlatformGUI::performGUIPass()
 			this->_drawControls();			
 			this->_setHeadphoneSettings();
 			// Timed sync
-			static const double syncInterval = 30.0;
+			static const double syncInterval = 1.0;
 			static double lastSync = -syncInterval;
 			if (_requestFuture.ready()) {
 				if (ImGui::GetTime() - lastSync >= syncInterval) {
@@ -61,7 +61,7 @@ void CrossPlatformGUI::_drawErrors()
 
 		for (auto&& message : this->_mq)
 		{
-			ImGui::Text(message.message.c_str());
+			ImGui::Text("%s", message.message.c_str());
 		}
 		
 		ImGui::Spacing();
@@ -204,7 +204,7 @@ void CrossPlatformGUI::_drawControls()
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Connected Devices")) {
-			int i = 0;
+			size_t i = 0;
 			const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			for (auto& [mac, device] : _headphones->connectedDevices) {
 				if (mac == _headphones->mpDeviceMac.current)

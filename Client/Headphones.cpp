@@ -171,8 +171,8 @@ void Headphones::requestSync()
 
 void Headphones::recvAsync()
 {
-	_recvFuture.setFromAsync([=]() -> std::optional<CommandSerializer::CommandMessage> {
-		auto& conn = getConn();
+	_recvFuture.setFromAsync([this]() -> std::optional<CommandSerializer::CommandMessage> {
+		auto& conn = this->getConn();
 		CommandSerializer::CommandMessage cmd;
 		try
 		{
