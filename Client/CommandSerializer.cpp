@@ -1,9 +1,9 @@
 #include "CommandSerializer.h"
 
-constexpr unsigned char ESCAPED_BYTE_SENTRY = 61;
-constexpr unsigned char ESCAPED_60 = 44;
-constexpr unsigned char ESCAPED_61 = 45;
-constexpr unsigned char ESCAPED_62 = 46;
+constexpr unsigned char ESCAPED_BYTE_SENTRY = 0x3D;
+constexpr unsigned char ESCAPED_60 = 44; // 0x3C -> 0x3D 0x2C
+constexpr unsigned char ESCAPED_61 = 45; // 0x3D -> 0x3D 0x2D
+constexpr unsigned char ESCAPED_62 = 46; // 0x3E -> 0x3D 0x2E
 constexpr int MAX_STEPS_WH_1000_XM3 = 19;
 
 namespace CommandSerializer
@@ -161,6 +161,14 @@ namespace CommandSerializer
 		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::PLAYBACK_STATUS_SET));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Volume
+		return ret;
+	}
+	Buffer serializeMultipointSwitch(const char* macString)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_DEVICE_SET));
+		ret.push_back(0x01);
+		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
 		return ret;
 	}
 }

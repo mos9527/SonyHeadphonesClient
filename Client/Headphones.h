@@ -4,15 +4,21 @@
 
 #include <mutex>
 #include <iostream>
+#include <map>
 
 template <class T>
 struct Property {
 	T current;
 	T desired;
 
+	bool pendingRequest = false;
+
+	void flagPending();
+	bool isPending();
+
 	void fulfill();
 	bool isFulfilled();	
-	void overwrite(T value);
+	void overwrite(T const& value);
 };
 
 class Headphones {
@@ -37,6 +43,12 @@ public:
 
 	// Volume. 0 ~ 30
 	Property<int> volume{};
+	
+	// Connected devices
+	std::map<std::string, BluetoothDevice> connectedDevices;
+	
+	// Paired devices that are not connected
+	std::map<std::string, BluetoothDevice> pairedDevices;
 
 	// Playback
 	struct {
@@ -46,6 +58,9 @@ public:
 		int sndPressure{};
 	} playback;
 
+	// Multipoint
+	Property<std::string> mpDeviceMac{};
+
 	bool isChanged();
 	void setChanges();
 		
@@ -53,6 +68,7 @@ public:
 
 	void requestInit();
 	void requestSync();
+	void requestMultipointSwitch(const char* macString);
 
 	void recvAsync();
 	BluetoothWrapper& getConn() { return _conn; }
@@ -81,9 +97,24 @@ private:
 };
 
 template<class T>
+inline void Property<T>::flagPending()
+{
+	this->pendingRequest = true;
+}
+
+
+template<class T>
+inline bool Property<T>::isPending()
+{
+	return this->pendingRequest;
+}
+
+
+template<class T>
 inline void Property<T>::fulfill()
 {
 	this->current = this->desired;
+	this->pendingRequest = false;
 }
 
 template<class T>
@@ -93,7 +124,9 @@ inline bool Property<T>::isFulfilled()
 }
 
 template<class T>
-inline void Property<T>::overwrite(T value)
+inline void Property<T>::overwrite(T const& value)
 {
-	current = desired = value;
+	current = value;
+	desired = value;
+	this->pendingRequest = false;
 }

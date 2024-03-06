@@ -12,6 +12,9 @@ struct BluetoothDevice
 	//UTF-8
 	std::string name;
 	std::string mac;
+
+	BluetoothDevice() = default;
+	BluetoothDevice(const std::string& name, const std::string& mac) : name(name), mac(mac) {}
 };
 
 /*

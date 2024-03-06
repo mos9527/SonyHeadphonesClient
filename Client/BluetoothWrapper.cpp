@@ -94,10 +94,8 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	if (msgSize != recvSize) throw RecoverableException("Recv size mismatch", true);
 	if (msgSize)
 		msg.messageBytes.insert(msg.messageBytes.end(), buf, buf + msgSize);
-
-	msg.messageBytes.push_back(recvOne()); // chkSum
 	
-	// XXX: Some responses (i.e. INIT) has extra data before it?
+	// XXX: Hacky. Escaped length is not counted in recvSize so we have to recieve the rest byte by byte
 	while (msg.messageBytes.back() != END_MARKER) 
 		msg.messageBytes.push_back(recvOne()); 
 	

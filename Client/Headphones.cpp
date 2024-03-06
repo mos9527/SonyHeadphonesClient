@@ -13,7 +13,8 @@ bool Headphones::isChanged()
 	return !(
 		asmEnabled.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		miscVoiceGuidanceVol.isFulfilled() &&
-		volume.isFulfilled() // XXX 
+		volume.isFulfilled() &&
+		mpDeviceMac.isFulfilled()
 	);
 }
 
@@ -67,6 +68,29 @@ void Headphones::setChanges()
 
 		this->volume.fulfill();
 	}
+
+	if ((!mpDeviceMac.isFulfilled()))
+	{		
+		this->_conn.sendCommand(
+			CommandSerializer::serializeMultipointSwitch(mpDeviceMac.desired.c_str()),
+			DATA_TYPE::DATA_MDR_NO2
+		);
+		waitForAck();
+		this->_cmdCount++;
+
+		// XXX: For some reason, multipoint switch command doesn't always work
+		// ...yet appending another command after it makes it much more likely to succeed?
+		this->_conn.sendCommand({
+			static_cast<char>(COMMAND_TYPE::MULTIPOINT_DEVICE_GET),
+			0x02
+		});
+		waitForAck();
+		this->_cmdCount++;
+
+		// Don't fullfill until the MULTIPOINT_DEVICE_RET/NOTIFY is received
+		// as the device might not have switched yet
+		// mpDeviceMac.fulfill();
+	}
 }
 
 void Headphones::requestInit()
@@ -98,6 +122,14 @@ void Headphones::requestInit()
 		0x17
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
+
+	/* Connected Devices */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::CONNECTED_DEVIECES_GET),
+		0x02
+	}, DATA_TYPE::DATA_MDR_NO2);
+	waitForAck();
+
 
 	/* Misc Params */
 	_conn.sendCommand({
@@ -158,6 +190,16 @@ void Headphones::recvAsync()
 			}
 		}
 	});
+}
+
+void Headphones::requestMultipointSwitch(const char* macString)
+{
+	_conn.sendCommand(
+		CommandSerializer::serializeMultipointSwitch(macString),
+		DATA_TYPE::DATA_MDR_NO2
+	);
+	waitForAck();
+	_cmdCount++;
 }
 
 void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
@@ -254,6 +296,38 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 					dirty = true;
 					break;
 				}
+				break;
+			case COMMAND_TYPE::MULTIPOINT_DEVICE_RET:
+			case COMMAND_TYPE::MULTIPOINT_DEVICE_NOTIFY:
+				mpDeviceMac.overwrite(std::string(msg.begin() + 3, msg.end()));
+				std::cout << "[multipoint] swapped to " << connectedDevices[mpDeviceMac.current].name << '\n';
+				break;
+			case COMMAND_TYPE::CONNECTED_DEVIECES_RET:
+			case COMMAND_TYPE::CONNECTED_DEVIECES_NOTIFY:
+			{
+				connectedDevices.clear();
+				pairedDevices.clear();
+
+				int connected = msg[0];
+				int total = msg[1];
+				auto it = msg.begin() + 3;
+				for (int i = 0; i < total; i++)
+				{
+					auto mac = std::string(it, it + 6 * 3 - 1);
+					it += 6 * 3 - 1;
+					char unk0 = *it++;
+					char unk1 = *it++;
+					char unk2 = *it++;
+					char unk3 = *it++;
+					auto len = *it++;					
+					auto name = std::string(it, it + len);	
+					it += len;
+					if (i < connected)
+						connectedDevices[mac] = BluetoothDevice(name, mac);
+					else
+						pairedDevices[mac] = BluetoothDevice(name, mac);
+				}
+			}
 				break;
 			default:
 				dirty = true;

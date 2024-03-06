@@ -32,6 +32,7 @@ namespace CommandSerializer
 	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel);
 	Buffer serializeVoiceGuidanceSetting(char volume);
 	Buffer serializeVolumeSetting(char volume);
+	Buffer serializeMultipointSwitch(const char* macString);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{
@@ -39,8 +40,8 @@ namespace CommandSerializer
 
 		CommandMessage() = default;
 
-		CommandMessage(Buffer const& buf) : messageBytes(buf) {};
-		CommandMessage(Buffer&& buf) : messageBytes(buf) {};
+		CommandMessage(Buffer const& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {};
+		CommandMessage(Buffer&& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {};
 		CommandMessage(DATA_TYPE dataType, Buffer const& buffer, unsigned char seqNumber) {
 			messageBytes = CommandSerializer::packageDataForBt(buffer, dataType, seqNumber);
 		}

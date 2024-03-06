@@ -33,13 +33,13 @@ bool CrossPlatformGUI::performGUIPass()
 			this->_drawControls();			
 			this->_setHeadphoneSettings();
 			// Timed sync
-			static const double syncInterval = 1.0;
+			static const double syncInterval = 30.0;
 			static double lastSync = -syncInterval;
 			if (_requestFuture.ready()) {
 				if (ImGui::GetTime() - lastSync >= syncInterval) {
 					_requestFuture.get();
 					lastSync = ImGui::GetTime();
-					_requestFuture.setFromAsync([=]() {this->_headphones->requestSync(); });
+					_requestFuture.setFromAsync([this]() {this->_headphones->requestSync(); });
 				}
 			}
 		}
@@ -203,8 +203,23 @@ void CrossPlatformGUI::_drawControls()
 			ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
 			ImGui::TreePop();
 		}
+		if (ImGui::TreeNode("Connected Devices")) {
+			int i = 0;
+			const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			for (auto& [mac, device] : _headphones->connectedDevices) {
+				if (mac == _headphones->mpDeviceMac.current)
+					ImGui::TreeNodeEx((void*)i++, default_flags | ImGuiTreeNodeFlags_Selected, "%s", device.name.c_str());
+				else
+					ImGui::TreeNodeEx((void*)i++, default_flags, "%s", device.name.c_str());
+				if (ImGui::IsItemClicked()) {
+					_headphones->mpDeviceMac.desired = mac;
+				}
+			}
+			ImGui::TreePop();
+		}
+
 		if (ImGui::TreeNode("Misc")) {
-			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);	
 			ImGui::TreePop();
 		}
 	}
