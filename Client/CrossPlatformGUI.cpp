@@ -174,7 +174,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 
 void CrossPlatformGUI::_drawControls()
 {
-	assert(_headphones);
+	assert(_headphones); 
 	if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
 		if (ImGui::TreeNode("Playback")) {
 			ImGui::Text("Title:  %s",_headphones->playback.title.c_str());
