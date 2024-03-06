@@ -17,7 +17,7 @@ A continuation of the work done by [Plutoberth/SonyHeadphonesClient](https://git
 
 **NOTE:** May not be up-to-date. See [Features](#features) for all available functionalities!
 
-![c8edf2b9-4347-4118-87d4-937c52aba284](https://github.com/mos9527/SonyHeadphonesClient/assets/31397301/5da12885-36ed-496f-a3ca-3ee600f5d93b)
+![image](https://github.com/mos9527/SonyHeadphonesClient/assets/31397301/b2708e5b-8b83-456c-9e19-a5dd6ea0cc44)
 
 
 ## Download
@@ -35,9 +35,9 @@ Binaries for Windows and Linux are available here: [releases page](https://githu
   - [x] Voice Passthrough toggle
   - [x] Ambient Sound strength
   - [x] Voice Guidance Volume *(useful! for debugging...)*
-  - [ ] Track controls (i.e. play/pause, prev/next)
+  - [x] Track controls (i.e. play/pause, prev/next)
+  - [x] Multipoint Device selection
   - [ ] Adaptive Sound Control
-  - [ ] Multipoint Device selection
   - [ ] Speak-to-Chat
   - [ ] Equalizer
 
