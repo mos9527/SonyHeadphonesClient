@@ -92,7 +92,7 @@ jobs:
       with:
         path: ${{github.workspace}}/artifacts
         merge-multiple: true
-
+  
     - name: Display structure of downloaded files
       run: ls -R ${{github.workspace}}/artifacts
 
