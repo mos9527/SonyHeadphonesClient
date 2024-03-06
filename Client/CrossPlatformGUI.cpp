@@ -195,7 +195,32 @@ void CrossPlatformGUI::_drawControls()
 		}
 	}	
 	if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-		ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
+		if (ImGui::TreeNode("Playback Control")) {
+			using enum PLAYBACK_CONTROL;
+			PLAYBACK_CONTROL control = NONE;
+			if (ImGui::Button("Prev")) control = PREV;
+			ImGui::SameLine();
+			if (_headphones->playPause.current == true /*playing*/) {
+				if (ImGui::Button("Pause")) control = PAUSE;
+			}
+			else {
+				if (ImGui::Button("Play")) control = PLAY;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Next")) control = NEXT;
+				
+			if (_requestFuture.ready()) {		
+				if (control != NONE) {
+					_requestFuture.get();
+					_requestFuture.setFromAsync([this, control]() {
+						this->_headphones->requestPlaybackControl(control);
+					});
+				}
+			}
+			ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);			
+			ImGui::TreePop();
+		}
+
 		if (ImGui::TreeNode("Ambient Sound / Noise Cancelling")) {
 			ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
 			ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);

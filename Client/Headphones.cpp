@@ -106,13 +106,19 @@ void Headphones::requestInit()
 	/* Playback Metadata */
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
-		0x01
+		0x01 // Metadata
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
 		0x20 // Playback Volume
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+	static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_GET),
+		0x01 // Play/Pause
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
@@ -197,6 +203,16 @@ void Headphones::requestMultipointSwitch(const char* macString)
 	_conn.sendCommand(
 		CommandSerializer::serializeMultipointSwitch(macString),
 		DATA_TYPE::DATA_MDR_NO2
+	);
+	waitForAck();
+	_cmdCount++;
+}
+
+void Headphones::requestPlaybackControl(PLAYBACK_CONTROL control)
+{
+	_conn.sendCommand(
+		CommandSerializer::serializePlayControl(control),
+		DATA_TYPE::DATA_MDR
 	);
 	waitForAck();
 	_cmdCount++;
@@ -327,6 +343,23 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 					else
 						pairedDevices[mac] = BluetoothDevice(name, mac);
 				}
+			}
+				break;
+			case COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_RET:
+			case COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_NOTIFY:
+			{
+				switch (static_cast<PLAYBACK_CONTROL_RESPONSE>(msg[3]))
+				{
+					case PLAYBACK_CONTROL_RESPONSE::PLAY:
+						playPause.overwrite(true);
+						break;
+					case PLAYBACK_CONTROL_RESPONSE::PAUSE:
+						playPause.overwrite(false);
+						break;
+				default:
+					break;
+				}
+				break;
 			}
 				break;
 			default:

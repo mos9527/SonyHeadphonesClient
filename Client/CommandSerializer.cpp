@@ -171,5 +171,14 @@ namespace CommandSerializer
 		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
 		return ret;
 	}
+	Buffer serializePlayControl(PLAYBACK_CONTROL control)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_SET));
+		ret.push_back(0x01);
+		ret.push_back(0x00);
+		ret.push_back(static_cast<unsigned char>(control));
+		return ret;
+	}
 }
 

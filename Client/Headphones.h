@@ -17,7 +17,14 @@ struct Property {
 	bool isPending();
 
 	void fulfill();
-	bool isFulfilled();	
+	bool isFulfilled();
+	void overwrite(T const& value);
+};
+
+template <class T>
+struct ReadonlyProperty {
+	T current;
+
 	void overwrite(T const& value);
 };
 
@@ -43,7 +50,10 @@ public:
 
 	// Volume. 0 ~ 30
 	Property<int> volume{};
-	
+
+	// Play/Pause. true for play, false for pause
+	ReadonlyProperty<bool> playPause{};
+
 	// Connected devices
 	std::map<std::string, BluetoothDevice> connectedDevices;
 	
@@ -69,6 +79,7 @@ public:
 	void requestInit();
 	void requestSync();
 	void requestMultipointSwitch(const char* macString);
+	void requestPlaybackControl(PLAYBACK_CONTROL control);
 
 	void recvAsync();
 	BluetoothWrapper& getConn() { return _conn; }
@@ -129,4 +140,10 @@ inline void Property<T>::overwrite(T const& value)
 	current = value;
 	desired = value;
 	this->pendingRequest = false;
+}
+
+template<class T>
+inline void ReadonlyProperty<T>::overwrite(T const& value)
+{
+	current = value;
 }
