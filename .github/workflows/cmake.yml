@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
     - master
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -65,4 +66,56 @@ jobs:
         path: ${{github.workspace}}/${{matrix.binary_path}}
         # The desired behavior if no files are found using the provided path.
 
+  release:
+    if: "contains(github.event.head_commit.message, 'Version')"
+    needs: ["build"]
+    runs-on: ubuntu-latest
 
+    steps:
+    - name : Get Version
+      id   : get_version
+      run  : |        
+        version=$(echo "${{ github.event.head_commit.message }}" | awk 'NR==1' | awk '{print $2}')
+        echo "::set-output name=version::$version"
+
+    - uses: actions/checkout@v3    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.version }}
+        release_name: Version ${{ steps.get_version.outputs.version }}
+
+    - uses: actions/download-artifact@v3
+      with:
+        name: SonyHeadphonesClient-linux-x64
+
+    - uses: actions/download-artifact@v3
+      with:
+        name: SonyHeadphonesClient-win-x64.exe
+
+    - uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./SonyHeadphonesClient-linux-x64
+        asset_name: SonyHeadphonesClient-linux-x64
+        asset_content_type: application/octet-stream
+
+    - uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./SonyHeadphonesClient-win-x64.exe
+        asset_name: SonyHeadphonesClient-win-x64.exe
+        asset_content_type: application/vnd.microsoft.portable-executable        
+
+    - uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
