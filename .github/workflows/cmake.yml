@@ -94,7 +94,7 @@ jobs:
         merge-multiple: true
 
     - name: Display structure of downloaded files
-      run: ls -R ./artifacts
+      run: ls -R ./artifacts 
 
     - uses: actions/upload-release-asset@v1.0.1
       env:
