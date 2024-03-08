@@ -21,27 +21,38 @@ bool CrossPlatformGUI::performGUIPass()
 		ImGui::Text("Source (this fork): https://github.com/mos9527/SonyHeadphonesClient");
 		ImGui::Spacing();
 
+		try {
+			this->_drawErrors();
+			this->_drawDeviceDiscovery();
 
-		this->_drawErrors();
-		this->_drawDeviceDiscovery();
-
-		if (_headphones)
-		{
-			ImGui::Spacing();
-			// Polling & state updates are only done on the main thread
-			_headphones->pollMessages();
-			this->_drawControls();			
-			this->_setHeadphoneSettings();
-			// Timed sync
-			static const double syncInterval = 1.0;
-			static double lastSync = -syncInterval;
-			if (_requestFuture.ready()) {
-				if (ImGui::GetTime() - lastSync >= syncInterval) {
-					_requestFuture.get();
-					lastSync = ImGui::GetTime();
-					_requestFuture.setFromAsync([this]() {this->_headphones->requestSync(); });
+			if (_headphones)
+			{
+				ImGui::Spacing();
+				// Polling & state updates are only done on the main thread
+					_headphones->pollMessages();
+					this->_drawControls();
+					this->_setHeadphoneSettings();
+					// Timed sync
+					static const double syncInterval = 1.0;
+					static double lastSync = -syncInterval;
+					if (_requestFuture.ready()) {
+						if (ImGui::GetTime() - lastSync >= syncInterval) {
+							_requestFuture.get();
+							lastSync = ImGui::GetTime();
+							_requestFuture.setFromAsync([this]() {this->_headphones->requestSync(); });
+						}
+					}
 				}
 			}
+		catch (RecoverableException& exc) {
+			if (exc.shouldDisconnect)
+			{
+				this->_headphones.reset();
+			}
+			else {
+				throw exc;
+			}
+			this->_mq.addMessage(exc.what());
 		}
 	}
 
@@ -81,7 +92,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 			if (ImGui::Button("Disconnect"))
 			{
 				selectedDevice = -1;				
-				this->_headphones.reset();
+				throw RecoverableException("Requested Disconnect", true);
 			}			
 		}
 		else
@@ -100,18 +111,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 			{
 				if (this->_connectFuture.ready())
 				{
-					try
-					{
-						this->_connectFuture.get();
-					}
-					catch (const RecoverableException& exc)
-					{
-						if (exc.shouldDisconnect)
-						{
-							this->_headphones.reset();
-						}
-						this->_mq.addMessage(exc.what());
-					}
+					this->_connectFuture.get();
 				}
 				else
 				{
@@ -142,18 +142,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 			{
 				if (this->_connectedDevicesFuture.ready())
 				{
-					try
-					{
-						connectedDevices = this->_connectedDevicesFuture.get();
-					}
-					catch (const RecoverableException& exc)
-					{
-						if (exc.shouldDisconnect)
-						{
-							this->_headphones.reset();
-						}
-						this->_mq.addMessage(exc.what());
-					}
+					connectedDevices = this->_connectedDevicesFuture.get();
 				}
 				else
 				{
@@ -193,6 +182,15 @@ void CrossPlatformGUI::_drawControls()
 			ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
 			ImGui::TreePop();
 		}
+		if (ImGui::Button("Power Off")) {
+			if (_requestFuture.ready()) {
+				_requestFuture.get();
+				_requestFuture.setFromAsync([this]() {
+					this->_headphones->requestPowerOff();
+					throw RecoverableException("Requested Shutdown", true);
+				});
+			}
+		}
 	}	
 	if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
 		if (ImGui::TreeNode("Playback Control")) {
@@ -229,6 +227,8 @@ void CrossPlatformGUI::_drawControls()
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Connected Devices")) {
+			ImGui::Checkbox("Multipoint Connect", &_headphones->mpEnabled.desired);
+			ImGui::Text("NOTE: Can't toggle yet. Sorry!");
 			size_t i = 0;
 			const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			for (auto& [mac, device] : _headphones->connectedDevices) {
@@ -257,22 +257,7 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 	if (this->_sendCommandFuture.ready())
 	{
 		commandLinger = 0;
-		try
-		{
-			this->_sendCommandFuture.get();
-		}
-		catch (const RecoverableException& exc)
-		{
-			std::string excString;
-			//We kinda have to do it here and not in the wrapper, due to async causing timing issues. To fix it, the messagequeue can be made
-			//static, but I'm not sure if I wanna do that.
-			if (exc.shouldDisconnect)
-			{
-				this->_headphones.reset();
-				excString = "Disconnected due to: ";
-			}
-			this->_mq.addMessage(excString + exc.what());
-		}
+		this->_sendCommandFuture.get();
 	}
 	//This means that we're waiting
 	else if (this->_sendCommandFuture.valid())
@@ -297,7 +282,7 @@ CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) :
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	ImGuiIO& io = ImGui::GetIO();
-	this->_mq = TimedMessageQueue(GUI_MAX_MESSAGES);
+	this->_mq = TimedMessageQueue(GUI_MAX_MESSAGES);	
 	this->_connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
 
 	io.IniFilename = nullptr;

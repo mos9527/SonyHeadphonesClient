@@ -34,6 +34,9 @@ namespace CommandSerializer
 	Buffer serializeVolumeSetting(char volume);
 	Buffer serializeMultipointSwitch(const char* macString);
 	Buffer serializePlayControl(PLAYBACK_CONTROL control);	
+	Buffer serializePowerOff();
+	Buffer serializeMpToggle2(bool enabled);
+	Buffer serializeMpToggle(bool enabled);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{

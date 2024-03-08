@@ -60,6 +60,9 @@ public:
 	// Paired devices that are not connected
 	std::map<std::string, BluetoothDevice> pairedDevices;
 
+	// Is Multipoint enabled?
+	Property<bool> mpEnabled{};
+
 	// Playback
 	struct {
 		std::string title;
@@ -80,6 +83,7 @@ public:
 	void requestSync();
 	void requestMultipointSwitch(const char* macString);
 	void requestPlaybackControl(PLAYBACK_CONTROL control);
+	void requestPowerOff();
 
 	void recvAsync();
 	BluetoothWrapper& getConn() { return _conn; }

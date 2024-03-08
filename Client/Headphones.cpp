@@ -14,7 +14,8 @@ bool Headphones::isChanged()
 		asmEnabled.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		miscVoiceGuidanceVol.isFulfilled() &&
 		volume.isFulfilled() &&
-		mpDeviceMac.isFulfilled()
+		mpDeviceMac.isFulfilled() &&
+		mpEnabled.isFulfilled()
 	);
 }
 
@@ -91,6 +92,25 @@ void Headphones::setChanges()
 		// as the device might not have switched yet
 		// mpDeviceMac.fulfill();
 	}
+
+	if ((!mpEnabled.isFulfilled()))
+	{
+		bool enabled = mpEnabled.desired;
+		this->_conn.sendCommand(
+			CommandSerializer::serializeMpToggle(enabled),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+
+		this->_conn.sendCommand(
+			CommandSerializer::serializeMpToggle2(enabled),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+		mpEnabled.fulfill();
+	}
 }
 
 void Headphones::requestInit()
@@ -136,6 +156,11 @@ void Headphones::requestInit()
 	}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
 
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::MULTIPOINT_ENABLE_GET),
+		static_cast<char>(0xD2) // Multipoint enabled
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
 
 	/* Misc Params */
 	_conn.sendCommand({
@@ -212,6 +237,16 @@ void Headphones::requestPlaybackControl(PLAYBACK_CONTROL control)
 {
 	_conn.sendCommand(
 		CommandSerializer::serializePlayControl(control),
+		DATA_TYPE::DATA_MDR
+	);
+	waitForAck();
+	_cmdCount++;
+}
+
+void Headphones::requestPowerOff()
+{
+	_conn.sendCommand(
+		CommandSerializer::serializePowerOff(),
 		DATA_TYPE::DATA_MDR
 	);
 	waitForAck();
@@ -321,11 +356,14 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 			case COMMAND_TYPE::CONNECTED_DEVIECES_RET:
 			case COMMAND_TYPE::CONNECTED_DEVIECES_NOTIFY:
 			{
+				if (msg[3] == 0x00)
+					break;
+
 				connectedDevices.clear();
 				pairedDevices.clear();
 
-				int connected = msg[0];
 				int total = msg[1];
+				int connected = msg[2];
 				auto it = msg.begin() + 3;
 				for (int i = 0; i < total; i++)
 				{
@@ -361,6 +399,11 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				}
 				break;
 			}
+				break;
+			case COMMAND_TYPE::MULTIPOINT_ENABLE_RET:
+			case COMMAND_TYPE::MULTIPOINT_ENABLE_NOITIFY:
+				mpEnabled.overwrite(!(bool)(msg[3]));
+				dirty = true;
 				break;
 			default:
 				dirty = true;

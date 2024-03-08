@@ -28,7 +28,7 @@ inline void SingleInstanceFuture<T>::setFromAsync(Func func, Args && ...args)
 {
 	if (this->valid())
 	{
-		throw std::runtime_error("The asynchronous action was cancelled before it finished executing");
+ 		throw std::runtime_error("The asynchronous action was cancelled before it finished executing");
 	}
 	*this = std::async(std::launch::async, func, std::forward<Args>(args)...);
 }

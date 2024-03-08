@@ -180,5 +180,35 @@ namespace CommandSerializer
 		ret.push_back(static_cast<unsigned char>(control));
 		return ret;
 	}
+
+	Buffer serializePowerOff()
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::POWER_OFF));
+		ret.push_back(0x03);
+		ret.push_back(0x01);
+		return ret;
+	}
+
+
+	Buffer serializeMpToggle(bool enabled)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET));
+		ret.push_back(static_cast<unsigned char>(0xD2));
+		ret.push_back(0x00);
+		ret.push_back(!enabled); // 1 (on->off) 0 (off->on)
+		return ret;
+	}
+
+	Buffer serializeMpToggle2(bool enabled)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET_2));
+		ret.push_back(0x00);
+		ret.push_back(0x07);
+		ret.push_back(0x01);
+		return ret;
+	}
 }
 
