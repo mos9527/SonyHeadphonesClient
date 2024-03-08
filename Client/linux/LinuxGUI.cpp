@@ -20,22 +20,26 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    // init GUI
-    CrossPlatformGUI GUI = CrossPlatformGUI(std::move(bt));
-
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
+
     if (!glfwInit())
         return;
 
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 
     // Create window with graphics context
     GLFWwindow *window = glfwCreateWindow(GUI_WIDTH, GUI_HEIGHT, APP_NAME, NULL, NULL);
     if (window == NULL)
         return;
+
+    // init GUI
+    float xscale, yscale;
+    glfwGetWindowContentScale(window, &xscale, &yscale);
+    CrossPlatformGUI GUI = CrossPlatformGUI(std::move(bt), FONT_SIZE * std::max(xscale,yscale));
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync

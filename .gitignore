@@ -530,3 +530,8 @@ Client/imgui.ini
 
 # linux build
 Client/linux/sonyheadphonesclient.build/
+
+# CLion
+.idea/
+cmake-build*/
+

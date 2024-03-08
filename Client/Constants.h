@@ -8,10 +8,29 @@ inline constexpr char END_MARKER{ 60 };
 
 inline constexpr auto MAC_ADDR_STR_SIZE = 17;
 
-inline constexpr auto SERVICE_UUID = "96CC203E-5068-46ad-B32D-E316F5E069BA";
+/*
+from `spdtool browse [device mac]`
+
+Service Name: Serial HPC
+Service RecHandle: 0x20000000
+Service Class ID List:
+  UUID 128: 956c7b26-d49a-4ba8-b03f-b17d393cb6e2
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+    Channel: 9
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "Serial Port" (0x1101)
+    Version: 0x0102
+ */
+
+inline constexpr auto SERVICE_UUID = "956C7B26-D49A-4BA8-B03F-B17D393CB6E2";
 inline unsigned char SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but in bytes
-	0x96, 0xcc, 0x20, 0x3e, 0x50, 0x68, 0x46, 0xad,
-	0xb3, 0x2d, 0xe3, 0x16, 0xf5, 0xe0, 0x69, 0xba
+        0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2
 };
 
 #define APP_NAME "Sony Headphones App v" __HEADPHONES_APP_VERSION__

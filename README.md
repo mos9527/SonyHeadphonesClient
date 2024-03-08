@@ -51,13 +51,13 @@ Binaries for Windows and Linux are available here: [releases page](https://githu
 ### Platforms
 
 - [x] Windows
-- [x] Linux
+- [x] Linux  
 - [ ] macOS
 - [ ] ~~TempleOS~~
 
 ---
 
-*The following is copy-pasted from the original repo...*
+*Most of the following is copy-pasted from the original repo...*
 
 ## For Developers
 
@@ -77,7 +77,6 @@ cmake --build .
 #### Linux
 
 Debian / Ubuntu:
-
 ```bash
 sudo apt install libbluetooth-dev libglew-dev libglfw3-dev libdbus-1-dev
 ```
@@ -85,6 +84,11 @@ sudo apt install libbluetooth-dev libglew-dev libglfw3-dev libdbus-1-dev
 Fedora:
 ```bash
 sudo dnf install bluez-libs-devel glew-devel glfw-devel dbus-devel
+```
+
+Arch Linux:
+```bash
+sudo pacman -S bluez glew dbus glfw
 ```
 
 #### macOS

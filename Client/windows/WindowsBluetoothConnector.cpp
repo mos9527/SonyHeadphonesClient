@@ -29,7 +29,7 @@ void WindowsBluetoothConnector::connect(const std::string& addrStr)
 
 	SOCKADDR_BTH sab = { 0 };
 	sab.addressFamily = AF_BTH;
-	RPC_STATUS errCode = ::UuidFromStringA((RPC_CSTR)SONY_UUID, &sab.serviceClassId);
+	RPC_STATUS errCode = ::UuidFromStringA((RPC_CSTR)SERVICE_UUID, &sab.serviceClassId);
 	if (errCode != RPC_S_OK)
 	{
 		throw std::runtime_error("Couldn't create GUID: " + std::to_string(errCode));

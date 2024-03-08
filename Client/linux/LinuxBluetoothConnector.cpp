@@ -16,6 +16,8 @@
 
 #include "DBusHelper.h"
 
+#include "errno.h"
+
 LinuxBluetoothConnector::LinuxBluetoothConnector()
 {
 }
@@ -55,31 +57,37 @@ int LinuxBluetoothConnector::send(char *buf, size_t length)
 
 void LinuxBluetoothConnector::connect(const std::string &addrStr)
 {
-
-  printf("connecting to %s\n", addrStr.c_str());
-  struct sockaddr_rc addr = {0};
-  int status;
-  const char *dest = addrStr.c_str();
+    const auto throw_on_error = [](){
+        std::string msg = strerror(errno);
+        throw RecoverableException("Error: could not connect to bluetooth socket: " + msg, true);
+    };
 
   // allocate a socket
   this->_socket = ::socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-
+  if (!this->_socket){
+      throw_on_error();
+  }
   uint32_t linkmode = RFCOMM_LM_AUTH | RFCOMM_LM_ENCRYPT;
   int sl = sizeof(linkmode);
-  setsockopt(this->_socket, SOL_RFCOMM, RFCOMM_LM, &linkmode, sl);
+
+  if(setsockopt(this->_socket, SOL_RFCOMM, RFCOMM_LM, &linkmode, sl)){
+      throw_on_error();
+  }
+
+  printf("connecting to %s\n", addrStr.c_str());
+
+  struct sockaddr_rc addr = {0};
   // set the connection parameters (who to connect to)
   addr.rc_family = AF_BLUETOOTH;
   uint8_t channel = sdp_getServiceChannel(addrStr.c_str(), SERVICE_UUID_IN_BYTES);
   printf("channel: %d\n", channel);
   addr.rc_channel = channel;
-  str2ba(dest, &addr.rc_bdaddr);
+  str2ba(addrStr.c_str(), &addr.rc_bdaddr);
 
   // connect to server
-  status = ::connect(this->_socket, (struct sockaddr *)&addr, sizeof(addr));
-
-  if (status < 0)
+  if (::connect(this->_socket, (struct sockaddr *)&addr, sizeof(addr)))
   {
-    throw RecoverableException("Error: could not connect to bluetooth socket", true);
+      throw_on_error();
   }
   this->_connected = true;
 }
