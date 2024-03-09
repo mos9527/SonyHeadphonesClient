@@ -29,21 +29,21 @@ bool CrossPlatformGUI::performGUIPass()
 			{
 				ImGui::Spacing();
 				// Polling & state updates are only done on the main thread
-					_headphones->pollMessages();
-					this->_drawControls();
-					this->_setHeadphoneSettings();
-					// Timed sync
-					static const double syncInterval = 1.0;
-					static double lastSync = -syncInterval;
-					if (_requestFuture.ready()) {
-						if (ImGui::GetTime() - lastSync >= syncInterval) {
-							_requestFuture.get();
-							lastSync = ImGui::GetTime();
-							_requestFuture.setFromAsync([this]() {this->_headphones->requestSync(); });
-						}
+				_headphones->pollMessages();
+				this->_drawControls();
+				this->_setHeadphoneSettings();
+				// Timed sync
+				static const double syncInterval = 1.0;
+				static double lastSync = -syncInterval;
+				if (_requestFuture.ready()) {
+					if (ImGui::GetTime() - lastSync >= syncInterval) {
+						_requestFuture.get();
+						lastSync = ImGui::GetTime();
+						_requestFuture.setFromAsync([this]() {this->_headphones->requestSync(); });
 					}
 				}
 			}
+		}
 		catch (RecoverableException& exc) {
 			if (exc.shouldDisconnect)
 			{
@@ -263,7 +263,53 @@ void CrossPlatformGUI::_drawControls()
 		}
 
 		if (ImGui::TreeNode("Misc")) {
-			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);	
+			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+
+			// This is a painful amount of boilerplate to write...
+			static const char* TOUCH_SENSOR_FUNCTION_STR[] = {
+				"Playback Control",
+				"Ambient Sound / Noise Cancelling",
+				"Not Assigned"
+			};
+
+			const auto TOUCH_SENSOR_FUNCTION_INDEX = [](const TOUCH_SENSOR_FUNCTION& tsf) {
+				switch (tsf) {
+				case TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL:
+					return 0;
+				case TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL:
+					return 1;
+				case TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED:
+					return 2;
+				}
+			};
+
+			const auto TOUCH_SENSOR_FUNCTION_INV_INDEX = [](const int& index) {
+				switch (index) {
+				case 0:
+					return TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL;
+				case 1:
+					return TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL;
+				case 2:
+					return TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED;
+				}
+			};
+
+			const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {
+				if (ImGui::BeginCombo(label, TOUCH_SENSOR_FUNCTION_STR[TOUCH_SENSOR_FUNCTION_INDEX(prop.desired)])) {
+					for (int i = 0; i < (int)TOUCH_SENSOR_FUNCTION::NUM_FUNCTIONS; i++) {
+						const bool is_selected = (TOUCH_SENSOR_FUNCTION_INDEX(prop.desired) == i);
+						if (ImGui::Selectable(TOUCH_SENSOR_FUNCTION_STR[i], is_selected)) {
+							prop.desired = TOUCH_SENSOR_FUNCTION_INV_INDEX(i);
+						}
+						if (is_selected) {
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
+			};
+			draw_touch_sensor_combo(_headphones->touchLeftFunc, "Left Touch Sensor");
+			draw_touch_sensor_combo(_headphones->touchRightFunc, "Right Touch Sensor");
 			ImGui::TreePop();
 		}
 	}
@@ -294,7 +340,6 @@ void CrossPlatformGUI::_setHeadphoneSettings() {
 		});
 	}
 }
-
 
 CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt))
 {

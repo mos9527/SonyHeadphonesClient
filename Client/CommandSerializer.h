@@ -41,6 +41,7 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
 	Buffer serializeSpeakToChatEnabled(bool enabled);
 	Buffer serializeEqualizerSetting(char bass, std::vector<int> const& bands);
+	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{

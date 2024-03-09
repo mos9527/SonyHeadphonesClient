@@ -249,5 +249,15 @@ namespace CommandSerializer
 		ret.push_back(bands[4] + 10);
 		return ret;
 	}
+	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(0x03);
+		ret.push_back(0x02);
+		ret.push_back(static_cast<unsigned char>(funcL));
+		ret.push_back(static_cast<unsigned char>(funcR));
+		return ret;
+	}
 }
 

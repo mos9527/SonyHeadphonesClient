@@ -59,15 +59,6 @@ enum class DATA_TYPE : signed char
     UNKNOWN = -1
 };
 
-
-enum class NC_ASM_INQUIRED_TYPE : signed char
-{
-	NO_USE = 0,
-	NOISE_CANCELLING = 1,
-	NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE = 2,
-	AMBIENT_SOUND_MODE = 3
-};
-
 enum class NC_ASM_EFFECT : signed char
 {
 	OFF = 0,
@@ -84,13 +75,6 @@ enum class ASM_ID : signed char
 {
 	NORMAL = 0,
 	VOICE = 1
-};
-
-enum class NC_DUAL_SINGLE_VALUE : signed char
-{
-	OFF = 0,
-	SINGLE = 1,
-	DUAL = 2
 };
 
 // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
@@ -137,6 +121,9 @@ enum class COMMAND_TYPE : unsigned char
 	PLAYBACK_STATUS_CONTROL_SET = 0xa4,
 	PLAYBACK_STATUS_CONTROL_NOTIFY = 0xa5,
 
+	MISC_DATA_GET = 0xc4,
+	MISC_DATA_RET = 0xc9,
+
 	MULTIPOINT_ENABLE_GET = 0xd6,
 	MULTIPOINT_ENABLE_RET = 0xd7,
 	MULTIPOINT_ENABLE_SET = 0xd8,
@@ -165,46 +152,6 @@ enum class COMMAND_TYPE : unsigned char
 	UNKNOWN = 0xFF
 };
 
-enum class VPT_PRESET_ID : signed char
-{
-	OFF = 0,
-	OUTDOOR_FESTIVAL = 1,
-	ARENA = 2,
-	CONCERT_HALL = 3,
-	CLUB = 4
-	//Note: Sony reserved 5~15 "for future"
-};
-
-enum class SOUND_POSITION_PRESET : signed char
-{
-	OFF = 0,
-	FRONT_LEFT = 1,
-	FRONT_RIGHT = 2,
-	FRONT = 3,
-	REAR_LEFT = 17,
-	REAR_RIGHT = 18,
-	OUT_OF_RANGE = -1
-};
-
-//Needed for converting the ImGui Combo index into the VPT index.
-inline const SOUND_POSITION_PRESET SOUND_POSITION_PRESET_ARRAY[] = {
-	SOUND_POSITION_PRESET::OFF,
-	SOUND_POSITION_PRESET::FRONT_LEFT,
-	SOUND_POSITION_PRESET::FRONT_RIGHT,
-	SOUND_POSITION_PRESET::FRONT,
-	SOUND_POSITION_PRESET::REAR_LEFT,
-	SOUND_POSITION_PRESET::REAR_RIGHT,
-	SOUND_POSITION_PRESET::OUT_OF_RANGE
-};
-
-enum class VPT_INQUIRED_TYPE : signed char
-{
-	NO_USE = 0,
-	VPT = 1,
-	SOUND_POSITION = 2,
-	OUT_OF_RANGE = -1
-};
-
 enum class PLAYBACK_CONTROL : signed char
 {
 	NONE = 0,
@@ -218,4 +165,13 @@ enum class PLAYBACK_CONTROL_RESPONSE : signed char
 {
 	PLAY = 1,
 	PAUSE = 2
+};
+
+enum class TOUCH_SENSOR_FUNCTION : unsigned char
+{
+	PLAYBACK_CONTROL = 0x20,
+	AMBIENT_NC_CONTROL = 0x35,
+	NOT_ASSIGNED = 0xff,
+	
+	NUM_FUNCTIONS = 3
 };

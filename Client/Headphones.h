@@ -30,6 +30,7 @@ struct ReadonlyProperty {
 
 class Headphones {
 public:
+	/* The built-in EQ. All values should integers of range -10~+10 */
 	struct EqualizerConfig {
 		int bassLevel{};
 		std::vector<int> bands;
@@ -94,6 +95,9 @@ public:
 
 	// Equalizer
 	Property<EqualizerConfig> eqConfig;
+
+	// Touch sensor function
+	Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
 
 	bool isChanged();
 	void setChanges();

@@ -14,10 +14,10 @@ bool Headphones::isChanged()
 		asmEnabled.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		miscVoiceGuidanceVol.isFulfilled() &&
 		volume.isFulfilled() &&
-		mpDeviceMac.isFulfilled() &&
-		mpEnabled.isFulfilled() &&
+		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
-		eqConfig.isFulfilled()
+		eqConfig.isFulfilled() &&
+		touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled()
 	);
 }
 
@@ -92,7 +92,7 @@ void Headphones::setChanges()
 
 		// Don't fullfill until the MULTIPOINT_DEVICE_RET/NOTIFY is received
 		// as the device might not have switched yet
-		// mpDeviceMac.fulfill();
+		// mpDeviceMac.fulfill();		
 	}
 
 	if ((!mpEnabled.isFulfilled()))
@@ -122,7 +122,7 @@ void Headphones::setChanges()
 		);
 		waitForAck();
 		this->_cmdCount++;
-		stcEnabled.fulfill();\
+		stcEnabled.fulfill();
 	}
 
 	if ((!stcLevel.isFulfilled() || !stcTime.isFulfilled()))
@@ -145,6 +145,18 @@ void Headphones::setChanges()
 		waitForAck();
 		this->_cmdCount++;
 		eqConfig.fulfill();
+	}
+
+	if ((!touchLeftFunc.isFulfilled()) || (!touchRightFunc.isFulfilled())) {
+			
+		this->_conn.sendCommand(
+			CommandSerializer::serializeTouchSensorAssignment(touchLeftFunc.desired, touchRightFunc.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+		touchLeftFunc.fulfill();
+		touchRightFunc.fulfill();
 	}
 }
 
@@ -210,6 +222,13 @@ void Headphones::requestInit()
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
+	/* Touch Sensor */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
+		0x03, // Touch sensor function
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
 	/* Equalizer */
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::EQUALIZER_GET),
@@ -221,9 +240,24 @@ void Headphones::requestInit()
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
 		0x20 // Voice Guidance Volume
-	}, DATA_TYPE::DATA_MDR_NO2);
+		}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
 
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::MISC_DATA_GET),
+		0x00, // Some data will be sent afterwards...		
+		0x00  // See _handleMessage for info
+		}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::MISC_DATA_GET),
+		0x01, // MORE data...?! why not..			
+		0x00  // After this command, the triple-tap (and other app-related functions) will
+		      // not trigger 'app not launched' notifications on the headset
+			  // I wonder if we should handle them in this app...			  			 
+		}, DATA_TYPE::DATA_MDR);
+	waitForAck();
 }
 
 void Headphones::requestSync()
@@ -261,21 +295,8 @@ void Headphones::recvAsync()
 	_recvFuture.setFromAsync([this]() -> std::optional<CommandSerializer::CommandMessage> {
 		auto& conn = this->getConn();
 		CommandSerializer::CommandMessage cmd;
-		try
-		{
-			conn.recvCommand(cmd);
-			return cmd;
-		}
-		catch (const RecoverableException& exc)
-		{
-			if (exc.shouldDisconnect)
-			{
-				return std::nullopt;
-			}
-			else {
-				throw exc;
-			}
-		}
+		conn.recvCommand(cmd);
+		return cmd;
 	});
 }
 
@@ -407,7 +428,6 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 			case COMMAND_TYPE::MULTIPOINT_DEVICE_RET:
 			case COMMAND_TYPE::MULTIPOINT_DEVICE_NOTIFY:
 				mpDeviceMac.overwrite(std::string(msg.begin() + 3, msg.end()));
-				std::cout << "[multipoint] swapped to " << connectedDevices[mpDeviceMac.current].name << '\n';
 				break;
 			case COMMAND_TYPE::CONNECTED_DEVIECES_RET:
 			case COMMAND_TYPE::CONNECTED_DEVIECES_NOTIFY:
@@ -459,7 +479,6 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 			case COMMAND_TYPE::MULTIPOINT_ENABLE_RET:
 			case COMMAND_TYPE::MULTIPOINT_ENABLE_NOITIFY:
 				mpEnabled.overwrite(!(bool)msg[3]);
-				dirty = true;
 				break;
 			case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_NOTIFY:
 			case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_RET:
@@ -467,6 +486,10 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				{
 				case 0x0c:
 					stcEnabled.overwrite(!(bool)msg[2]);
+					break;
+				case 0x03:
+					touchLeftFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[3]));
+					touchRightFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[4]));
 					break;
 				default:
 					dirty = true;
@@ -508,6 +531,35 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 					break;
 				}
 				break;
+			case COMMAND_TYPE::MISC_DATA_RET:
+			{				
+				// NOTE: Plain text data in either JSON or button names(?)
+				switch (msg[1])
+				{
+				case 0x01:
+				{
+					// NOTE: Observed data retrived
+					// NOTE: These seems to always contain button names and are null terminated					
+					char len = msg[2];
+					std::string str(msg.begin() + 3, msg.end());
+					std::cout << "[message] " << str << '\n';
+				}
+				break;
+				case 0x00:
+				{
+					// NOTE: These are sent immediately after MISC_DATA_GET 0x01
+					// and won't be sent preiodically afterwards
+					// NOTE: These seem to always conatin JSON data
+					char len = msg[3];
+					std::string str(msg.begin() + 4, msg.end());
+					std::cout << "[message] " << str << '\n';
+				}
+				break;
+				default:
+					dirty = true;
+				}
+				break;
+			}
 			default:
 				dirty = true;
 				break;
