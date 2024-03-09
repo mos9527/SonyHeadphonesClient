@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include "Exceptions.h"
+#include <cassert>
 
 constexpr int MINIMUM_VOICE_FOCUS_STEP = 2;
 constexpr unsigned int ASM_LEVEL_DISABLED = -1;
@@ -37,6 +38,9 @@ namespace CommandSerializer
 	Buffer serializePowerOff();
 	Buffer serializeMpToggle2(bool enabled);
 	Buffer serializeMpToggle(bool enabled);
+	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
+	Buffer serializeSpeakToChatEnabled(bool enabled);
+	Buffer serializeEqualizerSetting(char bass, std::vector<int> const& bands);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{
@@ -44,8 +48,12 @@ namespace CommandSerializer
 
 		CommandMessage() = default;
 
-		CommandMessage(Buffer const& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {};
-		CommandMessage(Buffer&& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {};
+		CommandMessage(Buffer const& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {
+			assert(verify());
+		};
+		CommandMessage(Buffer&& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {
+			assert(verify());
+		};
 		CommandMessage(DATA_TYPE dataType, Buffer const& buffer, unsigned char seqNumber) {
 			messageBytes = CommandSerializer::packageDataForBt(buffer, dataType, seqNumber);
 		}

@@ -201,6 +201,17 @@ namespace CommandSerializer
 		return ret;
 	}
 
+	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
+	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::SPEAK_TO_CHAT_SET));
+		ret.push_back(0x0c);
+		ret.push_back(sensitivity);
+		ret.push_back(timeout);
+		return ret;
+	}
+
 	Buffer serializeMpToggle2(bool enabled)
 	{
 		Buffer ret;
@@ -208,6 +219,34 @@ namespace CommandSerializer
 		ret.push_back(0x00);
 		ret.push_back(0x07);
 		ret.push_back(0x01);
+		return ret;
+	}
+
+	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
+	Buffer serializeSpeakToChatEnabled(bool enabled)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(0x0c);
+		ret.push_back(!enabled);
+		ret.push_back(0x01);
+		return ret;
+	}
+
+	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
+	Buffer serializeEqualizerSetting(char bass, std::vector<int> const& bands)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(0x00);
+		ret.push_back(0xa0);
+		ret.push_back(0x06);
+		ret.push_back(bass + 10);
+		ret.push_back(bands[0] + 10);
+		ret.push_back(bands[1] + 10);
+		ret.push_back(bands[2] + 10);
+		ret.push_back(bands[3] + 10);
+		ret.push_back(bands[4] + 10);
 		return ret;
 	}
 }

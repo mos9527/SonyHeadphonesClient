@@ -128,6 +128,8 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 						this->_connectFuture.setFromAsync([this]() { 
 							this->_bt.connect(this->_connectedDevice.mac);
 							this->_headphones = std::make_unique<Headphones>(this->_bt);
+							if (this->_requestFuture.valid())
+								this->_requestFuture.get();
 							this->_requestFuture.setFromAsync([this]() {
 								this->_headphones->requestInit();
 							});
@@ -226,6 +228,23 @@ void CrossPlatformGUI::_drawControls()
 			ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
 			ImGui::TreePop();
 		}
+
+		if (ImGui::TreeNode("Speak to Chat")) {
+			ImGui::Checkbox("Enabled", &_headphones->stcEnabled.desired);
+			ImGui::SliderInt("STC Level", &_headphones->stcLevel.desired, 0, 2);
+			ImGui::SliderInt("STC Time", &_headphones->stcTime.desired, 0, 3);
+			ImGui::TreePop();
+		}
+		
+		if (ImGui::TreeNode("Equalizer")) {
+			ImGui::SliderInt("Bass Boost", &_headphones->eqConfig.desired.bassLevel, -10, 10);
+			for (int i = 0;i < 5;i++){
+				const char* bandNames[]  = {"400","1k","2.5k","6.3k","16k"};
+				ImGui::SliderInt(bandNames[i], &_headphones->eqConfig.desired.bands[i], -10, 10);
+			}
+			ImGui::TreePop();
+		}
+
 		if (ImGui::TreeNode("Connected Devices")) {
 			ImGui::Checkbox("Multipoint Connect", &_headphones->mpEnabled.desired);
 			ImGui::Text("NOTE: Can't toggle yet. Sorry!");

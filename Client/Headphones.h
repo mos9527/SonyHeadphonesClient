@@ -30,6 +30,15 @@ struct ReadonlyProperty {
 
 class Headphones {
 public:
+	struct EqualizerConfig {
+		int bassLevel{};
+		std::vector<int> bands;
+		EqualizerConfig() : bassLevel(0), bands(5) {};
+		EqualizerConfig(int bass, std::vector<int> const& bands) : bassLevel(bass), bands(bands) {};
+		bool operator==(EqualizerConfig const& other) const {
+			return bassLevel == other.bassLevel && bands == other.bands;
+		}
+	};
 	Headphones(BluetoothWrapper& conn);
 
 	// Is NC & Ambient sound enabled?
@@ -73,6 +82,18 @@ public:
 
 	// Multipoint
 	Property<std::string> mpDeviceMac{};
+
+	// Speak to chat
+	Property<bool> stcEnabled{};
+
+	// AUTO:0 HIGH:1 LOW:2
+	Property<int> stcLevel{};
+
+	// SHORT:0 STANDARD:1 LONG:2 OFF(Does not close automatically):3
+	Property<int> stcTime{};
+
+	// Equalizer
+	Property<EqualizerConfig> eqConfig;
 
 	bool isChanged();
 	void setChanges();

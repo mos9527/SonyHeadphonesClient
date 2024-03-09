@@ -15,7 +15,9 @@ bool Headphones::isChanged()
 		miscVoiceGuidanceVol.isFulfilled() &&
 		volume.isFulfilled() &&
 		mpDeviceMac.isFulfilled() &&
-		mpEnabled.isFulfilled()
+		mpEnabled.isFulfilled() &&
+		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
+		eqConfig.isFulfilled()
 	);
 }
 
@@ -111,6 +113,39 @@ void Headphones::setChanges()
 		this->_cmdCount++;
 		mpEnabled.fulfill();
 	}
+
+	if ((!stcEnabled.isFulfilled()))
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeSpeakToChatEnabled(stcEnabled.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+		stcEnabled.fulfill();\
+	}
+
+	if ((!stcLevel.isFulfilled() || !stcTime.isFulfilled()))
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeSpeakToChatConfig(stcLevel.desired, stcTime.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+		stcLevel.fulfill();
+		stcTime.fulfill();
+	}
+
+	if ((!eqConfig.isFulfilled())) {
+		this->_conn.sendCommand(
+			CommandSerializer::serializeEqualizerSetting(eqConfig.desired.bassLevel, eqConfig.desired.bands),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		this->_cmdCount++;
+		eqConfig.fulfill();
+	}
 }
 
 void Headphones::requestInit()
@@ -162,12 +197,33 @@ void Headphones::requestInit()
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
+	/* Speak to chat */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
+		0x0c // Speak to chat enabled
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::SPEAK_TO_CHAT_GET),
+		0x0c // Speak to chat config
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	/* Equalizer */
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::EQUALIZER_GET),
+		0x00 // Equalizer
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
 	/* Misc Params */
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
 		0x20 // Voice Guidance Volume
 	}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
+
 }
 
 void Headphones::requestSync()
@@ -402,11 +458,59 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				break;
 			case COMMAND_TYPE::MULTIPOINT_ENABLE_RET:
 			case COMMAND_TYPE::MULTIPOINT_ENABLE_NOITIFY:
-				mpEnabled.overwrite(!(bool)(msg[3]));
+				mpEnabled.overwrite(!(bool)msg[3]);
 				dirty = true;
+				break;
+			case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_NOTIFY:
+			case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_RET:
+				switch (msg[1])
+				{
+				case 0x0c:
+					stcEnabled.overwrite(!(bool)msg[2]);
+					break;
+				default:
+					dirty = true;
+					break;
+				}
+				break;
+			case COMMAND_TYPE::SPEAK_TO_CHAT_RET:
+			case COMMAND_TYPE::SPEAK_TO_CHAT_NOTIFY:
+				switch (msg[1])
+				{
+				case 0x0c:
+					stcLevel.overwrite(msg[2]);
+					stcTime.overwrite(msg[3]);
+					break;
+				default:
+					dirty = true;
+					break;
+				}
+				break;
+			case COMMAND_TYPE::EQUALIZER_RET:
+			case COMMAND_TYPE::EQUALIZER_NOTIFY:
+				// [RET/NOTIFY 00 a2 06] 0a/bass 0a/band1 0a/band2 0a/band3 0a/band4 0a/band5
+				// values have +10 offset
+				switch (msg[3])
+				{
+				case 0x06:
+					eqConfig.overwrite(EqualizerConfig(
+						msg[4] - 10,
+						std::vector<int>{ 
+							msg[5] - 10,
+							msg[6] - 10,
+							msg[7] - 10, 
+							msg[8] - 10,
+							msg[9] - 10,
+						}
+					));
+					break;
+				default:
+					break;
+				}
 				break;
 			default:
 				dirty = true;
+				break;
 			}
 			_conn.sendAck(msg.getSeqNumber());
 			break;
