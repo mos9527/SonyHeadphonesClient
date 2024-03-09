@@ -16,6 +16,13 @@ target_sources(SonyHeadphonesClient
     TimedMessageQueue.cpp
     CrossPlatformGUI.cpp "Headphones.cpp")
 
+target_sources(SonyHeadphonesClient
+     PRIVATE ${CMAKE_SOURCE_DIR}/tomlplusplus/src/toml.cpp
+)
+target_include_directories (SonyHeadphonesClient
+    PRIVATE ${CMAKE_SOURCE_DIR}/tomlplusplus/include
+)
+
 target_include_directories (SonyHeadphonesClient
     PRIVATE ${CMAKE_SOURCE_DIR}
 )
@@ -35,6 +42,7 @@ if (DEAR_IMGUI)
         imgui/imgui_draw.cpp
         imgui/imgui_tables.cpp
         imgui/imgui_widgets.cpp
+        imgui/misc/cpp/imgui_stdlib.cpp
         CascadiaCodeFont.cpp
     )
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <ranges>
 
 inline constexpr auto MAX_BLUETOOTH_MESSAGE_SIZE = 2048;
 inline constexpr char START_MARKER{ 62 };

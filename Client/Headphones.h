@@ -5,6 +5,7 @@
 #include <mutex>
 #include <iostream>
 #include <map>
+#include <variant>
 
 template <class T>
 struct Property {
@@ -26,6 +27,30 @@ struct ReadonlyProperty {
 	T current;
 
 	void overwrite(T const& value);
+};
+
+struct HeadphonesEvent {
+	enum EventType {
+		None,
+
+		JSONMessage,
+		HeadphoneInteractionEvent,
+
+		PlaybackMetadataUpdate,
+		PlaybackVolumeUpdate,
+		PlaybackPlayPauseUpdate,
+
+		MultipointSwitch,
+
+		ConnectedDeviceUpdate,
+
+	} type;
+	std::variant<std::string> message;
+
+	HeadphonesEvent() : type(None) {};
+	HeadphonesEvent(EventType type) : type(type) {};
+	HeadphonesEvent(EventType type, auto const& message) : type(type), message(message) {};
+	~HeadphonesEvent() {};
 };
 
 class Headphones {
@@ -113,13 +138,15 @@ public:
 	void recvAsync();
 	BluetoothWrapper& getConn() { return _conn; }
 
-	void pollMessages();
+	/*
+	Asynchornously poll for incoming messages and (optionally) returns any event 
+	that has been triggered by the message.
+	This function is non-blocking and thread-safe.
+	*/
+	HeadphonesEvent poll();
 
 	void disconnect();
 	~Headphones();
-
-	inline int const getAckCount() const { return _ackCount; }
-	inline int const getCmdCount() const { return _cmdCount; }
 
 private:
 	std::mutex _propertyMtx, _ackMtx;
@@ -128,12 +155,9 @@ private:
 
 	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
 
-	void _handleMessage(CommandSerializer::CommandMessage const& msg);
+	HeadphonesEvent _handleMessage(CommandSerializer::CommandMessage const& msg);
 
 	bool hasInit = false;
-
-	int _ackCount{};
-	int _cmdCount{};
 };
 
 template<class T>

@@ -1,5 +1,6 @@
 #include "WindowsGUI.h"
 
+#include "CrossPlatformGUI.h"
 /*
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 A notice to any future readers:
@@ -108,6 +109,12 @@ void DisplayErrorMessagebox(const std::string& message)
 {
 	MessageBoxA(0, message.c_str(), "Sony Headphones Client | Unrecoverable Error", MB_OK | MB_ICONSTOP);
 	exit(GetLastError());
+}
+
+void ExecuteShellCommand(const std::string& command)
+{
+	std::string cmd = "start " + command;
+	system(cmd.c_str());
 }
 
 namespace WindowsGUIInternal

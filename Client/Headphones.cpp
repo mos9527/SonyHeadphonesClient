@@ -38,7 +38,6 @@ void Headphones::setChanges()
 			std::max(asmLevel.desired, 1)
 		));
 		waitForAck();
-		this->_cmdCount++;
 
 		std::lock_guard guard(this->_propertyMtx);
 		asmEnabled.fulfill();
@@ -54,7 +53,6 @@ void Headphones::setChanges()
 			), DATA_TYPE::DATA_MDR_NO2
 		);
 		waitForAck();
-		this->_cmdCount++;
 
 		this->miscVoiceGuidanceVol.fulfill();
 	}
@@ -67,7 +65,6 @@ void Headphones::setChanges()
 			), DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 
 		this->volume.fulfill();
 	}
@@ -79,7 +76,6 @@ void Headphones::setChanges()
 			DATA_TYPE::DATA_MDR_NO2
 		);
 		waitForAck();
-		this->_cmdCount++;
 
 		// XXX: For some reason, multipoint switch command doesn't always work
 		// ...yet appending another command after it makes it much more likely to succeed?
@@ -88,7 +84,7 @@ void Headphones::setChanges()
 			0x02
 		});
 		waitForAck();
-		this->_cmdCount++;
+
 
 		// Don't fullfill until the MULTIPOINT_DEVICE_RET/NOTIFY is received
 		// as the device might not have switched yet
@@ -103,14 +99,12 @@ void Headphones::setChanges()
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 
 		this->_conn.sendCommand(
 			CommandSerializer::serializeMpToggle2(enabled),
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 		mpEnabled.fulfill();
 	}
 
@@ -121,7 +115,6 @@ void Headphones::setChanges()
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 		stcEnabled.fulfill();
 	}
 
@@ -132,7 +125,6 @@ void Headphones::setChanges()
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 		stcLevel.fulfill();
 		stcTime.fulfill();
 	}
@@ -143,7 +135,6 @@ void Headphones::setChanges()
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 		eqConfig.fulfill();
 	}
 
@@ -154,7 +145,6 @@ void Headphones::setChanges()
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
-		this->_cmdCount++;
 		touchLeftFunc.fulfill();
 		touchRightFunc.fulfill();
 	}
@@ -270,7 +260,6 @@ void Headphones::requestSync()
 		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_GET),
 		0x01 // DUAL
 	}, DATA_TYPE::DATA_MDR);
-	this->_cmdCount++;
 
 	waitForAck();
 
@@ -307,7 +296,6 @@ void Headphones::requestMultipointSwitch(const char* macString)
 		DATA_TYPE::DATA_MDR_NO2
 	);
 	waitForAck();
-	_cmdCount++;
 }
 
 void Headphones::requestPlaybackControl(PLAYBACK_CONTROL control)
@@ -317,7 +305,6 @@ void Headphones::requestPlaybackControl(PLAYBACK_CONTROL control)
 		DATA_TYPE::DATA_MDR
 	);
 	waitForAck();
-	_cmdCount++;
 }
 
 void Headphones::requestPowerOff()
@@ -327,16 +314,15 @@ void Headphones::requestPowerOff()
 		DATA_TYPE::DATA_MDR
 	);
 	waitForAck();
-	_cmdCount++;
 }
 
-void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
+HeadphonesEvent Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 {	
+	HeadphonesEvent event;
 	bool dirty = false;
 	switch (msg.getDataType())
 	{		
 		case DATA_TYPE::ACK:			
-			_ackCount++;
 			_ackCV.notify_one();
 			break;
 		case DATA_TYPE::DATA_MDR:
@@ -380,6 +366,8 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				{
 				case 0x01:
 				{
+					event.type = HeadphonesEvent::PlaybackMetadataUpdate;
+
 					auto it = msg.begin() + 3;
 					auto type = *it;
 					auto len = *it++;
@@ -395,6 +383,8 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 					break;
 				}
 				case 0x20:
+					event.type = HeadphonesEvent::PlaybackVolumeUpdate;
+
 					volume.overwrite(msg[2]);
 					break;
 				default:
@@ -417,7 +407,7 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 			case COMMAND_TYPE::VOICEGUIDANCE_PARAM_NOTIFY:
 				switch (msg[1])
 				{
-				case 0x20:
+				case 0x20:					
 					miscVoiceGuidanceVol.overwrite(msg[2]);
 					break;
 				default:
@@ -427,6 +417,8 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				break;
 			case COMMAND_TYPE::MULTIPOINT_DEVICE_RET:
 			case COMMAND_TYPE::MULTIPOINT_DEVICE_NOTIFY:
+				event.type = HeadphonesEvent::MultipointSwitch;
+
 				mpDeviceMac.overwrite(std::string(msg.begin() + 3, msg.end()));
 				break;
 			case COMMAND_TYPE::CONNECTED_DEVIECES_RET:
@@ -434,6 +426,8 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 			{
 				if (msg[3] == 0x00)
 					break;
+
+				event.type = HeadphonesEvent::ConnectedDeviceUpdate;
 
 				connectedDevices.clear();
 				pairedDevices.clear();
@@ -462,6 +456,8 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 			case COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_RET:
 			case COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_NOTIFY:
 			{
+				event.type = HeadphonesEvent::PlaybackPlayPauseUpdate;
+
 				switch (static_cast<PLAYBACK_CONTROL_RESPONSE>(msg[3]))
 				{
 					case PLAYBACK_CONTROL_RESPONSE::PLAY:
@@ -470,8 +466,8 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 					case PLAYBACK_CONTROL_RESPONSE::PAUSE:
 						playPause.overwrite(false);
 						break;
-				default:
-					break;
+					default:
+						break;
 				}
 				break;
 			}
@@ -538,11 +534,11 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 				{
 				case 0x01:
 				{
-					// NOTE: Observed data retrived
-					// NOTE: These seems to always contain button names and are null terminated					
-					char len = msg[2];
+					// NOTE: These seems to always contain button names and are null terminated
+					// Some begins with non-printable characters though				
 					std::string str(msg.begin() + 3, msg.end());
-					std::cout << "[message] " << str << '\n';
+					event.type = HeadphonesEvent::HeadphoneInteractionEvent;
+					event.message = str;
 				}
 				break;
 				case 0x00:
@@ -550,9 +546,9 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 					// NOTE: These are sent immediately after MISC_DATA_GET 0x01
 					// and won't be sent preiodically afterwards
 					// NOTE: These seem to always conatin JSON data
-					char len = msg[3];
 					std::string str(msg.begin() + 4, msg.end());
-					std::cout << "[message] " << str << '\n';
+					event.type = HeadphonesEvent::JSONMessage;
+					event.message = str;
 				}
 				break;
 				default:
@@ -580,17 +576,19 @@ void Headphones::_handleMessage(CommandSerializer::CommandMessage const& msg)
 		for (char c : msg) std::cout << c;
 		std::cout << '\n';
 	}
+	return event;
 }
 
-void Headphones::pollMessages()
+HeadphonesEvent Headphones::poll()
 {
 	if (_recvFuture.ready()) {
 		auto cmd = this->_recvFuture.get();
 		if (cmd.has_value()) {
-			_handleMessage(cmd.value());
 			recvAsync();
+			return _handleMessage(cmd.value());
 		}
 	}
+	return {};
 }
 
 void Headphones::disconnect()

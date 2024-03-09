@@ -14,6 +14,12 @@ static void glfw_error_callback(int error, const char *description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
+void ExecuteShellCommand(const std::string& command)
+{
+    std::string cmd = command + " &";
+    system(cmd.c_str());
+}
+
 void EnterGUIMainLoop(BluetoothWrapper bt)
 {
     // Setup Dear ImGui binding
