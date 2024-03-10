@@ -54,7 +54,6 @@ bool CrossPlatformGUI::performGUIPass()
 					break;
 				}
 				_drawControls();
-				_setHeadphoneSettings();
 				// Timed sync
 				static const double syncInterval = 1.0;
 				static double lastSync = -syncInterval;
@@ -67,6 +66,9 @@ bool CrossPlatformGUI::performGUIPass()
 				}
 			}
 			_drawConfig();
+            if (_headphones) {
+                _setHeadphoneSettings();
+            }
 		}
 		catch (RecoverableException& exc) {
 			if (exc.shouldDisconnect)
@@ -98,14 +100,17 @@ ImFont* CrossPlatformGUI::_applyFont(const std::string& fontFile, float font_siz
 	builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
 	builder.BuildRanges(&ranges);
 	
-	io.Fonts->Clear();	
+	io.Fonts->Clear();
 
-	ImFont* font = io.Fonts->AddFontFromFileTTF(
-		_config.imguiFontFile.c_str(),
-		font_size,
-		nullptr,
-		&ranges[0]
-	);
+	ImFont* font = nullptr;
+    if (std::filesystem::exists(_config.imguiFontFile)) {
+        font = io.Fonts->AddFontFromFileTTF(
+                _config.imguiFontFile.c_str(),
+                font_size,
+                nullptr,
+                &ranges[0]
+        );
+    }
 
 	if (font) {
 		std::cout << "[imgui] using custom font: " << _config.imguiFontFile << std::endl;

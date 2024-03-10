@@ -35,8 +35,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
     // Create window with graphics context
     GLFWwindow *window = glfwCreateWindow(GUI_WIDTH, GUI_HEIGHT, APP_NAME, NULL, NULL);
     if (window == NULL)
