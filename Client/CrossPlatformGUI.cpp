@@ -405,6 +405,7 @@ void CrossPlatformGUI::_drawConfig()
 			ImGui::SeparatorText("Font");
 			ImGui::SliderFloat("Font Size", &_config.imguiFontSize, 10.0f, 30.0f);
 			ImGui::InputText("Custom Font (filename)", &_config.imguiFontFile);
+            ImGui::Text("NOTE: You'll need a custom, CJK compliant font to see those characters.");
 			ImGui::Text("NOTE: All font-related changes will only be applied on restart.");
 			ImGui::TreePop();
 		}

@@ -17,8 +17,7 @@ A continuation of the work done by [Plutoberth/SonyHeadphonesClient](https://git
 
 **NOTE:** May not be up-to-date. See [Features](#features) for all available functionalities!
 
-![image](https://github.com/mos9527/SonyHeadphonesClient/assets/31397301/b2708e5b-8b83-456c-9e19-a5dd6ea0cc44)
-
+![image](https://github.com/mos9527/SonyHeadphonesClient/assets/31397301/d564715f-f305-4f86-8303-cfebf67ec00b)
 
 ## Download
 
@@ -37,9 +36,13 @@ Binaries for Windows and Linux are available here: [releases page](https://githu
   - [x] Voice Guidance Volume *(useful! for debugging...)*
   - [x] Track controls (i.e. play/pause, prev/next)
   - [x] Multipoint Device selection
+  - [x] Speak-to-Chat
+  - [x] Equalizer  
+  - [x] Headphone touch sensor gesture funtion remapping
+  - [x] Power Off
   - [ ] Adaptive Sound Control
-  - [ ] Speak-to-Chat
-  - [ ] Equalizer
+- Utilities, such as
+  - [x] Mapping headphone gestures to Shell Commands
 
 ## Supported Platforms And Headsets
 
