@@ -16,19 +16,18 @@ bool CrossPlatformGUI::performGUIPass()
 
 		//Legal disclaimer
 		if (_config.showDisclaimers) {
+			ImGui::Separator();
 			ImGui::Text("! This product is not affiliated with Sony. Use at your own risk. !");
 			ImGui::Text("Source (original) : https://github.com/Plutoberth/SonyHeadphonesClient");
 			ImGui::Text("Source (this fork): https://github.com/mos9527/SonyHeadphonesClient");
-			ImGui::Spacing();
+			ImGui::Separator();
 		}
-
-		try {
-			_drawErrors();
+		_drawMessages();
+		try {			
 			_drawDeviceDiscovery();
 
 			if (_headphones)
 			{
-				ImGui::Spacing();
 				// Polling & state updates are only done on the main thread
 				auto event = _headphones->poll();
 				switch (event.type)
@@ -48,6 +47,9 @@ bool CrossPlatformGUI::performGUIPass()
 						_handleHeadphoneInteraction(std::string(fv.begin(), fv.end()));
 					}
 						break;
+					case HeadphonesEvent::PlaybackMetadataUpdate:
+						this->_mq.addMessage("Now Playing: " + _headphones->playback.title);
+						break;
 				default:
 					break;
 				}
@@ -64,7 +66,6 @@ bool CrossPlatformGUI::performGUIPass()
 					}
 				}
 			}
-		
 			_drawConfig();
 		}
 		catch (RecoverableException& exc) {
@@ -128,18 +129,28 @@ ImFont* CrossPlatformGUI::_applyFont(const std::string& fontFile, float font_siz
 	return font;
 }
 
-void CrossPlatformGUI::_drawErrors()
+void CrossPlatformGUI::_drawMessages()
 {
-	//There's a slight race condition here but I don't care, it'd only be for one frame.
-	if (this->_mq.begin() != this->_mq.end())
-	{
-		ImGui::Text("Errors:");
-		ImGui::Spacing();
-
-		for (auto&& message : this->_mq)
-		{
-			ImGui::Text("%s", message.message.c_str());
-		}		
+	static TimePoint latestMessage;
+	if (ImGui::CollapsingHeader("Messages", ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (_mq.size()) {
+			if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {				
+				bool shouldScroll = false;
+				this->_mq.iterateMessage([&](CommandMessage const& message) {
+					if (message.messageTime() > latestMessage)
+						latestMessage = message.messageTime(), shouldScroll = true;
+					// https://en.cppreference.com/w/cpp/chrono/system_clock/formatter#Format_specification
+					auto timestring = std::format("{:%X}", message.messageTime());
+					ImGui::Text("[%s] %s", timestring.c_str(), message.message.c_str());
+				});
+				if (shouldScroll)
+					ImGui::SetScrollHereY();
+				ImGui::EndListBox();
+			}
+		}
+		else {
+			ImGui::Text("No messages yet.");
+		}
 	}
 }
 
@@ -196,6 +207,7 @@ void CrossPlatformGUI::_drawDeviceDiscovery()
 								this->_requestFuture.get();
 							this->_requestFuture.setFromAsync([this]() {
 								this->_headphones->requestInit();
+								this->_mq.addMessage("Initialized: " + this->_connectedDevice.name);
 							});
 						});
 					}
@@ -231,22 +243,27 @@ void CrossPlatformGUI::_drawControls()
 {
 	assert(_headphones); 
 	if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
-		if (ImGui::TreeNode("Playback")) {
-			ImGui::Text("Title:  %s",_headphones->playback.title.c_str());
-			ImGui::Text("Album:  %s",_headphones->playback.album.c_str());
-			ImGui::Text("Artist: %s",_headphones->playback.artist.c_str());
-			ImGui::Separator();
-			ImGui::Text("Sound Pressure: %d", _headphones->playback.sndPressure);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Battery")) {
-			ImGui::Text("L:"); ImGui::SameLine();
-			ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
-			ImGui::Text("R:"); ImGui::SameLine();
-			ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
-			ImGui::Text("Case:"); ImGui::SameLine();
-			ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
-			ImGui::TreePop();
+		static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable;
+		if (ImGui::BeginTable("##Stats", 2, flags)) {
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			{
+				ImGui::Text("L:"); ImGui::SameLine();
+				ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
+				ImGui::Text("R:"); ImGui::SameLine();
+				ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
+				ImGui::Text("Case:"); ImGui::SameLine();
+				ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
+			}
+			ImGui::TableSetColumnIndex(1);
+			{
+				ImGui::Text("Title:  %s", _headphones->playback.title.c_str());
+				ImGui::Text("Album:  %s", _headphones->playback.album.c_str());
+				ImGui::Text("Artist: %s", _headphones->playback.artist.c_str());
+				ImGui::Separator();
+				ImGui::Text("Sound Pressure: %d", _headphones->playback.sndPressure);
+			}
+			ImGui::EndTable();
 		}
 		if (ImGui::Button("Power Off")) {
 			if (_requestFuture.ready()) {
@@ -259,143 +276,124 @@ void CrossPlatformGUI::_drawControls()
 		}
 	}	
 	if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-		if (ImGui::TreeNode("Playback Control")) {
-			using enum PLAYBACK_CONTROL;
-			PLAYBACK_CONTROL control = NONE;
-			if (ImGui::Button("Prev")) control = PREV;
-			ImGui::SameLine();
-			if (_headphones->playPause.current == true /*playing*/) {
-				if (ImGui::Button("Pause")) control = PAUSE;
-			}
-			else {
-				if (ImGui::Button("Play")) control = PLAY;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Next")) control = NEXT;
-				
-			if (_requestFuture.ready()) {		
-				if (control != NONE) {
-					_requestFuture.get();
-					_requestFuture.setFromAsync([this, control]() {
-						this->_headphones->requestPlaybackControl(control);
-					});
+		if (ImGui::BeginTabBar("##Settings")) {
+			if (ImGui::BeginTabItem("Playback Control")) {
+				using enum PLAYBACK_CONTROL;
+				PLAYBACK_CONTROL control = NONE;
+				ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
+				if (ImGui::Button("Prev")) control = PREV;
+				ImGui::SameLine();
+				if (_headphones->playPause.current == true /*playing*/) {
+					if (ImGui::Button("Pause")) control = PAUSE;
 				}
-			}
-			ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);			
-			ImGui::TreePop();
-		}
-
-		if (ImGui::TreeNode("Ambient Sound / Noise Cancelling")) {
-			ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
-			ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
-			ImGui::Text("NOTE: Set to 0 to enable Noise Cancelling.");
-			ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
-			ImGui::TreePop();
-		}
-
-		if (ImGui::TreeNode("Speak to Chat")) {
-			ImGui::Checkbox("Enabled", &_headphones->stcEnabled.desired);
-			ImGui::SliderInt("STC Level", &_headphones->stcLevel.desired, 0, 2);
-			ImGui::SliderInt("STC Time", &_headphones->stcTime.desired, 0, 3);
-			ImGui::TreePop();
-		}
-		
-		if (ImGui::TreeNode("Equalizer")) {
-			const float width = ImGui::GetContentRegionAvail().x;
-			const float padding = ImGui::GetStyle().ItemSpacing.x;
-			ImGui::SeparatorText("5-Band EQ");
-			for (int i = 0;i < 5;i++){
-				const char* bandNames[]  = {"400","1k","2.5k","6.3k","16k"};
-				ImGui::PushID(i);
-				ImGui::VSliderInt("##", ImVec2(width / 5 - padding, 160), &_headphones->eqConfig.desired.bands[i], -10, 10);
-				if (ImGui::IsItemActive() || ImGui::IsItemHovered())
-					ImGui::SetTooltip("%s", bandNames[i]);
-				ImGui::PopID();
-				if (i != 4) ImGui::SameLine();
-			}
-			ImGui::SeparatorText("Clear Bass");
-			ImGui::SetNextItemWidth(width);
-			ImGui::SliderInt("##", &_headphones->eqConfig.desired.bassLevel, -10, 10);
-			ImGui::TreePop();
-		}
-
-		if (ImGui::TreeNode("Connected Devices")) {
-			ImGui::Checkbox("Multipoint Connect", &_headphones->mpEnabled.desired);
-			ImGui::Text("NOTE: Can't toggle yet. Sorry!");
-			size_t i = 0;
-			const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			for (auto& [mac, device] : _headphones->connectedDevices) {
-				if (mac == _headphones->mpDeviceMac.current)
-					ImGui::TreeNodeEx((void*)i++, default_flags | ImGuiTreeNodeFlags_Selected, "%s", device.name.c_str());
-				else
-					ImGui::TreeNodeEx((void*)i++, default_flags, "%s", device.name.c_str());
-				if (ImGui::IsItemClicked()) {
-					_headphones->mpDeviceMac.desired = mac;
+				else {
+					if (ImGui::Button("Play")) control = PLAY;
 				}
-			}
-			ImGui::TreePop();
-		}
+				ImGui::SameLine();
+				if (ImGui::Button("Next")) control = NEXT;
 
-		if (ImGui::TreeNode("Misc")) {
-			ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
-
-			if (ImGui::TreeNode("Touch Sensor")) {
-				// This is a painful amount of boilerplate to write...
-				static const char* TOUCH_SENSOR_FUNCTION_STR[] = {
-					"Playback Control",
-					"Ambient Sound / Noise Cancelling",
-					"Not Assigned"
-				};
-
-				const auto TOUCH_SENSOR_FUNCTION_INDEX = [](const TOUCH_SENSOR_FUNCTION& tsf) {
-					switch (tsf) {
-					case TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL:
-						return 0;
-					case TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL:
-						return 1;
-					case TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED:
-						return 2;
+				if (_requestFuture.ready()) {
+					if (control != NONE) {
+						_requestFuture.get();
+						_requestFuture.setFromAsync([this, control]() {
+							this->_headphones->requestPlaybackControl(control);
+							});
 					}
+				}
+
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("AMB / ANC")) {
+				ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
+				ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
+				ImGui::Text("NOTE: Set to 0 to enable Noise Cancelling.");
+				ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Speak to Chat")) {
+				ImGui::Checkbox("Enabled", &_headphones->stcEnabled.desired);
+				ImGui::SliderInt("STC Level", &_headphones->stcLevel.desired, 0, 2);
+				ImGui::SliderInt("STC Time", &_headphones->stcTime.desired, 0, 3);
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Equalizer")) {
+				const float width = ImGui::GetContentRegionAvail().x;
+				const float padding = ImGui::GetStyle().ItemSpacing.x;
+				ImGui::SeparatorText("5-Band EQ");
+				for (int i = 0; i < 5; i++) {
+					const char* bandNames[] = { "400","1k","2.5k","6.3k","16k" };
+					ImGui::PushID(i);
+					ImGui::VSliderInt("##", ImVec2(width / 5 - padding, 160), &_headphones->eqConfig.desired.bands[i], -10, 10);
+					if (ImGui::IsItemActive() || ImGui::IsItemHovered())
+						ImGui::SetTooltip("%s", bandNames[i]);
+					ImGui::PopID();
+					if (i != 4) ImGui::SameLine();
+				}
+				ImGui::SeparatorText("Clear Bass");
+				ImGui::SetNextItemWidth(width);
+				ImGui::SliderInt("##", &_headphones->eqConfig.desired.bassLevel, -10, 10);
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Multipoint")) {
+				ImGui::Checkbox("Multipoint Connect", &_headphones->mpEnabled.desired);
+				ImGui::Text("NOTE: Can't toggle yet. Sorry!");
+				size_t i = 0;
+				const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+				for (auto& [mac, device] : _headphones->connectedDevices) {
+					if (mac == _headphones->mpDeviceMac.current)
+						ImGui::TreeNodeEx((void*)i++, default_flags | ImGuiTreeNodeFlags_Selected, "%s", device.name.c_str());
+					else
+						ImGui::TreeNodeEx((void*)i++, default_flags, "%s", device.name.c_str());
+					if (ImGui::IsItemClicked()) {
+						_headphones->mpDeviceMac.desired = mac;
+					}
+				}
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Misc")) {
+				ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+
+				if (ImGui::TreeNode("Touch Sensor")) {
+					static const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
+						{TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL, "Playback Control"},
+						{TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL, "Ambient Sound / Noise Cancelling"},
+						{TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED, "Not Assigned"}
 					};
 
-				const auto TOUCH_SENSOR_FUNCTION_INV_INDEX = [](const int& index) {
-					switch (index) {
-					case 0:
-						return TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL;
-					case 1:
-						return TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL;
-					case 2:
-						return TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED;
-					}
-					};
-
-				const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {
-					if (ImGui::BeginCombo(label, TOUCH_SENSOR_FUNCTION_STR[TOUCH_SENSOR_FUNCTION_INDEX(prop.desired)])) {
-						for (int i = 0; i < (int)TOUCH_SENSOR_FUNCTION::NUM_FUNCTIONS; i++) {
-							const bool is_selected = (TOUCH_SENSOR_FUNCTION_INDEX(prop.desired) == i);
-							if (ImGui::Selectable(TOUCH_SENSOR_FUNCTION_STR[i], is_selected)) {
-								prop.desired = TOUCH_SENSOR_FUNCTION_INV_INDEX(i);
+					const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {
+						if (ImGui::BeginCombo(label, TOUCH_SENSOR_FUNCTION_STR.at(prop.desired))) {
+							for (auto& [k, v] : TOUCH_SENSOR_FUNCTION_STR) {
+								const bool is_selected = (prop.desired == k);
+								if (ImGui::Selectable(v, is_selected)) {
+									prop.desired = k;
+								}
+								if (is_selected) {
+									ImGui::SetItemDefaultFocus();
+								}
 							}
-							if (is_selected) {
-								ImGui::SetItemDefaultFocus();
-							}
+							ImGui::EndCombo();
 						}
-						ImGui::EndCombo();
-					}
-					};
-				draw_touch_sensor_combo(_headphones->touchLeftFunc, "Left Touch Sensor");
-				draw_touch_sensor_combo(_headphones->touchRightFunc, "Right Touch Sensor");
-				ImGui::TreePop();
+						};
+					draw_touch_sensor_combo(_headphones->touchLeftFunc, "Left Touch Sensor");
+					draw_touch_sensor_combo(_headphones->touchRightFunc, "Right Touch Sensor");
+					ImGui::TreePop();
+				}
+
+				ImGui::EndTabItem();
 			}
-			
-			ImGui::TreePop();
+			ImGui::EndTabBar();
 		}
 	}
 }
 
 void CrossPlatformGUI::_drawConfig()
 {
-	if (ImGui::TreeNode("Config")) {
+	if (ImGui::CollapsingHeader("App Config")) {
 		if (ImGui::TreeNode("UI")) {
 			ImGui::SeparatorText("Misc");
 			ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
@@ -406,7 +404,7 @@ void CrossPlatformGUI::_drawConfig()
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Shell Command")) {
-			ImGui::Text("NOTE: Headphones may send events (displayed in the message queue)");
+			ImGui::Text("NOTE: Headphones may send Events (displayed in the Messages section as Headphone Event: ...)");
 			ImGui::Text("NOTE: You may bind them to shell commands here.");
 			static ImGuiTableFlags flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
 			if (ImGui::BeginTable("Commands", 3, flags)) {
@@ -444,12 +442,12 @@ void CrossPlatformGUI::_drawConfig()
 			}
 			ImGui::TreePop();
 		}
+		ImGui::Separator();
 		if (ImGui::Button("Save Config"))
 			_config.saveSettings();
 		ImGui::SameLine();
 		if (ImGui::Button("Load Config"))
 			_config.loadSettings();
-		ImGui::TreePop();
 	}
 }
 
@@ -485,15 +483,14 @@ void CrossPlatformGUI::_handleHeadphoneInteraction(std::string&& event)
 		auto const& shellCommand = _config.headphoneInteractionShellCommands[event];
 		ExecuteShellCommand(std::string(shellCommand.data()));
 	}
-	this->_mq.addMessage("[event] " + event);
+	this->_mq.addMessage("Headphone Event: " + event);
 }
 
-CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt))
+CrossPlatformGUI::CrossPlatformGUI(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt)), _mq(GUI_MAX_MESSAGES, GUI_MESSAGE_TIMEOUT)
 {
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	ImGuiIO& io = ImGui::GetIO();
-	this->_mq = TimedMessageQueue(GUI_MAX_MESSAGES);	
 	this->_connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
 
 	io.IniFilename = nullptr;

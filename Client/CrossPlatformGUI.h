@@ -21,7 +21,9 @@
 #define TOML_HEADER_ONLY 0
 #include <toml++/toml.hpp>
 
-constexpr auto GUI_MAX_MESSAGES = 5;
+constexpr auto GUI_MAX_MESSAGES = -1;
+constexpr auto GUI_MESSAGE_TIMEOUT = -1;
+constexpr auto GUI_MESSAGE_BOX_SIZE = 2;
 constexpr auto GUI_HEIGHT = 700;
 constexpr auto GUI_WIDTH = 700;
 constexpr auto FPS = 60;
@@ -60,7 +62,7 @@ public:
 private:
 	ImFont* _applyFont(const std::string& fontFile, float font_size);
 
-	void _drawErrors();
+	void _drawMessages();
 	void _drawDeviceDiscovery();
 	void _drawControls();
 	void _drawConfig();
