@@ -195,8 +195,9 @@ namespace WindowsGUIInternal
 			if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
 				return 0;
 			break;
+		case WM_QUIT:
 		case WM_DESTROY:
-			::PostQuitMessage(0);
+			exit(0);
 			return 0;
 		}
 		return ::DefWindowProc(hWnd, msg, wParam, lParam);
