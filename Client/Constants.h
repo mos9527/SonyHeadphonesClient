@@ -19,19 +19,19 @@ Service Class ID List:
 Protocol Descriptor List:
   "L2CAP" (0x0100)
   "RFCOMM" (0x0003)
-    Channel: 9
+	Channel: 9
 Language Base Attr List:
   code_ISO639: 0x656e
   encoding:    0x6a
   base_offset: 0x100
 Profile Descriptor List:
   "Serial Port" (0x1101)
-    Version: 0x0102
+	Version: 0x0102
  */
 
 inline constexpr auto SERVICE_UUID = "956C7B26-D49A-4BA8-B03F-B17D393CB6E2";
 inline unsigned char SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but in bytes
-        0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2
+		0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2
 };
 
 #define APP_NAME "Sony Headphones App v" __HEADPHONES_APP_VERSION__
@@ -43,21 +43,21 @@ enum class DATA_TYPE : signed char
 {
 	DATA = 0,
 	ACK = 1,
-    DATA_MC_NO1 = 2,
-    DATA_ICD = 9,
-    DATA_EV = 10,
+	DATA_MC_NO1 = 2,
+	DATA_ICD = 9,
+	DATA_EV = 10,
 	DATA_MDR = 12,
-    DATA_COMMON = 13,
-    DATA_MDR_NO2 = 14,
-    SHOT =  16,
-    SHOT_MC_NO1 =  18,
-    SHOT_ICD =  25,
-    SHOT_EV =  26,
-    SHOT_MDR =  28,
-    SHOT_COMMON =  29,
-    SHOT_MDR_NO2 = 30,
-    LARGE_DATA_COMMON =  45,
-    UNKNOWN = -1
+	DATA_COMMON = 13,
+	DATA_MDR_NO2 = 14,
+	SHOT =  16,
+	SHOT_MC_NO1 =  18,
+	SHOT_ICD =  25,
+	SHOT_EV =  26,
+	SHOT_MDR =  28,
+	SHOT_COMMON =  29,
+	SHOT_MDR_NO2 = 30,
+	LARGE_DATA_COMMON =  45,
+	UNKNOWN = -1
 };
 
 enum class NC_ASM_EFFECT : signed char
@@ -125,10 +125,10 @@ enum class COMMAND_TYPE : unsigned char
 	MISC_DATA_GET = 0xc4,
 	MISC_DATA_RET = 0xc9,
 
-	MULTIPOINT_ENABLE_GET = 0xd6,
-	MULTIPOINT_ENABLE_RET = 0xd7,
-	MULTIPOINT_ENABLE_SET = 0xd8,
-	MULTIPOINT_ENABLE_NOITIFY = 0xd9,
+	MULTIPOINT_ETC_ENABLE_GET = 0xd6,
+	MULTIPOINT_ETC_ENABLE_RET = 0xd7,
+	MULTIPOINT_ETC_ENABLE_SET = 0xd8,
+	MULTIPOINT_ETC_ENABLE_NOITIFY = 0xd9,
 
 	MULTIPOINT_ENABLE_GET_2 = 0x96,
 	MULTIPOINT_ENABLE_RET_2 = 0x97,

@@ -54,7 +54,7 @@ WindowsBluetoothConnector::~WindowsBluetoothConnector()
 int WindowsBluetoothConnector::send(char* buf, size_t length)
 {
 	auto bytesSent = ::send(this->_socket, buf, length, 0);
-#if 0
+#if _DEBUG
 	printf("[send] ");
 	for (int i = 0; i < length; i++) printf("%02x ", (unsigned char)buf[i]);
 	printf("\n");
@@ -69,7 +69,7 @@ int WindowsBluetoothConnector::send(char* buf, size_t length)
 int WindowsBluetoothConnector::recv(char* buf, size_t length)
 {
 	auto bytesReceived = ::recv(this->_socket, buf, length, 0);
-#if 0
+#if _DEBUG
 	printf("[recv] ");
 	for (int i = 0; i < length; i++) printf("%02x ", (unsigned char)buf[i]);
 	printf("\n");

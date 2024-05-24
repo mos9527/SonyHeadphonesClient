@@ -194,7 +194,7 @@ namespace CommandSerializer
 	Buffer serializeMpToggle(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET));
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
 		ret.push_back(static_cast<unsigned char>(0xD2));
 		ret.push_back(0x00);
 		ret.push_back(!enabled); // 1 (on->off) 0 (off->on)
@@ -257,6 +257,15 @@ namespace CommandSerializer
 		ret.push_back(0x02);
 		ret.push_back(static_cast<unsigned char>(funcL));
 		ret.push_back(static_cast<unsigned char>(funcR));
+		return ret;
+	}
+	Buffer serializeOnCallVoiceCaptureSetting(bool enabled)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
+		ret.push_back(0xD1);
+		ret.push_back(0x00);
+		ret.push_back(!enabled);
 		return ret;
 	}
 }

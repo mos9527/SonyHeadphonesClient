@@ -98,6 +98,9 @@ public:
 	// Is Multipoint enabled?
 	Property<bool> mpEnabled{};
 
+	// Capture Voice During a Phone Call thing
+	Property<bool> voiceCapEnabled{};
+
 	// Playback
 	struct {
 		std::string title;

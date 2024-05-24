@@ -17,7 +17,8 @@ bool Headphones::isChanged()
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
 		eqConfig.isFulfilled() &&
-		touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled()
+		touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled() &&
+		voiceCapEnabled.isFulfilled()
 	);
 }
 
@@ -148,6 +149,15 @@ void Headphones::setChanges()
 		touchLeftFunc.fulfill();
 		touchRightFunc.fulfill();
 	}
+
+	if (!voiceCapEnabled.isFulfilled()) {
+		this->_conn.sendCommand(
+			CommandSerializer::serializeOnCallVoiceCaptureSetting(voiceCapEnabled.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		voiceCapEnabled.fulfill();
+	}
 }
 
 void Headphones::requestInit()
@@ -194,8 +204,14 @@ void Headphones::requestInit()
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::MULTIPOINT_ENABLE_GET),
+		static_cast<char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
 		static_cast<char>(0xD2) // Multipoint enabled
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+		static_cast<char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
+		static_cast<char>(0xD1) // Voice Capture enabled
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
@@ -329,6 +345,9 @@ HeadphonesEvent Headphones::_handleMessage(CommandSerializer::CommandMessage con
 		case DATA_TYPE::DATA_MDR_NO2:
 		{
 			auto cmd = static_cast<COMMAND_TYPE>(msg[0]);
+#if _DEBUG
+			std::cout << "[message] cmd: 0x" << std::hex << static_cast<int>(cmd) << '\n';
+#endif
 			switch (cmd)
 			{
 			case COMMAND_TYPE::INIT_RESPONSE:
@@ -472,10 +491,23 @@ HeadphonesEvent Headphones::_handleMessage(CommandSerializer::CommandMessage con
 				break;
 			}
 				break;
-			case COMMAND_TYPE::MULTIPOINT_ENABLE_RET:
-			case COMMAND_TYPE::MULTIPOINT_ENABLE_NOITIFY:
-				mpEnabled.overwrite(!(bool)msg[3]);
+			case COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_RET:
+			case COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_NOITIFY:
+			{
+				int sub = static_cast<int>(msg[1]) & 0xff;
+				switch (sub)
+				{
+				case 0xD1:
+					voiceCapEnabled.overwrite(!(bool)msg[3]);
+					break;
+				case 0xD2:
+					mpEnabled.overwrite(!(bool)msg[3]);
+					break;
+				default:
+					break;
+				}
 				break;
+			}
 			case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_NOTIFY:
 			case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_RET:
 				switch (msg[1])
@@ -549,6 +581,7 @@ HeadphonesEvent Headphones::_handleMessage(CommandSerializer::CommandMessage con
 					std::string str(msg.begin() + 4, msg.end());
 					event.type = HeadphonesEvent::JSONMessage;
 					event.message = str;
+					std::cout << "[message] " << str << '\n';
 				}
 				break;
 				default:
