@@ -17,7 +17,10 @@
 #include <iostream>
 #include <fstream>
 #include <array>
-#include <format>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <ctime>
 #include <filesystem>
 
 #define TOML_HEADER_ONLY 0

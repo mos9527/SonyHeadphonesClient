@@ -147,9 +147,13 @@ void CrossPlatformGUI::_drawMessages()
                 bool shouldScroll = false;
                 this->_mq.iterateMessage([&](CommandMessage const& message) {
                     if (message.messageTime() > latestMessage)
-                        latestMessage = message.messageTime(), shouldScroll = true;
-                    // https://en.cppreference.com/w/cpp/chrono/system_clock/formatter#Format_specification
-                    auto timestring = std::format("{:%X}", message.messageTime());
+                    latestMessage = message.messageTime(), shouldScroll = true;
+                    auto timePoint = message.messageTime();
+                    std::time_t time = std::chrono::system_clock::to_time_t(timePoint);
+                    std::stringstream timeStream;
+                    timeStream << std::put_time(std::localtime(&time), "%X");
+                    std::string timestring = timeStream.str();
+
                     ImGui::Text("[%s] %s", timestring.c_str(), message.message.c_str());
                 });
                 if (shouldScroll)
