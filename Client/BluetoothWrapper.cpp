@@ -88,17 +88,10 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	this->_seqNumber = msg.getSeqNumber();
 
 	this->connector->recv(&msg.messageBytes[3], 4);
-	int msgSize = msg.getSize();
-	
-	int recvSize = this->connector->recv(buf, msgSize);
-	if (msgSize != recvSize) throw RecoverableException("Recv size mismatch", true);
-	if (msgSize)
-		msg.messageBytes.insert(msg.messageBytes.end(), buf, buf + msgSize);
-	
-	// XXX: Hacky. Escaped length is not counted in recvSize so we have to recieve the rest byte by byte
 	while (msg.messageBytes.back() != END_MARKER) 
 		msg.messageBytes.push_back(recvOne()); 
 	
+	int msgSize = msg.getSize();			
 	msg.messageBytes = CommandSerializer::_unescapeSpecials(msg.messageBytes);
 
 	if (!msg.verify())
