@@ -56,7 +56,7 @@ if (LINUX)
             contrib/imgui/backends/imgui_impl_glfw.cpp
     )
 
-    set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/linux)
+    set (CMAKE_MODULE_PATH src/platform/linux)
 
     set (OpenGL_GL_PREFERENCE GLVND)
     
