@@ -59,7 +59,7 @@ class App
 {
 public:
 	App(BluetoothWrapper&& bt);
-
+    ~App();
 	//Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
 	//O: true if the user wants to close the window
 	bool OnImGui();
@@ -73,19 +73,19 @@ private:
 
 	void _setHeadphoneSettings();
 
-	AppConfig _config;
 	void _handleHeadphoneInteraction(std::string&& event);
 
+    // XXX: Destruction order is dependent on the *reverse* order of declaration
     std::vector<std::string> _logs;
-	BluetoothDevice _connectedDevice;
-	BluetoothWrapper _bt;
-	SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
-	SingleInstanceFuture<void> _sendCommandFuture;
-	SingleInstanceFuture<void> _connectFuture;
-	
-	SingleInstanceFuture<void> _requestFuture;
-
-	std::unique_ptr<Headphones> _headphones;
+    AppConfig _config;
+    BluetoothDevice _connectedDevice;
+    BluetoothWrapper _bt;
+    SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
+    SingleInstanceFuture<void> _sendCommandFuture;
+    SingleInstanceFuture<void> _connectFuture;
+    SingleInstanceFuture<void> _requestFuture;
+    std::unique_ptr<Headphones> _headphones; // dtor called first because of
+    // pending CVs that might block the later wait() calls
 };
 
 

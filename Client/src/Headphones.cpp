@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn)
+Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("receive")
 {
 	recvAsync();
 }
@@ -631,6 +631,7 @@ void Headphones::disconnect()
 
 Headphones::~Headphones()
 {
+    _ackCV.notify_all();
 	if (_conn.isConnected())
 		disconnect();
 }

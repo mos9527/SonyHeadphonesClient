@@ -22,7 +22,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    App app(std::move(bt));
+
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -51,51 +51,51 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
     MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor new];
 
     // Main loop
-    while (!glfwWindowShouldClose(window))
     {
-        @autoreleasepool
-        {
-            // Poll and handle events (inputs, window resize, etc.)
-            // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-            // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-            // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-            // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-            glfwPollEvents();
+        App app(std::move(bt));
+        while (!glfwWindowShouldClose(window)) {
+            @autoreleasepool {
+                // Poll and handle events (inputs, window resize, etc.)
+                // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+                // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
+                // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
+                // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+                glfwPollEvents();
 
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
-            layer.drawableSize = CGSizeMake(width, height);
-            id<CAMetalDrawable> drawable = [layer nextDrawable];
+                int width, height;
+                glfwGetFramebufferSize(window, &width, &height);
+                layer.drawableSize = CGSizeMake(width, height);
+                id <CAMetalDrawable> drawable = [layer nextDrawable];
 
-            id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-            renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
-            renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
-            renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-            renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-            id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-            [renderEncoder pushDebugGroup:@"ImGui demo"];
+                id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+                renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);
+                renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
+                renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+                renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+                id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+                [renderEncoder pushDebugGroup:@"ImGui demo"];
 
-            // Start the Dear ImGui frame
-            ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-            ImGui_ImplGlfw_NewFrame();
+                // Start the Dear ImGui frame
+                ImGui_ImplMetal_NewFrame(renderPassDescriptor);
+                ImGui_ImplGlfw_NewFrame();
 
-            ImGui::NewFrame();
-            // Our GUI routine
-            app.OnImGui();
-            ImGui::EndFrame();
+                ImGui::NewFrame();
+                // Our GUI routine
+                app.OnImGui();
+                ImGui::EndFrame();
 
-            // Rendering
-            ImGui::Render();
-            ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
+                // Rendering
+                ImGui::Render();
+                ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
 
-            [renderEncoder popDebugGroup];
-            [renderEncoder endEncoding];
+                [renderEncoder popDebugGroup];
+                [renderEncoder endEncoding];
 
-            [commandBuffer presentDrawable:drawable];
-            [commandBuffer commit];
+                [commandBuffer presentDrawable:drawable];
+                [commandBuffer commit];
+            }
         }
     }
-
     // Cleanup
     ImGui_ImplMetal_Shutdown();
     ImGui_ImplGlfw_Shutdown();

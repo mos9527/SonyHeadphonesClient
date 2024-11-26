@@ -12,43 +12,28 @@ template <class T>
 class SingleInstanceFuture : public std::future<T>
 {
 public:
-	SingleInstanceFuture(void) = default;
-	template<class Func, class... Args>
-	void setFromAsync(Func func, Args&&... args) noexcept(false);
-	bool ready();
-
-private:
-	SingleInstanceFuture(std::future<T> other);
-	SingleInstanceFuture<T> operator=(std::future<T>& other);
+    std::string name = "<unamed>";
+	explicit SingleInstanceFuture(std::string const& name) : name(name) {};
+    ~SingleInstanceFuture() {
+        if (this->valid() && !this->ready())
+        {
+            this->wait();
+        }
+    }
+    inline void setFromAsync(auto func, auto && ...args)
+    {
+        if (this->valid())
+        {
+            throw std::runtime_error("The asynchronous action was cancelled before it finished executing");
+        }
+        std::future<T>::operator=(std::async(std::launch::async, func, std::forward<decltype(args)>(args)...));
+    }
+    inline bool ready()
+    {
+        if (!this->valid())
+        {
+            return false;
+        }
+        return this->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+    }
 };
-
-template<class T>
-template<class Func, class ...Args>
-inline void SingleInstanceFuture<T>::setFromAsync(Func func, Args && ...args)
-{
-	if (this->valid())
-	{
- 		throw std::runtime_error("The asynchronous action was cancelled before it finished executing");
-	}
-	*this = std::async(std::launch::async, func, std::forward<Args>(args)...);
-}
-
-template<class T>
-inline bool SingleInstanceFuture<T>::ready()
-{
-	if (!this->valid())
-	{
-		return false;
-	}
-	return this->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-}
-
-
-template<class T>
-inline SingleInstanceFuture<T>::SingleInstanceFuture(std::future<T> other) : std::future<T>(std::move(other)) {}
-
-template<class T>
-inline SingleInstanceFuture<T> SingleInstanceFuture<T>::operator=(std::future<T>& other)
-{
-	return std::future<T>::operator=(other);
-}

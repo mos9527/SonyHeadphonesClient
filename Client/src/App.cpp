@@ -103,6 +103,8 @@ ImFont* App::_applyFont(const std::string& fontFile, float font_size)
                 nullptr,
                 &ranges[0]
         );
+    } else {
+        std::cout << "[imgui] font not found: " << _config.imguiFontFile << std::endl;
     }
 
     if (font) {
@@ -485,7 +487,7 @@ void App::_handleHeadphoneInteraction(std::string&& event)
     _logs.push_back("Headphone Event: " + event);
 }
 
-App::App(BluetoothWrapper&& bt) : _bt(std::move(bt))
+App::App(BluetoothWrapper&& bt) : _bt(std::move(bt)), _requestFuture("request"), _sendCommandFuture("send cmd"), _connectFuture("connect"), _connectedDevicesFuture("connected devices")
 {
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -501,6 +503,10 @@ App::App(BluetoothWrapper&& bt) : _bt(std::move(bt))
     _applyFont(_config.imguiFontFile, _config.imguiFontSize);
 }
 
+App::~App(){
+    std::cout << "qutting. saving settings..." << std::endl;
+    _config.saveSettings();
+}
 void AppConfig::loadSettings()
 {
     std::ifstream file(SAVE_NAME);
@@ -514,7 +520,6 @@ void AppConfig::loadSettings()
         autoConnectDeviceMac = table["autoConnectDeviceMac"].value<std::string>().value_or("");
         imguiFontFile = table["imguiFontFile"].value<std::string>().value_or("");
         imguiFontSize = table["imguiFontSize"].value<float>().value_or(-1);
-
         if (table["shellCommands"].as_table())
         {
             headphoneInteractionShellCommands.clear();
@@ -531,7 +536,6 @@ void AppConfig::saveSettings()
 {
     toml::table table;
     table.insert("showDisclaimers", showDisclaimers);
-
     imguiSettings = ImGui::SaveIniSettingsToMemory();
     table.insert("imguiSettings", imguiSettings);
     table.insert("imguiFontSize", imguiFontSize);
