@@ -1,11 +1,36 @@
+#include "platform/windows/WindowsBluetoothConnector.h"
 #include "App.h"
+
+#include "imgui.h"
+#include "backends/imgui_impl_win32.h"
+#include "backends/imgui_impl_dx11.h"
+#include <d3d11.h>
+#include <tchar.h>
 
 static ID3D11Device* g_pd3dDevice = NULL;
 static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
 static IDXGISwapChain* g_pSwapChain = NULL;
 static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace WindowsGUIInternal
 {
+
+    void CreateRenderTarget()
+    {
+        ID3D11Texture2D* pBackBuffer = nullptr;
+        g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+        if (pBackBuffer == nullptr)
+        {
+            throw std::runtime_error("Unexpected: pBackBuffer is null");
+        }
+        g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_mainRenderTargetView);
+        pBackBuffer->Release();
+    }
+
+    void CleanupRenderTarget()
+    {
+        if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
+    }
 
     bool CreateDeviceD3D(HWND hWnd)
     {
@@ -43,23 +68,6 @@ namespace WindowsGUIInternal
         if (g_pSwapChain) { g_pSwapChain->Release(); g_pSwapChain = NULL; }
         if (g_pd3dDeviceContext) { g_pd3dDeviceContext->Release(); g_pd3dDeviceContext = NULL; }
         if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
-    }
-
-    void CreateRenderTarget()
-    {
-        ID3D11Texture2D* pBackBuffer = nullptr;
-        g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-        if (pBackBuffer == nullptr)
-        {
-            throw std::runtime_error("Unexpected: pBackBuffer is null");
-        }
-        g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_mainRenderTargetView);
-        pBackBuffer->Release();
-    }
-
-    void CleanupRenderTarget()
-    {
-        if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
     }
 
     // Win32 message handler
@@ -153,6 +161,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         app.OnImGui();
         ImGui::EndFrame();
 
+        ImGui::Render();
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&WINDOW_COLOR);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -184,10 +193,10 @@ int main()
     SetConsoleOutputCP(65001);
     try
     {
-        EnterGUIMainLoop(IBluetoothConnector(std::make_unique<WindowsBluetoothConnector>()));
+        EnterGUIMainLoop(BluetoothWrapper(std::make_unique<WindowsBluetoothConnector>()));
     }
     catch (const std::exception& e)
     {
-        DisplayErrorMessagebox(e.what());
+        printf("%s",e.what());
     }
 }

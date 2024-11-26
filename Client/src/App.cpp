@@ -219,6 +219,14 @@ void App::_drawDeviceDiscovery()
                 {
                     ImGui::Text("Discovering Devices %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
                 }
+                ImGui::SameLine();
+                if (connectedDevices.size()) {
+                    bool isAutoConnect = _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
+                    if (ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
+                        _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
+                        _config.saveSettings();
+                    }
+                }
             }
             else
             {
@@ -227,14 +235,6 @@ void App::_drawDeviceDiscovery()
                     selectedDevice = -1;
                     _connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
                 }
-            }
-        }
-        ImGui::SameLine();
-        if (connectedDevices.size()) {
-            bool isAutoConnect = _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
-            if (ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
-                _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
-                _config.saveSettings();
             }
         }
     }

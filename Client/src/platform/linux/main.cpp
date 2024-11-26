@@ -77,7 +77,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         // Our GUI routine
         app.OnImGui();
         ImGui::EndFrame();
-
+        
+        ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);

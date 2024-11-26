@@ -4,7 +4,6 @@ project(SonyHeadphonesClient)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Threads REQUIRED)
-find_package(glfw3 REQUIRED)
 
 add_executable(SonyHeadphonesClient)
 
@@ -27,7 +26,7 @@ target_include_directories (SonyHeadphonesClient
 )
 set (DEAR_IMGUI TRUE)
 if(UNIX AND NOT APPLE)
-    set(src/platform/linux TRUE)
+    set(LINUX TRUE)
 endif()
 
 if (DEAR_IMGUI)
@@ -37,8 +36,7 @@ if (DEAR_IMGUI)
             contrib/imgui/imgui_draw.cpp
             contrib/imgui/imgui_tables.cpp
             contrib/imgui/imgui_widgets.cpp
-            contrib/imgui/misc/cpp/imgui_stdlib.cpp
-            contrib/imgui/backends/imgui_impl_glfw.cpp
+            contrib/imgui/misc/cpp/imgui_stdlib.cpp            
     )
 
     target_include_directories (SonyHeadphonesClient
@@ -46,19 +44,22 @@ if (DEAR_IMGUI)
     )
 endif ()
 
-if (src/platform/linux)
-	target_sources(SonyHeadphonesClient
-		PRIVATE src/platform/linux/DBusHelper.cpp
+if (LINUX)
+    find_package(glfw3 REQUIRED)
+    target_link_libraries(SonyHeadphonesClient glfw)
+    target_sources(SonyHeadphonesClient
+        PRIVATE src/platform/linux/DBusHelper.cpp
             src/platform/linux/LinuxBluetoothConnector.cpp
             src/platform/linux/LinuxGUI.cpp
             src/platform/linux/main.cpp
             contrib/imgui/backends/imgui_impl_opengl3.cpp
+            contrib/imgui/backends/imgui_impl_glfw.cpp
     )
 
     set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/linux)
 
     set (OpenGL_GL_PREFERENCE GLVND)
-	
+    
     find_package(DBus REQUIRED)
 
     find_package(GLEW REQUIRED)
@@ -90,8 +91,7 @@ if (WIN32)
     ADD_DEFINITIONS(-DUNICODE)
 
     target_sources(SonyHeadphonesClient
-        PRIVATE src/platform/windows/WindowsGUI.cpp
-            src/platform/windows/main.cpp
+        PRIVATE src/platform/windows/main.cpp
             src/platform/windows/WindowsBluetoothConnector.cpp
             contrib/imgui/backends/imgui_impl_dx11.cpp
             contrib/imgui/backends/imgui_impl_win32.cpp
@@ -103,11 +103,14 @@ if (WIN32)
 endif ()
 
 if (APPLE)
+    find_package(glfw3 REQUIRED)
+    target_link_libraries(SonyHeadphonesClient glfw)  
     enable_language(OBJCXX)
     target_sources(SonyHeadphonesClient
         PRIVATE src/platform/macos/MacOSBluetoothConnector.mm
             src/platform/macos/main.mm
             contrib/imgui/backends/imgui_impl_metal.mm
+            contrib/imgui/backends/imgui_impl_glfw.cpp
     )
     target_link_libraries(SonyHeadphonesClient
         PRIVATE "-framework Foundation -framework IOBluetooth -framework IOKit -framework Metal -framework MetalKit -framework Cocoa -framework CoreVideo -framework QuartzCore"
@@ -115,5 +118,5 @@ if (APPLE)
 endif ()
 
 target_link_libraries(SonyHeadphonesClient
-    PRIVATE Threads::Threads glfw
+    PRIVATE Threads::Threads 
 )
