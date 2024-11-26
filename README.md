@@ -99,8 +99,10 @@ sudo pacman -S bluez glew dbus glfw
 ```
 
 #### macOS
-
-~~Use the provided xcodeproj file.~~ 
+```bash
+# Install glfw
+brew install glfw
+```
 
 ## Contributors
 

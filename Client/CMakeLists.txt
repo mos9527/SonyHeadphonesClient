@@ -1,64 +1,58 @@
-project(SonyHeadphonesClient)
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+project(SonyHeadphonesClient)
 
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Threads REQUIRED)
+find_package(glfw3 REQUIRED)
 
 add_executable(SonyHeadphonesClient)
 
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.4")
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.6")
 
 target_sources(SonyHeadphonesClient
-    PRIVATE BluetoothWrapper.cpp
-    ByteMagic.cpp
-    CommandSerializer.cpp
-    TimedMessageQueue.cpp
-    CrossPlatformGUI.cpp "Headphones.cpp")
-
-target_sources(SonyHeadphonesClient
-     PRIVATE ${CMAKE_SOURCE_DIR}/tomlplusplus/src/toml.cpp
-)
-target_include_directories (SonyHeadphonesClient
-    PRIVATE ${CMAKE_SOURCE_DIR}/tomlplusplus/include
+    PRIVATE src/BluetoothWrapper.cpp
+        src/CommandSerializer.cpp
+        src/App.cpp
+        src/Headphones.cpp
+        contrib/tomlplusplus/src/toml.cpp
 )
 
 target_include_directories (SonyHeadphonesClient
-    PRIVATE ${CMAKE_SOURCE_DIR}
+    PRIVATE contrib/tomlplusplus/include
 )
 
+target_include_directories (SonyHeadphonesClient
+    PRIVATE src contrib
+)
+set (DEAR_IMGUI TRUE)
 if(UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-endif()
-
-if (WIN32 OR LINUX)
-    set (DEAR_IMGUI TRUE)
+    set(src/platform/linux TRUE)
 endif()
 
 if (DEAR_IMGUI)
     target_sources(SonyHeadphonesClient
-        PRIVATE CrossPlatformGUI.cpp
-        imgui/imgui.cpp
-        imgui/imgui_draw.cpp
-        imgui/imgui_tables.cpp
-        imgui/imgui_widgets.cpp
-        imgui/misc/cpp/imgui_stdlib.cpp
-        CascadiaCodeFont.cpp
+        PRIVATE src/App.cpp
+            contrib/imgui/imgui.cpp
+            contrib/imgui/imgui_draw.cpp
+            contrib/imgui/imgui_tables.cpp
+            contrib/imgui/imgui_widgets.cpp
+            contrib/imgui/misc/cpp/imgui_stdlib.cpp
+            contrib/imgui/backends/imgui_impl_glfw.cpp
     )
 
     target_include_directories (SonyHeadphonesClient
-        PRIVATE ${CMAKE_SOURCE_DIR}/imgui
+        PRIVATE contrib/imgui
     )
 endif ()
 
-if (LINUX)
+if (src/platform/linux)
 	target_sources(SonyHeadphonesClient
-		PRIVATE linux/DBusHelper.cpp
-		linux/LinuxBluetoothConnector.cpp
-		linux/LinuxGUI.cpp
-        linux/main.cpp
-        imgui/backends/imgui_impl_glfw.cpp
-        imgui/backends/imgui_impl_opengl3.cpp
+		PRIVATE src/platform/linux/DBusHelper.cpp
+            src/platform/linux/LinuxBluetoothConnector.cpp
+            src/platform/linux/LinuxGUI.cpp
+            src/platform/linux/main.cpp
+            contrib/imgui/backends/imgui_impl_opengl3.cpp
     )
 
     set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/linux)
@@ -68,8 +62,6 @@ if (LINUX)
     find_package(DBus REQUIRED)
 
     find_package(GLEW REQUIRED)
-
-    find_package(glfw3 REQUIRED)
 
     find_package(OpenGL REQUIRED)
 
@@ -98,11 +90,11 @@ if (WIN32)
     ADD_DEFINITIONS(-DUNICODE)
 
     target_sources(SonyHeadphonesClient
-        PRIVATE windows/WindowsGUI.cpp
-        windows/main.cpp
-        windows/WindowsBluetoothConnector.cpp
-        imgui/backends/imgui_impl_dx11.cpp
-        imgui/backends/imgui_impl_win32.cpp
+        PRIVATE src/platform/windows/WindowsGUI.cpp
+            src/platform/windows/main.cpp
+            src/platform/windows/WindowsBluetoothConnector.cpp
+            contrib/imgui/backends/imgui_impl_dx11.cpp
+            contrib/imgui/backends/imgui_impl_win32.cpp
     )
 
     target_link_libraries(SonyHeadphonesClient
@@ -110,6 +102,18 @@ if (WIN32)
     )
 endif ()
 
+if (APPLE)
+    enable_language(OBJCXX)
+    target_sources(SonyHeadphonesClient
+        PRIVATE src/platform/macos/MacOSBluetoothConnector.mm
+            src/platform/macos/main.mm
+            contrib/imgui/backends/imgui_impl_metal.mm
+    )
+    target_link_libraries(SonyHeadphonesClient
+        PRIVATE "-framework Foundation -framework IOBluetooth -framework IOKit -framework Metal -framework MetalKit -framework Cocoa -framework CoreVideo -framework QuartzCore"
+    )
+endif ()
+
 target_link_libraries(SonyHeadphonesClient
-    PRIVATE Threads::Threads
+    PRIVATE Threads::Threads glfw
 )
