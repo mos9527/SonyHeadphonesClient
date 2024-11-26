@@ -1,17 +1,12 @@
 ﻿#include "App.h"
-bool App::performGUIPass()
+bool App::OnImGui()
 {
-    ImGui::NewFrame();
-
-    static bool isConnected = false;
-
     bool open = true;
 
     ImGui::SetNextWindowPos({ 0,0 });
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     {
         ImGui::Begin("Sony Headphones", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-
         //Legal disclaimer
         if (_config.showDisclaimers) {
             ImGui::Separator();
@@ -39,7 +34,7 @@ bool App::performGUIPass()
                     {
                         std::string message = std::get<std::string>(event.message);
                         int j = 0; while (j < message.length() && std::isprint(message[j])) j++;
-                        _handleHeadphoneInteraction(message.substr(j));
+                        _handleHeadphoneInteraction(message.substr(0,j));
                     }
                         break;
                     case HeadphonesEvent::PlaybackMetadataUpdate:
@@ -79,10 +74,8 @@ bool App::performGUIPass()
             }
             _logs.push_back(exc.what());
         }
+        ImGui::End();
     }
-
-    ImGui::End();
-    ImGui::Render();
     return open;
 }
 
@@ -128,7 +121,7 @@ void App::_drawMessages()
         if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {
             static int prevMessageCnt = 0;
             for (auto const& message:_logs) {
-                ImGui::Text("[%s] %s", message.c_str());
+                ImGui::Text("%s", message.c_str());
             }
             if (_logs.size() > prevMessageCnt)
                 prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
@@ -474,7 +467,7 @@ void App::_handleHeadphoneInteraction(std::string&& event)
     _logs.push_back("Headphone Event: " + event);
 }
 
-App::App(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt))
+App::App(BluetoothWrapper&& bt) : _bt(std::move(bt))
 {
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -486,7 +479,7 @@ App::App(BluetoothWrapper bt, const float font_size) : _bt(std::move(bt))
 
     _config.loadSettings();
     if (_config.imguiFontSize < 0) 
-        _config.imguiFontSize = font_size;
+        _config.imguiFontSize = FONT_SIZE;
     _applyFont(_config.imguiFontFile, _config.imguiFontSize);
 }
 

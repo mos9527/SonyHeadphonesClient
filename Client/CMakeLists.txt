@@ -4,6 +4,7 @@ project(SonyHeadphonesClient)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Threads REQUIRED)
+find_package(glfw3 REQUIRED)
 
 add_executable(SonyHeadphonesClient)
 
@@ -37,6 +38,7 @@ if (DEAR_IMGUI)
             contrib/imgui/imgui_tables.cpp
             contrib/imgui/imgui_widgets.cpp
             contrib/imgui/misc/cpp/imgui_stdlib.cpp
+            contrib/imgui/backends/imgui_impl_glfw.cpp
     )
 
     target_include_directories (SonyHeadphonesClient
@@ -50,7 +52,6 @@ if (src/platform/linux)
             src/platform/linux/LinuxBluetoothConnector.cpp
             src/platform/linux/LinuxGUI.cpp
             src/platform/linux/main.cpp
-            contrib/imgui/backends/imgui_impl_glfw.cpp
             contrib/imgui/backends/imgui_impl_opengl3.cpp
     )
 
@@ -61,8 +62,6 @@ if (src/platform/linux)
     find_package(DBus REQUIRED)
 
     find_package(GLEW REQUIRED)
-
-    find_package(glfw3 REQUIRED)
 
     find_package(OpenGL REQUIRED)
 
@@ -107,14 +106,14 @@ if (APPLE)
     enable_language(OBJCXX)
     target_sources(SonyHeadphonesClient
         PRIVATE src/platform/macos/MacOSBluetoothConnector.mm
-            src/platform/macos/MacOSGUI.mm
             src/platform/macos/main.mm
+            contrib/imgui/backends/imgui_impl_metal.mm
     )
     target_link_libraries(SonyHeadphonesClient
-        PRIVATE "-framework Foundation -framework IOBluetooth"
+        PRIVATE "-framework Foundation -framework IOBluetooth -framework IOKit -framework Metal -framework MetalKit -framework Cocoa -framework CoreVideo -framework QuartzCore"
     )
 endif ()
 
 target_link_libraries(SonyHeadphonesClient
-    PRIVATE Threads::Threads
+    PRIVATE Threads::Threads glfw
 )

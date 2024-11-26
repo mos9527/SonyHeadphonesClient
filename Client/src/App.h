@@ -19,6 +19,7 @@
 #include <sstream>
 #include <ctime>
 #include <filesystem>
+#include <memory>
 
 #define TOML_HEADER_ONLY 0
 #include <toml++/toml.hpp>
@@ -55,11 +56,11 @@ struct AppConfig {
 class App
 {
 public:
-	App(BluetoothWrapper bt, const float font_size = FONT_SIZE);
+	App(BluetoothWrapper&& bt);
 
 	//Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
 	//O: true if the user wants to close the window
-	bool performGUIPass();
+	bool OnImGui();
 private:
 	ImFont* _applyFont(const std::string& fontFile, float font_size);
 
