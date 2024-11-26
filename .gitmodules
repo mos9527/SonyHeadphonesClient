@@ -1,6 +1,6 @@
-[submodule "Client/imgui"]
-	path = Client/imgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "Client/tomlplusplus"]
-	path = Client/tomlplusplus
+[submodule "Client/contrib/tomlplusplus"]
+	path = Client/contrib/tomlplusplus
 	url = https://github.com/marzer/tomlplusplus/
+[submodule "Client/contrib/imgui"]
+	path = Client/contrib/imgui
+	url = https://github.com/ocornut/imgui.git
