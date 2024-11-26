@@ -1,5 +1,5 @@
-project(SonyHeadphonesClient)
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+project(SonyHeadphonesClient)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -14,25 +14,21 @@ target_sources(SonyHeadphonesClient
     ByteMagic.cpp
     CommandSerializer.cpp
     TimedMessageQueue.cpp
-    CrossPlatformGUI.cpp "Headphones.cpp")
-
-target_sources(SonyHeadphonesClient
-     PRIVATE ${CMAKE_SOURCE_DIR}/tomlplusplus/src/toml.cpp
+    CrossPlatformGUI.cpp
+    Headphones.cpp
+    tomlplusplus/src/toml.cpp
 )
+
 target_include_directories (SonyHeadphonesClient
-    PRIVATE ${CMAKE_SOURCE_DIR}/tomlplusplus/include
+    PRIVATE tomlplusplus/include
 )
 
 target_include_directories (SonyHeadphonesClient
     PRIVATE ${CMAKE_SOURCE_DIR}
 )
-
+set (DEAR_IMGUI TRUE)
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
-endif()
-
-if (WIN32 OR LINUX)
-    set (DEAR_IMGUI TRUE)
 endif()
 
 if (DEAR_IMGUI)
@@ -47,7 +43,7 @@ if (DEAR_IMGUI)
     )
 
     target_include_directories (SonyHeadphonesClient
-        PRIVATE ${CMAKE_SOURCE_DIR}/imgui
+        PRIVATE imgui
     )
 endif ()
 
@@ -107,6 +103,18 @@ if (WIN32)
 
     target_link_libraries(SonyHeadphonesClient
         PRIVATE d3d11
+    )
+endif ()
+
+if (APPLE)
+    enable_language(OBJCXX)
+    target_sources(SonyHeadphonesClient
+        PRIVATE macos/MacOSBluetoothConnector.mm
+        macos/MacOSGUI.mm
+        macos/main.mm
+    )
+    target_link_libraries(SonyHeadphonesClient
+        PRIVATE "-framework Foundation -framework IOBluetooth"
     )
 endif ()
 
