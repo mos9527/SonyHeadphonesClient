@@ -41,7 +41,9 @@ struct AppConfig {
 
 	bool 
 		showDisclaimers = true;
-	std::map<std::string, std::string>
+    std::string
+        autoConnectDeviceMac{};
+	std::vector<std::pair<std::string, std::string>>
 		headphoneInteractionShellCommands{};
 	std::string 
 		imguiSettings{};

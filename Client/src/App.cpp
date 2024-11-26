@@ -34,7 +34,8 @@ bool App::OnImGui()
                     {
                         std::string message = std::get<std::string>(event.message);
                         int j = 0; while (j < message.length() && std::isprint(message[j])) j++;
-                        _handleHeadphoneInteraction(message.substr(0,j));
+                        if (j)
+                            _handleHeadphoneInteraction(message.substr(0,j));
                     }
                         break;
                     case HeadphonesEvent::PlaybackMetadataUpdate:
@@ -139,7 +140,19 @@ void App::_drawDeviceDiscovery()
     {
         static std::vector<BluetoothDevice> connectedDevices;
         static int selectedDevice = -1;
-
+        auto request_connect = [&](int index) {
+            _connectedDevice = connectedDevices[index];
+            _connectFuture.setFromAsync([this]() {
+                this->_bt.connect(this->_connectedDevice.mac);
+                this->_headphones = std::make_unique<Headphones>(this->_bt);
+                if (this->_requestFuture.valid())
+                    this->_requestFuture.get();
+                this->_requestFuture.setFromAsync([this]() {
+                    this->_headphones->requestInit();
+                    this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
+                });
+            });
+        };
         if (_headphones)
         {
             ImGui::Text("Connected to %s", _connectedDevice.name.c_str());
@@ -176,20 +189,7 @@ void App::_drawDeviceDiscovery()
             {
                 if (ImGui::Button("Connect"))
                 {
-                    if (selectedDevice != -1)
-                    {
-                        _connectedDevice = connectedDevices[selectedDevice];
-                        _connectFuture.setFromAsync([this]() {
-                            this->_bt.connect(this->_connectedDevice.mac);
-                            this->_headphones = std::make_unique<Headphones>(this->_bt);
-                            if (this->_requestFuture.valid())
-                                this->_requestFuture.get();
-                            this->_requestFuture.setFromAsync([this]() {
-                                this->_headphones->requestInit();
-                                this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
-                            });
-                        });
-                    }
+                    if (selectedDevice != -1) request_connect(selectedDevice);
                 }
             }
 
@@ -200,6 +200,18 @@ void App::_drawDeviceDiscovery()
                 if (_connectedDevicesFuture.ready())
                 {
                     connectedDevices = _connectedDevicesFuture.get();
+                    static bool autoConnectAttempted = false;
+                    if (!autoConnectAttempted){
+                        autoConnectAttempted = true;
+                        auto index = std::find_if(connectedDevices.begin(), connectedDevices.end(), [&](const BluetoothDevice& device) {
+                            return device.mac == _config.autoConnectDeviceMac;
+                        });
+                        if (index != connectedDevices.end()){
+                            _logs.push_back("Auto connecting " + index->name + " (" + index->mac + ")");
+                            selectedDevice = index - connectedDevices.begin();
+                            request_connect(selectedDevice);
+                        }
+                    }
                 }
                 else
                 {
@@ -213,6 +225,14 @@ void App::_drawDeviceDiscovery()
                     selectedDevice = -1;
                     _connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
                 }
+            }
+        }
+        ImGui::SameLine();
+        if (connectedDevices.size()) {
+            bool isAutoConnect = _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
+            if (ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
+                _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
+                _config.saveSettings();
             }
         }
     }
@@ -388,6 +408,7 @@ void App::_drawConfig()
             ImGui::Text("NOTE: Headphones may send Events (displayed in the Messages section as Headphone Event: ...)");
             ImGui::Text("NOTE: You may bind them to shell commands here.");
             static ImGuiTableFlags flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
+            auto& cmds = _config.headphoneInteractionShellCommands;
             if (ImGui::BeginTable("Commands", 3, flags)) {
                 ImGui::TableSetupColumn("Event");
                 ImGui::TableSetupColumn("Shell");
@@ -395,23 +416,19 @@ void App::_drawConfig()
                 ImGui::TableHeadersRow();
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
                 for (
-                    auto it = _config.headphoneInteractionShellCommands.begin();
-                    it != _config.headphoneInteractionShellCommands.end();
-                    it != _config.headphoneInteractionShellCommands.end() ?
-                    it++ : _config.headphoneInteractionShellCommands.end()) {
-
+                    auto it = cmds.begin();it != cmds.end();it != cmds.end() ? it++ : cmds.end()) {
                     ImGui::TableNextRow();
                     ImGui::PushID((void*)it->first.data());
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::InputText("##", const_cast<std::string*>(&it->first));
+                    ImGui::InputText("##", &it->first);
                     ImGui::PopID();
 
                     ImGui::PushID((void*)it->second.data());
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::InputText("##", const_cast<std::string*>(&it->second));
+                    ImGui::InputText("##", &it->second);
                     ImGui::TableSetColumnIndex(2);
                     if (ImGui::Button("Remove##")) {
-                        it = _config.headphoneInteractionShellCommands.erase(it);
+                        it = cmds.erase(it);
                     }
                     ImGui::PopID();
                 }
@@ -419,7 +436,7 @@ void App::_drawConfig()
                 ImGui::EndTable();
             }
             if (ImGui::Button("Add Command")) {
-                _config.headphoneInteractionShellCommands.insert({ {},{} });
+                cmds.push_back({});
             }
             ImGui::TreePop();
         }
@@ -460,9 +477,10 @@ void App::_setHeadphoneSettings() {
 
 void App::_handleHeadphoneInteraction(std::string&& event)
 {
-    if (_config.headphoneInteractionShellCommands.contains(event)) {
-        auto const& shellCommand = _config.headphoneInteractionShellCommands[event];
-        system(shellCommand.c_str());
+    auto& cmds = _config.headphoneInteractionShellCommands;
+    auto cmd = std::find_if(cmds.begin(),cmds.end(),[&](auto& p) { return p.first == event; });
+    if (cmd != cmds.end()){
+        system(cmd->second.c_str());
     }
     _logs.push_back("Headphone Event: " + event);
 }
@@ -492,7 +510,8 @@ void AppConfig::loadSettings()
         
         imguiSettings = table["imguiSettings"].value<std::string>().value_or("");		
         ImGui::LoadIniSettingsFromMemory(imguiSettings.c_str(), imguiSettings.size());
-        
+
+        autoConnectDeviceMac = table["autoConnectDeviceMac"].value<std::string>().value_or("");
         imguiFontFile = table["imguiFontFile"].value<std::string>().value_or("");
         imguiFontSize = table["imguiFontSize"].value<float>().value_or(-1);
 
@@ -502,7 +521,7 @@ void AppConfig::loadSettings()
             for (auto& [k, v] : *table["shellCommands"].as_table()) {
                 std::string ks{ k.str() };
                 std::string vs = v.value<std::string>().value_or("");
-                headphoneInteractionShellCommands[ks] = vs;
+                headphoneInteractionShellCommands.push_back({ks,vs});
             }
         }
     }
@@ -521,7 +540,7 @@ void AppConfig::saveSettings()
         table["shellCommands"].as_table()->insert(k.data(), v.data());	
 
     table.insert("imguiFontFile", imguiFontFile);
-
+    table.insert("autoConnectDeviceMac", autoConnectDeviceMac);
     std::ofstream file(SAVE_NAME);
     file << toml::toml_formatter{ table };
 }
