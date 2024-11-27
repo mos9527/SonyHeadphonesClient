@@ -5,7 +5,6 @@
 #include <functional>
 #include <utility>
 
-
 //A simple future wrapper class. Allows only a single instance to be active at any single time; particularly useful for GUI operations where we don't want
 //to send the same commands or repeat operations before they completed. Also wraps std::async nicely with setFromAsync
 template <class T>
@@ -35,5 +34,8 @@ public:
             return false;
         }
         return this->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+    }
+    inline void reset(){
+        std::future<T>::operator=({});
     }
 };

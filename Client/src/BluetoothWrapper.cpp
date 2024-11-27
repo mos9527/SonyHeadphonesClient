@@ -24,11 +24,13 @@ BluetoothWrapper& BluetoothWrapper::operator=(BluetoothWrapper&& other) noexcept
 
 int BluetoothWrapper::sendCommand(CommandSerializer::CommandMessage const& cmd)
 {
-	std::lock_guard guard(this->_connectorMtx);
-	auto const& data = cmd.messageBytes;
-	auto bytesSent = this->connector->send((char*)data.data(), data.size());
-
-	return bytesSent;
+    if (connector->isConnected()) {
+        std::lock_guard guard(this->_connectorMtx);
+        auto const &data = cmd.messageBytes;
+        auto bytesSent = this->connector->send((char *) data.data(), data.size());
+        return bytesSent;
+    }
+    return 0;
 }
 
 int BluetoothWrapper::sendCommand(const Buffer& command, DATA_TYPE dataType)

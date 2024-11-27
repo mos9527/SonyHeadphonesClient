@@ -24,8 +24,10 @@ bool Headphones::isChanged()
 
 void Headphones::waitForAck(int timeout)
 {
-	std::unique_lock lck(_ackMtx);
-	_ackCV.wait_for(lck, std::chrono::seconds(timeout));
+    if (_conn.isConnected()) {
+        std::unique_lock lck(_ackMtx);
+        _ackCV.wait_for(lck, std::chrono::seconds(timeout));
+    }
 }
 
 void Headphones::setChanges()
@@ -297,12 +299,13 @@ void Headphones::requestSync()
 
 void Headphones::recvAsync()
 {
-	_recvFuture.setFromAsync([this]() -> std::optional<CommandSerializer::CommandMessage> {
-		auto& conn = this->getConn();
-		CommandSerializer::CommandMessage cmd;
-		conn.recvCommand(cmd);
-		return cmd;
-	});
+    if (_conn.isConnected())
+        _recvFuture.setFromAsync([this]() -> std::optional<CommandSerializer::CommandMessage> {
+            auto& conn = this->getConn();
+            CommandSerializer::CommandMessage cmd;
+            conn.recvCommand(cmd);
+            return cmd;
+        });
 }
 
 void Headphones::requestMultipointSwitch(const char* macString)
@@ -627,12 +630,13 @@ HeadphonesEvent Headphones::poll()
 void Headphones::disconnect()
 {
 	_conn.disconnect();
+    _ackCV.notify_all();
 }
 
 Headphones::~Headphones()
 {
-    _ackCV.notify_all();
 	if (_conn.isConnected())
 		disconnect();
+    _ackCV.notify_all();
 }
 

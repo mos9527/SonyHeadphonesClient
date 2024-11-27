@@ -103,7 +103,7 @@ endif ()
 
 if (APPLE)
     find_package(glfw3 REQUIRED)
-    target_link_libraries(SonyHeadphonesClient glfw)  
+    target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     enable_language(OBJCXX)
     target_sources(SonyHeadphonesClient
         PRIVATE src/platform/macos/MacOSBluetoothConnector.mm

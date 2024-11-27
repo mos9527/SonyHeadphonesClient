@@ -55,7 +55,7 @@ Binaries for Windows and Linux are available here: [releases page](https://githu
 
 - [x] Windows
 - [x] Linux  
-- [ ] macOS
+- [x] macOS
 - [ ] ~~TempleOS~~
 
 ---

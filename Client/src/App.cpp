@@ -66,14 +66,21 @@ bool App::OnImGui()
             }
         }
         catch (RecoverableException& exc) {
+            _logs.push_back(exc.what());
             if (exc.shouldDisconnect)
             {
+                std::cout << "headphones disconnecting: " + std::string(exc.what())<<std::endl;
+                if (_headphones)
+                    _headphones->disconnect();
+                _connectFuture.reset();
+                _requestFuture.reset();
+                _sendCommandFuture.reset();
+                _connectedDevicesFuture.reset();
                 _headphones.reset();
             }
             else {
                 throw exc;
             }
-            _logs.push_back(exc.what());
         }
         ImGui::End();
     }
@@ -146,13 +153,17 @@ void App::_drawDeviceDiscovery()
             _connectedDevice = connectedDevices[index];
             _connectFuture.setFromAsync([this]() {
                 this->_bt.connect(this->_connectedDevice.mac);
-                this->_headphones = std::make_unique<Headphones>(this->_bt);
-                if (this->_requestFuture.valid())
-                    this->_requestFuture.get();
-                this->_requestFuture.setFromAsync([this]() {
-                    this->_headphones->requestInit();
-                    this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
-                });
+                if (this->_bt.isConnected()) {
+                    this->_headphones = std::make_unique<Headphones>(this->_bt);
+                    if (this->_requestFuture.valid())
+                        this->_requestFuture.get();
+                    this->_requestFuture.setFromAsync([&]() {
+                        this->_headphones->requestInit();
+                        this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
+                    });
+                } else {
+                    throw RecoverableException("Failed to connect", true);
+                }
             });
         };
         if (_headphones)
@@ -219,6 +230,9 @@ void App::_drawDeviceDiscovery()
                 {
                     ImGui::Text("Discovering Devices %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
                 }
+            }
+            else
+            {
                 ImGui::SameLine();
                 if (connectedDevices.size()) {
                     bool isAutoConnect = _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
@@ -227,9 +241,6 @@ void App::_drawDeviceDiscovery()
                         _config.saveSettings();
                     }
                 }
-            }
-            else
-            {
                 if (ImGui::Button("Refresh devices"))
                 {
                     selectedDevice = -1;
