@@ -12,16 +12,13 @@ A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutob
 
 **THIS PROGRAM IS NOT AFFILIATED WITH SONY. YOU ARE RESPONSIBLE FOR ANY DAMAGE THAT MAY OCCUR WHILE USING THIS PROGRAM.**
 
-
-## Download
-
-Binaries for Windows and Linux are available here: [releases page](https://github.com/mos9527/SonyHeadphonesClient/releases).
-
 ## Features
 
 Only the device-specific functions are listed here. If unspecified, the functionalities would be generally available.
 
 If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) or a Pull Request so this table can be kept up-to-date!
+
+**ATTENTION:** Older devices (e.g. XM3s) **will not work** with this fork due to updated BT protocols and are therefore discarded. Use [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) instead.
 
 **NOTE:** **✅**: Supported, ❌: Unsupported, **?**: Untested, **~**: Supported offically, pending implementation.
 
@@ -42,7 +39,7 @@ If the feature support status for your own device is missing/incorrect/untested 
 | Capture Voice During a Phone Call            | ✅                    | ?                     | ❌ ([#1](https://github.com/mos9527/SonyHeadphonesClient/pull/1)) |
 | Mapping headphone gestures to Shell Commands | ✅                    | ?                     | ?                                                            |
 
-## Platforms
+## Downloads
 
 Windows, macOS and most flavors of Linux are supported OOTB. You can find the latest binaries in the [Releases](https://github.com/mos9527/SonyHeadphonesClient/releases) page.
 
