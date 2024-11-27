@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <climits>
+#include <cstdint>
 #include "Constants.h"
 
 inline unsigned int byteOrderSwap(unsigned int num)
