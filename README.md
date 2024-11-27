@@ -1,5 +1,8 @@
 # Sony Headphones Client
-A continuation of the work done by [Plutoberth/SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) ,supporting newer devices,like Sony's WF-1000XM5. (and hopefully others as well...)
+
+<center><img src="https://github.com/user-attachments/assets/0c593a3f-148b-4a4d-8a60-e3483ca404bd"/></center>
+
+A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient), now updated with support for Sony's newer Bluetooth/TWS devices (*specifically* for the earbunds (i.e. WF-1000XM5), see [feature compatibility matrix](#features) for details.) and additional functionalities.
 
 [![Linux & Windows](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml)
 
@@ -7,72 +10,58 @@ A continuation of the work done by [Plutoberth/SonyHeadphonesClient](https://git
 
 ## DISCLAIMER
 
-- **THIS PROGRAM IS NOT AFFILIATED WITH SONY. YOU ARE RESPONSIBLE FOR ANY DAMAGE THAT MAY OCCUR WHILE USING THIS PROGRAM.**
+**THIS PROGRAM IS NOT AFFILIATED WITH SONY. YOU ARE RESPONSIBLE FOR ANY DAMAGE THAT MAY OCCUR WHILE USING THIS PROGRAM.**
 
-- This fork has only been confirmed to work with **WF-1000XM5** on Windows. Newer / contemporary devices may work as well, but their support is not guaranteed. **Older devies (i.e. XM4,XM3) won't work due to protocol differences.**
-
-- For older / incompatible devices, please refer to the original repo:[Plutoberth/SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient)
-
-## Screenshot
-
-**NOTE:** May not be up-to-date. See [Features](#features) for all available functionalities!
-
-![image](https://github.com/mos9527/SonyHeadphonesClient/assets/31397301/d564715f-f305-4f86-8303-cfebf67ec00b)
 
 ## Download
 
 Binaries for Windows and Linux are available here: [releases page](https://github.com/mos9527/SonyHeadphonesClient/releases).
 
 ## Features
-- Live update of the following device stats 
-  - [x] Track information (i.e. title, album, artist)
-  - [x] Sound Pressure
-  - [x] Battery Life
-- Direct control of the following parameters
-  - [x] Volume
-  - [x] Ambient Sound / Noise Cancelling toggle
-  - [x] Voice Passthrough toggle
-  - [x] Ambient Sound strength
-  - [x] Voice Guidance Volume *(useful! for debugging...)*
-  - [x] Track controls (i.e. play/pause, prev/next)
-  - [x] Multipoint Device selection
-  - [x] Speak-to-Chat
-  - [x] Equalizer  
-  - [x] Headphone touch sensor gesture funtion remapping
-  - [x] Power Off
-  - [ ] Adaptive Sound Control
-- Utilities, such as
-  - [x] Mapping headphone gestures to Shell Commands
 
-## Supported Platforms And Headsets
+Only the device-specific functions are listed here. If unspecified, the functionalities would be generally available.
 
-### Headsets
+If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) or a Pull Request so this table can be kept up-to-date!
 
-* **WF-1000-XM5**: Fully tested with all implemented features
-* ...hopefully some more devices can be listed here
+**NOTE:** **✅**: Supported, ❌: Unsupported, **?**: Untested, **~**: Supported offically, pending implementation.
 
-### Platforms
+| Feature                                      | WF-1000XM5 (Earbuds) | WH-1000XM5 (Over-ear) | WF-LS900N/BC (LinkBuds S)                                    |
+| -------------------------------------------- | -------------------- | --------------------- | ------------------------------------------------------------ |
+| Current Playing (req. host support)          | ✅                    | ?                     | ?                                                            |
+| Sound Pressure                               | ✅                    | ?                     | ?                                                            |
+| Battery Life                                 | ✅                    | ?                     | ?                                                            |
+| Volume                                       | ✅                    | ?                     | ?                                                            |
+| NC/AMB Settings                              | ✅                    | ?                     | ?                                                            |
+| Voice Guidance Volume                        | ✅                    | ?                     | ?                                                            |
+| Track controls (play/pause, prev/next)       | ✅                    | ?                     | ?                                                            |
+| Multipoint Control (device change)           | ✅                    | ?                     | ?                                                            |
+| Speak to Chat                                | ✅                    | ?                     | ?                                                            |
+| Equalizer                                    | ✅                    | ?                     | ?                                                            |
+| Touch Sensor Gesture                         | ✅                    | ?                     | ?                                                            |
+| Power Off                                    | ✅                    | ?                     | ?                                                            |
+| Capture Voice During a Phone Call            | ✅                    | ?                     | ❌ ([#1](https://github.com/mos9527/SonyHeadphonesClient/pull/1)) |
+| Mapping headphone gestures to Shell Commands | ✅                    | ?                     | ?                                                            |
 
-- [x] Windows
-- [x] Linux  
-- [x] macOS
-- [ ] ~~TempleOS~~
+## Platforms
 
----
+Windows, macOS and most flavors of Linux are supported OOTB. You can find the latest binaries in the [Releases](https://github.com/mos9527/SonyHeadphonesClient/releases) page.
 
-*Most of the following is copy-pasted from the original repo...*
 
 ## For Developers
-
+### Cloning the repo
 ```git clone --recurse-submodules https://github.com/mos9527/SonyHeadphonesClient.git```
 
-### Compiling
-#### Windows
+### Building
+`cmake` is used for Windows, macOS and Linux builds. You can build this project just like any other `cmake` ones. 
+
+#### Windows (DirectX 11/Win32 APIs)
+No extra dependency is required besides the Windows SDK.
+
 Install [cmake](https://cmake.org/download/) (3.29.3 works) and install [Visual Studio Community 2022](https://visualstudio.microsoft.com/vs/) the C++ components:
 * MSVC - VS 2022 C++ x64/x86 build tools
 * Windows SDK
 
-From within Visual Studio Run the `Tools --> Command Line --> Developer Command Prompt` and then:
+From within Visual Studio Run the `Tools --> Command Line --> Developer Command Prompt` ,and then:
 ```
 cd Client
 mkdir build
@@ -81,26 +70,33 @@ cmake ..
 cmake --build .
 ```
 
-#### Linux
+#### Linux (GLEW(OpenGL)/GLFW)
 
-Debian / Ubuntu:
+You'll need `DBus` and `libbluetooth`/`bluez` support for BT and `glfw`,`glew` for building the GUI on your distro.
+
+- Debian / Ubuntu:
+
 ```bash
 sudo apt install libbluetooth-dev libglew-dev libglfw3-dev libdbus-1-dev
 ```
 
-Fedora:
+- Fedora:
+
 ```bash
 sudo dnf install bluez-libs-devel glew-devel glfw-devel dbus-devel
 ```
 
-Arch Linux:
+- Arch Linux:
+
 ```bash
 sudo pacman -S bluez glew dbus glfw
 ```
 
-#### macOS
+#### macOS (Metal/GLFW)
+
+`glfw` is required for GUI. This should build on most Macs, including Apple Silicon ones.
+
 ```bash
-# Install glfw
 brew install glfw
 ```
 
