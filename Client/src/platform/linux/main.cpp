@@ -37,9 +37,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     if (window == NULL)
         return;
 
-    // init GUI
-    App app = App(std::move(bt));
-
+    // init GUI    
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
@@ -64,31 +62,33 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     // Main loop
-    while (!glfwWindowShouldClose(window))
     {
+        App app = App(std::move(bt));    
+        while (!glfwWindowShouldClose(window))
+        {
 
-        glfwPollEvents();
+            glfwPollEvents();
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
 
-        ImGui::NewFrame();
-        // Our GUI routine
-        app.OnImGui();
-        ImGui::EndFrame();
-        
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            ImGui::NewFrame();
+            // Our GUI routine
+            app.OnImGui();
+            ImGui::EndFrame();
+            
+            ImGui::Render();
+            int display_w, display_h;
+            glfwGetFramebufferSize(window, &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
+            glfwSwapBuffers(window);
+        }
     }
-
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

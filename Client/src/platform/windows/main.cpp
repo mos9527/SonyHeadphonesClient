@@ -131,49 +131,51 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     // Setup Platform/Renderer bindings
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-    App app(std::move(bt));
 
     UINT presentFlags = 0;
 
     // Main loop
     MSG msg = { 0 };
-    while (msg.message != WM_QUIT)
     {
-        // Poll and handle messages (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-
-        if (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+        App app(std::move(bt));
+        while (msg.message != WM_QUIT)
         {
-            ::TranslateMessage(&msg);
-            ::DispatchMessage(&msg);
-            continue;
-        }
+            // Poll and handle messages (inputs, window resize, etc.)
+            // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+            // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+            // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+            // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 
-        // Start the Dear ImGui frame
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
+            if (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+            {
+                ::TranslateMessage(&msg);
+                ::DispatchMessage(&msg);
+                continue;
+            }
 
-        ImGui::NewFrame();
-        // Our GUI routine
-        app.OnImGui();
-        ImGui::EndFrame();
+            // Start the Dear ImGui frame
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplWin32_NewFrame();
 
-        ImGui::Render();
-        g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-        g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&WINDOW_COLOR);
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            ImGui::NewFrame();
+            // Our GUI routine
+            app.OnImGui();
+            ImGui::EndFrame();
 
-        //We need this because Present doesn't delay when the app is minimized.
-        if (g_pSwapChain->Present(1, presentFlags) == DXGI_STATUS_OCCLUDED) {
-            presentFlags = DXGI_PRESENT_TEST;
-            //Artificial VSYNC when the app is minimized
-            Sleep(MS_PER_FRAME);
-        }
-        else {
-            presentFlags = 0;
+            ImGui::Render();
+            g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
+            g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&WINDOW_COLOR);
+            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+            //We need this because Present doesn't delay when the app is minimized.
+            if (g_pSwapChain->Present(1, presentFlags) == DXGI_STATUS_OCCLUDED) {
+                presentFlags = DXGI_PRESENT_TEST;
+                //Artificial VSYNC when the app is minimized
+                Sleep(MS_PER_FRAME);
+            }
+            else {
+                presentFlags = 0;
+            }
         }
     }
 
