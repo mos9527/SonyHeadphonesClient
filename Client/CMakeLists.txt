@@ -46,17 +46,16 @@ endif ()
 
 if (LINUX)
     find_package(glfw3 REQUIRED)
-    target_link_libraries(SonyHeadphonesClient glfw)
+    target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     target_sources(SonyHeadphonesClient
         PRIVATE src/platform/linux/DBusHelper.cpp
-            src/platform/linux/LinuxBluetoothConnector.cpp
-            src/platform/linux/LinuxGUI.cpp
+            src/platform/linux/LinuxBluetoothConnector.cpp            
             src/platform/linux/main.cpp
             contrib/imgui/backends/imgui_impl_opengl3.cpp
             contrib/imgui/backends/imgui_impl_glfw.cpp
     )
 
-    set (CMAKE_MODULE_PATH src/platform/linux)
+    set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/src/platform/linux)
 
     set (OpenGL_GL_PREFERENCE GLVND)
     
