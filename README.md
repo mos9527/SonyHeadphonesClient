@@ -88,13 +88,24 @@ sudo dnf install bluez-libs-devel glew-devel glfw-devel dbus-devel
 ```bash
 sudo pacman -S bluez glew dbus glfw
 ```
+The build commands are the same as Windows.
 
 #### macOS (Metal/GLFW)
 
 `glfw` is required for GUI. This should build on most Macs, including Apple Silicon ones.
-
 ```bash
+# Install cmake
+brew install cmake
+# Install glfw
 brew install glfw
+```
+You can either build with `cmake` directly or generate an Xcode project with `cmake -G Xcode ..` and build it with Xcode.
+```bash
+cd Client
+mkdir build
+cd build
+cmake -G Xcode ..
+# You can now open the generated SonyHeadphonesClient.xcodeproj in Xcode and build it there
 ```
 
 ## Contributors

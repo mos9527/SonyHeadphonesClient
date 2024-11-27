@@ -535,3 +535,5 @@ Client/linux/sonyheadphonesclient.build/
 .idea/
 cmake-build*/
 
+# macOS stuff
+.DS_Store
