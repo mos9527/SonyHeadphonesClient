@@ -1,13 +1,21 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project(SonyHeadphonesClient)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+project(SonyHeadphonesClient CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Threads REQUIRED)
 
-add_executable(SonyHeadphonesClient)
+if (NOT APPLE)
+    add_executable(SonyHeadphonesClient)
+else()
+    add_executable(SonyHeadphonesClient MACOSX_BUNDLE)
+    set_target_properties(SonyHeadphonesClient PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/macos/Info.plist        
+    )
+endif()
 
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.6")
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.7")
 
 target_sources(SonyHeadphonesClient
     PRIVATE src/BluetoothWrapper.cpp
@@ -102,9 +110,11 @@ if (WIN32)
 endif ()
 
 if (APPLE)
-    find_package(glfw3 REQUIRED)
-    target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     enable_language(OBJCXX)
+    # Homebrew does not offer universal binaries for GLFW, so we need to build it ourselves
+    add_subdirectory(contrib/glfw)
+    target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
+
     target_sources(SonyHeadphonesClient
         PRIVATE src/platform/macos/MacOSBluetoothConnector.mm
             src/platform/macos/main.mm

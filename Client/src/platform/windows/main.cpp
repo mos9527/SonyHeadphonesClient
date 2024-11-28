@@ -200,5 +200,7 @@ int main()
     catch (const std::exception& e)
     {
         printf("%s",e.what());
+        return 1;
     }
+    return 0;
 }

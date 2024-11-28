@@ -1,4 +1,4 @@
-name: Linux & Windows
+name: Build
 
 on:
   push:
@@ -11,13 +11,13 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: RelWithDebInfo
 
 jobs:
   build:
     strategy:
       matrix:
-        os: ["ubuntu-24.04", "windows-latest"]
+        os: ["ubuntu-24.04", "windows-latest", "macos-latest"]
         include:
           - os: ubuntu-24.04
             binary_path: Client/build/SonyHeadphonesClient
@@ -25,9 +25,12 @@ jobs:
             script: "sudo apt-get update && sudo apt-get install libbluetooth-dev libglew-dev libglfw3-dev libdbus-1-dev"
             gcc: 14
           - os: windows-latest
-            binary_path: Client/build/Release/SonyHeadphonesClient.exe
+            binary_path: Client/build/RelWithDebInfo/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64.exe"
-            script: ""
+            script: ""            
+          - os: macos-latest
+            binary_path: Client/build/SonyHeadphonesClient.zip
+            artifact_name: "SonyHeadphonesClient-macOS.zip"          
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -43,23 +46,7 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/Client/build
 
-    - name: Configure CMake (Linux)
-      if: runner.os == 'Linux'
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      working-directory: ${{github.workspace}}/Client/build
-      env:
-        CC: gcc-${{ matrix.gcc }}
-        CXX: g++-${{ matrix.gcc }}
-      # Note the current convention is to use the -S and -B options here to specify source
-      # and build directories, but this is only available with CMake 3.13 and higher.
-      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-
-
-    - name: Configure CMake (Windows)
-      if: runner.os == 'Windows'
+    - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
@@ -68,12 +55,30 @@ jobs:
       # and build directories, but this is only available with CMake 3.13 and higher.
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+    - name: Configure CMake (macOS)
+      if: runner.os == 'macOS'
+      # Use a bash shell so we can use the same syntax for environment variable
+      # access regardless of the host operating system
+      shell: bash
+      working-directory: ${{github.workspace}}/Client/build
+      # Note the current convention is to use the -S and -B options here to specify source
+      # and build directories, but this is only available with CMake 3.13 and higher.
+      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
 
     - name: Build
       working-directory: ${{github.workspace}}/Client/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE
+  
+    - name: Zip the App Bundle (macOS)
+      if: runner.os == 'macOS'
+      working-directory: ${{github.workspace}}/Client/build
+      # Zip the application for easier downloading
+      run: zip -r SonyHeadphonesClient.zip SonyHeadphonesClient.app
+  
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -130,6 +135,15 @@ jobs:
         asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient.exe
         asset_name: SonyHeadphonesClient-win-x64.exe
         asset_content_type: application/vnd.microsoft.portable-executable        
+
+    - uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient.zip
+        asset_name: SonyHeadphonesClient-macOS.zip
+        asset_content_type: application/zip
 
     - uses: eregon/publish-release@v1
       env:

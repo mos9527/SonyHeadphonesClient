@@ -73,7 +73,6 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
                 renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
                 renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
                 id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-                [renderEncoder pushDebugGroup:@"ImGui demo"];
 
                 // Start the Dear ImGui frame
                 ImGui_ImplMetal_NewFrame(renderPassDescriptor);
@@ -88,7 +87,6 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
                 ImGui::Render();
                 ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
 
-                [renderEncoder popDebugGroup];
                 [renderEncoder endEncoding];
 
                 [commandBuffer presentDrawable:drawable];
@@ -113,6 +111,7 @@ int main(){
     catch (const std::exception &e)
     {
         printf("%s", e.what());
+        return 1;
     }
-    return 1;
+    return 0;
 }
