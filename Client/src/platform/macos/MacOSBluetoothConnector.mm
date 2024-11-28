@@ -116,7 +116,8 @@ int MacOSBluetoothConnector::recv(char* buf, size_t length)
     std::unique_lock<std::mutex> g(receiveDataMutex);
     if (receivedBytes.empty())
         receiveDataConditionVariable.wait(g);
-    
+    if (!receivedBytes.size())
+        return -1; // closed
     // fill the buf with the new data
     std::vector<unsigned char> receivedVector = receivedBytes.front();
     receivedBytes.pop_front();
@@ -157,22 +158,25 @@ std::vector<BluetoothDevice> MacOSBluetoothConnector::getConnectedDevices()
 
 void MacOSBluetoothConnector::disconnect() noexcept
 {
-    // close connection
-    closeConnection();
-    running = false;
-    // effectively cancel all receiving threads
-    receiveDataConditionVariable.notify_all();
-    // notify the other thread that we are done disconnecting
-    disconnectionConditionVariable.notify_all();
-    // wait for the thread to finish
-    uthread.join();
+    if (running) {
+        // close connection
+        closeConnection();
+        running = false;
+        // effectively cancel all receiving threads
+        receiveDataConditionVariable.notify_all();
+        // notify the other thread that we are done disconnecting
+        disconnectionConditionVariable.notify_all();
+        // wait for the thread to finish
+        uthread.join();
+    }
 }
 void MacOSBluetoothConnector::closeConnection() {
     // get the channel
     IOBluetoothRFCOMMChannel *chan = (__bridge IOBluetoothRFCOMMChannel*) rfcommchannel;
     [chan setDelegate: nil];
     // close the channel
-    [chan closeChannel];
+    if ([chan isOpen])
+        [chan closeChannel];
 }
 
 

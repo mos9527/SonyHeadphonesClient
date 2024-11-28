@@ -1,4 +1,4 @@
-﻿#include "App.h"
+#include "App.h"
 bool App::OnImGui()
 {
     bool open = true;
@@ -56,7 +56,10 @@ bool App::OnImGui()
 #endif
                         _requestFuture.get();
                         lastSync = ImGui::GetTime();
-                        _requestFuture.setFromAsync([this]() {this->_headphones->requestSync(); });
+                        _requestFuture.setFromAsync([this]() {
+                            if (this->_headphones)
+                                this->_headphones->requestSync();
+                        });
                     }
                 }
             }
@@ -67,11 +70,10 @@ bool App::OnImGui()
         }
         catch (RecoverableException& exc) {
             _logs.push_back(exc.what());
-            if (exc.shouldDisconnect)
+            if (_headphones && exc.shouldDisconnect)
             {
                 std::cout << "headphones disconnecting: " + std::string(exc.what())<<std::endl;
-                if (_headphones)
-                    _headphones->disconnect();
+                _headphones->disconnect();
                 _connectFuture.reset();
                 _requestFuture.reset();
                 _sendCommandFuture.reset();
@@ -235,7 +237,7 @@ void App::_drawDeviceDiscovery()
             {
                 ImGui::SameLine();
                 if (connectedDevices.size()) {
-                    bool isAutoConnect = _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
+                    bool isAutoConnect = selectedDevice >= 0 && _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
                     if (ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
                         _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
                         _config.saveSettings();
