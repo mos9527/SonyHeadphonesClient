@@ -30,8 +30,7 @@ jobs:
             script: ""            
           - os: macos-latest
             binary_path: Client/build/SonyHeadphonesClient.zip
-            artifact_name: "SonyHeadphonesClient-macOS.zip"   
-            script: "brew install glfw"         
+            artifact_name: "SonyHeadphonesClient-macOS.zip"          
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -68,8 +67,7 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
 
-    - name: Build (CMake)
-      if: runner.os == 'Linux' || runner.os == 'Windows'
+    - name: Build
       working-directory: ${{github.workspace}}/Client/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
