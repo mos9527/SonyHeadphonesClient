@@ -92,21 +92,20 @@ The build commands are the same as Windows.
 
 #### macOS (Metal/GLFW)
 
-`glfw` is required for GUI. This should build on most Macs, including Apple Silicon ones.
+No extra dependency is required (as `glfw` is built with the app itself). The resultant binary should be universal (x86_64 and arm64).
 ```bash
 # Install cmake
 brew install cmake
-# Install glfw
-brew install glfw
 ```
-You can either build with `cmake` directly or generate an Xcode project with `cmake -G Xcode ..` and build it with Xcode.
+To build a universal binary, you can use the following commands:
 ```bash
 cd Client
 mkdir build
 cd build
-cmake -G Xcode ..
-# You can now open the generated SonyHeadphonesClient.xcodeproj in Xcode and build it there
+cmake -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+cmake --build .
 ```
+An app bundle will be created in the `build` directory named `SonyHeadphonesClient.app`.
 
 ## Contributors
 

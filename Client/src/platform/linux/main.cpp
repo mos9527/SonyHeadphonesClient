@@ -107,6 +107,7 @@ int main(int argc, const char *argv[])
     catch (const std::exception &e)
     {
         printf("%s", e.what());
+        return 1;
     }
-    return 1;
+    return 0;
 }
