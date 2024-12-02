@@ -48,15 +48,15 @@ bool App::OnImGui()
                 // Timed sync
                 static const double syncInterval = 1.0;
                 static double lastSync = -syncInterval;
-                if (_requestFuture.ready()) {
+                if (_headphones->_requestFuture.ready()) {
 #ifdef _DEBUG
                     if (ImGui::Button("Trigger Manual Sync")) {
 #else
                     if (ImGui::GetTime() - lastSync >= syncInterval) {
 #endif
-                        _requestFuture.get();
+                        _headphones->_requestFuture.get();
                         lastSync = ImGui::GetTime();
-                        _requestFuture.setFromAsync([this]() {
+                        _headphones->_requestFuture.setFromAsync([this]() {
                             if (this->_headphones)
                                 this->_headphones->requestSync();
                         });
@@ -73,11 +73,6 @@ bool App::OnImGui()
             if (_headphones && exc.shouldDisconnect)
             {
                 std::cout << "headphones disconnecting: " + std::string(exc.what())<<std::endl;
-                _headphones->disconnect();
-                _connectFuture.reset();
-                _requestFuture.reset();
-                _sendCommandFuture.reset();
-                _connectedDevicesFuture.reset();
                 _headphones.reset();
             }
             else {
@@ -157,9 +152,9 @@ void App::_drawDeviceDiscovery()
                 this->_bt.connect(this->_connectedDevice.mac);
                 if (this->_bt.isConnected()) {
                     this->_headphones = std::make_unique<Headphones>(this->_bt);
-                    if (this->_requestFuture.valid())
-                        this->_requestFuture.get();
-                    this->_requestFuture.setFromAsync([&]() {
+                    if (this->_headphones->_requestFuture.valid())
+                        this->_headphones->_requestFuture.get();
+                    this->_headphones->_requestFuture.setFromAsync([&]() {
                         this->_headphones->requestInit();
                         this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
                     });
@@ -280,9 +275,9 @@ void App::_drawControls()
             ImGui::EndTable();
         }
         if (ImGui::Button("Power Off")) {
-            if (_requestFuture.ready()) {
-                _requestFuture.get();
-                _requestFuture.setFromAsync([this]() {
+            if (_headphones->_requestFuture.ready()) {
+                _headphones->_requestFuture.get();
+                _headphones->_requestFuture.setFromAsync([this]() {
                     _headphones->requestPowerOff();
                     throw RecoverableException("Requested Shutdown", true);
                 });
@@ -306,10 +301,10 @@ void App::_drawControls()
                 ImGui::SameLine();
                 if (ImGui::Button("Next")) control = NEXT;
 
-                if (_requestFuture.ready()) {
+                if (_headphones->_requestFuture.ready()) {
                     if (control != NONE) {
-                        _requestFuture.get();
-                        _requestFuture.setFromAsync([this, control]() {
+                        _headphones->_requestFuture.get();
+                        _headphones->_requestFuture.setFromAsync([this, control]() {
                             _headphones->requestPlaybackControl(control);
                             });
                     }
@@ -465,16 +460,15 @@ void App::_drawConfig()
 }
 
 void App::_setHeadphoneSettings() {
-    assert(_headphones);
     //Don't show if the event only takes a few frames to send
     static int commandLinger = 0;
-    if (_sendCommandFuture.ready())
+    if (_headphones->_sendCommandFuture.ready())
     {
         commandLinger = 0;
-        _sendCommandFuture.get();
+        _headphones->_sendCommandFuture.get();
     }
     //This means that we're waiting
-    else if (_sendCommandFuture.valid())
+    else if (_headphones->_sendCommandFuture.valid())
     {
         if (commandLinger++ > (FPS / 10))
         {
@@ -484,7 +478,7 @@ void App::_setHeadphoneSettings() {
     //We're not waiting, and there's no event in the air, so we can evaluate sending a new event
     else if (_headphones->isChanged())
     {
-        _sendCommandFuture.setFromAsync([=, this]() {
+        _headphones->_sendCommandFuture.setFromAsync([=, this]() {
             return this->_headphones->setChanges();
         });
     }
@@ -500,7 +494,7 @@ void App::_handleHeadphoneInteraction(std::string&& event)
     _logs.push_back("Headphone Event: " + event);
 }
 
-App::App(BluetoothWrapper&& bt) : _bt(std::move(bt)), _requestFuture("request"), _sendCommandFuture("send cmd"), _connectFuture("connect"), _connectedDevicesFuture("connected devices")
+App::App(BluetoothWrapper&& bt, std::string const& appConfigPath) : _config(appConfigPath), _bt(std::move(bt)),  _connectFuture("connect"), _connectedDevicesFuture("connected devices")
 {
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -517,30 +511,29 @@ App::App(BluetoothWrapper&& bt) : _bt(std::move(bt)), _requestFuture("request"),
 }
 
 App::~App(){
-    std::cout << "qutting. saving settings..." << std::endl;
+    std::cout << "qutting. saving settings to " << _config.appConfigPath << std::endl;
     _config.saveSettings();
 }
 void AppConfig::loadSettings()
 {
-    std::ifstream file(SAVE_NAME);
-    if (file.good()) {
-        toml::table table = toml::parse(file);
-        showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
-        
-        imguiSettings = table["imguiSettings"].value<std::string>().value_or("");		
-        ImGui::LoadIniSettingsFromMemory(imguiSettings.c_str(), imguiSettings.size());
+    std::ifstream file(appConfigPath);
+    assert(file.is_open() && "cannot open config file for reading");
+    toml::table table = toml::parse(file);
+    showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
 
-        autoConnectDeviceMac = table["autoConnectDeviceMac"].value<std::string>().value_or("");
-        imguiFontFile = table["imguiFontFile"].value<std::string>().value_or("");
-        imguiFontSize = table["imguiFontSize"].value<float>().value_or(-1);
-        if (table["shellCommands"].as_table())
-        {
-            headphoneInteractionShellCommands.clear();
-            for (auto& [k, v] : *table["shellCommands"].as_table()) {
-                std::string ks{ k.str() };
-                std::string vs = v.value<std::string>().value_or("");
-                headphoneInteractionShellCommands.push_back({ks,vs});
-            }
+    imguiSettings = table["imguiSettings"].value<std::string>().value_or("");
+    ImGui::LoadIniSettingsFromMemory(imguiSettings.c_str(), imguiSettings.size());
+
+    autoConnectDeviceMac = table["autoConnectDeviceMac"].value<std::string>().value_or("");
+    imguiFontFile = table["imguiFontFile"].value<std::string>().value_or("");
+    imguiFontSize = table["imguiFontSize"].value<float>().value_or(-1);
+    if (table["shellCommands"].as_table())
+    {
+        headphoneInteractionShellCommands.clear();
+        for (auto& [k, v] : *table["shellCommands"].as_table()) {
+            std::string ks{ k.str() };
+            std::string vs = v.value<std::string>().value_or("");
+            headphoneInteractionShellCommands.push_back({ks,vs});
         }
     }
 }
@@ -558,6 +551,7 @@ void AppConfig::saveSettings()
 
     table.insert("imguiFontFile", imguiFontFile);
     table.insert("autoConnectDeviceMac", autoConnectDeviceMac);
-    std::ofstream file(SAVE_NAME);
+    std::ofstream file(appConfigPath);
+    assert(file.is_open() && "cannot save config file");
     file << toml::toml_formatter{ table };
 }

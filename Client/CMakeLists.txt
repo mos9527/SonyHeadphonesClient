@@ -13,9 +13,9 @@ else()
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/macos/Info.plist        
     )
-endif()
+    endif()
 
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.7")
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.8")
 
 target_sources(SonyHeadphonesClient
     PRIVATE src/BluetoothWrapper.cpp

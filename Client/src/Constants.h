@@ -34,9 +34,9 @@ inline unsigned char SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but
 		0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2
 };
 
-#define APP_NAME "Sony Headphones App v" __HEADPHONES_APP_VERSION__
+#define APP_NAME "Sony Headphones Client v" __HEADPHONES_APP_VERSION__
 #define APP_NAME_W (L"" APP_NAME)
-
+#define APP_CONFIG_NAME "sonyheadphonesclient.toml"
 using Buffer = std::vector<char>;
 
 enum class DATA_TYPE : signed char

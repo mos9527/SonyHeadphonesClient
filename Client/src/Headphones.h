@@ -6,29 +6,6 @@
 #include <iostream>
 #include <map>
 #include <variant>
-
-template <class T>
-struct Property {
-	T current;
-	T desired;
-
-	bool pendingRequest = false;
-
-	void flagPending();
-	bool isPending();
-
-	void fulfill();
-	bool isFulfilled();
-	void overwrite(T const& value);
-};
-
-template <class T>
-struct ReadonlyProperty {
-	T current;
-
-	void overwrite(T const& value);
-};
-
 struct HeadphonesEvent {
 	enum EventType {
 		None,
@@ -51,6 +28,28 @@ struct HeadphonesEvent {
 	HeadphonesEvent(EventType type) : type(type) {};
 	HeadphonesEvent(EventType type, auto const& message) : type(type), message(message) {};
 	~HeadphonesEvent() {};
+};
+
+template <class T>
+struct Property {
+	T current;
+	T desired;
+
+	bool pendingRequest = false;
+
+	void flagPending();
+	bool isPending();
+
+	void fulfill();
+	bool isFulfilled();
+	void overwrite(T const& value);
+};
+
+template <class T>
+struct ReadonlyProperty {
+	T current;
+
+	void overwrite(T const& value);
 };
 
 class Headphones {
@@ -91,7 +90,7 @@ public:
 
 	// Connected devices
 	std::map<std::string, BluetoothDevice> connectedDevices;
-	
+
 	// Paired devices that are not connected
 	std::map<std::string, BluetoothDevice> pairedDevices;
 
@@ -129,7 +128,7 @@ public:
 
 	bool isChanged();
 	void setChanges();
-		
+
 	void waitForAck(int timeout = 1);
 
 	void requestInit();
@@ -142,21 +141,25 @@ public:
 	BluetoothWrapper& getConn() { return _conn; }
 
 	/*
-	Asynchornously poll for incoming messages and (optionally) returns any event 
+	Asynchornously poll for incoming messages and (optionally) returns any event
 	that has been triggered by the message.
 	This function is non-blocking and thread-safe.
 	*/
 	HeadphonesEvent poll();
 
 	void disconnect();
+
 	~Headphones();
+
+	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
+	SingleInstanceFuture<void> _sendCommandFuture;
+	SingleInstanceFuture<void> _requestFuture;
 
 private:
 	std::mutex _propertyMtx, _ackMtx;
 	BluetoothWrapper& _conn;
 	std::condition_variable _ackCV;
 
-	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
 
 	HeadphonesEvent _handleMessage(CommandSerializer::CommandMessage const& msg);
 

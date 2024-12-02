@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("receive")
+Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("receive"), _requestFuture("request"), _sendCommandFuture("send cmd")
 {
 	recvAsync();
 }

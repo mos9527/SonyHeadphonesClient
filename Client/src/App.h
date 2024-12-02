@@ -35,10 +35,9 @@ constexpr auto FPS = 60;
 constexpr auto MS_PER_FRAME = 1000 / FPS;
 constexpr auto FONT_SIZE = 15.0f;
 const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
 struct AppConfig {
-	const char* SAVE_NAME = "settings.ini";
-
+	std::string appConfigPath;
+	///
 	bool 
 		showDisclaimers = true;
     std::string
@@ -50,7 +49,7 @@ struct AppConfig {
 	std::string
 		imguiFontFile{};
 	float imguiFontSize = -1;
-
+	AppConfig(std::string const& configPath) : appConfigPath(configPath) {};
 	void loadSettings();
 	void saveSettings();
 };
@@ -58,7 +57,7 @@ struct AppConfig {
 class App
 {
 public:
-	App(BluetoothWrapper&& bt);
+	App(BluetoothWrapper&& bt, std::string const& appConfigPath = APP_CONFIG_NAME);
     ~App();
 	//Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
 	//O: true if the user wants to close the window
@@ -75,17 +74,13 @@ private:
 
 	void _handleHeadphoneInteraction(std::string&& event);
 
-    // XXX: Destruction order is dependent on the *reverse* order of declaration
     std::vector<std::string> _logs;
     AppConfig _config;
     BluetoothDevice _connectedDevice;
     BluetoothWrapper _bt;
-    SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
-    SingleInstanceFuture<void> _sendCommandFuture;
-    SingleInstanceFuture<void> _connectFuture;
-    SingleInstanceFuture<void> _requestFuture;
-    std::unique_ptr<Headphones> _headphones; // dtor called first because of
-    // pending CVs that might block the later wait() calls
+	std::unique_ptr<Headphones> _headphones;
+	SingleInstanceFuture<std::vector<BluetoothDevice>> _connectedDevicesFuture;
+	SingleInstanceFuture<void> _connectFuture;
 };
 
 

@@ -52,7 +52,9 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
 
     // Main loop
     {
-        App app(std::move(bt));
+        // Save config to user's Library/Preferences
+        std::string configPath = std::string(getenv("HOME")) + "/Library/Preferences/" + APP_CONFIG_NAME;
+        App app(std::move(bt), configPath);
         while (!glfwWindowShouldClose(window)) {
             @autoreleasepool {
                 // Poll and handle events (inputs, window resize, etc.)
