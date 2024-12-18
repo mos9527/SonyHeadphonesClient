@@ -6,7 +6,10 @@
 #include "backends/imgui_impl_dx11.h"
 #include <d3d11.h>
 #include <tchar.h>
+#include <dwmapi.h>
+#include <windowsx.h>
 
+UINT const WMAPP_NOTIFYCALLBACK = WM_APP + 1;
 static ID3D11Device* g_pd3dDevice = NULL;
 static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
 static IDXGISwapChain* g_pSwapChain = NULL;
@@ -73,19 +76,37 @@ namespace WindowsGUIInternal
     // Win32 message handler
     LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
+        static bool windowShown = false;
         if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
             return true;
 
         switch (msg)
         {
+            case WMAPP_NOTIFYCALLBACK:
+            {
+                switch (LOWORD(lParam))
+                {
+                case NIN_BALLOONUSERCLICK:
+                case WM_LBUTTONDOWN:
+                case WM_RBUTTONDOWN:
+                {
+                    windowShown = !windowShown;
+                    ShowWindow(hWnd, windowShown ? SW_RESTORE : SW_HIDE);
+                    break;
+                }
+                }
+            }
             case WM_SIZE:
                 if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
                     {
                         CleanupRenderTarget();
                         g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-                        CreateRenderTarget();
+                        CreateRenderTarget();                    
                     }
-                    return 0;
+                else if (wParam == SIZE_MINIMIZED) {
+					ShowWindow(hWnd, SW_HIDE);
+					return 0;
+                }
             case WM_SYSCOMMAND:
                 if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
                 return 0;
@@ -98,17 +119,36 @@ namespace WindowsGUIInternal
         return ::DefWindowProc(hWnd, msg, wParam, lParam);
     }
 }
-
 void EnterGUIMainLoop(BluetoothWrapper bt)
 {
-    //Kinda broken but it works :)
-    ShowWindow(GetConsoleWindow(), SW_HIDE); //SW_RESTORE to bring back
-
     // Create application window
     WNDCLASSEXW wc = { sizeof(WNDCLASSEXW), CS_CLASSDC, WindowsGUIInternal::WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, APP_NAME_W, NULL };
     ::RegisterClassExW(&wc);
     //TODO: pass window data (size, name, etc) as params and autoscale
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, APP_NAME_W, WS_OVERLAPPEDWINDOW, 100, 100, GUI_WIDTH, GUI_HEIGHT, NULL, NULL, wc.hInstance, NULL);
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, APP_NAME_W, WS_OVERLAPPEDWINDOW | WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, GUI_WIDTH, GUI_HEIGHT, NULL, NULL, wc.hInstance, NULL);
+
+
+    // Snippets from https://github.com/microsoft/Windows-classic-samples/tree/main/Samples/Win7Samples/winui/shell/appshellintegration/NotificationIcon
+    // Setup the SysTray icon
+    // Declare NOTIFYICONDATA details. 
+    // Error handling is omitted here for brevity. Do not omit it in your code.
+    NOTIFYICONDATA nid = {
+		.cbSize = sizeof(nid),
+        .hWnd = hwnd,
+        .uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE | NIF_GUID | NIF_INFO,
+        .uCallbackMessage = WMAPP_NOTIFYCALLBACK,
+		.szTip = APP_NAME_W,
+        .szInfo = APP_NAME_W,
+		.szInfoTitle = L"Running in System Tray",
+        .dwInfoFlags = NIIF_INFO | NIIF_RESPECT_QUIET_TIME,
+        .guidItem = { 0x9bd2c97f, 0x083c, 0x428a, {0xb4, 0x66, 0xb9, 0x9c, 0xb3, 0x64, 0x12, 0x27 } }
+    };
+    LoadIconMetric(NULL, MAKEINTRESOURCE(IDI_WINLOGO), LIM_SMALL, &(nid.hIcon));
+	if (FAILED(Shell_NotifyIcon(NIM_ADD, &nid) ? S_OK : E_FAIL))
+	{
+		throw std::runtime_error("Failed to create SysTray icon");
+	}
+     
 
     // Initialize Direct3D
     if (!WindowsGUIInternal::CreateDeviceD3D(hwnd))
@@ -118,8 +158,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         throw std::runtime_error("Failed to create D3D device");
     }
 
-    // Show the window
-    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+    // Hide the window by default
+    ::ShowWindow(hwnd, SW_HIDE);
     ::UpdateWindow(hwnd);
 
     // Setup Dear ImGui context
@@ -189,10 +229,15 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
 }
 
-int main()
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-    SetProcessDPIAware();
-    SetConsoleOutputCP(65001);
+    SetProcessDPIAware();    
+#ifdef _DEBUG
+    AllocConsole(); 
+	freopen("CONOUT$", "w", stdout);
+	freopen("CONOUT$", "w", stderr);
+#endif // _DEBUG
+
     try
     {
         EnterGUIMainLoop(BluetoothWrapper(std::make_unique<WindowsBluetoothConnector>()));

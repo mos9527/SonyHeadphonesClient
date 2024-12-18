@@ -5,15 +5,19 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(Threads REQUIRED)
 
-if (NOT APPLE)
+if (WIN32)
+    add_executable(SonyHeadphonesClient WIN32)
+endif()
+if (LINUX)
     add_executable(SonyHeadphonesClient)
-else()
+endif()
+if (APPLE)
     add_executable(SonyHeadphonesClient MACOSX_BUNDLE)
     set_target_properties(SonyHeadphonesClient PROPERTIES
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/macos/Info.plist        
     )
-    endif()
+endif()
 
 add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.8")
 
@@ -102,10 +106,11 @@ if (WIN32)
             src/platform/windows/WindowsBluetoothConnector.cpp
             contrib/imgui/backends/imgui_impl_dx11.cpp
             contrib/imgui/backends/imgui_impl_win32.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/windows/app.manifest
     )
-
+    # https://devblogs.microsoft.com/oldnewthing/20240816-00/?p=110136
     target_link_libraries(SonyHeadphonesClient
-        PRIVATE d3d11
+        PRIVATE d3d11 comctl32
     )
 endif ()
 
