@@ -54,11 +54,11 @@ WindowsBluetoothConnector::~WindowsBluetoothConnector()
 int WindowsBluetoothConnector::send(char* buf, size_t length)
 {
 	auto bytesSent = ::send(this->_socket, buf, length, 0);
-#if _DEBUG
-	printf("[send] ");
-	for (int i = 0; i < length; i++) printf("%02x ", (unsigned char)buf[i]);
-	printf("\n");
-#endif
+//#if _DEBUG
+//	printf("[send] ");
+//	for (int i = 0; i < length; i++) printf("%02x ", (unsigned char)buf[i]);
+//	printf("\n");
+//#endif
 	if (bytesSent == SOCKET_ERROR)
 	{
 		throw RecoverableException("Couldn't send (" + std::to_string(WSAGetLastError()) + ")", true);
@@ -69,11 +69,11 @@ int WindowsBluetoothConnector::send(char* buf, size_t length)
 int WindowsBluetoothConnector::recv(char* buf, size_t length)
 {
 	auto bytesReceived = ::recv(this->_socket, buf, length, 0);
-#if _DEBUG
-	printf("[recv] ");
-	for (int i = 0; i < length; i++) printf("%02x ", (unsigned char)buf[i]);
-	printf("\n");
-#endif
+//#if _DEBUG
+//	printf("[recv] ");
+//	for (int i = 0; i < length; i++) printf("%02x ", (unsigned char)buf[i]);
+//	printf("\n");
+//#endif
 	if (bytesReceived == SOCKET_ERROR)
 	{
 		throw RecoverableException("Couldn't recv (" + std::to_string(WSAGetLastError()) + ")", true);
@@ -134,7 +134,7 @@ void WindowsBluetoothConnector::disconnect() noexcept
 }
 
 bool WindowsBluetoothConnector::isConnected() noexcept
-{	
+{
 	return this->_connected;
 }
 

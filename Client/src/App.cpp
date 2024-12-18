@@ -1,4 +1,6 @@
 #include "App.h"
+#include "fonts/CascadiaCode.cpp"
+
 bool App::OnImGui()
 {
     bool open = true;
@@ -109,14 +111,15 @@ ImFont* App::_applyFont(const std::string& fontFile, float font_size)
         );
     } else {
         std::cout << "[imgui] font not found: " << _config.imguiFontFile << std::endl;
+        std::cout << "[imgui] falling back to default font" << std::endl;
+        io.Fonts->AddFontFromMemoryCompressedBase85TTF(
+            CascadiaCode_compressed_data_base85,
+            font_size,
+            nullptr,
+            &ranges[0]
+        );        
     }
 
-    if (font) {
-        std::cout << "[imgui] using custom font: " << _config.imguiFontFile << std::endl;
-    }
-    else {
-        std::cout << "[imgui] failed to load custom font.\n";
-    }
     io.Fonts->AddFontDefault(nullptr);
     io.Fonts->Build();
     return font;
@@ -233,7 +236,7 @@ void App::_drawDeviceDiscovery()
                 ImGui::SameLine();
                 if (connectedDevices.size()) {
                     bool isAutoConnect = selectedDevice >= 0 && _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
-                    if (ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
+                    if (selectedDevice >= 0 && ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
                         _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
                         _config.saveSettings();
                     }
@@ -517,7 +520,10 @@ App::~App(){
 void AppConfig::loadSettings()
 {
     std::ifstream file(appConfigPath);
-    assert(file.is_open() && "cannot open config file for reading");
+    if (!file.is_open()) {
+        std::cout << "cannot open config file for reading" << std::endl;
+        return;
+    }
     toml::table table = toml::parse(file);
     showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
 
@@ -552,6 +558,9 @@ void AppConfig::saveSettings()
     table.insert("imguiFontFile", imguiFontFile);
     table.insert("autoConnectDeviceMac", autoConnectDeviceMac);
     std::ofstream file(appConfigPath);
-    assert(file.is_open() && "cannot save config file");
+    if (!file.is_open()) {
+        std::cout << "cannot open config file for writing" << std::endl;
+        return;
+    }
     file << toml::toml_formatter{ table };
 }
