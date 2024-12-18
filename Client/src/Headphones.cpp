@@ -569,11 +569,13 @@ HeadphonesEvent Headphones::_handleMessage(CommandSerializer::CommandMessage con
 				{
 				case 0x01:
 				{
-					// NOTE: These seems to always contain button names and are null terminated
-					// Some begins with non-printable characters though				
-					std::string str(msg.begin() + 3, msg.end());
+					// NOTE: These seems to always contain button names and are null terminated							
+					auto it = msg.begin();
+					int len = 0;
+					if (msg[2]) len = msg[2], it = msg.begin() + 3; // key...
+					else len = msg[3], it = msg.begin() + 4; // op...
 					event.type = HeadphonesEvent::HeadphoneInteractionEvent;
-					event.message = str;
+					event.message = std::string(it, it + len);
 				}
 				break;
 				case 0x00:

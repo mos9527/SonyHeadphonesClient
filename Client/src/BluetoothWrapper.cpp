@@ -1,5 +1,5 @@
 #include "BluetoothWrapper.h"
-
+#include <iostream>
 BluetoothWrapper::BluetoothWrapper(std::unique_ptr<IBluetoothConnector> connector)
 {
 	this->connector.swap(connector);
@@ -98,6 +98,11 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 
 	if (!msg.verify())
 		throw RecoverableException("Invalid checksum!", true);
+#ifdef _DEBUG
+	std::cout << "[recv] ";
+	for (char c : msg.messageBytes) std::cout << std::hex << (int)c << ' ';
+	std::cout << std::endl;
+#endif // _DEBUG
 
 	recvCV.notify_one();
 }

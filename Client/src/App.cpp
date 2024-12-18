@@ -16,11 +16,9 @@ bool App::OnImGui()
             ImGui::Text("Source (original) : https://github.com/Plutoberth/SonyHeadphonesClient");
             ImGui::Text("Source (this fork): https://github.com/mos9527/SonyHeadphonesClient");
             ImGui::Separator();
-        }
-        _drawMessages();
-        try {			
-            _drawDeviceDiscovery();
-
+        }        
+        _drawConfig();
+        try {            
             if (_headphones)
             {
                 // Polling & state updates are only done on the main thread
@@ -28,17 +26,12 @@ bool App::OnImGui()
                 switch (event.type)
                 {
                     case HeadphonesEvent::JSONMessage:
-                        // this->_mq.addMessage(std::get<std::string>(event.message));
+                        _logs.push_back(std::get<std::string>(event.message));
                         // These are kinda interesting actually, though not very useful for now
                         // May future readers figure out how to use them...
                         break;
-                    case HeadphonesEvent::HeadphoneInteractionEvent:
-                    {
-                        std::string message = std::get<std::string>(event.message);
-                        int j = 0; while (j < message.length() && std::isprint(message[j])) j++;
-                        if (j)
-                            _handleHeadphoneInteraction(message.substr(0,j));
-                    }
+                    case HeadphonesEvent::HeadphoneInteractionEvent:                    
+                        _handleHeadphoneInteraction(std::get<std::string>(event.message));                    
                         break;
                     case HeadphonesEvent::PlaybackMetadataUpdate:
                         _logs.push_back("Now Playing: " + _headphones->playback.title);
@@ -48,27 +41,25 @@ bool App::OnImGui()
                 }
                 _drawControls();
                 // Timed sync
-                static const double syncInterval = 1.0;
-                static double lastSync = -syncInterval;
-                if (_headphones->_requestFuture.ready()) {
-#ifdef _DEBUG
-                    if (ImGui::Button("Trigger Manual Sync")) {
-#else
-                    if (ImGui::GetTime() - lastSync >= syncInterval) {
-#endif
-                        _headphones->_requestFuture.get();
-                        lastSync = ImGui::GetTime();
-                        _headphones->_requestFuture.setFromAsync([this]() {
-                            if (this->_headphones)
-                                this->_headphones->requestSync();
-                        });
+                {
+                    static const double syncInterval = 1.0;
+                    static double lastSync = -syncInterval;
+                    if (_headphones->_requestFuture.ready()) {
+                        if (ImGui::GetTime() - lastSync >= syncInterval) {
+                            _headphones->_requestFuture.get();
+                            lastSync = ImGui::GetTime();
+                            _headphones->_requestFuture.setFromAsync([this]() {
+                                if (this->_headphones)
+                                    this->_headphones->requestSync();
+                                });
+                        }
                     }
                 }
-            }
-            _drawConfig();
-            if (_headphones) {
                 _setHeadphoneSettings();
             }
+            else {
+                _drawDeviceDiscovery();
+            }            
         }
         catch (RecoverableException& exc) {
             _logs.push_back(exc.what());
@@ -80,7 +71,7 @@ bool App::OnImGui()
             else {
                 throw exc;
             }
-        }
+        }              
         ImGui::End();
     }
     return open;
@@ -125,23 +116,6 @@ ImFont* App::_applyFont(const std::string& fontFile, float font_size)
     return font;
 }
 
-void App::_drawMessages()
-{
-    if (ImGui::CollapsingHeader("Messages", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {
-            static int prevMessageCnt = 0;
-            for (auto const& message:_logs) {
-                ImGui::Text("%s", message.c_str());
-            }
-            if (_logs.size() > prevMessageCnt)
-                prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
-            ImGui::EndListBox();
-        }
-        else {
-            ImGui::Text("No messages yet.");
-        }
-    }
-}
 
 void App::_drawDeviceDiscovery()
 {
@@ -166,96 +140,83 @@ void App::_drawDeviceDiscovery()
                 }
             });
         };
-        if (_headphones)
+        ImGui::Text("Select from one of the available devices: ");
+
+        int temp = 0;
+        for (const auto& device : connectedDevices)
         {
-            ImGui::Text("Connected to %s", _connectedDevice.name.c_str());
-            if (ImGui::Button("Disconnect"))
+            ImGui::RadioButton(device.name.c_str(), &selectedDevice, temp++);
+        }
+
+        ImGui::Spacing();
+
+        if (_connectFuture.valid())
+        {
+            if (this->_connectFuture.ready())
             {
-                selectedDevice = -1;				
-                throw RecoverableException("Requested Disconnect", true);
-            }			
+                _connectFuture.get();
+            }
+            else
+            {
+                ImGui::Text("Connecting %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+            }
         }
         else
         {
-            ImGui::Text("Select from one of the available devices: ");
-
-            int temp = 0;
-            for (const auto& device : connectedDevices)
+            if (ImGui::Button("Connect"))
             {
-                ImGui::RadioButton(device.name.c_str(), &selectedDevice, temp++);
+                if (selectedDevice != -1) request_connect(selectedDevice);
             }
+        }
 
-            ImGui::Spacing();
+        ImGui::SameLine();
 
-            if (_connectFuture.valid())
+        if (_connectedDevicesFuture.valid())
+        {
+            if (_connectedDevicesFuture.ready())
             {
-                if (this->_connectFuture.ready())
-                {
-                    _connectFuture.get();
-                }
-                else
-                {
-                    ImGui::Text("Connecting %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+                connectedDevices = _connectedDevicesFuture.get();
+                static bool autoConnectAttempted = false;
+                if (!autoConnectAttempted){
+                    autoConnectAttempted = true;
+                    auto index = std::find_if(connectedDevices.begin(), connectedDevices.end(), [&](const BluetoothDevice& device) {
+                        return device.mac == _config.autoConnectDeviceMac;
+                    });
+                    if (index != connectedDevices.end()){
+                        _logs.push_back("Auto connecting " + index->name + " (" + index->mac + ")");
+                        selectedDevice = index - connectedDevices.begin();
+                        request_connect(selectedDevice);
+                    }
                 }
             }
             else
             {
-                if (ImGui::Button("Connect"))
-                {
-                    if (selectedDevice != -1) request_connect(selectedDevice);
-                }
+                ImGui::Text("Discovering Devices %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
             }
-
+        }
+        else
+        {            
             ImGui::SameLine();
-
-            if (_connectedDevicesFuture.valid())
+            if (ImGui::Button("Refresh"))
             {
-                if (_connectedDevicesFuture.ready())
-                {
-                    connectedDevices = _connectedDevicesFuture.get();
-                    static bool autoConnectAttempted = false;
-                    if (!autoConnectAttempted){
-                        autoConnectAttempted = true;
-                        auto index = std::find_if(connectedDevices.begin(), connectedDevices.end(), [&](const BluetoothDevice& device) {
-                            return device.mac == _config.autoConnectDeviceMac;
-                        });
-                        if (index != connectedDevices.end()){
-                            _logs.push_back("Auto connecting " + index->name + " (" + index->mac + ")");
-                            selectedDevice = index - connectedDevices.begin();
-                            request_connect(selectedDevice);
-                        }
-                    }
-                }
-                else
-                {
-                    ImGui::Text("Discovering Devices %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-                }
+                selectedDevice = -1;
+                _connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
             }
-            else
-            {
-                ImGui::SameLine();
-                if (connectedDevices.size()) {
-                    bool isAutoConnect = selectedDevice >= 0 && _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
-                    if (selectedDevice >= 0 && ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
-                        _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
-                        _config.saveSettings();
-                    }
-                }
-                if (ImGui::Button("Refresh devices"))
-                {
-                    selectedDevice = -1;
-                    _connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
+            if (connectedDevices.size()) {
+                bool isAutoConnect = selectedDevice >= 0 && _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
+                if (selectedDevice >= 0 && ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
+                    _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
+                    _config.saveSettings();
                 }
             }
         }
-    }
+    }    
 }
 
 void App::_drawControls()
 {
-    assert(_headphones); 
-    if (ImGui::CollapsingHeader("Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable;
+    if (ImGui::CollapsingHeader(_connectedDevice.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable;        
         if (ImGui::BeginTable("##Stats", 2, flags)) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
@@ -277,7 +238,11 @@ void App::_drawControls()
             }
             ImGui::EndTable();
         }
-        if (ImGui::Button("Power Off")) {
+        if (ImGui::Button("Disconnect")) {
+            throw RecoverableException("Requested Disconnect", true);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Shutdown")) {
             if (_headphones->_requestFuture.ready()) {
                 _headphones->_requestFuture.get();
                 _headphones->_requestFuture.setFromAsync([this]() {
@@ -287,8 +252,9 @@ void App::_drawControls()
             }
         }
     }	
-    if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::BeginTabBar("##Settings")) {
+    ImGui::SeparatorText("Controls");
+    {
+        if (ImGui::BeginTabBar("##Controls")) {
             if (ImGui::BeginTabItem("Playback Control")) {
                 using enum PLAYBACK_CONTROL;
                 PLAYBACK_CONTROL control = NONE;
@@ -407,6 +373,18 @@ void App::_drawControls()
 void App::_drawConfig()
 {
     if (ImGui::CollapsingHeader("App Config")) {
+        if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {
+            static int prevMessageCnt = 0;
+            for (auto const& message : _logs) {
+                ImGui::Text("%s", message.c_str());
+            }
+            if (_logs.size() > prevMessageCnt)
+                prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
+            ImGui::EndListBox();
+        }
+        else {
+            ImGui::Text("No messages yet.");
+        }
         if (ImGui::TreeNode("UI")) {
             ImGui::SeparatorText("Misc");
             ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
@@ -487,7 +465,7 @@ void App::_setHeadphoneSettings() {
     }
 }
 
-void App::_handleHeadphoneInteraction(std::string&& event)
+void App::_handleHeadphoneInteraction(std::string const& event)
 {
     auto& cmds = _config.headphoneInteractionShellCommands;
     auto cmd = std::find_if(cmds.begin(),cmds.end(),[&](auto& p) { return p.first == event; });
