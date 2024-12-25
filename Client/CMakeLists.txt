@@ -19,7 +19,7 @@ if (APPLE)
     )
 endif()
 
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.9")
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.10")
 
 target_sources(SonyHeadphonesClient
     PRIVATE src/BluetoothWrapper.cpp

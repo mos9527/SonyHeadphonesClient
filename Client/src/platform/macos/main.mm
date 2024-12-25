@@ -12,12 +12,37 @@
 
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
+#import <objc/runtime.h>
 
 static void glfw_error_callback(int error, const char *description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+// Hide Dock icon: https://github.com/glfw/glfw/issues/1552#issuecomment-766453125
+@interface NSApplication (GLFW_CLI_Application)
+- (BOOL) setActivationPolicyOverride: (NSApplicationActivationPolicy) activationPolicy;
+@end
+@implementation NSApplication (GLFW_CLI_Application)
++ (void) load {
+    Method original = class_getInstanceMethod(self, @selector(setActivationPolicy:));
+    Method swizzled = class_getInstanceMethod(self, @selector(setActivationPolicyOverride:));
+    method_exchangeImplementations(original, swizzled);
+}
+- (BOOL) setActivationPolicyOverride: (NSApplicationActivationPolicy) activationPolicy {
+    return [self setActivationPolicyOverride: NSApplicationActivationPolicyAccessory];
+}
+@end
 
+// Menu bar callback
+static bool clickHandled = true;
+@interface StatusBarButtonCallback : NSObject
++ (void) buttonAction:(id)sender;
+@end
+@implementation StatusBarButtonCallback
++ (void) buttonAction:(id)sender {
+    clickHandled = false;
+}
+@end
 void EnterGUIMainLoop(BluetoothWrapper bt){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -27,12 +52,18 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return;
-
+    
     // Create window with graphics context
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow* window = glfwCreateWindow(GUI_WIDTH, GUI_HEIGHT, APP_NAME, nullptr, nullptr);
     if (window == nullptr)
         return;
+    
+    // Setup Menubar
+    auto item = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    [[item button] setTitle:@"🎧"];
+    [[item button] setTarget:[StatusBarButtonCallback class]];
+    [[item button] setAction:@selector(buttonAction:)];
 
     id <MTLDevice> device = MTLCreateSystemDefaultDevice();
     id <MTLCommandQueue> commandQueue = [device newCommandQueue];
@@ -56,6 +87,14 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
         std::string configPath = std::string(getenv("HOME")) + "/Library/Preferences/" + APP_CONFIG_NAME;
         App app(std::move(bt), configPath);
         while (!glfwWindowShouldClose(window)) {
+            if (!clickHandled){
+                if ([nswin isMiniaturized]){
+                    [nswin deminiaturize: nswin];
+                } else if (![nswin isMiniaturized]){
+                    [nswin miniaturize: nswin];
+                }
+                clickHandled = true;
+            }
             @autoreleasepool {
                 // Poll and handle events (inputs, window resize, etc.)
                 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.

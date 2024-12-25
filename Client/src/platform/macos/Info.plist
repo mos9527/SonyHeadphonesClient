@@ -32,5 +32,7 @@
 	<string>Copyleft 2024, mos9527</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>This app uses Bluetooth to interface with your Sony™ TWS headphones.</string>
+	<key>LSUIElement</key>
+	<string>1</string>
 </dict>
 </plist>

@@ -91,7 +91,7 @@ namespace WindowsGUIInternal
                 case WM_RBUTTONDOWN:
                 {
                     windowShown = !windowShown;
-                    ShowWindow(hWnd, windowShown ? SW_RESTORE : SW_HIDE);
+                    ShowWindow(hWnd, windowShown ? SW_SHOW : SW_HIDE);
                     break;
                 }
                 }
