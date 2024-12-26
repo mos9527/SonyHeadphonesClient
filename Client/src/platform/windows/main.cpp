@@ -91,7 +91,8 @@ namespace WindowsGUIInternal
                 case WM_RBUTTONDOWN:
                 {
                     windowShown = !windowShown;
-                    ShowWindow(hWnd, windowShown ? SW_SHOW : SW_HIDE);
+                    ShowWindow(hWnd, windowShown ? SW_SHOWNORMAL : SW_HIDE);
+                    if (windowShown) SetForegroundWindow(hWnd);
                     break;
                 }
                 }
@@ -110,11 +111,12 @@ namespace WindowsGUIInternal
             case WM_SYSCOMMAND:
                 if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
                 return 0;
-            break;
+                break;
             case WM_QUIT:
-            case WM_DESTROY:
-                exit(0);
-                return 0;
+            case WM_CLOSE:
+                PostQuitMessage(0);
+                break;
+            break;
         }
         return ::DefWindowProc(hWnd, msg, wParam, lParam);
     }
@@ -177,7 +179,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     // Main loop
     MSG msg = { 0 };
     {
-        App app(std::move(bt));
+        App app(std::move(bt));        
         while (msg.message != WM_QUIT)
         {
             // Poll and handle messages (inputs, window resize, etc.)
