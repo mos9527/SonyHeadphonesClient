@@ -19,10 +19,10 @@ static void glfw_error_callback(int error, const char *description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 // Hide Dock icon: https://github.com/glfw/glfw/issues/1552#issuecomment-766453125
-@interface NSApplication (GLFW_CLI_Application)
+@interface NSApplication (AppHideDockIcon)
 - (BOOL) setActivationPolicyOverride: (NSApplicationActivationPolicy) activationPolicy;
 @end
-@implementation NSApplication (GLFW_CLI_Application)
+@implementation NSApplication (AppHideDockIcon)
 + (void) load {
     Method original = class_getInstanceMethod(self, @selector(setActivationPolicy:));
     Method swizzled = class_getInstanceMethod(self, @selector(setActivationPolicyOverride:));
@@ -73,6 +73,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
     ImGui_ImplMetal_Init(device);
 
     NSWindow *nswin = glfwGetCocoaWindow(window);
+
     CAMetalLayer *layer = [CAMetalLayer layer];
     layer.device = device;
     layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -88,10 +89,10 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
         App app(std::move(bt), configPath);
         while (!glfwWindowShouldClose(window)) {
             if (!clickHandled){
-                if ([nswin isMiniaturized]){
-                    [nswin deminiaturize: nswin];
-                } else if (![nswin isMiniaturized]){
-                    [nswin miniaturize: nswin];
+                if ([nswin isVisible]){
+                    [nswin orderOut: nswin];
+                } else {
+                    [nswin makeKeyAndOrderFront: nswin];
                 }
                 clickHandled = true;
             }
