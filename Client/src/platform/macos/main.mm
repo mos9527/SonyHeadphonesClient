@@ -73,7 +73,6 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
     ImGui_ImplMetal_Init(device);
 
     NSWindow *nswin = glfwGetCocoaWindow(window);
-
     CAMetalLayer *layer = [CAMetalLayer layer];
     layer.device = device;
     layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -93,6 +92,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
                     [nswin orderOut: nswin];
                 } else {
                     [nswin makeKeyAndOrderFront: nswin];
+                    [nswin orderFrontRegardless];
                 }
                 clickHandled = true;
             }
@@ -133,6 +133,11 @@ void EnterGUIMainLoop(BluetoothWrapper bt){
 
                 [commandBuffer presentDrawable:drawable];
                 [commandBuffer commit];
+                
+                // //Artificial VSYNC when the app is minimized
+                if (![nswin isVisible]){
+                    [NSThread sleepForTimeInterval:BACKGROUND_UPDATE_INTERVAL / 1000.0f];
+                }
             }
         }
     }

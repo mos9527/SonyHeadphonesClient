@@ -213,7 +213,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
             if (g_pSwapChain->Present(1, presentFlags) == DXGI_STATUS_OCCLUDED) {
                 presentFlags = DXGI_PRESENT_TEST;
                 //Artificial VSYNC when the app is minimized
-                Sleep(MS_PER_FRAME);
+                Sleep(BACKGROUND_UPDATE_INTERVAL);
             }
             else {
                 presentFlags = 0;

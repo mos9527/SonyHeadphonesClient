@@ -451,10 +451,7 @@ void App::_setHeadphoneSettings() {
     //This means that we're waiting
     else if (_headphones->_sendCommandFuture.valid())
     {
-        if (commandLinger++ > (FPS / 10))
-        {
-            ImGui::Text("Sending command %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-        }
+        ImGui::Text("Sending command %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
     //We're not waiting, and there's no event in the air, so we can evaluate sending a new event
     else if (_headphones->isChanged())
