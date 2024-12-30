@@ -251,12 +251,14 @@ void Headphones::requestInit()
 		}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
 
+#ifdef _DEBUG
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::MISC_DATA_GET),
-		0x00, // Some data will be sent afterwards...		
+		0x00, // Some data in JSON format will be sent afterward...
 		0x00  // See _handleMessage for info
 		}, DATA_TYPE::DATA_MDR);
 	waitForAck();
+#endif
 
 	_conn.sendCommand({
 		static_cast<char>(COMMAND_TYPE::MISC_DATA_GET),

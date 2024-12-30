@@ -25,11 +25,13 @@ bool App::OnImGui()
                 auto event = _headphones->poll();
                 switch (event.type)
                 {
+#ifdef _DEBUG
                     case HeadphonesEvent::JSONMessage:
                         _logs.push_back(std::get<std::string>(event.message));
-                        // These are kinda interesting actually, though not very useful for now
-                        // May future readers figure out how to use them...
+                        // JSON data sent by the headphones after issuing MISC_DATA_GET with arguments {0x00,0x00}
+                        // Not very useful for now, disabled unless debugging
                         break;
+#endif
                     case HeadphonesEvent::HeadphoneInteractionEvent:                    
                         _handleHeadphoneInteraction(std::get<std::string>(event.message));                    
                         break;
@@ -98,7 +100,7 @@ ImFont* App::_applyFont(const std::string& fontFile, float font_size)
                 _config.imguiFontFile.c_str(),
                 font_size,
                 nullptr,
-                &ranges[0]
+                ranges.Data
         );
     } else {
         std::cout << "[imgui] font not found: " << _config.imguiFontFile << std::endl;
@@ -107,7 +109,7 @@ ImFont* App::_applyFont(const std::string& fontFile, float font_size)
             CascadiaCode_compressed_data_base85,
             font_size,
             nullptr,
-            &ranges[0]
+            ranges.Data
         );        
     }
 

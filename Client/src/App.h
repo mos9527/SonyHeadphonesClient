@@ -29,8 +29,8 @@
 constexpr auto GUI_MAX_MESSAGES = -1;
 constexpr auto GUI_MESSAGE_TIMEOUT = -1;
 constexpr auto GUI_MESSAGE_BOX_SIZE = 5;
-constexpr auto GUI_HEIGHT = 700;
-constexpr auto GUI_WIDTH = 700;
+constexpr auto GUI_HEIGHT = 400;
+constexpr auto GUI_WIDTH = 400;
 constexpr auto BACKGROUND_UPDATE_INTERVAL = 100; // ms
 constexpr auto FONT_SIZE = 15.0f;
 const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
