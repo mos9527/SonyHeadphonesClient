@@ -20,24 +20,7 @@ If the feature support status for your own device is missing/incorrect/untested 
 
 **ATTENTION:** Older devices (e.g. XM3s) **will not work** with this fork due to updated BT protocols and are therefore discarded. Use [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) instead.
 
-**NOTE:** **✅**: Supported, ❌: Unsupported, **?**: Untested, **~**: Supported offically, pending implementation.
-
-| Feature                                      | WF-1000XM5 (Earbuds) | WH-1000XM5 (Over-ear) | WF-LS900N/BC (LinkBuds S)                                    |
-| -------------------------------------------- | -------------------- | --------------------- | ------------------------------------------------------------ |
-| Current Playing (req. host support)          | ✅                    | ?                     | ?                                                            |
-| Sound Pressure                               | ✅                    | ?                     | ?                                                            |
-| Battery Life                                 | ✅                    | ?                     | ?                                                            |
-| Volume                                       | ✅                    | ?                     | ?                                                            |
-| NC/AMB Settings                              | ✅                    | ?                     | ?                                                            |
-| Voice Guidance Volume                        | ✅                    | ?                     | ?                                                            |
-| Track controls (play/pause, prev/next)       | ✅                    | ?                     | ?                                                            |
-| Multipoint Control (device change)           | ✅                    | ?                     | ?                                                            |
-| Speak to Chat                                | ✅                    | ?                     | ?                                                            |
-| Equalizer                                    | ✅                    | ?                     | ?                                                            |
-| Touch Sensor Gesture                         | ✅                    | ?                     | ?                                                            |
-| Power Off                                    | ✅                    | ?                     | ?                                                            |
-| Capture Voice During a Phone Call            | ✅                    | ?                     | ❌ ([#1](https://github.com/mos9527/SonyHeadphonesClient/pull/1)) |
-| Mapping headphone gestures to Shell Commands | ✅                    | ?                     | ?                                                            |
+Check the [Device Support](docs/device-support/) folder for more details on confirmed per-device function availability.
 
 ## Downloads
 
@@ -106,6 +89,10 @@ cmake -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" ..
 cmake --build .
 ```
 An app bundle will be created in the `build` directory named `SonyHeadphonesClient.app`.
+
+## Contributing
+### Capturing Bluetooth Packets
+See [Packet Capture](docs/packet-capture.md) doc for more info.
 
 ## Contributors
 
