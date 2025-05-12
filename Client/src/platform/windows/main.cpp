@@ -246,7 +246,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
     catch (const std::exception& e)
     {
-        printf("%s",e.what());
+		MessageBoxA(NULL, e.what(), "Error", MB_OK | MB_ICONERROR);
         return 1;
     }
     return 0;

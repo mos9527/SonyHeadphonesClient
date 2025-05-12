@@ -156,8 +156,12 @@ int main(){
         EnterGUIMainLoop(BluetoothWrapper(std::make_unique<MacOSBluetoothConnector>()));
     }
     catch (const std::exception &e)
-    {
-        printf("%s", e.what());
+    {        
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Error"];
+        [alert setInformativeText:[NSString stringWithUTF8String:e.what()]];
+        [alert addButtonWithTitle:@"OK"];
+        [alert runModal];
         return 1;
     }
     return 0;
