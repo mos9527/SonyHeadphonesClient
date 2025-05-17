@@ -50,26 +50,26 @@ cmake ..
 cmake --build .
 ```
 
-#### Linux (GLEW(OpenGL)/GLFW)
+#### Linux (OpenGL/GLFW)
 
-You'll need `DBus` and `libbluetooth`/`bluez` support for BT and `glfw`,`glew` for building the GUI on your distro.
+You'll need `DBus` and `libbluetooth`/`bluez` support for BT and `glfw`.
 
 - Debian / Ubuntu:
 
 ```bash
-sudo apt install libbluetooth-dev libglew-dev libglfw3-dev libdbus-1-dev
+sudo apt install libbluetooth-dev libglfw3-dev libdbus-1-dev
 ```
 
 - Fedora:
 
 ```bash
-sudo dnf install bluez-libs-devel glew-devel glfw-devel dbus-devel
+sudo dnf install bluez-libs-devel glfw-devel dbus-devel
 ```
 
 - Arch Linux:
 
 ```bash
-sudo pacman -S bluez glew dbus glfw
+sudo pacman -S bluez dbus glfw
 ```
 The build commands are the same as Windows.
 
