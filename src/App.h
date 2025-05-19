@@ -62,7 +62,7 @@ public:
     //O: true if the user wants to close the window
     bool OnImGui();
 private:
-    ImFont* _applyFont(const std::string& fontFile, float font_size);
+    ImFont* _loadFonts(const std::string& fontFile, float font_size);
 
     void _drawMessages();
     void _drawDeviceDiscovery();

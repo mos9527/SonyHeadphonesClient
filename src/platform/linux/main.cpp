@@ -33,7 +33,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     // see https://github.com/glfw/glfw/commit/a9cc7c7260c32068a5374ce9d59515df540de970
     // Introduced in GLFW 3.4, GLFW_SCALE_FRAMEBUFFER is defaulted to true.
-    // glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
 
     // Create window with graphics context
     GLFWwindow *window = glfwCreateWindow(GUI_WIDTH, GUI_HEIGHT, APP_NAME, NULL, NULL);

@@ -82,7 +82,7 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 		return buf;
 	};
 
-	while (recvOne() != START_MARKER);
+	while (this->connector->isConnected() && recvOne() != START_MARKER);
 	msg.messageBytes[0] = START_MARKER;
 
 	msg.messageBytes[1] = recvOne(); // dataType

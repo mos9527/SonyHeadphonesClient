@@ -193,6 +193,7 @@ public:
 	*/
 	HeadphonesEvent poll();
 
+	bool is_connected() const { return _conn.isConnected(); }
 	void disconnect();
 
 	~Headphones();

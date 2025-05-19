@@ -120,6 +120,7 @@ void LinuxBluetoothConnector::disconnect() noexcept
   // close connection
   if (this->_socket != -1)
   {
+    ::shutdown(this->_socket, SHUT_RDWR);
     ::close(this->_socket);
   }
   this->_connected = false;

@@ -79,7 +79,7 @@ bool App::OnImGui()
     return open;
 }
 
-ImFont* App::_applyFont(const std::string& fontFile, float font_size)
+ImFont* App::_loadFonts(const std::string& fontFile, float font_size)
 {
     ImGuiIO& io = ImGui::GetIO();
     ImVector<ImWchar> ranges;
@@ -117,7 +117,6 @@ ImFont* App::_applyFont(const std::string& fontFile, float font_size)
     io.Fonts->Build();
     return font;
 }
-
 
 void App::_drawDeviceDiscovery()
 {
@@ -528,7 +527,7 @@ App::App(BluetoothWrapper&& bt, std::string const& appConfigPath) : _config(appC
     _config.loadSettings();
     if (_config.imguiFontSize < 0) 
         _config.imguiFontSize = FONT_SIZE;
-    _applyFont(_config.imguiFontFile, _config.imguiFontSize);
+    _loadFonts(_config.imguiFontFile, _config.imguiFontSize);
 }
 
 App::~App(){
