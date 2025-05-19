@@ -29,52 +29,44 @@
 constexpr auto GUI_MAX_MESSAGES = -1;
 constexpr auto GUI_MESSAGE_TIMEOUT = -1;
 constexpr auto GUI_MESSAGE_BOX_SIZE = 5;
-constexpr auto GUI_HEIGHT = 400;
-constexpr auto GUI_WIDTH = 400;
+constexpr auto GUI_DEFAULT_HEIGHT = 800;
+constexpr auto GUI_DEFAULT_WIDTH = 600;
 constexpr auto BACKGROUND_UPDATE_INTERVAL = 100; // ms
 constexpr auto FONT_SIZE = 15.0f;
 const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 struct AppConfig {
-    std::string appConfigPath;
-    ///
-    bool 
-        showDisclaimers = true;
-    std::string
-        autoConnectDeviceMac{};
-    std::vector<std::pair<std::string, std::string>>
-        headphoneInteractionShellCommands{};
-    std::string 
-        imguiSettings{};
-    std::string
-        imguiFontFile{};
+private:
+    const std::string _configPath;
+public:
+    bool showDisclaimers = true;
+    std::string autoConnectDeviceMac{};
+    std::vector<std::pair<std::string, std::string>> headphoneInteractionShellCommands{};
+    std::string imguiSettings{};
+    std::string imguiFontFile{};
     float imguiFontSize = -1;
-    AppConfig(std::string const& configPath) : appConfigPath(configPath) {};
-    void loadSettings();
-    void saveSettings();
+    AppConfig(std::string const& configPath) : _configPath(configPath) {};
+    bool load();
+    bool save();
 };
 //This class should be constructed after AFTER the Dear ImGUI context is initialized.
 class App
 {
 public:
-    App(BluetoothWrapper&& bt, std::string const& appConfigPath = APP_CONFIG_NAME);
-    ~App();
+    App(BluetoothWrapper&& bt, AppConfig& config);
     //Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
     //O: true if the user wants to close the window
-    bool OnImGui();
+    bool OnFrame();
 private:
-    ImFont* _loadFonts(const std::string& fontFile, float font_size);
-
     void _drawMessages();
     void _drawDeviceDiscovery();
     void _drawControls();
     void _drawConfig();
-
     void _setHeadphoneSettings();
-
     void _handleHeadphoneInteraction(std::string const& event);
 
+    AppConfig & _config;
+
     std::vector<std::string> _logs;
-    AppConfig _config;
     BluetoothDevice _connectedDevice;
     BluetoothWrapper _bt;
     std::unique_ptr<Headphones> _headphones;

@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -17,10 +19,15 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     // Setup Dear ImGui binding
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
 
+    printf("Glfw version: %s\n", glfwGetVersionString());
+    if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND))
+    {
+        printf("Enabling wayland backend\n");
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
+    }
     if (!glfwInit())
     {
         printf("Glfw init error. Quitting.");
@@ -31,12 +38,10 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    // see https://github.com/glfw/glfw/commit/a9cc7c7260c32068a5374ce9d59515df540de970
-    // Introduced in GLFW 3.4, GLFW_SCALE_FRAMEBUFFER is defaulted to true.
-    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 
     // Create window with graphics context
-    GLFWwindow *window = glfwCreateWindow(GUI_WIDTH, GUI_HEIGHT, APP_NAME, NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(GUI_DEFAULT_WIDTH, GUI_DEFAULT_HEIGHT, APP_NAME, NULL, NULL);
     if (window == NULL)
         return;
 
@@ -59,19 +64,36 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     // Main loop
     {
-        App app = App(std::move(bt));    
+        // Setup config path
+        // Respect environ SONYHEADPHONESCLIENT_CONFIG_PATH - or write to home otherwise
+        // TODO: Unify this behaviour across all platforms
+        const char* config_path_env = getenv("SONYHEADPHONESCLIENT_CONFIG_PATH");
+        std::string config_path = config_path_env ? config_path_env : "";
+        if (!config_path.length() || !std::filesystem::exists(config_path))
+            config_path = std::string(getenv("HOME")) + ".sonyheadphonesclient.toml";
+        printf("config path:%s\n",config_path.c_str());
+        AppConfig app_config(config_path);
+        App app = App(std::move(bt), app_config);
         while (!glfwWindowShouldClose(window))
         {
-
             glfwPollEvents();
-
+            static float currentScale = 1.0f;
+            float scaleX, scaleY, scale;
+            glfwGetWindowContentScale(window, &scaleX,&scaleY);
+            scale = std::max(scaleX, scaleY);
+            if (currentScale != scale)
+            {
+                ImGui::GetStyle().ScaleAllSizes(scale);
+                ImGui::GetIO().FontGlobalScale = scale;
+                currentScale = scale;
+            }
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
 
             ImGui::NewFrame();
             // Our GUI routine
-            app.OnImGui();
+            app.OnFrame();
             ImGui::EndFrame();
             
             ImGui::Render();

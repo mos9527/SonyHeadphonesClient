@@ -61,7 +61,7 @@ You'll need `DBus` and `libbluetooth`/`bluez` support for BT.
 ```bash
 sudo apt install libbluetooth-dev libdbus-1-dev
 # For GLFW
-sudo apt-get install libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev
+sudo apt-get install xorg-dev
 ```
 
 - Fedora:

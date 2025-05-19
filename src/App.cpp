@@ -1,7 +1,7 @@
 #include "App.h"
 #include "fonts/CascadiaCode.cpp"
 
-bool App::OnImGui()
+bool App::OnFrame()
 {
     bool open = true;
 
@@ -27,12 +27,12 @@ bool App::OnImGui()
                 {
 #ifdef _DEBUG
                     case HeadphonesEvent::JSONMessage:
-                        _logs.push_back(std::get<std::string>(event.message));
+                        _logs.push_back(_headphones->deviceMessages);
                         // JSON data sent by the headphones after issuing MISC_DATA_GET with arguments {0x00,0x00}
                         // Not very useful for now, disabled unless debugging
                         break;
 #endif
-                    case HeadphonesEvent::InteractionUpdate:                    
+                    case HeadphonesEvent::InteractionUpdate:
                         _handleHeadphoneInteraction(_headphones->interactionMessage.current);
                         break;
                     case HeadphonesEvent::PlaybackMetadataUpdate:
@@ -66,56 +66,13 @@ bool App::OnImGui()
         catch (RecoverableException& exc) {
             _logs.push_back(exc.what());
             if (_headphones && exc.shouldDisconnect)
-            {
-                std::cout << "headphones disconnecting: " + std::string(exc.what())<<std::endl;
                 _headphones.reset();
-            }
-            else {
+            else
                 throw exc;
-            }
         }              
         ImGui::End();
     }
     return open;
-}
-
-ImFont* App::_loadFonts(const std::string& fontFile, float font_size)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    ImVector<ImWchar> ranges;
-    ImFontGlyphRangesBuilder builder;
-    // Attempt to support CJK characters
-    // when a custom font is loaded
-    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-    builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
-    builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
-    builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
-    builder.BuildRanges(&ranges);
-    
-    io.Fonts->Clear();
-
-    ImFont* font = nullptr;
-    if (std::filesystem::exists(_config.imguiFontFile)) {
-        font = io.Fonts->AddFontFromFileTTF(
-                _config.imguiFontFile.c_str(),
-                font_size,
-                nullptr,
-                ranges.Data
-        );
-    } else {
-        std::cout << "[imgui] font not found: " << _config.imguiFontFile << std::endl;
-        std::cout << "[imgui] falling back to default font" << std::endl;
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-            CascadiaCode_compressed_data_base85,
-            font_size,
-            nullptr,
-            ranges.Data
-        );        
-    }
-
-    io.Fonts->AddFontDefault(nullptr);
-    io.Fonts->Build();
-    return font;
 }
 
 void App::_drawDeviceDiscovery()
@@ -127,18 +84,25 @@ void App::_drawDeviceDiscovery()
         auto request_connect = [&](int index) {
             _connectedDevice = connectedDevices[index];
             _connectFuture.setFromAsync([this]() {
-                this->_bt.connect(this->_connectedDevice.mac);
-                if (this->_bt.isConnected()) {
-                    this->_headphones = std::make_unique<Headphones>(this->_bt);
-                    if (this->_headphones->_requestFuture.valid())
-                        this->_headphones->_requestFuture.get();
-                    this->_headphones->_requestFuture.setFromAsync([&]() {
-                        this->_headphones->requestInit();
-                        this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
-                    });
-                } else {
-                    throw RecoverableException("Failed to connect", true);
+                try
+                {
+                    this->_bt.connect(this->_connectedDevice.mac);
+                    if (this->_bt.isConnected()) {
+                        this->_headphones = std::make_unique<Headphones>(this->_bt);
+                        if (this->_headphones->_requestFuture.valid())
+                            this->_headphones->_requestFuture.get();
+                        this->_headphones->_requestFuture.setFromAsync([&]() {
+                            this->_headphones->requestInit();
+                            this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
+                        });
+                    } else {
+                        throw RecoverableException("Failed to connect", true);
+                    }
+                } catch (RecoverableException& exc)
+                {
+                    this->_logs.push_back(exc.what());
                 }
+
             });
         };
         ImGui::Text("Select from one of the available devices: ");
@@ -207,7 +171,7 @@ void App::_drawDeviceDiscovery()
                 bool isAutoConnect = selectedDevice >= 0 && _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
                 if (selectedDevice >= 0 && ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
                     _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
-                    _config.saveSettings();
+                    _config.save();
                 }
             }
         }
@@ -414,7 +378,7 @@ void App::_drawControls()
 
 void App::_drawConfig()
 {
-    if (ImGui::CollapsingHeader("App Config")) {
+    if (ImGui::CollapsingHeader("App Config", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {
             static int prevMessageCnt = 0;
             for (auto const& message : _logs) {
@@ -475,10 +439,10 @@ void App::_drawConfig()
         }
         ImGui::Separator();
         if (ImGui::Button("Save Config"))
-            _config.saveSettings();
+            _config.save();
         ImGui::SameLine();
         if (ImGui::Button("Load Config"))
-            _config.loadSettings();
+            _config.load();
     }
 }
 
@@ -514,7 +478,7 @@ void App::_handleHeadphoneInteraction(std::string const& event)
     _logs.push_back("Headphone Event: " + event);
 }
 
-App::App(BluetoothWrapper&& bt, std::string const& appConfigPath) : _config(appConfigPath), _bt(std::move(bt)),  _connectFuture("connect"), _connectedDevicesFuture("connected devices")
+App::App(BluetoothWrapper&& bt, AppConfig& config) : _config(config), _bt(std::move(bt)),  _connectFuture("connect"), _connectedDevicesFuture("connected devices")
 {
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -523,24 +487,15 @@ App::App(BluetoothWrapper&& bt, std::string const& appConfigPath) : _config(appC
 
     io.IniFilename = nullptr;
     io.WantSaveIniSettings = false;
-
-    _config.loadSettings();
-    if (_config.imguiFontSize < 0) 
-        _config.imguiFontSize = FONT_SIZE;
-    _loadFonts(_config.imguiFontFile, _config.imguiFontSize);
 }
 
-App::~App(){
-    std::cout << "qutting. saving settings to " << _config.appConfigPath << std::endl;
-    _config.saveSettings();
-}
-void AppConfig::loadSettings()
+///
+bool AppConfig::load()
 {
-    std::ifstream file(appConfigPath);
-    if (!file.is_open()) {
-        std::cout << "cannot open config file for reading" << std::endl;
-        return;
-    }
+    std::ifstream file(_configPath);
+    if (!file.is_open())
+        return false;
+
     toml::table table = toml::parse(file);
     showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
 
@@ -559,10 +514,15 @@ void AppConfig::loadSettings()
             headphoneInteractionShellCommands.push_back({ks,vs});
         }
     }
+    return true;
 }
 
-void AppConfig::saveSettings()
+bool AppConfig::save()
 {
+    std::ofstream file(_configPath);
+    if (!file.is_open())
+        return false;
+
     toml::table table;
     table.insert("showDisclaimers", showDisclaimers);
     imguiSettings = ImGui::SaveIniSettingsToMemory();
@@ -574,10 +534,7 @@ void AppConfig::saveSettings()
 
     table.insert("imguiFontFile", imguiFontFile);
     table.insert("autoConnectDeviceMac", autoConnectDeviceMac);
-    std::ofstream file(appConfigPath);
-    if (!file.is_open()) {
-        std::cout << "cannot open config file for writing" << std::endl;
-        return;
-    }
+
     file << toml::toml_formatter{ table };
+    return true;
 }
