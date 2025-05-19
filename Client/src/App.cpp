@@ -32,10 +32,10 @@ bool App::OnImGui()
                         // Not very useful for now, disabled unless debugging
                         break;
 #endif
-                    case HeadphonesEvent::HeadphoneInteractionEvent:                    
+                    case HeadphonesEventType::InteractionUpdate:                    
                         _handleHeadphoneInteraction(std::get<std::string>(event.message));                    
                         break;
-                    case HeadphonesEvent::PlaybackMetadataUpdate:
+                    case HeadphonesEventType::PlaybackMetadataUpdate:
                         _logs.push_back("Now Playing: " + _headphones->playback.title);
                         break;
                 default:
