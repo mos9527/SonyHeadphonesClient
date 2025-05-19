@@ -16,7 +16,7 @@ bool Headphones::isChanged()
 		volume.isFulfilled() &&
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
-		eqConfig.isFulfilled() &&
+		eqConfig.isFulfilled() && eqPreset.isFulfilled() &&
 		touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled() &&
 		voiceCapEnabled.isFulfilled()
 	);
@@ -52,7 +52,7 @@ void Headphones::setChanges()
 	{
 		this->_conn.sendCommand(
 			CommandSerializer::serializeVoiceGuidanceSetting(
-				static_cast<char>(miscVoiceGuidanceVol.desired)
+				static_cast<uint8_t>(miscVoiceGuidanceVol.desired)
 			), DATA_TYPE::DATA_MDR_NO2
 		);
 		waitForAck();
@@ -64,7 +64,7 @@ void Headphones::setChanges()
 	{
 		this->_conn.sendCommand(
 			CommandSerializer::serializeVolumeSetting(
-				static_cast<char>(volume.desired)
+				static_cast<uint8_t>(volume.desired)
 			), DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
@@ -83,7 +83,7 @@ void Headphones::setChanges()
 		// XXX: For some reason, multipoint switch command doesn't always work
 		// ...yet appending another command after it makes it much more likely to succeed?
 		this->_conn.sendCommand({
-			static_cast<char>(COMMAND_TYPE::MULTIPOINT_DEVICE_GET),
+			static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_DEVICE_GET),
 			0x02
 		});
 		waitForAck();
@@ -132,9 +132,24 @@ void Headphones::setChanges()
 		stcTime.fulfill();
 	}
 
+	if ((!eqPreset.isFulfilled())){
+		this->_conn.sendCommand(
+			CommandSerializer::serializeEqualizerSetting(eqPreset.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+		eqPreset.fulfill();
+		// Ask for a equalizer param update afterwards
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_GET),
+			0x00 // Equalizer
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	}
+
 	if ((!eqConfig.isFulfilled())) {
 		this->_conn.sendCommand(
-			CommandSerializer::serializeEqualizerSetting(eqConfig.desired.bassLevel, eqConfig.desired.bands),
+			CommandSerializer::serializeEqualizerSetting(eqPreset.current, eqConfig.desired.bassLevel, eqConfig.desired.bands),
 			DATA_TYPE::DATA_MDR
 		);
 		waitForAck();
@@ -165,95 +180,95 @@ void Headphones::setChanges()
 void Headphones::requestInit()
 {
 	/* Init */
-	// NOTE: It's observed that playback metadata NOTIFYs (see _handleMessage) is sent by the device after this...
+	// NOTE: It's observed that playback metadata NOTIFYs (see _handleMessage) is sent by the device after this...	
 	_conn.sendCommand({
-	static_cast<char>(COMMAND_TYPE::INIT_REQUEST),
+	static_cast<uint8_t>(COMMAND_TYPE::INIT_REQUEST),
 		0x00
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* Playback Metadata */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
 		0x01 // Metadata
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_GET),
 		0x20 // Playback Volume
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	_conn.sendCommand({
-	static_cast<char>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_GET),
+	static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_GET),
 		0x01 // Play/Pause
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* NC/ASM Params */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::NCASM_PARAM_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_GET),
 		0x17
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* Connected Devices */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::CONNECTED_DEVIECES_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::CONNECTED_DEVIECES_GET),
 		0x02
 	}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
-		static_cast<char>(0xD2) // Multipoint enabled
+		static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
+		static_cast<uint8_t>(0xD2) // Multipoint enabled
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
-		static_cast<char>(0xD1) // Voice Capture enabled
+		static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
+		static_cast<uint8_t>(0xD1) // Voice Capture enabled
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* Speak to chat */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
 		0x0c // Speak to chat enabled
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::SPEAK_TO_CHAT_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::SPEAK_TO_CHAT_GET),
 		0x0c // Speak to chat config
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* Touch Sensor */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
 		0x03, // Touch sensor function
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* Equalizer */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::EQUALIZER_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_GET),
 		0x00 // Equalizer
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
 	/* Misc Params */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
 		0x20 // Voice Guidance Volume
 		}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
 
 #ifdef _DEBUG
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::MISC_DATA_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::MISC_DATA_GET),
 		0x00, // Some data in JSON format will be sent afterward...
 		0x00  // See _handleMessage for info
 		}, DATA_TYPE::DATA_MDR);
@@ -261,7 +276,7 @@ void Headphones::requestInit()
 #endif
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::MISC_DATA_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::MISC_DATA_GET),
 		0x01, // MORE data...?! why not..			
 		0x00  // After this command, the triple-tap (and other app-related functions) will
 		      // not trigger 'app not launched' notifications on the headset
@@ -277,14 +292,14 @@ void Headphones::requestSync()
 	
 	/* Battery */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
 		0x01 // DUAL
 	}, DATA_TYPE::DATA_MDR);
 
 	waitForAck();
 
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::BATTERY_LEVEL_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
 		0x02 // CASE
 	}, DATA_TYPE::DATA_MDR);
 
@@ -292,7 +307,7 @@ void Headphones::requestSync()
 
 	/* Playback */
 	_conn.sendCommand({
-		static_cast<char>(COMMAND_TYPE::PLAYBACK_SND_PRESSURE_GET),
+		static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_SND_PRESSURE_GET),
 		0x03 // Sound Pressure(?)
 	}, DATA_TYPE::DATA_MDR_NO2);
 
@@ -397,7 +412,7 @@ HeadphonesEvent Headphones::_handlePlaybackStatus(const HeadphonesMessage& msg) 
 HeadphonesEvent Headphones::_handlePlaybackSndPressureRet(const HeadphonesMessage& msg) {
     switch (msg[1]) {
     case 0x03:
-        playback.sndPressure = msg[2];
+        playback.sndPressure = static_cast<char>(msg[2]);
         return HeadphonesEvent::SoundPressureUpdate;
     default:
         return HeadphonesEvent::MessageUnhandled;
@@ -502,8 +517,8 @@ HeadphonesEvent Headphones::_handleSpeakToChat(const HeadphonesMessage& msg) {
 HeadphonesEvent Headphones::_handleEqualizer(const HeadphonesMessage& msg) {
     // [RET/NOTIFY 00 a2 06] 0a/bass 0a/band1 0a/band2 0a/band3 0a/band4 0a/band5
     // values have +10 offset
-    switch (msg[3]) {
-    case 0x06:
+	eqPreset.overwrite(msg[2]);
+	if (msg[3] == 0x06){    
         eqConfig.overwrite(EqualizerConfig(
             msg[4] - 10,
             std::vector<int>{
@@ -513,11 +528,9 @@ HeadphonesEvent Headphones::_handleEqualizer(const HeadphonesMessage& msg) {
                 msg[8] - 10,
                 msg[9] - 10,
             }
-        ));
-        return HeadphonesEvent::EqualizerParamUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
+        ));        
     }
+	return HeadphonesEvent::EqualizerParamUpdate;
 }
 
 HeadphonesEvent Headphones::_handleMiscDataRet(const HeadphonesMessage& msg) {

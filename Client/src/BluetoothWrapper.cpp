@@ -89,7 +89,7 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	msg.messageBytes[2] = recvOne(); // seqNumber
 	this->_seqNumber = msg.getSeqNumber();
 
-	this->connector->recv(&msg.messageBytes[3], 4);
+	this->connector->recv(reinterpret_cast<char*>(&msg.messageBytes[3]), 4);
 	while (msg.messageBytes.back() != END_MARKER) 
 		msg.messageBytes.push_back(recvOne()); 
 	

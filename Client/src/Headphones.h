@@ -65,6 +65,7 @@ enum class HeadphonesEvent
 
 	PlaybackMetadataUpdate,
 	PlaybackVolumeUpdate,
+	PlaybackPlayPauseUpdate,
 
 	SoundPressureUpdate,
 	VoiceGuidanceVolumeUpdate,
@@ -73,10 +74,6 @@ enum class HeadphonesEvent
 	SpeakToChatParamUpdate,
 	SpeakToChatEnabledUpdate,
 	TouchFunctionUpdate,
-
-	PlaybackMetadataUpdate,
-	PlaybackVolumeUpdate,
-	PlaybackPlayPauseUpdate,
 
 	EqualizerParamUpdate,
 
@@ -169,6 +166,7 @@ public:
 	Property<int> stcTime{};
 
 	// Equalizer
+	Property<int> eqPreset;
 	Property<EqualizerConfig> eqConfig;
 
 	// Touch sensor function

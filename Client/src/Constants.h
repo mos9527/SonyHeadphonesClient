@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <ranges>
+#include <cstdint>
 
 inline constexpr auto MAX_BLUETOOTH_MESSAGE_SIZE = 2048;
 inline constexpr char START_MARKER{ 62 };
@@ -30,16 +31,16 @@ Profile Descriptor List:
  */
 
 inline constexpr auto SERVICE_UUID = "956C7B26-D49A-4BA8-B03F-B17D393CB6E2";
-inline unsigned char SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but in bytes
+inline uint8_t SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but in bytes
 		0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2
 };
 
 #define APP_NAME "Sony Headphones Client v" __HEADPHONES_APP_VERSION__
 #define APP_NAME_W (L"" APP_NAME)
 #define APP_CONFIG_NAME "sonyheadphonesclient.toml"
-using Buffer = std::vector<char>;
+using Buffer = std::vector<uint8_t>;
 
-enum class DATA_TYPE : signed char
+enum class DATA_TYPE : uint8_t
 {
 	DATA = 0,
 	ACK = 1,
@@ -57,29 +58,29 @@ enum class DATA_TYPE : signed char
 	SHOT_COMMON =  29,
 	SHOT_MDR_NO2 = 30,
 	LARGE_DATA_COMMON =  45,
-	UNKNOWN = -1
+	UNKNOWN = 0xff
 };
 
-enum class NC_ASM_EFFECT : signed char
+enum class NC_ASM_EFFECT : uint8_t
 {
 	OFF = 0,
 	ON = 1
 };
 
-enum class NC_ASM_SETTING_TYPE : signed char
+enum class NC_ASM_SETTING_TYPE : uint8_t
 {
 	NOISE_CANCELLING = 0,
 	AMBIENT_SOUND = 1
 };
 
-enum class ASM_ID : signed char
+enum class ASM_ID : uint8_t
 {
 	NORMAL = 0,
 	VOICE = 1
 };
 
 // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
-enum class COMMAND_TYPE : unsigned char
+enum class COMMAND_TYPE : uint8_t
 {
 	INIT_REQUEST = 0x00,
 	INIT_RESPONSE = 0x01,
@@ -153,7 +154,7 @@ enum class COMMAND_TYPE : unsigned char
 	UNKNOWN = 0xFF
 };
 
-enum class PLAYBACK_CONTROL : signed char
+enum class PLAYBACK_CONTROL : uint8_t
 {
 	NONE = 0,
 	PAUSE = 1,
@@ -162,17 +163,48 @@ enum class PLAYBACK_CONTROL : signed char
 	PLAY = 7
 };
 
-enum class PLAYBACK_CONTROL_RESPONSE : signed char
+enum class PLAYBACK_CONTROL_RESPONSE : uint8_t
 {
 	PLAY = 1,
 	PAUSE = 2
 };
 
-enum class TOUCH_SENSOR_FUNCTION : unsigned char
+enum class TOUCH_SENSOR_FUNCTION : uint8_t
 {
 	PLAYBACK_CONTROL = 0x20,
 	AMBIENT_NC_CONTROL = 0x35,
 	NOT_ASSIGNED = 0xff,
 	
 	NUM_FUNCTIONS = 3
+};
+
+// https://github.com/Plutoberth/SonyHeadphonesClient/commit/66d8e52aad4ffd08aa78e811a23f67a5bad07d9a
+enum class EQ_PRESET_ID: uint8_t {
+	OFF = 0,
+	ROCK = 1,
+	POP = 2,
+	JAZZ = 3,
+	DANCE = 4,
+	EDM = 5,
+	R_AND_B_HIP_HOP = 6,
+	ACOUSTIC = 7,
+	/*RESERVED_FOR_FUTURE_NO8 = 8,… */
+	/*RESERVED_FOR_FUTURE_NO15 = 15,*/
+	BRIGHT = 16,
+	EXCITED = 17,
+	MELLOW = 18,
+	RELAXED = 19,
+	VOCAL = 20,
+	TREBLE = 21,
+	BASS = 22,
+	SPEECH = 23,
+	/*RESERVED_FOR_FUTURE_NO24 = 24,… */
+	/*RESERVED_FOR_FUTURE_NO31 = 31,*/
+	CUSTOM = 0xa0,
+	USER_SETTING1 = 0xa1,
+	USER_SETTING2 = 0xa2,
+	USER_SETTING3 = 0xa3,
+	USER_SETTING4 = 0xa4,
+	USER_SETTING5 = 0xa5,
+	UNSPECIFIED = 0xff,
 };

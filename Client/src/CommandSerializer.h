@@ -17,7 +17,7 @@ namespace CommandSerializer
 
 	Buffer _escapeSpecials(const Buffer& src);
 	Buffer _unescapeSpecials(const Buffer& src);
-	unsigned char _sumChecksum(const char* src, size_t size);
+	unsigned char _sumChecksum(const unsigned char* src, size_t size);
 	unsigned char _sumChecksum(const Buffer& src);
 	//Package a serialized command according to the protocol
 	/*
@@ -40,7 +40,8 @@ namespace CommandSerializer
 	Buffer serializeMpToggle(bool enabled);
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
 	Buffer serializeSpeakToChatEnabled(bool enabled);
-	Buffer serializeEqualizerSetting(char bass, std::vector<int> const& bands);
+	Buffer serializeEqualizerSetting(unsigned char preset, char bass, std::vector<int> const& bands);
+	Buffer serializeEqualizerSetting(unsigned char preset);
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR);
 	Buffer serializeOnCallVoiceCaptureSetting(bool enabled);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
@@ -67,7 +68,7 @@ namespace CommandSerializer
 
 		inline Buffer::const_iterator begin() const { return messageBytes.begin() + 7; }
 		inline Buffer::const_iterator end() const { return begin() + getSize(); }
-		inline const char operator[](int i) const { return *(begin() + i); }
+		inline const Buffer::value_type operator[](int i) const { return *(begin() + i); }
 
 		inline Buffer const& getMessage() const { return messageBytes; }
 
