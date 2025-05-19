@@ -52,30 +52,35 @@ cmake --build .
 
 #### Linux (OpenGL/GLFW)
 
-You'll need `DBus` and `libbluetooth`/`bluez` support for BT and `glfw`.
+You'll need `DBus` and `libbluetooth`/`bluez` support for BT.
+
+`glfw` will be built alongside the application. Please follow the guide in https://www.glfw.org/docs/3.3/compile.html#compile_deps to ensure its dependencies.
 
 - Debian / Ubuntu:
 
 ```bash
-sudo apt install libbluetooth-dev libglfw3-dev libdbus-1-dev
+sudo apt install libbluetooth-dev libdbus-1-dev
 ```
 
 - Fedora:
 
 ```bash
-sudo dnf install bluez-libs-devel glfw-devel dbus-devel
+sudo dnf install bluez-libs-devel dbus-devel
 ```
 
 - Arch Linux:
 
 ```bash
-sudo pacman -S bluez dbus glfw
+sudo pacman -S bluez dbus
 ```
 The build commands are the same as Windows.
 
 #### macOS (Metal/GLFW)
 
-No extra dependency is required (as `glfw` is built with the app itself). The resultant binary should be universal (x86_64 and arm64).
+No extra dependency is required. The resultant binary should be universal (x86_64 and arm64).
+
+`glfw` will be built alongside the application.
+
 ```bash
 # Install cmake
 brew install cmake

@@ -57,7 +57,7 @@ if (DEAR_IMGUI)
 endif ()
 
 if (LINUX)
-    find_package(glfw3 REQUIRED)
+    add_subdirectory(contrib/glfw)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     target_sources(SonyHeadphonesClient
             PRIVATE src/platform/linux/DBusHelper.cpp
@@ -75,7 +75,7 @@ if (LINUX)
 
     find_package(OpenGL REQUIRED)
 
-    if ((NOT DBUS_FOUND) OR (NOT glfw3_FOUND) OR (NOT OPENGL_FOUND))
+    if ((NOT DBUS_FOUND) OR (NOT OPENGL_FOUND))
         message ( FATAL_ERROR
                 "Didn't find one of the packages. Refer to the README for a list of dependencies that you need to build this application."
         )
