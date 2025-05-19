@@ -23,7 +23,7 @@ bool App::OnImGui()
             {
                 // Polling & state updates are only done on the main thread
                 auto event = _headphones->poll();
-                switch (event.type)
+                switch (event)
                 {
 #ifdef _DEBUG
                     case HeadphonesEvent::JSONMessage:
@@ -32,8 +32,8 @@ bool App::OnImGui()
                         // Not very useful for now, disabled unless debugging
                         break;
 #endif
-                    case HeadphonesEvent::HeadphoneInteractionEvent:                    
-                        _handleHeadphoneInteraction(std::get<std::string>(event.message));                    
+                    case HeadphonesEvent::InteractionUpdate:                    
+                        _handleHeadphoneInteraction(_headphones->interactionMessage.current);
                         break;
                     case HeadphonesEvent::PlaybackMetadataUpdate:
                         _logs.push_back("Now Playing: " + _headphones->playback.title);
@@ -300,6 +300,48 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("Equalizer")) {
+                static const std::map<int, std::string> EQ_PRESET_NAMES = {
+                    { 0, "Off" },
+                    { 1, "Rock" },
+                    { 2, "Pop" },
+                    { 3, "Jazz" },
+                    { 4, "Dance" },
+                    { 5, "EDM" },
+                    { 6, "R&B/Hip-Hop" },
+                    { 7, "Acoustic" },
+                    // 8-15 reserved for future use
+                    { 16, "Bright" },
+                    { 17, "Excited" },
+                    { 18, "Mellow" },
+                    { 19, "Relaxed" },
+                    { 20, "Vocal" },
+                    { 21, "Treble" },
+                    { 22, "Bass" },
+                    { 23, "Speech" },
+                    // 24-31 reserved for future use
+                    { 0xa0, "Custom" },
+                    { 0xa1, "User Setting 1" },
+                    { 0xa2, "User Setting 2" },
+                    { 0xa3, "User Setting 3" },
+                    { 0xa4, "User Setting 4" },
+                    { 0xa5, "User Setting 5" }
+                };
+                static std::string presetName = "Unknown";
+                auto it = EQ_PRESET_NAMES.find(_headphones->eqPreset.current);
+                if (it != EQ_PRESET_NAMES.end())
+                    presetName = it->second;
+                if (ImGui::BeginCombo("Preset", presetName.c_str()))
+                {
+                    for (auto const& [k, v] : EQ_PRESET_NAMES)
+                    {
+                        bool is_selected = k == _headphones->eqPreset.current;
+                        if (ImGui::Selectable(v.c_str(), is_selected))
+                            _headphones->eqPreset.desired = k;
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
                 const float width = ImGui::GetContentRegionAvail().x;
                 const float padding = ImGui::GetStyle().ItemSpacing.x;
                 ImGui::SeparatorText("5-Band EQ");
@@ -321,13 +363,12 @@ void App::_drawControls()
             if (ImGui::BeginTabItem("Multipoint")) {
                 ImGui::Checkbox("Multipoint Connect", &_headphones->mpEnabled.desired);
                 ImGui::Text("NOTE: Can't toggle yet. Sorry!");
-                size_t i = 0;
                 const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
                 for (auto& [mac, device] : _headphones->connectedDevices) {
                     if (mac == _headphones->mpDeviceMac.current)
-                        ImGui::TreeNodeEx((void*)i++, default_flags | ImGuiTreeNodeFlags_Selected, "%s", device.name.c_str());
+                        ImGui::TreeNodeEx(&mac, default_flags | ImGuiTreeNodeFlags_Selected, "%s", device.name.c_str());
                     else
-                        ImGui::TreeNodeEx((void*)i++, default_flags, "%s", device.name.c_str());
+                        ImGui::TreeNodeEx(&mac, default_flags, "%s", device.name.c_str());
                     if (ImGui::IsItemClicked()) {
                         _headphones->mpDeviceMac.desired = mac;
                     }
@@ -411,12 +452,12 @@ void App::_drawConfig()
                 for (
                     auto it = cmds.begin();it != cmds.end();it != cmds.end() ? it++ : cmds.end()) {
                     ImGui::TableNextRow();
-                    ImGui::PushID((void*)it->first.data());
+                    ImGui::PushID(it->first.data());
                     ImGui::TableSetColumnIndex(0);
                     ImGui::InputText("##", &it->first);
                     ImGui::PopID();
 
-                    ImGui::PushID((void*)it->second.data());
+                    ImGui::PushID(it->second.data());
                     ImGui::TableSetColumnIndex(1);
                     ImGui::InputText("##", &it->second);
                     ImGui::TableSetColumnIndex(2);

@@ -1,9 +1,9 @@
 #include "CommandSerializer.h"
 
-constexpr unsigned char ESCAPED_BYTE_SENTRY = 0x3D;
-constexpr unsigned char ESCAPED_60 = 44; // 0x3C -> 0x3D 0x2C
-constexpr unsigned char ESCAPED_61 = 45; // 0x3D -> 0x3D 0x2D
-constexpr unsigned char ESCAPED_62 = 46; // 0x3E -> 0x3D 0x2E
+constexpr uint8_t ESCAPED_BYTE_SENTRY = 0x3D;
+constexpr uint8_t ESCAPED_60 = 44; // 0x3C -> 0x3D 0x2C
+constexpr uint8_t ESCAPED_61 = 45; // 0x3D -> 0x3D 0x2D
+constexpr uint8_t ESCAPED_62 = 46; // 0x3E -> 0x3D 0x2E
 constexpr int MAX_STEPS_WH_1000_XM3 = 19;
 
 namespace CommandSerializer
@@ -84,9 +84,9 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	unsigned char _sumChecksum(const char* src, size_t size)
+	uint8_t _sumChecksum(const uint8_t* src, size_t size)
 	{
-		unsigned char accumulator = 0;
+		uint8_t accumulator = 0;
 		for (size_t i = 0; i < size; i++)
 		{
 			accumulator += src[i];
@@ -94,7 +94,7 @@ namespace CommandSerializer
 		return accumulator;
 	}
 
-	unsigned char _sumChecksum(const Buffer& src)
+	uint8_t _sumChecksum(const Buffer& src)
 	{
 		return _sumChecksum(src.data(), src.size());
 	}
@@ -106,7 +106,7 @@ namespace CommandSerializer
 		toEscape.reserve(src.size() + 2 + sizeof(int));
 		Buffer ret;
 		ret.reserve(toEscape.capacity());
-		toEscape.push_back(static_cast<unsigned char>(dataType));
+		toEscape.push_back(static_cast<uint8_t>(dataType));
 		toEscape.push_back(seqNumber);
 		auto retSize = intToBytesBE(static_cast<unsigned int>(src.size()));
 		//Insert data size
@@ -137,19 +137,19 @@ namespace CommandSerializer
 	{
 		// 0x68 | 0x17 | [Not Dragging ASM Slider?] | [NC & ASM On?] | [NC:0 ASM:1] | [Voice Passthrough?] | [ASM Level]
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68		
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68		
 		ret.push_back(0x17);
 		ret.push_back(0x01);
-		ret.push_back(static_cast<unsigned char>(ncAsmEffect));
-		ret.push_back(static_cast<unsigned char>(ncAsmSettingType));
-		ret.push_back(static_cast<unsigned char>(voicePassthrough));
+		ret.push_back(static_cast<uint8_t>(ncAsmEffect));
+		ret.push_back(static_cast<uint8_t>(ncAsmSettingType));
+		ret.push_back(static_cast<uint8_t>(voicePassthrough));
 		ret.push_back(asmLevel);
 		return ret;
 	}
 
 	Buffer serializeVoiceGuidanceSetting(char volume) {
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Guidance Volume
 		ret.push_back(0x00);
@@ -158,7 +158,7 @@ namespace CommandSerializer
 	Buffer serializeVolumeSetting(char volume)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::PLAYBACK_STATUS_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_SET));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Volume
 		return ret;
@@ -166,7 +166,7 @@ namespace CommandSerializer
 	Buffer serializeMultipointSwitch(const char* macString)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_DEVICE_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_DEVICE_SET));
 		ret.push_back(0x01);
 		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
 		return ret;
@@ -174,17 +174,17 @@ namespace CommandSerializer
 	Buffer serializePlayControl(PLAYBACK_CONTROL control)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_SET));
 		ret.push_back(0x01);
 		ret.push_back(0x00);
-		ret.push_back(static_cast<unsigned char>(control));
+		ret.push_back(static_cast<uint8_t>(control));
 		return ret;
 	}
 
 	Buffer serializePowerOff()
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::POWER_OFF));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::POWER_OFF));
 		ret.push_back(0x03);
 		ret.push_back(0x01);
 		return ret;
@@ -194,8 +194,8 @@ namespace CommandSerializer
 	Buffer serializeMpToggle(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
-		ret.push_back(static_cast<unsigned char>(0xD2));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
+		ret.push_back(static_cast<uint8_t>(0xD2));
 		ret.push_back(0x00);
 		ret.push_back(!enabled); // 1 (on->off) 0 (off->on)
 		return ret;
@@ -205,7 +205,7 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::SPEAK_TO_CHAT_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::SPEAK_TO_CHAT_SET));
 		ret.push_back(0x0c);
 		ret.push_back(sensitivity);
 		ret.push_back(timeout);
@@ -215,7 +215,7 @@ namespace CommandSerializer
 	Buffer serializeMpToggle2(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET_2));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET_2));
 		ret.push_back(0x00);
 		ret.push_back(0x07);
 		ret.push_back(0x01);
@@ -226,7 +226,7 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatEnabled(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
 		ret.push_back(0x0c);
 		ret.push_back(!enabled);
 		ret.push_back(0x01);
@@ -234,13 +234,14 @@ namespace CommandSerializer
 	}
 
 	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
-	Buffer serializeEqualizerSetting(char bass, std::vector<int> const& bands)
+	//      https://github.com/Plutoberth/SonyHeadphonesClient/commit/66d8e52aad4ffd08aa78e811a23f67a5bad07d9a
+	Buffer serializeEqualizerSetting(uint8_t preset, char bass, std::vector<int> const& bands)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
 		ret.push_back(0x00);
-		ret.push_back(0xa0);
-		ret.push_back(0x06);
+		ret.push_back(preset);
+		ret.push_back(0x06); // data size
 		ret.push_back(bass + 10);
 		ret.push_back(bands[0] + 10);
 		ret.push_back(bands[1] + 10);
@@ -249,20 +250,29 @@ namespace CommandSerializer
 		ret.push_back(bands[4] + 10);
 		return ret;
 	}
+	Buffer serializeEqualizerSetting(uint8_t preset)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(0x00);
+		ret.push_back(preset);
+		ret.push_back(0x00); // data size		
+		return ret;
+	}
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
 		ret.push_back(0x03);
 		ret.push_back(0x02);
-		ret.push_back(static_cast<unsigned char>(funcL));
-		ret.push_back(static_cast<unsigned char>(funcR));
+		ret.push_back(static_cast<uint8_t>(funcL));
+		ret.push_back(static_cast<uint8_t>(funcR));
 		return ret;
 	}
 	Buffer serializeOnCallVoiceCaptureSetting(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<unsigned char>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
 		ret.push_back(0xD1);
 		ret.push_back(0x00);
 		ret.push_back(!enabled);

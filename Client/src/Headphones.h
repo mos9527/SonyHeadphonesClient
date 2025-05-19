@@ -6,65 +6,103 @@
 #include <iostream>
 #include <map>
 #include <variant>
-struct HeadphonesEvent {
-	enum EventType {
-		None,
-
-		JSONMessage,
-		HeadphoneInteractionEvent,
-
-		PlaybackMetadataUpdate,
-		PlaybackVolumeUpdate,
-		PlaybackPlayPauseUpdate,
-
-		MultipointSwitch,
-
-		ConnectedDeviceUpdate,
-
-	} type;
-	std::variant<std::string> message;
-
-	HeadphonesEvent() : type(None) {};
-	HeadphonesEvent(EventType type) : type(type) {};
-	HeadphonesEvent(EventType type, auto const& message) : type(type), message(message) {};
-	~HeadphonesEvent() {};
-};
-
 template <class T>
-struct Property {
+struct Property
+{
 	T current;
 	T desired;
 
 	bool pendingRequest = false;
 
-	void flagPending();
-	bool isPending();
+	void flagPending()
+	{
+		this->pendingRequest = true;
+	};
+	bool isPending()
+	{
+		return this->pendingRequest;
+	};
 
-	void fulfill();
-	bool isFulfilled();
-	void overwrite(T const& value);
+	void fulfill()
+	{
+		this->current = this->desired;
+		this->pendingRequest = false;
+	};
+	bool isFulfilled()
+	{
+		return this->desired == this->current;
+	};
+	void overwrite(T const &value)
+	{
+		current = value;
+		desired = value;
+		this->pendingRequest = false;
+	};
 };
 
 template <class T>
-struct ReadonlyProperty {
+struct ReadonlyProperty
+{
 	T current;
-
-	void overwrite(T const& value);
+	
+	void overwrite(T const &value)
+	{
+		current = value;
+	};
 };
+enum class HeadphonesEvent
+{
+	MessageUnhandled = -1,
+	
+	NoMessage,	
+	NoChange,
+	
+	JSONMessage,
+	Initialized,
 
-class Headphones {
+	NcAsmParamUpdate,
+	BatteryLevelUpdate,
+
+	PlaybackMetadataUpdate,
+	PlaybackVolumeUpdate,
+	PlaybackPlayPauseUpdate,
+
+	SoundPressureUpdate,
+	VoiceGuidanceVolumeUpdate,
+	VoiceCaptureEnabledUpdate,
+
+	SpeakToChatParamUpdate,
+	SpeakToChatEnabledUpdate,
+	TouchFunctionUpdate,
+
+	EqualizerParamUpdate,
+
+	MultipointDeviceSwitchUpdate,
+	MultipointEnabledUpdate,
+
+	ConnectedDeviceUpdate,
+
+	InteractionUpdate,
+};
+using HeadphonesMessage = CommandSerializer::CommandMessage;
+class Headphones
+{
 public:
 	/* The built-in EQ. All values should integers of range -10~+10 */
-	struct EqualizerConfig {
+	struct EqualizerConfig
+	{
 		int bassLevel{};
 		std::vector<int> bands;
 		EqualizerConfig() : bassLevel(0), bands(5) {};
-		EqualizerConfig(int bass, std::vector<int> const& bands) : bassLevel(bass), bands(bands) {};
-		bool operator==(EqualizerConfig const& other) const {
+		EqualizerConfig(int bass, std::vector<int> const &bands) : bassLevel(bass), bands(bands) {};
+		bool operator==(EqualizerConfig const &other) const
+		{
 			return bassLevel == other.bassLevel && bands == other.bands;
 		}
 	};
-	Headphones(BluetoothWrapper& conn);
+	Headphones(BluetoothWrapper &conn);
+
+	ReadonlyProperty<HeadphonesMessage> rawMessage;
 
 	// Is NC & Ambient sound enabled?
 	Property<bool> asmEnabled{};
@@ -88,6 +126,12 @@ public:
 	// Play/Pause. true for play, false for pause
 	ReadonlyProperty<bool> playPause{};
 
+	// Plaintext messages
+	ReadonlyProperty<std::string> deviceMessages{};
+	
+	// Headphone interaction message. Avalialbe after InteractionUpdate
+	ReadonlyProperty<std::string> interactionMessage{};
+
 	// Connected devices
 	std::map<std::string, BluetoothDevice> connectedDevices;
 
@@ -101,7 +145,8 @@ public:
 	Property<bool> voiceCapEnabled{};
 
 	// Playback
-	struct {
+	struct
+	{
 		std::string title;
 		std::string album;
 		std::string artist;
@@ -121,6 +166,7 @@ public:
 	Property<int> stcTime{};
 
 	// Equalizer
+	Property<int> eqPreset;
 	Property<EqualizerConfig> eqConfig;
 
 	// Touch sensor function
@@ -133,12 +179,12 @@ public:
 
 	void requestInit();
 	void requestSync();
-	void requestMultipointSwitch(const char* macString);
+	void requestMultipointSwitch(const char *macString);
 	void requestPlaybackControl(PLAYBACK_CONTROL control);
 	void requestPowerOff();
 
 	void recvAsync();
-	BluetoothWrapper& getConn() { return _conn; }
+	BluetoothWrapper &getConn() { return _conn; }
 
 	/*
 	Asynchornously poll for incoming messages and (optionally) returns any event
@@ -151,58 +197,31 @@ public:
 
 	~Headphones();
 
-	SingleInstanceFuture<std::optional<CommandSerializer::CommandMessage>> _recvFuture;
+	SingleInstanceFuture<std::optional<HeadphonesMessage>> _recvFuture;
 	SingleInstanceFuture<void> _sendCommandFuture;
 	SingleInstanceFuture<void> _requestFuture;
 
 private:
 	std::mutex _propertyMtx, _ackMtx;
-	BluetoothWrapper& _conn;
+	BluetoothWrapper &_conn;
 	std::condition_variable _ackCV;
 
-
-	HeadphonesEvent _handleMessage(CommandSerializer::CommandMessage const& msg);
+	// Helper functions for _handleMessage
+	HeadphonesEvent _handleInitResponse(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
+	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
+	HeadphonesEvent _handlePlaybackSndPressureRet(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage &msg);
+	HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleMultipointEtcEnable(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleAutomaticPowerOffButtonMode(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleEqualizer(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleMessage(HeadphonesMessage const &msg);
 
 	bool hasInit = false;
 };
-
-template<class T>
-inline void Property<T>::flagPending()
-{
-	this->pendingRequest = true;
-}
-
-
-template<class T>
-inline bool Property<T>::isPending()
-{
-	return this->pendingRequest;
-}
-
-
-template<class T>
-inline void Property<T>::fulfill()
-{
-	this->current = this->desired;
-	this->pendingRequest = false;
-}
-
-template<class T>
-inline bool Property<T>::isFulfilled()
-{
-	return this->desired == this->current;
-}
-
-template<class T>
-inline void Property<T>::overwrite(T const& value)
-{
-	current = value;
-	desired = value;
-	this->pendingRequest = false;
-}
-
-template<class T>
-inline void ReadonlyProperty<T>::overwrite(T const& value)
-{
-	current = value;
-}
