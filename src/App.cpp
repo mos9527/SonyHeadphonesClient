@@ -2,7 +2,7 @@
 
 bool App::OnUpdate()
 {
-    bool shouldUpdate = false;
+    bool shouldUpdate = true;
     if (_headphones)
     {
         // Polling & state updates are only done on the main thread
@@ -29,10 +29,7 @@ bool App::OnUpdate()
             break;
         case HeadphonesEvent::PlaybackMetadataUpdate:        
             _logs.push_back("Now Playing: " + _headphones->playback.title);
-            break;
-        default:
-            shouldUpdate = true;
-            break;
+            break;        
         }
         // Request status updates at fixed intervals
 		// This updates battery levels, sound pressure, etc
@@ -48,6 +45,9 @@ bool App::OnUpdate()
                 });
             }
         }
+    }
+    else {
+        shouldUpdate = false;
     }
     return shouldUpdate;
 }
@@ -185,8 +185,7 @@ void App::_drawDeviceDiscovery()
             if (connectedDevices.size()) {
                 bool isAutoConnect = selectedDevice >= 0 && _config.autoConnectDeviceMac.length() && connectedDevices[selectedDevice].mac == _config.autoConnectDeviceMac;
                 if (selectedDevice >= 0 && ImGui::Checkbox("Auto Connect On Startup", &isAutoConnect)) {
-                    _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";
-                    _config.save();
+                    _config.autoConnectDeviceMac = isAutoConnect ? connectedDevices[selectedDevice].mac : "";                    
                 }
             }
         }
@@ -393,7 +392,7 @@ void App::_drawControls()
 
 void App::_drawConfig()
 {
-    if (ImGui::CollapsingHeader("App Config", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("App Config")) {
         if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {            
             for (auto const& message : _logs) {
                 ImGui::Text("%s", message.c_str());
@@ -451,12 +450,6 @@ void App::_drawConfig()
             }
             ImGui::TreePop();
         }
-        ImGui::Separator();
-        if (ImGui::Button("Save Config"))
-            _config.save();
-        ImGui::SameLine();
-        if (ImGui::Button("Load Config"))
-            _config.load();
     }
 }
 
@@ -495,9 +488,10 @@ App::App(BluetoothWrapper&& bt, AppConfig& config) : _config(config), _bt(std::m
 }
 
 ///
-bool AppConfig::load()
+bool AppConfig::load(std::string const& configPath)
 {
-    std::ifstream file(_configPath);
+    std::cout << "Loading config:" << configPath << std::endl;
+    std::ifstream file(configPath);
     if (!file.is_open())
         return false;
 
@@ -505,11 +499,12 @@ bool AppConfig::load()
     showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
 
     imguiSettings = table["imguiSettings"].value<std::string>().value_or("");
-    ImGui::LoadIniSettingsFromMemory(imguiSettings.c_str(), imguiSettings.size());
-
     autoConnectDeviceMac = table["autoConnectDeviceMac"].value<std::string>().value_or("");
     imguiFontFile = table["imguiFontFile"].value<std::string>().value_or("");
     imguiFontSize = table["imguiFontSize"].value<float>().value_or(DEFAULT_FONT_SIZE);
+    auto& [imguiWindowSizeWidth, imguiWindowSizeHeight] = imguiWindowSize;
+	imguiWindowSizeWidth = table["imguiWindowSizeWidth"].value<int>().value_or(GUI_DEFAULT_WIDTH);
+	imguiWindowSizeHeight = table["imguiWindowSizeHeight"].value<int>().value_or(GUI_DEFAULT_HEIGHT);
 	headphoneStateSyncInterval = table["headphoneStateSyncInterval"].value<float>().value_or(1.0f);
     if (table["shellCommands"].as_table())
     {
@@ -523,9 +518,10 @@ bool AppConfig::load()
     return true;
 }
 
-bool AppConfig::save()
+bool AppConfig::save(std::string const& configPath)
 {
-    std::ofstream file(_configPath);
+    std::cout << "Saving config:" << configPath << std::endl;
+    std::ofstream file(configPath);
     if (!file.is_open())
         return false;
 
@@ -539,8 +535,10 @@ bool AppConfig::save()
         table["shellCommands"].as_table()->insert(k.data(), v.data());	
 
     table.insert("imguiFontFile", imguiFontFile);
+    table.insert("imguiWindowSizeWidth", imguiWindowSize.first);
+    table.insert("imguiWindowSizeHeight", imguiWindowSize.second);
     table.insert("autoConnectDeviceMac", autoConnectDeviceMac);
-    table.insert("headphoneStateSyncInterval", headphoneStateSyncInterval);
+    table.insert("headphoneStateSyncInterval", headphoneStateSyncInterval);    
     file << toml::toml_formatter{ table };
     return true;
 }

@@ -37,6 +37,7 @@ inline uint8_t SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but in by
 
 #define APP_NAME "Sony Headphones Client v" __HEADPHONES_APP_VERSION__
 #define APP_NAME_W (L"" APP_NAME)
+#define APP_CONFIG_ENV_KEY "SONYHEADPHONESCLIENT_CONFIG_PATH"
 #define APP_CONFIG_NAME "sonyheadphonesclient.toml"
 using Buffer = std::vector<uint8_t>;
 

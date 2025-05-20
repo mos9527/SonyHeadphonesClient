@@ -19,6 +19,7 @@ static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
 static IDXGISwapChain* g_pSwapChain = NULL;
 static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+AppConfig g_AppConfig;
 namespace WindowsGUIInternal
 {
 
@@ -80,7 +81,7 @@ namespace WindowsGUIInternal
     // Win32 message handler
     LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
-        static bool windowShown = false;
+        static bool windowShown = true;
         if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
             return true;
 
@@ -106,7 +107,8 @@ namespace WindowsGUIInternal
                     {
                         CleanupRenderTarget();
                         g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-                        CreateRenderTarget();                    
+                        CreateRenderTarget();    
+                        g_AppConfig.imguiWindowSize = { (UINT)LOWORD(lParam), (UINT)HIWORD(lParam) };
                     }
                 else if (wParam == SIZE_MINIMIZED) {
 					ShowWindow(hWnd, SW_HIDE);
@@ -127,11 +129,21 @@ namespace WindowsGUIInternal
 }
 void EnterGUIMainLoop(BluetoothWrapper bt)
 {
+    // Load user config
+    const char* config_path_env = getenv(APP_CONFIG_ENV_KEY);
+    std::filesystem::path config_path = config_path_env ? config_path_env : "";
+    // Read/save config to user's home directory
+    if (config_path.empty() || !std::filesystem::exists(config_path))
+        config_path = std::string(getenv("USERPROFILE")), config_path.append(APP_CONFIG_NAME);
+    
+    g_AppConfig.load(config_path.string());
+
     // Create application window
     WNDCLASSEXW wc = { sizeof(WNDCLASSEXW), CS_CLASSDC, WindowsGUIInternal::WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, APP_NAME_W, NULL };
     ::RegisterClassExW(&wc);
     //TODO: pass window data (size, name, etc) as params and autoscale
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, APP_NAME_W, WS_OVERLAPPEDWINDOW | WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, GUI_DEFAULT_WIDTH, GUI_DEFAULT_HEIGHT, NULL, NULL, wc.hInstance, NULL);
+	auto [windowWidth, windowHeight] = g_AppConfig.imguiWindowSize;
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, APP_NAME_W, WS_OVERLAPPEDWINDOW | WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
 
 
     // Snippets from https://github.com/microsoft/Windows-classic-samples/tree/main/Samples/Win7Samples/winui/shell/appshellintegration/NotificationIcon
@@ -163,14 +175,16 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
         throw std::runtime_error("Failed to create D3D device");
     }
-
-    // Hide the window by default
-    ::ShowWindow(hwnd, SW_HIDE);
+    
+    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hwnd);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+
+    // Load ImGui saved config
+    ImGui::LoadIniSettingsFromMemory(g_AppConfig.imguiSettings.c_str(), g_AppConfig.imguiSettings.size());
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -182,30 +196,23 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     
     // Main loop
     MSG msg = { 0 };
-    {
-        const char* config_path_env = getenv("SONYHEADPHONESCLIENT_CONFIG_PATH");
-        std::filesystem::path config_path = config_path_env ? config_path_env : "";
-        // Read/save config to user's home directory
-        if (config_path.empty() || !std::filesystem::exists(config_path))
-            config_path = std::string(getenv("USERPROFILE")), config_path.append(APP_CONFIG_NAME);        
-        AppConfig app_config(config_path.string());
-        App app = App(std::move(bt), app_config);
+    {        
+        App app = App(std::move(bt), g_AppConfig);
         while (msg.message != WM_QUIT)
         {
             if (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
             {
                 ::TranslateMessage(&msg);
-                ::DispatchMessage(&msg);
-                continue;
+                ::DispatchMessage(&msg);                
             }
             // Redraw when and only when
             // - There's some form of state update on the Headphones
-            // - There's any user interaction              
+            // - There's any user interaction       
+            // - Or when the app is first created      
+            static bool sFirstFrame = false;
 			bool shouldDraw = app.OnUpdate();
-            switch (msg.message) {       
-            case WM_TIMER:
-            case WM_PAINT:
-            case WM_SIZE:
+            switch (msg.message) {                   
+            case WM_PAINT:            
 			case WM_CREATE:
             case WM_SHOWWINDOW:
             case WM_SETFOCUS:
@@ -220,8 +227,10 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
                 shouldDraw = true;
                 break;
             }
+            if (!sFirstFrame)
+                sFirstFrame = true, shouldDraw = true;
             if (!shouldDraw)
-                continue;
+                continue;            
             static float sCurrentScale = 1.0f;
             // Get scaling for the current monitor
             HMONITOR mon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
@@ -237,11 +246,11 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
             }            
             // Monitor font change
             static std::string sFontFile;
-            if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
-                sNeedRebuildFonts = true, sFontFile = app_config.imguiFontFile;
+            if (sFontFile != g_AppConfig.imguiFontFile && std::filesystem::exists(sFontFile))
+                sNeedRebuildFonts = true, sFontFile = g_AppConfig.imguiFontFile;
             static float sSetFontSize = DEFAULT_FONT_SIZE;
-            if (sSetFontSize != app_config.imguiFontSize)
-                sNeedRebuildFonts = true, sSetFontSize = app_config.imguiFontSize;
+            if (sSetFontSize != g_AppConfig.imguiFontSize)
+                sNeedRebuildFonts = true, sSetFontSize = g_AppConfig.imguiFontSize;
             // Rebuild fonts if necessary
             if (sNeedRebuildFonts && !io.MouseDown[0])
             {
@@ -294,7 +303,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
             g_pSwapChain->Present(1, 0);
         }
     }
-
+    g_AppConfig.save(config_path.string());
     // Cleanup
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();

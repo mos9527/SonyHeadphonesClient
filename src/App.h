@@ -35,19 +35,17 @@ constexpr auto GUI_DEFAULT_WIDTH = 600;
 constexpr auto DEFAULT_FONT_SIZE = 15.0f;
 constexpr auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 struct AppConfig {
-private:
-    const std::string _configPath;
 public:
     bool showDisclaimers = true;
     std::string autoConnectDeviceMac{};
     std::vector<std::pair<std::string, std::string>> headphoneInteractionShellCommands{};
     std::string imguiSettings{};
     std::string imguiFontFile{};
+    std::pair<int, int> imguiWindowSize{GUI_DEFAULT_WIDTH, GUI_DEFAULT_HEIGHT};
     int imguiFontSize = DEFAULT_FONT_SIZE;
-	float headphoneStateSyncInterval = 1.0f;
-    AppConfig(std::string const& configPath) : _configPath(configPath) {};
-    bool load();
-    bool save();
+	float headphoneStateSyncInterval = 1.0f;    
+    bool load(std::string const& configPath);
+    bool save(std::string const& configPath);
 };
 //This class should be constructed AFTER the Dear ImGUI context is initialized.
 class App
