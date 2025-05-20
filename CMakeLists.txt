@@ -22,7 +22,7 @@ endif()
 add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.16")
 
 target_sources(SonyHeadphonesClient
-        PRIVATE src/BluetoothWrapper.cpp
+        PRIVATE src/BluetoothWrapper.cpp    
         src/CommandSerializer.cpp
         src/App.cpp
         src/Headphones.cpp
@@ -112,7 +112,7 @@ if (WIN32)
     )
     # https://devblogs.microsoft.com/oldnewthing/20240816-00/?p=110136
     target_link_libraries(SonyHeadphonesClient
-            PRIVATE d3d11 comctl32
+            PRIVATE d3d11 comctl32 shcore
     )
 endif ()
 

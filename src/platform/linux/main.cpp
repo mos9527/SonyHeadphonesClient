@@ -66,13 +66,11 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     // Main loop
     {
-        // Setup config path
-        // Respect environ SONYHEADPHONESCLIENT_CONFIG_PATH - or write to home otherwise
-        // TODO: Unify this behaviour across all platforms
         const char* config_path_env = getenv("SONYHEADPHONESCLIENT_CONFIG_PATH");
-        std::string config_path = config_path_env ? config_path_env : "";
-        if (!config_path.length() || !std::filesystem::exists(config_path))
-            config_path = std::string(getenv("HOME")) + ".sonyheadphonesclient.toml";
+        std::filesystem::path config_path = config_path_env ? config_path_env : "";
+        // Read/save config to user's home directory
+        if (config_path.empty() || !std::filesystem::exists(config_path))
+            config_path = std::string(getenv("HOME")), config_path.append(APP_CONFIG_NAME);
         printf("config path:%s\n",config_path.c_str());
         AppConfig app_config(config_path);
         App app = App(std::move(bt), app_config);
@@ -94,7 +92,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
             static std::string sFontFile;
             if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
                 sNeedRebuildFonts = true, sFontFile = app_config.imguiFontFile;
-            static float sSetFontSize = FONT_SIZE;
+            static float sSetFontSize = DEFAULT_FONT_SIZE;
             if (sSetFontSize != app_config.imguiFontSize)
                 sNeedRebuildFonts = true, sSetFontSize = app_config.imguiFontSize;
             // Rebuild fonts if necessary

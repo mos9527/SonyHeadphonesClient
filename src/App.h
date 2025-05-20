@@ -25,15 +25,15 @@
 #include <toml++/toml.hpp>
 
 #include "platform/IBluetoothConnector.h"
+constexpr auto BACKGROUND_UPDATE_INTERVAL_MS = 100; // ms
 constexpr auto GUI_FONT_CHANGE_DELAY = 1; // s
 constexpr auto GUI_MAX_MESSAGES = -1;
 constexpr auto GUI_MESSAGE_TIMEOUT = -1;
 constexpr auto GUI_MESSAGE_BOX_SIZE = 5;
 constexpr auto GUI_DEFAULT_HEIGHT = 400;
 constexpr auto GUI_DEFAULT_WIDTH = 600;
-constexpr auto BACKGROUND_UPDATE_INTERVAL_MS = 100; // ms
-constexpr auto FONT_SIZE = 15.0f;
-const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+constexpr auto DEFAULT_FONT_SIZE = 15.0f;
+constexpr auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 struct AppConfig {
 private:
     const std::string _configPath;
@@ -43,7 +43,8 @@ public:
     std::vector<std::pair<std::string, std::string>> headphoneInteractionShellCommands{};
     std::string imguiSettings{};
     std::string imguiFontFile{};
-    int imguiFontSize = FONT_SIZE;
+    int imguiFontSize = DEFAULT_FONT_SIZE;
+	float headphoneStateSyncInterval = 1.0f;
     AppConfig(std::string const& configPath) : _configPath(configPath) {};
     bool load();
     bool save();
@@ -53,16 +54,23 @@ class App
 {
 public:
     App(BluetoothWrapper&& bt, AppConfig& config);
-    //Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
-    //O: true if the user wants to close the window
+	// This function should be called from the main thread
+    // O: true if the window should be redrawn due to state update
+    bool OnUpdate();
+    // This function should be called from the main thread
+    // Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
+    // O: true if the user wants to close the window
     bool OnFrame();
-private:
-    void _drawMessages();
+private:   
     void _drawDeviceDiscovery();
     void _drawControls();
     void _drawConfig();
     void _setHeadphoneSettings();
     void _handleHeadphoneInteraction(std::string const& event);
+    
+    double _lastStateSyncTime = 0.0f;
+    bool _autoConnectAttempted = false;
+    int _prevMessageCnt = 0;
 
     AppConfig & _config;
 

@@ -1,5 +1,57 @@
 #include "App.h"
 
+bool App::OnUpdate()
+{
+    bool shouldUpdate = false;
+    if (_headphones)
+    {
+        // Polling & state updates are only done on the main thread
+        auto event = _headphones->poll();
+        switch (event)
+        {
+        case HeadphonesEvent::NoChange:
+        case HeadphonesEvent::NoMessage:
+        case HeadphonesEvent::MessageUnhandled:
+            shouldUpdate = false;
+            break;        
+        case HeadphonesEvent::Initialized:
+            this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
+            break;
+#ifdef _DEBUG
+        case HeadphonesEvent::JSONMessage:
+            _logs.push_back(_headphones->deviceMessages.current);
+            // JSON data sent by the headphones after issuing MISC_DATA_GET with arguments {0x00,0x00}
+            // Not very useful for now, disabled unless debugging
+            break;
+#endif
+        case HeadphonesEvent::InteractionUpdate:
+            _handleHeadphoneInteraction(_headphones->interactionMessage.current);
+            break;
+        case HeadphonesEvent::PlaybackMetadataUpdate:        
+            _logs.push_back("Now Playing: " + _headphones->playback.title);
+            break;
+        default:
+            shouldUpdate = true;
+            break;
+        }
+        // Request status updates at fixed intervals
+		// This updates battery levels, sound pressure, etc
+		// Most of the other headphone states are updated automatically (see poll())        
+        if (_headphones->_requestFuture.ready()) {
+            if (ImGui::GetTime() - _lastStateSyncTime >= _config.headphoneStateSyncInterval) {
+                _lastStateSyncTime = ImGui::GetTime();
+
+                _headphones->_requestFuture.get();
+                _headphones->_requestFuture.setFromAsync([this]() {
+                    if (this->_headphones)
+                        this->_headphones->requestSync();
+                });
+            }
+        }
+    }
+    return shouldUpdate;
+}
+
 bool App::OnFrame()
 {
     bool open = true;
@@ -19,48 +71,14 @@ bool App::OnFrame()
         _drawConfig();
         try {            
             if (_headphones)
-            {
-                // Polling & state updates are only done on the main thread
-                auto event = _headphones->poll();
-                switch (event)
-                {
-#ifdef _DEBUG
-                    case HeadphonesEvent::JSONMessage:
-                        _logs.push_back(_headphones->deviceMessages);
-                        // JSON data sent by the headphones after issuing MISC_DATA_GET with arguments {0x00,0x00}
-                        // Not very useful for now, disabled unless debugging
-                        break;
-#endif
-                    case HeadphonesEvent::InteractionUpdate:
-                        _handleHeadphoneInteraction(_headphones->interactionMessage.current);
-                        break;
-                    case HeadphonesEvent::PlaybackMetadataUpdate:
-                        _logs.push_back("Now Playing: " + _headphones->playback.title);
-                        break;
-                default:
-                    break;
-                }
+            {                
                 _drawControls();
-                // Timed sync
-                {
-                    static const double syncInterval = 1.0;
-                    static double lastSync = -syncInterval;
-                    if (_headphones->_requestFuture.ready()) {
-                        if (ImGui::GetTime() - lastSync >= syncInterval) {
-                            _headphones->_requestFuture.get();
-                            lastSync = ImGui::GetTime();
-                            _headphones->_requestFuture.setFromAsync([this]() {
-                                if (this->_headphones)
-                                    this->_headphones->requestSync();
-                                });
-                        }
-                    }
-                }
                 _setHeadphoneSettings();
             }
             else {
-                _drawDeviceDiscovery();
-            }            
+                // Nothing connected yet
+                _drawDeviceDiscovery();            
+            }
         }
         catch (RecoverableException& exc) {
             _logs.push_back(exc.what());
@@ -91,8 +109,7 @@ void App::_drawDeviceDiscovery()
                         if (this->_headphones->_requestFuture.valid())
                             this->_headphones->_requestFuture.get();
                         this->_headphones->_requestFuture.setFromAsync([&]() {
-                            this->_headphones->requestInit();
-                            this->_logs.push_back("Initialized: " + this->_connectedDevice.name);
+                            this->_headphones->requestInit();                            
                         });
                     } else {
                         throw RecoverableException("Failed to connect", true);
@@ -139,10 +156,9 @@ void App::_drawDeviceDiscovery()
         {
             if (_connectedDevicesFuture.ready())
             {
-                connectedDevices = _connectedDevicesFuture.get();
-                static bool autoConnectAttempted = false;
-                if (!autoConnectAttempted){
-                    autoConnectAttempted = true;
+                connectedDevices = _connectedDevicesFuture.get();                
+                if (!_autoConnectAttempted){
+                    _autoConnectAttempted = true;
                     auto index = std::find_if(connectedDevices.begin(), connectedDevices.end(), [&](const BluetoothDevice& device) {
                         return device.mac == _config.autoConnectDeviceMac;
                     });
@@ -180,7 +196,7 @@ void App::_drawDeviceDiscovery()
 void App::_drawControls()
 {
     if (ImGui::CollapsingHeader(_connectedDevice.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-        static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable;        
+        const ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable;        
         if (ImGui::BeginTable("##Stats", 2, flags)) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
@@ -262,7 +278,7 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("Equalizer")) {
-                static const std::map<int, std::string> EQ_PRESET_NAMES = {
+                const std::map<int, std::string> EQ_PRESET_NAMES = {
                     { 0, "Off" },
                     { 1, "Rock" },
                     { 2, "Pop" },
@@ -288,7 +304,7 @@ void App::_drawControls()
                     { 0xa4, "User Setting 4" },
                     { 0xa5, "User Setting 5" }
                 };
-                static std::string presetName = "Unknown";
+                std::string presetName = "Unknown";
                 auto it = EQ_PRESET_NAMES.find(_headphones->eqPreset.current);
                 if (it != EQ_PRESET_NAMES.end())
                     presetName = it->second;
@@ -343,7 +359,7 @@ void App::_drawControls()
                 ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
 
                 if (ImGui::TreeNode("Touch Sensor")) {
-                    static const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
+                    const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
                         {TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL, "Playback Control"},
                         {TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL, "Ambient Sound / Noise Cancelling"},
                         {TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED, "Not Assigned"}
@@ -378,13 +394,12 @@ void App::_drawControls()
 void App::_drawConfig()
 {
     if (ImGui::CollapsingHeader("App Config", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {
-            static int prevMessageCnt = 0;
+        if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {            
             for (auto const& message : _logs) {
                 ImGui::Text("%s", message.c_str());
             }
-            if (_logs.size() > prevMessageCnt)
-                prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
+            if (_logs.size() > _prevMessageCnt)
+                _prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
             ImGui::EndListBox();
         }
         else {
@@ -403,7 +418,7 @@ void App::_drawConfig()
         if (ImGui::TreeNode("Shell Command")) {
             ImGui::Text("NOTE: Headphones may send Events (displayed in the Messages section as Headphone Event: ...)");
             ImGui::Text("NOTE: You may bind them to shell commands here.");
-            static ImGuiTableFlags flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
+            const ImGuiTableFlags flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
             auto& cmds = _config.headphoneInteractionShellCommands;
             if (ImGui::BeginTable("Commands", 3, flags)) {
                 ImGui::TableSetupColumn("Event");
@@ -445,12 +460,9 @@ void App::_drawConfig()
     }
 }
 
-void App::_setHeadphoneSettings() {
-    //Don't show if the event only takes a few frames to send
-    static int commandLinger = 0;
+void App::_setHeadphoneSettings() {      
     if (_headphones->_sendCommandFuture.ready())
-    {
-        commandLinger = 0;
+    {        
         _headphones->_sendCommandFuture.get();
     }
     //This means that we're waiting
@@ -469,23 +481,17 @@ void App::_setHeadphoneSettings() {
 
 void App::_handleHeadphoneInteraction(std::string const& event)
 {
+    _logs.push_back("Headphone Event: " + event);
     auto& cmds = _config.headphoneInteractionShellCommands;
     auto cmd = std::find_if(cmds.begin(),cmds.end(),[&](auto& p) { return p.first == event; });
     if (cmd != cmds.end()){
         system(cmd->second.c_str());
     }
-    _logs.push_back("Headphone Event: " + event);
 }
 
 App::App(BluetoothWrapper&& bt, AppConfig& config) : _config(config), _bt(std::move(bt)),  _connectFuture("connect"), _connectedDevicesFuture("connected devices")
-{
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    ImGuiIO& io = ImGui::GetIO();
+{     
     this->_connectedDevicesFuture.setFromAsync([this]() { return this->_bt.getConnectedDevices(); });
-
-    io.IniFilename = nullptr;
-    io.WantSaveIniSettings = false;
 }
 
 ///
@@ -503,7 +509,8 @@ bool AppConfig::load()
 
     autoConnectDeviceMac = table["autoConnectDeviceMac"].value<std::string>().value_or("");
     imguiFontFile = table["imguiFontFile"].value<std::string>().value_or("");
-    imguiFontSize = table["imguiFontSize"].value<float>().value_or(-1);
+    imguiFontSize = table["imguiFontSize"].value<float>().value_or(DEFAULT_FONT_SIZE);
+	headphoneStateSyncInterval = table["headphoneStateSyncInterval"].value<float>().value_or(1.0f);
     if (table["shellCommands"].as_table())
     {
         headphoneInteractionShellCommands.clear();
@@ -533,7 +540,7 @@ bool AppConfig::save()
 
     table.insert("imguiFontFile", imguiFontFile);
     table.insert("autoConnectDeviceMac", autoConnectDeviceMac);
-
+    table.insert("headphoneStateSyncInterval", headphoneStateSyncInterval);
     file << toml::toml_formatter{ table };
     return true;
 }
