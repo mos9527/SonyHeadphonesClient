@@ -1,5 +1,4 @@
 #include "App.h"
-#include "fonts/CascadiaCode.cpp"
 
 bool App::OnFrame()
 {
@@ -395,7 +394,7 @@ void App::_drawConfig()
             ImGui::SeparatorText("Misc");
             ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
             ImGui::SeparatorText("Font");
-            ImGui::SliderFloat("Font Size", &_config.imguiFontSize, 10.0f, 30.0f);
+            ImGui::SliderInt("Font Size", &_config.imguiFontSize, 10.0f, 64.0f);
             ImGui::InputText("Custom Font (filename)", &_config.imguiFontFile);
             ImGui::Text("NOTE: You'll need a custom, CJK compliant font to see those characters.");
             ImGui::Text("NOTE: All font-related changes will only be applied on restart.");

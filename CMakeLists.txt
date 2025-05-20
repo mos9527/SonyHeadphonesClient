@@ -57,10 +57,10 @@ if (DEAR_IMGUI)
 endif ()
 
 if (LINUX)
-    # Disable wayland support
+    # Disable Wayland support
     # GLFW doesn't respect GLFW_SCALE_TO_MONITOR on wayland - and there's seemingly no
     # easy way to scale them ourselves.
-    # We'll use their X11 backend for now - which would allow us to scale the framebuffer ourselves
+    # https://github.com/glfw/glfw/issues/2527 also mentions this.
     set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
     add_subdirectory(contrib/glfw)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)

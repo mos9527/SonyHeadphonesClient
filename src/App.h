@@ -25,13 +25,13 @@
 #include <toml++/toml.hpp>
 
 #include "platform/IBluetoothConnector.h"
-
+constexpr auto GUI_FONT_CHANGE_DELAY = 1; // s
 constexpr auto GUI_MAX_MESSAGES = -1;
 constexpr auto GUI_MESSAGE_TIMEOUT = -1;
 constexpr auto GUI_MESSAGE_BOX_SIZE = 5;
-constexpr auto GUI_DEFAULT_HEIGHT = 800;
+constexpr auto GUI_DEFAULT_HEIGHT = 400;
 constexpr auto GUI_DEFAULT_WIDTH = 600;
-constexpr auto BACKGROUND_UPDATE_INTERVAL = 100; // ms
+constexpr auto BACKGROUND_UPDATE_INTERVAL_MS = 100; // ms
 constexpr auto FONT_SIZE = 15.0f;
 const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 struct AppConfig {
@@ -43,12 +43,12 @@ public:
     std::vector<std::pair<std::string, std::string>> headphoneInteractionShellCommands{};
     std::string imguiSettings{};
     std::string imguiFontFile{};
-    float imguiFontSize = -1;
+    int imguiFontSize = FONT_SIZE;
     AppConfig(std::string const& configPath) : _configPath(configPath) {};
     bool load();
     bool save();
 };
-//This class should be constructed after AFTER the Dear ImGUI context is initialized.
+//This class should be constructed AFTER the Dear ImGUI context is initialized.
 class App
 {
 public:

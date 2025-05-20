@@ -8,6 +8,7 @@
 #include "Constants.h"
 #include "App.h"
 #include "LinuxBluetoothConnector.h"
+#include "fonts/CascadiaCode.cpp"
 
 static void glfw_error_callback(int error, const char *description)
 {
@@ -38,7 +39,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
     // Create window with graphics context
     GLFWwindow *window = glfwCreateWindow(GUI_DEFAULT_WIDTH, GUI_DEFAULT_HEIGHT, APP_NAME, NULL, NULL);
@@ -77,15 +79,57 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         while (!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
-            static float currentScale = 1.0f;
+            static float sCurrentScale = 1.0f;
             float scaleX, scaleY, scale;
             glfwGetWindowContentScale(window, &scaleX,&scaleY);
             scale = std::max(scaleX, scaleY);
-            if (currentScale != scale)
+            static bool sNeedRebuildFonts = false;
+            if (sCurrentScale != scale)
             {
                 ImGui::GetStyle().ScaleAllSizes(scale);
-                ImGui::GetIO().FontGlobalScale = scale;
-                currentScale = scale;
+                sNeedRebuildFonts = true;
+                sCurrentScale = scale;
+            }
+            // Monitor font change
+            static std::string sFontFile;
+            if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
+                sNeedRebuildFonts = true, sFontFile = app_config.imguiFontFile;
+            static float sSetFontSize = FONT_SIZE;
+            if (sSetFontSize != app_config.imguiFontSize)
+                sNeedRebuildFonts = true, sSetFontSize = app_config.imguiFontSize;
+            // Rebuild fonts if necessary
+            if (sNeedRebuildFonts && !io.MouseDown[0])
+            {
+                ImVector<ImWchar> ranges;
+                ImFontGlyphRangesBuilder builder;
+                // Support CJK characters
+                builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+                builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
+                builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
+                builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
+                builder.BuildRanges(&ranges);
+                io.Fonts->Clear();
+                float scaledFontSize = sSetFontSize * scale;
+                if (std::filesystem::exists(sFontFile)) {
+                    io.Fonts->AddFontFromFileTTF(
+                            sFontFile.c_str(),
+                            scaledFontSize,
+                            nullptr,
+                            ranges.Data
+                    );
+                } else {
+                    io.Fonts->AddFontFromMemoryCompressedBase85TTF(
+                        CascadiaCode_compressed_data_base85,
+                        scaledFontSize,
+                        nullptr,
+                        ranges.Data
+                    );
+                }
+                io.Fonts->AddFontDefault(nullptr);
+                io.Fonts->Build();
+                ImGui_ImplOpenGL3_DestroyFontsTexture();
+                ImGui_ImplOpenGL3_CreateFontsTexture();
+                sNeedRebuildFonts = false;
             }
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
