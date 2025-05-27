@@ -62,17 +62,17 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
+    const char* config_path_env = getenv("SONYHEADPHONESCLIENT_CONFIG_PATH");
+    std::filesystem::path config_path = config_path_env ? config_path_env : "";
+    // Read/save config to user's home directory
+    if (config_path.empty() || !std::filesystem::exists(config_path))
+        config_path = std::string(getenv("HOME")), config_path.append(APP_CONFIG_NAME);
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     // Main loop
     {
-        const char* config_path_env = getenv("SONYHEADPHONESCLIENT_CONFIG_PATH");
-        std::filesystem::path config_path = config_path_env ? config_path_env : "";
-        // Read/save config to user's home directory
-        if (config_path.empty() || !std::filesystem::exists(config_path))
-            config_path = std::string(getenv("HOME")), config_path.append(APP_CONFIG_NAME);
         printf("config path:%s\n",config_path.c_str());
-        AppConfig app_config(config_path);
+        AppConfig app_config;
+        app_config.load(config_path);
         App app = App(std::move(bt), app_config);
         while (!glfwWindowShouldClose(window))
         {
@@ -129,6 +129,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
                 ImGui_ImplOpenGL3_CreateFontsTexture();
                 sNeedRebuildFonts = false;
             }
+            bool shouldDraw = app.OnUpdate();
+            // XXX: Check if we need redraw
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -148,6 +150,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
 
             glfwSwapBuffers(window);
         }
+        app_config.load(config_path);
     }
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
