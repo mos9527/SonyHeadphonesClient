@@ -27,7 +27,7 @@ bool App::OnImGui()
                 {
 #ifdef _DEBUG
                     case HeadphonesEvent::JSONMessage:
-                        _logs.push_back(std::get<std::string>(event.message));
+						_logs.push_back(_headphones->deviceMessages.current);
                         // JSON data sent by the headphones after issuing MISC_DATA_GET with arguments {0x00,0x00}
                         // Not very useful for now, disabled unless debugging
                         break;

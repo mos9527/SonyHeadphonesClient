@@ -79,6 +79,12 @@ jobs:
       # Zip the application for easier downloading
       run: zip -r SonyHeadphonesClient.zip SonyHeadphonesClient.app
   
+    - name: Strip Symbols (Linux)
+      if: runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/build
+      # Strip symbols from the binary to reduce size
+      run: strip --strip-unneeded SonyHeadphonesClient
+
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
