@@ -20,6 +20,8 @@ static IDXGISwapChain* g_pSwapChain = NULL;
 static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 AppConfig g_AppConfig;
+
+static bool g_SystrayEnabled = false;
 namespace WindowsGUIInternal
 {
 
@@ -110,7 +112,7 @@ namespace WindowsGUIInternal
                         CreateRenderTarget();    
                         g_AppConfig.imguiWindowSize = { (UINT)LOWORD(lParam), (UINT)HIWORD(lParam) };
                     }
-                else if (wParam == SIZE_MINIMIZED) {
+                else if (wParam == SIZE_MINIMIZED && g_SystrayEnabled) {
 					ShowWindow(hWnd, SW_HIDE);
 					return 0;
                 }
@@ -162,10 +164,15 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         .guidItem = { 0x9bd2c97f, 0x083c, 0x428a, {0xb4, 0x66, 0xb9, 0x9c, 0xb3, 0x64, 0x12, 0x27 } }
     };
     LoadIconMetric(NULL, MAKEINTRESOURCE(IDI_WINLOGO), LIM_SMALL, &(nid.hIcon));
-	if (FAILED(Shell_NotifyIcon(NIM_ADD, &nid) ? S_OK : E_FAIL))
-	{
-		throw std::runtime_error("Failed to create SysTray icon");
-	}
+    if (FAILED(Shell_NotifyIcon(NIM_ADD, &nid) ? S_OK : E_FAIL))
+    {
+        // throw std::runtime_error("Failed to create SysTray icon");
+        // see https://github.com/mos9527/SonyHeadphonesClient/issues/11 
+        g_SystrayEnabled = false;
+        MessageBoxA(hwnd, "Failed to create System Tray icon\nYou can still bring up the app from the Taskbar", "Warning", MB_OK | MB_ICONWARNING);
+    }
+    else
+        g_SystrayEnabled = true;
      
 
     // Initialize Direct3D
@@ -175,7 +182,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
         throw std::runtime_error("Failed to create D3D device");
     }
-    
+
+    // Hide the window by default
     ::ShowWindow(hwnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hwnd);
 
