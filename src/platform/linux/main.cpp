@@ -150,7 +150,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
 
             glfwSwapBuffers(window);
         }
-        app_config.load(config_path);
+        app_config.save(config_path);
     }
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
