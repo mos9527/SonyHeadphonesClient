@@ -8,24 +8,27 @@
 #include "Constants.h"
 #include "fonts/CascadiaCode.cpp"
 
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #define NOMINMAX
 #include "platform/windows/WindowsBluetoothConnector.h"
 #include "backends/imgui_impl_opengl3.h"
-#elif defined(__linux__)
+#endif
+#ifdef __linux__
 #include "platform/linux/LinuxBluetoothConnector.h"
 #include "backends/imgui_impl_opengl3.h"
-#elif defined(__APPLE__)
+#endif
+#ifdef __APPLE__
 #include "platform/macos/MacOSBluetoothConnector.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_metal.h"
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
@@ -61,7 +64,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
         return;
     }
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #else
@@ -82,11 +85,11 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-
+    io.ConfigDpiScaleFonts = true;
     ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer backends
-#if defined(__APPLE__)
+#ifdef __APPLE__
     id <MTLDevice> device = MTLCreateSystemDefaultDevice();
     id <MTLCommandQueue> commandQueue = [device newCommandQueue];
 
@@ -116,7 +119,8 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
         if (user_profile) {
             config_path = user_profile;
         }
-#elif defined(__APPLE__)
+#endif
+#ifdef __APPLE__
         const char* home_dir = getenv("HOME");
         if (home_dir) {
             config_path = std::string(home_dir) + "/Library/Preferences";
@@ -167,11 +171,13 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
             static float sSetFontSize = DEFAULT_FONT_SIZE;
             if (sSetFontSize != app_config.imguiFontSize)
             {
-                sSetFontSize = app_config.imguiFontSize;
-                sNeedRebuildFonts = true;
+                // Dynamic font scaling has been implemented since https://github.com/ocornut/imgui/releases/tag/v1.92.0                                
+                sSetFontSize = app_config.imguiFontSize * sCurrentScale;
+                ImGui::GetStyle()._NextFrameFontSizeBase = sSetFontSize;                
+                // sNeedRebuildFonts = true;
             }
             // Rebuild fonts if necessary
-            if (sNeedRebuildFonts && !io.MouseDown[0])
+            if (sNeedRebuildFonts)
             {
                 io.Fonts->Clear();
                 ImFontConfig font_cfg;
@@ -187,7 +193,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
                 io.Fonts->Build();
 #if !defined(__APPLE__)
                 ImGui_ImplOpenGL3_DestroyDeviceObjects();
-                ImGui_ImplOpenGL3_CreateDeviceObjects
+                ImGui_ImplOpenGL3_CreateDeviceObjects();
 #else
                 ImGui_ImplMetal_DestroyDeviceObjects();
                 ImGui_ImplMetal_CreateDeviceObjects(device);

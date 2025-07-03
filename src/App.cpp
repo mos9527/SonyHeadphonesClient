@@ -393,25 +393,14 @@ void App::_drawControls()
 void App::_drawConfig()
 {
     if (ImGui::CollapsingHeader("App Config")) {
-        if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {            
-            for (auto const& message : _logs) {
-                ImGui::Text("%s", message.c_str());
-            }
-            if (_logs.size() > _prevMessageCnt)
-                _prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
-            ImGui::EndListBox();
-        }
-        else {
-            ImGui::Text("No messages yet.");
-        }
         if (ImGui::TreeNode("UI")) {
-            ImGui::SeparatorText("Misc");
-            ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
             ImGui::SeparatorText("Font");
             ImGui::SliderInt("Font Size", &_config.imguiFontSize, 10.0f, 64.0f);
             ImGui::InputText("Custom Font (filename)", &_config.imguiFontFile);
             ImGui::Text("NOTE: You'll need a custom, CJK compliant font to see those characters.");
             ImGui::Text("NOTE: All font-related changes will only be applied on restart.");
+            ImGui::SeparatorText("Misc");
+            ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Shell Command")) {
@@ -447,6 +436,22 @@ void App::_drawConfig()
             }
             if (ImGui::Button("Add Command")) {
                 cmds.push_back({});
+            }
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Messages")) {
+            if (_logs.size()) {
+                if (ImGui::BeginListBox("##Messages", ImVec2(-1, GUI_MESSAGE_BOX_SIZE * ImGui::GetTextLineHeightWithSpacing()))) {
+                    for (auto const& message : _logs) {
+                        ImGui::Text("%s", message.c_str());
+                    }
+                    if (_logs.size() > _prevMessageCnt)
+                        _prevMessageCnt = _logs.size(), ImGui::SetScrollHereY();
+                    ImGui::EndListBox();
+                }
+            }
+            else {
+                ImGui::Text("No messages yet.");
             }
             ImGui::TreePop();
         }
