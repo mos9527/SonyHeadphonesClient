@@ -8,12 +8,6 @@
 #include "Constants.h"
 #include "fonts/CascadiaCode.cpp"
 
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-
 #ifdef _WIN32
 #define NOMINMAX
 #include "platform/windows/WindowsBluetoothConnector.h"
@@ -25,7 +19,6 @@
 #endif
 #ifdef __APPLE__
 #include "platform/macos/MacOSBluetoothConnector.h"
-#include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_metal.h"
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
@@ -34,6 +27,10 @@
 #import <objc/runtime.h>
 #endif
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -151,10 +148,14 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
         {
             glfwPollEvents();
             static float sCurrentScale = 1.0f;
-            float scaleX, scaleY, scale;
+            float scaleX, scaleY, scale = 1.0;
+#ifndef __APPLE__
+            // XXX: on macOS, Window content is already scaled.
+            // On other platforms, we need to query the scale factor and apply them there.
             glfwGetWindowContentScale(window, &scaleX, &scaleY);
             scale = std::max(scaleX, scaleY);
-            static bool sNeedRebuildFonts = false;
+#endif
+            static bool sNeedRebuildFonts = true;
             if (sCurrentScale != scale)
             {
                 ImGui::GetStyle().ScaleAllSizes(scale / (float)sCurrentScale);
