@@ -22,7 +22,7 @@ endif()
 add_definitions(-D__HEADPHONES_APP_VERSION__="1.3.17")
 
 target_sources(SonyHeadphonesClient
-        PRIVATE src/BluetoothWrapper.cpp    
+        PRIVATE src/BluetoothWrapper.cpp
         src/CommandSerializer.cpp
         src/App.cpp
         src/Headphones.cpp
@@ -57,17 +57,12 @@ if (DEAR_IMGUI)
 endif ()
 
 if (LINUX)
-    # Disable Wayland support
-    # GLFW doesn't respect GLFW_SCALE_TO_MONITOR on wayland - and there's seemingly no
-    # easy way to scale them ourselves.
-    # https://github.com/glfw/glfw/issues/2527 also mentions this.
-    set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
     add_subdirectory(contrib/glfw)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     target_sources(SonyHeadphonesClient
-            PRIVATE src/platform/linux/DBusHelper.cpp
+            PRIVATE PRIVATE src/Main.cpp
+            src/platform/linux/DBusHelper.cpp
             src/platform/linux/LinuxBluetoothConnector.cpp
-            src/platform/linux/main.cpp
             contrib/imgui/backends/imgui_impl_opengl3.cpp
             contrib/imgui/backends/imgui_impl_glfw.cpp
     )
@@ -102,17 +97,19 @@ endif ()
 
 if (WIN32)
     ADD_DEFINITIONS(-DUNICODE)
+    add_subdirectory(contrib/glfw)
+    target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
 
     target_sources(SonyHeadphonesClient
-            PRIVATE src/platform/windows/main.cpp
+            PRIVATE src/Main.cpp
             src/platform/windows/WindowsBluetoothConnector.cpp
-            contrib/imgui/backends/imgui_impl_dx11.cpp
-            contrib/imgui/backends/imgui_impl_win32.cpp
+            contrib/imgui/backends/imgui_impl_opengl3.cpp
+            contrib/imgui/backends/imgui_impl_glfw.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/windows/app.manifest
     )
     # https://devblogs.microsoft.com/oldnewthing/20240816-00/?p=110136
     target_link_libraries(SonyHeadphonesClient
-            PRIVATE d3d11 comctl32 shcore
+            PRIVATE opengl32 comctl32
     )
 endif ()
 
@@ -123,8 +120,8 @@ if (APPLE)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
 
     target_sources(SonyHeadphonesClient
-            PRIVATE src/platform/macos/MacOSBluetoothConnector.mm
-            src/platform/macos/main.mm
+            PRIVATE src/Main.cpp
+            src/platform/macos/MacOSBluetoothConnector.mm            
             contrib/imgui/backends/imgui_impl_metal.mm
             contrib/imgui/backends/imgui_impl_glfw.cpp
     )

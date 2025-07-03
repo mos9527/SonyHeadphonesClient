@@ -1,32 +1,44 @@
-#define NOMINMAX
+#include <memory>
+#include <filesystem>
+#include <string>
 #include <algorithm>
-#include <filesystem> // Use C++17 filesystem for path manipulation
-#include <memory>     // For std::unique_ptr
+#include <stdio.h>
 
-#include "platform/windows/WindowsBluetoothConnector.h"
 #include "App.h"
-
-#include <tchar.h>
-#include <dwmapi.h>
-#include <ShellScalingApi.h>
-#include <windowsx.h>
+#include "Constants.h"
+#include "fonts/CascadiaCode.cpp"
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include <GLFW/glfw3.h>
-#include <stdio.h>
 
-#include "Constants.h"
-#include "App.h"
-#include "fonts/CascadiaCode.cpp"
+#if defined(_WIN32)
+#define NOMINMAX
+#include "platform/windows/WindowsBluetoothConnector.h"
+#include "backends/imgui_impl_opengl3.h"
+#elif defined(__linux__)
+#include "platform/linux/LinuxBluetoothConnector.h"
+#include "backends/imgui_impl_opengl3.h"
+#elif defined(__APPLE__)
+#include "platform/macos/MacOSBluetoothConnector.h"
+#include "backends/imgui_impl_metal.h"
+#define GLFW_INCLUDE_NONE
+#define GLFW_EXPOSE_NATIVE_COCOA
+#import <Metal/Metal.h>
+#import <QuartzCore/QuartzCore.h>
+#endif
+
+#include <GLFW/glfw3.h>
+#if defined(__APPLE__)
+#include <GLFW/glfw3native.h>
+#endif
+
 
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-void EnterGUIMainLoop(BluetoothWrapper bt)
+void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 {
     // Setup Dear ImGui binding
     IMGUI_CHECKVERSION();
@@ -36,8 +48,7 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
 
     printf("Glfw version: %s\n", glfwGetVersionString());
 
-    // Platform-specific GLFW hints (Wayland for Linux)
-#if defined(__linux__) && defined(GLFW_PLATFORM_WAYLAND)
+#if defined(__linux__)
     if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND))
     {
         printf("Enabling wayland backend\n");
@@ -51,9 +62,13 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         return;
     }
 
+#if defined(__APPLE__)
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#else
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif
     glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
@@ -72,8 +87,14 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer backends
+#if defined(__APPLE__)
+    ImGui_ImplGlfw_InitForMetal(window, true);
+    ImGui_ImplMetal_Init(device);
+#else
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
+#endif
+
 
     // --- Cross-platform config path handling ---
     std::filesystem::path config_path;
@@ -84,19 +105,21 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
 
     if (config_path.empty() || !std::filesystem::exists(config_path)) {
 #ifdef _WIN32
-        // Get user's home directory on Windows
         const char* user_profile = getenv("USERPROFILE");
         if (user_profile) {
             config_path = user_profile;
         }
-#else
-        // Get user's home directory on Linux/macOS
+#elif defined(__APPLE__)
+        const char* home_dir = getenv("HOME");
+        if (home_dir) {
+            config_path = std::string(home_dir) + "/Library/Preferences";
+        }
+#else // Linux
         const char* home_dir = getenv("HOME");
         if (home_dir) {
             config_path = home_dir;
         }
 #endif
-        // Append config file name using the preferred separator for the OS
         if (!config_path.empty()) {
             config_path /= APP_CONFIG_NAME;
         }
@@ -109,10 +132,8 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
         printf("config path: %s\n", config_path.string().c_str());
         AppConfig app_config;
         app_config.load(config_path.string());
-        App app = App(std::move(bt), app_config);
+        App app = App(BluetoothWrapper(std::move(btConnector)), app_config);
 
-        // This entire block seems fine for cross-platform use, as it relies on ImGui and GLFW.
-        // ... (the entire while loop from your original code) ...
         while (!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
@@ -123,69 +144,68 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
             static bool sNeedRebuildFonts = false;
             if (sCurrentScale != scale)
             {
-                ImGui::GetStyle().ScaleAllSizes(scale);
-                sNeedRebuildFonts = true;
                 sCurrentScale = scale;
+                sNeedRebuildFonts = true;
             }
             // Monitor font change
             static std::string sFontFile;
-            if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(app_config.imguiFontFile)) // Check existence of new file
-                sNeedRebuildFonts = true, sFontFile = app_config.imguiFontFile;
+            if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
+            {
+                sFontFile = app_config.imguiFontFile;
+                sNeedRebuildFonts = true;
+            }
+
             static float sSetFontSize = DEFAULT_FONT_SIZE;
             if (sSetFontSize != app_config.imguiFontSize)
-                sNeedRebuildFonts = true, sSetFontSize = app_config.imguiFontSize;
+            {
+                sSetFontSize = app_config.imguiFontSize;
+                sNeedRebuildFonts = true;
+            }
+
             // Rebuild fonts if necessary
             if (sNeedRebuildFonts && !io.MouseDown[0])
             {
-                ImVector<ImWchar> ranges;
-                ImFontGlyphRangesBuilder builder;
-                // Support CJK characters
-                builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-                builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
-                builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
-                builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
-                builder.BuildRanges(&ranges);
                 io.Fonts->Clear();
-                float scaledFontSize = sSetFontSize * scale;
-                if (!sFontFile.empty() && std::filesystem::exists(sFontFile)) {
-                    io.Fonts->AddFontFromFileTTF(
-                        sFontFile.c_str(),
-                        scaledFontSize,
-                        nullptr,
-                        ranges.Data
-                    );
+                ImFontConfig font_cfg;
+                font_cfg.FontDataOwnedByAtlas = false;
+                if (!sFontFile.empty() && std::filesystem::exists(sFontFile))
+                {
+                    io.Fonts->AddFontFromFileTTF(sFontFile.c_str(), sSetFontSize * sCurrentScale, &font_cfg);
                 }
-                else {
-                    io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-                        CascadiaCode_compressed_data_base85,
-                        scaledFontSize,
-                        nullptr,
-                        ranges.Data
-                    );
+                else
+                {
+                    io.Fonts->AddFontFromMemoryCompressedBase85TTF(CascadiaCode_compressed_data_base85, sSetFontSize * sCurrentScale, &font_cfg);
                 }
-                io.Fonts->AddFontDefault(nullptr);
                 io.Fonts->Build();
-                ImGui_ImplOpenGL3_DestroyFontsTexture();
-                ImGui_ImplOpenGL3_CreateFontsTexture();
+#if !defined(__APPLE__)
+                ImGui_ImplOpenGL3_DestroyDeviceObjects();
+#endif
                 sNeedRebuildFonts = false;
             }
-            app.OnUpdate();
-            // Start the Dear ImGui frame
+
+            bool shouldDraw = app.OnUpdate();
+
+#if defined(__APPLE__)
+            
+#else
             ImGui_ImplOpenGL3_NewFrame();
+#endif
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            // Our GUI routine
             app.OnFrame();
-            ImGui::EndFrame();
 
             ImGui::Render();
+#if defined(__APPLE__)
+            
+#else
             int display_w, display_h;
             glfwGetFramebufferSize(window, &display_w, &display_h);
             glViewport(0, 0, display_w, display_h);
-            glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+            glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 
             glfwSwapBuffers(window);
         }
@@ -194,7 +214,11 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     }
 
     // Cleanup
+#if defined(__APPLE__)
+    ImGui_ImplMetal_Shutdown();
+#else
     ImGui_ImplOpenGL3_Shutdown();
+#endif
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
@@ -202,28 +226,38 @@ void EnterGUIMainLoop(BluetoothWrapper bt)
     glfwTerminate();
 }
 
+#if defined(_WIN32)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
     try
     {
-#ifdef _WIN32
-        // When building for Windows, create the Windows-specific connector
-        EnterGUIMainLoop(BluetoothWrapper(std::make_unique<WindowsBluetoothConnector>()));
-#elif __linux__
-        // When building for Linux, create the Linux-specific connector
-        EnterGUIMainLoop(BluetoothWrapper(std::make_unique<LinuxBluetoothConnector>()));
-#endif
+        EnterGUIMainLoop(std::make_unique<WindowsBluetoothConnector>());
     }
     catch (const std::exception& e)
     {
-#ifdef _WIN32
-        // A console window might not be visible on Windows GUI builds,
-        // so a message box is a bit more user-friendly.
-        MessageBoxA(NULL, e.what(), "Application Error", MB_OK | MB_ICONERROR);
-#else
-        fprintf(stderr, "Error: %s\n", e.what());
-#endif
+        MessageBoxA(NULL, e.what(), "Error", MB_OK | MB_ICONERROR);
         return 1;
     }
     return 0;
 }
+#else
+int main(int argc, char** argv)
+{
+    try
+    {
+#if defined(__linux__)
+        EnterGUIMainLoop(std::make_unique<LinuxBluetoothConnector>());
+#elif defined(__APPLE__)
+        EnterGUIMainLoop(std::make_unique<MacOSBluetoothConnector>());
+#else
+        #error "Unsupported platform"
+#endif
+    }
+    catch (const std::exception& e)
+    {
+        fprintf(stderr, "Error: %s\n", e.what());
+        return 1;
+    }
+    return 0;
+}
+#endif
