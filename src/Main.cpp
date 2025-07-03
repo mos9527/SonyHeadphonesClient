@@ -20,16 +20,15 @@
 #include "backends/imgui_impl_opengl3.h"
 #elif defined(__APPLE__)
 #include "platform/macos/MacOSBluetoothConnector.h"
+#include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_metal.h"
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
-#endif
-
-#include <GLFW/glfw3.h>
-#if defined(__APPLE__)
-#include <GLFW/glfw3native.h>
+#import <objc/runtime.h>
 #endif
 
 
@@ -64,6 +63,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 
 #if defined(__APPLE__)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #else
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -71,13 +71,12 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 #endif
     glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(GUI_DEFAULT_WIDTH, GUI_DEFAULT_HEIGHT, APP_NAME, NULL, NULL);
     if (window == NULL)
         return;
 
-    // init GUI   
+    // Init GUI
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
@@ -88,21 +87,29 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 
     // Setup Platform/Renderer backends
 #if defined(__APPLE__)
-    ImGui_ImplGlfw_InitForMetal(window, true);
+    id <MTLDevice> device = MTLCreateSystemDefaultDevice();
+    id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplMetal_Init(device);
+
+    NSWindow *nswin = glfwGetCocoaWindow(window);
+    CAMetalLayer *layer = [CAMetalLayer layer];
+    layer.device = device;
+    layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    nswin.contentView.layer = layer;
+    nswin.contentView.wantsLayer = YES;
+
+    MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor new];
 #else
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 #endif
-
-
-    // --- Cross-platform config path handling ---
     std::filesystem::path config_path;
     const char* config_path_env = getenv("SONYHEADPHONESCLIENT_CONFIG_PATH");
     if (config_path_env) {
         config_path = config_path_env;
     }
-
     if (config_path.empty() || !std::filesystem::exists(config_path)) {
 #ifdef _WIN32
         const char* user_profile = getenv("USERPROFILE");
@@ -124,16 +131,18 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
             config_path /= APP_CONFIG_NAME;
         }
     }
-
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
+#ifdef __APPLE__
+    @autoreleasepool {
+#else
     {
+#endif
         printf("config path: %s\n", config_path.string().c_str());
         AppConfig app_config;
         app_config.load(config_path.string());
         App app = App(BluetoothWrapper(std::move(btConnector)), app_config);
-
         while (!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
@@ -144,6 +153,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
             static bool sNeedRebuildFonts = false;
             if (sCurrentScale != scale)
             {
+                ImGui::GetStyle().ScaleAllSizes(scale / (float)sCurrentScale);
                 sCurrentScale = scale;
                 sNeedRebuildFonts = true;
             }
@@ -154,14 +164,12 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
                 sFontFile = app_config.imguiFontFile;
                 sNeedRebuildFonts = true;
             }
-
             static float sSetFontSize = DEFAULT_FONT_SIZE;
             if (sSetFontSize != app_config.imguiFontSize)
             {
                 sSetFontSize = app_config.imguiFontSize;
                 sNeedRebuildFonts = true;
             }
-
             // Rebuild fonts if necessary
             if (sNeedRebuildFonts && !io.MouseDown[0])
             {
@@ -179,6 +187,10 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
                 io.Fonts->Build();
 #if !defined(__APPLE__)
                 ImGui_ImplOpenGL3_DestroyDeviceObjects();
+                ImGui_ImplOpenGL3_CreateDeviceObjects
+#else
+                ImGui_ImplMetal_DestroyDeviceObjects();
+                ImGui_ImplMetal_CreateDeviceObjects(device);
 #endif
                 sNeedRebuildFonts = false;
             }
@@ -186,18 +198,30 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
             bool shouldDraw = app.OnUpdate();
 
 #if defined(__APPLE__)
-            
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            layer.drawableSize = CGSizeMake(width, height);
+            id <CAMetalDrawable> drawable = [layer nextDrawable];
+            id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+            renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);
+            renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
+            renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+            renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+            id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+
+            ImGui_ImplMetal_NewFrame(renderPassDescriptor);
 #else
             ImGui_ImplOpenGL3_NewFrame();
 #endif
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-
             app.OnFrame();
-
             ImGui::Render();
 #if defined(__APPLE__)
-            
+            ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
+            [renderEncoder endEncoding];
+            [commandBuffer presentDrawable:drawable];
+            [commandBuffer commit];
 #else
             int display_w, display_h;
             glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -205,11 +229,9 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
             glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
-
             glfwSwapBuffers(window);
+#endif
         }
-
         app_config.save(config_path.string());
     }
 

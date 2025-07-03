@@ -125,6 +125,9 @@ if (APPLE)
             contrib/imgui/backends/imgui_impl_metal.mm
             contrib/imgui/backends/imgui_impl_glfw.cpp
     )
+    set_source_files_properties(src/Main.cpp
+            PROPERTIES LANGUAGE OBJCXX
+    )
     target_link_libraries(SonyHeadphonesClient
             PRIVATE "-framework Foundation -framework IOBluetooth -framework IOKit -framework Metal -framework MetalKit -framework Cocoa -framework CoreVideo -framework QuartzCore"
     )
