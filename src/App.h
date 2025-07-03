@@ -25,56 +25,54 @@
 #include <toml++/toml.hpp>
 
 #include "platform/IBluetoothConnector.h"
-
+constexpr auto BACKGROUND_UPDATE_INTERVAL_MS = 100; // ms
+constexpr auto GUI_FONT_CHANGE_DELAY = 1; // s
 constexpr auto GUI_MAX_MESSAGES = -1;
 constexpr auto GUI_MESSAGE_TIMEOUT = -1;
 constexpr auto GUI_MESSAGE_BOX_SIZE = 5;
-constexpr auto GUI_HEIGHT = 400;
-constexpr auto GUI_WIDTH = 400;
-constexpr auto BACKGROUND_UPDATE_INTERVAL = 100; // ms
-constexpr auto FONT_SIZE = 15.0f;
-const auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+constexpr auto GUI_DEFAULT_HEIGHT = 400;
+constexpr auto GUI_DEFAULT_WIDTH = 600;
+constexpr auto DEFAULT_FONT_SIZE = 15.0f;
+constexpr auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 struct AppConfig {
-    std::string appConfigPath;
-    ///
-    bool 
-        showDisclaimers = true;
-    std::string
-        autoConnectDeviceMac{};
-    std::vector<std::pair<std::string, std::string>>
-        headphoneInteractionShellCommands{};
-    std::string 
-        imguiSettings{};
-    std::string
-        imguiFontFile{};
-    float imguiFontSize = -1;
-    AppConfig(std::string const& configPath) : appConfigPath(configPath) {};
-    void loadSettings();
-    void saveSettings();
+public:
+    bool showDisclaimers = true;
+    std::string autoConnectDeviceMac{};
+    std::vector<std::pair<std::string, std::string>> headphoneInteractionShellCommands{};
+    std::string imguiSettings{};
+    std::string imguiFontFile{};
+    std::pair<int, int> imguiWindowSize{GUI_DEFAULT_WIDTH, GUI_DEFAULT_HEIGHT};
+    int imguiFontSize = DEFAULT_FONT_SIZE;
+	float headphoneStateSyncInterval = 1.0f;    
+    bool load(std::string const& configPath);
+    bool save(std::string const& configPath);
 };
-//This class should be constructed after AFTER the Dear ImGUI context is initialized.
+//This class should be constructed AFTER the Dear ImGUI context is initialized.
 class App
 {
 public:
-    App(BluetoothWrapper&& bt, std::string const& appConfigPath = APP_CONFIG_NAME);
-    ~App();
-    //Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
-    //O: true if the user wants to close the window
-    bool OnImGui();
-private:
-    ImFont* _loadFonts(const std::string& fontFile, float font_size);
-
-    void _drawMessages();
+    App(BluetoothWrapper&& bt, AppConfig& config);
+	// This function should be called from the main thread
+    // O: true if the window should be redrawn due to state update
+    bool OnUpdate();
+    // This function should be called from the main thread
+    // Run the GUI code once. This function should be called from a loop from one of the GUI impls (Windows, OSX, Linux...)
+    // O: true if the user wants to close the window
+    bool OnFrame();
+private:   
     void _drawDeviceDiscovery();
     void _drawControls();
     void _drawConfig();
-
     void _setHeadphoneSettings();
-
     void _handleHeadphoneInteraction(std::string const& event);
+    
+    double _lastStateSyncTime = 0.0f;
+    bool _autoConnectAttempted = false;
+    int _prevMessageCnt = 0;
+
+    AppConfig & _config;
 
     std::vector<std::string> _logs;
-    AppConfig _config;
     BluetoothDevice _connectedDevice;
     BluetoothWrapper _bt;
     std::unique_ptr<Headphones> _headphones;

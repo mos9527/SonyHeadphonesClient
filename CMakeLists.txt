@@ -60,9 +60,9 @@ if (LINUX)
     add_subdirectory(contrib/glfw)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     target_sources(SonyHeadphonesClient
-            PRIVATE src/platform/linux/DBusHelper.cpp
+            PRIVATE PRIVATE src/Main.cpp
+            src/platform/linux/DBusHelper.cpp
             src/platform/linux/LinuxBluetoothConnector.cpp
-            src/platform/linux/main.cpp
             contrib/imgui/backends/imgui_impl_opengl3.cpp
             contrib/imgui/backends/imgui_impl_glfw.cpp
     )
@@ -97,17 +97,19 @@ endif ()
 
 if (WIN32)
     ADD_DEFINITIONS(-DUNICODE)
+    add_subdirectory(contrib/glfw)
+    target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
 
     target_sources(SonyHeadphonesClient
-            PRIVATE src/platform/windows/main.cpp
+            PRIVATE src/Main.cpp
             src/platform/windows/WindowsBluetoothConnector.cpp
-            contrib/imgui/backends/imgui_impl_dx11.cpp
-            contrib/imgui/backends/imgui_impl_win32.cpp
+            contrib/imgui/backends/imgui_impl_opengl3.cpp
+            contrib/imgui/backends/imgui_impl_glfw.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/windows/app.manifest
     )
     # https://devblogs.microsoft.com/oldnewthing/20240816-00/?p=110136
     target_link_libraries(SonyHeadphonesClient
-            PRIVATE d3d11 comctl32
+            PRIVATE opengl32 comctl32
     )
 endif ()
 
@@ -118,10 +120,13 @@ if (APPLE)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
 
     target_sources(SonyHeadphonesClient
-            PRIVATE src/platform/macos/MacOSBluetoothConnector.mm
-            src/platform/macos/main.mm
+            PRIVATE src/Main.cpp
+            src/platform/macos/MacOSBluetoothConnector.mm            
             contrib/imgui/backends/imgui_impl_metal.mm
             contrib/imgui/backends/imgui_impl_glfw.cpp
+    )
+    set_source_files_properties(src/Main.cpp
+            PROPERTIES LANGUAGE OBJCXX
     )
     target_link_libraries(SonyHeadphonesClient
             PRIVATE "-framework Foundation -framework IOBluetooth -framework IOKit -framework Metal -framework MetalKit -framework Cocoa -framework CoreVideo -framework QuartzCore"
