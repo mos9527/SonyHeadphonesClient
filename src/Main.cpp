@@ -85,7 +85,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    io.ConfigDpiScaleFonts = true;
+
     ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer backends
