@@ -19,7 +19,7 @@ if (APPLE)
     )
 endif()
 
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.0")
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.1")
 
 target_sources(SonyHeadphonesClient
         PRIVATE src/BluetoothWrapper.cpp
@@ -57,6 +57,11 @@ if (DEAR_IMGUI)
 endif ()
 
 if (LINUX)
+    # Disable Wayland support
+    # GLFW doesn't respect GLFW_SCALE_TO_MONITOR on wayland - and there's seemingly no
+    # easy way to scale them ourselves.
+    # https://github.com/glfw/glfw/issues/2527 also mentions this.
+    set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
     add_subdirectory(contrib/glfw)
     target_link_libraries(SonyHeadphonesClient PRIVATE glfw)
     target_sources(SonyHeadphonesClient
