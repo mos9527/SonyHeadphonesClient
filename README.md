@@ -1,6 +1,6 @@
 # Sony Headphones Client
 
-<center><img src="https://github.com/user-attachments/assets/0c593a3f-148b-4a4d-8a60-e3483ca404bd"/></center>
+<center><img src="https://github.com/user-attachments/assets/cc441f5a-84e0-411d-b134-228583a1726d"></center>
 
 A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient), now updated with support for Sony's newer Bluetooth/TWS devices (*specifically* for the earbunds (i.e. WF-1000XM5), see [feature compatibility matrix](#features) for details.) and additional functionalities.
 
@@ -32,16 +32,16 @@ Windows, macOS and most flavors of Linux are supported OOTB. You can find the la
 ```git clone --recurse-submodules https://github.com/mos9527/SonyHeadphonesClient.git```
 
 ### Building
-`cmake` is used for Windows, macOS and Linux builds. You can build this project just like any other `cmake` ones. 
+`cmake` is required for Windows, macOS and Linux builds. A C++20 compliant compiler is also required.
 
-#### Windows (DirectX 11/Win32 APIs)
-No extra dependency is required besides the Windows SDK.
-
+#### Windows (OpenGL/GLFW)
 Install [cmake](https://cmake.org/download/) (3.29.3 works) and install [Visual Studio Community 2022](https://visualstudio.microsoft.com/vs/) the C++ components:
 * MSVC - VS 2022 C++ x64/x86 build tools
 * Windows SDK
 
-From within Visual Studio Run the `Tools --> Command Line --> Developer Command Prompt` ,and then:
+You can build, and debug the app with [Visual Studio's CMake intergration](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#ide-integration).
+
+You can also do this from the command line. In Visual Studio Run `Tools --> Command Line --> Developer Command Prompt` ,and then:
 ```
 cd Client
 mkdir build
@@ -51,8 +51,7 @@ cmake --build .
 ```
 
 #### Linux (OpenGL/GLFW)
-
-You'll need `DBus` and `libbluetooth`/`bluez` support for BT.
+`DBus` and `libbluetooth`(`bluez`) are required for Bluetooth support.
 
 `glfw` will be built alongside the application. Please follow the guide in https://www.glfw.org/docs/3.3/compile.html#compile_deps to ensure its dependencies.
 
@@ -74,20 +73,21 @@ sudo dnf install bluez-libs-devel dbus-devel
 
 ```bash
 sudo pacman -S bluez dbus
-
 ```
-The build commands are the same as Windows.
+
+You can then build the app with CMake, with a C++20 compliant compiler installed.
+```
+cd Client
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+
 
 #### macOS (Metal/GLFW)
+You need to have XCode and CMake installed to build the application.
 
-No extra dependency is required. The resultant binary should be universal (x86_64 and arm64).
-
-`glfw` will be built alongside the application.
-
-```bash
-# Install cmake
-brew install cmake
-```
 To build a universal binary, you can use the following commands:
 ```bash
 cd Client
@@ -96,6 +96,7 @@ cd build
 cmake -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" ..
 cmake --build .
 ```
+
 An app bundle will be created in the `build` directory named `SonyHeadphonesClient.app`.
 
 ## Contributing
