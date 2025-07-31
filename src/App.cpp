@@ -390,7 +390,8 @@ void App::_drawControls()
                     };
 
                     const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {
-                        if (TOUCH_SENSOR_FUNCTION_STR.lower_bound({prop.desired}) == TOUCH_SENSOR_FUNCTION_STR.end()) {
+                        auto it = TOUCH_SENSOR_FUNCTION_STR.lower_bound({prop.desired});
+                        if (it == TOUCH_SENSOR_FUNCTION_STR.end() || it->first != prop.desired)  {
                             ImGui::Text(label);
                             ImGui::SameLine();
                             ImGui::Text("Unknown Function: %d", static_cast<int>(prop.desired));
