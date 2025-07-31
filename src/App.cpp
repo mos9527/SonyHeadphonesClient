@@ -1,12 +1,25 @@
 #include "App.h"
 
+#include "imgui_internal.h"
+
 bool App::OnUpdate()
 {
     bool shouldUpdate = true;
     if (_headphones)
     {
         // Polling & state updates are only done on the main thread
-        auto event = _headphones->poll();
+        HeadphonesEvent event{};
+        try
+        {
+            event = _headphones->poll();
+        } catch (RecoverableException& exc) {
+            _logs.push_back(exc.what());
+            if (_headphones && exc.shouldDisconnect)
+                _headphones.reset();
+            else
+                throw exc;
+            return true;
+        }
         switch (event)
         {
         case HeadphonesEvent::NoChange:
@@ -31,18 +44,37 @@ bool App::OnUpdate()
             _logs.push_back("Now Playing: " + _headphones->playback.title);
             break;        
         }
-        // Request status updates at fixed intervals
-		// This updates battery levels, sound pressure, etc
-		// Most of the other headphone states are updated automatically (see poll())        
+        // TODO: Properly handle requests with queues
         if (_headphones->_requestFuture.ready()) {
+            // Request status updates at fixed intervals
+            // This updates battery levels, sound pressure, etc.
+            // Most of the other headphone states are updated automatically (see previous poll() call)
             if (ImGui::GetTime() - _lastStateSyncTime >= _config.headphoneStateSyncInterval) {
                 _lastStateSyncTime = ImGui::GetTime();
-
                 _headphones->_requestFuture.get();
                 _headphones->_requestFuture.setFromAsync([this]() {
                     if (this->_headphones)
                         this->_headphones->requestSync();
                 });
+            }
+            // Handle shutdown requests
+            else if (_requestShutdown)
+            {
+                _headphones->_requestFuture.get();
+                _headphones->_requestFuture.setFromAsync([this]() {
+                    _headphones->requestPowerOff();
+                    // Device should now disconnect and sever the connection
+                    // poll() will raise an exception and properly let the owner
+                    // destruct ourselves.
+                });
+            } else if (_requestPlaybackControl != PLAYBACK_CONTROL::NONE)
+            {
+                auto control = _requestPlaybackControl;
+                _headphones->_requestFuture.get();
+                _headphones->_requestFuture.setFromAsync([this, control]() {
+                    _headphones->requestPlaybackControl(control);
+                });
+                _requestPlaybackControl = PLAYBACK_CONTROL::NONE;
             }
         }
     }
@@ -54,11 +86,12 @@ bool App::OnUpdate()
 
 bool App::OnFrame()
 {
-    bool open = true;
-
     ImGui::SetNextWindowPos({ 0,0 });
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+    // Disable any interaction if the headphones are shutting down
+    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestShutdown);
     {
+        static bool open = true;
         ImGui::Begin("Sony Headphones", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         //Legal disclaimer
         if (_config.showDisclaimers) {
@@ -89,7 +122,8 @@ bool App::OnFrame()
         }              
         ImGui::End();
     }
-    return open;
+    ImGui::PopItemFlag();
+    return true;
 }
 
 void App::_drawDeviceDiscovery()
@@ -221,14 +255,14 @@ void App::_drawControls()
             throw RecoverableException("Requested Disconnect", true);
         }
         ImGui::SameLine();
-        if (ImGui::Button("Shutdown")) {
-            if (_headphones->_requestFuture.ready()) {
-                _headphones->_requestFuture.get();
-                _headphones->_requestFuture.setFromAsync([this]() {
-                    _headphones->requestPowerOff();
-                    throw RecoverableException("Requested Shutdown", true);
-                });
-            }
+        if (!_requestShutdown)
+        {
+            if (ImGui::Button("Shutdown"))
+                _requestShutdown = true;
+        } else
+        {
+            // OnFrame should disable UI interactions
+            ImGui::Button("...Please wait");
         }
     }	
     ImGui::SeparatorText("Controls");
@@ -236,29 +270,20 @@ void App::_drawControls()
         if (ImGui::BeginTabBar("##Controls")) {
             if (ImGui::BeginTabItem("Playback Control")) {
                 using enum PLAYBACK_CONTROL;
-                PLAYBACK_CONTROL control = NONE;
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestPlaybackControl != NONE);
                 ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
-                if (ImGui::Button("Prev")) control = PREV;
+                if (ImGui::Button("Prev")) _requestPlaybackControl = PREV;
                 ImGui::SameLine();
                 if (_headphones->playPause.current == true /*playing*/) {
-                    if (ImGui::Button("Pause")) control = PAUSE;
+                    if (ImGui::Button("Pause")) _requestPlaybackControl = PAUSE;
                 }
                 else {
-                    if (ImGui::Button("Play")) control = PLAY;
+                    if (ImGui::Button("Play")) _requestPlaybackControl = PLAY;
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Next")) control = NEXT;
-
-                if (_headphones->_requestFuture.ready()) {
-                    if (control != NONE) {
-                        _headphones->_requestFuture.get();
-                        _headphones->_requestFuture.setFromAsync([this, control]() {
-                            _headphones->requestPlaybackControl(control);
-                            });
-                    }
-                }
-
+                if (ImGui::Button("Next")) _requestPlaybackControl = NEXT;
                 ImGui::EndTabItem();
+                ImGui::PopItemFlag();
             }
 
             if (ImGui::BeginTabItem("AMB / ANC")) {
@@ -365,6 +390,12 @@ void App::_drawControls()
                     };
 
                     const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {
+                        if (TOUCH_SENSOR_FUNCTION_STR.lower_bound({prop.desired}) == TOUCH_SENSOR_FUNCTION_STR.end()) {
+                            ImGui::Text(label);
+                            ImGui::SameLine();
+                            ImGui::Text("Unknown Function: %d", static_cast<int>(prop.desired));
+                            return;
+                        }
                         if (ImGui::BeginCombo(label, TOUCH_SENSOR_FUNCTION_STR.at(prop.desired))) {
                             for (auto& [k, v] : TOUCH_SENSOR_FUNCTION_STR) {
                                 const bool is_selected = (prop.desired == k);
@@ -417,14 +448,14 @@ void App::_drawConfig()
                 for (
                     auto it = cmds.begin();it != cmds.end();it != cmds.end() ? it++ : cmds.end()) {
                     ImGui::TableNextRow();
-                    ImGui::PushID(it->first.data());
+                    ImGui::PushID(&it->first);
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::InputText("##", &it->first);
+                    ImGui::InputText("##Event", &it->first);
                     ImGui::PopID();
 
-                    ImGui::PushID(it->second.data());
+                    ImGui::PushID(&it->second);
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::InputText("##", &it->second);
+                    ImGui::InputText("##Shell", &it->second);
                     ImGui::TableSetColumnIndex(2);
                     if (ImGui::Button("Remove##")) {
                         it = cmds.erase(it);

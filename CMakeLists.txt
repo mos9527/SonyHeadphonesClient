@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(SonyHeadphonesClient CXX)
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.2")
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -18,8 +19,6 @@ if (APPLE)
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/macos/Info.plist
     )
 endif()
-
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.1")
 
 target_sources(SonyHeadphonesClient
         PRIVATE src/BluetoothWrapper.cpp

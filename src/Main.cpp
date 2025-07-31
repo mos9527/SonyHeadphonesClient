@@ -45,12 +45,12 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
 
-    printf("Glfw version: %s\n", glfwGetVersionString());
+    fprintf(stderr,"Glfw version: %s\n", glfwGetVersionString());
 
 #if defined(__linux__)
     if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND))
     {
-        printf("Enabling wayland backend\n");
+        fprintf(stderr,"Enabling wayland backend\n");
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
     }
 #endif
@@ -140,108 +140,113 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
 #else
     {
 #endif
-        printf("config path: %s\n", config_path.string().c_str());
+        fprintf(stderr,"config path: %s\n", config_path.string().c_str());
         AppConfig app_config;
         app_config.load(config_path.string());
-        App app = App(BluetoothWrapper(std::move(btConnector)), app_config);
-        while (!glfwWindowShouldClose(window))
+        try
         {
-            glfwPollEvents();
-            static float sCurrentScale = 1.0f;
-            float scaleX, scaleY, scale = 1.0;
+            App app = App(BluetoothWrapper(std::move(btConnector)), app_config);
+            while (!glfwWindowShouldClose(window))
+            {
+                glfwPollEvents();
+                static float sCurrentScale = 1.0f;
+                float scaleX, scaleY, scale = 1.0;
 #ifndef __APPLE__
-            // XXX: on macOS, Window content is already scaled.
-            // On other platforms, we need to query the scale factor and apply them there.
-            glfwGetWindowContentScale(window, &scaleX, &scaleY);
-            scale = std::max(scaleX, scaleY);
+                // XXX: on macOS, Window content is already scaled.
+                // On other platforms, we need to query the scale factor and apply them there.
+                glfwGetWindowContentScale(window, &scaleX, &scaleY);
+                scale = std::max(scaleX, scaleY);
 #endif
-            static bool sNeedRebuildFonts = true;
-            if (sCurrentScale != scale)
-            {
-                ImGui::GetStyle().ScaleAllSizes(scale / (float)sCurrentScale);
-                sCurrentScale = scale;
-                sNeedRebuildFonts = true;
-            }
-            // Monitor font change
-            static std::string sFontFile;
-            if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
-            {
-                sFontFile = app_config.imguiFontFile;
-                sNeedRebuildFonts = true;
-            }
-            static float sSetFontSize = DEFAULT_FONT_SIZE;
-            if (sSetFontSize != app_config.imguiFontSize)
-            {
-                // Dynamic font scaling has been implemented since https://github.com/ocornut/imgui/releases/tag/v1.92.0                                
-                sSetFontSize = app_config.imguiFontSize * sCurrentScale;
-                ImGui::GetStyle()._NextFrameFontSizeBase = sSetFontSize;                
-                // sNeedRebuildFonts = true;
-            }
-            // Rebuild fonts if necessary
-            if (sNeedRebuildFonts)
-            {
-                io.Fonts->Clear();
-                ImFontConfig font_cfg;
-                font_cfg.FontDataOwnedByAtlas = false;
-                if (!sFontFile.empty() && std::filesystem::exists(sFontFile))
+                static bool sNeedRebuildFonts = true;
+                if (sCurrentScale != scale)
                 {
-                    io.Fonts->AddFontFromFileTTF(sFontFile.c_str(), sSetFontSize * sCurrentScale, &font_cfg);
+                    ImGui::GetStyle().ScaleAllSizes(scale / (float)sCurrentScale);
+                    sCurrentScale = scale;
+                    sNeedRebuildFonts = true;
                 }
-                else
+                // Monitor font change
+                static std::string sFontFile;
+                if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
                 {
-                    io.Fonts->AddFontFromMemoryCompressedBase85TTF(CascadiaCode_compressed_data_base85, sSetFontSize * sCurrentScale, &font_cfg);
+                    sFontFile = app_config.imguiFontFile;
+                    sNeedRebuildFonts = true;
                 }
-                io.Fonts->Build();
+                static float sSetFontSize = DEFAULT_FONT_SIZE;
+                if (sSetFontSize != app_config.imguiFontSize)
+                {
+                    // Dynamic font scaling has been implemented since https://github.com/ocornut/imgui/releases/tag/v1.92.0
+                    sSetFontSize = app_config.imguiFontSize * sCurrentScale;
+                    ImGui::GetStyle()._NextFrameFontSizeBase = sSetFontSize;
+                    // sNeedRebuildFonts = true;
+                }
+                // Rebuild fonts if necessary
+                if (sNeedRebuildFonts)
+                {
+                    io.Fonts->Clear();
+                    ImFontConfig font_cfg;
+                    font_cfg.FontDataOwnedByAtlas = false;
+                    if (!sFontFile.empty() && std::filesystem::exists(sFontFile))
+                    {
+                        io.Fonts->AddFontFromFileTTF(sFontFile.c_str(), sSetFontSize * sCurrentScale, &font_cfg);
+                    }
+                    else
+                    {
+                        io.Fonts->AddFontFromMemoryCompressedBase85TTF(CascadiaCode_compressed_data_base85, sSetFontSize * sCurrentScale, &font_cfg);
+                    }
+                    io.Fonts->Build();
 #if !defined(__APPLE__)
-                ImGui_ImplOpenGL3_DestroyDeviceObjects();
-                ImGui_ImplOpenGL3_CreateDeviceObjects();
+                    ImGui_ImplOpenGL3_DestroyDeviceObjects();
+                    ImGui_ImplOpenGL3_CreateDeviceObjects();
 #else
-                ImGui_ImplMetal_DestroyDeviceObjects();
-                ImGui_ImplMetal_CreateDeviceObjects(device);
+                    ImGui_ImplMetal_DestroyDeviceObjects();
+                    ImGui_ImplMetal_CreateDeviceObjects(device);
 #endif
-                sNeedRebuildFonts = false;
+                    sNeedRebuildFonts = false;
+                }
+
+                bool shouldDraw = app.OnUpdate();
+
+#if defined(__APPLE__)
+                int width, height;
+                glfwGetFramebufferSize(window, &width, &height);
+                layer.drawableSize = CGSizeMake(width, height);
+                id <CAMetalDrawable> drawable = [layer nextDrawable];
+                id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+                renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);
+                renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
+                renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+                renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+                id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+
+                ImGui_ImplMetal_NewFrame(renderPassDescriptor);
+#else
+                ImGui_ImplOpenGL3_NewFrame();
+#endif
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+                app.OnFrame();
+                ImGui::Render();
+#if defined(__APPLE__)
+                ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
+                [renderEncoder endEncoding];
+                [commandBuffer presentDrawable:drawable];
+                [commandBuffer commit];
+#else
+                int display_w, display_h;
+                glfwGetFramebufferSize(window, &display_w, &display_h);
+                glViewport(0, 0, display_w, display_h);
+                glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+                glClear(GL_COLOR_BUFFER_BIT);
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+                glfwSwapBuffers(window);
+#endif
             }
-
-            bool shouldDraw = app.OnUpdate();
-
-#if defined(__APPLE__)
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
-            layer.drawableSize = CGSizeMake(width, height);
-            id <CAMetalDrawable> drawable = [layer nextDrawable];
-            id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-            renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);
-            renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
-            renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-            renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-            id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-
-            ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-#else
-            ImGui_ImplOpenGL3_NewFrame();
-#endif
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-            app.OnFrame();
-            ImGui::Render();
-#if defined(__APPLE__)
-            ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
-            [renderEncoder endEncoding];
-            [commandBuffer presentDrawable:drawable];
-            [commandBuffer commit];
-#else
-            int display_w, display_h;
-            glfwGetFramebufferSize(window, &display_w, &display_h);
-            glViewport(0, 0, display_w, display_h);
-            glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT);
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            glfwSwapBuffers(window);
-#endif
+        } catch (std::exception &e)
+        {
+            fprintf(stderr, "Runtime error: %s", e.what());
         }
         app_config.save(config_path.string());
     }
-
     // Cleanup
 #if defined(__APPLE__)
     ImGui_ImplMetal_Shutdown();
