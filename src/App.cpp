@@ -425,16 +425,6 @@ void App::_drawControls()
 void App::_drawConfig()
 {
     if (ImGui::CollapsingHeader("App Config")) {
-        if (ImGui::TreeNode("UI")) {
-            ImGui::SeparatorText("Font");
-            ImGui::SliderInt("Font Size", &_config.imguiFontSize, 10.0f, 64.0f);
-            ImGui::InputText("Custom Font (filename)", &_config.imguiFontFile);
-            ImGui::Text("NOTE: You'll need a custom, CJK compliant font to see those characters.");
-            ImGui::Text("NOTE: All font-related changes will only be applied on restart.");
-            ImGui::SeparatorText("Misc");
-            ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
-            ImGui::TreePop();
-        }
         if (ImGui::TreeNode("Shell Command")) {
             ImGui::Text("NOTE: Headphones may send Events (displayed in the Messages section as Headphone Event: ...)");
             ImGui::Text("NOTE: You may bind them to shell commands here.");
@@ -469,6 +459,14 @@ void App::_drawConfig()
             if (ImGui::Button("Add Command")) {
                 cmds.push_back({});
             }
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("UI")) {
+            ImGui::SeparatorText("Font");
+            ImGui::SliderInt("Font Size", &_config.imguiFontSize, 10.0f, 64.0f);
+            ImGui::InputText("Font File (full path)", &_config.imguiFontFile);
+            ImGui::SeparatorText("Misc");
+            ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Messages")) {

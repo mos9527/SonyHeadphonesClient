@@ -92,7 +92,14 @@ std::vector<BluetoothDevice> WindowsBluetoothConnector::getConnectedDevices()
 
 	// Search only for connected devices
 	BLUETOOTH_DEVICE_SEARCH_PARAMS dev_search_params = {
-	  sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS), 0, 0, 0, 1, 0, 15, NULL
+	  .dwSize = sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),
+	  .fReturnAuthenticated = 0, 
+	  .fReturnRemembered = 0,
+	  .fReturnUnknown = 0, 
+	  .fReturnConnected = 1, 
+	  .fIssueInquiry = 0, 
+	  .cTimeoutMultiplier = 15,
+	  .hRadio = NULL
 	};
 
 	// Iterate for available bluetooth radio devices
@@ -101,7 +108,7 @@ std::vector<BluetoothDevice> WindowsBluetoothConnector::getConnectedDevices()
 	{
 		if (ERROR_NO_MORE_ITEMS == GetLastError())
 		{
-			throw RecoverableException(NO_BLUETOOTH_DEVICES_ERROR);
+			return res;
 		}
 		else
 		{

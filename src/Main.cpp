@@ -166,7 +166,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
                 }
                 // Monitor font change
                 static std::string sFontFile;
-                if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(sFontFile))
+                if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(app_config.imguiFontFile))
                 {
                     sFontFile = app_config.imguiFontFile;
                     sNeedRebuildFonts = true;
@@ -243,7 +243,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
             }
         } catch (std::exception &e)
         {
-            fprintf(stderr, "Runtime error: %s", e.what());
+            throw e;
         }
         app_config.save(config_path.string());
     }

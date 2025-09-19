@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(SonyHeadphonesClient CXX)
-add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.2")
+add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.3")
 
 set(CMAKE_CXX_STANDARD 20)
 

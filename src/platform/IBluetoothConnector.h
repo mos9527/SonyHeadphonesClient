@@ -4,8 +4,6 @@
 #include "Exceptions.h"
 #include "Constants.h"
 
-inline constexpr auto NO_BLUETOOTH_DEVICES_ERROR = "No Bluetooth radios were found - is your adapter connected *and* turned on?";
-
 struct BluetoothDevice
 {
 	//UTF-8

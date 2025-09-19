@@ -1,6 +1,6 @@
 # Sony Headphones Client
 
-<center><img src="https://github.com/user-attachments/assets/cc441f5a-84e0-411d-b134-228583a1726d"></center>
+<center><img src="https://github.com/user-attachments/assets/a73cbdb6-e03d-4b8b-b0bc-6aeb347c2a20"></center>
 
 A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient), now updated with support for Sony's newer Bluetooth/TWS devices (*specifically* for the earbunds (i.e. WF-1000XM5), see [feature compatibility matrix](#features) for details.) and additional functionalities.
 
