@@ -234,12 +234,17 @@ void App::_drawControls()
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             {
-                ImGui::Text("L:"); ImGui::SameLine();
-                ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0);
-                ImGui::Text("R:"); ImGui::SameLine();
-                ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0);
-                ImGui::Text("Case:"); ImGui::SameLine();
-                ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0);
+                if ((_headphones->deviceCapabilities & DC_TrueWireless) != 0) {
+                    ImGui::Text("L:"); ImGui::SameLine();
+                    ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0f);
+                    ImGui::Text("R:"); ImGui::SameLine();
+                    ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0f);
+                    ImGui::Text("Case:"); ImGui::SameLine();
+                    ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0f);
+                } else {
+                    ImGui::Text("Battery:"); ImGui::SameLine();
+                    ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0f);
+                }
             }
             ImGui::TableSetColumnIndex(1);
             {
@@ -287,10 +292,63 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("AMB / ANC")) {
-                ImGui::Checkbox("Enabled", &_headphones->asmEnabled.desired);
-                ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
-                ImGui::Text("NOTE: Set to 0 to enable Noise Cancelling.");
-                ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 0, 20);
+                bool supportsAutoAsm = (_headphones->deviceCapabilities & DC_AutoAsm) != 0;
+
+                if (ImGui::RadioButton("Noise Cancelling", _headphones->asmEnabled.desired && _headphones->asmMode.desired == NC_ASM_SETTING_TYPE::NOISE_CANCELLING)) {
+                    _headphones->asmEnabled.desired = true;
+                    _headphones->asmMode.desired = NC_ASM_SETTING_TYPE::NOISE_CANCELLING;
+                }
+
+                ImGui::SameLine();
+                if (ImGui::RadioButton("Ambient Sound", _headphones->asmEnabled.desired && _headphones->asmMode.desired == NC_ASM_SETTING_TYPE::AMBIENT_SOUND)) {
+                    _headphones->asmEnabled.desired = true;
+                    _headphones->asmMode.desired = NC_ASM_SETTING_TYPE::AMBIENT_SOUND;
+                    if (_headphones->asmLevel.desired == 0)
+                        _headphones->asmLevel.desired = 20;
+                }
+
+                ImGui::SameLine();
+                if (ImGui::RadioButton("Off", !_headphones->asmEnabled.desired)) {
+                    _headphones->asmEnabled.desired = false;
+                }
+
+                ImGui::Separator();
+
+                if (_headphones->asmEnabled.current && _headphones->asmMode.current == NC_ASM_SETTING_TYPE::AMBIENT_SOUND) {
+                    ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 1, 20);
+                    _headphones->draggingAsmLevel = ImGui::IsItemActive();
+                    if (ImGui::IsItemDeactivatedAfterEdit()) {
+                        _forceSendChanges = true;
+                    }
+                    if (supportsAutoAsm) {
+                        ImGui::Checkbox("Auto Ambient Sound", &_headphones->autoAsmEnabled.desired);
+
+                        ImGui::BeginDisabled(!_headphones->autoAsmEnabled.current);
+                        static const std::map<AUTO_ASM_SENSITIVITY, const char*> AUTO_ASM_SENSITIVITY_STR = {
+                            {AUTO_ASM_SENSITIVITY::STANDARD, "Standard"},
+                            {AUTO_ASM_SENSITIVITY::HIGH, "High"},
+                            {AUTO_ASM_SENSITIVITY::LOW, "Low"},
+                        };
+                        auto it = AUTO_ASM_SENSITIVITY_STR.find(_headphones->autoAsmSensitivity.current);
+                        std::string currentStr = it != AUTO_ASM_SENSITIVITY_STR.end() ? it->second : "Unknown";
+                        if (ImGui::BeginCombo("Sensitivity", currentStr.c_str())) {
+                            for (auto const& [k, v] : AUTO_ASM_SENSITIVITY_STR) {
+                                bool is_selected = k == _headphones->autoAsmSensitivity.current;
+                                if (ImGui::Selectable(v, is_selected))
+                                    _headphones->autoAsmSensitivity.desired = k;
+                                if (is_selected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+
+                            ImGui::EndCombo();
+                        }
+
+                        ImGui::EndDisabled();
+                    }
+
+                    ImGui::Checkbox("Voice Passthrough", &_headphones->asmFoucsOnVoice.desired);
+                }
+
                 ImGui::EndTabItem();
             }
 
@@ -302,7 +360,7 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("Equalizer")) {
-                const std::map<int, std::string> EQ_PRESET_NAMES = {
+                static const std::map<int, const char*> EQ_PRESET_NAMES = {
                     { 0, "Off" },
                     { 1, "Rock" },
                     { 2, "Pop" },
@@ -337,7 +395,7 @@ void App::_drawControls()
                     for (auto const& [k, v] : EQ_PRESET_NAMES)
                     {
                         bool is_selected = k == _headphones->eqPreset.current;
-                        if (ImGui::Selectable(v.c_str(), is_selected))
+                        if (ImGui::Selectable(v, is_selected))
                             _headphones->eqPreset.desired = k;
                         if (is_selected)
                             ImGui::SetItemDefaultFocus();
@@ -499,8 +557,9 @@ void App::_setHeadphoneSettings() {
         ImGui::Text("Sending command %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
     //We're not waiting, and there's no event in the air, so we can evaluate sending a new event
-    else if (_headphones->isChanged())
+    else if (_forceSendChanges || _headphones->isChanged())
     {
+        _forceSendChanges = false;
         _headphones->_sendCommandFuture.setFromAsync([=, this]() {
             return this->_headphones->setChanges();
         });

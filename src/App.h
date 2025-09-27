@@ -73,6 +73,7 @@ private:
     AppConfig & _config;
 
     bool _requestShutdown = false;
+    bool _forceSendChanges = false;
     PLAYBACK_CONTROL _requestPlaybackControl = PLAYBACK_CONTROL::NONE;
 
     std::vector<std::string> _logs;

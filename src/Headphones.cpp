@@ -10,8 +10,10 @@ Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("recei
 
 bool Headphones::isChanged()
 {
+	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
 	return !(
-		asmEnabled.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
+		asmEnabled.isFulfilled() && asmMode.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
+		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled())) &&
 		miscVoiceGuidanceVol.isFulfilled() &&
 		volume.isFulfilled() &&
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
@@ -32,20 +34,31 @@ void Headphones::waitForAck(int timeout)
 
 void Headphones::setChanges()
 {
-	if (!(asmEnabled.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled()))
+	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
+	if (!(asmEnabled.isFulfilled() && asmMode.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
+		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled()))))
 	{
 		this->_conn.sendCommand(CommandSerializer::serializeNcAndAsmSetting(
+			supportsAutoAsm ? 0x19 : 0x17,
+			!draggingAsmLevel,
 			asmEnabled.desired ? NC_ASM_EFFECT::ON : NC_ASM_EFFECT::OFF,
-			asmLevel.desired > 0 ? NC_ASM_SETTING_TYPE::AMBIENT_SOUND : NC_ASM_SETTING_TYPE::NOISE_CANCELLING,
+			asmMode.desired,
 			asmFoucsOnVoice.desired ? ASM_ID::VOICE : ASM_ID::NORMAL,
-			std::max(asmLevel.desired, 1)
+			std::max(asmLevel.desired, 1),
+			autoAsmEnabled.desired,
+			autoAsmSensitivity.desired
 		));
 		waitForAck();
 
 		std::lock_guard guard(this->_propertyMtx);
 		asmEnabled.fulfill();
+		asmMode.fulfill();
 		asmLevel.fulfill();
 		asmFoucsOnVoice.fulfill();
+		if (supportsAutoAsm) {
+			autoAsmEnabled.fulfill();
+			autoAsmSensitivity.fulfill();
+		}
 	}
 
 	if (!(miscVoiceGuidanceVol.isFulfilled()))
@@ -182,7 +195,7 @@ void Headphones::requestInit()
 	/* Init */
 	// NOTE: It's observed that playback metadata NOTIFYs (see _handleMessage) is sent by the device after this...	
 	_conn.sendCommand({
-	static_cast<uint8_t>(COMMAND_TYPE::INIT_REQUEST),
+		static_cast<uint8_t>(COMMAND_TYPE::INIT_REQUEST),
 		0x00
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
@@ -209,7 +222,7 @@ void Headphones::requestInit()
 	/* NC/ASM Params */
 	_conn.sendCommand({
 		static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_GET),
-		0x17
+		static_cast<uint8_t>((deviceCapabilities & DC_AutoAsm) != 0 ? 0x19 : 0x17) // Version
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
@@ -291,19 +304,25 @@ void Headphones::requestSync()
 	// https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
 	
 	/* Battery */
-	_conn.sendCommand({
-		static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
-		0x01 // DUAL
-	}, DATA_TYPE::DATA_MDR);
+	if ((deviceCapabilities & DC_TrueWireless) != 0) {
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
+			0x01 // DUAL
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
 
-	waitForAck();
-
-	_conn.sendCommand({
-		static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
-		0x02 // CASE
-	}, DATA_TYPE::DATA_MDR);
-
-	waitForAck();
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
+			0x02 // CASE
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	} else {
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::BATTERY_LEVEL_GET),
+			0x00 // SINGLE
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	}
 
 	/* Playback */
 	_conn.sendCommand({
@@ -354,32 +373,57 @@ void Headphones::requestPowerOff()
 
 HeadphonesEvent Headphones::_handleInitResponse(const HeadphonesMessage& msg) {
     hasInit = true;
+    deviceType = static_cast<DeviceModel>(msg[5] << 8 | msg[4]);
+    deviceCapabilities = DC_None;
+    switch (deviceType)
+    {
+        case DeviceModel::WF1000XM5:
+            deviceCapabilities |= DC_TrueWireless;
+            break;
+        case DeviceModel::WH1000XM6:
+            deviceCapabilities |= DC_AutoAsm;
+            break;
+    }
     return HeadphonesEvent::Initialized;
 }
 
 HeadphonesEvent Headphones::_handleNcAsmParam(const HeadphonesMessage& msg) {
     // see serializeNcAndAsmSetting
+	if (!msg[2])
+		return HeadphonesEvent::NoChange;
     asmEnabled.overwrite(msg[3]);
+    asmMode.overwrite(static_cast<NC_ASM_SETTING_TYPE>(msg[4]));
     asmFoucsOnVoice.overwrite(msg[5]);
-    if (msg[4])
-        asmLevel.overwrite(msg[6]);
-    else
-        asmLevel.overwrite(0);
+    asmLevel.overwrite(msg[6]);
+    if ((deviceCapabilities & DC_AutoAsm) != 0 && msg[1] >= 0x19) {
+        autoAsmEnabled.overwrite(msg[7] != 0);
+        autoAsmSensitivity.overwrite(static_cast<AUTO_ASM_SENSITIVITY>(msg[8]));
+    }
     return HeadphonesEvent::NcAsmParamUpdate;
 }
 
 HeadphonesEvent Headphones::_handleBatteryLevelRet(const HeadphonesMessage& msg) {
     switch (msg[1]) {
-    case 1:
+    case 0: // SINGLE
         statBatteryL.overwrite(msg[2]);
-        statBatteryR.overwrite(msg[4]);
         return HeadphonesEvent::BatteryLevelUpdate;
-    case 2:
-        statBatteryCase.overwrite(msg[2]);
-        return HeadphonesEvent::BatteryLevelUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
+    case 1: // DUAL
+        if ((deviceCapabilities & DC_TrueWireless) != 0)
+        {
+            statBatteryL.overwrite(msg[2]);
+            statBatteryR.overwrite(msg[4]);
+            return HeadphonesEvent::BatteryLevelUpdate;
+        }
+        break;
+    case 2: // CASE
+        if ((deviceCapabilities & DC_TrueWireless) != 0)
+        {
+            statBatteryCase.overwrite(msg[2]);
+            return HeadphonesEvent::BatteryLevelUpdate;
+        }
+        break;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handlePlaybackStatus(const HeadphonesMessage& msg) {

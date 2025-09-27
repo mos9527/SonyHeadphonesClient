@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <variant>
+
 template <class T>
 struct Property
 {
@@ -44,19 +45,20 @@ template <class T>
 struct ReadonlyProperty
 {
 	T current;
-	
+
 	void overwrite(T const &value)
 	{
 		current = value;
 	};
 };
+
 enum class HeadphonesEvent
 {
 	MessageUnhandled = -1,
-	
-	NoMessage,	
+
+	NoMessage,
 	NoChange,
-	
+
 	JSONMessage,
 	Initialized,
 
@@ -84,7 +86,18 @@ enum class HeadphonesEvent
 
 	InteractionUpdate,
 };
+
 using HeadphonesMessage = CommandSerializer::CommandMessage;
+
+enum DeviceCapabilities
+{
+	DC_None = 0x0,
+	DC_TrueWireless = 0x1,
+	DC_AutoAsm = 0x2,
+};
+
+HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(DeviceCapabilities);
+
 class Headphones
 {
 public:
@@ -104,15 +117,25 @@ public:
 
 	ReadonlyProperty<HeadphonesMessage> rawMessage;
 
-	// Is NC & Ambient sound enabled?
+	// Is NC or Ambient sound enabled?
 	Property<bool> asmEnabled{};
+
+	// NC or Ambient sound mode?
+	Property<NC_ASM_SETTING_TYPE> asmMode{};
 
 	// Is Foucs On Voice enabled?
 	Property<bool> asmFoucsOnVoice{};
 
 	// Ambient sound level. 0 ~ 20.
-	// 0 shouldn't be a possible value on the app. It's used here as a fallback to Noise Cancelling
+	// 0 shouldn't be a possible value on the app.
 	Property<int> asmLevel{};
+	bool draggingAsmLevel = false;
+
+	// Is auto ambient sound enabled? (WH-1000XM6 onwards)
+	Property<bool> autoAsmEnabled{};
+
+	// Auto ambient sound sensitivity. 0 ~ 2. (WH-1000XM6 onwards)
+	Property<AUTO_ASM_SENSITIVITY> autoAsmSensitivity{};
 
 	// Volume for voice guidance. -2 ~ 2
 	Property<int> miscVoiceGuidanceVol{};
@@ -128,7 +151,7 @@ public:
 
 	// Plaintext messages
 	ReadonlyProperty<std::string> deviceMessages{};
-	
+
 	// Headphone interaction message. Avalialbe after InteractionUpdate
 	ReadonlyProperty<std::string> interactionMessage{};
 
@@ -171,6 +194,19 @@ public:
 
 	// Touch sensor function
 	Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
+
+	// Device model + capabilities
+	enum class DeviceModel
+	{
+		// Over-ear
+		// WH1000XM5 = 0xFFFF, // TODO
+		WH1000XM6 = 0x0130,
+
+		// In-ear
+		WF1000XM5 = 0x1720,
+	};
+	DeviceModel deviceType{};
+	DeviceCapabilities deviceCapabilities{};
 
 	bool isChanged();
 	void setChanges();
