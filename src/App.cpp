@@ -513,7 +513,9 @@ void App::_handleHeadphoneInteraction(std::string const& event)
     auto& cmds = _config.headphoneInteractionShellCommands;
     auto cmd = std::find_if(cmds.begin(),cmds.end(),[&](auto& p) { return p.first == event; });
     if (cmd != cmds.end()){
-        system(cmd->second.c_str());
+        if (int ret = system(cmd->second.c_str()); ret != 0) {
+            _logs.push_back("Command " + cmd->second + " returned " + std::to_string(ret));
+        }
     }
 }
 

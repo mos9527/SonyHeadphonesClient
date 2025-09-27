@@ -32,9 +32,12 @@ Windows, macOS and most flavors of Linux are supported OOTB. You can find the la
 ```git clone --recurse-submodules https://github.com/mos9527/SonyHeadphonesClient.git```
 
 ### Building
-`cmake` is required for Windows, macOS and Linux builds. A C++20 compliant compiler is also required.
+- `cmake` is required for Windows, macOS and Linux builds. A C++20 compliant compiler is also required.
+- `glfw` will always be built and statically linked with the application.
+Please follow the guide in https://www.glfw.org/docs/3.3/compile.html#compile_deps to ensure its dependencies.
+- On non-macOS platforms, OpenGL is used for GUI rendering. Make sure your system has the requisite GL libs intalled. 
 
-#### Windows (OpenGL/GLFW)
+#### Windows
 Install [cmake](https://cmake.org/download/) (3.29.3 works) and install [Visual Studio Community 2022](https://visualstudio.microsoft.com/vs/) the C++ components:
 * MSVC - VS 2022 C++ x64/x86 build tools
 * Windows SDK
@@ -50,10 +53,8 @@ cmake ..
 cmake --build .
 ```
 
-#### Linux (OpenGL/GLFW)
+#### Linux
 `DBus` and `libbluetooth`(`bluez`) are required for Bluetooth support.
-
-`glfw` will be built alongside the application. Please follow the guide in https://www.glfw.org/docs/3.3/compile.html#compile_deps to ensure its dependencies.
 
 - Debian / Ubuntu:
 
@@ -85,7 +86,7 @@ cmake --build .
 ```
 
 
-#### macOS (Metal/GLFW)
+#### macOS
 You need to have XCode and CMake installed to build the application.
 
 To build a universal binary, you can use the following commands:
@@ -110,6 +111,12 @@ See [Packet Capture](docs/packet-capture.md) doc for more info.
 * [semvis123](https://github.com/semvis123) - macOS Version
 * [jimzrt](https://github.com/jimzrt) - Linux Version
 * [guilhermealbm](https://github.com/guilhermealbm) - Noise Cancelling Switch
+
+## Third-party
+* [GLFW](https://www.glfw.org/) - Window and Input
+* [Dear ImGui](https://github.com/ocornut/imgui/) - GUI
+* [tomlplusplus](https://github.com/marzer/tomlplusplus) - Config file parsing
+* [cascadia-code](https://github.com/microsoft/cascadia-code) - Default font supplied with the app
 
 ## License
 

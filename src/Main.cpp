@@ -166,7 +166,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
                 }
                 // Monitor font change
                 static std::string sFontFile;
-                if (sFontFile != app_config.imguiFontFile && std::filesystem::exists(app_config.imguiFontFile))
+                if (sFontFile != app_config.imguiFontFile && std::filesystem::is_regular_file(app_config.imguiFontFile))
                 {
                     sFontFile = app_config.imguiFontFile;
                     sNeedRebuildFonts = true;
@@ -185,7 +185,7 @@ void EnterGUIMainLoop(std::unique_ptr<IBluetoothConnector> btConnector)
                     io.Fonts->Clear();
                     ImFontConfig font_cfg;
                     font_cfg.FontDataOwnedByAtlas = false;
-                    if (!sFontFile.empty() && std::filesystem::exists(sFontFile))
+                    if (!sFontFile.empty() && std::filesystem::is_regular_file(sFontFile))
                     {
                         io.Fonts->AddFontFromFileTTF(sFontFile.c_str(), sSetFontSize * sCurrentScale, &font_cfg);
                     }
