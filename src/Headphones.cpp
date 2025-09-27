@@ -466,7 +466,7 @@ HeadphonesEvent Headphones::_handlePlaybackSndPressureRet(const HeadphonesMessag
 HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& msg) {
     switch (msg[1]) {
     case 0x20:
-        miscVoiceGuidanceVol.overwrite(msg[2]);
+        miscVoiceGuidanceVol.overwrite(static_cast<char>(msg[2]));
         return HeadphonesEvent::VoiceGuidanceVolumeUpdate;
     default:
         return HeadphonesEvent::MessageUnhandled;
