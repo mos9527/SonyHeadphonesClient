@@ -31,7 +31,7 @@ namespace CommandSerializer
 	Buffer packageDataForBt(const Buffer& src, DATA_TYPE dataType, unsigned int seqNumber);
 
 	Buffer serializeNcAndAsmSetting(
-		char version, bool finalSetting, NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType,
+		char version, bool notify, NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType,
 		ASM_ID voicePassthrough, char asmLevel, bool autoAsm, AUTO_ASM_SENSITIVITY autoAsmSensitivity);
 	Buffer serializeVoiceGuidanceSetting(char volume);
 	Buffer serializeVolumeSetting(char volume);

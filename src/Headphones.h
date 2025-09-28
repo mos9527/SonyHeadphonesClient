@@ -129,7 +129,7 @@ public:
 	// Ambient sound level. 0 ~ 20.
 	// 0 shouldn't be a possible value on the app.
 	Property<int> asmLevel{};
-	bool draggingAsmLevel = false;
+	Property<bool> draggingAsmLevel{};
 
 	// Is auto ambient sound enabled? (WH-1000XM6 onwards)
 	Property<bool> autoAsmEnabled{};

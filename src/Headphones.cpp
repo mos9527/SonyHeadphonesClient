@@ -12,7 +12,8 @@ bool Headphones::isChanged()
 {
 	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
 	return !(
-		asmEnabled.isFulfilled() && asmMode.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
+		draggingAsmLevel.isFulfilled() && asmEnabled.isFulfilled() && asmMode.isFulfilled() &&
+		asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled())) &&
 		miscVoiceGuidanceVol.isFulfilled() &&
 		volume.isFulfilled() &&
@@ -35,12 +36,13 @@ void Headphones::waitForAck(int timeout)
 void Headphones::setChanges()
 {
 	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
-	if (!(asmEnabled.isFulfilled() && asmMode.isFulfilled() && asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
+	if (!(draggingAsmLevel.isFulfilled() && asmEnabled.isFulfilled() && asmMode.isFulfilled() &&
+		asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled()))))
 	{
 		this->_conn.sendCommand(CommandSerializer::serializeNcAndAsmSetting(
 			supportsAutoAsm ? 0x19 : 0x17,
-			!draggingAsmLevel,
+			!draggingAsmLevel.desired,
 			asmEnabled.desired ? NC_ASM_EFFECT::ON : NC_ASM_EFFECT::OFF,
 			asmMode.desired,
 			asmFoucsOnVoice.desired ? ASM_ID::VOICE : ASM_ID::NORMAL,
@@ -51,6 +53,7 @@ void Headphones::setChanges()
 		waitForAck();
 
 		std::lock_guard guard(this->_propertyMtx);
+		draggingAsmLevel.fulfill();
 		asmEnabled.fulfill();
 		asmMode.fulfill();
 		asmLevel.fulfill();
@@ -389,8 +392,6 @@ HeadphonesEvent Headphones::_handleInitResponse(const HeadphonesMessage& msg) {
 
 HeadphonesEvent Headphones::_handleNcAsmParam(const HeadphonesMessage& msg) {
     // see serializeNcAndAsmSetting
-	if (!msg[2])
-		return HeadphonesEvent::NoChange;
     asmEnabled.overwrite(msg[3]);
     asmMode.overwrite(static_cast<NC_ASM_SETTING_TYPE>(msg[4]));
     asmFoucsOnVoice.overwrite(msg[5]);

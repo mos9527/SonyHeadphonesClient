@@ -134,14 +134,14 @@ namespace CommandSerializer
 	}
 
 	Buffer serializeNcAndAsmSetting(
-		char version, bool finalSetting, NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType,
+		char version, bool notify, NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType,
 		ASM_ID voicePassthrough, char asmLevel, bool autoAsm, AUTO_ASM_SENSITIVITY autoAsmSensitivity)
 	{
 		// 0x68 | 0x17 | [Not Dragging ASM Slider?] | [NC & ASM On?] | [NC:0 ASM:1] | [Voice Passthrough?] | [ASM Level]
 		Buffer ret;
 		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68
 		ret.push_back(version);
-		ret.push_back(finalSetting ? 0x01 : 0x00);
+		ret.push_back(notify ? 0x01 : 0x00);
 		ret.push_back(static_cast<uint8_t>(ncAsmEffect));
 		ret.push_back(static_cast<uint8_t>(ncAsmSettingType));
 		ret.push_back(static_cast<uint8_t>(voicePassthrough));

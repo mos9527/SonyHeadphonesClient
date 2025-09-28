@@ -316,10 +316,7 @@ void App::_drawControls()
 
                 if (_headphones->asmEnabled.current && _headphones->asmMode.current == NC_ASM_SETTING_TYPE::AMBIENT_SOUND) {
                     ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 1, 20);
-                    _headphones->draggingAsmLevel = ImGui::IsItemActive();
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        _forceSendChanges = true;
-                    }
+                    _headphones->draggingAsmLevel.desired = ImGui::IsItemActive();
                     if (supportsAutoAsm) {
                         ImGui::Checkbox("Auto Ambient Sound", &_headphones->autoAsmEnabled.desired);
 
@@ -583,11 +580,10 @@ void App::_setHeadphoneSettings() {
         ImGui::Text("Sending command %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
     }
     //We're not waiting, and there's no event in the air, so we can evaluate sending a new event
-    else if (_forceSendChanges || _headphones->isChanged())
+    else if (_headphones->isChanged())
     {
-        _forceSendChanges = false;
         _headphones->_sendCommandFuture.setFromAsync([=, this]() {
-            return this->_headphones->setChanges();
+            return _headphones->setChanges();
         });
     }
 }
