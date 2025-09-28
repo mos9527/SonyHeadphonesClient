@@ -106,7 +106,7 @@ public:
 	{
 		int bassLevel{};
 		std::vector<int> bands;
-		EqualizerConfig() : bassLevel(0), bands(5) {};
+		EqualizerConfig() : bassLevel(0), bands(0) {};
 		EqualizerConfig(int bass, std::vector<int> const &bands) : bassLevel(bass), bands(bands) {};
 		bool operator==(EqualizerConfig const &other) const
 		{

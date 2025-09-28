@@ -248,13 +248,30 @@ namespace CommandSerializer
 		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
 		ret.push_back(0x00);
 		ret.push_back(preset);
-		ret.push_back(0x06); // data size
-		ret.push_back(bass + 10);
-		ret.push_back(bands[0] + 10);
-		ret.push_back(bands[1] + 10);
-		ret.push_back(bands[2] + 10);
-		ret.push_back(bands[3] + 10);
-		ret.push_back(bands[4] + 10);
+		size_t numBands = bands.size();
+		if (numBands == 5) {
+			ret.push_back(0x06); // data size
+			ret.push_back(bass + 10);
+			ret.push_back(bands[0] + 10);
+			ret.push_back(bands[1] + 10);
+			ret.push_back(bands[2] + 10);
+			ret.push_back(bands[3] + 10);
+			ret.push_back(bands[4] + 10);
+		} else if (numBands == 10) {
+			ret.push_back(0x0a); // data size
+			ret.push_back(bands[0] + 6);
+			ret.push_back(bands[1] + 6);
+			ret.push_back(bands[2] + 6);
+			ret.push_back(bands[3] + 6);
+			ret.push_back(bands[4] + 6);
+			ret.push_back(bands[5] + 6);
+			ret.push_back(bands[6] + 6);
+			ret.push_back(bands[7] + 6);
+			ret.push_back(bands[8] + 6);
+			ret.push_back(bands[9] + 6);
+		} else {
+			throw std::runtime_error("Invalid number of bands for equalizer setting");
+		}
 		return ret;
 	}
 	Buffer serializeEqualizerSetting(uint8_t preset)

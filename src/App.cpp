@@ -404,19 +404,45 @@ void App::_drawControls()
                 }
                 const float width = ImGui::GetContentRegionAvail().x;
                 const float padding = ImGui::GetStyle().ItemSpacing.x;
-                ImGui::SeparatorText("5-Band EQ");
-                for (int i = 0; i < 5; i++) {
-                    const char* bandNames[] = { "400","1k","2.5k","6.3k","16k" };
-                    ImGui::PushID(i);
-                    ImGui::VSliderInt("##", ImVec2(width / 5 - padding, 160), &_headphones->eqConfig.desired.bands[i], -10, 10);
-                    if (ImGui::IsItemActive() || ImGui::IsItemHovered())
-                        ImGui::SetTooltip("%s", bandNames[i]);
-                    ImGui::PopID();
-                    if (i != 4) ImGui::SameLine();
+                auto eqSliders = [&](const char* const labels[], int count, int minValue, int maxValue) -> void {
+                    float totalSpacing = (count - 1) * padding;
+                    float columnWidth = (width - totalSpacing) / count;
+
+                    for (int i = 0; i < count; i++) {
+                        ImGui::BeginGroup();
+
+                        ImGui::PushID(i);
+                        ImGui::VSliderInt("##v", ImVec2(columnWidth, 160), &_headphones->eqConfig.desired.bands[i], minValue, maxValue);
+                        ImGui::PopID();
+
+                        float textWidth = ImGui::CalcTextSize(labels[i]).x;
+                        float textOffset = (columnWidth - textWidth) * 0.5f;
+                        if (textOffset > 0.0f)
+                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffset);
+                        ImGui::TextUnformatted(labels[i]);
+
+                        ImGui::EndGroup();
+
+                        if (i < count - 1)
+                            ImGui::SameLine(0.0f, padding);
+                    }
+                };
+
+                size_t numBands = _headphones->eqConfig.current.bands.size();
+                if (numBands == 5) {
+                    ImGui::SeparatorText("5-Band EQ");
+                    static const char* const bandNames[] = { "400","1k","2.5k","6.3k","16k" };
+                    eqSliders(bandNames, 5, -10, 10);
+                    ImGui::SeparatorText("Clear Bass");
+                    ImGui::SetNextItemWidth(width);
+                    ImGui::SliderInt("##", &_headphones->eqConfig.desired.bassLevel, -10, 10);
+                } else if (numBands == 10) {
+                    ImGui::SeparatorText("10-Band EQ");
+                    static const char* const bandNames[] = { "31","63","125","250","500","1k","2k","4k","8k","16k" };
+                    eqSliders(bandNames, 10, -6, 6);
+                } else {
+                    ImGui::Text("Unknown EQ configuration");
                 }
-                ImGui::SeparatorText("Clear Bass");
-                ImGui::SetNextItemWidth(width);
-                ImGui::SliderInt("##", &_headphones->eqConfig.desired.bassLevel, -10, 10);
                 ImGui::EndTabItem();
             }
 

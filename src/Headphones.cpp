@@ -561,20 +561,42 @@ HeadphonesEvent Headphones::_handleSpeakToChat(const HeadphonesMessage& msg) {
 HeadphonesEvent Headphones::_handleEqualizer(const HeadphonesMessage& msg) {
     // [RET/NOTIFY 00 a2 06] 0a/bass 0a/band1 0a/band2 0a/band3 0a/band4 0a/band5
     // values have +10 offset
-	eqPreset.overwrite(msg[2]);
-	if (msg[3] == 0x06){    
+    eqPreset.overwrite(msg[2]);
+    switch (msg[3]) {
+    case 0x00:
+        return HeadphonesEvent::EqualizerParamUpdate;
+    case 0x06:
         eqConfig.overwrite(EqualizerConfig(
-            msg[4] - 10,
+            msg[4] - 10, // Clear Bass
             std::vector<int>{
-                msg[5] - 10,
-                msg[6] - 10,
-                msg[7] - 10,
-                msg[8] - 10,
-                msg[9] - 10,
+                msg[5] - 10, // 400
+                msg[6] - 10, // 1k
+                msg[7] - 10, // 2.5k
+                msg[8] - 10, // 6.3k
+                msg[9] - 10, // 16k
             }
-        ));        
+        ));
+        return HeadphonesEvent::EqualizerParamUpdate;
+    case 0x0a:
+        eqConfig.overwrite(EqualizerConfig(
+            0, // Clear Bass not available
+            std::vector<int>{
+                msg[4] - 6, // 31
+                msg[5] - 6, // 63
+                msg[6] - 6, // 125
+                msg[7] - 6, // 250
+                msg[8] - 6, // 500
+                msg[9] - 6, // 1k
+                msg[10] - 6, // 2k
+                msg[11] - 6, // 4k
+                msg[12] - 6, // 8k
+                msg[13] - 6, // 16k
+            }
+        ));
+        return HeadphonesEvent::EqualizerParamUpdate;
+    default:
+        return HeadphonesEvent::MessageUnhandled;
     }
-	return HeadphonesEvent::EqualizerParamUpdate;
 }
 
 HeadphonesEvent Headphones::_handleMiscDataRet(const HeadphonesMessage& msg) {
