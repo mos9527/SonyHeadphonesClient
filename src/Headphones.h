@@ -63,6 +63,7 @@ enum class HeadphonesEvent
 	Initialized,
 
 	NcAsmParamUpdate,
+	NcAmbButtonModeUpdate,
 	BatteryLevelUpdate,
 
 	PlaybackMetadataUpdate,
@@ -84,6 +85,7 @@ enum class HeadphonesEvent
 
 	MultipointDeviceSwitchUpdate,
 	MultipointEnabledUpdate,
+	TouchSensorControlPanelEnabledUpdate,
 
 	ConnectedDeviceUpdate,
 
@@ -211,8 +213,14 @@ public:
 	Property<int> eqPreset;
 	Property<EqualizerConfig> eqConfig;
 
-	// Touch sensor function
+	// [WF only] Touch sensor function
 	Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
+
+	// [WH only] Touch sensor control panel enabled
+	Property<bool> touchSensorControlPanelEnabled{};
+
+	// [WH only] [NC/AMB] Button Setting
+	Property<NcAmbButtonMode> ncAmbButtonMode{};
 
 	// Device model + capabilities
 	enum class DeviceModel

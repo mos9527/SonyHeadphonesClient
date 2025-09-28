@@ -141,14 +141,14 @@ namespace CommandSerializer
 		Buffer ret;
 		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68
 		ret.push_back(version);
-		ret.push_back(notify ? 0x01 : 0x00);
+		ret.push_back(notify);
 		ret.push_back(static_cast<uint8_t>(ncAsmEffect));
 		ret.push_back(static_cast<uint8_t>(ncAsmSettingType));
 		ret.push_back(static_cast<uint8_t>(voicePassthrough));
 		ret.push_back(asmLevel);
 		if (version >= 0x19) {
 			// [Auto ASM?] | [Standard:0 High:1 Low:2]
-			ret.push_back(autoAsm ? 0x01 : 0x00);
+			ret.push_back(autoAsm);
 			ret.push_back(static_cast<uint8_t>(autoAsmSensitivity));
 		}
 		return ret;
@@ -316,6 +316,23 @@ namespace CommandSerializer
 		ret.push_back(0x02);
 		ret.push_back(static_cast<uint8_t>(funcL));
 		ret.push_back(static_cast<uint8_t>(funcR));
+		return ret;
+	}
+	Buffer serializeTouchSensorControlPanelEnabled(bool enabled)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
+		ret.push_back(0xD3);
+		ret.push_back(0x00);
+		ret.push_back(!enabled);
+		return ret;
+	}
+	Buffer serializeNcAmbButtonMode(NcAmbButtonMode mode)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET));
+		ret.push_back(0x30);
+		ret.push_back(static_cast<uint8_t>(mode));
 		return ret;
 	}
 	Buffer serializeOnCallVoiceCaptureSetting(bool enabled)

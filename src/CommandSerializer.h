@@ -48,6 +48,8 @@ namespace CommandSerializer
 	Buffer serializeEqualizerSetting(unsigned char preset, char bass, std::vector<int> const& bands);
 	Buffer serializeEqualizerSetting(unsigned char preset);
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR);
+	Buffer serializeTouchSensorControlPanelEnabled(bool enabled);
+	Buffer serializeNcAmbButtonMode(NcAmbButtonMode mode);
 	Buffer serializeOnCallVoiceCaptureSetting(bool enabled);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage

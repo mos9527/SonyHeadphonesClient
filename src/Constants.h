@@ -98,6 +98,56 @@ enum class AUTO_ASM_SENSITIVITY : uint8_t
 	LOW = 2
 };
 
+enum class NcAmbButtonMode
+{
+	NcAmbOff = 1,
+	NcAmb = 2, // Default
+	NcOff = 3,
+	AmbOff = 4,
+};
+
+inline bool NcAmbButtonMode_FromStates(bool nc, bool amb, bool off, NcAmbButtonMode* ret)
+{
+	if (nc && amb && off) *ret = NcAmbButtonMode::NcAmbOff; // all enabled -> cycle through all 3 modes
+	else if (nc && amb && !off) *ret = NcAmbButtonMode::NcAmb; // cycle between NC and AMB
+	else if (nc && !amb && off) *ret = NcAmbButtonMode::NcOff; // cycle between NC and Off
+	else if (!nc && amb && off) *ret = NcAmbButtonMode::AmbOff; // cycle between AMB and Off
+	else return false;
+	return true;
+}
+
+inline void NcAmbButtonMode_ToStates(NcAmbButtonMode mode, bool* nc, bool* amb, bool* off)
+{
+	switch (mode)
+	{
+		case NcAmbButtonMode::NcAmbOff:
+			*nc = true;
+			*amb = true;
+			*off = true;
+			break;
+		case NcAmbButtonMode::NcAmb:
+			*nc = true;
+			*amb = true;
+			*off = false;
+			break;
+		case NcAmbButtonMode::NcOff:
+			*nc = true;
+			*amb = false;
+			*off = true;
+			break;
+		case NcAmbButtonMode::AmbOff:
+			*nc = false;
+			*amb = true;
+			*off = true;
+			break;
+		default:
+			*nc = true;
+			*amb = true;
+			*off = false;
+			break;
+	}
+}
+
 // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
 enum class COMMAND_TYPE : uint8_t
 {

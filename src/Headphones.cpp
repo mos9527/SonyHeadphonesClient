@@ -10,6 +10,7 @@ Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("recei
 
 bool Headphones::isChanged()
 {
+	bool isTws = (deviceCapabilities & DC_TrueWireless) != 0;
 	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
 	bool supportsVoiceGuidanceVolumeAdjustment = (deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0;
 	bool supportsConfigurableVoiceCaptureDuringCall = (deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0;
@@ -22,7 +23,8 @@ bool Headphones::isChanged()
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
 		eqConfig.isFulfilled() && eqPreset.isFulfilled() &&
-		touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled() &&
+		(isTws ? touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled() :
+			touchSensorControlPanelEnabled.isFulfilled() && ncAmbButtonMode.isFulfilled()) &&
 		(!supportsConfigurableVoiceCaptureDuringCall || voiceCapEnabled.isFulfilled())
 	);
 }
@@ -37,7 +39,9 @@ void Headphones::waitForAck(int timeout)
 
 void Headphones::setChanges()
 {
+	bool isTws = (deviceCapabilities & DC_TrueWireless) != 0;
 	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
+
 	if (!(draggingAsmLevel.isFulfilled() && asmEnabled.isFulfilled() && asmMode.isFulfilled() &&
 		asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled()))))
@@ -207,15 +211,34 @@ void Headphones::setChanges()
 		eqConfig.fulfill();
 	}
 
-	if ((!touchLeftFunc.isFulfilled()) || (!touchRightFunc.isFulfilled())) {
-			
-		this->_conn.sendCommand(
-			CommandSerializer::serializeTouchSensorAssignment(touchLeftFunc.desired, touchRightFunc.desired),
-			DATA_TYPE::DATA_MDR
-		);
-		waitForAck();
-		touchLeftFunc.fulfill();
-		touchRightFunc.fulfill();
+	if (isTws) {
+		if (!touchLeftFunc.isFulfilled() || !touchRightFunc.isFulfilled()) {
+			this->_conn.sendCommand(
+				CommandSerializer::serializeTouchSensorAssignment(touchLeftFunc.desired, touchRightFunc.desired),
+				DATA_TYPE::DATA_MDR
+			);
+			waitForAck();
+			touchLeftFunc.fulfill();
+			touchRightFunc.fulfill();
+		}
+	} else {
+		if (!touchSensorControlPanelEnabled.isFulfilled()) {
+			this->_conn.sendCommand(
+				CommandSerializer::serializeTouchSensorControlPanelEnabled(touchSensorControlPanelEnabled.desired),
+				DATA_TYPE::DATA_MDR
+			);
+			waitForAck();
+			touchSensorControlPanelEnabled.fulfill();
+		}
+
+		if (!ncAmbButtonMode.isFulfilled()) {
+			this->_conn.sendCommand(
+				CommandSerializer::serializeNcAmbButtonMode(ncAmbButtonMode.desired),
+				DATA_TYPE::DATA_MDR
+			);
+			waitForAck();
+			ncAmbButtonMode.fulfill();
+		}
 	}
 
 	if ((deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0 && !voiceCapEnabled.isFulfilled()) {
@@ -260,7 +283,7 @@ void Headphones::requestInit()
 	/* NC/ASM Params */
 	_conn.sendCommand({
 		static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_GET),
-		static_cast<uint8_t>((deviceCapabilities & DC_AutoAsm) != 0 ? 0x19 : 0x17) // Version
+		static_cast<uint8_t>((deviceCapabilities & DC_AutoAsm) != 0 ? 0x19 : 0x17)
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
@@ -296,12 +319,26 @@ void Headphones::requestInit()
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
-	/* Touch Sensor */
-	_conn.sendCommand({
-		static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
-		0x03, // Touch sensor function
-	}, DATA_TYPE::DATA_MDR);
-	waitForAck();
+	if ((deviceCapabilities & DC_TrueWireless) != 0) {
+		/* Touch Sensor */
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
+			0x03, // Touch sensor function
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	} else {
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_GET),
+			0xD3 // Touch sensor control panel enabled
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_GET),
+			0x30 // [NC/AMB] Button Setting
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	}
 
 	/* Equalizer */
 	_conn.sendCommand({
@@ -450,16 +487,27 @@ HeadphonesEvent Headphones::_handleInitResponse(const HeadphonesMessage& msg) {
 }
 
 HeadphonesEvent Headphones::_handleNcAsmParam(const HeadphonesMessage& msg) {
-    // see serializeNcAndAsmSetting
-    asmEnabled.overwrite(msg[3]);
-    asmMode.overwrite(static_cast<NC_ASM_SETTING_TYPE>(msg[4]));
-    asmFoucsOnVoice.overwrite(msg[5]);
-    asmLevel.overwrite(msg[6]);
-    if ((deviceCapabilities & DC_AutoAsm) != 0 && msg[1] >= 0x19) {
-        autoAsmEnabled.overwrite(msg[7] != 0);
-        autoAsmSensitivity.overwrite(static_cast<AUTO_ASM_SENSITIVITY>(msg[8]));
+    switch (msg[1]) {
+    case 0x17:
+    case 0x19: // with Auto ASM
+        // see serializeNcAndAsmSetting
+        asmEnabled.overwrite(msg[3]);
+        asmMode.overwrite(static_cast<NC_ASM_SETTING_TYPE>(msg[4]));
+        asmFoucsOnVoice.overwrite(msg[5]);
+        asmLevel.overwrite(msg[6]);
+        if ((deviceCapabilities & DC_AutoAsm) != 0 && msg[1] == 0x19) {
+            autoAsmEnabled.overwrite(msg[7] != 0);
+            autoAsmSensitivity.overwrite(static_cast<AUTO_ASM_SENSITIVITY>(msg[8]));
+        }
+        return HeadphonesEvent::NcAsmParamUpdate;
+    case 0x30:
+        if ((deviceCapabilities & DC_TrueWireless) == 0) {
+            ncAmbButtonMode.overwrite(static_cast<NcAmbButtonMode>(msg[2]));
+            return HeadphonesEvent::NcAmbButtonModeUpdate;
+        }
+        break;
     }
-    return HeadphonesEvent::NcAsmParamUpdate;
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleBatteryLevelRet(const HeadphonesMessage& msg) {
@@ -609,6 +657,12 @@ HeadphonesEvent Headphones::_handleMultipointEtcEnable(const HeadphonesMessage& 
     case 0xD2:
         mpEnabled.overwrite(!(bool)msg[3]);
         return HeadphonesEvent::MultipointEnabledUpdate;
+    case 0xD3:
+        if ((deviceCapabilities & DC_TrueWireless) == 0) {
+            touchSensorControlPanelEnabled.overwrite(!(bool)msg[3]);
+            return HeadphonesEvent::TouchSensorControlPanelEnabledUpdate;
+        }
+        break;
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -622,9 +676,12 @@ HeadphonesEvent Headphones::_handleAutomaticPowerOffButtonMode(const HeadphonesM
         stcEnabled.overwrite(!(bool)msg[2]);
         return HeadphonesEvent::SpeakToChatEnabledUpdate;
     case 0x03:
-        touchLeftFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[3]));
-        touchRightFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[4]));
-        return HeadphonesEvent::TouchFunctionUpdate;
+        if ((deviceCapabilities & DC_TrueWireless) != 0) {
+            touchLeftFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[3]));
+            touchRightFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[4]));
+            return HeadphonesEvent::TouchFunctionUpdate;
+        }
+        break;
     }
     return HeadphonesEvent::MessageUnhandled;
 }

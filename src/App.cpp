@@ -460,21 +460,10 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("Misc")) {
-                ImGui::Checkbox("Automatic Power Off", &_headphones->autoPowerOffEnabled.desired);
-                ImGui::Checkbox("Pause when headphones are removed", &_headphones->autoPauseEnabled.desired);
-                if ((_headphones->deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0) {
-                    ImGui::Checkbox("Capture Voice During a Phone Call", &_headphones->voiceCapEnabled.desired);
-                }
 
-                if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    ImGui::Checkbox("Enabled", &_headphones->voiceGuidanceEnabled.desired);
-                    if ((_headphones->deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0) {
-                        ImGui::SliderInt("Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
-                    }
-                    ImGui::TreePop();
-                }
+                bool deviceIsTws = (_headphones->deviceCapabilities & DC_TrueWireless) != 0;
 
-                if (ImGui::TreeNodeEx("Touch Sensor", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (deviceIsTws && ImGui::TreeNodeEx("Touch Sensor", ImGuiTreeNodeFlags_DefaultOpen)) {
                     static const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
                         {TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL, "Playback Control"},
                         {TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL, "Ambient Sound / Noise Cancelling"},
@@ -501,9 +490,46 @@ void App::_drawControls()
                             }
                             ImGui::EndCombo();
                         }
-                        };
+                    };
                     draw_touch_sensor_combo(_headphones->touchLeftFunc, "Left Touch Sensor");
                     draw_touch_sensor_combo(_headphones->touchRightFunc, "Right Touch Sensor");
+                    ImGui::TreePop();
+                }
+
+                if (!deviceIsTws) {
+                    ImGui::Checkbox("Touch sensor control panel", &_headphones->touchSensorControlPanelEnabled.desired);
+                }
+
+                if (!deviceIsTws && ImGui::TreeNodeEx("[NC/AMB] Button Setting", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    bool ncActive;
+                    bool ambActive;
+                    bool offActive;
+                    NcAmbButtonMode_ToStates(_headphones->ncAmbButtonMode.desired, &ncActive, &ambActive, &offActive);
+
+                    bool changed = ImGui::Checkbox("Noise Cancelling", &ncActive); ImGui::SameLine();
+                    changed |= ImGui::Checkbox("Ambient Sound", &ambActive); ImGui::SameLine();
+                    changed |= ImGui::Checkbox("Off", &offActive);
+                    if (changed) {
+                        NcAmbButtonMode mode;
+                        if (NcAmbButtonMode_FromStates(ncActive, ambActive, offActive, &mode)) {
+                            _headphones->ncAmbButtonMode.desired = mode;
+                        }
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                ImGui::Checkbox("Automatic Power Off", &_headphones->autoPowerOffEnabled.desired);
+                ImGui::Checkbox("Pause when headphones are removed", &_headphones->autoPauseEnabled.desired);
+                if ((_headphones->deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0) {
+                    ImGui::Checkbox("Capture Voice During a Phone Call", &_headphones->voiceCapEnabled.desired);
+                }
+
+                if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Checkbox("Enabled", &_headphones->voiceGuidanceEnabled.desired);
+                    if ((_headphones->deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0) {
+                        ImGui::SliderInt("Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+                    }
                     ImGui::TreePop();
                 }
 
