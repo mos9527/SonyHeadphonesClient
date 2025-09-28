@@ -11,17 +11,19 @@ Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("recei
 bool Headphones::isChanged()
 {
 	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
+	bool supportsVoiceGuidanceVolumeAdjustment = (deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0;
+	bool supportsConfigurableVoiceCaptureDuringCall = (deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0;
 	return !(
 		draggingAsmLevel.isFulfilled() && asmEnabled.isFulfilled() && asmMode.isFulfilled() &&
 		asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled())) &&
 		autoPowerOffEnabled.isFulfilled() && autoPauseEnabled.isFulfilled() && voiceGuidanceEnabled.isFulfilled() &&
-		miscVoiceGuidanceVol.isFulfilled() && volume.isFulfilled() &&
+		(!supportsVoiceGuidanceVolumeAdjustment || miscVoiceGuidanceVol.isFulfilled()) && volume.isFulfilled() &&
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
 		eqConfig.isFulfilled() && eqPreset.isFulfilled() &&
 		touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled() &&
-		voiceCapEnabled.isFulfilled()
+		(!supportsConfigurableVoiceCaptureDuringCall || voiceCapEnabled.isFulfilled())
 	);
 }
 
@@ -97,7 +99,7 @@ void Headphones::setChanges()
 		this->voiceGuidanceEnabled.fulfill();
 	}
 
-	if (!(miscVoiceGuidanceVol.isFulfilled()))
+	if ((deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0 && !miscVoiceGuidanceVol.isFulfilled())
 	{
 		this->_conn.sendCommand(
 			CommandSerializer::serializeVoiceGuidanceVolumeSetting(
@@ -216,7 +218,7 @@ void Headphones::setChanges()
 		touchRightFunc.fulfill();
 	}
 
-	if (!voiceCapEnabled.isFulfilled()) {
+	if ((deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0 && !voiceCapEnabled.isFulfilled()) {
 		this->_conn.sendCommand(
 			CommandSerializer::serializeOnCallVoiceCaptureSetting(voiceCapEnabled.desired),
 			DATA_TYPE::DATA_MDR
@@ -427,17 +429,23 @@ void Headphones::requestPowerOff()
 
 HeadphonesEvent Headphones::_handleInitResponse(const HeadphonesMessage& msg) {
     hasInit = true;
-    deviceType = static_cast<DeviceModel>(msg[5] << 8 | msg[4]);
+
+    deviceModel = static_cast<DeviceModel>(msg[4] << 8 | msg[5]);
     deviceCapabilities = DC_None;
-    switch (deviceType)
-    {
-        case DeviceModel::WF1000XM5:
+    switch (deviceModel) {
+        case DeviceModel::WF1000XM5: // TODO Add more TWS models
             deviceCapabilities |= DC_TrueWireless;
             break;
-        case DeviceModel::WH1000XM6:
-            deviceCapabilities |= DC_AutoAsm;
-            break;
     }
+
+    if ((int)deviceModel >= (int)DeviceModel::WF1000XM5) {
+        deviceCapabilities |= DC_ConfigurableVoiceCaptureDuringCall;
+        deviceCapabilities |= DC_VoiceGuidanceVolumeAdjustment;
+    }
+    if ((int)deviceModel >= (int)DeviceModel::WH1000XM6) {
+        deviceCapabilities |= DC_AutoAsm;
+    }
+
     return HeadphonesEvent::Initialized;
 }
 
@@ -460,16 +468,14 @@ HeadphonesEvent Headphones::_handleBatteryLevelRet(const HeadphonesMessage& msg)
         statBatteryL.overwrite(msg[2]);
         return HeadphonesEvent::BatteryLevelUpdate;
     case 1: // DUAL
-        if ((deviceCapabilities & DC_TrueWireless) != 0)
-        {
+        if ((deviceCapabilities & DC_TrueWireless) != 0) {
             statBatteryL.overwrite(msg[2]);
             statBatteryR.overwrite(msg[4]);
             return HeadphonesEvent::BatteryLevelUpdate;
         }
         break;
     case 2: // CASE
-        if ((deviceCapabilities & DC_TrueWireless) != 0)
-        {
+        if ((deviceCapabilities & DC_TrueWireless) != 0) {
             statBatteryCase.overwrite(msg[2]);
             return HeadphonesEvent::BatteryLevelUpdate;
         }
@@ -497,12 +503,11 @@ HeadphonesEvent Headphones::_handlePlaybackStatus(const HeadphonesMessage& msg) 
 		playback.artist = std::string(it, it + len);
         return HeadphonesEvent::PlaybackMetadataUpdate;
     }
-    case 0x20:        
+    case 0x20:
         volume.overwrite(msg[2]);
         return HeadphonesEvent::PlaybackVolumeUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handlePlaybackSndPressureRet(const HeadphonesMessage& msg) {
@@ -510,9 +515,8 @@ HeadphonesEvent Headphones::_handlePlaybackSndPressureRet(const HeadphonesMessag
     case 0x03:
         playback.sndPressure = static_cast<char>(msg[2]);
         return HeadphonesEvent::SoundPressureUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleAutomaticPowerOffParam(const HeadphonesMessage& msg) {
@@ -525,12 +529,11 @@ HeadphonesEvent Headphones::_handleAutomaticPowerOffParam(const HeadphonesMessag
         else if (setting == 0x11)
             autoPowerOffEnabled.overwrite(false);
         else
-            return HeadphonesEvent::MessageUnhandled;
+            break;
         return HeadphonesEvent::AutoPowerOffUpdate;
     }
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& msg) {
@@ -540,11 +543,13 @@ HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& m
         voiceGuidanceEnabled.overwrite(!(bool)msg[2]);
         return HeadphonesEvent::VoiceGuidanceEnabledUpdate;
     case 0x20:
-        miscVoiceGuidanceVol.overwrite(static_cast<char>(msg[2]));
-        return HeadphonesEvent::VoiceGuidanceVolumeUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
+        if ((deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0) {
+            miscVoiceGuidanceVol.overwrite(static_cast<char>(msg[2]));
+            return HeadphonesEvent::VoiceGuidanceVolumeUpdate;
+        }
+        break;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleMultipointDevice(const HeadphonesMessage& msg) {    
@@ -588,23 +593,24 @@ HeadphonesEvent Headphones::_handlePlaybackStatusControl(const HeadphonesMessage
     case PLAYBACK_CONTROL_RESPONSE::PAUSE:
         playPause.overwrite(false);
         return HeadphonesEvent::PlaybackPlayPauseUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleMultipointEtcEnable(const HeadphonesMessage& msg) {
     int sub = static_cast<int>(msg[1]) & 0xff;
     switch (sub) {
     case 0xD1:
-        voiceCapEnabled.overwrite(!(bool)msg[3]);
-        return HeadphonesEvent::VoiceCaptureEnabledUpdate;
+        if ((deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0) {
+            voiceCapEnabled.overwrite(!(bool)msg[3]);
+            return HeadphonesEvent::VoiceCaptureEnabledUpdate;
+        }
+        break;
     case 0xD2:
         mpEnabled.overwrite(!(bool)msg[3]);
         return HeadphonesEvent::MultipointEnabledUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleAutomaticPowerOffButtonMode(const HeadphonesMessage& msg) {
@@ -619,9 +625,8 @@ HeadphonesEvent Headphones::_handleAutomaticPowerOffButtonMode(const HeadphonesM
         touchLeftFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[3]));
         touchRightFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[4]));
         return HeadphonesEvent::TouchFunctionUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleSpeakToChat(const HeadphonesMessage& msg) {
@@ -630,9 +635,8 @@ HeadphonesEvent Headphones::_handleSpeakToChat(const HeadphonesMessage& msg) {
         stcLevel.overwrite(msg[2]);
         stcTime.overwrite(msg[3]);
         return HeadphonesEvent::SpeakToChatParamUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
     }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleEqualizer(const HeadphonesMessage& msg) {
@@ -727,7 +731,7 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleNcAsmParam(msg);
             break;
         case COMMAND_TYPE::BATTERY_LEVEL_RET:
-        // case COMMAND_TYPE::BATTERY_LEVEL_NOTIFY: // XM6+
+        // case COMMAND_TYPE::BATTERY_LEVEL_NOTIFY: // WH-1000XM5, WH-1000XM6 send this
             result = _handleBatteryLevelRet(msg);
             break;
         case COMMAND_TYPE::PLAYBACK_STATUS_RET:

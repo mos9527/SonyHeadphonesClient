@@ -462,11 +462,15 @@ void App::_drawControls()
             if (ImGui::BeginTabItem("Misc")) {
                 ImGui::Checkbox("Automatic Power Off", &_headphones->autoPowerOffEnabled.desired);
                 ImGui::Checkbox("Pause when headphones are removed", &_headphones->autoPauseEnabled.desired);
-                ImGui::Checkbox("Capture Voice During a Phone Call", &_headphones->voiceCapEnabled.desired);
+                if ((_headphones->deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0) {
+                    ImGui::Checkbox("Capture Voice During a Phone Call", &_headphones->voiceCapEnabled.desired);
+                }
 
                 if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Checkbox("Enabled", &_headphones->voiceGuidanceEnabled.desired);
-                    ImGui::SliderInt("Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+                    if ((_headphones->deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0) {
+                        ImGui::SliderInt("Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+                    }
                     ImGui::TreePop();
                 }
 

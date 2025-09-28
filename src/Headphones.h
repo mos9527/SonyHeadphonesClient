@@ -95,8 +95,15 @@ using HeadphonesMessage = CommandSerializer::CommandMessage;
 enum DeviceCapabilities
 {
 	DC_None = 0x0,
+
 	DC_TrueWireless = 0x1,
-	DC_AutoAsm = 0x2,
+
+	// Since WF-1000XM5
+	DC_ConfigurableVoiceCaptureDuringCall = 0x10,
+	DC_VoiceGuidanceVolumeAdjustment = 0x20,
+
+	// Since WH-1000XM6
+	DC_AutoAsm = 0x40,
 };
 
 HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(DeviceCapabilities);
@@ -210,14 +217,11 @@ public:
 	// Device model + capabilities
 	enum class DeviceModel
 	{
-		// Over-ear
-		// WH1000XM5 = 0xFFFF, // TODO
-		WH1000XM6 = 0x0130,
-
-		// In-ear
-		WF1000XM5 = 0x1720,
+		WH1000XM5 = 0x2016,
+		WF1000XM5 = 0x2017,
+		WH1000XM6 = 0x3001,
 	};
-	DeviceModel deviceType{};
+	DeviceModel deviceModel{};
 	DeviceCapabilities deviceCapabilities{};
 
 	bool isChanged();
