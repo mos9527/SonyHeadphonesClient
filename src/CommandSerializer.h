@@ -33,7 +33,10 @@ namespace CommandSerializer
 	Buffer serializeNcAndAsmSetting(
 		char version, bool notify, NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType,
 		ASM_ID voicePassthrough, char asmLevel, bool autoAsm, AUTO_ASM_SENSITIVITY autoAsmSensitivity);
-	Buffer serializeVoiceGuidanceSetting(char volume);
+	Buffer serializeAutoPowerOffSetting(bool autoPowerOff);
+	Buffer serializeAutoPauseSetting(bool autoPause);
+	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled);
+	Buffer serializeVoiceGuidanceVolumeSetting(char volume);
 	Buffer serializeVolumeSetting(char volume);
 	Buffer serializeMultipointSwitch(const char* macString);
 	Buffer serializePlayControl(PLAYBACK_CONTROL control);

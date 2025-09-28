@@ -460,11 +460,18 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("Misc")) {
+                ImGui::Checkbox("Automatic Power Off", &_headphones->autoPowerOffEnabled.desired);
+                ImGui::Checkbox("Pause when headphones are removed", &_headphones->autoPauseEnabled.desired);
                 ImGui::Checkbox("Capture Voice During a Phone Call", &_headphones->voiceCapEnabled.desired);
-                ImGui::SliderInt("Voice Guidance Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
 
-                if (ImGui::TreeNode("Touch Sensor")) {
-                    const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
+                if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Checkbox("Enabled", &_headphones->voiceGuidanceEnabled.desired);
+                    ImGui::SliderInt("Volume", &_headphones->miscVoiceGuidanceVol.desired, -2, 2);
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Touch Sensor", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    static const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
                         {TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL, "Playback Control"},
                         {TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL, "Ambient Sound / Noise Cancelling"},
                         {TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED, "Not Assigned"}

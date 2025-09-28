@@ -70,6 +70,9 @@ enum class HeadphonesEvent
 	PlaybackPlayPauseUpdate,
 
 	SoundPressureUpdate,
+	AutoPowerOffUpdate,
+	AutoPauseUpdate,
+	VoiceGuidanceEnabledUpdate,
 	VoiceGuidanceVolumeUpdate,
 	VoiceCaptureEnabledUpdate,
 
@@ -136,6 +139,15 @@ public:
 
 	// Auto ambient sound sensitivity. 0 ~ 2. (WH-1000XM6 onwards)
 	Property<AUTO_ASM_SENSITIVITY> autoAsmSensitivity{};
+
+	// Is automatic power off enabled?
+	Property<bool> autoPowerOffEnabled{};
+
+	// Is "Pause when headphones are removed" enabled?
+	Property<bool> autoPauseEnabled{};
+
+	// Is voice guidance enabled?
+	Property<bool> voiceGuidanceEnabled{};
 
 	// Volume for voice guidance. -2 ~ 2
 	Property<int> miscVoiceGuidanceVol{};
@@ -249,6 +261,7 @@ private:
 	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackSndPressureRet(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleAutomaticPowerOffParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage &msg);

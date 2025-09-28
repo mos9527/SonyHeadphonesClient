@@ -154,7 +154,32 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeVoiceGuidanceSetting(char volume) {
+	Buffer serializeAutoPowerOffSetting(bool autoPowerOff) {
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_SET));
+		ret.push_back(0x05);
+		ret.push_back(autoPowerOff ? 0x10 : 0x11);
+		ret.push_back(0x00);
+		return ret;
+	}
+
+	Buffer serializeAutoPauseSetting(bool autoPause) {
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(0x01);
+		ret.push_back(!autoPause);
+		return ret;
+	}
+
+	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled) {
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
+		ret.push_back(0x01);
+		ret.push_back(!enabled);
+		return ret;
+	}
+
+	Buffer serializeVoiceGuidanceVolumeSetting(char volume) {
 		Buffer ret;
 		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
 		ret.push_back(0x20);

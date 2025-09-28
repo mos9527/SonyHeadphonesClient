@@ -15,8 +15,8 @@ bool Headphones::isChanged()
 		draggingAsmLevel.isFulfilled() && asmEnabled.isFulfilled() && asmMode.isFulfilled() &&
 		asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
 		(!supportsAutoAsm || (autoAsmEnabled.isFulfilled() && autoAsmSensitivity.isFulfilled())) &&
-		miscVoiceGuidanceVol.isFulfilled() &&
-		volume.isFulfilled() &&
+		autoPowerOffEnabled.isFulfilled() && autoPauseEnabled.isFulfilled() && voiceGuidanceEnabled.isFulfilled() &&
+		miscVoiceGuidanceVol.isFulfilled() && volume.isFulfilled() &&
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
 		eqConfig.isFulfilled() && eqPreset.isFulfilled() &&
@@ -64,10 +64,43 @@ void Headphones::setChanges()
 		}
 	}
 
+	if (!autoPowerOffEnabled.isFulfilled())
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeAutoPowerOffSetting(autoPowerOffEnabled.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+
+		this->autoPowerOffEnabled.fulfill();
+	}
+
+	if (!autoPauseEnabled.isFulfilled())
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeAutoPauseSetting(autoPauseEnabled.desired),
+			DATA_TYPE::DATA_MDR
+		);
+		waitForAck();
+
+		this->autoPauseEnabled.fulfill();
+	}
+
+	if (!voiceGuidanceEnabled.isFulfilled())
+	{
+		this->_conn.sendCommand(
+			CommandSerializer::serializeVoiceGuidanceEnabledSetting(voiceGuidanceEnabled.desired),
+			DATA_TYPE::DATA_MDR_NO2
+		);
+		waitForAck();
+
+		this->voiceGuidanceEnabled.fulfill();
+	}
+
 	if (!(miscVoiceGuidanceVol.isFulfilled()))
 	{
 		this->_conn.sendCommand(
-			CommandSerializer::serializeVoiceGuidanceSetting(
+			CommandSerializer::serializeVoiceGuidanceVolumeSetting(
 				static_cast<uint8_t>(miscVoiceGuidanceVol.desired)
 			), DATA_TYPE::DATA_MDR_NO2
 		);
@@ -277,9 +310,27 @@ void Headphones::requestInit()
 
 	/* Misc Params */
 	_conn.sendCommand({
+		static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_GET),
+		0x05
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+		static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_GET),
+		0x01 // Pause when headphones are removed
+	}, DATA_TYPE::DATA_MDR);
+	waitForAck();
+
+	_conn.sendCommand({
+		static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
+		0x01 // Voice Guidance Enabled
+	}, DATA_TYPE::DATA_MDR_NO2);
+	waitForAck();
+
+	_conn.sendCommand({
 		static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_GET),
 		0x20 // Voice Guidance Volume
-		}, DATA_TYPE::DATA_MDR_NO2);
+	}, DATA_TYPE::DATA_MDR_NO2);
 	waitForAck();
 
 #ifdef _DEBUG
@@ -305,7 +356,7 @@ void Headphones::requestSync()
 {
 	// Some values are taken from:
 	// https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
-	
+
 	/* Battery */
 	if ((deviceCapabilities & DC_TrueWireless) != 0) {
 		_conn.sendCommand({
@@ -464,8 +515,30 @@ HeadphonesEvent Headphones::_handlePlaybackSndPressureRet(const HeadphonesMessag
     }
 }
 
+HeadphonesEvent Headphones::_handleAutomaticPowerOffParam(const HeadphonesMessage& msg) {
+    switch (msg[1]) {
+    case 0x05:
+    {
+        uint8_t setting = msg[2];
+        if (setting == 0x10)
+            autoPowerOffEnabled.overwrite(true);
+        else if (setting == 0x11)
+            autoPowerOffEnabled.overwrite(false);
+        else
+            return HeadphonesEvent::MessageUnhandled;
+        return HeadphonesEvent::AutoPowerOffUpdate;
+    }
+    default:
+        return HeadphonesEvent::MessageUnhandled;
+    }
+}
+
 HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& msg) {
     switch (msg[1]) {
+    case 0x01:
+        // Note: RET returns 2 bools, while NOTIFY returns only 1.
+        voiceGuidanceEnabled.overwrite(!(bool)msg[2]);
+        return HeadphonesEvent::VoiceGuidanceEnabledUpdate;
     case 0x20:
         miscVoiceGuidanceVol.overwrite(static_cast<char>(msg[2]));
         return HeadphonesEvent::VoiceGuidanceVolumeUpdate;
@@ -536,6 +609,9 @@ HeadphonesEvent Headphones::_handleMultipointEtcEnable(const HeadphonesMessage& 
 
 HeadphonesEvent Headphones::_handleAutomaticPowerOffButtonMode(const HeadphonesMessage& msg) {
     switch (msg[1]) {
+    case 0x01:
+        autoPauseEnabled.overwrite(!(bool)msg[2]);
+        return HeadphonesEvent::AutoPauseUpdate;
     case 0x0c:
         stcEnabled.overwrite(!(bool)msg[2]);
         return HeadphonesEvent::SpeakToChatEnabledUpdate;
@@ -651,6 +727,7 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleNcAsmParam(msg);
             break;
         case COMMAND_TYPE::BATTERY_LEVEL_RET:
+        // case COMMAND_TYPE::BATTERY_LEVEL_NOTIFY: // XM6+
             result = _handleBatteryLevelRet(msg);
             break;
         case COMMAND_TYPE::PLAYBACK_STATUS_RET:
@@ -659,6 +736,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case COMMAND_TYPE::PLAYBACK_SND_PRESSURE_RET:
             result = _handlePlaybackSndPressureRet(msg);
+            break;
+        case COMMAND_TYPE::AUTOMATIC_POWER_OFF_RET:
+        case COMMAND_TYPE::AUTOMATIC_POWER_OFF_NOTIFY:
+            result = _handleAutomaticPowerOffParam(msg);
             break;
         case COMMAND_TYPE::VOICEGUIDANCE_PARAM_RET:
         case COMMAND_TYPE::VOICEGUIDANCE_PARAM_NOTIFY:
@@ -680,8 +761,8 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_NOITIFY:
             result = _handleMultipointEtcEnable(msg);
             break;
-        case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_NOTIFY:
         case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_RET:
+        case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_NOTIFY:
             result = _handleAutomaticPowerOffButtonMode(msg);
             break;
         case COMMAND_TYPE::SPEAK_TO_CHAT_RET:
