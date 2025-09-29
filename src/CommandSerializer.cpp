@@ -265,6 +265,25 @@ namespace CommandSerializer
 		return ret;
 	}
 
+	Buffer serializeListeningModeBgmSetting(bool bgmModeActive, ListeningModeBgmDistanceMode distanceMode)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::LISTENING_MODE_SET));
+		ret.push_back(0x03);
+		ret.push_back(!bgmModeActive);
+		ret.push_back(static_cast<uint8_t>(distanceMode));
+		return ret;
+	}
+
+    Buffer serializeListeningModeNonBgmSetting(ListeningMode nonBgmMode)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::LISTENING_MODE_SET));
+		ret.push_back(0x04);
+		ret.push_back(static_cast<uint8_t>(nonBgmMode));
+		return ret;
+	}
+
 	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
 	//      https://github.com/Plutoberth/SonyHeadphonesClient/commit/66d8e52aad4ffd08aa78e811a23f67a5bad07d9a
 	Buffer serializeEqualizerSetting(uint8_t preset, char bass, std::vector<int> const& bands)

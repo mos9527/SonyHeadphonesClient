@@ -148,6 +148,20 @@ inline void NcAmbButtonMode_ToStates(NcAmbButtonMode mode, bool* nc, bool* amb, 
 	}
 }
 
+enum class ListeningMode
+{
+	Standard = 1,
+	BGM = -1, // Should not be sent
+	Cinema = 0,
+};
+
+enum class ListeningModeBgmDistanceMode
+{
+	MyRoom = 0,
+	LivingRoom = 1,
+	Cafe = 2,
+};
+
 // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
 enum class COMMAND_TYPE : uint8_t
 {
@@ -179,6 +193,11 @@ enum class COMMAND_TYPE : uint8_t
 	VOICEGUIDANCE_PARAM_RET = 0x47,
 	VOICEGUIDANCE_PARAM_SET = 0x48,
 	VOICEGUIDANCE_PARAM_NOTIFY = 0x49,
+
+	EQUALIZER_AVAILABLE_GET = 0x52,
+	EQUALIZER_AVAILABLE_RET = 0x53,
+	// EQUALIZER_AVAILABLE_SET = 0x54,
+	EQUALIZER_AVAILABLE_NOTIFY = 0x55,
 
 	EQUALIZER_GET = 0x56,
 	EQUALIZER_RET = 0x57,
@@ -215,6 +234,11 @@ enum class COMMAND_TYPE : uint8_t
 	PLAYBACK_STATUS_RET = 0xa7,
 	PLAYBACK_STATUS_SET = 0xa8,
 	PLAYBACK_STATUS_NOTIFY = 0xa9,
+
+	LISTENING_MODE_GET = 0xe6,
+	LISTENING_MODE_RET = 0xe7,
+	LISTENING_MODE_SET = 0xe8,
+	LISTENING_MODE_NOTIFY = 0xe9,
 
 	AUTOMATIC_POWER_OFF_BUTTON_MODE_GET = 0xf6,
 	AUTOMATIC_POWER_OFF_BUTTON_MODE_RET = 0xf7,

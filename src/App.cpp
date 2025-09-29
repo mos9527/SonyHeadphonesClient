@@ -327,8 +327,8 @@ void App::_drawControls()
                             {AUTO_ASM_SENSITIVITY::LOW, "Low"},
                         };
                         auto it = AUTO_ASM_SENSITIVITY_STR.find(_headphones->autoAsmSensitivity.current);
-                        std::string currentStr = it != AUTO_ASM_SENSITIVITY_STR.end() ? it->second : "Unknown";
-                        if (ImGui::BeginCombo("Sensitivity", currentStr.c_str())) {
+                        const char* currentStr = it != AUTO_ASM_SENSITIVITY_STR.end() ? it->second : "Unknown";
+                        if (ImGui::BeginCombo("Sensitivity", currentStr)) {
                             for (auto const& [k, v] : AUTO_ASM_SENSITIVITY_STR) {
                                 bool is_selected = k == _headphones->autoAsmSensitivity.current;
                                 if (ImGui::Selectable(v, is_selected))
@@ -356,7 +356,59 @@ void App::_drawControls()
                 ImGui::EndTabItem();
             }
 
+            if ((_headphones->deviceCapabilities & DC_ListeningMode) != 0 &&
+                ImGui::BeginTabItem("Listening Mode")) {
+                ListeningMode effectiveMode = _headphones->listeningModeConfig.current.getEffectiveMode();
+
+                // Standard
+                bool radioChanged = ImGui::RadioButton("Standard", (int*)&effectiveMode, (int)ListeningMode::Standard);
+
+                // BGM
+                radioChanged |= ImGui::RadioButton("BGM", (int*)&effectiveMode, (int)ListeningMode::BGM);
+                ImGui::Indent();
+                ImGui::BeginDisabled(!_headphones->listeningModeConfig.current.bgmActive);
+
+                // Distance combo box
+                static const std::map<ListeningModeBgmDistanceMode, const char*> BGM_DISTANCE_MODE_STR = {
+                    {ListeningModeBgmDistanceMode::MyRoom, "My Room"},
+                    {ListeningModeBgmDistanceMode::LivingRoom, "Living Room"},
+                    {ListeningModeBgmDistanceMode::Cafe, "Cafe"},
+                };
+                auto it = BGM_DISTANCE_MODE_STR.find(_headphones->listeningModeConfig.current.bgmDistanceMode);
+                const char* currentStr = it != BGM_DISTANCE_MODE_STR.end() ? it->second : "Unknown";
+                if (ImGui::BeginCombo("Distance", currentStr)) {
+                    for (auto const& [k, v] : BGM_DISTANCE_MODE_STR) {
+                        bool is_selected = k == _headphones->listeningModeConfig.current.bgmDistanceMode;
+                        if (ImGui::Selectable(v, is_selected))
+                            _headphones->listeningModeConfig.desired.bgmDistanceMode = k;
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+
+                ImGui::EndDisabled();
+                ImGui::Unindent();
+
+                // Cinema
+                radioChanged |= ImGui::RadioButton("Cinema", (int*)&effectiveMode, (int)ListeningMode::Cinema);
+
+                if (radioChanged) {
+                    _headphones->listeningModeConfig.desired.bgmActive = effectiveMode == ListeningMode::BGM;
+                    if (!_headphones->listeningModeConfig.desired.bgmActive) {
+                        _headphones->listeningModeConfig.desired.nonBgmMode = effectiveMode;
+                    }
+                }
+
+                ImGui::EndTabItem();
+            }
+
             if (ImGui::BeginTabItem("Equalizer")) {
+                bool eqAvailable = (_headphones->deviceCapabilities & DC_EqualizerAvailableCommand) == 0 || _headphones->eqAvailable.current;
+                if (!eqAvailable && (_headphones->deviceCapabilities & DC_ListeningMode) != 0) {
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please set Listening Mode to Standard to use Equalizer.");
+                }
+                ImGui::BeginDisabled(!eqAvailable);
                 static const std::map<int, const char*> EQ_PRESET_NAMES = {
                     { 0, "Off" },
                     { 1, "Rock" },
@@ -440,6 +492,8 @@ void App::_drawControls()
                 } else {
                     ImGui::Text("Unknown EQ configuration");
                 }
+
+                ImGui::EndDisabled();
                 ImGui::EndTabItem();
             }
 

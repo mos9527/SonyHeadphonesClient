@@ -79,8 +79,12 @@ enum class HeadphonesEvent
 
 	SpeakToChatParamUpdate,
 	SpeakToChatEnabledUpdate,
+
+	ListeningModeUpdate,
+
 	TouchFunctionUpdate,
 
+	EqualizerAvailableUpdate,
 	EqualizerParamUpdate,
 
 	MultipointDeviceSwitchUpdate,
@@ -103,9 +107,11 @@ enum DeviceCapabilities
 	// Since WF-1000XM5
 	DC_ConfigurableVoiceCaptureDuringCall = 0x10,
 	DC_VoiceGuidanceVolumeAdjustment = 0x20,
+	DC_EqualizerAvailableCommand = 0x40,
 
 	// Since WH-1000XM6
-	DC_AutoAsm = 0x40,
+	DC_AutoAsm = 0x80,
+	DC_ListeningMode = 0x100,
 };
 
 HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(DeviceCapabilities);
@@ -125,6 +131,33 @@ public:
 			return bassLevel == other.bassLevel && bands == other.bands;
 		}
 	};
+
+	/* New Listening Mode in WH-1000XM6 */
+	struct ListeningModeConfig
+	{
+		ListeningMode nonBgmMode{}; // 03 XX
+		bool bgmActive{}; // 04 >XX< ?? (inverted)
+		ListeningModeBgmDistanceMode bgmDistanceMode{}; // 04 ?? >XX<
+
+		ListeningModeConfig() : nonBgmMode(ListeningMode::Standard), bgmActive(false), bgmDistanceMode(ListeningModeBgmDistanceMode::MyRoom) {};
+
+		ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, ListeningModeBgmDistanceMode bgmDistance)
+			: nonBgmMode(nonBgm), bgmActive(bgmActive), bgmDistanceMode(bgmDistance) {};
+
+		ListeningMode getEffectiveMode() const
+		{
+			if (bgmActive)
+				return ListeningMode::BGM;
+			else
+				return nonBgmMode;
+		}
+
+		bool operator==(ListeningModeConfig const &other) const
+		{
+			return nonBgmMode == other.nonBgmMode && bgmActive == other.bgmActive && bgmDistanceMode == other.bgmDistanceMode;
+		}
+	};
+
 	Headphones(BluetoothWrapper &conn);
 
 	ReadonlyProperty<HeadphonesMessage> rawMessage;
@@ -209,7 +242,11 @@ public:
 	// SHORT:0 STANDARD:1 LONG:2 OFF(Does not close automatically):3
 	Property<int> stcTime{};
 
+	// Listening mode
+	Property<ListeningModeConfig> listeningModeConfig{};
+
 	// Equalizer
+	ReadonlyProperty<bool> eqAvailable{};
 	Property<int> eqPreset;
 	Property<EqualizerConfig> eqConfig;
 
@@ -279,8 +316,10 @@ private:
 	HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleMultipointEtcEnable(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleListeningMode(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleAutomaticPowerOffButtonMode(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleEqualizer(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleMessage(HeadphonesMessage const &msg);

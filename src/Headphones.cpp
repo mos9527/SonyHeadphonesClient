@@ -14,6 +14,7 @@ bool Headphones::isChanged()
 	bool supportsAutoAsm = (deviceCapabilities & DC_AutoAsm) != 0;
 	bool supportsVoiceGuidanceVolumeAdjustment = (deviceCapabilities & DC_VoiceGuidanceVolumeAdjustment) != 0;
 	bool supportsConfigurableVoiceCaptureDuringCall = (deviceCapabilities & DC_ConfigurableVoiceCaptureDuringCall) != 0;
+	bool supportsListeningMode = (deviceCapabilities & DC_ListeningMode) != 0;
 	return !(
 		draggingAsmLevel.isFulfilled() && asmEnabled.isFulfilled() && asmMode.isFulfilled() &&
 		asmFoucsOnVoice.isFulfilled() && asmLevel.isFulfilled() &&
@@ -22,6 +23,7 @@ bool Headphones::isChanged()
 		(!supportsVoiceGuidanceVolumeAdjustment || miscVoiceGuidanceVol.isFulfilled()) && volume.isFulfilled() &&
 		mpDeviceMac.isFulfilled() && mpEnabled.isFulfilled() &&
 		stcEnabled.isFulfilled() && stcLevel.isFulfilled() && stcTime.isFulfilled() &&
+		(!supportsListeningMode || listeningModeConfig.isFulfilled()) &&
 		eqConfig.isFulfilled() && eqPreset.isFulfilled() &&
 		(isTws ? touchLeftFunc.isFulfilled() && touchRightFunc.isFulfilled() :
 			touchSensorControlPanelEnabled.isFulfilled() && ncAmbButtonMode.isFulfilled()) &&
@@ -187,6 +189,23 @@ void Headphones::setChanges()
 		stcTime.fulfill();
 	}
 
+	if ((deviceCapabilities & DC_ListeningMode) != 0 && !listeningModeConfig.isFulfilled()) {
+		if (listeningModeConfig.desired.bgmActive ||
+			(listeningModeConfig.current.bgmActive && listeningModeConfig.desired.nonBgmMode == ListeningMode::Standard)) {
+			this->_conn.sendCommand(
+				CommandSerializer::serializeListeningModeBgmSetting(listeningModeConfig.desired.bgmActive, listeningModeConfig.desired.bgmDistanceMode),
+				DATA_TYPE::DATA_MDR
+			);
+		} else {
+			this->_conn.sendCommand(
+				CommandSerializer::serializeListeningModeNonBgmSetting(listeningModeConfig.desired.nonBgmMode),
+				DATA_TYPE::DATA_MDR
+			);
+		}
+		waitForAck();
+		listeningModeConfig.fulfill();
+	}
+
 	if ((!eqPreset.isFulfilled())){
 		this->_conn.sendCommand(
 			CommandSerializer::serializeEqualizerSetting(eqPreset.desired),
@@ -319,6 +338,21 @@ void Headphones::requestInit()
 	}, DATA_TYPE::DATA_MDR);
 	waitForAck();
 
+	if ((deviceCapabilities & DC_ListeningMode) != 0) {
+		/* Listening Mode */
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::LISTENING_MODE_GET),
+			0x03
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::LISTENING_MODE_GET),
+			0x04
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	}
+
 	if ((deviceCapabilities & DC_TrueWireless) != 0) {
 		/* Touch Sensor */
 		_conn.sendCommand({
@@ -341,6 +375,14 @@ void Headphones::requestInit()
 	}
 
 	/* Equalizer */
+	if ((deviceCapabilities & DC_EqualizerAvailableCommand) != 0) {
+		_conn.sendCommand({
+			static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_AVAILABLE_GET),
+			0x00 // Equalizer
+		}, DATA_TYPE::DATA_MDR);
+		waitForAck();
+	}
+
 	_conn.sendCommand({
 		static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_GET),
 		0x00 // Equalizer
@@ -478,9 +520,13 @@ HeadphonesEvent Headphones::_handleInitResponse(const HeadphonesMessage& msg) {
     if ((int)deviceModel >= (int)DeviceModel::WF1000XM5) {
         deviceCapabilities |= DC_ConfigurableVoiceCaptureDuringCall;
         deviceCapabilities |= DC_VoiceGuidanceVolumeAdjustment;
+        deviceCapabilities |= DC_EqualizerAvailableCommand;
     }
     if ((int)deviceModel >= (int)DeviceModel::WH1000XM6) {
         deviceCapabilities |= DC_AutoAsm;
+    }
+    if (deviceModel == DeviceModel::WH1000XM6) {
+        deviceCapabilities |= DC_ListeningMode; // The only device at the time of writing that supports this
     }
 
     return HeadphonesEvent::Initialized;
@@ -667,6 +713,32 @@ HeadphonesEvent Headphones::_handleMultipointEtcEnable(const HeadphonesMessage& 
     return HeadphonesEvent::MessageUnhandled;
 }
 
+HeadphonesEvent Headphones::_handleListeningMode(const HeadphonesMessage& msg) {
+    switch (msg[1]) {
+    case 0x03:
+        if ((deviceCapabilities & DC_ListeningMode) != 0) {
+            listeningModeConfig.overwrite(ListeningModeConfig(
+                listeningModeConfig.current.nonBgmMode,
+                !msg[2],
+                static_cast<ListeningModeBgmDistanceMode>(msg[3])
+            ));
+            return HeadphonesEvent::ListeningModeUpdate;
+        }
+        break;
+    case 0x04:
+        if ((deviceCapabilities & DC_ListeningMode) != 0) {
+            listeningModeConfig.overwrite(ListeningModeConfig(
+                static_cast<ListeningMode>(msg[2]),
+                listeningModeConfig.current.bgmActive,
+                listeningModeConfig.current.bgmDistanceMode
+            ));
+            return HeadphonesEvent::ListeningModeUpdate;
+        }
+        break;
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
 HeadphonesEvent Headphones::_handleAutomaticPowerOffButtonMode(const HeadphonesMessage& msg) {
     switch (msg[1]) {
     case 0x01:
@@ -692,6 +764,19 @@ HeadphonesEvent Headphones::_handleSpeakToChat(const HeadphonesMessage& msg) {
         stcLevel.overwrite(msg[2]);
         stcTime.overwrite(msg[3]);
         return HeadphonesEvent::SpeakToChatParamUpdate;
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
+HeadphonesEvent Headphones::_handleEqualizerAvailable(const HeadphonesMessage& msg) {
+    switch (msg[1]) {
+    case 0x00:
+        if ((deviceCapabilities & DC_EqualizerAvailableCommand) != 0)
+        {
+            eqAvailable.overwrite(!msg[2]);
+            return HeadphonesEvent::EqualizerAvailableUpdate;
+        }
+        break;
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -822,6 +907,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_NOITIFY:
             result = _handleMultipointEtcEnable(msg);
             break;
+        case COMMAND_TYPE::LISTENING_MODE_RET:
+        case COMMAND_TYPE::LISTENING_MODE_NOTIFY:
+            result = _handleListeningMode(msg);
+            break;
         case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_RET:
         case COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_NOTIFY:
             result = _handleAutomaticPowerOffButtonMode(msg);
@@ -829,6 +918,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case COMMAND_TYPE::SPEAK_TO_CHAT_RET:
         case COMMAND_TYPE::SPEAK_TO_CHAT_NOTIFY:
             result = _handleSpeakToChat(msg);
+            break;
+        case COMMAND_TYPE::EQUALIZER_AVAILABLE_RET:
+        case COMMAND_TYPE::EQUALIZER_AVAILABLE_NOTIFY:
+            result = _handleEqualizerAvailable(msg);
             break;
         case COMMAND_TYPE::EQUALIZER_RET:
         case COMMAND_TYPE::EQUALIZER_NOTIFY:
