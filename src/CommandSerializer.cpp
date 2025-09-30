@@ -139,7 +139,7 @@ namespace CommandSerializer
 	{
 		// 0x68 | 0x17 | [Not Dragging ASM Slider?] | [NC & ASM On?] | [NC:0 ASM:1] | [Voice Passthrough?] | [ASM Level]
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::NCASM_SET_PARAM)); // 0x68
 		ret.push_back(version);
 		ret.push_back(notify);
 		ret.push_back(static_cast<uint8_t>(ncAsmEffect));
@@ -156,7 +156,7 @@ namespace CommandSerializer
 
 	Buffer serializeAutoPowerOffSetting(bool autoPowerOff) {
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::POWER_SET_PARAM));
 		ret.push_back(0x05);
 		ret.push_back(autoPowerOff ? 0x10 : 0x11);
 		ret.push_back(0x00);
@@ -165,7 +165,7 @@ namespace CommandSerializer
 
 	Buffer serializeAutoPauseSetting(bool autoPause) {
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::SYSTEM_SET_PARAM));
 		ret.push_back(0x01);
 		ret.push_back(!autoPause);
 		return ret;
@@ -173,7 +173,7 @@ namespace CommandSerializer
 
 	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled) {
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T2Command::VOICE_GUIDANCE_SET_PARAM));
 		ret.push_back(0x01);
 		ret.push_back(!enabled);
 		return ret;
@@ -181,7 +181,7 @@ namespace CommandSerializer
 
 	Buffer serializeVoiceGuidanceVolumeSetting(char volume) {
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T2Command::VOICE_GUIDANCE_SET_PARAM));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Guidance Volume
 		ret.push_back(0x00);
@@ -190,7 +190,7 @@ namespace CommandSerializer
 	Buffer serializeVolumeSetting(char volume)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::PLAY_SET_PARAM));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Volume
 		return ret;
@@ -198,7 +198,7 @@ namespace CommandSerializer
 	Buffer serializeMultipointSwitch(const char* macString)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_DEVICE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T2Command::PERI_SET_EXTENDED_PARAM));
 		ret.push_back(0x01);
 		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
 		return ret;
@@ -206,7 +206,7 @@ namespace CommandSerializer
 	Buffer serializePlayControl(PLAYBACK_CONTROL control)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::PLAY_SET_STATUS));
 		ret.push_back(0x01);
 		ret.push_back(0x00);
 		ret.push_back(static_cast<uint8_t>(control));
@@ -216,18 +216,17 @@ namespace CommandSerializer
 	Buffer serializePowerOff()
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::POWER_OFF));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::POWER_SET_STATUS));
 		ret.push_back(0x03);
 		ret.push_back(0x01);
 		return ret;
 	}
 
-
 	Buffer serializeMpToggle(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
-		ret.push_back(static_cast<uint8_t>(0xD2));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::GENERAL_SETTING_SET_PARAM));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1GsInquiredType::GENERAL_SETTING2));
 		ret.push_back(0x00);
 		ret.push_back(!enabled); // 1 (on->off) 0 (off->on)
 		return ret;
@@ -237,7 +236,7 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::SPEAK_TO_CHAT_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::SYSTEM_SET_EXT_PARAM));
 		ret.push_back(0x0c);
 		ret.push_back(sensitivity);
 		ret.push_back(timeout);
@@ -247,7 +246,7 @@ namespace CommandSerializer
 	Buffer serializeMpToggle2(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET_2));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::ALERT_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(0x07);
 		ret.push_back(0x01);
@@ -258,7 +257,7 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatEnabled(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::SYSTEM_SET_PARAM));
 		ret.push_back(0x0c);
 		ret.push_back(!enabled);
 		ret.push_back(0x01);
@@ -268,7 +267,7 @@ namespace CommandSerializer
 	Buffer serializeListeningModeBgmSetting(bool bgmModeActive, ListeningModeBgmDistanceMode distanceMode)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::LISTENING_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::AUDIO_SET_PARAM));
 		ret.push_back(0x03);
 		ret.push_back(!bgmModeActive);
 		ret.push_back(static_cast<uint8_t>(distanceMode));
@@ -278,7 +277,7 @@ namespace CommandSerializer
     Buffer serializeListeningModeNonBgmSetting(ListeningMode nonBgmMode)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::LISTENING_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::AUDIO_SET_PARAM));
 		ret.push_back(0x04);
 		ret.push_back(static_cast<uint8_t>(nonBgmMode));
 		return ret;
@@ -289,7 +288,7 @@ namespace CommandSerializer
 	Buffer serializeEqualizerSetting(uint8_t preset, char bass, std::vector<int> const& bands)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::EQEBB_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(preset);
 		size_t numBands = bands.size();
@@ -321,7 +320,7 @@ namespace CommandSerializer
 	Buffer serializeEqualizerSetting(uint8_t preset)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::EQEBB_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(preset);
 		ret.push_back(0x00); // data size		
@@ -330,7 +329,7 @@ namespace CommandSerializer
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::SYSTEM_SET_PARAM));
 		ret.push_back(0x03);
 		ret.push_back(0x02);
 		ret.push_back(static_cast<uint8_t>(funcL));
@@ -340,8 +339,8 @@ namespace CommandSerializer
 	Buffer serializeTouchSensorControlPanelEnabled(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
-		ret.push_back(0xD3);
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::GENERAL_SETTING_SET_PARAM));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1GsInquiredType::GENERAL_SETTING3));
 		ret.push_back(0x00);
 		ret.push_back(!enabled);
 		return ret;
@@ -349,7 +348,7 @@ namespace CommandSerializer
 	Buffer serializeNcAmbButtonMode(NcAmbButtonMode mode)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::NCASM_SET_PARAM));
 		ret.push_back(0x30);
 		ret.push_back(static_cast<uint8_t>(mode));
 		return ret;
@@ -357,8 +356,8 @@ namespace CommandSerializer
 	Buffer serializeOnCallVoiceCaptureSetting(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
-		ret.push_back(0xD1);
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1Command::GENERAL_SETTING_SET_PARAM));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1GsInquiredType::GENERAL_SETTING1));
 		ret.push_back(0x00);
 		ret.push_back(!enabled);
 		return ret;

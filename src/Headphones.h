@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <variant>
+#include <bitset>
 
 template <class T>
 struct Property
@@ -62,6 +63,9 @@ enum class HeadphonesEvent
 	JSONMessage,
 	Initialized,
 
+	DeviceInfoUpdate,
+	SupportFunctionUpdate,
+
 	NcAsmParamUpdate,
 	NcAmbButtonModeUpdate,
 	BatteryLevelUpdate,
@@ -102,16 +106,8 @@ enum DeviceCapabilities
 {
 	DC_None = 0x0,
 
-	DC_TrueWireless = 0x1,
-
 	// Since WF-1000XM5
-	DC_ConfigurableVoiceCaptureDuringCall = 0x10,
-	DC_VoiceGuidanceVolumeAdjustment = 0x20,
-	DC_EqualizerAvailableCommand = 0x40,
-
-	// Since WH-1000XM6
-	DC_AutoAsm = 0x80,
-	DC_ListeningMode = 0x100,
+	DC_EqualizerAvailableCommand = 0x1,
 };
 
 HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(DeviceCapabilities);
@@ -161,6 +157,26 @@ public:
 	Headphones(BluetoothWrapper &conn);
 
 	ReadonlyProperty<HeadphonesMessage> rawMessage;
+
+	// Capability counter and MAC address
+	ReadonlyProperty<uint8_t> capabilityCounter{};
+	ReadonlyProperty<std::string> uniqueId{};
+
+	// Device model name from firmware
+	ReadonlyProperty<std::string> modelName{};
+
+	// Firmware version string
+	ReadonlyProperty<std::string> fwVersion{};
+
+	// Series and color
+	ReadonlyProperty<THMSGV2T1ModelSeries> modelSeries{};
+	ReadonlyProperty<ModelColor> modelColor{};
+
+	// Support functions
+	std::bitset<256> supportFunctions1{};
+	std::bitset<256> supportFunctions2{};
+	ReadonlyProperty<std::string> supportFunctionString1{};
+	ReadonlyProperty<std::string> supportFunctionString2{};
 
 	// Is NC or Ambient sound enabled?
 	Property<bool> asmEnabled{};
@@ -259,20 +275,19 @@ public:
 	// [WH only] [NC/AMB] Button Setting
 	Property<NcAmbButtonMode> ncAmbButtonMode{};
 
-	// Device model + capabilities
-	enum class DeviceModel
-	{
-		WH1000XM5 = 0x2016,
-		WF1000XM5 = 0x2017,
-		WH1000XM6 = 0x3001,
-	};
-	DeviceModel deviceModel{};
+	// Protocol version
+	int protocolVersion{};
 	DeviceCapabilities deviceCapabilities{};
+
+	bool supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const;
+	bool supports(MessageMdrV2FunctionType_Table2 functionTypeTable2) const;
 
 	bool isChanged();
 	void setChanges();
 
 	void waitForAck(int timeout = 1);
+	void waitForProtocolInfo(int timeout);
+	void waitForSupportFunction(int timeout);
 
 	void requestInit();
 	void requestSync();
@@ -303,9 +318,15 @@ private:
 	std::mutex _propertyMtx, _ackMtx;
 	BluetoothWrapper &_conn;
 	std::condition_variable _ackCV;
+	std::condition_variable _protocolInfoCV;
+	std::condition_variable _supportFunctionCV;
 
 	// Helper functions for _handleMessage
-	HeadphonesEvent _handleInitResponse(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleProtocolInfo(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleCapabilityInfo(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleFirmwareVersion(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleT1SupportFunction(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
