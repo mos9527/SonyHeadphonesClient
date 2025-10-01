@@ -47,10 +47,11 @@ struct ReadonlyProperty
 {
 	T current;
 
-	void overwrite(T const &value)
+	template <typename U>
+	void overwrite(U&& value)
 	{
-		current = value;
-	};
+		current = std::forward<U>(value);
+	}
 };
 
 enum class HeadphonesEvent
@@ -169,7 +170,7 @@ public:
 	ReadonlyProperty<std::string> fwVersion{};
 
 	// Series and color
-	ReadonlyProperty<THMSGV2T1ModelSeries> modelSeries{};
+	ReadonlyProperty<THMSGV2T1::ModelSeries> modelSeries{};
 	ReadonlyProperty<ModelColor> modelColor{};
 
 	// Support functions
@@ -182,7 +183,7 @@ public:
 	Property<bool> asmEnabled{};
 
 	// NC or Ambient sound mode?
-	Property<NC_ASM_SETTING_TYPE> asmMode{};
+	Property<THMSGV2T1::NcAsmMode> asmMode{};
 
 	// Is Foucs On Voice enabled?
 	Property<bool> asmFoucsOnVoice{};
@@ -196,7 +197,7 @@ public:
 	Property<bool> autoAsmEnabled{};
 
 	// Auto ambient sound sensitivity. 0 ~ 2. (WH-1000XM6 onwards)
-	Property<AUTO_ASM_SENSITIVITY> autoAsmSensitivity{};
+	Property<THMSGV2T1::NoiseAdaptiveSensitivity> autoAsmSensitivity{};
 
 	// Is automatic power off enabled?
 	Property<bool> autoPowerOffEnabled{};
@@ -273,7 +274,7 @@ public:
 	Property<bool> touchSensorControlPanelEnabled{};
 
 	// [WH only] [NC/AMB] Button Setting
-	Property<NcAmbButtonMode> ncAmbButtonMode{};
+	Property<THMSGV2T1::Function> ncAmbButtonMode{};
 
 	// Protocol version
 	int protocolVersion{};
@@ -288,6 +289,18 @@ public:
 	void waitForAck(int timeout = 1);
 	void waitForProtocolInfo(int timeout);
 	void waitForSupportFunction(int timeout);
+
+	template <typename TPayload, typename... TArgs>
+	void sendGet(TArgs&&... args);
+
+	template <typename TPayload, typename... TArgs>
+	void sendSet(TArgs&&... args);
+
+	template <typename TPayload, typename... TArgs>
+	void sendMdrCommandWithType(CommandType ct, TArgs&&... args);
+
+	template <typename TPayload>
+	void sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span);
 
 	void requestInit();
 	void requestSync();
@@ -324,14 +337,14 @@ private:
 	// Helper functions for _handleMessage
 	HeadphonesEvent _handleProtocolInfo(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleCapabilityInfo(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleFirmwareVersion(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleDeviceInfo(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleT1SupportFunction(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackSndPressureRet(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleAutomaticPowerOffParam(const HeadphonesMessage &msg);
+	HeadphonesEvent _handlePowerParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage &msg);
@@ -347,3 +360,85 @@ private:
 
 	bool hasInit = false;
 };
+
+template <typename, typename = void>
+struct PayloadIsForMultipleCommandTypes : std::false_type {};
+
+template <typename T>
+struct PayloadIsForMultipleCommandTypes<T, std::void_t<decltype(T::COMMAND_IDS)>> : std::true_type {};
+
+template <typename T>
+inline constexpr bool PayloadIsForMultipleCommandTypes_v = PayloadIsForMultipleCommandTypes<T>::value;
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendGet(TArgs&&... args)
+{
+	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
+		static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
+	}
+	return sendMdrCommandWithType<TPayload>(CT_Get, std::forward<TArgs>(args)...);
+}
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendSet(TArgs&&... args)
+{
+	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
+		static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
+	}
+	return sendMdrCommandWithType<TPayload>(CT_Set, std::forward<TArgs>(args)...);
+}
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
+{
+	if constexpr (TPayload::VARIABLE_SIZE) {
+		size_t size;
+		std::unique_ptr<TPayload> payload = [&] {
+			if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
+				return TPayload::create(&size, ct, std::forward<TArgs>(args)...);
+			} else {
+				return TPayload::create(&size, std::forward<TArgs>(args)...);
+			}
+		}();
+
+		const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.get());
+		sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + size));
+	} else {
+		TPayload payload = [&] {
+			if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
+				return TPayload(ct, std::forward<TArgs>(args)...);
+			} else {
+				return TPayload(std::forward<TArgs>(args)...);
+			}
+		}();
+
+		const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
+		sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
+	}
+}
+
+template <typename TPayload>
+void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span)
+{
+	DATA_TYPE type;
+	if constexpr (std::is_base_of_v<THMSGV2T1::Payload, TPayload>) {
+		type = DATA_TYPE::DATA_MDR;
+	} else if constexpr (std::is_base_of_v<THMSGV2T2::Payload, TPayload>) {
+		type = DATA_TYPE::DATA_MDR_NO2;
+	} else {
+		static_assert(sizeof(TPayload) == 0, "Unsupported payload type");
+		type = DATA_TYPE::UNKNOWN;
+	}
+
+	bool valid;
+	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
+		valid = TPayload::isValid(span, ct);
+	} else {
+		valid = TPayload::isValid(span);
+	}
+	if (!valid) {
+		throw std::runtime_error("Invalid outgoing payload");
+	}
+
+	_conn.sendCommand(span, type);
+}

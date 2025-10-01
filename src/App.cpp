@@ -297,15 +297,15 @@ void App::_drawControls()
             if (ImGui::BeginTabItem("AMB / ANC")) {
                 bool supportsAutoAsm = _headphones->supports(MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
 
-                if (ImGui::RadioButton("Noise Cancelling", _headphones->asmEnabled.desired && _headphones->asmMode.desired == NC_ASM_SETTING_TYPE::NOISE_CANCELLING)) {
+                if (ImGui::RadioButton("Noise Cancelling", _headphones->asmEnabled.desired && _headphones->asmMode.desired == THMSGV2T1::NcAsmMode::NC)) {
                     _headphones->asmEnabled.desired = true;
-                    _headphones->asmMode.desired = NC_ASM_SETTING_TYPE::NOISE_CANCELLING;
+                    _headphones->asmMode.desired = THMSGV2T1::NcAsmMode::NC;
                 }
 
                 ImGui::SameLine();
-                if (ImGui::RadioButton("Ambient Sound", _headphones->asmEnabled.desired && _headphones->asmMode.desired == NC_ASM_SETTING_TYPE::AMBIENT_SOUND)) {
+                if (ImGui::RadioButton("Ambient Sound", _headphones->asmEnabled.desired && _headphones->asmMode.desired == THMSGV2T1::NcAsmMode::ASM)) {
                     _headphones->asmEnabled.desired = true;
-                    _headphones->asmMode.desired = NC_ASM_SETTING_TYPE::AMBIENT_SOUND;
+                    _headphones->asmMode.desired = THMSGV2T1::NcAsmMode::ASM;
                     if (_headphones->asmLevel.desired == 0)
                         _headphones->asmLevel.desired = 20;
                 }
@@ -317,22 +317,22 @@ void App::_drawControls()
 
                 ImGui::Separator();
 
-                if (_headphones->asmEnabled.current && _headphones->asmMode.current == NC_ASM_SETTING_TYPE::AMBIENT_SOUND) {
+                if (_headphones->asmEnabled.current && _headphones->asmMode.current == THMSGV2T1::NcAsmMode::ASM) {
                     ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 1, 20);
                     _headphones->draggingAsmLevel.desired = ImGui::IsItemActive();
                     if (supportsAutoAsm) {
                         ImGui::Checkbox("Auto Ambient Sound", &_headphones->autoAsmEnabled.desired);
 
                         ImGui::BeginDisabled(!_headphones->autoAsmEnabled.current);
-                        static const std::map<AUTO_ASM_SENSITIVITY, const char*> AUTO_ASM_SENSITIVITY_STR = {
-                            {AUTO_ASM_SENSITIVITY::STANDARD, "Standard"},
-                            {AUTO_ASM_SENSITIVITY::HIGH, "High"},
-                            {AUTO_ASM_SENSITIVITY::LOW, "Low"},
+                        static const std::map<THMSGV2T1::NoiseAdaptiveSensitivity, const char*> NoiseAdaptiveSensitivity_STR = {
+                            {THMSGV2T1::NoiseAdaptiveSensitivity::STANDARD, "Standard"},
+                            {THMSGV2T1::NoiseAdaptiveSensitivity::HIGH, "High"},
+                            {THMSGV2T1::NoiseAdaptiveSensitivity::LOW, "Low"},
                         };
-                        auto it = AUTO_ASM_SENSITIVITY_STR.find(_headphones->autoAsmSensitivity.current);
-                        const char* currentStr = it != AUTO_ASM_SENSITIVITY_STR.end() ? it->second : "Unknown";
+                        auto it = NoiseAdaptiveSensitivity_STR.find(_headphones->autoAsmSensitivity.current);
+                        const char* currentStr = it != NoiseAdaptiveSensitivity_STR.end() ? it->second : "Unknown";
                         if (ImGui::BeginCombo("Sensitivity", currentStr)) {
-                            for (auto const& [k, v] : AUTO_ASM_SENSITIVITY_STR) {
+                            for (auto const& [k, v] : NoiseAdaptiveSensitivity_STR) {
                                 bool is_selected = k == _headphones->autoAsmSensitivity.current;
                                 if (ImGui::Selectable(v, is_selected))
                                     _headphones->autoAsmSensitivity.desired = k;
@@ -567,7 +567,7 @@ void App::_drawControls()
                     changed |= ImGui::Checkbox("Ambient Sound", &ambActive); ImGui::SameLine();
                     changed |= ImGui::Checkbox("Off", &offActive);
                     if (changed) {
-                        NcAmbButtonMode mode;
+                        THMSGV2T1::Function mode;
                         if (NcAmbButtonMode_FromStates(ncActive, ambActive, offActive, &mode)) {
                             _headphones->ncAmbButtonMode.desired = mode;
                         }
@@ -596,17 +596,17 @@ void App::_drawControls()
                     ImGui::Text("Firmware Version: %s", _headphones->fwVersion.current.c_str());
                     ImGui::Text("Protocol Version: 0x%08X", _headphones->protocolVersion);
 
-                    static const std::map<THMSGV2T1ModelSeries, const char*> MODEL_SERIES_STR = {
-                        { THMSGV2T1ModelSeries::EXTRA_BASS, "Extra Bass" },
-                        { THMSGV2T1ModelSeries::ULT_POWER_SOUND, "ULT Power Sound" },
-                        { THMSGV2T1ModelSeries::HEAR, "Hear" },
-                        { THMSGV2T1ModelSeries::PREMIUM, "Premium" },
-                        { THMSGV2T1ModelSeries::SPORTS, "Sports" },
-                        { THMSGV2T1ModelSeries::CASUAL, "Casual" },
-                        { THMSGV2T1ModelSeries::LINK_BUDS, "LinkBuds" },
-                        { THMSGV2T1ModelSeries::NECKBAND, "Neckband" },
-                        { THMSGV2T1ModelSeries::LINKPOD, "LinkPod" },
-                        { THMSGV2T1ModelSeries::GAMING, "Gaming" },
+                    static const std::map<THMSGV2T1::ModelSeries, const char*> MODEL_SERIES_STR = {
+                        { THMSGV2T1::ModelSeries::EXTRA_BASS, "Extra Bass" },
+                        { THMSGV2T1::ModelSeries::ULT_POWER_SOUND, "ULT Power Sound" },
+                        { THMSGV2T1::ModelSeries::HEAR, "Hear" },
+                        { THMSGV2T1::ModelSeries::PREMIUM, "Premium" },
+                        { THMSGV2T1::ModelSeries::SPORTS, "Sports" },
+                        { THMSGV2T1::ModelSeries::CASUAL, "Casual" },
+                        { THMSGV2T1::ModelSeries::LINK_BUDS, "LinkBuds" },
+                        { THMSGV2T1::ModelSeries::NECKBAND, "Neckband" },
+                        { THMSGV2T1::ModelSeries::LINKPOD, "LinkPod" },
+                        { THMSGV2T1::ModelSeries::GAMING, "Gaming" },
                     };
                     auto seriesIt = MODEL_SERIES_STR.find(_headphones->modelSeries.current);
                     ImGui::Text("Series: %s", seriesIt != MODEL_SERIES_STR.end() ? seriesIt->second : "Unknown");

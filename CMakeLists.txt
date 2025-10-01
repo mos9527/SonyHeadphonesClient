@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(SonyHeadphonesClient CXX)
 add_definitions(-D__HEADPHONES_APP_VERSION__="1.4.4")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 find_package(Threads REQUIRED)
 
@@ -17,6 +17,17 @@ elseif(APPLE)
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/macos/Info.plist
     )
 endif()
+
+target_sources(SonyHeadphonesClient
+    PRIVATE
+    src/App.h
+    src/BluetoothWrapper.h
+    src/CommandSerializer.h
+    src/Constants.h
+    src/Headphones.h
+    src/ProtocolV2T1.h
+    src/ProtocolV2T2.h
+)
 
 target_sources(SonyHeadphonesClient
     PRIVATE src/BluetoothWrapper.cpp
@@ -103,6 +114,13 @@ if (WIN32)
         contrib/imgui/backends/imgui_impl_glfw.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/windows/app.manifest
     )
+
+    if (MSVC)
+        # Disable RTTI
+        # Enable Multi Processor Compilation
+        target_compile_options(SonyHeadphonesClient PRIVATE /GR- /MP)
+    endif ()
+
     # https://devblogs.microsoft.com/oldnewthing/20240816-00/?p=110136
     target_link_libraries(SonyHeadphonesClient
         PRIVATE opengl32 comctl32

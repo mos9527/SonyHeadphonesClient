@@ -23,7 +23,7 @@ public:
 	BluetoothWrapper& operator=(BluetoothWrapper&& other) noexcept;
 
 	int sendCommand(CommandSerializer::CommandMessage const& cmd);
-	int sendCommand(const Buffer& command, DATA_TYPE dataType = DATA_TYPE::DATA_MDR);
+	int sendCommand(const BufferSpan& command, DATA_TYPE dataType = DATA_TYPE::DATA_MDR);
 	int sendAck(int seqNumber);
 
 	bool isConnected() noexcept;

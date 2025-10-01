@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include "Exceptions.h"
 #include <cassert>
+#include "ProtocolV2T1.h"
+#include "ProtocolV2T2.h"
 
 constexpr int MINIMUM_VOICE_FOCUS_STEP = 2;
 constexpr unsigned int ASM_LEVEL_DISABLED = -1;
@@ -15,10 +17,10 @@ namespace CommandSerializer
 
 	//escape special chars
 
-	Buffer _escapeSpecials(const Buffer& src);
-	Buffer _unescapeSpecials(const Buffer& src);
+	Buffer _escapeSpecials(const BufferSpan& src);
+	Buffer _unescapeSpecials(const BufferSpan& src);
 	unsigned char _sumChecksum(const unsigned char* src, size_t size);
-	unsigned char _sumChecksum(const Buffer& src);
+	unsigned char _sumChecksum(const BufferSpan& src);
 	//Package a serialized command according to the protocol
 	/*
 	References:
@@ -28,11 +30,8 @@ namespace CommandSerializer
 	* 
 	* Serialized data format: <START_MARKER>ESCAPE_SPECIALS(<DATA_TYPE><SEQ_NUMBER><BIG ENDIAN 4 BYTE SIZE OF UNESCAPED DATA><DATA><1 BYTE CHECKSUM>)<END_MARKER>
 	*/
-	Buffer packageDataForBt(const Buffer& src, DATA_TYPE dataType, unsigned int seqNumber);
+	Buffer packageDataForBt(const BufferSpan& src, DATA_TYPE dataType, unsigned int seqNumber);
 
-	Buffer serializeNcAndAsmSetting(
-		char version, bool notify, NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType,
-		ASM_ID voicePassthrough, char asmLevel, bool autoAsm, AUTO_ASM_SENSITIVITY autoAsmSensitivity);
 	Buffer serializeAutoPowerOffSetting(bool autoPowerOff);
 	Buffer serializeAutoPauseSetting(bool autoPause);
 	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled);
@@ -40,7 +39,6 @@ namespace CommandSerializer
 	Buffer serializeVolumeSetting(char volume);
 	Buffer serializeMultipointSwitch(const char* macString);
 	Buffer serializePlayControl(PLAYBACK_CONTROL control);
-	Buffer serializePowerOff();
 	Buffer serializeMpToggle2(bool enabled);
 	Buffer serializeMpToggle(bool enabled);
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
@@ -51,7 +49,6 @@ namespace CommandSerializer
 	Buffer serializeEqualizerSetting(unsigned char preset);
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR);
 	Buffer serializeTouchSensorControlPanelEnabled(bool enabled);
-	Buffer serializeNcAmbButtonMode(NcAmbButtonMode mode);
 	Buffer serializeOnCallVoiceCaptureSetting(bool enabled);
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
@@ -60,29 +57,39 @@ namespace CommandSerializer
 
 		CommandMessage() = default;
 
-		CommandMessage(Buffer const& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {
+		CommandMessage(BufferSpan const& buf) : messageBytes(_unescapeSpecials(buf)) {
 			assert(verify());
-		};
-		CommandMessage(Buffer&& buf) : messageBytes(CommandSerializer::_unescapeSpecials(buf)) {
+		}
+		CommandMessage(BufferSpan&& buf) : messageBytes(_unescapeSpecials(buf)) {
 			assert(verify());
-		};
-		CommandMessage(DATA_TYPE dataType, Buffer const& buffer, unsigned char seqNumber) {
-			messageBytes = CommandSerializer::packageDataForBt(buffer, dataType, seqNumber);
+		}
+		CommandMessage(DATA_TYPE dataType, BufferSpan const& buffer, unsigned char seqNumber) {
+			messageBytes = packageDataForBt(buffer, dataType, seqNumber);
 		}
 
-		inline const DATA_TYPE getDataType() const { return static_cast<DATA_TYPE>(messageBytes[1]); }
-		inline const unsigned char getSeqNumber() const { return messageBytes[2]; }
-		inline const int getSize() const { return bytesToIntBE(&messageBytes[3]); }
-		inline const unsigned char getChkSum() const { return messageBytes[7 + getSize()]; }
+		DATA_TYPE getDataType() const { return static_cast<DATA_TYPE>(messageBytes[1]); }
+		unsigned char getSeqNumber() const { return messageBytes[2]; }
+		int getSize() const { return bytesToIntBE(&messageBytes[3]); }
+		unsigned char getChkSum() const { return messageBytes[7 + getSize()]; }
 
-		inline Buffer::const_iterator begin() const { return messageBytes.begin() + 7; }
-		inline Buffer::const_iterator end() const { return begin() + getSize(); }
-		inline const Buffer::value_type operator[](int i) const { return *(begin() + i); }
+		Buffer::const_iterator begin() const { return messageBytes.begin() + 7; }
+		Buffer::const_iterator end() const { return begin() + getSize(); }
+		Buffer::value_type operator[](int i) const { return *(begin() + i); }
 
-		inline Buffer const& getMessage() const { return messageBytes; }
+		const uint8_t* data() const { return messageBytes.data() + 7; }
+		operator BufferSpan() const { return BufferSpan(data(), getSize()); }
 
-		inline const unsigned char calcChkSum() const { return CommandSerializer::_sumChecksum(messageBytes.data() + 1, messageBytes.size() - 3); }
-		inline const bool verify() const { return messageBytes.size() >= 7 && getChkSum() == calcChkSum(); }
+		template <typename TPayload, typename... TArgs>
+		const TPayload* as(TArgs&&... args) const {
+			if (!TPayload::isValid(*this, std::forward<TArgs>(args)...))
+				throw std::runtime_error("Invalid incoming payload");
+			return reinterpret_cast<const TPayload*>(data());
+		}
+
+		Buffer const& getMessage() const { return messageBytes; }
+
+		unsigned char calcChkSum() const { return _sumChecksum(messageBytes.data() + 1, messageBytes.size() - 3); }
+		bool verify() const { return messageBytes.size() >= 7 && getChkSum() == calcChkSum(); }
 	};
 }
 
