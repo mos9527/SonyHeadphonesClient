@@ -192,16 +192,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeMpToggle(bool enabled)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::GENERAL_SETTING_SET_PARAM));
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::GsInquiredType::GENERAL_SETTING2));
-		ret.push_back(0x00);
-		ret.push_back(!enabled); // 1 (on->off) 0 (off->on)
-		return ret;
-	}
-
 	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{
@@ -304,24 +294,6 @@ namespace CommandSerializer
 		ret.push_back(0x02);
 		ret.push_back(static_cast<uint8_t>(funcL));
 		ret.push_back(static_cast<uint8_t>(funcR));
-		return ret;
-	}
-	Buffer serializeTouchSensorControlPanelEnabled(bool enabled)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::GENERAL_SETTING_SET_PARAM));
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::GsInquiredType::GENERAL_SETTING3));
-		ret.push_back(0x00);
-		ret.push_back(!enabled);
-		return ret;
-	}
-	Buffer serializeOnCallVoiceCaptureSetting(bool enabled)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::GENERAL_SETTING_SET_PARAM));
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::GsInquiredType::GENERAL_SETTING1));
-		ret.push_back(0x00);
-		ret.push_back(!enabled);
 		return ret;
 	}
 }

@@ -433,6 +433,8 @@ inline bool ConnectInquiredType_isValidByteCode(uint8_t type)
 
 struct ConnectGetProtocolInfo : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::CONNECT_RET_PROTOCOL_INFO;
+
     ConnectInquiredType inquiredType; // 0x1
 
     ConnectGetProtocolInfo(ConnectInquiredType inquiredType)
@@ -490,6 +492,8 @@ struct ConnectRetProtocolInfo : Payload
 
 struct ConnectGetCapabilityInfo : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::CONNECT_RET_CAPABILITY_INFO;
+
     ConnectInquiredType inquiredType; // 0x1
 
     ConnectGetCapabilityInfo(ConnectInquiredType inquiredType)
@@ -568,6 +572,8 @@ inline bool ModelSeries_isValidByteCode(uint8_t type)
 
 struct ConnectGetDeviceInfo : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::CONNECT_RET_DEVICE_INFO;
+
     DeviceInfoType deviceInfoType; // 0x1
 
     ConnectGetDeviceInfo(DeviceInfoType infoType)
@@ -698,6 +704,8 @@ struct ConnectRetDeviceInfoSeriesAndColor : ConnectRetDeviceInfo
 
 struct ConnectGetSupportFunction : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::CONNECT_RET_SUPPORT_FUNCTION;
+
     ConnectInquiredType inquiredType; // 0x1
 
     ConnectGetSupportFunction(ConnectInquiredType inquiredType)
@@ -830,6 +838,8 @@ inline bool PowerInquiredType_isValidByteCode(uint8_t type)
 
 struct PowerGetStatus : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::POWER_RET_STATUS;
+
     PowerInquiredType type; // 0x1
 
     PowerGetStatus(PowerInquiredType type)
@@ -1109,6 +1119,8 @@ struct PowerRetStatusCradleBatteryThreshold : PowerRetStatusBatteryThresholdBase
 
 struct PowerSetStatus : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::POWER_NTFY_STATUS;
+
     PowerInquiredType type; // 0x1
 
     PowerSetStatus(PowerInquiredType type)
@@ -1167,6 +1179,8 @@ struct PowerSetStatusPowerOff : PowerSetStatus
 
 struct PowerGetParam : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::POWER_RET_PARAM;
+
     PowerInquiredType type; // 0x1
 
     PowerGetParam(PowerInquiredType type)
@@ -1641,15 +1655,43 @@ inline void NcAmbButtonMode_ToStates(Function mode, bool* nc, bool* amb, bool* o
     }
 }
 
-// NCASM_GET_PARAM, NCASM_RET_PARAM, NCASM_SET_PARAM, NCASM_NOTIFY_PARAM
+// NCASM_GET_PARAM
+
+struct NcAsmGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::NCASM_RET_PARAM;
+
+    NcAsmInquiredType type; // 0x1
+
+    NcAsmGetParam(NcAsmInquiredType type)
+        : Payload(Command::NCASM_GET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(NcAsmGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::NCASM_GET_PARAM)
+            && NcAsmInquiredType_isValidByteCode(buf[offsetof(NcAsmGetParam, type)]);
+    }
+};
+
+// NCASM_RET_PARAM, NCASM_SET_PARAM, NCASM_NOTIFY_PARAM
 
 struct NcAsmParam : Payload
 {
     static constexpr Command COMMAND_IDS[] = {
-        Command::NCASM_GET_PARAM,
+        Command::UNKNOWN,
         Command::NCASM_RET_PARAM,
         Command::NCASM_SET_PARAM,
         Command::NCASM_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::NCASM_NTFY_PARAM,
+        Command::UNKNOWN,
     };
 
     NcAsmInquiredType type; // 0x1
@@ -1662,7 +1704,7 @@ struct NcAsmParam : Payload
     static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
         return Payload::isValid(buf)
-            && (ct == CT_Get ? buf.size() == sizeof(NcAsmParam) : buf.size() >= sizeof(NcAsmParam))
+            && buf.size() >= sizeof(NcAsmParam)
             && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
             && NcAsmInquiredType_isValidByteCode(buf[offsetof(NcAsmParam, type)]);
     }
@@ -1670,13 +1712,6 @@ struct NcAsmParam : Payload
 
 struct NcAsmParamBase : NcAsmParam
 {
-    static constexpr Command COMMAND_IDS[] = {
-        Command::UNKNOWN,
-        Command::NCASM_RET_PARAM,
-        Command::NCASM_SET_PARAM,
-        Command::NCASM_NTFY_PARAM,
-    };
-
     ValueChangeStatus valueChangeStatus; // 0x2
     NcAsmOnOffValue ncAsmTotalEffect; // 0x3
 
@@ -1814,7 +1849,7 @@ struct NcAsmParamNcAmbToggle : NcAsmParam
     }
 };
 
-// GENERAL_SETTING_*_PARAM
+// === GENERAL_SETTING ===
 
 enum class GsInquiredType : uint8_t
 {
@@ -1822,6 +1857,343 @@ enum class GsInquiredType : uint8_t
     GENERAL_SETTING2 = 0xD2, ///< Multipoint
     GENERAL_SETTING3 = 0xD3, ///< Touch sensor control panel
     GENERAL_SETTING4 = 0xD4,
+};
+
+inline bool GsInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<GsInquiredType>(type))
+    {
+    case GsInquiredType::GENERAL_SETTING1:
+    case GsInquiredType::GENERAL_SETTING2:
+    case GsInquiredType::GENERAL_SETTING3:
+    case GsInquiredType::GENERAL_SETTING4:
+        return true;
+    }
+    return false;
+}
+
+enum class GsSettingType : uint8_t
+{
+    BOOLEAN_TYPE = 0x00,
+    LIST_TYPE = 0x01,
+};
+
+inline bool GsSettingType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<GsSettingType>(type))
+    {
+    case GsSettingType::BOOLEAN_TYPE:
+    case GsSettingType::LIST_TYPE:
+        return true;
+    }
+    return false;
+}
+
+enum class GsSettingValue : uint8_t
+{
+    ON = 0x00,
+    OFF = 0x01,
+};
+
+inline bool GsSettingValue_isValidByteCode(uint8_t value)
+{
+    switch (static_cast<GsSettingValue>(value))
+    {
+    case GsSettingValue::ON:
+    case GsSettingValue::OFF:
+        return true;
+    }
+    return false;
+}
+
+// GENERAL_SETTING_*_CAPABILITY
+
+enum class DisplayLanguage : uint8_t
+{
+    UNDEFINED_LANGUAGE = 0x00,
+    ENGLISH = 0x01,
+    FRENCH = 0x02,
+    GERMAN = 0x03,
+    SPANISH = 0x04,
+    ITALIAN = 0x05,
+    PORTUGUESE = 0x06,
+    DUTCH = 0x07,
+    SWEDISH = 0x08,
+    FINNISH = 0x09,
+    RUSSIAN = 0x0A,
+    JAPANESE = 0x0B,
+    SIMPLIFIED_CHINESE = 0x0C,
+    BRAZILIAN_PORTUGUESE = 0x0D,
+    TRADITIONAL_CHINESE = 0x0E,
+    KOREAN = 0x0F,
+    TURKISH = 0x10,
+};
+
+inline bool DisplayLanguage_isValidByteCode(uint8_t lang)
+{
+    switch (static_cast<DisplayLanguage>(lang))
+    {
+    case DisplayLanguage::UNDEFINED_LANGUAGE:
+    case DisplayLanguage::ENGLISH:
+    case DisplayLanguage::FRENCH:
+    case DisplayLanguage::GERMAN:
+    case DisplayLanguage::SPANISH:
+    case DisplayLanguage::ITALIAN:
+    case DisplayLanguage::PORTUGUESE:
+    case DisplayLanguage::DUTCH:
+    case DisplayLanguage::SWEDISH:
+    case DisplayLanguage::FINNISH:
+    case DisplayLanguage::RUSSIAN:
+    case DisplayLanguage::JAPANESE:
+    case DisplayLanguage::SIMPLIFIED_CHINESE:
+    case DisplayLanguage::BRAZILIAN_PORTUGUESE:
+    case DisplayLanguage::TRADITIONAL_CHINESE:
+    case DisplayLanguage::KOREAN:
+    case DisplayLanguage::TURKISH:
+        return true;
+    }
+    return false;
+}
+
+// GENERAL_SETTING_GET_CAPABILITY
+
+struct GsGetCapability : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::GENERAL_SETTING_RET_CAPABILITY;
+
+    GsInquiredType type; // 0x1
+    DisplayLanguage displayLanguage; // 0x2
+
+    GsGetCapability(GsInquiredType type, DisplayLanguage displayLanguage)
+        : Payload(Command::GENERAL_SETTING_GET_CAPABILITY)
+        , type(type)
+        , displayLanguage(displayLanguage)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(GsGetCapability)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::GENERAL_SETTING_GET_CAPABILITY)
+            && GsInquiredType_isValidByteCode(buf[offsetof(GsGetCapability, type)])
+            && DisplayLanguage_isValidByteCode(buf[offsetof(GsGetCapability, displayLanguage)]);
+    }
+};
+
+// GENERAL_SETTING_RET_CAPABILITY
+
+#pragma pack(pop)
+
+enum class GsStringFormat
+{
+    RAW_NAME = 0x00,
+    ENUM_NAME = 0x01,
+};
+
+struct GsSettingInfo
+{
+    GsStringFormat stringFormat;
+    std::string subject;
+    std::string summary;
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        size_t subjectLenIndex = 1 /*stringFormat*/;
+        if (buf.size() <= subjectLenIndex)
+            return false;
+        size_t subjectLen = buf[subjectLenIndex];
+        size_t summaryLenIndex = subjectLenIndex + 1 /*subject.len*/ + subjectLen;
+        if (buf.size() <= summaryLenIndex)
+            return false;
+        size_t expectedTotalSize = summaryLenIndex + 1 /*summary.len*/ + static_cast<size_t>(buf[summaryLenIndex]);
+        return buf.size() == expectedTotalSize;
+    }
+
+    static GsSettingInfo deserialize(std::span<const uint8_t> buf)
+    {
+        if (buf.empty())
+            throw std::runtime_error("Buffer too small for GsSettingInfo");
+
+        GsSettingInfo info;
+        info.stringFormat = static_cast<GsStringFormat>(buf[0]); buf = buf.subspan(1);
+        info.subject = readPrefixedString(buf);
+        info.summary = readPrefixedString(buf);
+        return info;
+    }
+
+    static void serialize(std::vector<uint8_t>& buf, const GsSettingInfo& info)
+    {
+        buf.push_back(static_cast<uint8_t>(info.stringFormat));
+        writePrefixedString(buf, info.subject);
+        writePrefixedString(buf, info.summary);
+    }
+};
+
+struct GsRetCapability : Payload
+{
+    GsInquiredType type; // 0x1
+    GsSettingType settingType; // 0x2
+    GsSettingInfo settingInfo; // 0x3-...
+
+    GsRetCapability(GsInquiredType type, GsSettingType settingType, GsSettingInfo settingInfo)
+        : Payload(Command::GENERAL_SETTING_RET_CAPABILITY)
+        , type(type)
+        , settingType(settingType)
+        , settingInfo(std::move(settingInfo))
+    {}
+
+private:
+    // ReSharper disable once CppPossiblyUninitializedMember
+    GsRetCapability() // Don't initialize members
+        : Payload(Command::GENERAL_SETTING_RET_CAPABILITY)
+    {
+    }
+
+public:
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        if (!Payload::isValid(buf))
+            return false;
+        if (buf[offsetof(Payload, command)] != static_cast<uint8_t>(Command::GENERAL_SETTING_RET_CAPABILITY))
+            return false;
+        size_t settingInfoSubjectLenIndex =
+            1 /*command*/ + 1 /*type*/ + 1 /*settingType*/ + 1 /*stringFormat*/;
+        if (buf.size() <= settingInfoSubjectLenIndex)
+            return false;
+        size_t settingInfoSubjectLen = buf[settingInfoSubjectLenIndex];
+        size_t settingInfoSummaryLenIndex =
+            settingInfoSubjectLenIndex + 1 /*subject.len*/ + settingInfoSubjectLen;
+        if (buf.size() <= settingInfoSummaryLenIndex)
+            return false;
+        size_t expectedTotalSize
+            = settingInfoSummaryLenIndex + 1 /*summary.len*/ + static_cast<size_t>(buf[settingInfoSummaryLenIndex]);
+        if (buf.size() < expectedTotalSize)
+            return false;
+        return GsSettingInfo::isValid(buf.subspan(3, expectedTotalSize - 3));
+    }
+
+    static GsRetCapability deserialize(const std::span<const uint8_t>& buf)
+    {
+        if (!isValid(buf))
+            throw std::runtime_error("Buffer invalid for GsRetCapability");
+
+        GsRetCapability cap;
+        cap.type = static_cast<GsInquiredType>(buf[1]);
+        cap.settingType = static_cast<GsSettingType>(buf[2]);
+        cap.settingInfo = GsSettingInfo::deserialize(buf.subspan(3));
+        return cap;
+    }
+
+    static void serialize(std::vector<uint8_t>& buf, const GsRetCapability& cap)
+    {
+        buf.push_back(static_cast<uint8_t>(Command::GENERAL_SETTING_RET_CAPABILITY));
+        buf.push_back(static_cast<uint8_t>(cap.type));
+        buf.push_back(static_cast<uint8_t>(cap.settingType));
+        GsSettingInfo::serialize(buf, cap.settingInfo);
+    }
+
+    static constexpr bool VARIABLE_SIZE = true;
+};
+
+#pragma pack(push, 1)
+
+// GENERAL_SETTING_*_PARAM
+
+// GENERAL_SETTING_GET_PARAM
+
+struct GsGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::GENERAL_SETTING_RET_PARAM;
+
+    GsInquiredType type; // 0x1
+
+    GsGetParam(GsInquiredType type)
+        : Payload(Command::GENERAL_SETTING_GET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(GsGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::GENERAL_SETTING_GET_PARAM)
+            && GsInquiredType_isValidByteCode(buf[offsetof(GsGetParam, type)]);
+    }
+};
+
+// GENERAL_SETTING_RET_PARAM, GENERAL_SETTING_SET_PARAM, GENERAL_SETTING_NTNY_PARAM
+
+struct GsParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::GENERAL_SETTING_RET_PARAM,
+        Command::GENERAL_SETTING_SET_PARAM,
+        Command::GENERAL_SETTING_NTNY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::GENERAL_SETTING_NTNY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    GsInquiredType type; // 0x1
+    GsSettingType settingType; // 0x2
+
+    GsParam(CommandType ct, GsInquiredType type, GsSettingType settingType)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+        , settingType(settingType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(GsParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && GsInquiredType_isValidByteCode(buf[offsetof(GsParam, type)]);
+    }
+};
+
+// - BOOLEAN_TYPE
+
+struct GsParamBoolean : GsParam
+{
+    GsSettingValue settingValue; // 0x3
+
+    GsParamBoolean(CommandType ct, GsInquiredType type, GsSettingValue settingValue)
+        : GsParam(ct, type, GsSettingType::BOOLEAN_TYPE)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return GsParam::isValid(buf, ct)
+            && buf.size() == sizeof(GsParamBoolean)
+            && buf[offsetof(GsParamBoolean, settingType)] == static_cast<uint8_t>(GsSettingType::BOOLEAN_TYPE)
+            && GsSettingValue_isValidByteCode(buf[offsetof(GsParamBoolean, settingValue)]);
+    }
+};
+
+// - LIST_TYPE
+
+struct GsParamList : GsParam
+{
+    uint8_t currentElementIndex; // 0x3, 0-63
+
+    GsParamList(CommandType ct, GsInquiredType type, uint8_t currentElementIndex)
+        : GsParam(ct, type, GsSettingType::LIST_TYPE)
+        , currentElementIndex(currentElementIndex)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return GsParam::isValid(buf, ct)
+            && buf.size() == sizeof(GsParamList)
+            && buf[offsetof(GsParamList, settingType)] == static_cast<uint8_t>(GsSettingType::LIST_TYPE)
+            && buf[offsetof(GsParamList, currentElementIndex)] <= 63;
+    }
 };
 
 } // namespace THMSGV2T1

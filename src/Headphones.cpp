@@ -70,6 +70,23 @@ void Headphones::waitForSupportFunction(int timeout)
     }
 }
 
+/*void Headphones::waitForResponse(int timeout)
+{
+    return waitForAck(timeout);
+    if (_conn.isConnected())
+    {
+        std::unique_lock lck(_ackMtx);
+        std::cv_status status = _responseCV.wait_for(lck, std::chrono::seconds(timeout));
+        if (status == std::cv_status::timeout)
+        {
+            printf("Timed out waiting for %s\n",
+                _waitForResponseDataType == DATA_TYPE::DATA_MDR ? THMSGV2T1::Command_toString(static_cast<THMSGV2T1::Command>(_waitForResponseCommandId))
+                    : _waitForResponseDataType == DATA_TYPE::DATA_MDR_NO2 ? THMSGV2T2::Command_toString(static_cast<THMSGV2T2::Command>(_waitForResponseCommandId))
+                        : "unknown command");
+        }
+    }
+}*/
+
 void Headphones::setChanges()
 {
     bool supportsLeftRightTouch = !supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3);
@@ -101,7 +118,6 @@ void Headphones::setChanges()
                 std::max(asmLevel.desired, 1)
             );
         }
-        waitForAck();
 
         std::lock_guard guard(this->_propertyMtx);
         draggingAsmLevel.fulfill();
@@ -198,11 +214,10 @@ void Headphones::setChanges()
     if (!mpEnabled.isFulfilled())
     {
         bool enabled = mpEnabled.desired;
-        this->_conn.sendCommand(
-            CommandSerializer::serializeMpToggle(enabled),
-            DATA_TYPE::DATA_MDR
+        sendSet<THMSGV2T1::GsParamBoolean>(
+            THMSGV2T1::GsInquiredType::GENERAL_SETTING2,
+            enabled ? THMSGV2T1::GsSettingValue::ON : THMSGV2T1::GsSettingValue::OFF
         );
-        waitForAck();
 
         this->_conn.sendCommand(
             CommandSerializer::serializeMpToggle2(enabled),
@@ -297,29 +312,26 @@ void Headphones::setChanges()
     {
         if (!touchSensorControlPanelEnabled.isFulfilled())
         {
-            this->_conn.sendCommand(
-                CommandSerializer::serializeTouchSensorControlPanelEnabled(touchSensorControlPanelEnabled.desired),
-                DATA_TYPE::DATA_MDR
+            sendSet<THMSGV2T1::GsParamBoolean>(
+                THMSGV2T1::GsInquiredType::GENERAL_SETTING3,
+                touchSensorControlPanelEnabled.desired ? THMSGV2T1::GsSettingValue::ON : THMSGV2T1::GsSettingValue::OFF
             );
-            waitForAck();
             touchSensorControlPanelEnabled.fulfill();
         }
 
         if (!ncAmbButtonMode.isFulfilled())
         {
             sendSet<THMSGV2T1::NcAsmParamNcAmbToggle>(ncAmbButtonMode.desired);
-            waitForAck();
             ncAmbButtonMode.fulfill();
         }
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1) && !voiceCapEnabled.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeOnCallVoiceCaptureSetting(voiceCapEnabled.desired),
-            DATA_TYPE::DATA_MDR
+        sendSet<THMSGV2T1::GsParamBoolean>(
+            THMSGV2T1::GsInquiredType::GENERAL_SETTING1,
+            voiceCapEnabled.desired ? THMSGV2T1::GsSettingValue::ON : THMSGV2T1::GsSettingValue::OFF
         );
-        waitForAck();
         voiceCapEnabled.fulfill();
     }
 }
@@ -330,29 +342,51 @@ void Headphones::requestInit()
     // NOTE: It's observed that playback metadata NOTIFYs (see _handleMessage) is sent by the device after this...
     sendGet<THMSGV2T1::ConnectGetProtocolInfo>(THMSGV2T1::ConnectInquiredType::FIXED_VALUE);
     waitForProtocolInfo(5);
+    if (!supportsTable1)
+    {
+        throw std::runtime_error("Unsupported device: does not support MDR V2 Table 1");
+    }
 
     /* Capability Info */
     sendGet<THMSGV2T1::ConnectGetCapabilityInfo>(THMSGV2T1::ConnectInquiredType::FIXED_VALUE);
-    waitForAck();
 
     // Following are cached by the app based on the MAC address
     {
         /* Firmware Info */
         sendGet<THMSGV2T1::ConnectGetDeviceInfo>(THMSGV2T1::DeviceInfoType::MODEL_NAME);
-        waitForAck();
-
         sendGet<THMSGV2T1::ConnectGetDeviceInfo>(THMSGV2T1::DeviceInfoType::FW_VERSION);
-        waitForAck();
-
         sendGet<THMSGV2T1::ConnectGetDeviceInfo>(THMSGV2T1::DeviceInfoType::SERIES_AND_COLOR_INFO);
-        waitForAck();
 
         /* Support Functions */
         sendGet<THMSGV2T1::ConnectGetSupportFunction>(THMSGV2T1::ConnectInquiredType::FIXED_VALUE);
         waitForSupportFunction(5);
+        if (supportsTable2)
+        {
+            sendGet<THMSGV2T2::ConnectGetSupportFunction>(THMSGV2T2::ConnectInquiredType::FIXED_VALUE);
+            waitForSupportFunction(5);
+        }
 
-        sendGet<THMSGV2T2::ConnectGetSupportFunction>(THMSGV2T2::ConnectInquiredType::FIXED_VALUE);
-        waitForSupportFunction(5);
+        /* Capabilities */
+        if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
+        {
+            sendGet<THMSGV2T1::GsGetCapability>(
+                THMSGV2T1::GsInquiredType::GENERAL_SETTING1, THMSGV2T1::DisplayLanguage::ENGLISH);
+        }
+        if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
+        {
+            sendGet<THMSGV2T1::GsGetCapability>(
+                THMSGV2T1::GsInquiredType::GENERAL_SETTING2, THMSGV2T1::DisplayLanguage::ENGLISH);
+        }
+        if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
+        {
+            sendGet<THMSGV2T1::GsGetCapability>(
+                THMSGV2T1::GsInquiredType::GENERAL_SETTING3, THMSGV2T1::DisplayLanguage::ENGLISH);
+        }
+        if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
+        {
+            sendGet<THMSGV2T1::GsGetCapability>(
+                THMSGV2T1::GsInquiredType::GENERAL_SETTING4, THMSGV2T1::DisplayLanguage::ENGLISH);
+        }
     }
 
     /* Playback Metadata */
@@ -375,31 +409,27 @@ void Headphones::requestInit()
     waitForAck();
 
     /* NC/ASM Params */
-    sendGet<THMSGV2T1::NcAsmParam>(
+    sendGet<THMSGV2T1::NcAsmGetParam>(
         supports(MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION) ?
             THMSGV2T1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA :
             THMSGV2T1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
     );
-    waitForAck();
 
-    /* Connected Devices */
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T2::Command::PERI_GET_PARAM),
-        0x02
-    }, DATA_TYPE::DATA_MDR_NO2);
-    waitForAck();
+    if (supportsTable2)
+    {
+        /* Connected Devices */
+        _conn.sendCommand(Buffer{
+            static_cast<uint8_t>(THMSGV2T2::Command::PERI_GET_PARAM),
+            0x02
+        }, DATA_TYPE::DATA_MDR_NO2);
+        waitForAck();
+    }
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::GENERAL_SETTING_GET_PARAM),
-        static_cast<uint8_t>(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2) // Multipoint enabled
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    /* Multipoint enabled */
+    sendGet<THMSGV2T1::GsGetParam>(THMSGV2T1::GsInquiredType::GENERAL_SETTING2);
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::GENERAL_SETTING_GET_PARAM),
-        static_cast<uint8_t>(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1) // Voice Capture enabled
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    /* Voice Capture enabled */
+    sendGet<THMSGV2T1::GsGetParam>(THMSGV2T1::GsInquiredType::GENERAL_SETTING1);
 
     /* Speak to chat */
     _conn.sendCommand(Buffer{
@@ -441,18 +471,9 @@ void Headphones::requestInit()
     }
     else
     {
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::GENERAL_SETTING_GET_PARAM),
-            static_cast<uint8_t>(THMSGV2T1::GsInquiredType::GENERAL_SETTING3) // Touch sensor control panel enabled
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
-
-        sendGet<THMSGV2T1::NcAsmParam>(THMSGV2T1::NcAsmInquiredType::NC_AMB_TOGGLE);
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::NCASM_GET_PARAM),
-            static_cast<uint8_t>(THMSGV2T1::NcAsmInquiredType::NC_AMB_TOGGLE)
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
+        /* Touch sensor control panel enabled */
+        sendGet<THMSGV2T1::GsGetParam>(THMSGV2T1::GsInquiredType::GENERAL_SETTING3);
+        sendGet<THMSGV2T1::NcAsmGetParam>(THMSGV2T1::NcAsmInquiredType::NC_AMB_TOGGLE);
     }
 
     /* Equalizer */
@@ -473,7 +494,6 @@ void Headphones::requestInit()
 
     /* Misc Params */
     sendGet<THMSGV2T1::PowerGetParam>(THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION);
-    waitForAck();
 
     _conn.sendCommand(Buffer{
         static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_GET_PARAM),
@@ -481,17 +501,20 @@ void Headphones::requestInit()
     }, DATA_TYPE::DATA_MDR);
     waitForAck();
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_GET_PARAM),
-        0x01 // Voice Guidance Enabled
-    }, DATA_TYPE::DATA_MDR_NO2);
-    waitForAck();
+    if (supportsTable2)
+    {
+        _conn.sendCommand(Buffer{
+           static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_GET_PARAM),
+           0x01 // Voice Guidance Enabled
+       }, DATA_TYPE::DATA_MDR_NO2);
+        waitForAck();
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_GET_PARAM),
-        0x20 // Voice Guidance Volume
-    }, DATA_TYPE::DATA_MDR_NO2);
-    waitForAck();
+        _conn.sendCommand(Buffer{
+            static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_GET_PARAM),
+            0x20 // Voice Guidance Volume
+        }, DATA_TYPE::DATA_MDR_NO2);
+        waitForAck();
+    }
 
 #ifdef _DEBUG
     _conn.sendCommand(Buffer{
@@ -517,22 +540,34 @@ void Headphones::requestSync()
     // Some values are taken from:
     // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
 
-    /* Battery */
-    if (supports(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
-    {
-        sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::LEFT_RIGHT_BATTERY);
-        waitForAck();
-
-        if (supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
-        {
-            sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::CRADLE_BATTERY);
-            waitForAck();
-        }
-    }
-    else
+    /* Single Battery */
+    if (supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
     {
         sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::BATTERY);
-        waitForAck();
+    }
+    else if (supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+    {
+        sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::BATTERY_WITH_THRESHOLD);
+    }
+
+    /* L+R Battery */
+    if (supports(MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+    {
+        sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::LEFT_RIGHT_BATTERY);
+    }
+    else if (supports(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+    {
+        sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::LR_BATTERY_WITH_THRESHOLD);
+    }
+
+    /* Case Battery */
+    if (supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+    {
+        sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::CRADLE_BATTERY);
+    }
+    else if (supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+    {
+        sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD);
     }
 
     /* Playback */
@@ -578,7 +613,6 @@ void Headphones::requestPowerOff()
     if (supports(MessageMdrV2FunctionType_Table1::POWER_OFF))
     {
         sendSet<THMSGV2T1::PowerSetStatusPowerOff>(THMSGV2T1::PowerOffSettingValue::USER_POWER_OFF);
-        waitForAck();
     }
 }
 
@@ -589,10 +623,13 @@ HeadphonesEvent Headphones::_handleProtocolInfo(const HeadphonesMessage& msg)
     auto payload = msg.as<THMSGV2T1::ConnectRetProtocolInfo>();
 
     protocolVersion = payload->getProtocolVersion();
+    supportsTable1 = payload->supportTable1Value;
+    supportsTable2 = payload->supportTable2Value;
+
     deviceCapabilities = DC_None;
 
-    if (protocolVersion >= 0x03002017)
-    { // WF-1000XM5
+    if (protocolVersion >= 0x03002008) // WF-1000XM5
+    {
         deviceCapabilities |= DC_EqualizerAvailableCommand;
     }
 
@@ -751,27 +788,62 @@ HeadphonesEvent Headphones::_handleBatteryLevelRet(const HeadphonesMessage& msg)
     {
     case THMSGV2T1::PowerInquiredType::BATTERY:
     {
-        auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusBattery>();
-        statBatteryL.overwrite(payloadSub->batteryLevel);
-        return HeadphonesEvent::BatteryLevelUpdate;
+        if (supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusBattery>();
+            statBatteryL.overwrite(BatteryData{ payloadSub->batteryLevel, payloadSub->chargingStatus, 0xFF });
+            return HeadphonesEvent::BatteryLevelUpdate;
+        }
+        break;
     }
     case THMSGV2T1::PowerInquiredType::LEFT_RIGHT_BATTERY:
     {
-        if (supports(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+        if (supports(MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
         {
             auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusLeftRightBattery>();
-            statBatteryL.overwrite(payloadSub->leftBatteryLevel);
-            statBatteryR.overwrite(payloadSub->rightBatteryLevel);
+            statBatteryL.overwrite(BatteryData{ payloadSub->leftBatteryLevel, payloadSub->leftChargingStatus, 0xFF });
+            statBatteryR.overwrite(BatteryData{ payloadSub->rightBatteryLevel, payloadSub->rightChargingStatus, 0xFF });
             return HeadphonesEvent::BatteryLevelUpdate;
         }
         break;
     }
     case THMSGV2T1::PowerInquiredType::CRADLE_BATTERY:
     {
-        if (supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+        if (supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
         {
             auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusCradleBattery>();
-            statBatteryCase.overwrite(payloadSub->batteryLevel);
+            statBatteryCase.overwrite(BatteryData{ payloadSub->batteryLevel, payloadSub->chargingStatus, 0xFF });
+            return HeadphonesEvent::BatteryLevelUpdate;
+        }
+        break;
+    }
+    case THMSGV2T1::PowerInquiredType::BATTERY_WITH_THRESHOLD:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusBatteryThreshold>();
+            statBatteryL.overwrite(BatteryData{ payloadSub->batteryLevel, payloadSub->chargingStatus, payloadSub->batteryThreshold });
+            return HeadphonesEvent::BatteryLevelUpdate;
+        }
+        break;
+    }
+    case THMSGV2T1::PowerInquiredType::LR_BATTERY_WITH_THRESHOLD:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusLeftRightBatteryThreshold>();
+            statBatteryL.overwrite(BatteryData{ payloadSub->leftBatteryLevel, payloadSub->leftChargingStatus, payloadSub->leftBatteryThreshold });
+            statBatteryR.overwrite(BatteryData{ payloadSub->rightBatteryLevel, payloadSub->rightChargingStatus, payloadSub->rightBatteryThreshold });
+            return HeadphonesEvent::BatteryLevelUpdate;
+        }
+        break;
+    }
+    case THMSGV2T1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::PowerRetStatusCradleBatteryThreshold>();
+            statBatteryCase.overwrite(BatteryData{ payloadSub->batteryLevel, payloadSub->chargingStatus, payloadSub->batteryThreshold });
             return HeadphonesEvent::BatteryLevelUpdate;
         }
         break;
@@ -867,6 +939,10 @@ HeadphonesEvent Headphones::_handleMultipointDevice(const HeadphonesMessage& msg
 
 HeadphonesEvent Headphones::_handleConnectedDevices(const HeadphonesMessage& msg)
 {
+    if (modelName.current == "WF-C510")
+    {
+        return HeadphonesEvent::NoChange; // @FIXME Assertion error when using WF-C510
+    }
     if (msg[3] == 0x00)
         return HeadphonesEvent::NoChange;
 
@@ -905,6 +981,37 @@ HeadphonesEvent Headphones::_handlePlaybackStatusControl(const HeadphonesMessage
     case PLAYBACK_CONTROL_RESPONSE::PAUSE:
         playPause.overwrite(false);
         return HeadphonesEvent::PlaybackPlayPauseUpdate;
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
+HeadphonesEvent Headphones::_handleGsCapability(const HeadphonesMessage& msg)
+{
+    THMSGV2T1::GsInquiredType type = static_cast<THMSGV2T1::GsInquiredType>(msg[1]);
+    switch (type)
+    {
+    case THMSGV2T1::GsInquiredType::GENERAL_SETTING1:
+    case THMSGV2T1::GsInquiredType::GENERAL_SETTING2:
+    case THMSGV2T1::GsInquiredType::GENERAL_SETTING3:
+    case THMSGV2T1::GsInquiredType::GENERAL_SETTING4:
+    {
+        auto payloadSub = THMSGV2T1::GsRetCapability::deserialize(msg);
+        std::cout << "Capability for " << (type == THMSGV2T1::GsInquiredType::GENERAL_SETTING1 ? "GS1" :
+            type == THMSGV2T1::GsInquiredType::GENERAL_SETTING2 ? "GS2" :
+            type == THMSGV2T1::GsInquiredType::GENERAL_SETTING3 ? "GS3" :
+            type == THMSGV2T1::GsInquiredType::GENERAL_SETTING4 ? "GS4" : "Unknown")
+            << ":" << std::endl;
+        std::cout << "Setting type: " << (payloadSub.settingType == THMSGV2T1::GsSettingType::BOOLEAN_TYPE ? "Boolean" :
+            payloadSub.settingType == THMSGV2T1::GsSettingType::LIST_TYPE ? "List" : "Unknown")
+            << std::endl;
+        std::cout << "Setting info:" << std::endl;
+        std::cout << "  String format: " << (payloadSub.settingInfo.stringFormat == THMSGV2T1::GsStringFormat::RAW_NAME ? "Raw Name" :
+            payloadSub.settingInfo.stringFormat == THMSGV2T1::GsStringFormat::ENUM_NAME ? "Enum Name" : "Unknown")
+            << std::endl;
+        std::cout << "  Subject: " << payloadSub.settingInfo.subject << std::endl;
+        std::cout << "  Summary: " << payloadSub.settingInfo.summary << std::endl;
+        return HeadphonesEvent::DeviceInfoUpdate;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -1139,6 +1246,9 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case Command::PLAY_NTFY_STATUS:
             result = _handlePlaybackStatusControl(msg);
             break;
+        case Command::GENERAL_SETTING_RET_CAPABILITY:
+            result = _handleGsCapability(msg);
+            break;
         case Command::GENERAL_SETTING_RET_PARAM:
         case Command::GENERAL_SETTING_NTNY_PARAM:
             result = _handleMultipointEtcEnable(msg);
@@ -1170,6 +1280,13 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             // Command type not recognized
             break;
         }
+        /*if (_waitForResponseDataType == DATA_TYPE::DATA_MDR
+            && _waitForResponseCommandId == static_cast<uint8_t>(command))
+        {
+            _waitForResponseDataType = DATA_TYPE::UNKNOWN;
+            _waitForResponseCommandId = 0xFF;
+            _responseCV.notify_one();
+        }*/
         _conn.sendAck(msg.getSeqNumber());
         break;
     }
@@ -1198,6 +1315,13 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             // Command type not recognized
             break;
         }
+        /*if (_waitForResponseDataType == DATA_TYPE::DATA_MDR_NO2
+            && _waitForResponseCommandId == static_cast<uint8_t>(command))
+        {
+            _waitForResponseDataType = DATA_TYPE::UNKNOWN;
+            _waitForResponseCommandId = 0xFF;
+            _responseCV.notify_one();
+        }*/
         _conn.sendAck(msg.getSeqNumber());
         break;
     }
@@ -1228,6 +1352,7 @@ void Headphones::disconnect()
     _ackCV.notify_all();
     _protocolInfoCV.notify_all();
     _supportFunctionCV.notify_all();
+    // _responseCV.notify_all();
 }
 
 Headphones::~Headphones()

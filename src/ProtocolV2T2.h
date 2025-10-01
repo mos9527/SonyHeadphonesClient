@@ -255,6 +255,8 @@ inline bool ConnectInquiredType_isValidByteCode(uint8_t type)
 
 struct ConnectGetSupportFunction : Payload
 {
+    static constexpr Command RESPONSE_COMMAND_ID = Command::CONNECT_RET_SUPPORT_FUNCTION;
+
     ConnectInquiredType inquiredType; // 0x1
 
     ConnectGetSupportFunction(ConnectInquiredType inquiredType)

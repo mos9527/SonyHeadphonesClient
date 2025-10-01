@@ -234,18 +234,34 @@ void App::_drawControls()
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             {
-                if (_headphones->supports(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD)) {
-                    ImGui::Text("L:"); ImGui::SameLine();
-                    ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0f);
-                    ImGui::Text("R:"); ImGui::SameLine();
-                    ImGui::ProgressBar(_headphones->statBatteryR.current / 100.0f);
-                    if (_headphones->supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD)) {
-                        ImGui::Text("Case:"); ImGui::SameLine();
-                        ImGui::ProgressBar(_headphones->statBatteryCase.current / 100.0f);
+                auto drawBatteryProgressBar = [](const Headphones::BatteryData& battery, const char* label) {
+                    ImGui::Text("%s:", label); ImGui::SameLine();
+                    std::string levelStr = std::to_string(battery.level) + "%";
+                    THMSGV2T1::BatteryChargingStatus cs = battery.chargingStatus;
+                    if (cs != THMSGV2T1::BatteryChargingStatus::NOT_CHARGING && cs != THMSGV2T1::BatteryChargingStatus::UNKNOWN) {
+                        static const std::map<THMSGV2T1::BatteryChargingStatus, const char*> statusMap = {
+                            { THMSGV2T1::BatteryChargingStatus::CHARGING, " (Charging)" },
+                            { THMSGV2T1::BatteryChargingStatus::CHARGED, " (Charged)" }
+                        };
+                        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.0f, 0.8f, 0.0f, 1.0f));
+                        ImGui::ProgressBar(battery.level / 100.0f, ImVec2(-1, 0), (levelStr + statusMap.at(cs)).c_str());
+                        ImGui::PopStyleColor();
+                    } else {
+                        ImGui::ProgressBar(battery.level / 100.0f, ImVec2(-1, 0), levelStr.c_str());
                     }
-                } else {
-                    ImGui::Text("Battery:"); ImGui::SameLine();
-                    ImGui::ProgressBar(_headphones->statBatteryL.current / 100.0f);
+                };
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR)
+                    || _headphones->supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD)) {
+                    drawBatteryProgressBar(_headphones->statBatteryL.current, "Battery");
+                }
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR)
+                    || _headphones->supports(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD)) {
+                    drawBatteryProgressBar(_headphones->statBatteryL.current, "L");
+                    drawBatteryProgressBar(_headphones->statBatteryR.current, "R");
+                }
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR)
+                    || _headphones->supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD)) {
+                    drawBatteryProgressBar(_headphones->statBatteryCase.current, "Case");
                 }
             }
             ImGui::TableSetColumnIndex(1);
@@ -364,10 +380,13 @@ void App::_drawControls()
                 ListeningMode effectiveMode = _headphones->listeningModeConfig.current.getEffectiveMode();
 
                 // Standard
-                bool radioChanged = ImGui::RadioButton("Standard", (int*)&effectiveMode, (int)ListeningMode::Standard);
+                bool radioChanged = false;
+                if (radioChanged |= ImGui::RadioButton("Standard", effectiveMode == ListeningMode::Standard))
+                    effectiveMode = ListeningMode::Standard;
 
                 // BGM
-                radioChanged |= ImGui::RadioButton("BGM", (int*)&effectiveMode, (int)ListeningMode::BGM);
+                if (radioChanged |= ImGui::RadioButton("BGM", effectiveMode == ListeningMode::BGM))
+                    effectiveMode = ListeningMode::BGM;
                 ImGui::Indent();
                 ImGui::BeginDisabled(!_headphones->listeningModeConfig.current.bgmActive);
 
@@ -394,7 +413,8 @@ void App::_drawControls()
                 ImGui::Unindent();
 
                 // Cinema
-                radioChanged |= ImGui::RadioButton("Cinema", (int*)&effectiveMode, (int)ListeningMode::Cinema);
+                if (radioChanged |= ImGui::RadioButton("Cinema", effectiveMode == ListeningMode::Cinema))
+                    effectiveMode = ListeningMode::Cinema;
 
                 if (radioChanged) {
                     _headphones->listeningModeConfig.desired.bgmActive = effectiveMode == ListeningMode::BGM;
