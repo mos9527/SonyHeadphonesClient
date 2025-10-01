@@ -76,7 +76,7 @@ sudo dnf install bluez-libs-devel dbus-devel
 sudo pacman -S bluez dbus
 ```
 
-You can then build the app with CMake, with a C++20 compliant compiler installed.
+You can then build the app with CMake, with a C++23 compliant compiler installed.
 ```
 cd Client
 mkdir build
