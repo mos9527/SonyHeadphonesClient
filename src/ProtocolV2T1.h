@@ -372,7 +372,7 @@ struct Payload
     static constexpr bool VARIABLE_SIZE_ONE_ARRAY_AT_END = false;
 };
 
-// === CONNECT ===
+// region CONNECT
 
 enum class ConnectInquiredType : uint8_t
 {
@@ -389,7 +389,9 @@ inline bool ConnectInquiredType_isValidByteCode(uint8_t type)
     return false;
 }
 
-// CONNECT_GET_PROTOCOL_INFO
+// region CONNECT_*_PROTOCOL_INFO
+
+// region CONNECT_GET_PROTOCOL_INFO
 
 struct ConnectGetProtocolInfo : Payload
 {
@@ -411,7 +413,9 @@ struct ConnectGetProtocolInfo : Payload
     }
 };
 
-// CONNECT_RET_PROTOCOL_INFO
+// endregion CONNECT_GET_PROTOCOL_INFO
+
+// region CONNECT_RET_PROTOCOL_INFO
 
 struct ConnectRetProtocolInfo : Payload
 {
@@ -446,9 +450,13 @@ struct ConnectRetProtocolInfo : Payload
     }
 };
 
-// CONNECT_*_CAPABILITY_INFO
+// endregion CONNECT_RET_PROTOCOL_INFO
 
-// CONNECT_GET_CAPABILITY_INFO
+// endregion CONNECT_*_PROTOCOL_INFO
+
+// region CONNECT_*_CAPABILITY_INFO
+
+// region CONNECT_GET_CAPABILITY_INFO
 
 struct ConnectGetCapabilityInfo : Payload
 {
@@ -470,7 +478,11 @@ struct ConnectGetCapabilityInfo : Payload
     }
 };
 
-// CONNECT_*_DEVICE_INFO
+// endregion CONNECT_GET_CAPABILITY_INFO
+
+// endregion CONNECT_*_CAPABILITY_INFO
+
+// region CONNECT_*_DEVICE_INFO
 
 enum class DeviceInfoType : uint8_t
 {
@@ -528,7 +540,7 @@ inline bool ModelSeries_isValidByteCode(uint8_t type)
     return false;
 }
 
-// CONNECT_GET_DEVICE_INFO
+// region CONNECT_GET_DEVICE_INFO
 
 struct ConnectGetDeviceInfo : Payload
 {
@@ -550,7 +562,9 @@ struct ConnectGetDeviceInfo : Payload
     }
 };
 
-// CONNECT_RET_DEVICE_INFO
+// endregion CONNECT_GET_DEVICE_INFO
+
+// region CONNECT_RET_DEVICE_INFO
 
 struct ConnectRetDeviceInfo : Payload
 {
@@ -658,7 +672,13 @@ struct ConnectRetDeviceInfoSeriesAndColor : ConnectRetDeviceInfo
     }
 };
 
-// CONNECT_GET_SUPPORT_FUNCTION
+// endregion CONNECT_RET_DEVICE_INFO
+
+// endregion CONNECT_*_DEVICE_INFO
+
+// region CONNECT_*_SUPPORT_FUNCTION
+
+// region CONNECT_GET_SUPPORT_FUNCTION
 
 struct ConnectGetSupportFunction : Payload
 {
@@ -679,6 +699,10 @@ struct ConnectGetSupportFunction : Payload
             && buf[offsetof(ConnectGetSupportFunction, inquiredType)] == static_cast<uint8_t>(ConnectInquiredType::FIXED_VALUE);
     }
 };
+
+// endregion CONNECT_GET_SUPPORT_FUNCTION
+
+// region CONNECT_RET_SUPPORT_FUNCTION
 
 struct ConnectRetSupportFunction : Payload
 {
@@ -715,7 +739,15 @@ public:
     }
 };
 
-// POWER_*_STATUS
+// endregion CONNECT_RET_SUPPORT_FUNCTION
+
+// endregion CONNECT_*_SUPPORT_FUNCTION
+
+// endregion CONNECT
+
+// region POWER
+
+// region POWER_*_STATUS
 
 enum class PowerInquiredType : uint8_t
 {
@@ -762,7 +794,7 @@ inline bool PowerInquiredType_isValidByteCode(uint8_t type)
     return false;
 }
 
-// POWER_GET_STATUS
+// region POWER_GET_STATUS
 
 struct PowerGetStatus : Payload
 {
@@ -795,7 +827,9 @@ struct PowerGetStatus : Payload
     }
 };
 
-// POWER_RET_STATUS
+// endregion POWER_GET_STATUS
+
+// region POWER_RET_STATUS
 
 struct PowerRetStatus : Payload
 {
@@ -1043,7 +1077,9 @@ struct PowerRetStatusCradleBatteryThreshold : PowerRetStatusBatteryThresholdBase
     }
 };
 
-// POWER_SET_STATUS
+// endregion POWER_RET_STATUS
+
+// region POWER_SET_STATUS
 
 struct PowerSetStatus : Payload
 {
@@ -1101,9 +1137,13 @@ struct PowerSetStatusPowerOff : PowerSetStatus
     }
 };
 
-// POWER_*_PARAM
+// endregion POWER_SET_STATUS
 
-// POWER_GET_PARAM
+// endregion POWER_*_STATUS
+
+// region POWER_*_PARAM
+
+// region POWER_GET_PARAM
 
 struct PowerGetParam : Payload
 {
@@ -1141,22 +1181,37 @@ struct PowerGetParam : Payload
     }
 };
 
-// POWER_RET_PARAM
+// endregion POWER_GET_PARAM
 
-struct PowerRetParam : Payload
+// region POWER_RET_PARAM, POWER_SET_PARAM, POWER_NTFY_PARAM
+
+struct PowerParam : Payload
 {
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::POWER_RET_PARAM,
+        Command::POWER_SET_PARAM,
+        Command::POWER_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::POWER_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
     PowerInquiredType type; // 0x1
 
-    PowerRetParam(PowerInquiredType type)
-        : Payload(Command::POWER_RET_PARAM)
+    PowerParam(CommandType ct, PowerInquiredType type)
+        : Payload(COMMAND_IDS[ct])
         , type(type)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
         return Payload::isValid(buf)
-            && buf.size() >= sizeof(PowerRetParam)
-            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::POWER_RET_PARAM);
+            && buf.size() >= sizeof(PowerParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct]);
     }
 };
 
@@ -1187,24 +1242,24 @@ inline bool AutoPowerOffElements_isValidByteCode(uint8_t value)
     return false;
 }
 
-struct PowerRetParamAutoPowerOff : PowerRetParam
+struct PowerParamAutoPowerOff : PowerParam
 {
     AutoPowerOffElements currentPowerOffElements; // 0x2
     AutoPowerOffElements lastSelectPowerOffElements; // 0x3
 
-    PowerRetParamAutoPowerOff(AutoPowerOffElements current, AutoPowerOffElements lastSelect)
-        : PowerRetParam(PowerInquiredType::AUTO_POWER_OFF)
+    PowerParamAutoPowerOff(CommandType ct, AutoPowerOffElements current, AutoPowerOffElements lastSelect)
+        : PowerParam(ct, PowerInquiredType::AUTO_POWER_OFF)
         , currentPowerOffElements(current)
         , lastSelectPowerOffElements(lastSelect)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return PowerRetParam::isValid(buf)
-            && buf.size() == sizeof(PowerRetParamAutoPowerOff)
-            && buf[offsetof(PowerRetParamAutoPowerOff, type)] == static_cast<uint8_t>(PowerInquiredType::AUTO_POWER_OFF)
-            && AutoPowerOffElements_isValidByteCode(buf[offsetof(PowerRetParamAutoPowerOff, currentPowerOffElements)])
-            && AutoPowerOffElements_isValidByteCode(buf[offsetof(PowerRetParamAutoPowerOff, lastSelectPowerOffElements)]);
+        return PowerParam::isValid(buf, ct)
+            && buf.size() == sizeof(PowerParamAutoPowerOff)
+            && buf[offsetof(PowerParamAutoPowerOff, type)] == static_cast<uint8_t>(PowerInquiredType::AUTO_POWER_OFF)
+            && AutoPowerOffElements_isValidByteCode(buf[offsetof(PowerParamAutoPowerOff, currentPowerOffElements)])
+            && AutoPowerOffElements_isValidByteCode(buf[offsetof(PowerParamAutoPowerOff, lastSelectPowerOffElements)]);
     }
 };
 
@@ -1237,46 +1292,46 @@ inline bool AutoPowerOffWearingDetectionElements_isValidByteCode(uint8_t value)
     return false;
 }
 
-struct PowerRetParamAutoPowerOffWithWearingDetection : PowerRetParam
+struct PowerParamAutoPowerOffWithWearingDetection : PowerParam
 {
     AutoPowerOffWearingDetectionElements currentPowerOffElements; // 0x2
     AutoPowerOffWearingDetectionElements lastSelectPowerOffElements; // 0x3
 
-    PowerRetParamAutoPowerOffWithWearingDetection(
-        AutoPowerOffWearingDetectionElements current, AutoPowerOffWearingDetectionElements lastSelect
+    PowerParamAutoPowerOffWithWearingDetection(
+        CommandType ct, AutoPowerOffWearingDetectionElements current, AutoPowerOffWearingDetectionElements lastSelect
     )
-        : PowerRetParam(PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION)
+        : PowerParam(ct, PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION)
         , currentPowerOffElements(current)
         , lastSelectPowerOffElements(lastSelect)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return PowerRetParam::isValid(buf)
-            && buf.size() == sizeof(PowerRetParamAutoPowerOffWithWearingDetection)
-            && buf[offsetof(PowerRetParamAutoPowerOffWithWearingDetection, type)] == static_cast<uint8_t>(PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION)
-            && AutoPowerOffWearingDetectionElements_isValidByteCode(buf[offsetof(PowerRetParamAutoPowerOffWithWearingDetection, currentPowerOffElements)])
-            && AutoPowerOffWearingDetectionElements_isValidByteCode(buf[offsetof(PowerRetParamAutoPowerOffWithWearingDetection, lastSelectPowerOffElements)]);
+        return PowerParam::isValid(buf, ct)
+            && buf.size() == sizeof(PowerParamAutoPowerOffWithWearingDetection)
+            && buf[offsetof(PowerParamAutoPowerOffWithWearingDetection, type)] == static_cast<uint8_t>(PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION)
+            && AutoPowerOffWearingDetectionElements_isValidByteCode(buf[offsetof(PowerParamAutoPowerOffWithWearingDetection, currentPowerOffElements)])
+            && AutoPowerOffWearingDetectionElements_isValidByteCode(buf[offsetof(PowerParamAutoPowerOffWithWearingDetection, lastSelectPowerOffElements)]);
     }
 };
 
 // - POWER_SAVE_MODE, CARING_CHARGE, BT_STANDBY, STAMINA, AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
 
-struct PowerRetParamSettingOnOff : PowerRetParam
+struct PowerParamSettingOnOff : PowerParam
 {
     MessageMdrV2OnOffSettingValue onOffSetting; // 0x2
 
-    PowerRetParamSettingOnOff(PowerInquiredType type, MessageMdrV2OnOffSettingValue onOffSetting)
-        : PowerRetParam(type)
+    PowerParamSettingOnOff(CommandType ct, PowerInquiredType type, MessageMdrV2OnOffSettingValue onOffSetting)
+        : PowerParam(ct, type)
         , onOffSetting(onOffSetting)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return PowerRetParam::isValid(buf)
-            && buf.size() == sizeof(PowerRetParamSettingOnOff)
-            && isValidInquiredType(static_cast<PowerInquiredType>(buf[offsetof(PowerRetParamSettingOnOff, type)]))
-            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PowerRetParamSettingOnOff, onOffSetting)]);
+        return PowerParam::isValid(buf, ct)
+            && buf.size() == sizeof(PowerParamSettingOnOff)
+            && isValidInquiredType(static_cast<PowerInquiredType>(buf[offsetof(PowerParamSettingOnOff, type)]))
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PowerParamSettingOnOff, onOffSetting)]);
     }
 
     static bool isValidInquiredType(PowerInquiredType type)
@@ -1291,26 +1346,36 @@ struct PowerRetParamSettingOnOff : PowerRetParam
 
 // - BATTERY_SAFE_MODE
 
-struct PowerRetParamBatterySafeMode : PowerRetParam
+struct PowerParamBatterySafeMode : PowerParam
 {
     MessageMdrV2OnOffSettingValue onOffSettingValue; // 0x2
     MessageMdrV2OnOffSettingValue effectStatus; // 0x3
 
-    PowerRetParamBatterySafeMode(MessageMdrV2OnOffSettingValue onOffSettingValue, MessageMdrV2OnOffSettingValue effectStatus)
-        : PowerRetParam(PowerInquiredType::BATTERY_SAFE_MODE)
+    PowerParamBatterySafeMode(
+        CommandType ct, MessageMdrV2OnOffSettingValue onOffSettingValue, MessageMdrV2OnOffSettingValue effectStatus
+    )
+        : PowerParam(ct, PowerInquiredType::BATTERY_SAFE_MODE)
         , onOffSettingValue(onOffSettingValue)
         , effectStatus(effectStatus)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return PowerRetParam::isValid(buf)
-            && buf.size() == sizeof(PowerRetParamBatterySafeMode)
-            && buf[offsetof(PowerRetParamBatterySafeMode, type)] == static_cast<uint8_t>(PowerInquiredType::BATTERY_SAFE_MODE)
-            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PowerRetParamBatterySafeMode, onOffSettingValue)])
-            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PowerRetParamBatterySafeMode, effectStatus)]);
+        return PowerParam::isValid(buf, ct)
+            && buf.size() == sizeof(PowerParamBatterySafeMode)
+            && buf[offsetof(PowerParamBatterySafeMode, type)] == static_cast<uint8_t>(PowerInquiredType::BATTERY_SAFE_MODE)
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PowerParamBatterySafeMode, onOffSettingValue)])
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PowerParamBatterySafeMode, effectStatus)]);
     }
 };
+
+// endregion POWER_RET_PARAM, POWER_SET_PARAM, POWER_NTFY_PARAM
+
+// endregion POWER_*_PARAM
+
+// endregion POWER
+
+// region NC_ASM
 
 enum class NcAsmInquiredType : uint8_t
 {
@@ -1583,7 +1648,9 @@ inline void NcAmbButtonMode_ToStates(Function mode, bool* nc, bool* amb, bool* o
     }
 }
 
-// NCASM_GET_PARAM
+// region NCASM_*_PARAM
+
+// region NCASM_GET_PARAM
 
 struct NcAsmGetParam : Payload
 {
@@ -1605,7 +1672,9 @@ struct NcAsmGetParam : Payload
     }
 };
 
-// NCASM_RET_PARAM, NCASM_SET_PARAM, NCASM_NOTIFY_PARAM
+// endregion NCASM_GET_PARAM
+
+// region NCASM_RET_PARAM, NCASM_SET_PARAM, NCASM_NOTIFY_PARAM
 
 struct NcAsmParam : Payload
 {
@@ -1807,7 +1876,13 @@ struct NcAsmParamNcAmbToggle : NcAsmParam
     }
 };
 
-// === GENERAL_SETTING ===
+// endregion NCASM_RET_PARAM, NCASM_SET_PARAM, NCASM_NOTIFY_PARAM
+
+// endregion NCASM_*_PARAM
+
+// endregion NC_ASM
+
+// region GENERAL_SETTING
 
 enum class GsInquiredType : uint8_t
 {
@@ -1864,7 +1939,7 @@ inline bool GsSettingValue_isValidByteCode(uint8_t value)
     return false;
 }
 
-// GENERAL_SETTING_*_CAPABILITY
+// region GENERAL_SETTING_*_CAPABILITY
 
 enum class DisplayLanguage : uint8_t
 {
@@ -1913,7 +1988,7 @@ inline bool DisplayLanguage_isValidByteCode(uint8_t lang)
     return false;
 }
 
-// GENERAL_SETTING_GET_CAPABILITY
+// region GENERAL_SETTING_GET_CAPABILITY
 
 struct GsGetCapability : Payload
 {
@@ -1938,7 +2013,9 @@ struct GsGetCapability : Payload
     }
 };
 
-// GENERAL_SETTING_RET_CAPABILITY
+// endregion GENERAL_SETTING_GET_CAPABILITY
+
+// region GENERAL_SETTING_RET_CAPABILITY
 
 #pragma pack(pop)
 
@@ -2055,9 +2132,13 @@ public:
 
 #pragma pack(push, 1)
 
-// GENERAL_SETTING_*_PARAM
+// endregion GENERAL_SETTING_RET_CAPABILITY
 
-// GENERAL_SETTING_GET_PARAM
+// endregion GENERAL_SETTING_*_CAPABILITY
+
+// region GENERAL_SETTING_*_PARAM
+
+// region GENERAL_SETTING_GET_PARAM
 
 struct GsGetParam : Payload
 {
@@ -2079,7 +2160,9 @@ struct GsGetParam : Payload
     }
 };
 
-// GENERAL_SETTING_RET_PARAM, GENERAL_SETTING_SET_PARAM, GENERAL_SETTING_NTNY_PARAM
+// endregion GENERAL_SETTING_GET_PARAM
+
+// region GENERAL_SETTING_RET_PARAM, GENERAL_SETTING_SET_PARAM, GENERAL_SETTING_NTNY_PARAM
 
 struct GsParam : Payload
 {
@@ -2153,6 +2236,12 @@ struct GsParamList : GsParam
             && buf[offsetof(GsParamList, currentElementIndex)] <= 63;
     }
 };
+
+// endregion GENERAL_SETTING_RET_PARAM, GENERAL_SETTING_SET_PARAM, GENERAL_SETTING_NTNY_PARAM
+
+// endregion GENERAL_SETTING_*_PARAM
+
+// endregion GENERAL_SETTING
 
 } // namespace THMSGV2T1
 

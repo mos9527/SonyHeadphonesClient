@@ -62,8 +62,8 @@ bool Headphones::supportsSafeListening() const
 bool Headphones::supportsAutoPowerOff() const
 {
     using F1 = MessageMdrV2FunctionType_Table1;
-    return supports(F1::AUTO_POWER_OFF)
-        || supports(F1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
+    return /*supports(F1::AUTO_POWER_OFF)
+        ||*/ supports(F1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
 }
 
 bool Headphones::isChanged()
@@ -204,11 +204,12 @@ void Headphones::setChanges()
 
     if (supportsAutoPowerOff() && !autoPowerOffEnabled.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeAutoPowerOffSetting(autoPowerOffEnabled.desired),
-            DATA_TYPE::DATA_MDR
+        sendSet<THMSGV2T1::PowerParamAutoPowerOffWithWearingDetection>(
+            /*currentPowerOffElements*/ autoPowerOffEnabled.desired
+                ? THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS
+                : THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_DISABLE,
+            /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN
         );
-        waitForAck();
 
         this->autoPowerOffEnabled.fulfill();
     }
@@ -1093,14 +1094,14 @@ HeadphonesEvent Headphones::_handleSafeListeningExtendedParam(const HeadphonesMe
 
 HeadphonesEvent Headphones::_handlePowerParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    auto payload = msg.as<THMSGV2T1::PowerRetParam>();
+    auto payload = msg.as<THMSGV2T1::PowerParam>(ct);
     switch (payload->type)
     {
     case THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION:
     {
         if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
-            auto payloadSub = msg.as<THMSGV2T1::PowerRetParamAutoPowerOffWithWearingDetection>();
+            auto payloadSub = msg.as<THMSGV2T1::PowerParamAutoPowerOffWithWearingDetection>(ct);
             THMSGV2T1::AutoPowerOffWearingDetectionElements setting = payloadSub->currentPowerOffElements;
             if (setting == THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS)
                 autoPowerOffEnabled.overwrite(true);
