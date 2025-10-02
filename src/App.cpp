@@ -271,7 +271,26 @@ void App::_drawControls()
                 ImGui::Text("Artist: %s", _headphones->playback.artist.c_str());
                 if (_headphones->supportsSafeListening()) {
                     ImGui::Separator();
-                    ImGui::Text("Sound Pressure: %d dB", _headphones->playback.sndPressure);
+
+                    bool measuringSoundPressure = _headphones->safeListening.preview.current;
+
+                    ImGui::AlignTextToFramePadding();
+                    if (measuringSoundPressure && _headphones->playback.sndPressure != 0xFF) {
+                        ImGui::Text("Sound Pressure: %d dB", _headphones->playback.sndPressure);
+                    } else {
+                        ImGui::Text("Sound Pressure: N/A");
+                    }
+
+                    ImGui::SameLine();
+                    if (_headphones->safeListening.preview.current) {
+                        if (ImGui::Button("Stop")) {
+                            _headphones->safeListening.preview.desired = false;
+                        }
+                    } else {
+                        if (ImGui::Button("Measure")) {
+                            _headphones->safeListening.preview.desired = true;
+                        }
+                    }
                 }
             }
             ImGui::EndTable();

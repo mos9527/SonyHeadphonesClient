@@ -95,6 +95,7 @@ bool Headphones::isChanged()
         && gs2.isFulfilled()
         && gs3.isFulfilled()
         && gs4.isFulfilled()
+        && safeListening.preview.isFulfilled()
     );
 }
 
@@ -403,6 +404,43 @@ void Headphones::setChanges()
         );
         gs4.fulfill();
     }
+
+    if (!safeListening.preview.isFulfilled())
+    {
+        if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
+        {
+            sendSet<THMSGV2T2::SafeListeningSetParamSL>(
+                THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1,
+                false,
+                safeListening.preview.desired
+            );
+        }
+        else if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+        {
+            sendSet<THMSGV2T2::SafeListeningSetParamSL>(
+                THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2,
+                false,
+                safeListening.preview.desired
+            );
+        }
+        else if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+        {
+            sendSet<THMSGV2T2::SafeListeningSetParamSL>(
+                THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1,
+                false,
+                safeListening.preview.desired
+            );
+        }
+        else if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+        {
+            sendSet<THMSGV2T2::SafeListeningSetParamSL>(
+                THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2,
+                false,
+                safeListening.preview.desired
+            );
+        }
+        safeListening.preview.fulfill();
+    }
 }
 
 void Headphones::requestInit()
@@ -622,9 +660,6 @@ void Headphones::requestInit()
 
 void Headphones::requestSync()
 {
-    // Some values are taken from:
-    // https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v1/PayloadTypeV1.java
-
     /* Single Battery */
     if (supports(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
     {
@@ -655,13 +690,25 @@ void Headphones::requestSync()
         sendGet<THMSGV2T1::PowerGetStatus>(THMSGV2T1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD);
     }
 
-    if (supportsSafeListening())
+    if (safeListening.preview.current)
     {
-        /* Playback */
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T2::Command::SAFE_LISTENING_GET_EXTENDED_PARAM),
-            0x03 // Sound Pressure(?)
-        }, DATA_TYPE::DATA_MDR_NO2);
+        /* Sound Pressure */
+        if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
+        {
+            sendGet<THMSGV2T2::SafeListeningGetExtendedParam>(THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1);
+        }
+        else if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+        {
+            sendGet<THMSGV2T2::SafeListeningGetExtendedParam>(THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2);
+        }
+        else if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+        {
+            sendGet<THMSGV2T2::SafeListeningGetExtendedParam>(THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1);
+        }
+        else if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+        {
+            sendGet<THMSGV2T2::SafeListeningGetExtendedParam>(THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
+        }
     }
 
     waitForAck();
@@ -746,11 +793,15 @@ HeadphonesEvent Headphones::_handleDeviceInfo(const HeadphonesMessage& msg)
     switch (payload->type)
     {
     case THMSGV2T1::DeviceInfoType::MODEL_NAME:
-        modelName.overwrite(msg.as<THMSGV2T1::ConnectRetDeviceInfoModelName>()->getStringData());
+    {
+        auto payloadSub = msg.as<THMSGV2T1::ConnectRetDeviceInfoModelName>();
+        modelName.overwrite(payloadSub->getModelName());
         return HeadphonesEvent::DeviceInfoUpdate;
+    }
     case THMSGV2T1::DeviceInfoType::FW_VERSION:
     {
-        fwVersion.overwrite(msg.as<THMSGV2T1::ConnectRetDeviceInfoFwVersion>()->getStringData());
+        auto payloadSub = msg.as<THMSGV2T1::ConnectRetDeviceInfoFwVersion>();
+        fwVersion.overwrite(payloadSub->getFwVersion());
         return HeadphonesEvent::DeviceInfoUpdate;
     }
     case THMSGV2T1::DeviceInfoType::SERIES_AND_COLOR_INFO:
@@ -984,15 +1035,60 @@ HeadphonesEvent Headphones::_handlePlaybackStatus(const HeadphonesMessage& msg)
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleSafeListeningExtendedParam(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleSafeListeningNotifyParam(const HeadphonesMessage& msg)
 {
-    switch (msg[1])
+    auto payload = msg.as<THMSGV2T2::SafeListeningNotifyParam>();
+    switch (payload->inquiredType)
     {
-    case 0x03:
-        playback.sndPressure = static_cast<char>(msg[2]);
-        return HeadphonesEvent::SoundPressureUpdate;
+    case THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1:
+    {
+        if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
+        {
+            auto payloadSub = msg.as<THMSGV2T2::SafeListeningNotifyParamSL>();
+            safeListening.preview.overwrite(payloadSub->previewMode);
+            return HeadphonesEvent::SafeListeningParamUpdate;
+        }
+        break;
+    }
+    case THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2:
+    {
+        if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+        {
+            auto payloadSub = msg.as<THMSGV2T2::SafeListeningNotifyParamSL>();
+            safeListening.preview.overwrite(payloadSub->previewMode);
+            return HeadphonesEvent::SafeListeningParamUpdate;
+        }
+        break;
+    }
+    case THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1:
+    {
+        if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+        {
+            auto payloadSub = msg.as<THMSGV2T2::SafeListeningNotifyParamSL>();
+            safeListening.preview.overwrite(payloadSub->previewMode);
+            return HeadphonesEvent::SafeListeningParamUpdate;
+        }
+        break;
+    }
+    case THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2:
+    {
+        if (supports(MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+        {
+            auto payloadSub = msg.as<THMSGV2T2::SafeListeningNotifyParamSL>();
+            safeListening.preview.overwrite(payloadSub->previewMode);
+            return HeadphonesEvent::SafeListeningParamUpdate;
+        }
+        break;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
+}
+
+HeadphonesEvent Headphones::_handleSafeListeningExtendedParam(const HeadphonesMessage& msg)
+{
+    auto payload = msg.as<THMSGV2T2::SafeListeningRetExtendedParam>();
+    playback.sndPressure = payload->levelPerPeriod;
+    return HeadphonesEvent::SoundPressureUpdate;
 }
 
 HeadphonesEvent Headphones::_handlePowerParam(const HeadphonesMessage& msg, CommandType ct)
@@ -1149,7 +1245,8 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
         if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1)
             && payload->settingType == THMSGV2T1::GsSettingType::BOOLEAN_TYPE)
         {
-            gs1.overwrite(msg.as<THMSGV2T1::GsParamBoolean>(ct)->settingValue == THMSGV2T1::GsSettingValue::ON);
+            auto payloadSub = msg.as<THMSGV2T1::GsParamBoolean>(ct);
+            gs1.overwrite(payloadSub->settingValue == THMSGV2T1::GsSettingValue::ON);
             return HeadphonesEvent::GeneralSetting1Update;
         }
         break;
@@ -1159,7 +1256,8 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
         if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2)
             && payload->settingType == THMSGV2T1::GsSettingType::BOOLEAN_TYPE)
         {
-            gs2.overwrite(msg.as<THMSGV2T1::GsParamBoolean>(ct)->settingValue == THMSGV2T1::GsSettingValue::ON);
+            auto payloadSub = msg.as<THMSGV2T1::GsParamBoolean>(ct);
+            gs2.overwrite(payloadSub->settingValue == THMSGV2T1::GsSettingValue::ON);
             return HeadphonesEvent::GeneralSetting2Update;
         }
         break;
@@ -1169,7 +1267,8 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
         if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3)
             && payload->settingType == THMSGV2T1::GsSettingType::BOOLEAN_TYPE)
         {
-            gs3.overwrite(msg.as<THMSGV2T1::GsParamBoolean>(ct)->settingValue == THMSGV2T1::GsSettingValue::ON);
+            auto payloadSub = msg.as<THMSGV2T1::GsParamBoolean>(ct);
+            gs3.overwrite(payloadSub->settingValue == THMSGV2T1::GsSettingValue::ON);
             return HeadphonesEvent::GeneralSetting3Update;
         }
         break;
@@ -1179,7 +1278,8 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
         if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4)
             && payload->settingType == THMSGV2T1::GsSettingType::BOOLEAN_TYPE)
         {
-            gs4.overwrite(msg.as<THMSGV2T1::GsParamBoolean>(ct)->settingValue == THMSGV2T1::GsSettingValue::ON);
+            auto payloadSub = msg.as<THMSGV2T1::GsParamBoolean>(ct);
+            gs4.overwrite(payloadSub->settingValue == THMSGV2T1::GsSettingValue::ON);
             return HeadphonesEvent::GeneralSetting4Update;
         }
         break;
@@ -1468,6 +1568,9 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case Command::PERI_RET_PARAM:
         case Command::PERI_NTFY_PARAM:
             result = _handleConnectedDevices(msg);
+            break;
+        case Command::SAFE_LISTENING_NTFY_PARAM:
+            result = _handleSafeListeningNotifyParam(msg);
             break;
         case Command::SAFE_LISTENING_RET_EXTENDED_PARAM:
             result = _handleSafeListeningExtendedParam(msg);

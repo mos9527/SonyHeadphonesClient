@@ -98,6 +98,8 @@ enum class HeadphonesEvent
 	GeneralSetting3Update,
 	GeneralSetting4Update,
 
+	SafeListeningParamUpdate,
+
 	ConnectedDeviceUpdate,
 
 	InteractionUpdate,
@@ -259,6 +261,12 @@ public:
 		int sndPressure{};
 	} playback;
 
+	// Safe listening
+	struct
+	{
+		Property<bool> preview{};
+	} safeListening;
+
 	// Multipoint
 	Property<std::string> mpDeviceMac{};
 
@@ -286,7 +294,7 @@ public:
 	Property<THMSGV2T1::Function> ncAmbButtonMode{};
 
 	// Protocol version
-	int protocolVersion{};
+	uint32_t protocolVersion{};
 	bool supportsTable1{};
 	bool supportsTable2{};
 	DeviceCapabilities deviceCapabilities{};
@@ -362,6 +370,7 @@ private:
 	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleSafeListeningNotifyParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePowerParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage &msg);
@@ -411,13 +420,13 @@ void Headphones::sendSet(TArgs&&... args)
 template <typename TPayload, typename... TArgs>
 void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
 {
-	if constexpr (TPayload::VARIABLE_SIZE) {
+	if constexpr (TPayload::VARIABLE_SIZE_ONE_ARRAY_AT_END) {
 		size_t size;
 		std::unique_ptr<TPayload> payload = [&] {
 			if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-				return TPayload::create(&size, ct, std::forward<TArgs>(args)...);
+				return createVariableSizePayloadOneArrayAtEnd_CommandType(&size, ct, std::forward<TArgs>(args)...);
 			} else {
-				return TPayload::create(&size, std::forward<TArgs>(args)...);
+				return createVariableSizePayloadOneArrayAtEnd(&size, std::forward<TArgs>(args)...);
 			}
 		}();
 
@@ -432,8 +441,17 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
 			}
 		}();
 
-		const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
-		sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
+		if constexpr (TPayload::VARIABLE_SIZE_NEEDS_SERIALIZATION)
+		{
+			std::vector<uint8_t> buf;
+			payload.serialize(buf);
+			sendMdrCommandWithTypeHelper<TPayload>(ct, buf);
+		}
+		else
+		{
+			const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
+			sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
+		}
 	}
 }
 

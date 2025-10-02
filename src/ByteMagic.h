@@ -17,6 +17,11 @@ inline unsigned int byteOrderSwap(unsigned int num)
         (num << 24);
 }
 
+inline unsigned short byteOrderSwap(unsigned short num)
+{
+    return (num >> 8) | (num << 8);
+}
+
 inline int bytesToIntBE(const unsigned char* buf) {
     return ((int)buf[3] & 0xFF) | (((int)buf[2] << 8) & 0x0000FF00) | (((int)buf[1] << 16) & 0x00FF0000) | (((int)buf[0] << 24) & 0xFF000000);
 }

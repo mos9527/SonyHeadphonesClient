@@ -47,6 +47,7 @@ namespace CommandSerializer
 	Buffer serializeEqualizerSetting(unsigned char preset, char bass, std::vector<int> const& bands);
 	Buffer serializeEqualizerSetting(unsigned char preset);
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR);
+
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{
@@ -78,6 +79,8 @@ namespace CommandSerializer
 
 		template <typename TPayload, typename... TArgs>
 		const TPayload* as(TArgs&&... args) const {
+			if constexpr (TPayload::VARIABLE_SIZE_NEEDS_SERIALIZATION)
+				static_assert(sizeof(TPayload) == 0, "Please use TPayload::deserialize() for this payload");
 			if (!TPayload::isValid(*this, std::forward<TArgs>(args)...))
 				throw std::runtime_error("Invalid incoming payload");
 			return reinterpret_cast<const TPayload*>(data());

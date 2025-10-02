@@ -231,10 +231,11 @@ struct Payload
         return !buf.empty();
     }
 
-    static constexpr bool VARIABLE_SIZE = false;
+    static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = false;
+    static constexpr bool VARIABLE_SIZE_ONE_ARRAY_AT_END = false;
 };
 
-// === CONNECT ===
+// region CONNECT
 
 enum class ConnectInquiredType : uint8_t
 {
@@ -275,51 +276,27 @@ struct ConnectGetSupportFunction : Payload
 
 struct ConnectRetSupportFunction : Payload
 {
-    static constexpr size_t FUNCTIONS_FIRST_INDEX = 3;
-
     ConnectInquiredType inquiredType; // 0x1
     uint8_t numberOfFunction; // 0x2
-    // Support function data follows, each of type MessageMdrV2SupportFunction (2 bytes)
+    MessageMdrV2SupportFunction supportFunctions[]; // 0x3-
 
 private:
     ConnectRetSupportFunction(
-        ConnectInquiredType inquiredType,
-        const std::vector<MessageMdrV2SupportFunction>& supportFunctions
+        const std::span<const MessageMdrV2SupportFunction>& supportFunctions, ConnectInquiredType inquiredType
     )
         : Payload(Command::CONNECT_RET_SUPPORT_FUNCTION)
         , inquiredType(inquiredType)
+        , numberOfFunction(supportFunctions.size())
     {
-        setSupportFunctions(supportFunctions);
+        memcpy(this->supportFunctions, supportFunctions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
     }
 
 public:
-    DEFINE_EXTRA_SIZE_NEW_DELETE();
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
 
     std::span<const MessageMdrV2SupportFunction> getSupportFunctions() const
     {
-        const uint8_t* rawData = reinterpret_cast<const uint8_t*>(this);
-        const MessageMdrV2SupportFunction* supportFunctionsBegin =
-            reinterpret_cast<const MessageMdrV2SupportFunction*>(&rawData[FUNCTIONS_FIRST_INDEX]);
-        return { supportFunctionsBegin, numberOfFunction };
-    }
-
-private:
-    // Must be called during construction
-    void setSupportFunctions(const std::vector<MessageMdrV2SupportFunction>& functions)
-    {
-        uint8_t* rawData = reinterpret_cast<uint8_t*>(this);
-        numberOfFunction = functions.size();
-        memcpy(&rawData[FUNCTIONS_FIRST_INDEX], functions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
-    }
-
-public:
-    static std::unique_ptr<ConnectRetSupportFunction> create(
-        size_t* outSize, ConnectInquiredType inquiredType, const std::vector<MessageMdrV2SupportFunction>& functions)
-    {
-        *outSize = calculateSize(functions);
-        size_t extra = *outSize - sizeof(ConnectRetSupportFunction);
-        return std::unique_ptr<ConnectRetSupportFunction>(
-            new(extra) ConnectRetSupportFunction(inquiredType, functions));
+        return { supportFunctions, numberOfFunction };
     }
 
     static bool isValid(const std::span<const uint8_t>& buf)
@@ -330,14 +307,1325 @@ public:
             && buf.size() >= sizeof(ConnectRetSupportFunction)
             && buf.size() == sizeof(ConnectRetSupportFunction) + sizeof(MessageMdrV2SupportFunction) * buf[offsetof(ConnectRetSupportFunction, numberOfFunction)];
     }
+};
 
-    static size_t calculateSize(const std::vector<MessageMdrV2SupportFunction>& functions)
+// endregion CONNECT
+
+// region SAFE_LISTENING
+
+// region SAFE_LISTENING Common Enums
+
+enum class SafeListeningInquiredType : uint8_t
+{
+    SAFE_LISTENING_HBS_1 = 0x0,
+    SAFE_LISTENING_TWS_1 = 0x1,
+    SAFE_LISTENING_HBS_2 = 0x2,
+    SAFE_LISTENING_TWS_2 = 0x3,
+    SAFE_VOLUME_CONTROL = 0x4,
+};
+
+inline bool SafeListeningInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<SafeListeningInquiredType>(type))
     {
-        return sizeof(ConnectRetSupportFunction) + sizeof(MessageMdrV2SupportFunction) * functions.size();
+    case SafeListeningInquiredType::SAFE_LISTENING_HBS_1:
+    case SafeListeningInquiredType::SAFE_LISTENING_TWS_1:
+    case SafeListeningInquiredType::SAFE_LISTENING_HBS_2:
+    case SafeListeningInquiredType::SAFE_LISTENING_TWS_2:
+    case SafeListeningInquiredType::SAFE_VOLUME_CONTROL:
+        return true;
+    }
+    return false;
+}
+
+enum class SafeListeningErrorCause : uint8_t
+{
+    NOT_PLAYING = 0x0,
+    IN_CALL = 0x1,
+    DETACHED = 0x2,
+};
+
+inline bool SafeListeningErrorCause_isValidByteCode(uint8_t cause)
+{
+    switch (static_cast<SafeListeningErrorCause>(cause))
+    {
+    case SafeListeningErrorCause::NOT_PLAYING:
+    case SafeListeningErrorCause::IN_CALL:
+    case SafeListeningErrorCause::DETACHED:
+        return true;
+    }
+    return false;
+}
+
+// endregion SAFE_LISTENING Common Enums
+
+// region SAFE_LISTENING_*_CAPABILITY
+
+// region SAFE_LISTENING_GET_CAPABILITY
+
+struct SafeListeningGetCapability : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SAFE_LISTENING_RET_CAPABILITY;
+
+    SafeListeningInquiredType inquiredType; // 0x1
+
+    SafeListeningGetCapability(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_GET_CAPABILITY)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningGetCapability)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_GET_CAPABILITY)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningGetCapability, inquiredType)]));
     }
 
-    static constexpr bool VARIABLE_SIZE = true;
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
 };
+
+// endregion SAFE_LISTENING_GET_CAPABILITY
+
+// region SAFE_LISTENING_RET_CAPABILITY
+
+struct SafeListeningRetCapability : Payload
+{
+    SafeListeningInquiredType inquiredType; // 0x1
+    uint8_t roundBase; // 0x2
+    uint32_t timestampBase_needsByteSwap; // 0x3-0x6
+    uint8_t minimumInterval; // 0x7
+    uint8_t logCapacity; // 0x8
+
+    SafeListeningRetCapability(
+        SafeListeningInquiredType inquiredType, uint8_t roundBase, uint32_t timestampBase, uint8_t minimumInterval,
+        uint8_t logCapacity
+    )
+        : Payload(Command::SAFE_LISTENING_RET_CAPABILITY)
+        , inquiredType(inquiredType)
+        , roundBase(roundBase)
+        , timestampBase_needsByteSwap(byteOrderSwap(timestampBase))
+        , minimumInterval(minimumInterval)
+        , logCapacity(logCapacity)
+    {}
+
+    uint32_t getTimestampBase() const
+    {
+        return byteOrderSwap(timestampBase_needsByteSwap);
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetCapability)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_RET_CAPABILITY)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningRetCapability, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// endregion SAFE_LISTENING_RET_CAPABILITY
+
+// endregion SAFE_LISTENING_*_CAPABILITY
+
+// region SAFE_LISTENING_*_STATUS
+
+// region SAFE_LISTENING_*_STATUS Common Structs and Enums
+
+enum class SafeListeningTargetType : uint8_t
+{
+    HBS = 0x00,
+    TWS_L = 0x01,
+    TWS_R = 0x02,
+};
+
+inline bool SafeListeningTargetType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<SafeListeningTargetType>(type))
+    {
+    case SafeListeningTargetType::HBS:
+    case SafeListeningTargetType::TWS_L:
+    case SafeListeningTargetType::TWS_R:
+        return true;
+    }
+    return false;
+}
+
+struct SafeListeningData
+{
+    SafeListeningTargetType targetType; // 0x0
+    uint32_t timestamp_needsByteSwap; // 0x1-0x4
+    uint16_t rtcRc_needsByteSwap; // 0x5-0x6
+    uint8_t viewTime; // 0x7
+    uint32_t soundPressure_needsByteSwap; // 0x8-0xB
+
+protected:
+    SafeListeningData() {}
+
+    SafeListeningData(
+        SafeListeningTargetType targetType, uint32_t timestamp, uint16_t rtcRc, uint8_t viewTime, uint32_t soundPressure
+    )
+        : targetType(targetType)
+        , timestamp_needsByteSwap(byteOrderSwap(timestamp))
+        , rtcRc_needsByteSwap(byteOrderSwap(rtcRc))
+        , viewTime(viewTime)
+        , soundPressure_needsByteSwap(byteOrderSwap(soundPressure))
+    {}
+
+public:
+    uint32_t getTimestamp() const
+    {
+        return byteOrderSwap(timestamp_needsByteSwap);
+    }
+
+    uint16_t getRtcRc() const
+    {
+        return byteOrderSwap(rtcRc_needsByteSwap);
+    }
+
+    uint32_t getSoundPressure() const
+    {
+        return byteOrderSwap(soundPressure_needsByteSwap);
+    }
+
+protected:
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        // Size checked by leaf structs
+        return SafeListeningTargetType_isValidByteCode(buf[offsetof(SafeListeningData, targetType)]);
+    }
+};
+
+struct SafeListeningData1 : SafeListeningData
+{
+    SafeListeningData1() {}
+
+    SafeListeningData1(
+        SafeListeningTargetType targetType, uint32_t timestamp, uint16_t rtcRc, uint8_t viewTime, uint32_t soundPressure
+    )
+        : SafeListeningData(targetType, timestamp, rtcRc, viewTime, soundPressure)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return buf.size() == sizeof(SafeListeningData1)
+            && SafeListeningData::isValid(buf);
+    }
+};
+
+struct SafeListeningData2 : SafeListeningData
+{
+    uint8_t ambientTime; // 0xC
+
+    SafeListeningData2() {}
+
+    SafeListeningData2(
+        SafeListeningTargetType targetType, uint32_t timestamp, uint16_t rtcRc, uint8_t viewTime, uint32_t soundPressure,
+        uint8_t ambientTime
+    )
+        : SafeListeningData(targetType, timestamp, rtcRc, viewTime, soundPressure)
+        , ambientTime(ambientTime)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return buf.size() == sizeof(SafeListeningData2)
+            && SafeListeningData::isValid(buf);
+    }
+};
+
+struct SafeListeningStatus
+{
+    uint32_t timestamp_needsByteSwap; // 0x0-0x3
+    uint16_t rtcRc_needsByteSwap; // 0x4-0x5
+
+    SafeListeningStatus(uint32_t timestamp, uint16_t rtcRc)
+        : timestamp_needsByteSwap(byteOrderSwap(timestamp))
+        , rtcRc_needsByteSwap(byteOrderSwap(rtcRc))
+    {}
+
+    uint32_t getTimestamp() const
+    {
+        return byteOrderSwap(timestamp_needsByteSwap);
+    }
+
+    uint16_t getRtcRc() const
+    {
+        return byteOrderSwap(rtcRc_needsByteSwap);
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return buf.size() == sizeof(SafeListeningStatus);
+    }
+};
+
+enum class SafeListeningLogDataStatus : uint8_t
+{
+    DISCONNECTED = 0x00,
+    SENDING = 0x01,
+    COMPLETED = 0x02,
+    NOT_SENDING = 0x03,
+    ERROR = 0x04,
+};
+
+inline bool SafeListeningLogDataStatus_isValidByteCode(uint8_t status)
+{
+    switch (static_cast<SafeListeningLogDataStatus>(status))
+    {
+        case SafeListeningLogDataStatus::DISCONNECTED:
+        case SafeListeningLogDataStatus::SENDING:
+        case SafeListeningLogDataStatus::COMPLETED:
+        case SafeListeningLogDataStatus::NOT_SENDING:
+        case SafeListeningLogDataStatus::ERROR:
+            return true;
+    }
+    return false;
+}
+
+enum class SafeListeningWHOStandardLevel : uint8_t
+{
+    NORMAL = 0x0,
+    SENSITIVE = 0x1,
+};
+
+inline bool SafeListeningWHOStandardLevel_isValidByteCode(uint8_t level)
+{
+    switch (static_cast<SafeListeningWHOStandardLevel>(level))
+    {
+        case SafeListeningWHOStandardLevel::NORMAL:
+        case SafeListeningWHOStandardLevel::SENSITIVE:
+            return true;
+    }
+    return false;
+}
+
+// endregion SAFE_LISTENING_*_STATUS Common Structs and Enums
+
+// region SAFE_LISTENING_GET_STATUS
+
+struct SafeListeningGetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SAFE_LISTENING_RET_STATUS;
+
+    SafeListeningInquiredType inquiredType; // 0x1
+
+    SafeListeningGetStatus(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_GET_STATUS)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningGetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_GET_STATUS)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningGetStatus, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// endregion SAFE_LISTENING_GET_STATUS
+
+// region SAFE_LISTENING_RET_STATUS
+
+struct SafeListeningRetStatus : Payload
+{
+    SafeListeningInquiredType inquiredType; // 0x1
+
+protected:
+    SafeListeningRetStatus(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_RET_STATUS)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningRetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_RET_STATUS)
+            && SafeListeningInquiredType_isValidByteCode(buf[offsetof(SafeListeningRetStatus, inquiredType)]);
+    }
+};
+
+// - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
+
+struct SafeListeningRetStatusSL : SafeListeningRetStatus
+{
+protected:
+    SafeListeningRetStatusSL(SafeListeningInquiredType inquiredType)
+        : SafeListeningRetStatus(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatus::isValid(buf)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningRetStatusSL, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_LISTENING_HBS_*
+
+struct SafeListeningRetStatusHbs : SafeListeningRetStatusSL
+{
+    SafeListeningLogDataStatus logDataStatus; // 0x2
+
+protected:
+    SafeListeningRetStatusHbs(
+        SafeListeningInquiredType inquiredType, SafeListeningLogDataStatus logDataStatus
+    )
+        : SafeListeningRetStatusSL(inquiredType)
+        , logDataStatus(logDataStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatusSL::isValid(buf)
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningRetStatusHbs, logDataStatus)]);
+    }
+};
+
+// - SAFE_LISTENING_HBS_1
+
+struct SafeListeningRetStatusHbs1 : SafeListeningRetStatusHbs
+{
+    SafeListeningData1 currentData; // 0x3-0xF
+
+    SafeListeningRetStatusHbs1(
+        SafeListeningLogDataStatus logDataStatus, const SafeListeningData1& currentData
+    )
+        : SafeListeningRetStatusHbs(SafeListeningInquiredType::SAFE_LISTENING_HBS_1, logDataStatus)
+        , currentData(currentData)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatusHbs::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetStatusHbs1)
+            && buf[offsetof(SafeListeningRetStatusHbs1, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_HBS_1)
+            && SafeListeningData1::isValid(buf.subspan(offsetof(SafeListeningRetStatusHbs1, currentData), sizeof(SafeListeningData1)));
+    }
+};
+
+// - SAFE_LISTENING_HBS_2
+
+struct SafeListeningRetStatusHbs2 : SafeListeningRetStatusHbs
+{
+    SafeListeningData2 currentData; // 0x3-0x10
+
+    SafeListeningRetStatusHbs2(
+        SafeListeningLogDataStatus logDataStatus, const SafeListeningData2& currentData
+    )
+        : SafeListeningRetStatusHbs(SafeListeningInquiredType::SAFE_LISTENING_HBS_2, logDataStatus)
+        , currentData(currentData)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatusHbs::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetStatusHbs2)
+            && buf[offsetof(SafeListeningRetStatusHbs2, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_HBS_2)
+            && SafeListeningData2::isValid(buf.subspan(offsetof(SafeListeningRetStatusHbs2, currentData), sizeof(SafeListeningData2)));
+    }
+};
+
+// - SAFE_LISTENING_TWS_*
+
+struct SafeListeningRetStatusTws : SafeListeningRetStatusSL
+{
+    SafeListeningLogDataStatus logDataStatusLeft; // 0x2
+    SafeListeningLogDataStatus logDataStatusRight; // 0x3
+
+protected:
+    SafeListeningRetStatusTws(
+        SafeListeningInquiredType inquiredType, SafeListeningLogDataStatus logDataStatusLeft,
+        SafeListeningLogDataStatus logDataStatusRight
+    )
+        : SafeListeningRetStatusSL(inquiredType)
+        , logDataStatusLeft(logDataStatusLeft)
+        , logDataStatusRight(logDataStatusRight)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatusSL::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningRetStatusTws)
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningRetStatusTws, logDataStatusLeft)])
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningRetStatusTws, logDataStatusRight)]);
+    }
+};
+
+// - SAFE_LISTENING_TWS_1
+
+struct SafeListeningRetStatusTws1 : SafeListeningRetStatusTws
+{
+    SafeListeningData1 currentDataLeft; // 0x4-0xF
+    SafeListeningData1 currentDataRight; // 0x10-0x1B
+
+    SafeListeningRetStatusTws1(
+        SafeListeningLogDataStatus logDataStatusLeft, SafeListeningLogDataStatus logDataStatusRight,
+        const SafeListeningData1& currentDataLeft, const SafeListeningData1& currentDataRight
+    )
+        : SafeListeningRetStatusTws(SafeListeningInquiredType::SAFE_LISTENING_TWS_1, logDataStatusLeft, logDataStatusRight)
+        , currentDataLeft(currentDataLeft)
+        , currentDataRight(currentDataRight)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatusTws::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetStatusTws1)
+            && buf[offsetof(SafeListeningRetStatusTws1, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_TWS_1)
+            && SafeListeningData1::isValid(buf.subspan(offsetof(SafeListeningRetStatusTws1, currentDataLeft), sizeof(SafeListeningData1)))
+            && SafeListeningData1::isValid(buf.subspan(offsetof(SafeListeningRetStatusTws1, currentDataRight), sizeof(SafeListeningData1)));
+    }
+};
+
+// - SAFE_LISTENING_TWS_2
+
+struct SafeListeningRetStatusTws2 : SafeListeningRetStatusTws
+{
+    SafeListeningData2 currentDataLeft; // 0x4-0x10
+    SafeListeningData2 currentDataRight; // 0x11-0x1D
+
+    SafeListeningRetStatusTws2(
+        SafeListeningLogDataStatus logDataStatusLeft, SafeListeningLogDataStatus logDataStatusRight,
+        const SafeListeningData2& currentDataLeft, const SafeListeningData2& currentDataRight
+    )
+        : SafeListeningRetStatusTws(SafeListeningInquiredType::SAFE_LISTENING_TWS_2, logDataStatusLeft, logDataStatusRight)
+        , currentDataLeft(currentDataLeft)
+        , currentDataRight(currentDataRight)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningRetStatusTws::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetStatusTws2)
+            && buf[offsetof(SafeListeningRetStatusTws2, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_TWS_2)
+            && SafeListeningData2::isValid(buf.subspan(offsetof(SafeListeningRetStatusTws2, currentDataLeft), sizeof(SafeListeningData2)))
+            && SafeListeningData2::isValid(buf.subspan(offsetof(SafeListeningRetStatusTws2, currentDataRight), sizeof(SafeListeningData2)));
+    }
+};
+
+// endregion SAFE_LISTENING_RET_STATUS
+
+// region SAFE_LISTENING_SET_STATUS
+
+struct SafeListeningSetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SAFE_LISTENING_NTFY_STATUS;
+
+    SafeListeningInquiredType inquiredType; // 0x1
+
+protected:
+    SafeListeningSetStatus(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_SET_STATUS)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        // Size checked by leaf structs
+        return Payload::isValid(buf)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_SET_STATUS)
+            && SafeListeningInquiredType_isValidByteCode(buf[offsetof(SafeListeningSetStatus, inquiredType)]);
+    }
+};
+
+// - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
+
+struct SafeListeningSetStatusSL : SafeListeningSetStatus
+{
+protected:
+    SafeListeningSetStatusSL(SafeListeningInquiredType inquiredType)
+        : SafeListeningSetStatus(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        // Size checked by leaf structs
+        return SafeListeningSetStatus::isValid(buf)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningSetStatusSL, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_LISTENING_HBS_1, SAFE_LISTENING_HBS_2
+
+struct SafeListeningSetStatusHbs : SafeListeningSetStatusSL
+{
+    SafeListeningLogDataStatus logDataStatus; // 0x2
+    SafeListeningStatus status; // 0x3-0x8
+
+    SafeListeningSetStatusHbs(
+        SafeListeningInquiredType inquiredType, SafeListeningLogDataStatus logDataStatus,
+        const SafeListeningStatus& status
+    )
+        : SafeListeningSetStatusSL(inquiredType)
+        , logDataStatus(logDataStatus)
+        , status(status)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningSetStatusSL::isValid(buf)
+            && buf.size() == sizeof(SafeListeningSetStatusHbs)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningSetStatusHbs, inquiredType)]))
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningSetStatusHbs, logDataStatus)])
+            && SafeListeningStatus::isValid(buf.subspan(offsetof(SafeListeningSetStatusHbs, status), sizeof(SafeListeningStatus)));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2;
+    }
+};
+
+// - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
+
+struct SafeListeningSetStatusTws : SafeListeningSetStatusSL
+{
+    SafeListeningLogDataStatus logDataStatusLeft; // 0x2
+    SafeListeningLogDataStatus logDataStatusRight; // 0x3
+    SafeListeningStatus statusLeft; // 0x4-0x9
+    SafeListeningStatus statusRight; // 0xA-0xF
+
+    SafeListeningSetStatusTws(
+        SafeListeningInquiredType inquiredType, SafeListeningLogDataStatus logDataStatusLeft,
+        SafeListeningLogDataStatus logDataStatusRight, const SafeListeningStatus& statusLeft,
+        const SafeListeningStatus& statusRight
+    )
+        : SafeListeningSetStatusSL(inquiredType)
+        , logDataStatusLeft(logDataStatusLeft)
+        , logDataStatusRight(logDataStatusRight)
+        , statusLeft(statusLeft)
+        , statusRight(statusRight)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningSetStatusSL::isValid(buf)
+            && buf.size() == sizeof(SafeListeningSetStatusTws)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningSetStatusTws, inquiredType)]))
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningSetStatusTws, logDataStatusLeft)])
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningSetStatusTws, logDataStatusRight)])
+            && SafeListeningStatus::isValid(buf.subspan(offsetof(SafeListeningSetStatusTws, statusLeft), sizeof(SafeListeningStatus)))
+            && SafeListeningStatus::isValid(buf.subspan(offsetof(SafeListeningSetStatusTws, statusRight), sizeof(SafeListeningStatus)));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_VOLUME_CONTROL
+
+struct SafeListeningSetStatusSVC : SafeListeningSetStatus
+{
+    SafeListeningWHOStandardLevel whoStandardLevel; // 0x2
+
+    SafeListeningSetStatusSVC(SafeListeningWHOStandardLevel whoStandardLevel)
+        : SafeListeningSetStatus(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+        , whoStandardLevel(whoStandardLevel)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningSetStatus::isValid(buf)
+            && buf.size() == sizeof(SafeListeningSetStatusSVC)
+            && buf[offsetof(SafeListeningSetStatusSVC, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+            && SafeListeningWHOStandardLevel_isValidByteCode(buf[offsetof(SafeListeningSetStatusSVC, whoStandardLevel)]);
+    }
+};
+
+// endregion SAFE_LISTENING_SET_STATUS
+
+// region SAFE_LISTENING_NTFY_STATUS
+
+struct SafeListeningNotifyStatus : Payload
+{
+    SafeListeningInquiredType inquiredType; // 0x1
+
+protected:
+    SafeListeningNotifyStatus(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_NTFY_STATUS)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_NTFY_STATUS)
+            && SafeListeningInquiredType_isValidByteCode(buf[offsetof(SafeListeningNotifyStatus, inquiredType)]);
+    }
+};
+
+// - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
+
+struct SafeListeningNotifyStatusSL : SafeListeningNotifyStatus
+{
+protected:
+    SafeListeningNotifyStatusSL(SafeListeningInquiredType inquiredType)
+        : SafeListeningNotifyStatus(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatus::isValid(buf)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningNotifyStatusSL, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_LISTENING_HBS_1, SAFE_LISTENING_HBS_2
+
+struct SafeListeningNotifyStatusHbs : SafeListeningNotifyStatusSL
+{
+    SafeListeningLogDataStatus logDataStatus; // 0x2
+
+protected:
+    SafeListeningNotifyStatusHbs(
+        SafeListeningInquiredType inquiredType, SafeListeningLogDataStatus logDataStatus
+    )
+        : SafeListeningNotifyStatusSL(inquiredType)
+        , logDataStatus(logDataStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatusSL::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatusHbs)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningNotifyStatusHbs, inquiredType)]))
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningNotifyStatusHbs, logDataStatus)]);
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2;
+    }
+};
+
+// - SAFE_LISTENING_HBS_1
+
+struct SafeListeningNotifyStatusHbs1 : SafeListeningNotifyStatusHbs
+{
+    uint8_t logDataNum; // 0x3
+    SafeListeningData1 logData[]; // 0x4-
+
+private:
+    SafeListeningNotifyStatusHbs1(
+        SafeListeningLogDataStatus logDataStatus, const std::span<const SafeListeningData1>& logDataSpan
+    )
+        : SafeListeningNotifyStatusHbs(SafeListeningInquiredType::SAFE_LISTENING_HBS_1, logDataStatus)
+        , logDataNum(logDataSpan.size())
+    {
+        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData1) * logDataNum);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+
+    std::span<const SafeListeningData1> getLogDataSpan() const
+    {
+        return { logData, logDataNum };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatusHbs::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatusHbs1)
+            && buf.size() == sizeof(SafeListeningNotifyStatusHbs1)
+                + sizeof(SafeListeningData1) * buf[offsetof(SafeListeningNotifyStatusHbs1, logDataNum)]
+            && buf[offsetof(SafeListeningNotifyStatusHbs1, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_HBS_1)
+            && isValidLogData(buf);
+    }
+
+private:
+    static bool isValidLogData(const std::span<const uint8_t>& buf)
+    {
+        size_t logDataNum = buf[offsetof(SafeListeningNotifyStatusHbs1, logDataNum)];
+        for (size_t i = 0; i < logDataNum; i++)
+        {
+            size_t logDataIndex = offsetof(SafeListeningNotifyStatusHbs1, logData) + sizeof(SafeListeningData1) * i;
+            if (!SafeListeningTargetType_isValidByteCode(buf[logDataIndex + offsetof(SafeListeningData1, targetType)]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+// - SAFE_LISTENING_HBS_2
+
+struct SafeListeningNotifyStatusHbs2 : SafeListeningNotifyStatusHbs
+{
+    uint8_t logDataNum; // 0x3
+    SafeListeningData2 logData[]; // 0x4-
+
+private:
+    SafeListeningNotifyStatusHbs2(
+        SafeListeningLogDataStatus logDataStatus, const std::span<const SafeListeningData2>& logDataSpan
+    )
+        : SafeListeningNotifyStatusHbs(SafeListeningInquiredType::SAFE_LISTENING_HBS_2, logDataStatus)
+        , logDataNum(logDataSpan.size())
+    {
+        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData2) * logDataNum);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+
+    std::span<const SafeListeningData2> getLogDataSpan() const
+    {
+        return { logData, logDataNum };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatusHbs::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatusHbs2)
+            && buf.size() == sizeof(SafeListeningNotifyStatusHbs2)
+                + sizeof(SafeListeningData2) * buf[offsetof(SafeListeningNotifyStatusHbs2, logDataNum)]
+            && buf[offsetof(SafeListeningNotifyStatusHbs2, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_HBS_2)
+            && isValidLogData(buf);
+    }
+
+private:
+    static bool isValidLogData(const std::span<const uint8_t>& buf)
+    {
+        size_t logDataNum = buf[offsetof(SafeListeningNotifyStatusHbs2, logDataNum)];
+        for (size_t i = 0; i < logDataNum; i++)
+        {
+            size_t logDataIndex = offsetof(SafeListeningNotifyStatusHbs2, logData) + sizeof(SafeListeningData2) * i;
+            if (!SafeListeningTargetType_isValidByteCode(buf[logDataIndex + offsetof(SafeListeningData2, targetType)]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+// - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
+
+struct SafeListeningNotifyStatusTws : SafeListeningNotifyStatusSL
+{
+    SafeListeningLogDataStatus logDataStatusLeft; // 0x2
+    SafeListeningLogDataStatus logDataStatusRight; // 0x3
+
+protected:
+    SafeListeningNotifyStatusTws(
+        SafeListeningInquiredType inquiredType, SafeListeningLogDataStatus logDataStatusLeft,
+        SafeListeningLogDataStatus logDataStatusRight
+    )
+        : SafeListeningNotifyStatusSL(inquiredType)
+        , logDataStatusLeft(logDataStatusLeft)
+        , logDataStatusRight(logDataStatusRight)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatusSL::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatusTws)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningNotifyStatusTws, inquiredType)]))
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningNotifyStatusTws, logDataStatusLeft)])
+            && SafeListeningLogDataStatus_isValidByteCode(buf[offsetof(SafeListeningNotifyStatusTws, logDataStatusRight)]);
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_LISTENING_TWS_1
+
+struct SafeListeningNotifyStatusTws1 : SafeListeningNotifyStatusTws
+{
+    uint8_t logDataNum; // 0x4
+    SafeListeningData1 logData[]; // 0x5-
+
+private:
+    SafeListeningNotifyStatusTws1(
+        SafeListeningLogDataStatus logDataStatusLeft, SafeListeningLogDataStatus logDataStatusRight,
+        const std::span<const SafeListeningData1>& logDataSpan
+    )
+        : SafeListeningNotifyStatusTws(SafeListeningInquiredType::SAFE_LISTENING_TWS_1, logDataStatusLeft, logDataStatusRight)
+        , logDataNum(logDataSpan.size())
+    {
+        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData1) * logDataNum);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+
+    std::span<const SafeListeningData1> getLogDataSpan() const
+    {
+        return { logData, logDataNum };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatusTws::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatusTws1)
+            && buf.size() == sizeof(SafeListeningNotifyStatusTws1)
+                + sizeof(SafeListeningData1) * buf[offsetof(SafeListeningNotifyStatusTws1, logDataNum)]
+            && buf[offsetof(SafeListeningNotifyStatusTws1, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_TWS_1)
+            && isValidLogData(buf);
+    }
+
+private:
+    static bool isValidLogData(const std::span<const uint8_t>& buf)
+    {
+        size_t logDataNum = buf[offsetof(SafeListeningNotifyStatusTws1, logDataNum)];
+        for (size_t i = 0; i < logDataNum; i++)
+        {
+            size_t logDataIndex = offsetof(SafeListeningNotifyStatusTws1, logData) + sizeof(SafeListeningData1) * i;
+            if (!SafeListeningTargetType_isValidByteCode(buf[logDataIndex + offsetof(SafeListeningData1, targetType)]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+// - SAFE_LISTENING_TWS_2
+
+struct SafeListeningNotifyStatusTws2 : SafeListeningNotifyStatusTws
+{
+    uint8_t logDataNum; // 0x4
+    SafeListeningData2 logData[]; // 0x5-
+
+private:
+    SafeListeningNotifyStatusTws2(
+        SafeListeningLogDataStatus logDataStatusLeft, SafeListeningLogDataStatus logDataStatusRight,
+        const std::span<const SafeListeningData2>& logDataSpan
+    )
+        : SafeListeningNotifyStatusTws(SafeListeningInquiredType::SAFE_LISTENING_TWS_2, logDataStatusLeft, logDataStatusRight)
+        , logDataNum(logDataSpan.size())
+    {
+        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData2) * logDataNum);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+
+    std::span<const SafeListeningData2> getLogDataSpan() const
+    {
+        return { logData, logDataNum };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatusTws::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyStatusTws2)
+            && buf.size() == sizeof(SafeListeningNotifyStatusTws2)
+                + sizeof(SafeListeningData2) * buf[offsetof(SafeListeningNotifyStatusTws2, logDataNum)]
+            && buf[offsetof(SafeListeningNotifyStatusTws2, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_LISTENING_TWS_2)
+            && isValidLogData(buf);
+    }
+
+private:
+    static bool isValidLogData(const std::span<const uint8_t>& buf)
+    {
+        size_t logDataNum = buf[offsetof(SafeListeningNotifyStatusTws2, logDataNum)];
+        for (size_t i = 0; i < logDataNum; i++)
+        {
+            size_t logDataIndex = offsetof(SafeListeningNotifyStatusTws2, logData) + sizeof(SafeListeningData2) * i;
+            if (!SafeListeningTargetType_isValidByteCode(buf[logDataIndex + offsetof(SafeListeningData2, targetType)]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+// - SAFE_VOLUME_CONTROL
+
+struct SafeListeningNotifyStatusSVC : SafeListeningNotifyStatus
+{
+    SafeListeningWHOStandardLevel whoStandardLevel; // 0x2
+
+    SafeListeningNotifyStatusSVC(SafeListeningWHOStandardLevel whoStandardLevel)
+        : SafeListeningNotifyStatus(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+        , whoStandardLevel(whoStandardLevel)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyStatus::isValid(buf)
+            && buf.size() == sizeof(SafeListeningNotifyStatusSVC)
+            && buf[offsetof(SafeListeningNotifyStatusSVC, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+            && SafeListeningWHOStandardLevel_isValidByteCode(buf[offsetof(SafeListeningNotifyStatusSVC, whoStandardLevel)]);
+    }
+};
+
+// endregion SAFE_LISTENING_NTFY_STATUS
+
+// endregion SAFE_LISTENING_*_STATUS
+
+// region SAFE_LISTENING_*_PARAM
+
+// region SAFE_LISTENING_GET_PARAM
+
+struct SafeListeningGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SAFE_LISTENING_RET_PARAM;
+
+    SafeListeningInquiredType inquiredType; // 0x1
+
+    SafeListeningGetParam(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_GET_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_GET_PARAM)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningGetParam, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// endregion SAFE_LISTENING_GET_PARAM
+
+// region SAFE_LISTENING_RET_PARAM
+
+struct SafeListeningRetParam : Payload
+{
+    SafeListeningInquiredType inquiredType; // 0x1
+    MessageMdrV2EnableDisable availability; // 0x2
+
+    SafeListeningRetParam(
+        SafeListeningInquiredType inquiredType, MessageMdrV2EnableDisable availability
+    )
+        : Payload(Command::SAFE_LISTENING_RET_PARAM)
+        , inquiredType(inquiredType)
+        , availability(availability)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_RET_PARAM)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningRetParam, inquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningRetParam, availability)]);
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// endregion SAFE_LISTENING_RET_PARAM
+
+// region SAFE_LISTENING_SET_PARAM
+
+struct SafeListeningSetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SAFE_LISTENING_NTFY_PARAM;
+
+    SafeListeningInquiredType inquiredType; // 0x1
+
+protected:
+    SafeListeningSetParam(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_SET_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningSetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_SET_PARAM)
+            && SafeListeningInquiredType_isValidByteCode(buf[offsetof(SafeListeningSetParam, inquiredType)]);
+    }
+};
+
+// - SAFE_LISTENING_*
+
+struct SafeListeningSetParamSL : SafeListeningSetParam
+{
+    MessageMdrV2EnableDisable safeListeningMode; // 0x2
+    MessageMdrV2EnableDisable previewMode; // 0x3
+
+    SafeListeningSetParamSL(
+        SafeListeningInquiredType inquiredType, MessageMdrV2EnableDisable safeListeningMode,
+        MessageMdrV2EnableDisable previewMode
+    )
+        : SafeListeningSetParam(inquiredType)
+        , safeListeningMode(safeListeningMode)
+        , previewMode(previewMode)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningSetParam::isValid(buf)
+            && buf.size() == sizeof(SafeListeningSetParamSL)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningSetParamSL, inquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningSetParamSL, safeListeningMode)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningSetParamSL, previewMode)]);
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_VOLUME_CONTROL
+
+struct SafeListeningSetParamSVC : SafeListeningSetParam
+{
+    MessageMdrV2EnableDisable volumeLimitationMode; // 0x2
+    MessageMdrV2EnableDisable safeVolumeControlMode; // 0x3
+
+    SafeListeningSetParamSVC(
+        MessageMdrV2EnableDisable volumeLimitationMode, MessageMdrV2EnableDisable safeVolumeControlMode
+    )
+        : SafeListeningSetParam(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+        , volumeLimitationMode(volumeLimitationMode)
+        , safeVolumeControlMode(safeVolumeControlMode)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningSetParam::isValid(buf)
+            && buf.size() == sizeof(SafeListeningSetParamSVC)
+            && buf[offsetof(SafeListeningSetParamSVC, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningSetParamSVC, volumeLimitationMode)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningSetParamSVC, safeVolumeControlMode)]);
+    }
+};
+
+// endregion SAFE_LISTENING_SET_PARAM
+
+// region SAFE_LISTENING_NTFY_PARAM
+
+struct SafeListeningNotifyParam : Payload
+{
+    SafeListeningInquiredType inquiredType; // 0x1
+
+    SafeListeningNotifyParam(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_NTFY_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(SafeListeningNotifyParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_NTFY_PARAM)
+            && SafeListeningInquiredType_isValidByteCode(buf[offsetof(SafeListeningNotifyParam, inquiredType)]);
+    }
+};
+
+// - SAFE_LISTENING_*
+
+struct SafeListeningNotifyParamSL : SafeListeningNotifyParam
+{
+    MessageMdrV2EnableDisable safeListeningMode; // 0x2
+    MessageMdrV2EnableDisable previewMode; // 0x3
+
+    SafeListeningNotifyParamSL(
+        SafeListeningInquiredType inquiredType, MessageMdrV2EnableDisable safeListeningMode,
+        MessageMdrV2EnableDisable previewMode
+    )
+        : SafeListeningNotifyParam(inquiredType)
+        , safeListeningMode(safeListeningMode)
+        , previewMode(previewMode)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyParam::isValid(buf)
+            && buf.size() == sizeof(SafeListeningNotifyParamSL)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningNotifyParamSL, inquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningNotifyParamSL, safeListeningMode)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningNotifyParamSL, previewMode)]);
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// - SAFE_VOLUME_CONTROL
+
+struct SafeListeningNotifyParamSVC : SafeListeningNotifyParam
+{
+    MessageMdrV2EnableDisable volumeLimitationMode; // 0x2
+    MessageMdrV2EnableDisable safeVolumeControlMode; // 0x3
+
+    SafeListeningNotifyParamSVC(
+        MessageMdrV2EnableDisable volumeLimitationMode, MessageMdrV2EnableDisable safeVolumeControlMode
+    )
+        : SafeListeningNotifyParam(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+        , volumeLimitationMode(volumeLimitationMode)
+        , safeVolumeControlMode(safeVolumeControlMode)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SafeListeningNotifyParam::isValid(buf)
+            && buf.size() == sizeof(SafeListeningNotifyParamSVC)
+            && buf[offsetof(SafeListeningNotifyParamSVC, inquiredType)] == static_cast<uint8_t>(SafeListeningInquiredType::SAFE_VOLUME_CONTROL)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningNotifyParamSVC, volumeLimitationMode)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SafeListeningNotifyParamSVC, safeVolumeControlMode)]);
+    }
+};
+
+// endregion SAFE_LISTENING_NTFY_PARAM
+
+// endregion SAFE_LISTENING_*_PARAM
+
+// region SAFE_LISTENING_*_EXTENDED_PARAM
+
+// region SAFE_LISTENING_GET_EXTENDED_PARAM
+
+struct SafeListeningGetExtendedParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SAFE_LISTENING_RET_EXTENDED_PARAM;
+
+    SafeListeningInquiredType inquiredType; // 0x1
+
+    SafeListeningGetExtendedParam(SafeListeningInquiredType inquiredType)
+        : Payload(Command::SAFE_LISTENING_GET_EXTENDED_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningGetExtendedParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_GET_EXTENDED_PARAM)
+            && isValidInquiredType(static_cast<SafeListeningInquiredType>(buf[offsetof(SafeListeningGetExtendedParam, inquiredType)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// endregion SAFE_LISTENING_GET_EXTENDED_PARAM
+
+// region SAFE_LISTENING_RET_EXTENDED_PARAM
+
+struct SafeListeningRetExtendedParam : Payload
+{
+    SafeListeningInquiredType inquiredType; // 0x1
+    uint8_t levelPerPeriod; // 0x2
+    SafeListeningErrorCause errorCause; // 0x3
+
+    SafeListeningRetExtendedParam(
+        SafeListeningInquiredType inquiredType, uint8_t levelPerPeriod, SafeListeningErrorCause errorCause
+    )
+        : Payload(Command::SAFE_LISTENING_RET_EXTENDED_PARAM)
+        , inquiredType(inquiredType)
+        , levelPerPeriod(levelPerPeriod)
+        , errorCause(errorCause)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SafeListeningRetExtendedParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SAFE_LISTENING_RET_EXTENDED_PARAM)
+            && SafeListeningInquiredType_isValidByteCode(buf[offsetof(SafeListeningRetExtendedParam, inquiredType)])
+            && (buf[offsetof(SafeListeningRetExtendedParam, levelPerPeriod)] != 0xFF
+                || SafeListeningErrorCause_isValidByteCode(buf[offsetof(SafeListeningRetExtendedParam, errorCause)]));
+    }
+
+    static bool isValidInquiredType(SafeListeningInquiredType type)
+    {
+        return type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1
+            || type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2
+            || type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+    }
+};
+
+// endregion SAFE_LISTENING_RET_EXTENDED_PARAM
+
+// endregion SAFE_LISTENING_*_EXTENDED_PARAM
+
+// endregion SAFE_LISTENING
 
 } // namespace THMSGV2T2
 

@@ -15,20 +15,6 @@ inline constexpr ENUMTYPE operator ^ (ENUMTYPE a, ENUMTYPE b) noexcept { return 
 inline ENUMTYPE &operator ^= (ENUMTYPE &a, ENUMTYPE b) noexcept { return (ENUMTYPE &)(((std::underlying_type_t<ENUMTYPE> &)a) ^= ((std::underlying_type_t<ENUMTYPE>)b)); } \
 }
 
-#define DEFINE_EXTRA_SIZE_NEW_DELETE() \
-    void* operator new(size_t baseSize, size_t extraBytes) \
-    { \
-        return ::operator new(baseSize + extraBytes); \
-    } \
-    void operator delete(void* p) noexcept \
-    { \
-        ::operator delete(p); \
-    } \
-    void operator delete(void* p, size_t) noexcept \
-    { \
-        ::operator delete(p); \
-    }
-
 inline constexpr auto MAX_BLUETOOTH_MESSAGE_SIZE = 2048;
 inline constexpr char START_MARKER{ 62 };
 inline constexpr char END_MARKER{ 60 };

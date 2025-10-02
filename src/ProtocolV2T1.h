@@ -368,49 +368,8 @@ struct Payload
         return !buf.empty();
     }
 
-    static constexpr bool VARIABLE_SIZE = false;
-};
-
-struct StringData
-{
-    static constexpr size_t STRING_FIRST_INDEX = 1;
-
-    uint8_t length;
-    // String data follows, not null-terminated, max length 128
-
-protected:
-    StringData(const std::string& str)
-    {
-        setStringData(str);
-    }
-
-public:
-    DEFINE_EXTRA_SIZE_NEW_DELETE();
-
-    std::string getStringData() const
-    {
-        const uint8_t* rawData = reinterpret_cast<const uint8_t*>(this);
-        uint8_t strLen = std::min<uint8_t>(length, 128);
-        const char* strBegin = reinterpret_cast<const char*>(&rawData[1]);
-        return std::string(strBegin, strLen);
-    }
-
-private:
-    // Must be called during construction
-    void setStringData(const std::string& str)
-    {
-        uint8_t* rawData = reinterpret_cast<uint8_t*>(this);
-        length = static_cast<uint8_t>(std::min<size_t>(str.length(), 128));
-        memcpy(&rawData[STRING_FIRST_INDEX], str.data(), sizeof(char) * str.length());
-    }
-
-public:
-    static size_t calculateExtraSize(const std::string& str)
-    {
-        return std::min<size_t>(str.length(), 128);
-    }
-
-    static constexpr bool VARIABLE_SIZE = true;
+    static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = false;
+    static constexpr bool VARIABLE_SIZE_ONE_ARRAY_AT_END = false;
 };
 
 // === CONNECT ===
@@ -457,12 +416,12 @@ struct ConnectGetProtocolInfo : Payload
 struct ConnectRetProtocolInfo : Payload
 {
     ConnectInquiredType inquiredType; // 0x1
-    int protocolVersion_needsByteSwap; // 0x2-0x5
+    uint32_t protocolVersion_needsByteSwap; // 0x2-0x5
     MessageMdrV2EnableDisable supportTable1Value; // 0x6
     MessageMdrV2EnableDisable supportTable2Value; // 0x7
 
     ConnectRetProtocolInfo(
-        ConnectInquiredType inquiredType, int protocolVersion, bool supportTable1Value, bool supportTable2Value
+        ConnectInquiredType inquiredType, uint32_t protocolVersion, bool supportTable1Value, bool supportTable2Value
     )
         : Payload(Command::CONNECT_RET_PROTOCOL_INFO)
         , inquiredType(inquiredType)
@@ -471,7 +430,7 @@ struct ConnectRetProtocolInfo : Payload
         , supportTable2Value(supportTable2Value)
     {}
 
-    int getProtocolVersion() const
+    uint32_t getProtocolVersion() const
     {
         return byteOrderSwap(protocolVersion_needsByteSwap);
     }
@@ -613,69 +572,67 @@ struct ConnectRetDeviceInfo : Payload
 
 // - MODEL_NAME
 
-struct ConnectRetDeviceInfoModelName : ConnectRetDeviceInfo, StringData
+struct ConnectRetDeviceInfoModelName : ConnectRetDeviceInfo
 {
+    uint8_t modelNameLength; // 0x2
+    char modelName[]; // 0x3-
+
 private:
-    ConnectRetDeviceInfoModelName(DeviceInfoType type, const std::string& modelName)
-        : ConnectRetDeviceInfo(type)
-        , StringData(modelName)
-    {}
+    ConnectRetDeviceInfoModelName(const std::span<const char>& modelName)
+        : ConnectRetDeviceInfo(DeviceInfoType::MODEL_NAME)
+        , modelNameLength(modelName.size())
+    {
+        memcpy(this->modelName, modelName.data(), modelNameLength);
+    }
 
 public:
-    static std::unique_ptr<ConnectRetDeviceInfoModelName> create(
-        size_t* outSize, DeviceInfoType type, const std::string& modelName)
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(127);
+
+    std::string getModelName() const
     {
-        *outSize = calculateSize(modelName);
-        size_t extra = *outSize - sizeof(ConnectRetDeviceInfoModelName);
-        return std::unique_ptr<ConnectRetDeviceInfoModelName>(
-            new(extra) ConnectRetDeviceInfoModelName(type, modelName));
+        return std::string(modelName, modelNameLength);
     }
 
     static bool isValid(const std::span<const uint8_t>& buf)
     {
         return ConnectRetDeviceInfo::isValid(buf)
             && buf.size() > sizeof(ConnectRetDeviceInfoModelName)
-            && (uint8_t)(buf.size() - sizeof(ConnectRetDeviceInfoModelName)) == buf[offsetof(ConnectRetDeviceInfoModelName, length)]
-            && buf[offsetof(ConnectRetDeviceInfoModelName, length)] < 128; // new StringData_Factory().isValid(copyStringBytes(buf))
-    }
-
-    static size_t calculateSize(const std::string& modelName)
-    {
-        return sizeof(ConnectRetDeviceInfoModelName) + calculateExtraSize(modelName);
+            && (uint8_t)(buf.size() - sizeof(ConnectRetDeviceInfoModelName)) == buf[offsetof(ConnectRetDeviceInfoModelName, modelNameLength)]
+            && buf[offsetof(ConnectRetDeviceInfoModelName, modelNameLength)] <= ARRAY_AT_END_MAX_SIZE; // new StringData_Factory().isValid(copyStringBytes(buf))
     }
 };
 
+static_assert(sizeof(ConnectRetDeviceInfoModelName) == 3);
+
 // - FW_VERSION
 
-struct ConnectRetDeviceInfoFwVersion : ConnectRetDeviceInfo, StringData
+struct ConnectRetDeviceInfoFwVersion : ConnectRetDeviceInfo
 {
+    uint8_t fwVersionLength; // 0x2
+    char fwVersion[]; // 0x3-
+
 private:
-    ConnectRetDeviceInfoFwVersion(DeviceInfoType type, const std::string& fwVersion)
-        : ConnectRetDeviceInfo(type)
-        , StringData(fwVersion)
-    {}
+    ConnectRetDeviceInfoFwVersion(const std::span<const char>& fwVersion)
+        : ConnectRetDeviceInfo(DeviceInfoType::FW_VERSION)
+        , fwVersionLength(fwVersion.size())
+    {
+        memcpy(this->fwVersion, fwVersion.data(), fwVersionLength);
+    }
 
 public:
-    static std::unique_ptr<ConnectRetDeviceInfoFwVersion> create(
-        size_t* outSize, DeviceInfoType type, const std::string& fwVersion)
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(127);
+
+    std::string getFwVersion() const
     {
-        *outSize = calculateSize(fwVersion);
-        size_t extra = *outSize - sizeof(ConnectRetDeviceInfoFwVersion);
-        return std::unique_ptr<ConnectRetDeviceInfoFwVersion>(
-            new(extra) ConnectRetDeviceInfoFwVersion(type, fwVersion));
+        return std::string(fwVersion, fwVersionLength);
     }
 
     static bool isValid(const std::span<const uint8_t>& buf)
     {
         return ConnectRetDeviceInfo::isValid(buf)
             && buf.size() > sizeof(ConnectRetDeviceInfoFwVersion)
-            && (uint8_t)(buf.size() - sizeof(ConnectRetDeviceInfoFwVersion)) == buf[offsetof(ConnectRetDeviceInfoFwVersion, length)]
-            && buf[offsetof(ConnectRetDeviceInfoFwVersion, length)] < 128; // new StringData_Factory().isValid(copyStringBytes(buf))
-    }
-
-    static size_t calculateSize(const std::string& fwVersion)
-    {
-        return sizeof(ConnectRetDeviceInfoFwVersion) + calculateExtraSize(fwVersion);
+            && (uint8_t)(buf.size() - sizeof(ConnectRetDeviceInfoFwVersion)) == buf[offsetof(ConnectRetDeviceInfoFwVersion, fwVersionLength)]
+            && buf[offsetof(ConnectRetDeviceInfoFwVersion, fwVersionLength)] <= ARRAY_AT_END_MAX_SIZE; // new StringData_Factory().isValid(copyStringBytes(buf))
     }
 };
 
@@ -725,50 +682,27 @@ struct ConnectGetSupportFunction : Payload
 
 struct ConnectRetSupportFunction : Payload
 {
-    static constexpr size_t FUNCTIONS_FIRST_INDEX = 3;
-
     ConnectInquiredType inquiredType; // 0x1
     uint8_t numberOfFunction; // 0x2
-    // Support function data follows, each of type MessageMdrV2SupportFunction (2 bytes)
+    MessageMdrV2SupportFunction supportFunctions[]; // 0x3-
 
 private:
     ConnectRetSupportFunction(
-        ConnectInquiredType inquiredType, const std::vector<MessageMdrV2SupportFunction>& supportFunctions
+        const std::span<const MessageMdrV2SupportFunction>& supportFunctions, ConnectInquiredType inquiredType
     )
         : Payload(Command::CONNECT_RET_SUPPORT_FUNCTION)
         , inquiredType(inquiredType)
+        , numberOfFunction(supportFunctions.size())
     {
-        setSupportFunctions(supportFunctions);
+        memcpy(this->supportFunctions, supportFunctions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
     }
 
 public:
-    DEFINE_EXTRA_SIZE_NEW_DELETE();
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
 
     std::span<const MessageMdrV2SupportFunction> getSupportFunctions() const
     {
-        const uint8_t* rawData = reinterpret_cast<const uint8_t*>(this);
-        const MessageMdrV2SupportFunction* supportFunctionsBegin =
-            reinterpret_cast<const MessageMdrV2SupportFunction*>(&rawData[FUNCTIONS_FIRST_INDEX]);
-        return { supportFunctionsBegin, numberOfFunction };
-    }
-
-private:
-    // Must be called during construction
-    void setSupportFunctions(const std::vector<MessageMdrV2SupportFunction>& functions)
-    {
-        uint8_t* rawData = reinterpret_cast<uint8_t*>(this);
-        numberOfFunction = functions.size();
-        memcpy(&rawData[FUNCTIONS_FIRST_INDEX], functions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
-    }
-
-public:
-    static std::unique_ptr<ConnectRetSupportFunction> create(
-        size_t* outSize, ConnectInquiredType inquiredType, const std::vector<MessageMdrV2SupportFunction>& functions)
-    {
-        *outSize = calculateSize(functions);
-        size_t extra = *outSize - sizeof(ConnectRetSupportFunction);
-        return std::unique_ptr<ConnectRetSupportFunction>(
-            new(extra) ConnectRetSupportFunction(inquiredType, functions));
+        return { supportFunctions, numberOfFunction };
     }
 
     static bool isValid(const std::span<const uint8_t>& buf)
@@ -779,13 +713,6 @@ public:
             && buf.size() >= sizeof(ConnectRetSupportFunction)
             && buf.size() == sizeof(ConnectRetSupportFunction) + sizeof(MessageMdrV2SupportFunction) * buf[offsetof(ConnectRetSupportFunction, numberOfFunction)];
     }
-
-    static size_t calculateSize(const std::vector<MessageMdrV2SupportFunction>& functions)
-    {
-        return sizeof(ConnectRetSupportFunction) + sizeof(MessageMdrV2SupportFunction) * functions.size();
-    }
-
-    static constexpr bool VARIABLE_SIZE = true;
 };
 
 // POWER_*_STATUS
@@ -2052,11 +1979,11 @@ struct GsSettingInfo
         return info;
     }
 
-    static void serialize(std::vector<uint8_t>& buf, const GsSettingInfo& info)
+    void serialize(std::vector<uint8_t>& buf)
     {
-        buf.push_back(static_cast<uint8_t>(info.stringFormat));
-        writePrefixedString(buf, info.subject);
-        writePrefixedString(buf, info.summary);
+        buf.push_back(static_cast<uint8_t>(stringFormat));
+        writePrefixedString(buf, subject);
+        writePrefixedString(buf, summary);
     }
 };
 
@@ -2115,15 +2042,15 @@ public:
         return cap;
     }
 
-    static void serialize(std::vector<uint8_t>& buf, const GsRetCapability& cap)
+    void serialize(std::vector<uint8_t>& buf)
     {
         buf.push_back(static_cast<uint8_t>(Command::GENERAL_SETTING_RET_CAPABILITY));
-        buf.push_back(static_cast<uint8_t>(cap.type));
-        buf.push_back(static_cast<uint8_t>(cap.settingType));
-        GsSettingInfo::serialize(buf, cap.settingInfo);
+        buf.push_back(static_cast<uint8_t>(type));
+        buf.push_back(static_cast<uint8_t>(settingType));
+        settingInfo.serialize(buf);
     }
 
-    static constexpr bool VARIABLE_SIZE = true;
+    static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = true;
 };
 
 #pragma pack(push, 1)
