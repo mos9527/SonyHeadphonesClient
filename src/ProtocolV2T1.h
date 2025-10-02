@@ -6,6 +6,7 @@
 
 #include "ByteMagic.h"
 #include "Constants.h"
+#include "Protocol.h"
 
 #pragma pack(push, 1)
 
@@ -1736,13 +1737,6 @@ struct NcAsmParamBase : NcAsmParam
 
 struct NcAsmParamModeNcDualModeSwitchAsmSeamless : NcAsmParamBase
 {
-    static constexpr Command COMMAND_IDS[] = {
-        Command::UNKNOWN,
-        Command::NCASM_RET_PARAM,
-        Command::NCASM_SET_PARAM,
-        Command::NCASM_NTFY_PARAM,
-    };
-
     NcAsmMode ncAsmMode; // 0x4
     AmbientSoundMode ambientSoundMode; // 0x5
     uint8_t ambientSoundLevelValue; // 0x6
@@ -1773,13 +1767,6 @@ struct NcAsmParamModeNcDualModeSwitchAsmSeamless : NcAsmParamBase
 
 struct NcAsmParamModeNcDualModeSwitchAsmSeamlessNa : NcAsmParamBase
 {
-    static constexpr Command COMMAND_IDS[] = {
-        Command::UNKNOWN,
-        Command::NCASM_RET_PARAM,
-        Command::NCASM_SET_PARAM,
-        Command::NCASM_NTFY_PARAM,
-    };
-
     NcAsmMode ncAsmMode; // 0x4
     AmbientSoundMode ambientSoundMode; // 0x5
     uint8_t ambientSoundLevelValue; // 0x6
@@ -1813,17 +1800,61 @@ struct NcAsmParamModeNcDualModeSwitchAsmSeamlessNa : NcAsmParamBase
     }
 };
 
+// - ASM_ON_OFF
+
+struct NcAsmParamAsmOnOff : NcAsmParamBase
+{
+    AmbientSoundMode ambientSoundMode; // 0x4
+    NcAsmOnOffValue ambientSoundValue; // 0x5
+
+    NcAsmParamAsmOnOff(
+        CommandType ct, ValueChangeStatus valueChangeStatus, NcAsmOnOffValue ncAsmTotalEffect,
+        AmbientSoundMode ambientSoundMode, NcAsmOnOffValue ambientSoundValue
+    )
+        : NcAsmParamBase(ct, NcAsmInquiredType::ASM_ON_OFF, valueChangeStatus, ncAsmTotalEffect)
+        , ambientSoundMode(ambientSoundMode)
+        , ambientSoundValue(ambientSoundValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return NcAsmParamBase::isValid(buf, ct)
+            && buf.size() == sizeof(NcAsmParamAsmOnOff)
+            && buf[offsetof(NcAsmParamAsmOnOff, type)] == static_cast<uint8_t>(NcAsmInquiredType::ASM_ON_OFF)
+            && AmbientSoundMode_isValidByteCode(buf[offsetof(NcAsmParamAsmOnOff, ambientSoundMode)])
+            && NcAsmOnOffValue_isValidByteCode(buf[offsetof(NcAsmParamAsmOnOff, ambientSoundValue)]);
+    }
+};
+
+// - ASM_SEAMLESS
+
+struct NcAsmParamAsmSeamless : NcAsmParamBase
+{
+    AmbientSoundMode ambientSoundMode; // 0x4
+    uint8_t ambientSoundLevelValue; // 0x5
+
+    NcAsmParamAsmSeamless(
+        CommandType ct, ValueChangeStatus valueChangeStatus, NcAsmOnOffValue ncAsmTotalEffect,
+        AmbientSoundMode ambientSoundMode, uint8_t ambientSoundLevelValue
+    )
+        : NcAsmParamBase(ct, NcAsmInquiredType::ASM_SEAMLESS, valueChangeStatus, ncAsmTotalEffect)
+        , ambientSoundMode(ambientSoundMode)
+        , ambientSoundLevelValue(ambientSoundLevelValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return NcAsmParamBase::isValid(buf, ct)
+            && buf.size() == sizeof(NcAsmParamAsmSeamless)
+            && buf[offsetof(NcAsmParamAsmSeamless, type)] == static_cast<uint8_t>(NcAsmInquiredType::ASM_SEAMLESS)
+            && AmbientSoundMode_isValidByteCode(buf[offsetof(NcAsmParamAsmSeamless, ambientSoundMode)]);
+    }
+};
+
 // - NC_AMB_TOGGLE
 
 struct NcAsmParamNcAmbToggle : NcAsmParam
 {
-    static constexpr Command COMMAND_IDS[] = {
-        Command::UNKNOWN,
-        Command::NCASM_RET_PARAM,
-        Command::NCASM_SET_PARAM,
-        Command::NCASM_NTFY_PARAM,
-    };
-
     Function function; // 0x2
 
     NcAsmParamNcAmbToggle(CommandType ct, Function function)

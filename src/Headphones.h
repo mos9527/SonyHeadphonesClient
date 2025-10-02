@@ -80,7 +80,6 @@ enum class HeadphonesEvent
 	AutoPauseUpdate,
 	VoiceGuidanceEnabledUpdate,
 	VoiceGuidanceVolumeUpdate,
-	VoiceCaptureEnabledUpdate,
 
 	SpeakToChatParamUpdate,
 	SpeakToChatEnabledUpdate,
@@ -93,8 +92,11 @@ enum class HeadphonesEvent
 	EqualizerParamUpdate,
 
 	MultipointDeviceSwitchUpdate,
-	MultipointEnabledUpdate,
-	TouchSensorControlPanelEnabledUpdate,
+
+	GeneralSetting1Update,
+	GeneralSetting2Update,
+	GeneralSetting3Update,
+	GeneralSetting4Update,
 
 	ConnectedDeviceUpdate,
 
@@ -191,7 +193,7 @@ public:
 	// Ambient sound level. 0 ~ 20.
 	// 0 shouldn't be a possible value on the app.
 	Property<int> asmLevel{};
-	Property<bool> draggingAsmLevel{};
+	Property<THMSGV2T1::ValueChangeStatus> changingAsmLevel{ THMSGV2T1::ValueChangeStatus::CHANGED, THMSGV2T1::ValueChangeStatus::CHANGED };
 
 	// Is auto ambient sound enabled? (WH-1000XM6 onwards)
 	Property<bool> autoAsmEnabled{};
@@ -240,11 +242,13 @@ public:
 	// Paired devices that are not connected
 	std::map<std::string, BluetoothDevice> pairedDevices;
 
-	// Is Multipoint enabled?
-	Property<bool> mpEnabled{};
-
-	// Capture Voice During a Phone Call thing
-	Property<bool> voiceCapEnabled{};
+	struct GsCapability
+	{
+		THMSGV2T1::GsSettingType type;
+		THMSGV2T1::GsSettingInfo info;
+	};
+	ReadonlyProperty<GsCapability> gs1c{}, gs2c{}, gs3c{}, gs4c{};
+	Property<bool> gs1{}, gs2{}, gs3{}, gs4{}; // FIXME uint8_t to allow both bool and list types
 
 	// Playback
 	struct
@@ -278,9 +282,6 @@ public:
 	// [WF only] Touch sensor function
 	Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
 
-	// [WH only] Touch sensor control panel enabled
-	Property<bool> touchSensorControlPanelEnabled{};
-
 	// [WH only] [NC/AMB] Button Setting
 	Property<THMSGV2T1::Function> ncAmbButtonMode{};
 
@@ -292,6 +293,10 @@ public:
 
 	bool supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const;
 	bool supports(MessageMdrV2FunctionType_Table2 functionTypeTable2) const;
+	bool supportsNc() const;
+	bool supportsAsm() const;
+	bool supportsSafeListening() const;
+	bool supportsAutoPowerOff() const;
 
 	bool isChanged();
 	void setChanges();
@@ -357,16 +362,16 @@ private:
 	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
-	HeadphonesEvent _handlePlaybackSndPressureRet(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePowerParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage &msg);
 	HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleGsCapability(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleMultipointEtcEnable(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage &msg, CommandType ct);
 	HeadphonesEvent _handleListeningMode(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleAutomaticPowerOffButtonMode(const HeadphonesMessage &msg);
+	HeadphonesEvent _handleSystemParam(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage &msg);
 	HeadphonesEvent _handleEqualizer(const HeadphonesMessage &msg);
