@@ -28,17 +28,17 @@ jobs:
           - os: windows-latest
             arch: x64
             binary_path: build/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-x64.exe"
+            artifact_name: "SonyHeadphonesClient-win-x64"
             script: ""
           - os: windows-latest
             arch: ARM64
             binary_path: build/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-arm64.exe"
+            artifact_name: "SonyHeadphonesClient-win-arm64"
             script: ""
           - os: macos-latest
             arch: universal
             binary_path: build/SonyHeadphonesClient.zip
-            artifact_name: "SonyHeadphonesClient-macOS.zip"
+            artifact_name: "SonyHeadphonesClient-macOS"
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -120,7 +120,8 @@ jobs:
         version=$(echo "${{ github.event.head_commit.message }}" | awk 'NR==1' | awk '{print $2}')
         echo "::set-output name=version::$version"
 
-    - uses: actions/checkout@v3    
+    - uses: actions/checkout@v3
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -133,8 +134,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         path: ${{github.workspace}}/artifacts
-        merge-multiple: true
-  
+
     - name: Display structure of downloaded files
       run: ls -R ${{github.workspace}}/artifacts
 
@@ -143,7 +143,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-linux-x64/SonyHeadphonesClient
         asset_name: SonyHeadphonesClient-linux-x64
         asset_content_type: application/octet-stream
 
@@ -152,7 +152,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-x64.exe
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-x64/SonyHeadphonesClient.exe
         asset_name: SonyHeadphonesClient-win-x64.exe
         asset_content_type: application/vnd.microsoft.portable-executable
 
@@ -161,7 +161,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-arm64.exe
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-arm64/SonyHeadphonesClient.exe
         asset_name: SonyHeadphonesClient-win-arm64.exe
         asset_content_type: application/vnd.microsoft.portable-executable
 
@@ -170,7 +170,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient.zip
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-macOS/SonyHeadphonesClient.zip
         asset_name: SonyHeadphonesClient-macOS.zip
         asset_content_type: application/zip
 

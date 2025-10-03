@@ -596,7 +596,7 @@ private:
         : ConnectRetDeviceInfo(DeviceInfoType::MODEL_NAME)
         , modelNameLength(modelName.size())
     {
-        memcpy(this->modelName, modelName.data(), modelNameLength);
+        std::memcpy(this->modelName, modelName.data(), modelNameLength);
     }
 
 public:
@@ -630,7 +630,7 @@ private:
         : ConnectRetDeviceInfo(DeviceInfoType::FW_VERSION)
         , fwVersionLength(fwVersion.size())
     {
-        memcpy(this->fwVersion, fwVersion.data(), fwVersionLength);
+        std::memcpy(this->fwVersion, fwVersion.data(), fwVersionLength);
     }
 
 public:
@@ -718,7 +718,7 @@ private:
         , inquiredType(inquiredType)
         , numberOfFunction(supportFunctions.size())
     {
-        memcpy(this->supportFunctions, supportFunctions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
+        std::memcpy(this->supportFunctions, supportFunctions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
     }
 
 public:

@@ -288,7 +288,7 @@ private:
         , inquiredType(inquiredType)
         , numberOfFunction(supportFunctions.size())
     {
-        memcpy(this->supportFunctions, supportFunctions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
+        std::memcpy(this->supportFunctions, supportFunctions.data(), sizeof(MessageMdrV2SupportFunction) * numberOfFunction);
     }
 
 public:
@@ -1066,7 +1066,7 @@ private:
         : SafeListeningNotifyStatusHbs(SafeListeningInquiredType::SAFE_LISTENING_HBS_1, logDataStatus)
         , logDataNum(logDataSpan.size())
     {
-        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData1) * logDataNum);
+        std::memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData1) * logDataNum);
     }
 
 public:
@@ -1117,7 +1117,7 @@ private:
         : SafeListeningNotifyStatusHbs(SafeListeningInquiredType::SAFE_LISTENING_HBS_2, logDataStatus)
         , logDataNum(logDataSpan.size())
     {
-        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData2) * logDataNum);
+        std::memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData2) * logDataNum);
     }
 
 public:
@@ -1202,7 +1202,7 @@ private:
         : SafeListeningNotifyStatusTws(SafeListeningInquiredType::SAFE_LISTENING_TWS_1, logDataStatusLeft, logDataStatusRight)
         , logDataNum(logDataSpan.size())
     {
-        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData1) * logDataNum);
+        std::memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData1) * logDataNum);
     }
 
 public:
@@ -1254,7 +1254,7 @@ private:
         : SafeListeningNotifyStatusTws(SafeListeningInquiredType::SAFE_LISTENING_TWS_2, logDataStatusLeft, logDataStatusRight)
         , logDataNum(logDataSpan.size())
     {
-        memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData2) * logDataNum);
+        std::memcpy(logData, logDataSpan.data(), sizeof(SafeListeningData2) * logDataNum);
     }
 
 public:
