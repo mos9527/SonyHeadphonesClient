@@ -30,7 +30,7 @@ namespace CommandSerializer
 	* 
 	* Serialized data format: <START_MARKER>ESCAPE_SPECIALS(<DATA_TYPE><SEQ_NUMBER><BIG ENDIAN 4 BYTE SIZE OF UNESCAPED DATA><DATA><1 BYTE CHECKSUM>)<END_MARKER>
 	*/
-	Buffer packageDataForBt(const BufferSpan& src, DATA_TYPE dataType, unsigned int seqNumber);
+	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber);
 
 	Buffer serializeAutoPowerOffSetting(bool autoPowerOff);
 	Buffer serializeAutoPauseSetting(bool autoPause);
@@ -61,9 +61,9 @@ namespace CommandSerializer
 		CommandMessage(BufferSpan&& buf) : messageBytes(_unescapeSpecials(buf)) {
 			assert(verify());
 		}
-		CommandMessage(DATA_TYPE dataType, BufferSpan const& buffer, unsigned char seqNumber) {
-			messageBytes = packageDataForBt(buffer, dataType, seqNumber);
-		}
+		CommandMessage(DATA_TYPE dataType, const uint8_t* data, size_t len, unsigned char seqNumber)
+			: messageBytes(packageDataForBt(data, len, dataType, seqNumber))
+		{}
 
 		DATA_TYPE getDataType() const { return static_cast<DATA_TYPE>(messageBytes[1]); }
 		unsigned char getSeqNumber() const { return messageBytes[2]; }

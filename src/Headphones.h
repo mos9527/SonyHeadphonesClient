@@ -494,7 +494,7 @@ void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& 
         throw std::runtime_error("Invalid outgoing payload");
     }
 
-    _conn.sendCommand(span, type);
+    _conn.sendCommand(span.data(), span.size(), type);
 
     /*uint8_t responseCommandId;
     if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)

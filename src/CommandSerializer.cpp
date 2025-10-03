@@ -99,20 +99,20 @@ namespace CommandSerializer
 		return _sumChecksum(src.data(), src.size());
 	}
 
-	Buffer packageDataForBt(const BufferSpan& src, DATA_TYPE dataType, unsigned int seqNumber)
+	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber)
 	{
 		//Reserve at least the size for the size, start&end markers, and the source
 		Buffer toEscape;
-		toEscape.reserve(src.size() + 2 + sizeof(int));
+		toEscape.reserve(len + 2 + sizeof(int));
 		Buffer ret;
 		ret.reserve(toEscape.capacity());
 		toEscape.push_back(static_cast<uint8_t>(dataType));
 		toEscape.push_back(seqNumber);
-		auto retSize = intToBytesBE(static_cast<unsigned int>(src.size()));
+		auto retSize = intToBytesBE(static_cast<unsigned int>(len));
 		//Insert data size
 		toEscape.insert(toEscape.end(), retSize.begin(), retSize.end());
 		//Insert command data
-		toEscape.insert(toEscape.end(), src.begin(), src.end());
+		toEscape.insert(toEscape.end(), data, data + len);
 
 		auto checksum = _sumChecksum(toEscape);
 		toEscape.push_back(checksum);

@@ -33,14 +33,19 @@ int BluetoothWrapper::sendCommand(CommandSerializer::CommandMessage const& cmd)
     return 0;
 }
 
-int BluetoothWrapper::sendCommand(const BufferSpan& command, DATA_TYPE dataType)
+int BluetoothWrapper::sendCommand(const Buffer& command, DATA_TYPE dataType)
 {
-	return sendCommand(CommandSerializer::CommandMessage(dataType, command, this->_seqNumber));
+	return sendCommand(CommandSerializer::CommandMessage(dataType, command.data(), command.size(), this->_seqNumber));
+}
+
+int BluetoothWrapper::sendCommand(const uint8_t* data, size_t len, DATA_TYPE dataType)
+{
+	return sendCommand(CommandSerializer::CommandMessage(dataType, data, len, this->_seqNumber));
 }
 
 int BluetoothWrapper::sendAck(int seqNumber)
 {
-	return sendCommand(CommandSerializer::CommandMessage(DATA_TYPE::ACK, {}, 1 - seqNumber));
+	return sendCommand(CommandSerializer::CommandMessage(DATA_TYPE::ACK, nullptr, 0, 1 - seqNumber));
 }
 
 bool BluetoothWrapper::isConnected() noexcept
