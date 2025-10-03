@@ -1,118 +1,123 @@
-#include "SingleInstanceFuture.h"
+#pragma once
+
 #include "BluetoothWrapper.h"
 #include "Constants.h"
+#include "SingleInstanceFuture.h"
 
-#include <mutex>
+#include <bitset>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <variant>
-#include <bitset>
 
 template <class T>
 struct Property
 {
-	T current;
-	T desired;
+    T current;
+    T desired;
 
-	bool pendingRequest = false;
+    bool pendingRequest = false;
 
-	void flagPending()
-	{
-		this->pendingRequest = true;
-	};
-	bool isPending()
-	{
-		return this->pendingRequest;
-	};
+    void flagPending()
+    {
+        this->pendingRequest = true;
+    }
 
-	void fulfill()
-	{
-		this->current = this->desired;
-		this->pendingRequest = false;
-	};
-	bool isFulfilled()
-	{
-		return this->desired == this->current;
-	};
-	void overwrite(T const &value)
-	{
-		current = value;
-		desired = value;
-		this->pendingRequest = false;
-	};
+    bool isPending() const
+    {
+        return this->pendingRequest;
+    }
+
+    void fulfill()
+    {
+        this->current = this->desired;
+        this->pendingRequest = false;
+    }
+
+    bool isFulfilled()
+    {
+        return this->desired == this->current;
+    }
+
+    void overwrite(const T& value)
+    {
+        current = value;
+        desired = value;
+        this->pendingRequest = false;
+    };
 };
 
 template <class T>
 struct ReadonlyProperty
 {
-	T current;
+    T current;
 
-	template <typename U>
-	void overwrite(U&& value)
-	{
-		current = std::forward<U>(value);
-	}
+    template <typename U>
+    void overwrite(U&& value)
+    {
+        current = std::forward<U>(value);
+    }
 };
 
 enum class HeadphonesEvent
 {
-	MessageUnhandled = -1,
+    MessageUnhandled = -1,
 
-	NoMessage,
-	NoChange,
+    NoMessage,
+    NoChange,
 
-	JSONMessage,
-	Initialized,
+    JSONMessage,
+    Initialized,
 
-	DeviceInfoUpdate,
-	SupportFunctionUpdate,
+    DeviceInfoUpdate,
+    SupportFunctionUpdate,
 
-	NcAsmParamUpdate,
-	NcAmbButtonModeUpdate,
-	BatteryLevelUpdate,
+    NcAsmParamUpdate,
+    NcAmbButtonModeUpdate,
+    BatteryLevelUpdate,
 
-	PlaybackMetadataUpdate,
-	PlaybackVolumeUpdate,
-	PlaybackPlayPauseUpdate,
+    PlaybackMetadataUpdate,
+    PlaybackVolumeUpdate,
+    PlaybackPlayPauseUpdate,
 
-	SoundPressureUpdate,
-	AutoPowerOffUpdate,
-	AutoPauseUpdate,
-	VoiceGuidanceEnabledUpdate,
-	VoiceGuidanceVolumeUpdate,
+    SoundPressureUpdate,
+    AutoPowerOffUpdate,
+    AutoPauseUpdate,
+    VoiceGuidanceEnabledUpdate,
+    VoiceGuidanceVolumeUpdate,
 
-	SpeakToChatParamUpdate,
-	SpeakToChatEnabledUpdate,
+    SpeakToChatParamUpdate,
+    SpeakToChatEnabledUpdate,
 
-	ListeningModeUpdate,
+    ListeningModeUpdate,
 
-	TouchFunctionUpdate,
+    TouchFunctionUpdate,
 
-	EqualizerAvailableUpdate,
-	EqualizerParamUpdate,
+    EqualizerAvailableUpdate,
+    EqualizerParamUpdate,
 
-	MultipointDeviceSwitchUpdate,
+    MultipointDeviceSwitchUpdate,
 
-	GeneralSetting1Update,
-	GeneralSetting2Update,
-	GeneralSetting3Update,
-	GeneralSetting4Update,
+    GeneralSetting1Update,
+    GeneralSetting2Update,
+    GeneralSetting3Update,
+    GeneralSetting4Update,
 
-	SafeListeningParamUpdate,
+    SafeListeningParamUpdate,
 
-	ConnectedDeviceUpdate,
+    ConnectedDeviceUpdate,
 
-	InteractionUpdate,
+    InteractionUpdate,
 };
 
 using HeadphonesMessage = CommandSerializer::CommandMessage;
 
 enum DeviceCapabilities
 {
-	DC_None = 0x0,
+    DC_None = 0x0,
 
-	// Since WF-1000XM5
-	DC_EqualizerAvailableCommand = 0x1,
+    // Since WF-1000XM5
+    DC_EqualizerAvailableCommand = 0x1,
 };
 
 HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(DeviceCapabilities);
@@ -120,274 +125,275 @@ HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(DeviceCapabilities);
 class Headphones
 {
 public:
-	/* The built-in EQ. All values should integers of range -10~+10 */
-	struct EqualizerConfig
-	{
-		int bassLevel{};
-		std::vector<int> bands;
-		EqualizerConfig() : bassLevel(0), bands(0) {};
-		EqualizerConfig(int bass, std::vector<int> const &bands) : bassLevel(bass), bands(bands) {};
-		bool operator==(EqualizerConfig const &other) const
-		{
-			return bassLevel == other.bassLevel && bands == other.bands;
-		}
-	};
+    /* The built-in EQ. All values should integers of range -10~+10 */
+    struct EqualizerConfig
+    {
+        int bassLevel{};
+        std::vector<int> bands;
+        EqualizerConfig() : bassLevel(0), bands(0) {}
+        EqualizerConfig(int bass, const std::vector<int>& bands) : bassLevel(bass), bands(bands) {}
+        bool operator==(const EqualizerConfig& other) const
+        {
+            return bassLevel == other.bassLevel && bands == other.bands;
+        }
+    };
 
-	/* New Listening Mode in WH-1000XM6 */
-	struct ListeningModeConfig
-	{
-		ListeningMode nonBgmMode{}; // 03 XX
-		bool bgmActive{}; // 04 >XX< ?? (inverted)
-		ListeningModeBgmDistanceMode bgmDistanceMode{}; // 04 ?? >XX<
+    /* New Listening Mode in WH-1000XM6 */
+    struct ListeningModeConfig
+    {
+        ListeningMode nonBgmMode{}; // 03 XX
+        bool bgmActive{}; // 04 >XX< ?? (inverted)
+        ListeningModeBgmDistanceMode bgmDistanceMode{}; // 04 ?? >XX<
 
-		ListeningModeConfig() : nonBgmMode(ListeningMode::Standard), bgmActive(false), bgmDistanceMode(ListeningModeBgmDistanceMode::MyRoom) {};
+        ListeningModeConfig() : nonBgmMode(ListeningMode::Standard), bgmActive(false), bgmDistanceMode(ListeningModeBgmDistanceMode::MyRoom) {}
 
-		ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, ListeningModeBgmDistanceMode bgmDistance)
-			: nonBgmMode(nonBgm), bgmActive(bgmActive), bgmDistanceMode(bgmDistance) {};
+        ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, ListeningModeBgmDistanceMode bgmDistance)
+            : nonBgmMode(nonBgm), bgmActive(bgmActive), bgmDistanceMode(bgmDistance) {}
 
-		ListeningMode getEffectiveMode() const
-		{
-			if (bgmActive)
-				return ListeningMode::BGM;
-			else
-				return nonBgmMode;
-		}
+        ListeningMode getEffectiveMode() const
+        {
+            if (bgmActive)
+                return ListeningMode::BGM;
+            else
+                return nonBgmMode;
+        }
 
-		bool operator==(ListeningModeConfig const &other) const
-		{
-			return nonBgmMode == other.nonBgmMode && bgmActive == other.bgmActive && bgmDistanceMode == other.bgmDistanceMode;
-		}
-	};
+        bool operator==(const ListeningModeConfig& other) const
+        {
+            return nonBgmMode == other.nonBgmMode && bgmActive == other.bgmActive && bgmDistanceMode == other.bgmDistanceMode;
+        }
+    };
 
-	Headphones(BluetoothWrapper &conn);
+    Headphones(BluetoothWrapper& conn);
 
-	ReadonlyProperty<HeadphonesMessage> rawMessage;
+    ReadonlyProperty<HeadphonesMessage> rawMessage;
 
-	// Capability counter and MAC address
-	ReadonlyProperty<uint8_t> capabilityCounter{};
-	ReadonlyProperty<std::string> uniqueId{};
+    // Capability counter and MAC address
+    ReadonlyProperty<uint8_t> capabilityCounter{};
+    ReadonlyProperty<std::string> uniqueId{};
 
-	// Device model name from firmware
-	ReadonlyProperty<std::string> modelName{};
+    // Device model name from firmware
+    ReadonlyProperty<std::string> modelName{};
 
-	// Firmware version string
-	ReadonlyProperty<std::string> fwVersion{};
+    // Firmware version string
+    ReadonlyProperty<std::string> fwVersion{};
 
-	// Series and color
-	ReadonlyProperty<THMSGV2T1::ModelSeries> modelSeries{};
-	ReadonlyProperty<ModelColor> modelColor{};
+    // Series and color
+    ReadonlyProperty<THMSGV2T1::ModelSeries> modelSeries{};
+    ReadonlyProperty<ModelColor> modelColor{};
 
-	// Support functions
-	std::bitset<256> supportFunctions1{};
-	std::bitset<256> supportFunctions2{};
-	ReadonlyProperty<std::string> supportFunctionString1{};
-	ReadonlyProperty<std::string> supportFunctionString2{};
+    // Support functions
+    std::bitset<256> supportFunctions1{};
+    std::bitset<256> supportFunctions2{};
+    ReadonlyProperty<std::string> supportFunctionString1{};
+    ReadonlyProperty<std::string> supportFunctionString2{};
 
-	// Is NC or Ambient sound enabled?
-	Property<bool> asmEnabled{};
+    // Is NC or Ambient sound enabled?
+    Property<bool> asmEnabled{};
 
-	// NC or Ambient sound mode?
-	Property<THMSGV2T1::NcAsmMode> asmMode{};
+    // NC or Ambient sound mode?
+    Property<THMSGV2T1::NcAsmMode> asmMode{};
 
-	// Is Foucs On Voice enabled?
-	Property<bool> asmFoucsOnVoice{};
+    // Is Foucs On Voice enabled?
+    Property<bool> asmFoucsOnVoice{};
 
-	// Ambient sound level. 0 ~ 20.
-	// 0 shouldn't be a possible value on the app.
-	Property<int> asmLevel{};
-	Property<THMSGV2T1::ValueChangeStatus> changingAsmLevel{ THMSGV2T1::ValueChangeStatus::CHANGED, THMSGV2T1::ValueChangeStatus::CHANGED };
+    // Ambient sound level. 0 ~ 20.
+    // 0 shouldn't be a possible value on the app.
+    Property<int> asmLevel{};
+    Property<THMSGV2T1::ValueChangeStatus> changingAsmLevel{ THMSGV2T1::ValueChangeStatus::CHANGED, THMSGV2T1::ValueChangeStatus::CHANGED };
 
-	// Is auto ambient sound enabled? (WH-1000XM6 onwards)
-	Property<bool> autoAsmEnabled{};
+    // Is auto ambient sound enabled? (WH-1000XM6 onwards)
+    Property<bool> autoAsmEnabled{};
 
-	// Auto ambient sound sensitivity. 0 ~ 2. (WH-1000XM6 onwards)
-	Property<THMSGV2T1::NoiseAdaptiveSensitivity> autoAsmSensitivity{};
+    // Auto ambient sound sensitivity. 0 ~ 2. (WH-1000XM6 onwards)
+    Property<THMSGV2T1::NoiseAdaptiveSensitivity> autoAsmSensitivity{};
 
-	// Is automatic power off enabled?
-	Property<bool> autoPowerOffEnabled{};
+    // Is automatic power off enabled?
+    Property<bool> autoPowerOffEnabled{};
 
-	// Is "Pause when headphones are removed" enabled?
-	Property<bool> autoPauseEnabled{};
+    // Is "Pause when headphones are removed" enabled?
+    Property<bool> autoPauseEnabled{};
 
-	// Is voice guidance enabled?
-	Property<bool> voiceGuidanceEnabled{};
+    // Is voice guidance enabled?
+    Property<bool> voiceGuidanceEnabled{};
 
-	// Volume for voice guidance. -2 ~ 2
-	Property<int> miscVoiceGuidanceVol{};
+    // Volume for voice guidance. -2 ~ 2
+    Property<int> miscVoiceGuidanceVol{};
 
-	// Battery levels 0 ~ 100
-	struct BatteryData
-	{
-		uint8_t level{};
-		THMSGV2T1::BatteryChargingStatus chargingStatus{};
-		uint8_t thresh{ 0xFF };
-	};
-	ReadonlyProperty<BatteryData> statBatteryL{};
-	ReadonlyProperty<BatteryData> statBatteryR{};
-	ReadonlyProperty<BatteryData> statBatteryCase{};
+    // Battery levels 0 ~ 100
+    struct BatteryData
+    {
+        uint8_t level{};
+        THMSGV2T1::BatteryChargingStatus chargingStatus{};
+        uint8_t thresh{ 0xFF };
+    };
+    ReadonlyProperty<BatteryData> statBatteryL{};
+    ReadonlyProperty<BatteryData> statBatteryR{};
+    ReadonlyProperty<BatteryData> statBatteryCase{};
 
-	// Volume. 0 ~ 30
-	Property<int> volume{};
+    // Volume. 0 ~ 30
+    Property<int> volume{};
 
-	// Play/Pause. true for play, false for pause
-	ReadonlyProperty<bool> playPause{};
+    // Play/Pause. true for play, false for pause
+    ReadonlyProperty<bool> playPause{};
 
-	// Plaintext messages
-	ReadonlyProperty<std::string> deviceMessages{};
+    // Plaintext messages
+    ReadonlyProperty<std::string> deviceMessages{};
 
-	// Headphone interaction message. Avalialbe after InteractionUpdate
-	ReadonlyProperty<std::string> interactionMessage{};
+    // Headphone interaction message. Avalialbe after InteractionUpdate
+    ReadonlyProperty<std::string> interactionMessage{};
 
-	// Connected devices
-	std::map<std::string, BluetoothDevice> connectedDevices;
+    // Connected devices
+    std::map<std::string, BluetoothDevice> connectedDevices;
 
-	// Paired devices that are not connected
-	std::map<std::string, BluetoothDevice> pairedDevices;
+    // Paired devices that are not connected
+    std::map<std::string, BluetoothDevice> pairedDevices;
 
-	struct GsCapability
-	{
-		THMSGV2T1::GsSettingType type;
-		THMSGV2T1::GsSettingInfo info;
-	};
-	ReadonlyProperty<GsCapability> gs1c{}, gs2c{}, gs3c{}, gs4c{};
-	Property<bool> gs1{}, gs2{}, gs3{}, gs4{}; // FIXME uint8_t to allow both bool and list types
+    struct GsCapability
+    {
+        THMSGV2T1::GsSettingType type;
+        THMSGV2T1::GsSettingInfo info;
+    };
+    ReadonlyProperty<GsCapability> gs1c{}, gs2c{}, gs3c{}, gs4c{};
+    Property<bool> gs1{}, gs2{}, gs3{}, gs4{}; // FIXME uint8_t to allow both bool and list types
 
-	// Playback
-	struct
-	{
-		std::string title;
-		std::string album;
-		std::string artist;
-		int sndPressure{};
-	} playback;
+    // Playback
+    struct
+    {
+        std::string title;
+        std::string album;
+        std::string artist;
+        int sndPressure{};
+    } playback;
 
-	// Safe listening
-	struct
-	{
-		Property<bool> preview{};
-	} safeListening;
+    // Safe listening
+    struct
+    {
+        Property<bool> preview{};
+    } safeListening;
 
-	// Multipoint
-	Property<std::string> mpDeviceMac{};
+    // Multipoint
+    Property<std::string> mpDeviceMac{};
 
-	// Speak to chat
-	Property<bool> stcEnabled{};
+    // Speak to chat
+    Property<bool> stcEnabled{};
 
-	// AUTO:0 HIGH:1 LOW:2
-	Property<int> stcLevel{};
+    // AUTO:0 HIGH:1 LOW:2
+    Property<int> stcLevel{};
 
-	// SHORT:0 STANDARD:1 LONG:2 OFF(Does not close automatically):3
-	Property<int> stcTime{};
+    // SHORT:0 STANDARD:1 LONG:2 OFF(Does not close automatically):3
+    Property<int> stcTime{};
 
-	// Listening mode
-	Property<ListeningModeConfig> listeningModeConfig{};
+    // Listening mode
+    Property<ListeningModeConfig> listeningModeConfig{};
 
-	// Equalizer
-	ReadonlyProperty<bool> eqAvailable{};
-	Property<int> eqPreset;
-	Property<EqualizerConfig> eqConfig;
+    // Equalizer
+    ReadonlyProperty<bool> eqAvailable{};
+    Property<int> eqPreset;
+    Property<EqualizerConfig> eqConfig;
 
-	// [WF only] Touch sensor function
-	Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
+    // [WF only] Touch sensor function
+    Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
 
-	// [WH only] [NC/AMB] Button Setting
-	Property<THMSGV2T1::Function> ncAmbButtonMode{};
+    // [WH only] [NC/AMB] Button Setting
+    Property<THMSGV2T1::Function> ncAmbButtonMode{};
 
-	// Protocol version
-	uint32_t protocolVersion{};
-	bool supportsTable1{};
-	bool supportsTable2{};
-	DeviceCapabilities deviceCapabilities{};
+    // Protocol version
+    uint32_t protocolVersion{};
+    bool supportsTable1{};
+    bool supportsTable2{};
+    DeviceCapabilities deviceCapabilities{};
 
-	bool supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const;
-	bool supports(MessageMdrV2FunctionType_Table2 functionTypeTable2) const;
-	bool supportsNc() const;
-	bool supportsAsm() const;
-	bool supportsSafeListening() const;
-	bool supportsAutoPowerOff() const;
+    bool supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const;
+    bool supports(MessageMdrV2FunctionType_Table2 functionTypeTable2) const;
+    bool supportsNc() const;
+    bool supportsAsm() const;
+    bool supportsSafeListening() const;
+    bool supportsAutoPowerOff() const;
 
-	bool isChanged();
-	void setChanges();
+    bool isChanged();
+    void setChanges();
 
-	void waitForAck(int timeout = 1);
-	void waitForProtocolInfo(int timeout);
-	void waitForSupportFunction(int timeout);
-	// void waitForResponse(int timeout = 5);
+    void waitForAck(int timeout = 1);
+    void waitForProtocolInfo(int timeout);
+    void waitForSupportFunction(int timeout);
+    // void waitForResponse(int timeout = 5);
 
-	template <typename TPayload, typename... TArgs>
-	void sendGet(TArgs&&... args);
+    template <typename TPayload, typename... TArgs>
+    void sendGet(TArgs&&... args);
 
-	template <typename TPayload, typename... TArgs>
-	void sendSet(TArgs&&... args);
+    template <typename TPayload, typename... TArgs>
+    void sendSet(TArgs&&... args);
 
-	template <typename TPayload, typename... TArgs>
-	void sendMdrCommandWithType(CommandType ct, TArgs&&... args);
+    template <typename TPayload, typename... TArgs>
+    void sendMdrCommandWithType(CommandType ct, TArgs&&... args);
 
-	template <typename TPayload>
-	void sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span);
+    template <typename TPayload>
+    void sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span);
 
-	void requestInit();
-	void requestSync();
-	void requestMultipointSwitch(const char *macString);
-	void requestPlaybackControl(PLAYBACK_CONTROL control);
-	void requestPowerOff();
+    void requestInit();
+    void requestSync();
+    void requestMultipointSwitch(const char *macString);
+    void requestPlaybackControl(PLAYBACK_CONTROL control);
+    void requestPowerOff();
 
-	void recvAsync();
-	BluetoothWrapper &getConn() { return _conn; }
+    void recvAsync();
+    BluetoothWrapper& getConn() { return _conn; }
 
-	/*
-	Asynchornously poll for incoming messages and (optionally) returns any event
-	that has been triggered by the message.
-	This function is non-blocking and thread-safe.
-	*/
-	HeadphonesEvent poll();
+    /*
+    Asynchornously poll for incoming messages and (optionally) returns any event
+    that has been triggered by the message.
+    This function is non-blocking and thread-safe.
+    */
+    HeadphonesEvent poll();
 
-	bool is_connected() const { return _conn.isConnected(); }
-	void disconnect();
+    bool isConnected() const { return _conn.isConnected(); }
+    void disconnect();
 
-	~Headphones();
+    ~Headphones();
 
-	SingleInstanceFuture<std::optional<HeadphonesMessage>> _recvFuture;
-	SingleInstanceFuture<void> _sendCommandFuture;
-	SingleInstanceFuture<void> _requestFuture;
+    SingleInstanceFuture<std::optional<HeadphonesMessage>> _recvFuture;
+    SingleInstanceFuture<void> _sendCommandFuture;
+    SingleInstanceFuture<void> _requestFuture;
 
 private:
-	std::mutex _propertyMtx, _ackMtx;
-	BluetoothWrapper &_conn;
-	std::condition_variable _ackCV;
-	std::condition_variable _protocolInfoCV;
-	std::condition_variable _supportFunctionCV;
-	/*std::condition_variable _responseCV;
-	DATA_TYPE _waitForResponseDataType = DATA_TYPE::UNKNOWN;
-	uint8_t _waitForResponseCommandId = 0xFF;*/
+    std::mutex _propertyMtx, _ackMtx;
+    BluetoothWrapper& _conn;
+    std::condition_variable _ackCV;
+    std::condition_variable _protocolInfoCV;
+    std::condition_variable _supportFunctionCV;
+    /*std::condition_variable _responseCV;
+    DATA_TYPE _waitForResponseDataType = DATA_TYPE::UNKNOWN;
+    uint8_t _waitForResponseCommandId = 0xFF;*/
 
-	// Helper functions for _handleMessage
-	HeadphonesEvent _handleProtocolInfo(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleCapabilityInfo(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleDeviceInfo(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleT1SupportFunction(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage &msg, CommandType ct);
-	HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage &msg);
-	HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleSafeListeningNotifyParam(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage &msg);
-	HeadphonesEvent _handlePowerParam(const HeadphonesMessage &msg, CommandType ct);
-	HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage &msg);
-	HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleGsCapability(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage &msg, CommandType ct);
-	HeadphonesEvent _handleListeningMode(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleSystemParam(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleEqualizer(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage &msg);
-	HeadphonesEvent _handleMessage(HeadphonesMessage const &msg);
+    // Helper functions for _handleMessage
+    HeadphonesEvent _handleProtocolInfo(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleCapabilityInfo(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleDeviceInfo(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleT1SupportFunction(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleSafeListeningNotifyParam(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleListeningMode(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleEqualizer(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage& msg);
 
-	bool hasInit = false;
+    HeadphonesEvent _handleMessage(const HeadphonesMessage& msg);
+
+    bool hasInit = false;
 };
 
 template <typename, typename = void>
@@ -402,94 +408,104 @@ inline constexpr bool PayloadIsForMultipleCommandTypes_v = PayloadIsForMultipleC
 template <typename TPayload, typename... TArgs>
 void Headphones::sendGet(TArgs&&... args)
 {
-	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-		static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
-	}
-	sendMdrCommandWithType<TPayload>(CT_Get, std::forward<TArgs>(args)...);
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+    {
+        static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
+    }
+    sendMdrCommandWithType<TPayload>(CT_Get, std::forward<TArgs>(args)...);
 }
 
 template <typename TPayload, typename... TArgs>
 void Headphones::sendSet(TArgs&&... args)
 {
-	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-		static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
-	}
-	sendMdrCommandWithType<TPayload>(CT_Set, std::forward<TArgs>(args)...);
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+    {
+        static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
+    }
+    sendMdrCommandWithType<TPayload>(CT_Set, std::forward<TArgs>(args)...);
 }
 
 template <typename TPayload, typename... TArgs>
 void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
 {
-	if constexpr (TPayload::VARIABLE_SIZE_ONE_ARRAY_AT_END) {
-		size_t size;
-		std::unique_ptr<TPayload> payload = [&] {
-			if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-				return createVariableSizePayloadOneArrayAtEnd_CommandType(&size, ct, std::forward<TArgs>(args)...);
-			} else {
-				return createVariableSizePayloadOneArrayAtEnd(&size, std::forward<TArgs>(args)...);
-			}
-		}();
+    if constexpr (TPayload::VARIABLE_SIZE_ONE_ARRAY_AT_END)
+    {
+        size_t size;
+        std::unique_ptr<TPayload> payload = [&]
+        {
+            if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+                return createVariableSizePayloadOneArrayAtEnd_CommandType(&size, ct, std::forward<TArgs>(args)...);
+            else
+                return createVariableSizePayloadOneArrayAtEnd(&size, std::forward<TArgs>(args)...);
+        }();
 
-		const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.get());
-		sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + size));
-	} else {
-		TPayload payload = [&] {
-			if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-				return TPayload(ct, std::forward<TArgs>(args)...);
-			} else {
-				return TPayload(std::forward<TArgs>(args)...);
-			}
-		}();
+        const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.get());
+        sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + size));
+    }
+    else
+    {
+        TPayload payload = [&]
+        {
+            if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+                return TPayload(ct, std::forward<TArgs>(args)...);
+            else
+                return TPayload(std::forward<TArgs>(args)...);
+        }();
 
-		if constexpr (TPayload::VARIABLE_SIZE_NEEDS_SERIALIZATION)
-		{
-			std::vector<uint8_t> buf;
-			payload.serialize(buf);
-			sendMdrCommandWithTypeHelper<TPayload>(ct, buf);
-		}
-		else
-		{
-			const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
-			sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
-		}
-	}
+        if constexpr (TPayload::VARIABLE_SIZE_NEEDS_SERIALIZATION)
+        {
+            std::vector<uint8_t> buf;
+            payload.serialize(buf);
+            sendMdrCommandWithTypeHelper<TPayload>(ct, buf);
+        }
+        else
+        {
+            const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
+            sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
+        }
+    }
 }
 
 template <typename TPayload>
 void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span)
 {
-	DATA_TYPE type;
-	if constexpr (std::is_base_of_v<THMSGV2T1::Payload, TPayload>) {
-		type = DATA_TYPE::DATA_MDR;
-	} else if constexpr (std::is_base_of_v<THMSGV2T2::Payload, TPayload>) {
-		type = DATA_TYPE::DATA_MDR_NO2;
-	} else {
-		static_assert(sizeof(TPayload) == 0, "Unsupported payload type");
-		type = DATA_TYPE::UNKNOWN;
-	}
+    DATA_TYPE type;
+    if constexpr (std::is_base_of_v<THMSGV2T1::Payload, TPayload>)
+    {
+        type = DATA_TYPE::DATA_MDR;
+    }
+    else if constexpr (std::is_base_of_v<THMSGV2T2::Payload, TPayload>)
+    {
+        type = DATA_TYPE::DATA_MDR_NO2;
+    }
+    else
+    {
+        static_assert(sizeof(TPayload) == 0, "Unsupported payload type");
+        type = DATA_TYPE::UNKNOWN;
+    }
 
-	bool valid;
-	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-		valid = TPayload::isValid(span, ct);
-	} else {
-		valid = TPayload::isValid(span);
-	}
-	if (!valid) {
-		throw std::runtime_error("Invalid outgoing payload");
-	}
+    bool valid;
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+        valid = TPayload::isValid(span, ct);
+    else
+        valid = TPayload::isValid(span);
+    if (!valid)
+    {
+        throw std::runtime_error("Invalid outgoing payload");
+    }
 
-	_conn.sendCommand(span, type);
+    _conn.sendCommand(span, type);
 
-	/*uint8_t responseCommandId;
-	if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>) {
-		responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_IDS[ct]);
-	} else {
-		responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_ID);
-	}
-	if (responseCommandId != 0xFF) {
-		_waitForResponseDataType = type;
-		_waitForResponseCommandId = responseCommandId;
-		waitForResponse();
-	}*/
-	waitForAck();
+    /*uint8_t responseCommandId;
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+        responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_IDS[ct]);
+    else
+        responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_ID);
+    if (responseCommandId != 0xFF)
+    {
+        _waitForResponseDataType = type;
+        _waitForResponseCommandId = responseCommandId;
+        waitForResponse();
+    }*/
+    waitForAck();
 }
