@@ -15,6 +15,7 @@ env:
 
 jobs:
   build:
+    name: Build on ${{ matrix.os }} (${{ matrix.arch || 'default' }})
     strategy:
       matrix:
         os: ["ubuntu-24.04", "windows-latest", "macos-latest"]
@@ -106,6 +107,7 @@ jobs:
         # The desired behavior if no files are found using the provided path.
 
   release:
+    name: Release
     if: "contains(github.event.head_commit.message, 'Version')"
     needs: ["build"]
     runs-on: ubuntu-latest
