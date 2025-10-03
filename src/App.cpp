@@ -565,12 +565,12 @@ void App::_drawControls()
 
             if (ImGui::BeginTabItem("System")) {
                 // General settings
-                static const std::map<std::string, std::string> GS_SUBJECT_STRINGS = {
+                static const std::map<std::string, const char*> GS_SUBJECT_STRINGS = {
                     { "SIDETONE_SETTING", "Capture Voice During a Phone Call" },
                     { "MULTIPOINT_SETTING", "Connect to 2 devices simultaneously" },
                     { "TOUCH_PANEL_SETTING", "Touch sensor control panel" }
                 };
-                static const std::map<std::string, std::string> GS_SUMMARY_STRINGS = {
+                static const std::map<std::string, const char*> GS_SUMMARY_STRINGS = {
                     { "SIDETONE_SETTING_SUMMARY", "Your own voice will be easier to hear during calls.\nIf your voice sounds too loud or background noise is distracting, please turn off this feature." },
                     { "MULTIPOINT_SETTING_SUMMARY", "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably without needing to switch connections. During simultaneous connections, playback with the LDAC codec is not possible even if Prioritize Sound Quality is selected." },
                     { "MULTIPOINT_SETTING_SUMMARY_LDAC_AVAILABLE", "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably without needing to switch connections." },
@@ -581,21 +581,20 @@ void App::_drawControls()
                         if (!gsc.info.subject.empty()) {
                             if (gsc.info.stringFormat == THMSGV2T1::GsStringFormat::ENUM_NAME) {
                                 auto it = GS_SUBJECT_STRINGS.find(gsc.info.subject);
-                                subjectString = (it == GS_SUBJECT_STRINGS.end() ? gsc.info.subject : it->second).c_str();
+                                subjectString = it == GS_SUBJECT_STRINGS.end() ? gsc.info.subject.c_str() : it->second;
                             } else {
                                 subjectString = gsc.info.subject.c_str();
                             }
                         }
                         ImGui::BeginDisabled(gsc.info.subject.empty() || gsc.info.subject == "MULTIPOINT_SETTING");
                         ImGui::Checkbox(subjectString, &gsv.desired);
-                        ImGui::EndDisabled();
                         if (!gsc.info.summary.empty() && ImGui::IsItemHovered()) {
                             ImGui::BeginTooltip();
                             ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
                             const char* summaryString;
                             if (gsc.info.stringFormat == THMSGV2T1::GsStringFormat::ENUM_NAME) {
                                 auto it = GS_SUMMARY_STRINGS.find(gsc.info.summary);
-                                summaryString = (it == GS_SUMMARY_STRINGS.end() ? gsc.info.summary : it->second).c_str();
+                                summaryString = it == GS_SUMMARY_STRINGS.end() ? gsc.info.summary.c_str() : it->second;
                             } else {
                                 summaryString = gsc.info.summary.c_str();
                             }
@@ -603,6 +602,7 @@ void App::_drawControls()
                             ImGui::PopTextWrapPos();
                             ImGui::EndTooltip();
                         }
+                        ImGui::EndDisabled();
                     }
                 };
 

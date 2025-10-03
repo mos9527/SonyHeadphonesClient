@@ -446,10 +446,12 @@ void Headphones::setChanges()
 
 void Headphones::requestInit()
 {
+    static constexpr int kImportantDataRequestTimeout = 5;
+
     /* Init */
     // NOTE: It's observed that playback metadata NOTIFYs (see _handleMessage) is sent by the device after this...
     sendGet<THMSGV2T1::ConnectGetProtocolInfo>(THMSGV2T1::ConnectInquiredType::FIXED_VALUE);
-    waitForProtocolInfo(5);
+    waitForProtocolInfo(kImportantDataRequestTimeout);
     if (!supportsTable1)
     {
         throw std::runtime_error("Unsupported device: does not support MDR V2 Table 1");
@@ -467,11 +469,11 @@ void Headphones::requestInit()
 
         /* Support Functions */
         sendGet<THMSGV2T1::ConnectGetSupportFunction>(THMSGV2T1::ConnectInquiredType::FIXED_VALUE);
-        waitForSupportFunction(5);
+        waitForSupportFunction(kImportantDataRequestTimeout);
         if (supportsTable2)
         {
             sendGet<THMSGV2T2::ConnectGetSupportFunction>(THMSGV2T2::ConnectInquiredType::FIXED_VALUE);
-            waitForSupportFunction(5);
+            waitForSupportFunction(kImportantDataRequestTimeout);
         }
 
         /* Capabilities */
