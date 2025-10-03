@@ -15,27 +15,28 @@ env:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }} (${{ matrix.arch || 'default' }})
+    name: Build ${{ matrix.os }} ${{ matrix.arch }}
     strategy:
       matrix:
-        os: ["ubuntu-24.04", "windows-latest", "macos-latest"]
         include:
           - os: ubuntu-24.04
+            arch: x64
             binary_path: build/SonyHeadphonesClient
             artifact_name: "SonyHeadphonesClient-linux-x64"
             script: "sudo apt-get update && sudo apt-get install libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev"
             gcc: 14
           - os: windows-latest
+            arch: x64
             binary_path: build/RelWithDebInfo/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64.exe"
             script: ""
-            arch: x64
           - os: windows-latest
+            arch: ARM64
             binary_path: build/RelWithDebInfo/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-arm64.exe"
             script: ""
-            arch: ARM64
           - os: macos-latest
+            arch: universal
             binary_path: build/SonyHeadphonesClient.zip
             artifact_name: "SonyHeadphonesClient-macOS.zip"
     runs-on: ${{ matrix.os }}
