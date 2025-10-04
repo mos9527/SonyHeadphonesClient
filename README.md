@@ -1,12 +1,12 @@
 # Sony Headphones Client
 
-<center><img src="https://github.com/user-attachments/assets/a73cbdb6-e03d-4b8b-b0bc-6aeb347c2a20"></center>
-
 A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient), now updated with support for Sony's newer Bluetooth/TWS devices (*specifically* for the earbunds (i.e. WF-1000XM5), see [feature compatibility matrix](#features) for details.) and additional functionalities.
 
-[![Linux & Windows](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml)
+[![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
+[![Nightly Builds](https://img.shields.io/badge/nightly-builds-purple)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/master?preview)
+[![Github all releases](https://img.shields.io/github/downloads/mos9527/SonyHeadphonesClient/total.svg)](https://GitHub.com/mos9527/SonyHeadphonesClient/releases/) 
 
-[![Github all releases](https://img.shields.io/github/downloads/mos9527/SonyHeadphonesClient/total.svg)](https://GitHub.com/mos9527/SonyHeadphonesClient/releases/)
+<center><img width="1154" height="1320" alt="image" src="https://github.com/user-attachments/assets/f6635fe4-aa5f-4292-82a6-a64acd39282f"/></center>
 
 ## DISCLAIMER
 
@@ -26,7 +26,7 @@ Check the [Device Support](docs/device-support/) folder for more details on conf
 
 Windows, macOS and most flavors of Linux are supported OOTB. You can find the latest binaries in the [Releases](https://github.com/mos9527/SonyHeadphonesClient/releases) page.
 
-Nightly builds for all platforms are also available. You can [download them here](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/master?preview).
+Nightly builds (builds up-to-date as of the latest commit in `master` branch) for all platforms are also available. You can [download them here](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/master?preview).
 
 ## For Developers
 ### Cloning the repo
@@ -112,6 +112,7 @@ See [Packet Capture](docs/packet-capture.md) doc for more info.
 * [semvis123](https://github.com/semvis123) - macOS Version
 * [jimzrt](https://github.com/jimzrt) - Linux Version
 * [guilhermealbm](https://github.com/guilhermealbm) - Noise Cancelling Switch
+* [Amrsatrio](https://github.com/Amrsatrio) - Work on XM6 and co
 
 ## Third-party
 * [GLFW](https://www.glfw.org/) - Window and Input
