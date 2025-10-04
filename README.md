@@ -6,7 +6,7 @@ A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutob
 [![Nightly Builds](https://img.shields.io/badge/nightly-builds-purple)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/master?preview)
 [![Github all releases](https://img.shields.io/github/downloads/mos9527/SonyHeadphonesClient/total.svg)](https://GitHub.com/mos9527/SonyHeadphonesClient/releases/) 
 
-<center><img width="1154" height="1320" alt="image" src="https://github.com/user-attachments/assets/f6635fe4-aa5f-4292-82a6-a64acd39282f"/></center>
+<center><img width="1332" height="1320" alt="image" src="https://github.com/user-attachments/assets/9a1983db-0a88-4315-8725-94e35ce59c83"/></center>
 
 ## DISCLAIMER
 
@@ -39,13 +39,12 @@ Please follow the guide in https://www.glfw.org/docs/3.3/compile.html#compile_de
 - On non-macOS platforms, OpenGL is used for GUI rendering. Make sure your system has the requisite GL libs intalled. 
 
 #### Windows
-Install [cmake](https://cmake.org/download/) (3.29.3 works) and install [Visual Studio Community 2022](https://visualstudio.microsoft.com/vs/) the C++ components:
-* MSVC - VS 2022 C++ x64/x86 build tools
-* Windows SDK
+You can build, and debug the app with [Visual Studio's CMake intergration](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#ide-integration), or any
+C++ IDE with CMake support of your choosing.
 
-You can build, and debug the app with [Visual Studio's CMake intergration](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#ide-integration).
+No extra dependency other than the Windows SDK is required. MSVC (Visual Studio) is the recommended compiler for Windows platform.
 
-You can also do this from the command line. In Visual Studio Run `Tools --> Command Line --> Developer Command Prompt` ,and then:
+You can use the following commands to build the binary:
 ```
 cd Client
 mkdir build
@@ -77,7 +76,7 @@ sudo dnf install bluez-libs-devel dbus-devel
 sudo pacman -S bluez dbus
 ```
 
-You can then build the app with CMake, with a C++23 compliant compiler installed.
+You can use the following commands to build the binary:
 ```
 cd Client
 mkdir build
@@ -90,7 +89,7 @@ cmake --build .
 #### macOS
 You need to have XCode and CMake installed to build the application.
 
-To build a universal binary, you can use the following commands:
+To build a universal binary (by specifying `-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"`), you can use the following commands:
 ```bash
 cd Client
 mkdir build
