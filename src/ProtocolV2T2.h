@@ -501,7 +501,9 @@ struct PeripheralParamPairingDeviceManagementClassicBt : PeripheralParam
 
     static constexpr size_t INDEX_NUM_OF_PAIRED_DEVICE = 2;
     static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
-    static constexpr size_t MIN_BT_FRIENDLY_NAME_LENGTH = 1;
+    // App has this set to 1, however the firmware allows the friendly name to be empty.
+    // See https://github.com/mos9527/SonyHeadphonesClient/issues/21
+    static constexpr size_t MIN_BT_FRIENDLY_NAME_LENGTH = 0;
     static constexpr size_t MAX_BT_FRIENDLY_NAME_LENGTH = 128;
 
     std::vector<PeripheralDeviceInfo> deviceList;
@@ -659,7 +661,9 @@ struct PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice : Periph
 
     static constexpr size_t INDEX_NUM_OF_PAIRED_DEVICE = 2;
     static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
-    static constexpr size_t MIN_BT_FRIENDLY_NAME_LENGTH = 1;
+    // App has this set to 1, however the firmware allows the friendly name to be empty.
+    // See https://github.com/mos9527/SonyHeadphonesClient/issues/21
+    static constexpr size_t MIN_BT_FRIENDLY_NAME_LENGTH = 0;
     static constexpr size_t BLUETOOTH_CLASS_OF_DEVICE_LENGTH = 3;
     static constexpr size_t MAX_BT_FRIENDLY_NAME_LENGTH = 128;
 

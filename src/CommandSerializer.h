@@ -32,7 +32,6 @@ namespace CommandSerializer
 	*/
 	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber);
 
-	Buffer serializeAutoPowerOffSetting(bool autoPowerOff);
 	Buffer serializeAutoPauseSetting(bool autoPause);
 	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled);
 	Buffer serializeVoiceGuidanceVolumeSetting(char volume);
