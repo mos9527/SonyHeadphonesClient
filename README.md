@@ -26,13 +26,14 @@ Check the [Device Support](docs/device-support/) folder for more details on conf
 
 Windows, macOS and most flavors of Linux are supported OOTB. You can find the latest binaries in the [Releases](https://github.com/mos9527/SonyHeadphonesClient/releases) page.
 
+Nightly builds for all platforms are also available. You can [download them here](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/master?preview).
 
 ## For Developers
 ### Cloning the repo
 ```git clone --recurse-submodules https://github.com/mos9527/SonyHeadphonesClient.git```
 
 ### Building
-- `cmake` is required for Windows, macOS and Linux builds. A C++20 compliant compiler is also required.
+- `cmake` is required for Windows, macOS and Linux builds. A C++23 compliant compiler is also required.
 - `glfw` will always be built and statically linked with the application.
 Please follow the guide in https://www.glfw.org/docs/3.3/compile.html#compile_deps to ensure its dependencies.
 - On non-macOS platforms, OpenGL is used for GUI rendering. Make sure your system has the requisite GL libs intalled. 
