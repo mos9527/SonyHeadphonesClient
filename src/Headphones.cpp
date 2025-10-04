@@ -534,11 +534,7 @@ void Headphones::requestInit()
     if (supportsTable2)
     {
         /* Connected Devices */
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T2::Command::PERI_GET_PARAM),
-            0x02
-        }, DATA_TYPE::DATA_MDR_NO2);
-        waitForAck();
+        sendGet<THMSGV2T2::PeripheralGetParam>(THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
@@ -1144,38 +1140,57 @@ HeadphonesEvent Headphones::_handleMultipointDevice(const HeadphonesMessage& msg
     return HeadphonesEvent::MultipointDeviceSwitchUpdate;
 }
 
-HeadphonesEvent Headphones::_handleConnectedDevices(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    if (modelName.current == "WF-C510")
+    auto payload = msg.as<THMSGV2T2::PeripheralParam>(ct);
+    switch (payload->inquiredType)
     {
-        return HeadphonesEvent::NoChange; // @FIXME Assertion error when using WF-C510
-    }
-    if (msg[3] == 0x00)
-        return HeadphonesEvent::NoChange;
+        case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
+        {
+            BufferSpan span = msg;
+            auto payloadSub = THMSGV2T2::PeripheralParamPairingDeviceManagementClassicBt::deserialize(span, ct);
 
-    connectedDevices.clear();
-    pairedDevices.clear();
+            connectedDevices.clear();
+            pairedDevices.clear();
 
-    int total = msg[1];
-    int connected = msg[2];
-    auto it = msg.begin() + 3;
-    for (int i = 0; i < total; i++)
-    {
-        auto mac = std::string(it, it + (6 * 3 - 1));
-        it += (6 * 3 - 1);
-        char unk0 = *it++;
-        char unk1 = *it++;
-        char unk2 = *it++;
-        char unk3 = *it++;
-        auto len = *it++;
-        auto name = std::string(it, it + len);
-        it += len;
-        if (i < connected)
-            connectedDevices[mac] = BluetoothDevice(name, mac);
-        else
-            pairedDevices[mac] = BluetoothDevice(name, mac);
+            // Prefill connected
+            connectedDevices[1] = BluetoothDevice();
+            connectedDevices[2] = BluetoothDevice();
+
+            for (const THMSGV2T2::PeripheralDeviceInfo& device : payloadSub.deviceList)
+            {
+                std::string mac = device.getBtDeviceAddress();
+                (device.connectedStatus > 0 ? connectedDevices[device.connectedStatus] : pairedDevices[mac]) = BluetoothDevice(device.btFriendlyName, mac);
+            }
+
+            playbackDevice = payloadSub.playbackrightDevice;
+
+            return HeadphonesEvent::ConnectedDeviceUpdate;
+        }
+        case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
+        {
+            BufferSpan span = msg;
+            auto payloadSub = THMSGV2T2::PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::deserialize(span, ct);
+
+            connectedDevices.clear();
+            pairedDevices.clear();
+
+            // Prefill connected
+            connectedDevices[1] = BluetoothDevice();
+            connectedDevices[2] = BluetoothDevice();
+
+            for (const THMSGV2T2::PeripheralDeviceInfoWithBluetoothClassOfDevice& device : payloadSub.deviceList)
+            {
+                std::string mac = device.getBtDeviceAddress();
+                (device.connectedStatus > 0 ? connectedDevices[device.connectedStatus] : pairedDevices[mac]) = BluetoothDevice(device.btFriendlyName, mac);
+            }
+
+            playbackDevice = payloadSub.playbackrightDevice;
+
+            return HeadphonesEvent::ConnectedDeviceUpdate;
+        }
     }
-    return HeadphonesEvent::ConnectedDeviceUpdate;
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handlePlaybackStatusControl(const HeadphonesMessage& msg)
@@ -1194,7 +1209,8 @@ HeadphonesEvent Headphones::_handlePlaybackStatusControl(const HeadphonesMessage
 
 HeadphonesEvent Headphones::_handleGsCapability(const HeadphonesMessage& msg)
 {
-    auto payload = THMSGV2T1::GsRetCapability::deserialize(msg);
+    BufferSpan span = msg;
+    auto payload = THMSGV2T1::GsRetCapability::deserialize(span);
     THMSGV2T1::GsInquiredType type = payload.type;
 #ifdef _DEBUG
     std::cout << "Capability for " << (type == THMSGV2T1::GsInquiredType::GENERAL_SETTING1 ? "GS1" :
@@ -1569,8 +1585,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleMultipointDevice(msg);
             break;
         case Command::PERI_RET_PARAM:
+            result = _handlePeripheralParam(msg, CT_Ret);
+            break;
         case Command::PERI_NTFY_PARAM:
-            result = _handleConnectedDevices(msg);
+            result = _handlePeripheralParam(msg, CT_Notify);
             break;
         case Command::SAFE_LISTENING_NTFY_PARAM:
             result = _handleSafeListeningNotifyParam(msg);

@@ -311,6 +311,509 @@ public:
 
 // endregion CONNECT
 
+// region PERI
+
+// region PERI_*_PARAM
+
+enum class PeripheralInquiredType : uint8_t
+{
+    PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT = 0x00,
+    SOURCE_SWITCH_CONTROL = 0x01,
+    PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE = 0x02,
+    MUSIC_HAND_OVER_SETTING = 0x03,
+};
+
+inline bool PeripheralInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<PeripheralInquiredType>(type))
+    {
+    case PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
+    case PeripheralInquiredType::SOURCE_SWITCH_CONTROL:
+    case PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
+    case PeripheralInquiredType::MUSIC_HAND_OVER_SETTING:
+        return true;
+    }
+    return false;
+}
+
+#pragma pack(pop)
+
+struct PeripheralDeviceInfo
+{
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+
+    char btDeviceAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+    uint8_t connectedStatus;
+    std::string btFriendlyName;
+
+    std::string getBtDeviceAddress() const
+    {
+        return std::string(btDeviceAddress, BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    static PeripheralDeviceInfo deserialize(std::span<const uint8_t>& buf)
+    {
+        if (buf.size() < BLUETOOTH_DEVICE_ADDRESS_LENGTH + 2)
+            throw std::runtime_error("Buffer too small for PeripheralDeviceInfo");
+
+        PeripheralDeviceInfo info;
+        std::memcpy(info.btDeviceAddress, buf.data(), BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+        buf = buf.subspan(BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+
+        info.connectedStatus = buf[0];
+        buf = buf.subspan(1);
+
+        info.btFriendlyName = readPrefixedString(buf);
+        return info;
+    }
+
+    void serialize(std::vector<uint8_t>& buf) const
+    {
+        buf.insert(buf.end(), btDeviceAddress, btDeviceAddress + BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+        buf.push_back(connectedStatus);
+        writePrefixedString(buf, btFriendlyName);
+    }
+
+    size_t countBytes() const
+    {
+        return BLUETOOTH_DEVICE_ADDRESS_LENGTH + 1 + 1 + btFriendlyName.size();
+    }
+};
+
+struct PeripheralDeviceInfoWithBluetoothClassOfDevice
+{
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+    static constexpr uint32_t BLUETOOTH_CLASS_OF_DEVICE_UNKNOWN = 0xFFFFFF;
+
+    char btDeviceAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+    uint8_t connectedStatus;
+    uint32_t bluetoothClassOfDevice; // Serialized as 24 byte int big endian
+    std::string btFriendlyName;
+
+    std::string getBtDeviceAddress() const
+    {
+        return std::string(btDeviceAddress, BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    static PeripheralDeviceInfoWithBluetoothClassOfDevice deserialize(std::span<const uint8_t>& buf)
+    {
+        if (buf.size() < BLUETOOTH_DEVICE_ADDRESS_LENGTH + 1 + 3 + 1)
+            throw std::runtime_error("Buffer too small for PeripheralDeviceInfoWithBluetoothClassOfDevice");
+
+        PeripheralDeviceInfoWithBluetoothClassOfDevice info;
+        std::memcpy(info.btDeviceAddress, buf.data(), BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+        buf = buf.subspan(BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+
+        info.connectedStatus = buf[0];
+        buf = buf.subspan(1);
+
+        info.bluetoothClassOfDevice = (static_cast<uint32_t>(buf[0]) << 16)
+            | (static_cast<uint32_t>(buf[1]) << 8)
+            | static_cast<uint32_t>(buf[2]);
+        buf = buf.subspan(3);
+
+        info.btFriendlyName = readPrefixedString(buf);
+
+        return info;
+    }
+
+    void serialize(std::vector<uint8_t>& buf) const
+    {
+        buf.insert(buf.end(), btDeviceAddress, btDeviceAddress + BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+        buf.push_back(connectedStatus);
+        buf.push_back((bluetoothClassOfDevice >> 16) & 0xFF);
+        buf.push_back((bluetoothClassOfDevice >> 8) & 0xFF);
+        buf.push_back(bluetoothClassOfDevice & 0xFF);
+        writePrefixedString(buf, btFriendlyName);
+    }
+
+    size_t countBytes() const
+    {
+        return BLUETOOTH_DEVICE_ADDRESS_LENGTH + 1 + 3 + 1 + btFriendlyName.size();
+    }
+};
+
+#pragma pack(push, 1)
+
+// region PERI_GET_PARAM
+
+struct PeripheralGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::PERI_RET_PARAM;
+
+    PeripheralInquiredType inquiredType; // 0x1
+
+    PeripheralGetParam(PeripheralInquiredType inquiredType)
+        : Payload(Command::PERI_GET_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(PeripheralGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PERI_GET_PARAM)
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralGetParam, inquiredType)]);
+    }
+};
+
+// endregion PERI_GET_PARAM
+
+// region PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
+
+struct PeripheralParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PERI_RET_PARAM,
+        Command::PERI_SET_PARAM,
+        Command::PERI_NTFY_PARAM
+    };
+
+    PeripheralInquiredType inquiredType; // 0x1
+
+    PeripheralParam(CommandType ct, PeripheralInquiredType inquiredType)
+        : Payload(COMMAND_IDS[ct])
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(PeripheralParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralParam, inquiredType)]);
+    }
+};
+
+// - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+
+#pragma pack(pop)
+
+struct PeripheralParamPairingDeviceManagementClassicBt : PeripheralParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PERI_RET_PARAM,
+        Command::UNKNOWN,
+        Command::PERI_NTFY_PARAM
+    };
+
+    static constexpr size_t INDEX_NUM_OF_PAIRED_DEVICE = 2;
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+    static constexpr size_t MIN_BT_FRIENDLY_NAME_LENGTH = 1;
+    static constexpr size_t MAX_BT_FRIENDLY_NAME_LENGTH = 128;
+
+    std::vector<PeripheralDeviceInfo> deviceList;
+    uint8_t playbackrightDevice;
+
+    PeripheralParamPairingDeviceManagementClassicBt(
+        CommandType ct, const std::span<const PeripheralDeviceInfo> deviceList, uint8_t playbackrightDevice
+    )
+        : PeripheralParam(ct, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
+        , deviceList(deviceList.begin(), deviceList.end())
+        , playbackrightDevice(playbackrightDevice)
+    {
+        if (this->deviceList.size() > 255)
+            throw std::invalid_argument("Device list size exceeds 255");
+    }
+
+private:
+    // For init by deserialization
+    PeripheralParamPairingDeviceManagementClassicBt()
+        : PeripheralParam(CT_Get /*Any can do*/, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
+    {}
+
+public:
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        if (!PeripheralParam::isValid(buf, ct))
+            return false;
+        if (buf[offsetof(PeripheralParam, inquiredType)] != static_cast<uint8_t>(PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+            return false;
+
+        if (buf.size() < (INDEX_NUM_OF_PAIRED_DEVICE + 1))
+            return false;
+
+        uint8_t devicesNum = buf[INDEX_NUM_OF_PAIRED_DEVICE];
+        size_t indexDevice = INDEX_NUM_OF_PAIRED_DEVICE + 1;
+        for (uint8_t i = 0; i < devicesNum; ++i)
+        {
+            size_t indexConnectedStatus = indexDevice + BLUETOOTH_DEVICE_ADDRESS_LENGTH;
+            if (buf.size() < indexConnectedStatus)
+                return false;
+
+            size_t indexBtFriendlyNameLength = indexConnectedStatus + 1;
+            if (buf.size() < indexBtFriendlyNameLength)
+                return false;
+
+            size_t btFriendlyNameLength = buf[indexBtFriendlyNameLength];
+            if (btFriendlyNameLength < MIN_BT_FRIENDLY_NAME_LENGTH || MAX_BT_FRIENDLY_NAME_LENGTH < btFriendlyNameLength)
+                return false;
+
+            size_t indexBtFriendlyName = indexBtFriendlyNameLength + 1;
+            if (buf.size() < indexBtFriendlyName)
+                return false;
+
+            /*if (!isValidBluetoothDeviceAddress(
+                    std::string(reinterpret_cast<const char*>(&buf[indexDevice]), BLUETOOTH_DEVICE_ADDRESS_LENGTH)))
+                return false;*/
+
+            indexDevice = indexBtFriendlyName + btFriendlyNameLength;
+        }
+
+        size_t indexPlaybackrightDevice = indexDevice;
+        if (buf.size() != indexPlaybackrightDevice + 1)
+            return false;
+
+        return true;
+    }
+
+    static PeripheralParamPairingDeviceManagementClassicBt deserialize(std::span<const uint8_t>& buf, CommandType ct)
+    {
+        if (!isValid(buf, ct))
+            throw std::runtime_error("Buffer invalid for PeripheralParamPairingDeviceManagementClassicBt");
+
+        PeripheralParamPairingDeviceManagementClassicBt result;
+
+        uint8_t deviceCount = buf[INDEX_NUM_OF_PAIRED_DEVICE];
+        buf = buf.subspan(3);
+
+        result.deviceList.reserve(deviceCount);
+        for (uint8_t i = 0; i < deviceCount; ++i)
+        {
+            result.deviceList.push_back(PeripheralDeviceInfo::deserialize(buf));
+        }
+
+        result.playbackrightDevice = buf[0];
+        return result;
+    }
+
+    void serialize(std::vector<uint8_t>& buf) const
+    {
+        buf.push_back(static_cast<uint8_t>(command));
+        buf.push_back(static_cast<uint8_t>(inquiredType));
+        buf.push_back(static_cast<uint8_t>(deviceList.size()));
+        for (const auto& device : deviceList)
+        {
+            device.serialize(buf);
+        }
+        buf.push_back(playbackrightDevice);
+    }
+
+    size_t countBytes() const
+    {
+        size_t size = 1 + 1 + 1; // command + inquiredType + device count
+        for (const auto& device : deviceList)
+        {
+            size += device.countBytes();
+        }
+        size += 1; // playbackrightDevice
+        return size;
+    }
+
+    static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = true;
+};
+
+#pragma pack(push, 1)
+
+// - SOURCE_SWITCH_CONTROL
+
+struct PeripheralParamSourceSwitchControl : PeripheralParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PERI_RET_PARAM,
+        Command::PERI_SET_PARAM,
+        Command::PERI_NTFY_PARAM
+    };
+
+    MessageMdrV2OnOffSettingValue sourceKeeping; // 0x2
+
+    PeripheralParamSourceSwitchControl(MessageMdrV2OnOffSettingValue sourceKeeping)
+        : PeripheralParam(CT_Get /*Any can do*/, PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+        , sourceKeeping(sourceKeeping)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PeripheralParam::isValid(buf, ct)
+            && buf.size() == sizeof(PeripheralParamSourceSwitchControl)
+            && buf[offsetof(PeripheralParamSourceSwitchControl, inquiredType)] == static_cast<uint8_t>(PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PeripheralParamSourceSwitchControl, sourceKeeping)]);
+    }
+};
+
+// - PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+
+#pragma pack(pop)
+
+struct PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice : PeripheralParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PERI_RET_PARAM,
+        Command::UNKNOWN,
+        Command::PERI_NTFY_PARAM
+    };
+
+    static constexpr size_t INDEX_NUM_OF_PAIRED_DEVICE = 2;
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+    static constexpr size_t MIN_BT_FRIENDLY_NAME_LENGTH = 1;
+    static constexpr size_t BLUETOOTH_CLASS_OF_DEVICE_LENGTH = 3;
+    static constexpr size_t MAX_BT_FRIENDLY_NAME_LENGTH = 128;
+
+    std::vector<PeripheralDeviceInfoWithBluetoothClassOfDevice> deviceList;
+    uint8_t playbackrightDevice;
+
+    PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice(
+        CommandType ct, const std::span<const PeripheralDeviceInfoWithBluetoothClassOfDevice> deviceList,
+        uint8_t playbackrightDevice
+    )
+        : PeripheralParam(ct, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE)
+        , deviceList(deviceList.begin(), deviceList.end())
+        , playbackrightDevice(playbackrightDevice)
+    {
+        if (this->deviceList.size() > 255)
+            throw std::invalid_argument("Device list size exceeds 255");
+    }
+
+private:
+    // For init by deserialization
+    PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice()
+        : PeripheralParam(CT_Get /*Any can do*/, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE)
+    {}
+
+public:
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        if (!PeripheralParam::isValid(buf, ct))
+            return false;
+        if (buf[offsetof(PeripheralParam, inquiredType)] != static_cast<uint8_t>(PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE))
+            return false;
+
+        if (buf.size() < (INDEX_NUM_OF_PAIRED_DEVICE + 1))
+            return false;
+
+        uint8_t devicesNum = buf[INDEX_NUM_OF_PAIRED_DEVICE];
+        size_t indexDevice = INDEX_NUM_OF_PAIRED_DEVICE + 1;
+        for (uint8_t i = 0; i < devicesNum; ++i)
+        {
+            size_t indexConnectedStatus = indexDevice + BLUETOOTH_DEVICE_ADDRESS_LENGTH;
+            if (buf.size() < indexConnectedStatus)
+                return false;
+
+            size_t indexBluetoothClassOfDevice = indexConnectedStatus + 1;
+            if (buf.size() < indexBluetoothClassOfDevice)
+                return false;
+
+            size_t indexBtFriendlyNameLength = indexBluetoothClassOfDevice + BLUETOOTH_CLASS_OF_DEVICE_LENGTH;
+            if (buf.size() < indexBtFriendlyNameLength)
+                return false;
+
+            size_t btFriendlyNameLength = buf[indexBtFriendlyNameLength];
+            if (btFriendlyNameLength < MIN_BT_FRIENDLY_NAME_LENGTH || MAX_BT_FRIENDLY_NAME_LENGTH < btFriendlyNameLength)
+                return false;
+
+            size_t indexBtFriendlyName = indexBtFriendlyNameLength + 1;
+            if (buf.size() < indexBtFriendlyName)
+                return false;
+
+            /*if (!isValidBluetoothDeviceAddress(
+                    std::string(reinterpret_cast<const char*>(&buf[indexDevice]), BLUETOOTH_DEVICE_ADDRESS_LENGTH)))
+                return false;*/
+
+            indexDevice = indexBtFriendlyName + btFriendlyNameLength;
+        }
+
+        size_t indexPlaybackrightDevice = indexDevice;
+        if (buf.size() != indexPlaybackrightDevice + 1)
+            return false;
+
+        return true;
+    }
+
+    static PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice deserialize(std::span<const uint8_t>& buf, CommandType ct)
+    {
+        if (!isValid(buf, ct))
+            throw std::runtime_error("Buffer invalid for PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice");
+
+        PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice result;
+
+        uint8_t deviceCount = buf[INDEX_NUM_OF_PAIRED_DEVICE];
+        buf = buf.subspan(3);
+
+        result.deviceList.reserve(deviceCount);
+        for (uint8_t i = 0; i < deviceCount; ++i)
+        {
+            result.deviceList.push_back(PeripheralDeviceInfoWithBluetoothClassOfDevice::deserialize(buf));
+        }
+
+        result.playbackrightDevice = buf[0];
+        return result;
+    }
+
+    void serialize(std::vector<uint8_t>& buf) const
+    {
+        buf.push_back(static_cast<uint8_t>(command));
+        buf.push_back(static_cast<uint8_t>(inquiredType));
+        buf.push_back(static_cast<uint8_t>(deviceList.size()));
+        for (const auto& device : deviceList)
+        {
+            device.serialize(buf);
+        }
+        buf.push_back(playbackrightDevice);
+    }
+
+    size_t countBytes() const
+    {
+        size_t size = 1 + 1 + 1; // command + inquiredType + device count
+        for (const auto& device : deviceList)
+        {
+            size += device.countBytes();
+        }
+        size += 1; // playbackrightDevice
+        return size;
+    }
+
+    static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = true;
+};
+
+#pragma pack(push, 1)
+
+// - MUSIC_HAND_OVER_SETTING
+
+struct PeripheralParamMusicHandOverSetting : PeripheralParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PERI_RET_PARAM,
+        Command::PERI_SET_PARAM,
+        Command::PERI_NTFY_PARAM
+    };
+
+    MessageMdrV2OnOffSettingValue isOn; // 0x2
+
+    PeripheralParamMusicHandOverSetting(CommandType ct, MessageMdrV2OnOffSettingValue isOn)
+        : PeripheralParam(ct, PeripheralInquiredType::MUSIC_HAND_OVER_SETTING)
+        , isOn(isOn)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PeripheralParam::isValid(buf, ct)
+            && buf.size() == sizeof(PeripheralParamMusicHandOverSetting)
+            && buf[offsetof(PeripheralParamMusicHandOverSetting, inquiredType)] == static_cast<uint8_t>(PeripheralInquiredType::MUSIC_HAND_OVER_SETTING)
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(PeripheralParamMusicHandOverSetting, isOn)]);
+    }
+};
+
+// endregion PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
+
+// endregion PERI_*_PARAM
+
+// endregion PERI
+
 // region SAFE_LISTENING
 
 // region SAFE_LISTENING Common Enums

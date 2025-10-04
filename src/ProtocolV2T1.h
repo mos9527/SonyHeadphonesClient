@@ -2044,7 +2044,7 @@ struct GsSettingInfo
         return buf.size() == expectedTotalSize;
     }
 
-    static GsSettingInfo deserialize(std::span<const uint8_t> buf)
+    static GsSettingInfo deserialize(std::span<const uint8_t>& buf)
     {
         if (buf.empty())
             throw std::runtime_error("Buffer too small for GsSettingInfo");
@@ -2056,11 +2056,16 @@ struct GsSettingInfo
         return info;
     }
 
-    void serialize(std::vector<uint8_t>& buf)
+    void serialize(std::vector<uint8_t>& buf) const
     {
         buf.push_back(static_cast<uint8_t>(stringFormat));
         writePrefixedString(buf, subject);
         writePrefixedString(buf, summary);
+    }
+
+    size_t countBytes() const
+    {
+        return 1 /*stringFormat*/ + 1 /*subject.len*/ + subject.size() + 1 /*summary.len*/ + summary.size();
     }
 };
 
@@ -2107,7 +2112,7 @@ public:
         return GsSettingInfo::isValid(buf.subspan(3, expectedTotalSize - 3));
     }
 
-    static GsRetCapability deserialize(const std::span<const uint8_t>& buf)
+    static GsRetCapability deserialize(std::span<const uint8_t>& buf)
     {
         if (!isValid(buf))
             throw std::runtime_error("Buffer invalid for GsRetCapability");
@@ -2115,16 +2120,22 @@ public:
         GsRetCapability cap;
         cap.type = static_cast<GsInquiredType>(buf[1]);
         cap.settingType = static_cast<GsSettingType>(buf[2]);
-        cap.settingInfo = GsSettingInfo::deserialize(buf.subspan(3));
+        buf = buf.subspan(3);
+        cap.settingInfo = GsSettingInfo::deserialize(buf);
         return cap;
     }
 
-    void serialize(std::vector<uint8_t>& buf)
+    void serialize(std::vector<uint8_t>& buf) const
     {
-        buf.push_back(static_cast<uint8_t>(Command::GENERAL_SETTING_RET_CAPABILITY));
+        buf.push_back(static_cast<uint8_t>(command));
         buf.push_back(static_cast<uint8_t>(type));
         buf.push_back(static_cast<uint8_t>(settingType));
         settingInfo.serialize(buf);
+    }
+
+    size_t countBytes() const
+    {
+        return 1 /*command*/ + 1 /*type*/ + 1 /*settingType*/ + settingInfo.countBytes();
     }
 
     static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = true;

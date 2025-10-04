@@ -244,10 +244,12 @@ public:
     ReadonlyProperty<std::string> interactionMessage{};
 
     // Connected devices
-    std::map<std::string, BluetoothDevice> connectedDevices;
+    std::map<uint8_t, BluetoothDevice> connectedDevices;
 
     // Paired devices that are not connected
     std::map<std::string, BluetoothDevice> pairedDevices;
+
+    uint8_t playbackDevice;
 
     struct GsCapability
     {
@@ -333,7 +335,7 @@ public:
 
     void requestInit();
     void requestSync();
-    void requestMultipointSwitch(const char *macString);
+    void requestMultipointSwitch(const char* macString);
     void requestPlaybackControl(PLAYBACK_CONTROL control);
     void requestPowerOff();
 
@@ -380,7 +382,7 @@ private:
     HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleConnectedDevices(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);

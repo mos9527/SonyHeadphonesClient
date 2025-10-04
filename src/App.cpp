@@ -550,16 +550,79 @@ void App::_drawControls()
             }
 
             if (ImGui::BeginTabItem("Devices")) {
-                const auto default_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-                for (auto& [mac, device] : _headphones->connectedDevices) {
-                    if (mac == _headphones->mpDeviceMac.current)
-                        ImGui::TreeNodeEx(&mac, default_flags | ImGuiTreeNodeFlags_Selected, "%s", device.name.c_str());
+                enum class DeviceEntryClickAction {
+                    None,
+                    DeviceEntry, // Switch playback for connected, attempt connection for paired
+                    Disconnect,
+                    Unpair,
+                    Fix,
+                };
+                auto drawDevice = [](const BluetoothDevice& device, uint8_t connectedIndex, bool selected) -> DeviceEntryClickAction {
+                    DeviceEntryClickAction clicked = DeviceEntryClickAction::None;
+                    ImGui::PushID(&device);
+
+                    bool notConnected = device.mac.empty();
+                    ImGui::BeginDisabled(notConnected);
+
+                    static const std::string NOT_CONNECTED = "Not connected";
+                    const std::string& deviceName = notConnected ? NOT_CONNECTED : device.name;
+
+                    ImGui::SetNextItemAllowOverlap();
+                    bool selectableSelected;
+                    if (connectedIndex > 0)
+                        selectableSelected = ImGui::Selectable((std::to_string(connectedIndex) + ". " + deviceName).c_str(), selected);
                     else
-                        ImGui::TreeNodeEx(&mac, default_flags, "%s", device.name.c_str());
-                    if (ImGui::IsItemClicked()) {
-                        _headphones->mpDeviceMac.desired = mac;
+                        selectableSelected = ImGui::Selectable(deviceName.c_str(), selected);
+                    if (selectableSelected && clicked == DeviceEntryClickAction::None) {
+                        clicked = DeviceEntryClickAction::DeviceEntry;
                     }
+
+                    /*ImGui::SameLine();
+                    if (ImGui::SmallButton("Disconnect") && clicked == DeviceEntryClickAction::None) {
+                        clicked = DeviceEntryClickAction::Disconnect;
+                    }
+
+                    ImGui::SameLine();
+                    if (ImGui::SmallButton("Unpair") && clicked == DeviceEntryClickAction::None) {
+                        clicked = DeviceEntryClickAction::Unpair;
+                    }
+
+                    ImGui::SameLine();
+                    if (ImGui::SmallButton("Fix") && clicked == DeviceEntryClickAction::None) {
+                        clicked = DeviceEntryClickAction::Fix;
+                    }*/ // TODO Implement
+
+                    ImGui::EndDisabled();
+                    ImGui::PopID();
+                    return clicked;
+                };
+
+                if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    for (const auto& [connectedIndex, device] : _headphones->connectedDevices) {
+                        DeviceEntryClickAction clicked = drawDevice(device, connectedIndex, connectedIndex == _headphones->playbackDevice);
+                        switch (clicked) {
+                            case DeviceEntryClickAction::DeviceEntry: {
+                                _headphones->mpDeviceMac.desired = device.mac;
+                                break;
+                            }
+                        }
+                    }
+                    ImGui::TreePop();
                 }
+
+                if (!_headphones->pairedDevices.empty() && ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    for (const auto& [mac, device] : _headphones->pairedDevices) {
+                        DeviceEntryClickAction clicked = drawDevice(device, 0, false);
+                        switch (clicked) {
+                            case DeviceEntryClickAction::DeviceEntry: {
+                                // TODO Attempt connection
+                                break;
+                            }
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+
                 ImGui::EndTabItem();
             }
 
