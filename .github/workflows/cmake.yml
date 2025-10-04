@@ -15,22 +15,30 @@ env:
 
 jobs:
   build:
+    name: Build ${{ matrix.os }} ${{ matrix.arch }}
     strategy:
       matrix:
-        os: ["ubuntu-24.04", "windows-latest", "macos-latest"]
         include:
           - os: ubuntu-24.04
+            arch: x64
             binary_path: build/SonyHeadphonesClient
             artifact_name: "SonyHeadphonesClient-linux-x64"
             script: "sudo apt-get update && sudo apt-get install libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev"
             gcc: 14
           - os: windows-latest
+            arch: x64
             binary_path: build/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-x64.exe"
-            script: ""            
+            artifact_name: "SonyHeadphonesClient-win-x64"
+            script: ""
+          - os: windows-latest
+            arch: ARM64
+            binary_path: build/RelWithDebInfo/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-arm64"
+            script: ""
           - os: macos-latest
+            arch: universal
             binary_path: build/SonyHeadphonesClient.zip
-            artifact_name: "SonyHeadphonesClient-macOS.zip"          
+            artifact_name: "SonyHeadphonesClient-macOS"
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -54,7 +62,12 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source
       # and build directories, but this is only available with CMake 3.13 and higher.
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: |
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.arch }}
+        else
+          cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        fi
 
     - name: Configure CMake (macOS)
       if: runner.os == 'macOS'
@@ -72,13 +85,13 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE
-  
+
     - name: Zip the App Bundle (macOS)
       if: runner.os == 'macOS'
       working-directory: ${{github.workspace}}/build
       # Zip the application for easier downloading
       run: zip -r SonyHeadphonesClient.zip SonyHeadphonesClient.app
-  
+
     - name: Strip Symbols (Linux)
       if: runner.os == 'Linux'
       working-directory: ${{github.workspace}}/build
@@ -95,6 +108,7 @@ jobs:
         # The desired behavior if no files are found using the provided path.
 
   release:
+    name: Release
     if: "contains(github.event.head_commit.message, 'Version')"
     needs: ["build"]
     runs-on: ubuntu-latest
@@ -106,7 +120,8 @@ jobs:
         version=$(echo "${{ github.event.head_commit.message }}" | awk 'NR==1' | awk '{print $2}')
         echo "::set-output name=version::$version"
 
-    - uses: actions/checkout@v3    
+    - uses: actions/checkout@v3
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -119,8 +134,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         path: ${{github.workspace}}/artifacts
-        merge-multiple: true
-  
+
     - name: Display structure of downloaded files
       run: ls -R ${{github.workspace}}/artifacts
 
@@ -129,7 +143,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-linux-x64/SonyHeadphonesClient
         asset_name: SonyHeadphonesClient-linux-x64
         asset_content_type: application/octet-stream
 
@@ -138,16 +152,25 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient.exe
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-x64/SonyHeadphonesClient.exe
         asset_name: SonyHeadphonesClient-win-x64.exe
-        asset_content_type: application/vnd.microsoft.portable-executable        
+        asset_content_type: application/vnd.microsoft.portable-executable
 
     - uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient.zip
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-win-arm64/SonyHeadphonesClient.exe
+        asset_name: SonyHeadphonesClient-win-arm64.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
+
+    - uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{github.workspace}}/artifacts/SonyHeadphonesClient-macOS/SonyHeadphonesClient.zip
         asset_name: SonyHeadphonesClient-macOS.zip
         asset_content_type: application/zip
 

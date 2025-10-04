@@ -8,7 +8,7 @@ constexpr int MAX_STEPS_WH_1000_XM3 = 19;
 
 namespace CommandSerializer
 {
-	Buffer _escapeSpecials(const Buffer& src)
+	Buffer _escapeSpecials(const BufferSpan& src)
 	{
 		Buffer ret;
 		ret.reserve(src.size());
@@ -41,7 +41,7 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer _unescapeSpecials(const Buffer& src)
+	Buffer _unescapeSpecials(const BufferSpan& src)
 	{
 		Buffer ret;
 		ret.reserve(src.size());
@@ -94,31 +94,31 @@ namespace CommandSerializer
 		return accumulator;
 	}
 
-	uint8_t _sumChecksum(const Buffer& src)
+	uint8_t _sumChecksum(const BufferSpan& src)
 	{
 		return _sumChecksum(src.data(), src.size());
 	}
 
-	Buffer packageDataForBt(const Buffer& src, DATA_TYPE dataType, unsigned int seqNumber)
+	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber)
 	{
 		//Reserve at least the size for the size, start&end markers, and the source
 		Buffer toEscape;
-		toEscape.reserve(src.size() + 2 + sizeof(int));
+		toEscape.reserve(len + 2 + sizeof(int));
 		Buffer ret;
 		ret.reserve(toEscape.capacity());
 		toEscape.push_back(static_cast<uint8_t>(dataType));
 		toEscape.push_back(seqNumber);
-		auto retSize = intToBytesBE(static_cast<unsigned int>(src.size()));
+		auto retSize = intToBytesBE(static_cast<unsigned int>(len));
 		//Insert data size
 		toEscape.insert(toEscape.end(), retSize.begin(), retSize.end());
 		//Insert command data
-		toEscape.insert(toEscape.end(), src.begin(), src.end());
+		toEscape.insert(toEscape.end(), data, data + len);
 
 		auto checksum = _sumChecksum(toEscape);
 		toEscape.push_back(checksum);
 		toEscape = _escapeSpecials(toEscape);
 
-		
+
 		ret.push_back(START_MARKER);
 		ret.insert(ret.end(), toEscape.begin(), toEscape.end());
 		ret.push_back(END_MARKER);
@@ -133,23 +133,34 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeNcAndAsmSetting(NC_ASM_EFFECT ncAsmEffect, NC_ASM_SETTING_TYPE ncAsmSettingType, ASM_ID voicePassthrough, char asmLevel)
-	{
-		// 0x68 | 0x17 | [Not Dragging ASM Slider?] | [NC & ASM On?] | [NC:0 ASM:1] | [Voice Passthrough?] | [ASM Level]
+	Buffer serializeAutoPowerOffSetting(bool autoPowerOff) {
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::NCASM_PARAM_SET)); // 0x68		
-		ret.push_back(0x17);
-		ret.push_back(0x01);
-		ret.push_back(static_cast<uint8_t>(ncAsmEffect));
-		ret.push_back(static_cast<uint8_t>(ncAsmSettingType));
-		ret.push_back(static_cast<uint8_t>(voicePassthrough));
-		ret.push_back(asmLevel);
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::POWER_SET_PARAM));
+		ret.push_back(0x05);
+		ret.push_back(autoPowerOff ? 0x10 : 0x11);
+		ret.push_back(0x00);
 		return ret;
 	}
 
-	Buffer serializeVoiceGuidanceSetting(char volume) {
+	Buffer serializeAutoPauseSetting(bool autoPause) {
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::VOICEGUIDANCE_PARAM_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
+		ret.push_back(0x01);
+		ret.push_back(!autoPause);
+		return ret;
+	}
+
+	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled) {
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_SET_PARAM));
+		ret.push_back(0x01);
+		ret.push_back(!enabled);
+		return ret;
+	}
+
+	Buffer serializeVoiceGuidanceVolumeSetting(char volume) {
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_SET_PARAM));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Guidance Volume
 		ret.push_back(0x00);
@@ -158,7 +169,7 @@ namespace CommandSerializer
 	Buffer serializeVolumeSetting(char volume)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::PLAY_SET_PARAM));
 		ret.push_back(0x20);
 		ret.push_back(volume); // Volume
 		return ret;
@@ -166,7 +177,7 @@ namespace CommandSerializer
 	Buffer serializeMultipointSwitch(const char* macString)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_DEVICE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::PERI_SET_EXTENDED_PARAM));
 		ret.push_back(0x01);
 		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
 		return ret;
@@ -174,30 +185,10 @@ namespace CommandSerializer
 	Buffer serializePlayControl(PLAYBACK_CONTROL control)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::PLAYBACK_STATUS_CONTROL_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::PLAY_SET_STATUS));
 		ret.push_back(0x01);
 		ret.push_back(0x00);
 		ret.push_back(static_cast<uint8_t>(control));
-		return ret;
-	}
-
-	Buffer serializePowerOff()
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::POWER_OFF));
-		ret.push_back(0x03);
-		ret.push_back(0x01);
-		return ret;
-	}
-
-
-	Buffer serializeMpToggle(bool enabled)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
-		ret.push_back(static_cast<uint8_t>(0xD2));
-		ret.push_back(0x00);
-		ret.push_back(!enabled); // 1 (on->off) 0 (off->on)
 		return ret;
 	}
 
@@ -205,7 +196,7 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::SPEAK_TO_CHAT_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_EXT_PARAM));
 		ret.push_back(0x0c);
 		ret.push_back(sensitivity);
 		ret.push_back(timeout);
@@ -215,7 +206,7 @@ namespace CommandSerializer
 	Buffer serializeMpToggle2(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ENABLE_SET_2));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::ALERT_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(0x07);
 		ret.push_back(0x01);
@@ -226,10 +217,29 @@ namespace CommandSerializer
 	Buffer serializeSpeakToChatEnabled(bool enabled)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
 		ret.push_back(0x0c);
 		ret.push_back(!enabled);
 		ret.push_back(0x01);
+		return ret;
+	}
+
+	Buffer serializeListeningModeBgmSetting(bool bgmModeActive, ListeningModeBgmDistanceMode distanceMode)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::AUDIO_SET_PARAM));
+		ret.push_back(0x03);
+		ret.push_back(!bgmModeActive);
+		ret.push_back(static_cast<uint8_t>(distanceMode));
+		return ret;
+	}
+
+    Buffer serializeListeningModeNonBgmSetting(ListeningMode nonBgmMode)
+	{
+		Buffer ret;
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::AUDIO_SET_PARAM));
+		ret.push_back(0x04);
+		ret.push_back(static_cast<uint8_t>(nonBgmMode));
 		return ret;
 	}
 
@@ -238,44 +248,52 @@ namespace CommandSerializer
 	Buffer serializeEqualizerSetting(uint8_t preset, char bass, std::vector<int> const& bands)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(preset);
-		ret.push_back(0x06); // data size
-		ret.push_back(bass + 10);
-		ret.push_back(bands[0] + 10);
-		ret.push_back(bands[1] + 10);
-		ret.push_back(bands[2] + 10);
-		ret.push_back(bands[3] + 10);
-		ret.push_back(bands[4] + 10);
+		size_t numBands = bands.size();
+		if (numBands == 5) {
+			ret.push_back(0x06); // data size
+			ret.push_back(bass + 10);
+			ret.push_back(bands[0] + 10);
+			ret.push_back(bands[1] + 10);
+			ret.push_back(bands[2] + 10);
+			ret.push_back(bands[3] + 10);
+			ret.push_back(bands[4] + 10);
+		} else if (numBands == 10) {
+			ret.push_back(0x0a); // data size
+			ret.push_back(bands[0] + 6);
+			ret.push_back(bands[1] + 6);
+			ret.push_back(bands[2] + 6);
+			ret.push_back(bands[3] + 6);
+			ret.push_back(bands[4] + 6);
+			ret.push_back(bands[5] + 6);
+			ret.push_back(bands[6] + 6);
+			ret.push_back(bands[7] + 6);
+			ret.push_back(bands[8] + 6);
+			ret.push_back(bands[9] + 6);
+		} else {
+			throw std::runtime_error("Invalid number of bands for equalizer setting");
+		}
 		return ret;
 	}
 	Buffer serializeEqualizerSetting(uint8_t preset)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::EQUALIZER_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(preset);
-		ret.push_back(0x00); // data size		
+		ret.push_back(0x00); // data size
 		return ret;
 	}
 	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR)
 	{
 		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::AUTOMATIC_POWER_OFF_BUTTON_MODE_SET));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
 		ret.push_back(0x03);
 		ret.push_back(0x02);
 		ret.push_back(static_cast<uint8_t>(funcL));
 		ret.push_back(static_cast<uint8_t>(funcR));
-		return ret;
-	}
-	Buffer serializeOnCallVoiceCaptureSetting(bool enabled)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(COMMAND_TYPE::MULTIPOINT_ETC_ENABLE_SET));
-		ret.push_back(0xD1);
-		ret.push_back(0x00);
-		ret.push_back(!enabled);
 		return ret;
 	}
 }

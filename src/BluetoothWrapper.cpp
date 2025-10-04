@@ -35,12 +35,17 @@ int BluetoothWrapper::sendCommand(CommandSerializer::CommandMessage const& cmd)
 
 int BluetoothWrapper::sendCommand(const Buffer& command, DATA_TYPE dataType)
 {
-	return sendCommand(CommandSerializer::CommandMessage(dataType, command, this->_seqNumber));
+	return sendCommand(CommandSerializer::CommandMessage(dataType, command.data(), command.size(), this->_seqNumber));
+}
+
+int BluetoothWrapper::sendCommand(const uint8_t* data, size_t len, DATA_TYPE dataType)
+{
+	return sendCommand(CommandSerializer::CommandMessage(dataType, data, len, this->_seqNumber));
 }
 
 int BluetoothWrapper::sendAck(int seqNumber)
-{	
-	return sendCommand(CommandSerializer::CommandMessage(DATA_TYPE::ACK, {}, 1 - seqNumber));
+{
+	return sendCommand(CommandSerializer::CommandMessage(DATA_TYPE::ACK, nullptr, 0, 1 - seqNumber));
 }
 
 bool BluetoothWrapper::isConnected() noexcept
@@ -69,7 +74,7 @@ std::vector<BluetoothDevice> BluetoothWrapper::getConnectedDevices()
 
 void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 {
-	char buf[MAX_BLUETOOTH_MESSAGE_SIZE] = { 0 };
+	// char buf[MAX_BLUETOOTH_MESSAGE_SIZE] = { 0 };
 
 	msg.messageBytes.clear();
 	msg.messageBytes.reserve(MAX_BLUETOOTH_MESSAGE_SIZE);
@@ -92,8 +97,8 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	this->connector->recv(reinterpret_cast<char*>(&msg.messageBytes[3]), 4);
 	while (msg.messageBytes.back() != END_MARKER) 
 		msg.messageBytes.push_back(recvOne()); 
-	
-	int msgSize = msg.getSize();			
+
+	// int msgSize = msg.getSize();
 	msg.messageBytes = CommandSerializer::_unescapeSpecials(msg.messageBytes);
 
 	if (!msg.verify())
