@@ -565,7 +565,8 @@ void App::_drawControls()
                     ImGui::BeginDisabled(notConnected);
 
                     static const std::string NOT_CONNECTED = "Not connected";
-                    const std::string& deviceName = notConnected ? NOT_CONNECTED : device.name;
+                    const std::string& deviceName = notConnected ? NOT_CONNECTED
+                        : !device.name.empty() ? device.name : device.mac;
 
                     ImGui::SetNextItemAllowOverlap();
                     bool selectableSelected;

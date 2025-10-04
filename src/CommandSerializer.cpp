@@ -133,15 +133,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeAutoPowerOffSetting(bool autoPowerOff) {
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::POWER_SET_PARAM));
-		ret.push_back(0x05);
-		ret.push_back(autoPowerOff ? 0x10 : 0x11);
-		ret.push_back(0x00);
-		return ret;
-	}
-
 	Buffer serializeAutoPauseSetting(bool autoPause) {
 		Buffer ret;
 		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
