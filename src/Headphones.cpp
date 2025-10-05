@@ -252,12 +252,10 @@ void Headphones::setChanges()
 
     if (!volume.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeVolumeSetting(
-                static_cast<uint8_t>(volume.desired)
-            ), DATA_TYPE::DATA_MDR
+        sendSet<THMSGV2T1::PlayParamPlaybackControllerVolume>(
+            THMSGV2T1::PlayInquiredType::MUSIC_VOLUME,
+            static_cast<uint8_t>(volume.desired)
         );
-        waitForAck();
 
         this->volume.fulfill();
     }
@@ -500,23 +498,13 @@ void Headphones::requestInit()
     }
 
     /* Playback Metadata */
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::PLAY_GET_PARAM),
-        0x01 // Metadata
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    sendGet<THMSGV2T1::GetPlayParam>(THMSGV2T1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT);
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::PLAY_GET_PARAM),
-        0x20 // Playback Volume
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    /* Playback Volume */
+    sendGet<THMSGV2T1::GetPlayParam>(THMSGV2T1::PlayInquiredType::MUSIC_VOLUME);
 
-    _conn.sendCommand(Buffer{
-    static_cast<uint8_t>(THMSGV2T1::Command::PLAY_GET_STATUS),
-        0x01 // Play/Pause
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    /* Play/Pause */
+    sendGet<THMSGV2T1::GetPlayStatus>(THMSGV2T1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT);
 
     if (supports(MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
     {
@@ -733,13 +721,13 @@ void Headphones::requestMultipointSwitch(const char* macString)
     waitForAck();
 }
 
-void Headphones::requestPlaybackControl(PLAYBACK_CONTROL control)
+void Headphones::requestPlaybackControl(THMSGV2T1::PlaybackControl control)
 {
-    _conn.sendCommand(
-        CommandSerializer::serializePlayControl(control),
-        DATA_TYPE::DATA_MDR
+    sendSet<THMSGV2T1::SetPlayStatusPlaybackController>(
+        THMSGV2T1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT,
+        /*status*/ true,
+        control
     );
-    waitForAck();
 }
 
 void Headphones::requestPowerOff()
@@ -1006,30 +994,26 @@ HeadphonesEvent Headphones::_handleBatteryLevelRet(const HeadphonesMessage& msg)
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handlePlaybackStatus(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handlePlaybackParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    auto type = msg[1];
-    switch (type)
+    auto payload = msg.as<THMSGV2T1::PlayParam>(ct);
+    switch (payload->playInquiredType)
     {
-    case 0x01:
+    case THMSGV2T1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
     {
-        auto it = msg.begin() + 3;
-        auto type = *it;
-        auto len = *it++;
-        playback.title = std::string(it, it + len);
-        it += len;
-        type = *it++;
-        len = *it++;
-        playback.album = std::string(it, it + len);
-        it += len;
-        type = *it++;
-        len = *it++;
-        playback.artist = std::string(it, it + len);
+        BufferSpan span = msg;
+        auto payloadSub = THMSGV2T1::PlayParamPlaybackControllerName::deserialize(span, ct);
+        playback.title = std::move(payloadSub.playbackNames[0].name);
+        playback.album = std::move(payloadSub.playbackNames[1].name);
+        playback.artist = std::move(payloadSub.playbackNames[2].name);
         return HeadphonesEvent::PlaybackMetadataUpdate;
     }
-    case 0x20:
-        volume.overwrite(msg[2]);
+    case THMSGV2T1::PlayInquiredType::MUSIC_VOLUME:
+    {
+        auto payloadSub = msg.as<THMSGV2T1::PlayParamPlaybackControllerVolume>(ct);
+        volume.overwrite(payloadSub->volumeValue);
         return HeadphonesEvent::PlaybackVolumeUpdate;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -1145,64 +1129,72 @@ HeadphonesEvent Headphones::_handlePeripheralParam(const HeadphonesMessage& msg,
     auto payload = msg.as<THMSGV2T2::PeripheralParam>(ct);
     switch (payload->inquiredType)
     {
-        case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
+    case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
+    {
+        BufferSpan span = msg;
+        auto payloadSub = THMSGV2T2::PeripheralParamPairingDeviceManagementClassicBt::deserialize(span, ct);
+
+        connectedDevices.clear();
+        pairedDevices.clear();
+
+        // Prefill connected
+        connectedDevices[1] = BluetoothDevice();
+        connectedDevices[2] = BluetoothDevice();
+
+        for (const THMSGV2T2::PeripheralDeviceInfo& device : payloadSub.deviceList)
         {
-            BufferSpan span = msg;
-            auto payloadSub = THMSGV2T2::PeripheralParamPairingDeviceManagementClassicBt::deserialize(span, ct);
-
-            connectedDevices.clear();
-            pairedDevices.clear();
-
-            // Prefill connected
-            connectedDevices[1] = BluetoothDevice();
-            connectedDevices[2] = BluetoothDevice();
-
-            for (const THMSGV2T2::PeripheralDeviceInfo& device : payloadSub.deviceList)
-            {
-                std::string mac = device.getBtDeviceAddress();
-                (device.connectedStatus > 0 ? connectedDevices[device.connectedStatus] : pairedDevices[mac]) = BluetoothDevice(device.btFriendlyName, mac);
-            }
-
-            playbackDevice = payloadSub.playbackrightDevice;
-
-            return HeadphonesEvent::ConnectedDeviceUpdate;
+            std::string mac = device.getBtDeviceAddress();
+            (device.connectedStatus > 0 ? connectedDevices[device.connectedStatus] : pairedDevices[mac]) = BluetoothDevice(device.btFriendlyName, mac);
         }
-        case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
+
+        playbackDevice = payloadSub.playbackrightDevice;
+
+        return HeadphonesEvent::ConnectedDeviceUpdate;
+    }
+    case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
+    {
+        BufferSpan span = msg;
+        auto payloadSub = THMSGV2T2::PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::deserialize(span, ct);
+
+        connectedDevices.clear();
+        pairedDevices.clear();
+
+        // Prefill connected
+        connectedDevices[1] = BluetoothDevice();
+        connectedDevices[2] = BluetoothDevice();
+
+        for (const THMSGV2T2::PeripheralDeviceInfoWithBluetoothClassOfDevice& device : payloadSub.deviceList)
         {
-            BufferSpan span = msg;
-            auto payloadSub = THMSGV2T2::PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::deserialize(span, ct);
-
-            connectedDevices.clear();
-            pairedDevices.clear();
-
-            // Prefill connected
-            connectedDevices[1] = BluetoothDevice();
-            connectedDevices[2] = BluetoothDevice();
-
-            for (const THMSGV2T2::PeripheralDeviceInfoWithBluetoothClassOfDevice& device : payloadSub.deviceList)
-            {
-                std::string mac = device.getBtDeviceAddress();
-                (device.connectedStatus > 0 ? connectedDevices[device.connectedStatus] : pairedDevices[mac]) = BluetoothDevice(device.btFriendlyName, mac);
-            }
-
-            playbackDevice = payloadSub.playbackrightDevice;
-
-            return HeadphonesEvent::ConnectedDeviceUpdate;
+            std::string mac = device.getBtDeviceAddress();
+            (device.connectedStatus > 0 ? connectedDevices[device.connectedStatus] : pairedDevices[mac]) = BluetoothDevice(device.btFriendlyName, mac);
         }
+
+        playbackDevice = payloadSub.playbackrightDevice;
+
+        return HeadphonesEvent::ConnectedDeviceUpdate;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handlePlaybackStatusControl(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct)
 {
-    switch (static_cast<PLAYBACK_CONTROL_RESPONSE>(msg[3]))
+    auto payload = msg.as<THMSGV2T1::PlayStatus>(ct);
+    switch (payload->playInquiredType)
     {
-    case PLAYBACK_CONTROL_RESPONSE::PLAY:
-        playPause.overwrite(true);
-        return HeadphonesEvent::PlaybackPlayPauseUpdate;
-    case PLAYBACK_CONTROL_RESPONSE::PAUSE:
-        playPause.overwrite(false);
-        return HeadphonesEvent::PlaybackPlayPauseUpdate;
+    case THMSGV2T1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
+    {
+        auto payloadSub = msg.as<THMSGV2T1::PlayStatusPlaybackController>(ct);
+        switch (payloadSub->playbackStatus)
+        {
+        case THMSGV2T1::PlaybackStatus::PLAY:
+            playPause.overwrite(true);
+            return HeadphonesEvent::PlaybackPlayPauseUpdate;
+        case THMSGV2T1::PlaybackStatus::PAUSE:
+            playPause.overwrite(false);
+            return HeadphonesEvent::PlaybackPlayPauseUpdate;
+        }
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -1508,8 +1500,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleBatteryLevelRet(msg);
             break;
         case Command::PLAY_RET_PARAM:
+            result = _handlePlaybackParam(msg, CT_Ret);
+            break;
         case Command::PLAY_NTFY_PARAM:
-            result = _handlePlaybackStatus(msg);
+            result = _handlePlaybackParam(msg, CT_Notify);
             break;
         case Command::POWER_RET_PARAM:
             result = _handlePowerParam(msg, CT_Ret);
@@ -1518,8 +1512,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handlePowerParam(msg, CT_Notify);
             break;
         case Command::PLAY_RET_STATUS:
+            result = _handlePlaybackStatus(msg, CT_Ret);
+            break;
         case Command::PLAY_NTFY_STATUS:
-            result = _handlePlaybackStatusControl(msg);
+            result = _handlePlaybackStatus(msg, CT_Notify);
             break;
         case Command::GENERAL_SETTING_RET_CAPABILITY:
             result = _handleGsCapability(msg);

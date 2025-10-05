@@ -67,14 +67,14 @@ bool App::OnUpdate()
                     // poll() will raise an exception and properly let the owner
                     // destruct ourselves.
                 });
-            } else if (_requestPlaybackControl != PLAYBACK_CONTROL::NONE)
+            } else if (_requestPlaybackControl != THMSGV2T1::PlaybackControl::KEY_OFF)
             {
                 auto control = _requestPlaybackControl;
                 _headphones->_requestFuture.get();
                 _headphones->_requestFuture.setFromAsync([this, control]() {
                     _headphones->requestPlaybackControl(control);
                 });
-                _requestPlaybackControl = PLAYBACK_CONTROL::NONE;
+                _requestPlaybackControl = THMSGV2T1::PlaybackControl::KEY_OFF;
             }
         }
     }
@@ -314,10 +314,10 @@ void App::_drawControls()
     {
         if (ImGui::BeginTabBar("##Controls")) {
             if (ImGui::BeginTabItem("Playback")) {
-                using enum PLAYBACK_CONTROL;
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestPlaybackControl != NONE);
+                using enum THMSGV2T1::PlaybackControl;
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestPlaybackControl != KEY_OFF);
                 ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
-                if (ImGui::Button("Prev")) _requestPlaybackControl = PREV;
+                if (ImGui::Button("Prev")) _requestPlaybackControl = TRACK_DOWN;
                 ImGui::SameLine();
                 if (_headphones->playPause.current == true /*playing*/) {
                     if (ImGui::Button("Pause")) _requestPlaybackControl = PAUSE;
@@ -326,7 +326,7 @@ void App::_drawControls()
                     if (ImGui::Button("Play")) _requestPlaybackControl = PLAY;
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Next")) _requestPlaybackControl = NEXT;
+                if (ImGui::Button("Next")) _requestPlaybackControl = TRACK_UP;
                 ImGui::EndTabItem();
                 ImGui::PopItemFlag();
             }

@@ -573,21 +573,6 @@ enum class ListeningModeBgmDistanceMode
 	Cafe = 2,
 };
 
-enum class PLAYBACK_CONTROL : uint8_t
-{
-	NONE = 0,
-	PAUSE = 1,
-	NEXT = 2,
-	PREV = 3,
-	PLAY = 7
-};
-
-enum class PLAYBACK_CONTROL_RESPONSE : uint8_t
-{
-	PLAY = 1,
-	PAUSE = 2
-};
-
 enum class TOUCH_SENSOR_FUNCTION : uint8_t
 {
 	PLAYBACK_CONTROL = 0x20,

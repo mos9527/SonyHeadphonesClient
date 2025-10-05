@@ -157,29 +157,13 @@ namespace CommandSerializer
 		ret.push_back(0x00);
 		return ret;
 	}
-	Buffer serializeVolumeSetting(char volume)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::PLAY_SET_PARAM));
-		ret.push_back(0x20);
-		ret.push_back(volume); // Volume
-		return ret;
-	}
+
 	Buffer serializeMultipointSwitch(const char* macString)
 	{
 		Buffer ret;
 		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::PERI_SET_EXTENDED_PARAM));
 		ret.push_back(0x01);
 		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
-		return ret;
-	}
-	Buffer serializePlayControl(PLAYBACK_CONTROL control)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::PLAY_SET_STATUS));
-		ret.push_back(0x01);
-		ret.push_back(0x00);
-		ret.push_back(static_cast<uint8_t>(control));
 		return ret;
 	}
 

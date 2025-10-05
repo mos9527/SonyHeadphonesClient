@@ -761,12 +761,12 @@ enum class PowerInquiredType : uint8_t
     LINK_CONTROL = 0x07,
     BATTERY_WITH_THRESHOLD = 0x08,
     LR_BATTERY_WITH_THRESHOLD = 0x09,
-    CRADLE_BATTERY_WITH_THRESHOLD = 0xA,
-    BATTERY_SAFE_MODE = 0xB,
-    CARING_CHARGE = 0xC,
-    BT_STANDBY = 0xD,
-    STAMINA = 0xE,
-    AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF = 0xF,
+    CRADLE_BATTERY_WITH_THRESHOLD = 0x0A,
+    BATTERY_SAFE_MODE = 0x0B,
+    CARING_CHARGE = 0x0C,
+    BT_STANDBY = 0x0D,
+    STAMINA = 0x0E,
+    AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF = 0x0F,
 };
 
 inline bool PowerInquiredType_isValidByteCode(uint8_t type)
@@ -1620,31 +1620,31 @@ inline void NcAmbButtonMode_ToStates(Function mode, bool* nc, bool* amb, bool* o
 {
     switch (mode)
     {
-        case Function::NC_ASM_OFF:
-            *nc = true;
-            *amb = true;
-            *off = true;
-            break;
-        case Function::NC_ASM:
-            *nc = true;
-            *amb = true;
-            *off = false;
-            break;
-        case Function::NC_OFF:
-            *nc = true;
-            *amb = false;
-            *off = true;
-            break;
-        case Function::ASM_OFF:
-            *nc = false;
-            *amb = true;
-            *off = true;
-            break;
-        default:
-            *nc = true;
-            *amb = true;
-            *off = false;
-            break;
+    case Function::NC_ASM_OFF:
+        *nc = true;
+        *amb = true;
+        *off = true;
+        break;
+    case Function::NC_ASM:
+        *nc = true;
+        *amb = true;
+        *off = false;
+        break;
+    case Function::NC_OFF:
+        *nc = true;
+        *amb = false;
+        *off = true;
+        break;
+    case Function::ASM_OFF:
+        *nc = false;
+        *amb = true;
+        *off = true;
+        break;
+    default:
+        *nc = true;
+        *amb = true;
+        *off = false;
+        break;
     }
 }
 
@@ -1882,6 +1882,766 @@ struct NcAsmParamNcAmbToggle : NcAsmParam
 
 // endregion NC_ASM
 
+// region PLAY
+
+enum class PlayInquiredType : uint8_t
+{
+    // STATUS: [R N] PlayStatusPlaybackController
+    //         [ S ] SetPlayStatusPlaybackController
+    // PARAM:  [R N] PlayParamPlaybackControllerName
+    PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT = 0x1,
+    // STATUS: [R N] PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange
+    //         [ S ] SetPlayStatusPlaybackController
+    // PARAM:  [R N] PlayParamPlaybackControllerName
+    PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE = 0x2,
+    // STATUS: [R N] PlayStatusPlaybackControlWithFunctionChange
+    //         [ S ] SetPlayStatusPlaybackController
+    // PARAM:  [R N] PlayParamPlaybackControllerName
+    PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE = 0x3,
+
+    // STATUS: [   ] None
+    // PARAM:  [RSN] PlayParamPlaybackControllerVolume
+    MUSIC_VOLUME = 0x20,
+    // STATUS: [   ] None
+    // PARAM:  [RSN] PlayParamPlaybackControllerVolume
+    CALL_VOLUME = 0x21,
+
+    // STATUS: [   ] None
+    // PARAM:  [R N] PlayParamPlaybackControllerVolumeWithMute
+    //         [ S ] PlayParamPlaybackControllerVolume
+    MUSIC_VOLUME_WITH_MUTE = 0x30,
+    // STATUS: [   ] None
+    // PARAM:  [R N] PlayParamPlaybackControllerVolumeWithMute
+    //         [ S ] PlayParamPlaybackControllerVolume
+    CALL_VOLUME_WITH_MUTE = 0x31,
+
+    // STATUS: [R N] PlayStatusCommon
+    // PARAM:  [RSN] PlayParamPlayMode
+    PLAY_MODE = 0x40,
+};
+
+inline bool PlayInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<PlayInquiredType>(type))
+    {
+    case PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
+    case PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE:
+    case PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE:
+    case PlayInquiredType::MUSIC_VOLUME:
+    case PlayInquiredType::CALL_VOLUME:
+    case PlayInquiredType::MUSIC_VOLUME_WITH_MUTE:
+    case PlayInquiredType::CALL_VOLUME_WITH_MUTE:
+    case PlayInquiredType::PLAY_MODE:
+        return true;
+    }
+    return false;
+}
+
+enum class PlaybackStatus : uint8_t
+{
+    UNSETTLED = 0x00,
+    PLAY = 0x01,
+    PAUSE = 0x02,
+    STOP = 0x03,
+};
+
+inline bool PlaybackStatus_isValidByteCode(uint8_t status)
+{
+    switch (static_cast<PlaybackStatus>(status))
+    {
+    case PlaybackStatus::UNSETTLED:
+    case PlaybackStatus::PLAY:
+    case PlaybackStatus::PAUSE:
+    case PlaybackStatus::STOP:
+        return true;
+    }
+    return false;
+}
+
+enum class MusicCallStatus : uint8_t
+{
+    MUSIC = 0x0,
+    CALL = 0x1,
+};
+
+inline bool MusicCallStatus_isValidByteCode(uint8_t status)
+{
+    switch (static_cast<MusicCallStatus>(status))
+    {
+    case MusicCallStatus::MUSIC:
+    case MusicCallStatus::CALL:
+        return true;
+    }
+    return false;
+}
+
+enum class PlaybackControl : uint8_t
+{
+    KEY_OFF = 0x00,
+    PAUSE = 0x01,
+    TRACK_UP = 0x02,
+    TRACK_DOWN = 0x03,
+    GROUP_UP = 0x04,
+    GROUP_DOWN = 0x05,
+    STOP = 0x06,
+    PLAY = 0x07,
+    FAST_FORWARD = 0x08,
+    FAST_REWIND = 0x09,
+};
+
+inline bool PlaybackControl_isValidByteCode(uint8_t control)
+{
+    switch (static_cast<PlaybackControl>(control))
+    {
+    case PlaybackControl::KEY_OFF:
+    case PlaybackControl::PAUSE:
+    case PlaybackControl::TRACK_UP:
+    case PlaybackControl::TRACK_DOWN:
+    case PlaybackControl::GROUP_UP:
+    case PlaybackControl::GROUP_DOWN:
+    case PlaybackControl::STOP:
+    case PlaybackControl::PLAY:
+    case PlaybackControl::FAST_FORWARD:
+    case PlaybackControl::FAST_REWIND:
+        return true;
+    }
+    return false;
+}
+
+// region PLAY_*_STATUS
+
+// region PLAY_GET_STATUS
+
+struct GetPlayStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::PLAY_RET_STATUS;
+
+    PlayInquiredType type; // 0x1
+
+    GetPlayStatus(PlayInquiredType type)
+        : Payload(Command::PLAY_GET_STATUS)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(GetPlayStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PLAY_GET_STATUS)
+            && PlayInquiredType_isValidByteCode(buf[offsetof(GetPlayStatus, type)]);
+    }
+};
+
+// endregion PLAY_GET_STATUS
+
+// region PLAY_RET_STATUS, PLAY_NTFY_STATUS
+
+struct PlayStatus : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PLAY_RET_STATUS,
+        Command::UNKNOWN,
+        Command::PLAY_NTFY_STATUS,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    PlayInquiredType playInquiredType; // 0x1
+
+    PlayStatus(CommandType ct, PlayInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , playInquiredType(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(PlayStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && PlayInquiredType_isValidByteCode(buf[offsetof(PlayStatus, playInquiredType)]);
+    }
+};
+
+// - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT
+
+struct PlayStatusPlaybackController : PlayStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+    PlaybackStatus playbackStatus; // 0x3
+    MusicCallStatus musicCallStatus; // 0x4
+
+    PlayStatusPlaybackController(
+        CommandType ct, MessageMdrV2EnableDisable status, PlaybackStatus playbackStatus, MusicCallStatus musicCallStatus
+    )
+        : PlayStatus(ct, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT)
+        , status(status)
+        , playbackStatus(playbackStatus)
+        , musicCallStatus(musicCallStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayStatus::isValid(buf, ct)
+            && buf.size() == sizeof(PlayStatusPlaybackController)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayStatusPlaybackController, playInquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayStatusPlaybackController, status)])
+            && PlaybackStatus_isValidByteCode(buf[offsetof(PlayStatusPlaybackController, playbackStatus)])
+            && MusicCallStatus_isValidByteCode(buf[offsetof(PlayStatusPlaybackController, musicCallStatus)]);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type)
+    {
+        return type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT;
+    }
+};
+
+// - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE
+
+struct PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange : PlayStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+    PlaybackStatus playbackStatus; // 0x3
+    MusicCallStatus musicCallStatus; // 0x4
+    MessageMdrV2EnableDisable playbackControlStatus; // 0x5
+
+    PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange(
+        CommandType ct, MessageMdrV2EnableDisable status, PlaybackStatus playbackStatus,
+        MusicCallStatus musicCallStatus, MessageMdrV2EnableDisable playbackControlStatus
+    )
+        : PlayStatus(ct, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE)
+        , status(status)
+        , playbackStatus(playbackStatus)
+        , musicCallStatus(musicCallStatus)
+        , playbackControlStatus(playbackControlStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayStatus::isValid(buf, ct)
+            && buf.size() == sizeof(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, playInquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, status)])
+            && PlaybackStatus_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, playbackStatus)])
+            && MusicCallStatus_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, musicCallStatus)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, playbackControlStatus)]);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type)
+    {
+        return type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE;
+    }
+};
+
+// - PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
+
+struct PlayStatusPlaybackControlWithFunctionChange : PlayStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+    PlaybackStatus playbackStatus; // 0x3
+    MessageMdrV2EnableDisable playbackControlStatus; // 0x4
+
+    PlayStatusPlaybackControlWithFunctionChange(
+        CommandType ct, MessageMdrV2EnableDisable status, PlaybackStatus playbackStatus,
+        MessageMdrV2EnableDisable playbackControlStatus
+    )
+        : PlayStatus(ct, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE)
+        , status(status)
+        , playbackStatus(playbackStatus)
+        , playbackControlStatus(playbackControlStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayStatus::isValid(buf, ct)
+            && buf.size() == sizeof(PlayStatusPlaybackControlWithFunctionChange)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayStatusPlaybackControlWithFunctionChange, playInquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithFunctionChange, status)])
+            && PlaybackStatus_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithFunctionChange, playbackStatus)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayStatusPlaybackControlWithFunctionChange, playbackControlStatus)]);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type)
+    {
+        return type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE;
+    }
+};
+
+// - PLAY_MODE
+
+struct PlayStatusCommon : PlayStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+
+    PlayStatusCommon(CommandType ct, MessageMdrV2EnableDisable status)
+        : PlayStatus(ct, PlayInquiredType::PLAY_MODE)
+        , status(status)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayStatus::isValid(buf, ct)
+            && buf.size() == sizeof(PlayStatusCommon)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayStatusCommon, playInquiredType)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayStatusCommon, status)]);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type)
+    {
+        return type == PlayInquiredType::PLAY_MODE;
+    }
+};
+
+// endregion PLAY_RET_STATUS, PLAY_NTFY_STATUS
+
+// region PLAY_SET_STATUS
+
+struct SetPlayStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::PLAY_NTFY_STATUS;
+
+    PlayInquiredType type; // 0x1
+
+protected:
+    SetPlayStatus(PlayInquiredType type)
+        : Payload(Command::PLAY_SET_STATUS)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(SetPlayStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PLAY_SET_STATUS)
+            && PlayInquiredType_isValidByteCode(buf[offsetof(SetPlayStatus, type)]);
+    }
+};
+
+// - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
+
+struct SetPlayStatusPlaybackController : SetPlayStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+    PlaybackControl control; // 0x3
+
+    SetPlayStatusPlaybackController(PlayInquiredType type, MessageMdrV2EnableDisable status, PlaybackControl control)
+        : SetPlayStatus(type)
+        , status(status)
+        , control(control)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return SetPlayStatus::isValid(buf)
+            && buf.size() == sizeof(SetPlayStatusPlaybackController)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(SetPlayStatusPlaybackController, type)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SetPlayStatusPlaybackController, status)])
+            && PlaybackControl_isValidByteCode(buf[offsetof(SetPlayStatusPlaybackController, control)]);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type)
+    {
+        return type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT
+            || type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE
+            || type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE;
+    }
+};
+
+// endregion PLAY_SET_STATUS
+
+// endregion PLAY_*_STATUS
+
+// region PLAY_*_PARAM
+
+// region PLAY_GET_PARAM
+
+struct GetPlayParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::PLAY_RET_PARAM;
+
+    PlayInquiredType type; // 0x1
+
+    GetPlayParam(PlayInquiredType type)
+        : Payload(Command::PLAY_GET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(GetPlayParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PLAY_GET_PARAM)
+            && PlayInquiredType_isValidByteCode(buf[offsetof(GetPlayParam, type)]);
+    }
+};
+
+// endregion PLAY_GET_PARAM
+
+// region PLAY_RET_PARAM, PLAY_SET_PARAM, PLAY_NTFY_PARAM
+
+struct PlayParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PLAY_RET_PARAM,
+        Command::PLAY_SET_PARAM,
+        Command::PLAY_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::PLAY_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    PlayInquiredType playInquiredType; // 0x1
+
+    PlayParam(CommandType ct, PlayInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , playInquiredType(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(PlayParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && PlayInquiredType_isValidByteCode(buf[offsetof(PlayParam, playInquiredType)]);
+    }
+};
+
+// - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
+
+#pragma pack(pop)
+
+enum class PlaybackNameStatus
+{
+    UNSETTLED = 0,
+    NOTHING = 1,
+    SETTLED = 2,
+};
+
+inline bool PlaybackNameStatus_isValidByteCode(uint8_t status)
+{
+    switch (static_cast<PlaybackNameStatus>(status))
+    {
+    case PlaybackNameStatus::UNSETTLED:
+    case PlaybackNameStatus::NOTHING:
+    case PlaybackNameStatus::SETTLED:
+        return true;
+    }
+    return false;
+}
+
+struct PlaybackName
+{
+    static constexpr size_t MAX_NAME_LENGTH = 128;
+
+    PlaybackNameStatus playbackNameStatus;
+    std::string name;
+
+    static PlaybackName deserialize(std::span<const uint8_t>& buf)
+    {
+        if (buf.size() < 2)
+            throw std::runtime_error("Buffer too small for PlaybackName");
+
+        PlaybackName pn;
+        pn.playbackNameStatus = static_cast<PlaybackNameStatus>(buf[0]);
+        buf = buf.subspan(1);
+
+        pn.name = readPrefixedString(buf);
+        return pn;
+    }
+
+    void serialize(std::vector<uint8_t>& buf) const
+    {
+        buf.push_back(static_cast<uint8_t>(playbackNameStatus));
+        writePrefixedString(buf, name);
+    }
+
+    size_t countBytes() const
+    {
+        return 1 + 1 + name.size();
+    }
+};
+
+struct PlayParamPlaybackControllerName : PlayParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PLAY_RET_PARAM,
+        Command::UNKNOWN,
+        Command::PLAY_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    static constexpr size_t NUM_OF_PLAYBACK_NAMES = 4;
+
+    std::array<PlaybackName, NUM_OF_PLAYBACK_NAMES> playbackNames; // playbackNames: 0x2-
+
+    PlayParamPlaybackControllerName(CommandType ct, std::array<PlaybackName, NUM_OF_PLAYBACK_NAMES>&& playbackNames)
+        : PlayParam(ct, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT)
+        , playbackNames(std::move(playbackNames))
+    {}
+
+private:
+    // For init by deserialization
+    PlayParamPlaybackControllerName(PlayInquiredType type)
+        : PlayParam(CT_Get /*Any can do*/, type)
+    {}
+
+public:
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        if (!PlayParam::isValid(buf, ct))
+            return false;
+        if (!isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayParam, playInquiredType)])))
+            return false;
+
+        size_t bufSize = buf.size();
+        size_t indexPlaybackName = 1 + 1; // command + playInquiredType
+        uint8_t playbackNamesNum = 0;
+        while (indexPlaybackName < bufSize)
+        {
+            size_t indexNameLength = indexPlaybackName + 1;
+            if (bufSize < indexNameLength)
+                return false;
+
+            size_t nameLength = buf[indexNameLength];
+            if (nameLength > PlaybackName::MAX_NAME_LENGTH)
+                return false;
+
+            size_t indexName = indexNameLength + 1;
+            if (bufSize < indexName)
+                return false;
+
+            indexPlaybackName = indexName + nameLength;
+            ++playbackNamesNum;
+        }
+
+        if (bufSize != indexPlaybackName)
+            return false;
+        if (playbackNamesNum != NUM_OF_PLAYBACK_NAMES)
+            return false;
+
+        return true;
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type)
+    {
+        return type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT
+            || type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE
+            || type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE;
+    }
+
+    static PlayParamPlaybackControllerName deserialize(std::span<const uint8_t>& buf, CommandType ct)
+    {
+        if (!isValid(buf, ct))
+            throw std::runtime_error("Buffer invalid for PlayParamPlaybackControllerName");
+
+        PlayInquiredType type = static_cast<PlayInquiredType>(buf[offsetof(PlayParam, playInquiredType)]);
+        PlayParamPlaybackControllerName result(type);
+        result.command = static_cast<Command>(buf[offsetof(Payload, command)]);
+        buf = buf.subspan(sizeof(PlayParam));
+
+        for (size_t i = 0; i < NUM_OF_PLAYBACK_NAMES; ++i)
+        {
+            result.playbackNames[i] = PlaybackName::deserialize(buf);
+        }
+
+        return result;
+    }
+
+    void serialize(std::vector<uint8_t>& buf) const
+    {
+        buf.push_back(static_cast<uint8_t>(command));
+        buf.push_back(static_cast<uint8_t>(playInquiredType));
+        // Size not encoded, always 4
+        for (const PlaybackName& pn : playbackNames)
+        {
+            pn.serialize(buf);
+        }
+    }
+
+    size_t countBytes() const
+    {
+        size_t size = 1 + 1; // command + playInquiredType
+        for (const PlaybackName& pn : playbackNames)
+        {
+            size += pn.countBytes();
+        }
+        return size;
+    }
+
+    static constexpr bool VARIABLE_SIZE_NEEDS_SERIALIZATION = true;
+};
+
+#pragma pack(push, 1)
+
+// - MUSIC_VOLUME, CALL_VOLUME
+
+struct PlayParamPlaybackControllerVolume : PlayParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PLAY_RET_PARAM,
+        Command::PLAY_SET_PARAM,
+        Command::PLAY_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::PLAY_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    uint8_t volumeValue; // 0x2
+
+    PlayParamPlaybackControllerVolume(CommandType ct, PlayInquiredType type, uint8_t volumeValue)
+        : PlayParam(ct, type)
+        , volumeValue(volumeValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayParam::isValid(buf, ct)
+            && buf.size() == sizeof(PlayParamPlaybackControllerVolume)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayParam, playInquiredType)]), ct);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type, CommandType ct)
+    {
+        if (ct == CT_Set)
+        {
+            return type == PlayInquiredType::MUSIC_VOLUME
+                || type == PlayInquiredType::CALL_VOLUME
+                || type == PlayInquiredType::MUSIC_VOLUME_WITH_MUTE
+                || type == PlayInquiredType::CALL_VOLUME_WITH_MUTE;
+        }
+        else
+        {
+            return type == PlayInquiredType::MUSIC_VOLUME
+                || type == PlayInquiredType::CALL_VOLUME;
+        }
+    }
+};
+
+// - MUSIC_VOLUME_WITH_MUTE, CALL_VOLUME_WITH_MUTE
+
+struct PlayParamPlaybackControllerVolumeWithMute : PlayParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PLAY_RET_PARAM,
+        Command::UNKNOWN,
+        Command::PLAY_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    uint8_t volumeValue; // 0x2
+    MessageMdrV2EnableDisable muteSetting; // 0x3
+
+    PlayParamPlaybackControllerVolumeWithMute(CommandType ct, PlayInquiredType type, uint8_t volumeValue, MessageMdrV2EnableDisable muteSetting)
+        : PlayParam(ct, type)
+        , volumeValue(volumeValue)
+        , muteSetting(muteSetting)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayParam::isValid(buf, ct)
+            && buf.size() == sizeof(PlayParamPlaybackControllerVolumeWithMute)
+            && isValidInquiredType(static_cast<PlayInquiredType>(buf[offsetof(PlayParam, playInquiredType)]), ct)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PlayParamPlaybackControllerVolumeWithMute, muteSetting)]);
+    }
+
+    static bool isValidInquiredType(PlayInquiredType type, CommandType ct)
+    {
+        if (ct == CT_Set)
+            return false;
+        return type == PlayInquiredType::MUSIC_VOLUME_WITH_MUTE
+            || type == PlayInquiredType::CALL_VOLUME_WITH_MUTE;
+    }
+};
+
+// - PLAY_MODE
+
+enum class PlayMode : uint8_t
+{
+    PLAY_MODE_OFF = 0x00,
+    PLAY_FOLDER = 0x01,
+    REPEAT_ALL = 0x02,
+    REPEAT_FOLDER = 0x03,
+    REPEAT_TRACK = 0x04,
+    SHUFFLE_ALL = 0x05,
+};
+
+inline bool PlayMode_isValidByteCode(uint8_t mode)
+{
+    switch (static_cast<PlayMode>(mode))
+    {
+    case PlayMode::PLAY_MODE_OFF:
+    case PlayMode::PLAY_FOLDER:
+    case PlayMode::REPEAT_ALL:
+    case PlayMode::REPEAT_FOLDER:
+    case PlayMode::REPEAT_TRACK:
+    case PlayMode::SHUFFLE_ALL:
+        return true;
+    }
+    return false;
+}
+
+struct PlayParamPlayMode : PlayParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PLAY_RET_PARAM,
+        Command::PLAY_SET_PARAM,
+        Command::PLAY_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::PLAY_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    PlayMode playMode; // 0x2
+
+    PlayParamPlayMode(CommandType ct, PlayMode playMode)
+        : PlayParam(ct, PlayInquiredType::PLAY_MODE)
+        , playMode(playMode)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PlayParam::isValid(buf, ct)
+            && buf.size() == sizeof(PlayParamPlayMode)
+            && buf[offsetof(PlayParamPlayMode, playInquiredType)] == static_cast<uint8_t>(PlayInquiredType::PLAY_MODE)
+            && PlayMode_isValidByteCode(buf[offsetof(PlayParamPlayMode, playMode)]);
+    }
+};
+
+// endregion PLAY_RET_PARAM, PLAY_SET_PARAM, PLAY_NTFY_PARAM
+
+// endregion PLAY_*_PARAM
+
+// endregion PLAY
+
 // region GENERAL_SETTING
 
 enum class GsInquiredType : uint8_t
@@ -2118,6 +2878,7 @@ public:
             throw std::runtime_error("Buffer invalid for GsRetCapability");
 
         GsRetCapability cap;
+        cap.command = static_cast<Command>(buf[0]);
         cap.type = static_cast<GsInquiredType>(buf[1]);
         cap.settingType = static_cast<GsSettingType>(buf[2]);
         buf = buf.subspan(3);

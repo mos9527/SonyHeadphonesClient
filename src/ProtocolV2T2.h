@@ -534,11 +534,11 @@ public:
         if (buf[offsetof(PeripheralParam, inquiredType)] != static_cast<uint8_t>(PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             return false;
 
-        if (buf.size() < (INDEX_NUM_OF_PAIRED_DEVICE + 1))
+        size_t indexDevice = INDEX_NUM_OF_PAIRED_DEVICE + 1;
+        if (buf.size() < indexDevice)
             return false;
 
         uint8_t devicesNum = buf[INDEX_NUM_OF_PAIRED_DEVICE];
-        size_t indexDevice = INDEX_NUM_OF_PAIRED_DEVICE + 1;
         for (uint8_t i = 0; i < devicesNum; ++i)
         {
             size_t indexConnectedStatus = indexDevice + BLUETOOTH_DEVICE_ADDRESS_LENGTH;
@@ -577,6 +577,8 @@ public:
             throw std::runtime_error("Buffer invalid for PeripheralParamPairingDeviceManagementClassicBt");
 
         PeripheralParamPairingDeviceManagementClassicBt result;
+        result.command = static_cast<Command>(buf[0]);
+        result.inquiredType = static_cast<PeripheralInquiredType>(buf[1]);
 
         uint8_t deviceCount = buf[INDEX_NUM_OF_PAIRED_DEVICE];
         buf = buf.subspan(3);
@@ -596,7 +598,7 @@ public:
         buf.push_back(static_cast<uint8_t>(command));
         buf.push_back(static_cast<uint8_t>(inquiredType));
         buf.push_back(static_cast<uint8_t>(deviceList.size()));
-        for (const auto& device : deviceList)
+        for (const PeripheralDeviceInfo& device : deviceList)
         {
             device.serialize(buf);
         }
@@ -606,7 +608,7 @@ public:
     size_t countBytes() const
     {
         size_t size = 1 + 1 + 1; // command + inquiredType + device count
-        for (const auto& device : deviceList)
+        for (const PeripheralDeviceInfo& device : deviceList)
         {
             size += device.countBytes();
         }
@@ -696,11 +698,11 @@ public:
         if (buf[offsetof(PeripheralParam, inquiredType)] != static_cast<uint8_t>(PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE))
             return false;
 
-        if (buf.size() < (INDEX_NUM_OF_PAIRED_DEVICE + 1))
+        size_t indexDevice = INDEX_NUM_OF_PAIRED_DEVICE + 1;
+        if (buf.size() < indexDevice)
             return false;
 
         uint8_t devicesNum = buf[INDEX_NUM_OF_PAIRED_DEVICE];
-        size_t indexDevice = INDEX_NUM_OF_PAIRED_DEVICE + 1;
         for (uint8_t i = 0; i < devicesNum; ++i)
         {
             size_t indexConnectedStatus = indexDevice + BLUETOOTH_DEVICE_ADDRESS_LENGTH;
@@ -743,6 +745,8 @@ public:
             throw std::runtime_error("Buffer invalid for PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice");
 
         PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice result;
+        result.command = static_cast<Command>(buf[0]);
+        result.inquiredType = static_cast<PeripheralInquiredType>(buf[1]);
 
         uint8_t deviceCount = buf[INDEX_NUM_OF_PAIRED_DEVICE];
         buf = buf.subspan(3);
@@ -762,7 +766,7 @@ public:
         buf.push_back(static_cast<uint8_t>(command));
         buf.push_back(static_cast<uint8_t>(inquiredType));
         buf.push_back(static_cast<uint8_t>(deviceList.size()));
-        for (const auto& device : deviceList)
+        for (const PeripheralDeviceInfoWithBluetoothClassOfDevice& device : deviceList)
         {
             device.serialize(buf);
         }
@@ -772,7 +776,7 @@ public:
     size_t countBytes() const
     {
         size_t size = 1 + 1 + 1; // command + inquiredType + device count
-        for (const auto& device : deviceList)
+        for (const PeripheralDeviceInfoWithBluetoothClassOfDevice& device : deviceList)
         {
             size += device.countBytes();
         }

@@ -73,7 +73,7 @@ private:
     AppConfig & _config;
 
     bool _requestShutdown = false;
-    PLAYBACK_CONTROL _requestPlaybackControl = PLAYBACK_CONTROL::NONE;
+    THMSGV2T1::PlaybackControl _requestPlaybackControl = THMSGV2T1::PlaybackControl::KEY_OFF;
 
     std::vector<std::string> _logs;
     BluetoothDevice _connectedDevice;

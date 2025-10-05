@@ -336,7 +336,7 @@ public:
     void requestInit();
     void requestSync();
     void requestMultipointSwitch(const char* macString);
-    void requestPlaybackControl(PLAYBACK_CONTROL control);
+    void requestPlaybackControl(THMSGV2T1::PlaybackControl control);
     void requestPowerOff();
 
     void recvAsync();
@@ -376,14 +376,14 @@ private:
     HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage& msg);
     HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage& msg);
-    HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePlaybackParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSafeListeningNotifyParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleListeningMode(const HeadphonesMessage& msg);
