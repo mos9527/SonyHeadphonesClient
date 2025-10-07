@@ -141,14 +141,21 @@ public:
     /* New Listening Mode in WH-1000XM6 */
     struct ListeningModeConfig
     {
-        ListeningMode nonBgmMode{}; // 03 XX
-        bool bgmActive{}; // 04 >XX< ?? (inverted)
-        ListeningModeBgmDistanceMode bgmDistanceMode{}; // 04 ?? >XX<
+        ListeningMode nonBgmMode; // 03 XX
+        bool bgmActive; // 04 >XX< ?? (inverted)
+        THMSGV2T1::RoomSize bgmDistanceMode; // 04 ?? >XX<
 
-        ListeningModeConfig() : nonBgmMode(ListeningMode::Standard), bgmActive(false), bgmDistanceMode(ListeningModeBgmDistanceMode::MyRoom) {}
+        ListeningModeConfig()
+            : nonBgmMode(ListeningMode::Standard)
+            , bgmActive(false)
+            , bgmDistanceMode(THMSGV2T1::RoomSize::SMALL)
+        {}
 
-        ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, ListeningModeBgmDistanceMode bgmDistance)
-            : nonBgmMode(nonBgm), bgmActive(bgmActive), bgmDistanceMode(bgmDistance) {}
+        ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, THMSGV2T1::RoomSize bgmDistance)
+            : nonBgmMode(nonBgm)
+            , bgmActive(bgmActive)
+            , bgmDistanceMode(bgmDistance)
+        {}
 
         ListeningMode getEffectiveMode() const
         {
@@ -386,7 +393,7 @@ private:
     HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleListeningMode(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage& msg);
     HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage& msg);
@@ -457,6 +464,7 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
         if constexpr (TPayload::VARIABLE_SIZE_NEEDS_SERIALIZATION)
         {
             std::vector<uint8_t> buf;
+            buf.reserve(payload.countBytes());
             payload.serialize(buf);
             sendMdrCommandWithTypeHelper<TPayload>(ct, buf);
         }

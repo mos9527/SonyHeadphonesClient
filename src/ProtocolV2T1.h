@@ -105,19 +105,24 @@ enum class Command : uint8_t
 
     SENSE_GET_CAPABILITY = 0x70,
     SENSE_RET_CAPABILITY = 0x71,
+
     SENSE_SET_STATUS = 0x74,
     SENSE_NTFY_STATUS = 0x75,
+
     SENSE_SET_PARAM = 0x78,
     SENSE_NTFY_PARAM = 0x79,
+
     SENSE_GET_EXT_INFO = 0x7A,
     SENSE_RET_EXT_INFO = 0x7B,
 
     OPT_GET_CAPABILITY = 0x80,
     OPT_RET_CAPABILITY = 0x81,
+
     OPT_GET_STATUS = 0x82,
     OPT_RET_STATUS = 0x83,
     OPT_SET_STATUS = 0x84,
     OPT_NTFY_STATUS = 0x85,
+
     OPT_GET_PARAM = 0x86,
     OPT_RET_PARAM = 0x87,
     OPT_SET_PARAM = 0x88,
@@ -3014,6 +3019,599 @@ struct GsParamList : GsParam
 // endregion GENERAL_SETTING_*_PARAM
 
 // endregion GENERAL_SETTING
+
+// region AUDIO
+
+enum class AudioInquiredType : uint8_t
+{
+    // PARAM:  [RSN] AudioParamConnection
+    CONNECTION_MODE = 0x00,
+    // PARAM:  [RSN] AudioParamUpscaling
+    UPSCALING = 0x01,
+    // PARAM:  [RSN] AudioParamConnectionWithLdacStatus
+    CONNECTION_MODE_WITH_LDAC_STATUS = 0x02,
+    // PARAM:  [RSN] AudioParamBGMMode
+    BGM_MODE = 0x03,
+    // PARAM:  [RSN] AudioParamUpmixCinema
+    UPMIX_CINEMA = 0x04,
+    // PARAM:  [R  ] AudioRetParamConnectionModeClassicAudioLeAudio
+    //         [ S ] AudioSetParamConnectionModeClassicAudioLeAudio
+    //         [  N] AudioNtfyParamConnectionModeClassicAudioLeAudio
+    CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO = 0x05,
+    // PARAM:  [RSN] AudioParamVoiceContents
+    VOICE_CONTENTS = 0x06,
+    // PARAM:  [RSN] AudioParamSoundLeakageReduction
+    SOUND_LEAKAGE_REDUCTION = 0x07,
+    // PARAM:  [RSN] AudioParamListeningOptionAssignCustomizable
+    LISTENING_OPTION_ASSIGN_CUSTOMIZABLE = 0x08,
+    // PARAM:  [RSN] AudioParamBGMMode
+    BGM_MODE_AND_ERRORCODE = 0x09,
+    // PARAM:  [RSN] AudioParamUpmixSeries
+    UPMIX_SERIES = 0x0A,
+};
+
+inline bool AudioInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<AudioInquiredType>(type))
+    {
+    case AudioInquiredType::CONNECTION_MODE:
+    case AudioInquiredType::UPSCALING:
+    case AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS:
+    case AudioInquiredType::BGM_MODE:
+    case AudioInquiredType::UPMIX_CINEMA:
+    case AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO:
+    case AudioInquiredType::VOICE_CONTENTS:
+    case AudioInquiredType::SOUND_LEAKAGE_REDUCTION:
+    case AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE:
+    case AudioInquiredType::BGM_MODE_AND_ERRORCODE:
+    case AudioInquiredType::UPMIX_SERIES:
+        return true;
+    }
+    return false;
+}
+
+enum class PriorMode : uint8_t
+{
+    SOUND_QUALITY_PRIOR = 0x00,
+    CONNECTION_QUALITY_PRIOR = 0x01,
+    LOW_LATENCY_PRIOR_BETA = 0x02,
+};
+
+inline bool PriorMode_isValidByteCode(uint8_t mode)
+{
+    switch (static_cast<PriorMode>(mode))
+    {
+    case PriorMode::SOUND_QUALITY_PRIOR:
+    case PriorMode::CONNECTION_QUALITY_PRIOR:
+    case PriorMode::LOW_LATENCY_PRIOR_BETA:
+        return true;
+    }
+    return false;
+}
+
+enum class UpscalingTypeAutoOff : uint8_t
+{
+    OFF = 0x00,
+    AUTO = 0x01,
+};
+
+inline bool UpscalingTypeAutoOff_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<UpscalingTypeAutoOff>(type))
+    {
+    case UpscalingTypeAutoOff::OFF:
+    case UpscalingTypeAutoOff::AUTO:
+        return true;
+    }
+    return false;
+}
+
+enum class RoomSize : uint8_t
+{
+    SMALL = 0x00,
+    MIDDLE = 0x01,
+    LARGE = 0x02,
+};
+
+inline bool RoomSize_isValidByteCode(uint8_t size)
+{
+    switch (static_cast<RoomSize>(size))
+    {
+    case RoomSize::SMALL:
+    case RoomSize::MIDDLE:
+    case RoomSize::LARGE:
+        return true;
+    }
+    return false;
+}
+
+enum class UpmixItemId : uint8_t
+{
+    NONE = 0x00,
+    CINEMA = 0x01,
+    GAME = 0x02,
+    MUSIC = 0x03,
+};
+
+inline bool UpmixItemId_isValidByteCode(uint8_t id)
+{
+    switch (static_cast<UpmixItemId>(id))
+    {
+    case UpmixItemId::NONE:
+    case UpmixItemId::CINEMA:
+    case UpmixItemId::GAME:
+    case UpmixItemId::MUSIC:
+        return true;
+    }
+    return false;
+}
+
+enum class SwitchingStream : uint8_t
+{
+    NONE = 0x00,
+    LE_AUDIO = 0x01,
+    CLASSIC_AUDIO = 0x02,
+};
+
+inline bool SwitchingStream_isValidByteCode(uint8_t stream)
+{
+    switch (static_cast<SwitchingStream>(stream))
+    {
+    case SwitchingStream::NONE:
+    case SwitchingStream::LE_AUDIO:
+    case SwitchingStream::CLASSIC_AUDIO:
+        return true;
+    }
+    return false;
+}
+
+// region AUDIO_*_CAPABILITY
+
+// region AUDIO_GET_CAPABILITY
+
+struct AudioGetCapability : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::AUDIO_RET_CAPABILITY;
+
+    AudioInquiredType type; // 0x1
+
+    AudioGetCapability(AudioInquiredType type)
+        : Payload(Command::AUDIO_GET_CAPABILITY)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(AudioGetCapability)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::AUDIO_GET_CAPABILITY)
+            && AudioInquiredType_isValidByteCode(buf[offsetof(AudioGetCapability, type)]);
+    }
+};
+
+// endregion AUDIO_GET_CAPABILITY
+
+// region AUDIO_RET_CAPABILITY
+
+// Not implemented
+
+// endregion AUDIO_RET_CAPABILITY
+
+// endregion AUDIO_*_CAPABILITY
+
+// region AUDIO_*_STATUS
+
+// region AUDIO_GET_STATUS
+
+struct AudioGetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::AUDIO_RET_STATUS;
+
+    AudioInquiredType type; // 0x1
+
+    AudioGetStatus(AudioInquiredType type)
+        : Payload(Command::AUDIO_GET_STATUS)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(AudioGetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::AUDIO_GET_STATUS)
+            && AudioInquiredType_isValidByteCode(buf[offsetof(AudioGetStatus, type)]);
+    }
+};
+
+// endregion AUDIO_GET_STATUS
+
+// region AUDIO_RET_STATUS, AUDIO_SET_STATUS, AUDIO_NTFY_STATUS
+
+// Not implemented
+
+// endregion AUDIO_RET_STATUS, AUDIO_SET_STATUS, AUDIO_NTFY_STATUS
+
+// endregion AUDIO_*_STATUS
+
+// region AUDIO_*_PARAM
+
+// region AUDIO_GET_PARAM
+
+struct AudioGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::AUDIO_RET_PARAM;
+
+    AudioInquiredType type; // 0x1
+
+    AudioGetParam(AudioInquiredType type)
+        : Payload(Command::AUDIO_GET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(AudioGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::AUDIO_GET_PARAM)
+            && AudioInquiredType_isValidByteCode(buf[offsetof(AudioGetParam, type)]);
+    }
+};
+
+// endregion AUDIO_GET_PARAM
+
+// region AUDIO_RET_PARAM, AUDIO_SET_PARAM, AUDIO_NTFY_PARAM
+
+struct AudioParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::AUDIO_RET_PARAM,
+        Command::AUDIO_SET_PARAM,
+        Command::AUDIO_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::AUDIO_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    AudioInquiredType type; // 0x1
+
+    AudioParam(CommandType ct, AudioInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(AudioParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && AudioInquiredType_isValidByteCode(buf[offsetof(AudioParam, type)]);
+    }
+};
+
+// - CONNECTION_MODE
+
+struct AudioParamConnection : AudioParam
+{
+    PriorMode settingValue; // 0x2
+
+    AudioParamConnection(CommandType ct, PriorMode settingValue)
+        : AudioParam(ct, AudioInquiredType::CONNECTION_MODE)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamConnection)
+            && buf[offsetof(AudioParamConnection, type)] == static_cast<uint8_t>(AudioInquiredType::CONNECTION_MODE)
+            && PriorMode_isValidByteCode(buf[offsetof(AudioParamConnection, settingValue)]);
+    }
+};
+
+// - UPSCALING
+
+struct AudioParamUpscaling : AudioParam
+{
+    UpscalingTypeAutoOff settingValue; // 0x2
+
+    AudioParamUpscaling(CommandType ct, UpscalingTypeAutoOff settingValue)
+        : AudioParam(ct, AudioInquiredType::UPSCALING)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamUpscaling)
+            && buf[offsetof(AudioParamUpscaling, type)] == static_cast<uint8_t>(AudioInquiredType::UPSCALING)
+            && UpscalingTypeAutoOff_isValidByteCode(buf[offsetof(AudioParamUpscaling, settingValue)]);
+    }
+};
+
+// - CONNECTION_MODE_WITH_LDAC_STATUS
+
+struct AudioParamConnectionWithLdacStatus : AudioParam
+{
+    PriorMode settingValue; // 0x2
+
+    AudioParamConnectionWithLdacStatus(CommandType ct, PriorMode settingValue)
+        : AudioParam(ct, AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamConnectionWithLdacStatus)
+            && buf[offsetof(AudioParamConnectionWithLdacStatus, type)] == static_cast<uint8_t>(AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS)
+            && PriorMode_isValidByteCode(buf[offsetof(AudioParamConnectionWithLdacStatus, settingValue)]);
+    }
+};
+
+// - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+
+struct AudioRetParamConnectionModeClassicAudioLeAudio : AudioParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::AUDIO_RET_PARAM,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    PriorMode settingValue; // 0x2
+
+    AudioRetParamConnectionModeClassicAudioLeAudio(CommandType ct, PriorMode settingValue)
+        : AudioParam(ct, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioRetParamConnectionModeClassicAudioLeAudio)
+            && buf[offsetof(AudioRetParamConnectionModeClassicAudioLeAudio, type)] == static_cast<uint8_t>(AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+            && PriorMode_isValidByteCode(buf[offsetof(AudioRetParamConnectionModeClassicAudioLeAudio, settingValue)]);
+    }
+};
+
+// - BGM_MODE, BGM_MODE_AND_ERRORCODE
+
+struct AudioParamBGMMode : AudioParam
+{
+    MessageMdrV2EnableDisable onOffSettingValue; // 0x2
+    RoomSize targetRoomSize; // 0x3
+
+    AudioParamBGMMode(CommandType ct, AudioInquiredType type, MessageMdrV2EnableDisable onOffSettingValue, RoomSize targetRoomSize)
+        : AudioParam(ct, type)
+        , onOffSettingValue(onOffSettingValue)
+        , targetRoomSize(targetRoomSize)
+    {
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamBGMMode)
+            && isValidInquiredType(static_cast<AudioInquiredType>(buf[offsetof(AudioParamBGMMode, type)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AudioParamBGMMode, onOffSettingValue)])
+            && RoomSize_isValidByteCode(buf[offsetof(AudioParamBGMMode, targetRoomSize)]);
+    }
+
+    static bool isValidInquiredType(AudioInquiredType type)
+    {
+        return type == AudioInquiredType::BGM_MODE
+            || type == AudioInquiredType::BGM_MODE_AND_ERRORCODE;
+    }
+};
+
+// - UPMIX_CINEMA
+
+struct AudioParamUpmixCinema : AudioParam
+{
+    MessageMdrV2EnableDisable onOffSettingValue; // 0x2
+
+    AudioParamUpmixCinema(CommandType ct, MessageMdrV2EnableDisable onOffSettingValue)
+        : AudioParam(ct, AudioInquiredType::UPMIX_CINEMA)
+        , onOffSettingValue(onOffSettingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamUpmixCinema)
+            && buf[offsetof(AudioParamUpmixCinema, type)] == static_cast<uint8_t>(AudioInquiredType::UPMIX_CINEMA)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AudioParamUpmixCinema, onOffSettingValue)]);
+    }
+};
+
+// - VOICE_CONTENTS
+
+struct AudioParamVoiceContents : AudioParam
+{
+    MessageMdrV2EnableDisable onOffSettingValue; // 0x2
+
+    AudioParamVoiceContents(CommandType ct, MessageMdrV2EnableDisable onOffSettingValue)
+        : AudioParam(ct, AudioInquiredType::VOICE_CONTENTS)
+        , onOffSettingValue(onOffSettingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamVoiceContents)
+            && buf[offsetof(AudioParamVoiceContents, type)] == static_cast<uint8_t>(AudioInquiredType::VOICE_CONTENTS)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AudioParamVoiceContents, onOffSettingValue)]);
+    }
+};
+
+// - SOUND_LEAKAGE_REDUCTION
+
+struct AudioParamSoundLeakageReduction : AudioParam
+{
+    MessageMdrV2EnableDisable onOffSettingValue; // 0x2
+
+    AudioParamSoundLeakageReduction(CommandType ct, MessageMdrV2EnableDisable onOffSettingValue)
+        : AudioParam(ct, AudioInquiredType::SOUND_LEAKAGE_REDUCTION)
+        , onOffSettingValue(onOffSettingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamSoundLeakageReduction)
+            && buf[offsetof(AudioParamSoundLeakageReduction, type)] == static_cast<uint8_t>(AudioInquiredType::SOUND_LEAKAGE_REDUCTION)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AudioParamSoundLeakageReduction, onOffSettingValue)]);
+    }
+};
+
+// - LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+
+// Not implemented, variable size
+
+// - UPMIX_SERIES
+
+struct AudioParamUpmixSeries : AudioParam
+{
+    UpmixItemId upmixItemId; // 0x2
+
+    AudioParamUpmixSeries(CommandType ct, UpmixItemId upmixItemId)
+        : AudioParam(ct, AudioInquiredType::UPMIX_SERIES)
+        , upmixItemId(upmixItemId)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioParamUpmixSeries)
+            && buf[offsetof(AudioParamUpmixSeries, type)] == static_cast<uint8_t>(AudioInquiredType::UPMIX_SERIES)
+            && UpmixItemId_isValidByteCode(buf[offsetof(AudioParamUpmixSeries, upmixItemId)]);
+    }
+};
+
+// endregion AUDIO_RET_PARAM, AUDIO_SET_PARAM, AUDIO_NTFY_PARAM
+
+// region AUDIO_SET_PARAM
+
+// - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+
+struct AudioSetParamConnectionModeClassicAudioLeAudio : AudioParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::AUDIO_SET_PARAM,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::AUDIO_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    PriorMode settingValue; // 0x2
+    MessageMdrV2EnableDisable alertConfirmation; // 0x3
+
+    AudioSetParamConnectionModeClassicAudioLeAudio(CommandType ct, PriorMode settingValue, MessageMdrV2EnableDisable alertConfirmation)
+        : AudioParam(ct, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+        , settingValue(settingValue)
+        , alertConfirmation(alertConfirmation)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioSetParamConnectionModeClassicAudioLeAudio)
+            && buf[offsetof(AudioSetParamConnectionModeClassicAudioLeAudio, type)] == static_cast<uint8_t>(AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+            && PriorMode_isValidByteCode(buf[offsetof(AudioSetParamConnectionModeClassicAudioLeAudio, settingValue)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AudioSetParamConnectionModeClassicAudioLeAudio, alertConfirmation)]);
+    }
+};
+
+// endregion AUDIO_SET_PARAM
+
+// region AUDIO_NTFY_PARAM
+
+// - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+
+struct AudioNtfyParamConnectionModeClassicAudioLeAudio : AudioParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::AUDIO_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    PriorMode settingValue; // 0x2
+    SwitchingStream switchingStream; // 0x3
+
+    AudioNtfyParamConnectionModeClassicAudioLeAudio(CommandType ct, PriorMode settingValue, SwitchingStream switchingStream)
+        : AudioParam(ct, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+        , settingValue(settingValue)
+        , switchingStream(switchingStream)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf.size() == sizeof(AudioNtfyParamConnectionModeClassicAudioLeAudio)
+            && buf[offsetof(AudioNtfyParamConnectionModeClassicAudioLeAudio, type)] == static_cast<uint8_t>(AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+            && PriorMode_isValidByteCode(buf[offsetof(AudioNtfyParamConnectionModeClassicAudioLeAudio, settingValue)])
+            && SwitchingStream_isValidByteCode(buf[offsetof(AudioNtfyParamConnectionModeClassicAudioLeAudio, switchingStream)]);
+    }
+};
+
+// endregion AUDIO_NTFY_PARAM
+
+// endregion AUDIO_*_PARAM
+
+// endregion AUDIO
+
+// region SYSTEM
+
+// region SYSTEM_*_CAPABILITY
+
+// TODO
+
+// endregion SYSTEM_*_CAPABILITY
+
+// region SYSTEM_*_STATUS
+
+// TODO
+
+// endregion SYSTEM_*_STATUS
+
+// region SYSTEM_*_PARAM
+
+// TODO
+
+// endregion SYSTEM_*_PARAM
+
+// region SYSTEM_*_EXT_PARAM
+
+// TODO
+
+// endregion SYSTEM_*_EXT_PARAM
+
+// endregion SYSTEM
 
 } // namespace THMSGV2T1
 

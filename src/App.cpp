@@ -410,20 +410,24 @@ void App::_drawControls()
 
                 // Standard
                 bool radioChanged = false;
-                if (radioChanged |= ImGui::RadioButton("Standard", effectiveMode == ListeningMode::Standard))
+                if (ImGui::RadioButton("Standard", effectiveMode == ListeningMode::Standard)) {
+                    radioChanged |= true;
                     effectiveMode = ListeningMode::Standard;
+                }
 
                 // BGM
-                if (radioChanged |= ImGui::RadioButton("BGM", effectiveMode == ListeningMode::BGM))
+                if (ImGui::RadioButton("BGM", effectiveMode == ListeningMode::BGM)) {
+                    radioChanged |= true;
                     effectiveMode = ListeningMode::BGM;
+                }
                 ImGui::Indent();
                 ImGui::BeginDisabled(!_headphones->listeningModeConfig.current.bgmActive);
 
                 // Distance combo box
-                static const std::map<ListeningModeBgmDistanceMode, const char*> BGM_DISTANCE_MODE_STR = {
-                    {ListeningModeBgmDistanceMode::MyRoom, "My Room"},
-                    {ListeningModeBgmDistanceMode::LivingRoom, "Living Room"},
-                    {ListeningModeBgmDistanceMode::Cafe, "Cafe"},
+                static const std::map<THMSGV2T1::RoomSize, const char*> BGM_DISTANCE_MODE_STR = {
+                    { THMSGV2T1::RoomSize::SMALL, "My Room" },
+                    { THMSGV2T1::RoomSize::MIDDLE, "Living Room" },
+                    { THMSGV2T1::RoomSize::LARGE, "Cafe" },
                 };
                 auto it = BGM_DISTANCE_MODE_STR.find(_headphones->listeningModeConfig.current.bgmDistanceMode);
                 const char* currentStr = it != BGM_DISTANCE_MODE_STR.end() ? it->second : "Unknown";
@@ -442,8 +446,10 @@ void App::_drawControls()
                 ImGui::Unindent();
 
                 // Cinema
-                if (radioChanged |= ImGui::RadioButton("Cinema", effectiveMode == ListeningMode::Cinema))
+                if (ImGui::RadioButton("Cinema", effectiveMode == ListeningMode::Cinema)) {
+                    radioChanged |= true;
                     effectiveMode = ListeningMode::Cinema;
+                }
 
                 if (radioChanged) {
                     _headphones->listeningModeConfig.desired.bgmActive = effectiveMode == ListeningMode::BGM;

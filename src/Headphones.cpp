@@ -277,7 +277,7 @@ void Headphones::setChanges()
         waitForAck();*/
 
 
-        // Don't fullfill until the MULTIPOINT_DEVICE_RET/NOTIFY is received
+        // Don't fulfill until PERI_NTFY_EXTENDED_PARAM is received
         // as the device might not have switched yet
         // mpDeviceMac.fulfill();
     }
@@ -311,16 +311,16 @@ void Headphones::setChanges()
         if (listeningModeConfig.desired.bgmActive ||
             (listeningModeConfig.current.bgmActive && listeningModeConfig.desired.nonBgmMode == ListeningMode::Standard))
         {
-            this->_conn.sendCommand(
-                CommandSerializer::serializeListeningModeBgmSetting(listeningModeConfig.desired.bgmActive, listeningModeConfig.desired.bgmDistanceMode),
-                DATA_TYPE::DATA_MDR
+            sendSet<THMSGV2T1::AudioParamBGMMode>(
+                THMSGV2T1::AudioInquiredType::BGM_MODE,
+                listeningModeConfig.desired.bgmActive,
+                listeningModeConfig.desired.bgmDistanceMode
             );
         }
         else
         {
-            this->_conn.sendCommand(
-                CommandSerializer::serializeListeningModeNonBgmSetting(listeningModeConfig.desired.nonBgmMode),
-                DATA_TYPE::DATA_MDR
+            sendSet<THMSGV2T1::AudioParamUpmixCinema>(
+                listeningModeConfig.desired.nonBgmMode == ListeningMode::Cinema
             );
         }
         waitForAck();
@@ -558,17 +558,8 @@ void Headphones::requestInit()
     if (supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
     {
         /* Listening Mode */
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::AUDIO_GET_PARAM),
-            0x03
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
-
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::AUDIO_GET_PARAM),
-            0x04
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
+        sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::BGM_MODE);
+        sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::UPMIX_CINEMA);
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
@@ -1299,32 +1290,39 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleListeningMode(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleAudioParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    switch (msg[1])
+    auto payload = msg.as<THMSGV2T1::AudioParam>(ct);
+    switch (payload->type)
     {
-    case 0x03:
+    case THMSGV2T1::AudioInquiredType::BGM_MODE:
+    {
         if (supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
         {
+            auto payloadSub = msg.as<THMSGV2T1::AudioParamBGMMode>(ct);
             listeningModeConfig.overwrite(ListeningModeConfig(
                 listeningModeConfig.current.nonBgmMode,
-                !msg[2],
-                static_cast<ListeningModeBgmDistanceMode>(msg[3])
+                payloadSub->onOffSettingValue,
+                payloadSub->targetRoomSize
             ));
             return HeadphonesEvent::ListeningModeUpdate;
         }
         break;
-    case 0x04:
+    }
+    case THMSGV2T1::AudioInquiredType::UPMIX_CINEMA:
+    {
         if (supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
         {
+            auto payloadSub = msg.as<THMSGV2T1::AudioParamUpmixCinema>(ct);
             listeningModeConfig.overwrite(ListeningModeConfig(
-                static_cast<ListeningMode>(msg[2]),
+                payloadSub->onOffSettingValue ? ListeningMode::Cinema : ListeningMode::Standard,
                 listeningModeConfig.current.bgmActive,
                 listeningModeConfig.current.bgmDistanceMode
             ));
             return HeadphonesEvent::ListeningModeUpdate;
         }
         break;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -1527,8 +1525,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleGeneralSettingParam(msg, CT_Notify);
             break;
         case Command::AUDIO_RET_PARAM:
+            result = _handleAudioParam(msg, CT_Ret);
+            break;
         case Command::AUDIO_NTFY_PARAM:
-            result = _handleListeningMode(msg);
+            result = _handleAudioParam(msg, CT_Notify);
             break;
         case Command::SYSTEM_RET_PARAM:
         case Command::SYSTEM_NTFY_PARAM:
@@ -1576,7 +1576,6 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case Command::VOICE_GUIDANCE_NTFY_PARAM:
             result = _handleVoiceGuidanceParam(msg);
             break;
-        case Command::MULTIPOINT_DEVICE_RET:
         case Command::PERI_NTFY_EXTENDED_PARAM:
             result = _handleMultipointDevice(msg);
             break;

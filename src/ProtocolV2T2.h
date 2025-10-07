@@ -43,9 +43,6 @@ enum class Command : uint8_t
     PERI_SET_PARAM = 0x38,
     PERI_NTFY_PARAM = 0x39,
 
-    MULTIPOINT_DEVICE_GET = 0x3A, // Not in official enum
-    MULTIPOINT_DEVICE_RET = 0x3B, // Not in official enum
-
     PERI_SET_EXTENDED_PARAM = 0x3C,
     PERI_NTFY_EXTENDED_PARAM = 0x3D,
 
@@ -154,8 +151,6 @@ inline const char* Command_toString(Command cmd)
     case Command::PERI_RET_PARAM: return "PERI_RET_PARAM";
     case Command::PERI_SET_PARAM: return "PERI_SET_PARAM";
     case Command::PERI_NTFY_PARAM: return "PERI_NTFY_PARAM";
-    case Command::MULTIPOINT_DEVICE_GET: return "MULTIPOINT_DEVICE_GET";
-    case Command::MULTIPOINT_DEVICE_RET: return "MULTIPOINT_DEVICE_RET";
     case Command::PERI_SET_EXTENDED_PARAM: return "PERI_SET_EXTENDED_PARAM";
     case Command::PERI_NTFY_EXTENDED_PARAM: return "PERI_NTFY_EXTENDED_PARAM";
     case Command::VOICE_GUIDANCE_GET_CAPABILITY: return "VOICE_GUIDANCE_GET_CAPABILITY";

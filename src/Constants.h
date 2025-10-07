@@ -566,13 +566,6 @@ enum class ListeningMode
 	Cinema = 0,
 };
 
-enum class ListeningModeBgmDistanceMode
-{
-	MyRoom = 0,
-	LivingRoom = 1,
-	Cafe = 2,
-};
-
 enum class TOUCH_SENSOR_FUNCTION : uint8_t
 {
 	PLAYBACK_CONTROL = 0x20,
