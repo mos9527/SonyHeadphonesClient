@@ -342,7 +342,6 @@ public:
 
     void requestInit();
     void requestSync();
-    void requestMultipointSwitch(const char* macString);
     void requestPlaybackControl(THMSGV2T1::PlaybackControl control);
     void requestPowerOff();
 
@@ -388,7 +387,7 @@ private:
     HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);

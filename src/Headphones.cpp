@@ -261,12 +261,8 @@ void Headphones::setChanges()
     }
 
     if (!mpDeviceMac.isFulfilled())
-    {        
-        this->_conn.sendCommand(
-            CommandSerializer::serializeMultipointSwitch(mpDeviceMac.desired.c_str()),
-            DATA_TYPE::DATA_MDR_NO2
-        );
-        waitForAck();
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamSourceSwitchControl>(mpDeviceMac.desired);
 
         // XXX: For some reason, multipoint switch command doesn't always work
         // ...yet appending another command after it makes it much more likely to succeed?
@@ -703,15 +699,6 @@ void Headphones::recvAsync()
         });
 }
 
-void Headphones::requestMultipointSwitch(const char* macString)
-{
-    _conn.sendCommand(
-        CommandSerializer::serializeMultipointSwitch(macString),
-        DATA_TYPE::DATA_MDR_NO2
-    );
-    waitForAck();
-}
-
 void Headphones::requestPlaybackControl(THMSGV2T1::PlaybackControl control)
 {
     sendSet<THMSGV2T1::SetPlayStatusPlaybackController>(
@@ -1109,10 +1096,19 @@ HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& m
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleMultipointDevice(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg)
 {
-    mpDeviceMac.overwrite(std::string(msg.begin() + 3, msg.end()));
-    return HeadphonesEvent::MultipointDeviceSwitchUpdate;
+    auto payload = msg.as<THMSGV2T2::PeripheralNtfyExtendedParam>();
+    switch (payload->inquiredType)
+    {
+    case THMSGV2T2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL:
+    {
+        auto payloadSub = msg.as<THMSGV2T2::PeripheralNtfyExtendedParamSourceSwitchControl>();
+        mpDeviceMac.overwrite(payloadSub->getTargetBdAddress());
+        return HeadphonesEvent::MultipointDeviceSwitchUpdate;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct)
@@ -1577,7 +1573,7 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleVoiceGuidanceParam(msg);
             break;
         case Command::PERI_NTFY_EXTENDED_PARAM:
-            result = _handleMultipointDevice(msg);
+            result = _handlePeripheralNotifyExtendedParam(msg);
             break;
         case Command::PERI_RET_PARAM:
             result = _handlePeripheralParam(msg, CT_Ret);

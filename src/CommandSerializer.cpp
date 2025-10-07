@@ -158,15 +158,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeMultipointSwitch(const char* macString)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::PERI_SET_EXTENDED_PARAM));
-		ret.push_back(0x01);
-		ret.insert(ret.end(), macString, macString + 6 * 3 - 1); // Mac string. e.g. XX:XX:XX:XX:XX:XX
-		return ret;
-	}
-
 	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{

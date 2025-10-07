@@ -815,6 +815,299 @@ struct PeripheralParamMusicHandOverSetting : PeripheralParam
 
 // endregion PERI_*_PARAM
 
+// region PERI_*_EXTENDED_PARAM
+
+enum class ConnectivityActionType : uint8_t
+{
+    DISCONNECT = 0x00,
+    CONNECT = 0x01,
+    UNPAIR = 0x02,
+};
+
+inline bool ConnectivityActionType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<ConnectivityActionType>(type))
+    {
+    case ConnectivityActionType::DISCONNECT:
+    case ConnectivityActionType::CONNECT:
+    case ConnectivityActionType::UNPAIR:
+        return true;
+    }
+    return false;
+}
+
+enum class PeripheralResult : uint8_t
+{
+    DISCONNECTION_SUCCESS = 0x00,
+    DISCONNECTION_ERROR = 0x01,
+    DISCONNECTION_IN_PROGRESS = 0x02,
+    DISCONNECTION_BUSY = 0x03,
+
+    CONNECTION_SUCCESS = 0x10,
+    CONNECTION_ERROR = 0x11,
+    CONNECTION_IN_PROGRESS = 0x12,
+    CONNECTION_BUSY = 0x13,
+
+    UNPAIRING_SUCCESS = 0x20,
+    UNPAIRING_ERROR = 0x21,
+    UNPAIRING_IN_PROGRESS = 0x22,
+    UNPAIRING_BUSY = 0x23,
+
+    PAIRING_SUCCESS = 0x30,
+    PAIRING_ERROR = 0x31,
+    PAIRING_IN_PROGRESS = 0x32,
+    PAIRING_BUSY = 0x33,
+};
+
+inline bool PeripheralResult_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<PeripheralResult>(type))
+    {
+    case PeripheralResult::DISCONNECTION_SUCCESS:
+    case PeripheralResult::DISCONNECTION_ERROR:
+    case PeripheralResult::DISCONNECTION_IN_PROGRESS:
+    case PeripheralResult::DISCONNECTION_BUSY:
+    case PeripheralResult::CONNECTION_SUCCESS:
+    case PeripheralResult::CONNECTION_ERROR:
+    case PeripheralResult::CONNECTION_IN_PROGRESS:
+    case PeripheralResult::CONNECTION_BUSY:
+    case PeripheralResult::UNPAIRING_SUCCESS:
+    case PeripheralResult::UNPAIRING_ERROR:
+    case PeripheralResult::UNPAIRING_IN_PROGRESS:
+    case PeripheralResult::UNPAIRING_BUSY:
+    case PeripheralResult::PAIRING_SUCCESS:
+    case PeripheralResult::PAIRING_ERROR:
+    case PeripheralResult::PAIRING_IN_PROGRESS:
+    case PeripheralResult::PAIRING_BUSY:
+        return true;
+    }
+    return false;
+}
+
+enum class SourceSwitchControlResult : uint8_t
+{
+    SUCCESS = 0x00,
+    FAIL = 0x01,
+    FAIL_CALLING = 0x02,
+    FAIL_A2DP_NOT_CONNECT = 0x03,
+    FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT = 0x04,
+};
+
+inline bool SourceSwitchControlResult_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<SourceSwitchControlResult>(type))
+    {
+    case SourceSwitchControlResult::SUCCESS:
+    case SourceSwitchControlResult::FAIL:
+    case SourceSwitchControlResult::FAIL_CALLING:
+    case SourceSwitchControlResult::FAIL_A2DP_NOT_CONNECT:
+    case SourceSwitchControlResult::FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT:
+        return true;
+    }
+    return false;
+}
+
+// region PERI_SET_EXTENDED_PARAM
+
+struct PeripheralSetExtendedParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::PERI_NTFY_EXTENDED_PARAM;
+
+    PeripheralInquiredType inquiredType; // 0x1
+
+    PeripheralSetExtendedParam(PeripheralInquiredType inquiredType)
+        : Payload(Command::PERI_SET_EXTENDED_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(PeripheralSetExtendedParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PERI_SET_EXTENDED_PARAM)
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralSetExtendedParam, inquiredType)]);
+    }
+};
+
+// - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+
+struct PeripheralSetExtendedParamParingDeviceManagementCommon : PeripheralSetExtendedParam
+{
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+
+    ConnectivityActionType connectivityActionType; // 0x2
+    char btDeviceAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+
+    PeripheralSetExtendedParamParingDeviceManagementCommon(
+        PeripheralInquiredType inquiredType, ConnectivityActionType connectivityActionType,
+        const std::string& btDeviceAddress
+    )
+        : PeripheralSetExtendedParam(inquiredType)
+        , connectivityActionType(connectivityActionType)
+    {
+        if (btDeviceAddress.size() != BLUETOOTH_DEVICE_ADDRESS_LENGTH)
+            throw std::invalid_argument("Bluetooth device address must be exactly 17 characters long");
+        std::memcpy(this->btDeviceAddress, btDeviceAddress.data(), BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    std::string getBtDeviceAddress() const
+    {
+        return std::string(btDeviceAddress, BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return PeripheralSetExtendedParam::isValid(buf)
+            && buf.size() == sizeof(PeripheralSetExtendedParamParingDeviceManagementCommon)
+            && isValidInquiredType(static_cast<PeripheralInquiredType>(buf[offsetof(PeripheralSetExtendedParamParingDeviceManagementCommon, inquiredType)]))
+            && ConnectivityActionType_isValidByteCode(buf[offsetof(PeripheralSetExtendedParamParingDeviceManagementCommon, connectivityActionType)]);
+            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralSetExtendedParamParingDeviceManagementCommon, btDeviceAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
+    }
+
+    static bool isValidInquiredType(PeripheralInquiredType type)
+    {
+        return type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+            || type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE;
+    }
+};
+
+// - SOURCE_SWITCH_CONTROL
+
+struct PeripheralSetExtendedParamSourceSwitchControl : PeripheralSetExtendedParam
+{
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+
+    char targetBdAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+
+    PeripheralSetExtendedParamSourceSwitchControl(const std::string& targetBdAddress)
+        : PeripheralSetExtendedParam(PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+    {
+        if (targetBdAddress.size() != BLUETOOTH_DEVICE_ADDRESS_LENGTH)
+            throw std::invalid_argument("Bluetooth device address must be exactly 17 characters long");
+        std::memcpy(this->targetBdAddress, targetBdAddress.data(), BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    std::string getTargetBdAddress() const
+    {
+        return std::string(targetBdAddress, BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return PeripheralSetExtendedParam::isValid(buf)
+            && buf.size() == sizeof(PeripheralSetExtendedParamSourceSwitchControl)
+            && buf[offsetof(PeripheralSetExtendedParamSourceSwitchControl, inquiredType)] == static_cast<uint8_t>(PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralSetExtendedParamSourceSwitchControl, targetBdAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
+    }
+};
+
+// endregion PERI_SET_EXTENDED_PARAM
+
+// region PERI_NTFY_EXTENDED_PARAM
+
+struct PeripheralNtfyExtendedParam : Payload
+{
+    PeripheralInquiredType inquiredType; // 0x1
+
+    PeripheralNtfyExtendedParam(CommandType ct, PeripheralInquiredType inquiredType)
+        : Payload(Command::PERI_NTFY_EXTENDED_PARAM)
+        , inquiredType(inquiredType)
+    {
+        if (ct != CT_Set)
+            throw std::invalid_argument("CommandType must be CT_Set for PeripheralNtfyExtendedParam");
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(PeripheralNtfyExtendedParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PERI_NTFY_EXTENDED_PARAM)
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParam, inquiredType)]);
+    }
+};
+
+// - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+
+struct PeripheralNtfyExtendedParamParingDeviceManagementCommon : PeripheralNtfyExtendedParam
+{
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+
+    ConnectivityActionType connectivityActionType; // 0x2
+    PeripheralResult peripheralResult; // 0x3
+    char btDeviceAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+
+    PeripheralNtfyExtendedParamParingDeviceManagementCommon(
+        PeripheralInquiredType inquiredType, ConnectivityActionType connectivityActionType,
+        PeripheralResult peripheralResult, const std::string& btDeviceAddress
+    )
+        : PeripheralNtfyExtendedParam(CT_Set, inquiredType)
+        , connectivityActionType(connectivityActionType)
+        , peripheralResult(peripheralResult)
+    {
+        if (btDeviceAddress.size() != BLUETOOTH_DEVICE_ADDRESS_LENGTH)
+            throw std::invalid_argument("Bluetooth device address must be exactly 17 characters long");
+        std::memcpy(this->btDeviceAddress, btDeviceAddress.data(), BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    std::string getBtDeviceAddress() const
+    {
+        return std::string(btDeviceAddress, BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return PeripheralNtfyExtendedParam::isValid(buf)
+            && buf.size() == sizeof(PeripheralNtfyExtendedParamParingDeviceManagementCommon)
+            && isValidInquiredType(static_cast<PeripheralInquiredType>(buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, inquiredType)]))
+            && ConnectivityActionType_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, connectivityActionType)])
+            && PeripheralResult_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, peripheralResult)]);
+            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, btDeviceAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
+    }
+
+    static bool isValidInquiredType(PeripheralInquiredType type)
+    {
+        return type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+            || type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE;
+    }
+};
+
+// - SOURCE_SWITCH_CONTROL
+
+struct PeripheralNtfyExtendedParamSourceSwitchControl : PeripheralNtfyExtendedParam
+{
+    static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
+
+    SourceSwitchControlResult result; // 0x2
+    char targetBdAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+
+    PeripheralNtfyExtendedParamSourceSwitchControl(SourceSwitchControlResult result, const std::string& targetBdAddress)
+        : PeripheralNtfyExtendedParam(CT_Set, PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+        , result(result)
+    {
+        if (targetBdAddress.size() != BLUETOOTH_DEVICE_ADDRESS_LENGTH)
+            throw std::invalid_argument("Bluetooth device address must be exactly 17 characters long");
+        std::memcpy(this->targetBdAddress, targetBdAddress.data(), BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    std::string getTargetBdAddress() const
+    {
+        return std::string(targetBdAddress, BLUETOOTH_DEVICE_ADDRESS_LENGTH);
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return PeripheralNtfyExtendedParam::isValid(buf)
+            && buf.size() == sizeof(PeripheralNtfyExtendedParamSourceSwitchControl)
+            && buf[offsetof(PeripheralNtfyExtendedParamSourceSwitchControl, inquiredType)] == static_cast<uint8_t>(PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+            && SourceSwitchControlResult_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParamSourceSwitchControl, result)]);
+            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralNtfyExtendedParamSourceSwitchControl, targetBdAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
+    }
+};
+
+// endregion PERI_NTFY_EXTENDED_PARAM
+
+// endregion PERI_*_EXTENDED_PARAM
+
 // endregion PERI
 
 // region SAFE_LISTENING

@@ -3125,6 +3125,29 @@ inline bool RoomSize_isValidByteCode(uint8_t size)
     return false;
 }
 
+enum class ListeningOptionAssignCustomizableItem : uint8_t
+{
+    STANDARD = 0x00,
+    BGM = 0x01,
+    UPMIX_CINEMA = 0x02,
+    UPMIX_GAME = 0x03,
+    UPMIX_MUSIC = 0x04,
+};
+
+inline bool ListeningOptionAssignCustomizableItem_isValidByteCode(uint8_t item)
+{
+    switch (static_cast<ListeningOptionAssignCustomizableItem>(item))
+    {
+    case ListeningOptionAssignCustomizableItem::STANDARD:
+    case ListeningOptionAssignCustomizableItem::BGM:
+    case ListeningOptionAssignCustomizableItem::UPMIX_CINEMA:
+    case ListeningOptionAssignCustomizableItem::UPMIX_GAME:
+    case ListeningOptionAssignCustomizableItem::UPMIX_MUSIC:
+        return true;
+    }
+    return false;
+}
+
 enum class UpmixItemId : uint8_t
 {
     NONE = 0x00,
@@ -3477,7 +3500,38 @@ struct AudioParamSoundLeakageReduction : AudioParam
 
 // - LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
 
-// Not implemented, variable size
+struct AudioParamListeningOptionAssignCustomizableItem : AudioParam
+{
+    uint8_t numberOfAssignedItem; // 0x2
+    ListeningOptionAssignCustomizableItem assignedItems[]; // 0x3-
+
+private:
+    AudioParamListeningOptionAssignCustomizableItem(
+        CommandType ct, const std::span<const ListeningOptionAssignCustomizableItem>& assignedItems
+    )
+        : AudioParam(ct, AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE)
+        , numberOfAssignedItem(assignedItems.size())
+    {
+        std::memcpy(this->assignedItems, assignedItems.data(), sizeof(ListeningOptionAssignCustomizableItem) * numberOfAssignedItem);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+
+    std::span<const ListeningOptionAssignCustomizableItem> getAssignedItems() const
+    {
+        return { assignedItems, numberOfAssignedItem };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioParam::isValid(buf, ct)
+            && buf[offsetof(AudioParamListeningOptionAssignCustomizableItem, type)] == static_cast<uint8_t>(AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE)
+            && buf.size() >= sizeof(AudioParamListeningOptionAssignCustomizableItem)
+            && buf.size() == sizeof(AudioParamListeningOptionAssignCustomizableItem) + sizeof(ListeningOptionAssignCustomizableItem) * buf[offsetof(ConnectRetSupportFunction, numberOfFunction)];
+        // Not validating every entry for simplicity
+    }
+};
 
 // - UPMIX_SERIES
 

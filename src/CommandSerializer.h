@@ -35,7 +35,6 @@ namespace CommandSerializer
 	Buffer serializeAutoPauseSetting(bool autoPause);
 	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled);
 	Buffer serializeVoiceGuidanceVolumeSetting(char volume);
-	Buffer serializeMultipointSwitch(const char* macString);
 	Buffer serializeMpToggle2(bool enabled);
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
 	Buffer serializeSpeakToChatEnabled(bool enabled);
