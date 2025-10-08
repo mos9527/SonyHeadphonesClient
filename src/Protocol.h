@@ -64,7 +64,7 @@ std::unique_ptr<TPayload> createVariableSizePayloadOneArrayAtEnd(
         static_assert(sizeof(TPayload) == 0, "TPayload must be a variable size payload");
     if (elements.size() > TPayload::ARRAY_AT_END_MAX_SIZE)
         throw std::runtime_error("Too many elements for variable size payload");
-    *outSize = sizeof(TPayload) + sizeof(TPayload::TEndArrayElement) * elements.size();
+    *outSize = sizeof(TPayload) + sizeof(typename TPayload::TEndArrayElement) * elements.size();
     size_t extra = *outSize - sizeof(TPayload);
     return std::unique_ptr<TPayload>(new(extra) TPayload(elements, std::forward<TArgs>(args)...));
 }
@@ -77,7 +77,7 @@ std::unique_ptr<TPayload> createVariableSizePayloadOneArrayAtEnd_CommandType(
         static_assert(sizeof(TPayload) == 0, "TPayload must be a variable size payload");
     if (elements.size() > TPayload::ARRAY_AT_END_MAX_SIZE)
         throw std::runtime_error("Too many elements for variable size payload");
-    *outSize = sizeof(TPayload) + sizeof(TPayload::TEndArrayElement) * elements.size();
+    *outSize = sizeof(TPayload) + sizeof(typename TPayload::TEndArrayElement) * elements.size();
     size_t extra = *outSize - sizeof(TPayload);
     return std::unique_ptr<TPayload>(new(extra) TPayload(ct, elements, std::forward<TArgs>(args)...));
 }
