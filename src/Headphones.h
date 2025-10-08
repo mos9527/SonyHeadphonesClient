@@ -288,10 +288,10 @@ public:
     Property<bool> stcEnabled{};
 
     // AUTO:0 HIGH:1 LOW:2
-    Property<int> stcLevel{};
+    Property<THMSGV2T1::DetectSensitivity> stcLevel{};
 
     // SHORT:0 STANDARD:1 LONG:2 OFF(Does not close automatically):3
-    Property<int> stcTime{};
+    Property<THMSGV2T1::ModeOutTime> stcTime{};
 
     // Listening mode
     Property<ListeningModeConfig> listeningModeConfig{};
@@ -394,7 +394,7 @@ private:
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage& msg);
     HeadphonesEvent _handleEqualizer(const HeadphonesMessage& msg);
     HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage& msg);

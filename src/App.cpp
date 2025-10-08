@@ -399,8 +399,48 @@ void App::_drawControls()
             if (_headphones->supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2)
                 && ImGui::BeginTabItem("Speak to Chat")) {
                 ImGui::Checkbox("Enabled", &_headphones->stcEnabled.desired);
-                ImGui::SliderInt("STC Level", &_headphones->stcLevel.desired, 0, 2);
-                ImGui::SliderInt("STC Time", &_headphones->stcTime.desired, 0, 3);
+                ImGui::BeginDisabled(!_headphones->stcEnabled.current);
+                {
+                    static const std::map<THMSGV2T1::DetectSensitivity, const char*> STC_SENSITIVITY_STR = {
+                        { THMSGV2T1::DetectSensitivity::AUTO, "Auto" },
+                        { THMSGV2T1::DetectSensitivity::HIGH, "High" },
+                        { THMSGV2T1::DetectSensitivity::LOW, "Low" },
+                    };
+                    auto it = STC_SENSITIVITY_STR.find(_headphones->stcLevel.current);
+                    const char* currentStr = it != STC_SENSITIVITY_STR.end() ? it->second : "Unknown";
+                    if (ImGui::BeginCombo("Voice Detect Sensitivity", currentStr)) {
+                        for (auto const& [k, v] : STC_SENSITIVITY_STR) {
+                            bool is_selected = k == _headphones->stcLevel.current;
+                            if (ImGui::Selectable(v, is_selected))
+                                _headphones->stcLevel.desired = k;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                }
+                {
+                    static const std::map<THMSGV2T1::ModeOutTime, const char*> STC_TIME_STR = {
+                        { THMSGV2T1::ModeOutTime::FAST, "Short (~5s)" },
+                        { THMSGV2T1::ModeOutTime::MID, "Standard (~15s)" },
+                        { THMSGV2T1::ModeOutTime::SLOW, "Long (~30s)" },
+                        { THMSGV2T1::ModeOutTime::NONE, "Don't end automatically" },
+                    };
+                    auto it = STC_TIME_STR.find(_headphones->stcTime.current);
+                    const char* currentStr = it != STC_TIME_STR.end() ? it->second : "Unknown";
+                    if (ImGui::BeginCombo("Mode Duration", currentStr)) {
+                        for (auto const& [k, v] : STC_TIME_STR)
+                        {
+                            bool is_selected = k == _headphones->stcTime.current;
+                            if (ImGui::Selectable(v, is_selected))
+                                _headphones->stcTime.desired = k;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                }
+                ImGui::EndDisabled();
                 ImGui::EndTabItem();
             }
 

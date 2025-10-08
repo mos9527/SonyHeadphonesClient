@@ -33,7 +33,6 @@ namespace CommandSerializer
 	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber);
 
 	Buffer serializeMpToggle2(bool enabled);
-	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
 	Buffer serializeEqualizerSetting(unsigned char preset, char bass, std::vector<int> const& bands);
 	Buffer serializeEqualizerSetting(unsigned char preset);
 

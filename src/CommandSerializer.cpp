@@ -133,17 +133,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
-	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_EXT_PARAM));
-		ret.push_back(0x0c);
-		ret.push_back(sensitivity);
-		ret.push_back(timeout);
-		return ret;
-	}
-
 	Buffer serializeMpToggle2(bool enabled)
 	{
 		Buffer ret;

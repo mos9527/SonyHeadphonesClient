@@ -289,11 +289,7 @@ void Headphones::setChanges()
 
         if (!stcLevel.isFulfilled() || !stcTime.isFulfilled())
         {
-            this->_conn.sendCommand(
-                CommandSerializer::serializeSpeakToChatConfig(stcLevel.desired, stcTime.desired),
-                DATA_TYPE::DATA_MDR
-            );
-            waitForAck();
+            sendSet<THMSGV2T1::SystemExtParamSmartTalkingMode2>(stcLevel.desired, stcTime.desired);
             stcLevel.fulfill();
             stcTime.fulfill();
         }
@@ -532,9 +528,12 @@ void Headphones::requestInit()
         sendGet<THMSGV2T1::GsGetParam>(THMSGV2T1::GsInquiredType::GENERAL_SETTING4);
     }
 
-    /* Speak to chat */
-    sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2); // Enabled/disabled
-    sendGet<THMSGV2T1::SystemGetExtParam>(THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2); // Configuration
+    if (supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+    {
+        /* Speak to chat */
+        sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2); // Enabled/disabled
+        sendGet<THMSGV2T1::SystemGetExtParam>(THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2); // Configuration
+    }
 
     if (supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
     {
@@ -1352,18 +1351,22 @@ HeadphonesEvent Headphones::_handleSystemParam(const HeadphonesMessage& msg, Com
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleSpeakToChat(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    switch (msg[1])
+    auto payload = msg.as<THMSGV2T1::SystemExtParam>(ct);
+    switch (payload->type)
     {
-    case 0x0c:
+    case THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2:
+    {
         if (supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
         {
-            stcLevel.overwrite(msg[2]);
-            stcTime.overwrite(msg[3]);
+            auto payloadSub = msg.as<THMSGV2T1::SystemExtParamSmartTalkingMode2>(ct);
+            stcLevel.overwrite(payloadSub->detectSensitivity);
+            stcTime.overwrite(payloadSub->modeOffTime);
             return HeadphonesEvent::SpeakToChatParamUpdate;
         }
         break;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -1532,8 +1535,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleSystemParam(msg, CT_Notify);
             break;
         case Command::SYSTEM_RET_EXT_PARAM:
+            result = _handleSystemExtParam(msg, CT_Ret);
+            break;
         case Command::SYSTEM_NTFY_EXT_PARAM:
-            result = _handleSpeakToChat(msg);
+            result = _handleSystemExtParam(msg, CT_Notify);
             break;
         case Command::EQEBB_RET_STATUS:
         case Command::EQEBB_NTFY_STATUS:
