@@ -386,7 +386,7 @@ private:
     HeadphonesEvent _handleSafeListeningNotifyParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);

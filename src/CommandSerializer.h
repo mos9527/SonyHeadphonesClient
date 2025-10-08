@@ -33,8 +33,6 @@ namespace CommandSerializer
 	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber);
 
 	Buffer serializeAutoPauseSetting(bool autoPause);
-	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled);
-	Buffer serializeVoiceGuidanceVolumeSetting(char volume);
 	Buffer serializeMpToggle2(bool enabled);
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
 	Buffer serializeSpeakToChatEnabled(bool enabled);

@@ -228,11 +228,10 @@ void Headphones::setChanges()
 
     if (!voiceGuidanceEnabled.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeVoiceGuidanceEnabledSetting(voiceGuidanceEnabled.desired),
-            DATA_TYPE::DATA_MDR_NO2
+        sendSet<THMSGV2T2::VoiceGuidanceParamSettingMtk>(
+            THMSGV2T2::VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH,
+            voiceGuidanceEnabled.desired
         );
-        waitForAck();
 
         this->voiceGuidanceEnabled.fulfill();
     }
@@ -240,12 +239,11 @@ void Headphones::setChanges()
     if (supports(MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT)
         && !miscVoiceGuidanceVol.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeVoiceGuidanceVolumeSetting(
-                static_cast<uint8_t>(miscVoiceGuidanceVol.desired)
-            ), DATA_TYPE::DATA_MDR_NO2
+        sendSet<THMSGV2T2::VoiceGuidanceSetParamVolume>(
+            THMSGV2T2::VoiceGuidanceInquiredType::VOLUME,
+            static_cast<int8_t>(miscVoiceGuidanceVol.desired),
+            /* feedbackSound */ true
         );
-        waitForAck();
 
         this->miscVoiceGuidanceVol.fulfill();
     }
@@ -600,17 +598,11 @@ void Headphones::requestInit()
 
     if (supportsTable2)
     {
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_GET_PARAM),
-            0x01 // Voice Guidance Enabled
-        }, DATA_TYPE::DATA_MDR_NO2);
-        waitForAck();
+        /* Voice Guidance Enabled */
+        sendGet<THMSGV2T2::VoiceGuidanceGetParam>(THMSGV2T2::VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH);
 
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_GET_PARAM),
-            0x20 // Voice Guidance Volume
-        }, DATA_TYPE::DATA_MDR_NO2);
-        waitForAck();
+        /* Voice Guidance Volume */
+        sendGet<THMSGV2T2::VoiceGuidanceGetParam>(THMSGV2T2::VoiceGuidanceInquiredType::VOLUME);
     }
 
 #ifdef _DEBUG
@@ -1077,33 +1069,47 @@ HeadphonesEvent Headphones::_handlePowerParam(const HeadphonesMessage& msg, Comm
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    switch (msg[1])
+    auto payload = msg.as<THMSGV2T2::VoiceGuidanceParam>(ct);
+    switch (payload->inquiredType)
     {
-    case 0x01:
-        // Note: RET returns 2 bools, while NOTIFY returns only 1.
-        voiceGuidanceEnabled.overwrite(!(bool)msg[2]);
+    case THMSGV2T2::VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
+    {
+        if (ct == CT_Ret)
+        {
+            auto payloadSub = msg.as<THMSGV2T2::VoiceGuidanceParamSettingSupportLangSwitch>(ct);
+            voiceGuidanceEnabled.overwrite(payloadSub->settingValue);
+        }
+        else
+        {
+            auto payloadSub = msg.as<THMSGV2T2::VoiceGuidanceParamSettingMtk>(ct);
+            voiceGuidanceEnabled.overwrite(payloadSub->settingValue);
+        }
         return HeadphonesEvent::VoiceGuidanceEnabledUpdate;
-    case 0x20:
+    }
+    case THMSGV2T2::VoiceGuidanceInquiredType::VOLUME:
+    {
         if (supports(MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
         {
-            miscVoiceGuidanceVol.overwrite(static_cast<char>(msg[2]));
+            auto payloadSub = msg.as<THMSGV2T2::VoiceGuidanceParamVolume>(ct);
+            miscVoiceGuidanceVol.overwrite(payloadSub->volumeValue);
             return HeadphonesEvent::VoiceGuidanceVolumeUpdate;
         }
         break;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg)
 {
-    auto payload = msg.as<THMSGV2T2::PeripheralNtfyExtendedParam>();
+    auto payload = msg.as<THMSGV2T2::PeripheralNotifyExtendedParam>();
     switch (payload->inquiredType)
     {
     case THMSGV2T2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL:
     {
-        auto payloadSub = msg.as<THMSGV2T2::PeripheralNtfyExtendedParamSourceSwitchControl>();
+        auto payloadSub = msg.as<THMSGV2T2::PeripheralNotifyExtendedParamSourceSwitchControl>();
         mpDeviceMac.overwrite(payloadSub->getTargetBdAddress());
         return HeadphonesEvent::MultipointDeviceSwitchUpdate;
     }
@@ -1569,8 +1575,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleT2SupportFunction(msg);
             break;
         case Command::VOICE_GUIDANCE_RET_PARAM:
+            result = _handleVoiceGuidanceParam(msg, CT_Ret);
+            break;
         case Command::VOICE_GUIDANCE_NTFY_PARAM:
-            result = _handleVoiceGuidanceParam(msg);
+            result = _handleVoiceGuidanceParam(msg, CT_Notify);
             break;
         case Command::PERI_NTFY_EXTENDED_PARAM:
             result = _handlePeripheralNotifyExtendedParam(msg);

@@ -141,23 +141,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled) {
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_SET_PARAM));
-		ret.push_back(0x01);
-		ret.push_back(!enabled);
-		return ret;
-	}
-
-	Buffer serializeVoiceGuidanceVolumeSetting(char volume) {
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T2::Command::VOICE_GUIDANCE_SET_PARAM));
-		ret.push_back(0x20);
-		ret.push_back(volume); // Guidance Volume
-		ret.push_back(0x00);
-		return ret;
-	}
-
 	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{

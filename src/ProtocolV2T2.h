@@ -923,7 +923,7 @@ struct PeripheralSetExtendedParam : Payload
     static bool isValid(const std::span<const uint8_t>& buf)
     {
         return Payload::isValid(buf)
-            && buf.size() == sizeof(PeripheralSetExtendedParam)
+            && buf.size() >= sizeof(PeripheralSetExtendedParam)
             && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PERI_SET_EXTENDED_PARAM)
             && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralSetExtendedParam, inquiredType)]);
     }
@@ -1005,30 +1005,28 @@ struct PeripheralSetExtendedParamSourceSwitchControl : PeripheralSetExtendedPara
 
 // region PERI_NTFY_EXTENDED_PARAM
 
-struct PeripheralNtfyExtendedParam : Payload
+struct PeripheralNotifyExtendedParam : Payload
 {
     PeripheralInquiredType inquiredType; // 0x1
 
-    PeripheralNtfyExtendedParam(CommandType ct, PeripheralInquiredType inquiredType)
+    PeripheralNotifyExtendedParam(PeripheralInquiredType inquiredType)
         : Payload(Command::PERI_NTFY_EXTENDED_PARAM)
         , inquiredType(inquiredType)
     {
-        if (ct != CT_Set)
-            throw std::invalid_argument("CommandType must be CT_Set for PeripheralNtfyExtendedParam");
     }
 
     static bool isValid(const std::span<const uint8_t>& buf)
     {
         return Payload::isValid(buf)
-            && buf.size() >= sizeof(PeripheralNtfyExtendedParam)
+            && buf.size() >= sizeof(PeripheralNotifyExtendedParam)
             && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PERI_NTFY_EXTENDED_PARAM)
-            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParam, inquiredType)]);
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralNotifyExtendedParam, inquiredType)]);
     }
 };
 
 // - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
 
-struct PeripheralNtfyExtendedParamParingDeviceManagementCommon : PeripheralNtfyExtendedParam
+struct PeripheralNotifyExtendedParamParingDeviceManagementCommon : PeripheralNotifyExtendedParam
 {
     static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
 
@@ -1036,11 +1034,11 @@ struct PeripheralNtfyExtendedParamParingDeviceManagementCommon : PeripheralNtfyE
     PeripheralResult peripheralResult; // 0x3
     char btDeviceAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
 
-    PeripheralNtfyExtendedParamParingDeviceManagementCommon(
+    PeripheralNotifyExtendedParamParingDeviceManagementCommon(
         PeripheralInquiredType inquiredType, ConnectivityActionType connectivityActionType,
         PeripheralResult peripheralResult, const std::string& btDeviceAddress
     )
-        : PeripheralNtfyExtendedParam(CT_Set, inquiredType)
+        : PeripheralNotifyExtendedParam(inquiredType)
         , connectivityActionType(connectivityActionType)
         , peripheralResult(peripheralResult)
     {
@@ -1056,12 +1054,12 @@ struct PeripheralNtfyExtendedParamParingDeviceManagementCommon : PeripheralNtfyE
 
     static bool isValid(const std::span<const uint8_t>& buf)
     {
-        return PeripheralNtfyExtendedParam::isValid(buf)
-            && buf.size() == sizeof(PeripheralNtfyExtendedParamParingDeviceManagementCommon)
-            && isValidInquiredType(static_cast<PeripheralInquiredType>(buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, inquiredType)]))
-            && ConnectivityActionType_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, connectivityActionType)])
-            && PeripheralResult_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, peripheralResult)]);
-            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralNtfyExtendedParamParingDeviceManagementCommon, btDeviceAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
+        return PeripheralNotifyExtendedParam::isValid(buf)
+            && buf.size() == sizeof(PeripheralNotifyExtendedParamParingDeviceManagementCommon)
+            && isValidInquiredType(static_cast<PeripheralInquiredType>(buf[offsetof(PeripheralNotifyExtendedParamParingDeviceManagementCommon, inquiredType)]))
+            && ConnectivityActionType_isValidByteCode(buf[offsetof(PeripheralNotifyExtendedParamParingDeviceManagementCommon, connectivityActionType)])
+            && PeripheralResult_isValidByteCode(buf[offsetof(PeripheralNotifyExtendedParamParingDeviceManagementCommon, peripheralResult)]);
+            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralNotifyExtendedParamParingDeviceManagementCommon, btDeviceAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
     }
 
     static bool isValidInquiredType(PeripheralInquiredType type)
@@ -1073,15 +1071,15 @@ struct PeripheralNtfyExtendedParamParingDeviceManagementCommon : PeripheralNtfyE
 
 // - SOURCE_SWITCH_CONTROL
 
-struct PeripheralNtfyExtendedParamSourceSwitchControl : PeripheralNtfyExtendedParam
+struct PeripheralNotifyExtendedParamSourceSwitchControl : PeripheralNotifyExtendedParam
 {
     static constexpr size_t BLUETOOTH_DEVICE_ADDRESS_LENGTH = 17;
 
     SourceSwitchControlResult result; // 0x2
     char targetBdAddress[BLUETOOTH_DEVICE_ADDRESS_LENGTH]; // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
 
-    PeripheralNtfyExtendedParamSourceSwitchControl(SourceSwitchControlResult result, const std::string& targetBdAddress)
-        : PeripheralNtfyExtendedParam(CT_Set, PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+    PeripheralNotifyExtendedParamSourceSwitchControl(SourceSwitchControlResult result, const std::string& targetBdAddress)
+        : PeripheralNotifyExtendedParam(PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
         , result(result)
     {
         if (targetBdAddress.size() != BLUETOOTH_DEVICE_ADDRESS_LENGTH)
@@ -1096,11 +1094,11 @@ struct PeripheralNtfyExtendedParamSourceSwitchControl : PeripheralNtfyExtendedPa
 
     static bool isValid(const std::span<const uint8_t>& buf)
     {
-        return PeripheralNtfyExtendedParam::isValid(buf)
-            && buf.size() == sizeof(PeripheralNtfyExtendedParamSourceSwitchControl)
-            && buf[offsetof(PeripheralNtfyExtendedParamSourceSwitchControl, inquiredType)] == static_cast<uint8_t>(PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
-            && SourceSwitchControlResult_isValidByteCode(buf[offsetof(PeripheralNtfyExtendedParamSourceSwitchControl, result)]);
-            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralNtfyExtendedParamSourceSwitchControl, targetBdAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
+        return PeripheralNotifyExtendedParam::isValid(buf)
+            && buf.size() == sizeof(PeripheralNotifyExtendedParamSourceSwitchControl)
+            && buf[offsetof(PeripheralNotifyExtendedParamSourceSwitchControl, inquiredType)] == static_cast<uint8_t>(PeripheralInquiredType::SOURCE_SWITCH_CONTROL)
+            && SourceSwitchControlResult_isValidByteCode(buf[offsetof(PeripheralNotifyExtendedParamSourceSwitchControl, result)]);
+            // && isValidBluetoothDeviceAddress(std::string(reinterpret_cast<const char*>(&buf[offsetof(PeripheralNotifyExtendedParamSourceSwitchControl, targetBdAddress)]), BLUETOOTH_DEVICE_ADDRESS_LENGTH));
     }
 };
 
@@ -1109,6 +1107,377 @@ struct PeripheralNtfyExtendedParamSourceSwitchControl : PeripheralNtfyExtendedPa
 // endregion PERI_*_EXTENDED_PARAM
 
 // endregion PERI
+
+// region VOICE_GUIDANCE
+
+enum class VoiceGuidanceInquiredType : uint8_t
+{
+    // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
+    MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH = 0x0,
+    // PARAM:  [R  ] VoiceGuidanceParamSettingSupportLangSwitch
+    //         [ SN] VoiceGuidanceParamSettingMtk
+    MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH = 0x1,
+    // PARAM:  [RSN] VoiceGuidanceParamSettingSupportLangSwitch
+    SUPPORT_LANGUAGE_SWITCH = 0x2,
+    // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
+    ONLY_ON_OFF_SETTING = 0x3,
+    // PARAM:  [R N] VoiceGuidanceParamVolume
+    //         [ S ] VoiceGuidanceSetParamVolume
+    VOLUME = 0x20,
+    // PARAM:  [R N] VoiceGuidanceParamVolume
+    //         [ S ] VoiceGuidanceSetParamVolume
+    VOLUME_SETTING_FIXED_TO_5_STEPS = 0x21,
+    // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
+    BATTERY_LV_VOICE = 0x30,
+    // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
+    POWER_ONOFF_SOUND = 0x31,
+    // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
+    SOUNDEFFECT_ULT_BEEP_ONOFF = 0x32,
+};
+
+inline bool VoiceGuidanceInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<VoiceGuidanceInquiredType>(type))
+    {
+    case VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH:
+    case VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
+    case VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH:
+    case VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING:
+    case VoiceGuidanceInquiredType::VOLUME:
+    case VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS:
+    case VoiceGuidanceInquiredType::BATTERY_LV_VOICE:
+    case VoiceGuidanceInquiredType::POWER_ONOFF_SOUND:
+    case VoiceGuidanceInquiredType::SOUNDEFFECT_ULT_BEEP_ONOFF:
+        return true;
+    }
+    return false;
+}
+
+enum class VoiceGuidanceLanguage : uint8_t
+{
+    UNDEFINED_LANGUAGE = 0x00,
+    ENGLISH = 0x01,
+    FRENCH = 0x02,
+    GERMAN = 0x03,
+    SPANISH = 0x04,
+    ITALIAN = 0x05,
+    PORTUGUESE = 0x06,
+    DUTCH = 0x07,
+    SWEDISH = 0x08,
+    FINNISH = 0x09,
+    RUSSIAN = 0x0A,
+    JAPANESE = 0x0B,
+    BRAZILIAN_PORTUGUESE = 0x0D,
+    KOREAN = 0x0F,
+    TURKISH = 0x10,
+    CHINESE = 0xF0,
+};
+
+inline bool VoiceGuidanceLanguage_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<VoiceGuidanceLanguage>(type))
+    {
+    case VoiceGuidanceLanguage::UNDEFINED_LANGUAGE:
+    case VoiceGuidanceLanguage::ENGLISH:
+    case VoiceGuidanceLanguage::FRENCH:
+    case VoiceGuidanceLanguage::GERMAN:
+    case VoiceGuidanceLanguage::SPANISH:
+    case VoiceGuidanceLanguage::ITALIAN:
+    case VoiceGuidanceLanguage::PORTUGUESE:
+    case VoiceGuidanceLanguage::DUTCH:
+    case VoiceGuidanceLanguage::SWEDISH:
+    case VoiceGuidanceLanguage::FINNISH:
+    case VoiceGuidanceLanguage::RUSSIAN:
+    case VoiceGuidanceLanguage::JAPANESE:
+    case VoiceGuidanceLanguage::BRAZILIAN_PORTUGUESE:
+    case VoiceGuidanceLanguage::KOREAN:
+    case VoiceGuidanceLanguage::TURKISH:
+    case VoiceGuidanceLanguage::CHINESE:
+        return true;
+    }
+    return false;
+}
+
+// region VOICE_GUIDANCE_*_CAPABILITY
+
+// Not implemented
+
+// endregion VOICE_GUIDANCE_*_CAPABILITY
+
+// region VOICE_GUIDANCE_*_STATUS
+
+// Not implemented
+
+// endregion VOICE_GUIDANCE_*_STATUS
+
+// region VOICE_GUIDANCE_*_PARAM
+
+// region VOICE_GUIDANCE_GET_PARAM
+
+struct VoiceGuidanceGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::VOICE_GUIDANCE_RET_PARAM;
+
+    VoiceGuidanceInquiredType inquiredType; // 0x1
+
+    VoiceGuidanceGetParam(VoiceGuidanceInquiredType inquiredType)
+        : Payload(Command::VOICE_GUIDANCE_GET_PARAM)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(VoiceGuidanceGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::VOICE_GUIDANCE_GET_PARAM)
+            && VoiceGuidanceInquiredType_isValidByteCode(buf[offsetof(VoiceGuidanceGetParam, inquiredType)]);
+    }
+};
+
+// endregion VOICE_GUIDANCE_GET_PARAM
+
+// region VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
+
+struct VoiceGuidanceParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::VOICE_GUIDANCE_RET_PARAM,
+        Command::VOICE_GUIDANCE_SET_PARAM,
+        Command::VOICE_GUIDANCE_NTFY_PARAM
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::VOICE_GUIDANCE_NTFY_PARAM,
+        Command::UNKNOWN
+    };
+
+    VoiceGuidanceInquiredType inquiredType; // 0x1
+
+    VoiceGuidanceParam(CommandType ct, VoiceGuidanceInquiredType inquiredType)
+        : Payload(COMMAND_IDS[ct])
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(VoiceGuidanceParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && VoiceGuidanceInquiredType_isValidByteCode(buf[offsetof(VoiceGuidanceParam, inquiredType)]);
+    }
+};
+
+// - MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH, ONLY_ON_OFF_SETTING
+
+struct VoiceGuidanceParamSettingMtk : VoiceGuidanceParam
+{
+    MessageMdrV2OnOffSettingValue settingValue; // 0x2
+
+    VoiceGuidanceParamSettingMtk(
+        CommandType ct, VoiceGuidanceInquiredType inquiredType, MessageMdrV2OnOffSettingValue settingValue
+    )
+        : VoiceGuidanceParam(ct, inquiredType)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return VoiceGuidanceParam::isValid(buf, ct)
+            && buf.size() == sizeof(VoiceGuidanceParamSettingMtk)
+            && isValidInquiredType(static_cast<VoiceGuidanceInquiredType>(buf[offsetof(VoiceGuidanceParamSettingMtk, inquiredType)]), ct)
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(VoiceGuidanceParamSettingMtk, settingValue)]);
+    }
+
+    static bool isValidInquiredType(VoiceGuidanceInquiredType type, CommandType ct)
+    {
+        if (ct == CT_Ret)
+        {
+            return type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH
+                || type == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING;
+        }
+        else
+        {
+            return type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH
+                || type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH
+                || type == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING;
+        }
+    }
+};
+
+// - MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH, SUPPORT_LANGUAGE_SWITCH
+
+struct VoiceGuidanceParamSettingSupportLangSwitch : VoiceGuidanceParam
+{
+    MessageMdrV2OnOffSettingValue settingValue; // 0x2
+    VoiceGuidanceLanguage languageValue; // 0x3
+
+    VoiceGuidanceParamSettingSupportLangSwitch(
+        CommandType ct, VoiceGuidanceInquiredType inquiredType, MessageMdrV2OnOffSettingValue settingValue,
+        VoiceGuidanceLanguage languageValue
+    )
+        : VoiceGuidanceParam(ct, inquiredType)
+        , settingValue(settingValue)
+        , languageValue(languageValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return VoiceGuidanceParam::isValid(buf, ct)
+            && buf.size() == sizeof(VoiceGuidanceParamSettingSupportLangSwitch)
+            && isValidInquiredType(static_cast<VoiceGuidanceInquiredType>(buf[offsetof(VoiceGuidanceParamSettingSupportLangSwitch, inquiredType)]), ct)
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(VoiceGuidanceParamSettingSupportLangSwitch, settingValue)])
+            && VoiceGuidanceLanguage_isValidByteCode(buf[offsetof(VoiceGuidanceParamSettingSupportLangSwitch, languageValue)]);
+    }
+
+    static bool isValidInquiredType(VoiceGuidanceInquiredType type, CommandType ct)
+    {
+        if (ct == CT_Ret)
+        {
+            return type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH
+                || type == VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH;
+        }
+        else
+        {
+            return type == VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH;
+        }
+    }
+};
+
+// - VOLUME, VOLUME_SETTING_FIXED_TO_5_STEPS
+
+struct VoiceGuidanceParamVolume : VoiceGuidanceParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::VOICE_GUIDANCE_RET_PARAM,
+        Command::UNKNOWN,
+        Command::VOICE_GUIDANCE_NTFY_PARAM
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN
+    };
+
+    int8_t volumeValue; // 0x2, -2 ~ +2
+
+    VoiceGuidanceParamVolume(CommandType ct, VoiceGuidanceInquiredType inquiredType, int8_t volumeValue)
+        : VoiceGuidanceParam(ct, inquiredType)
+        , volumeValue(volumeValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return VoiceGuidanceParam::isValid(buf, ct)
+            && buf.size() == sizeof(VoiceGuidanceParamVolume)
+            && isValidInquiredType(static_cast<VoiceGuidanceInquiredType>(buf[offsetof(VoiceGuidanceParamVolume, inquiredType)]))
+            && isValidVolumeValue(buf[offsetof(VoiceGuidanceParamVolume, volumeValue)]);
+    }
+
+    static bool isValidInquiredType(VoiceGuidanceInquiredType type)
+    {
+        return type == VoiceGuidanceInquiredType::VOLUME
+            || type == VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS;
+    }
+
+    static bool isValidVolumeValue(int8_t value)
+    {
+        return value >= -2 && value <= 2;
+    }
+};
+
+// - BATTERY_LV_VOICE, POWER_ONOFF_SOUND, SOUNDEFFECT_ULT_BEEP_ONOFF
+
+struct VoiceGuidanceParamSettingOnOff : VoiceGuidanceParam
+{
+    MessageMdrV2OnOffSettingValue settingValue; // 0x2
+
+    VoiceGuidanceParamSettingOnOff(
+        CommandType ct, VoiceGuidanceInquiredType inquiredType, MessageMdrV2OnOffSettingValue settingValue
+    )
+        : VoiceGuidanceParam(ct, inquiredType)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return VoiceGuidanceParam::isValid(buf, ct)
+            && buf.size() == sizeof(VoiceGuidanceParamSettingOnOff)
+            && isValidInquiredType(static_cast<VoiceGuidanceInquiredType>(buf[offsetof(VoiceGuidanceParamSettingOnOff, inquiredType)]))
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(VoiceGuidanceParamSettingOnOff, settingValue)]);
+    }
+
+    static bool isValidInquiredType(VoiceGuidanceInquiredType type)
+    {
+        return type == VoiceGuidanceInquiredType::BATTERY_LV_VOICE
+            || type == VoiceGuidanceInquiredType::POWER_ONOFF_SOUND
+            || type == VoiceGuidanceInquiredType::SOUNDEFFECT_ULT_BEEP_ONOFF;
+    }
+};
+
+// endregion VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
+
+// region VOICE_GUIDANCE_SET_PARAM
+
+// - VOLUME, VOLUME_SETTING_FIXED_TO_5_STEPS
+
+struct VoiceGuidanceSetParamVolume : VoiceGuidanceParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::VOICE_GUIDANCE_SET_PARAM,
+        Command::UNKNOWN
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::VOICE_GUIDANCE_NTFY_PARAM,
+        Command::UNKNOWN
+    };
+
+    int8_t volumeValue; // 0x2, -2 ~ +2
+    MessageMdrV2OnOffSettingValue feedbackSound; // 0x3
+
+    VoiceGuidanceSetParamVolume(
+        CommandType ct, VoiceGuidanceInquiredType inquiredType, int8_t volumeValue,
+        MessageMdrV2OnOffSettingValue feedbackSound
+    )
+        : VoiceGuidanceParam(ct, inquiredType)
+        , volumeValue(volumeValue)
+        , feedbackSound(feedbackSound)
+    {
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return VoiceGuidanceParam::isValid(buf, ct)
+            && buf.size() == sizeof(VoiceGuidanceSetParamVolume)
+            && isValidInquiredType(static_cast<VoiceGuidanceInquiredType>(buf[offsetof(VoiceGuidanceSetParamVolume, inquiredType)]))
+            && isValidVolumeValue(buf[offsetof(VoiceGuidanceSetParamVolume, volumeValue)])
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(VoiceGuidanceSetParamVolume, feedbackSound)]);
+    }
+
+    static bool isValidInquiredType(VoiceGuidanceInquiredType type)
+    {
+        return type == VoiceGuidanceInquiredType::VOLUME
+            || type == VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS;
+    }
+
+    static bool isValidVolumeValue(int8_t value)
+    {
+        return value >= -2 && value <= 2;
+    }
+};
+
+// endregion VOICE_GUIDANCE_SET_PARAM
+
+// endregion VOICE_GUIDANCE_*_PARAM
+
+// endregion VOICE_GUIDANCE
 
 // region SAFE_LISTENING
 
