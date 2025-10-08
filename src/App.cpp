@@ -507,31 +507,31 @@ void App::_drawControls()
                     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please set Listening Mode to Standard to use Equalizer.");
                 }
                 ImGui::BeginDisabled(!eqAvailable);
-                static const std::map<int, const char*> EQ_PRESET_NAMES = {
-                    { 0, "Off" },
-                    { 1, "Rock" },
-                    { 2, "Pop" },
-                    { 3, "Jazz" },
-                    { 4, "Dance" },
-                    { 5, "EDM" },
-                    { 6, "R&B/Hip-Hop" },
-                    { 7, "Acoustic" },
+                static const std::map<THMSGV2T1::EqPresetId, const char*> EQ_PRESET_NAMES = {
+                    { THMSGV2T1::EqPresetId::OFF, "Off" },
+                    { THMSGV2T1::EqPresetId::ROCK, "Rock" },
+                    { THMSGV2T1::EqPresetId::POP, "Pop" },
+                    { THMSGV2T1::EqPresetId::JAZZ, "Jazz" },
+                    { THMSGV2T1::EqPresetId::DANCE, "Dance" },
+                    { THMSGV2T1::EqPresetId::EDM, "EDM" },
+                    { THMSGV2T1::EqPresetId::R_AND_B_HIP_HOP, "R&B/Hip-Hop" },
+                    { THMSGV2T1::EqPresetId::ACOUSTIC, "Acoustic" },
                     // 8-15 reserved for future use
-                    { 16, "Bright" },
-                    { 17, "Excited" },
-                    { 18, "Mellow" },
-                    { 19, "Relaxed" },
-                    { 20, "Vocal" },
-                    { 21, "Treble" },
-                    { 22, "Bass" },
-                    { 23, "Speech" },
+                    { THMSGV2T1::EqPresetId::BRIGHT, "Bright" },
+                    { THMSGV2T1::EqPresetId::EXCITED, "Excited" },
+                    { THMSGV2T1::EqPresetId::MELLOW, "Mellow" },
+                    { THMSGV2T1::EqPresetId::RELAXED, "Relaxed" },
+                    { THMSGV2T1::EqPresetId::VOCAL, "Vocal" },
+                    { THMSGV2T1::EqPresetId::TREBLE, "Treble" },
+                    { THMSGV2T1::EqPresetId::BASS, "Bass" },
+                    { THMSGV2T1::EqPresetId::SPEECH, "Speech" },
                     // 24-31 reserved for future use
-                    { 0xa0, "Custom" },
-                    { 0xa1, "User Setting 1" },
-                    { 0xa2, "User Setting 2" },
-                    { 0xa3, "User Setting 3" },
-                    { 0xa4, "User Setting 4" },
-                    { 0xa5, "User Setting 5" }
+                    { THMSGV2T1::EqPresetId::CUSTOM, "Custom" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING1, "User Setting 1" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING2, "User Setting 2" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING3, "User Setting 3" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING4, "User Setting 4" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING5, "User Setting 5" }
                 };
                 std::string presetName = "Unknown";
                 auto it = EQ_PRESET_NAMES.find(_headphones->eqPreset.current);

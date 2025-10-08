@@ -318,27 +318,48 @@ void Headphones::setChanges()
 
     if (!eqPreset.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeEqualizerSetting(eqPreset.desired),
-            DATA_TYPE::DATA_MDR
-        );
-        waitForAck();
+        std::span<uint8_t> noBands;
+        sendSet<THMSGV2T1::EqEbbParamEq>(noBands, THMSGV2T1::EqEbbInquiredType::PRESET_EQ, eqPreset.desired);
         eqPreset.fulfill();
         // Ask for a equalizer param update afterwards
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_GET_PARAM),
-            0x00 // Equalizer
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
+        sendGet<THMSGV2T1::EqEbbGetParam>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
     }
 
     if (!eqConfig.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeEqualizerSetting(eqPreset.current, eqConfig.desired.bassLevel, eqConfig.desired.bands),
-            DATA_TYPE::DATA_MDR
-        );
-        waitForAck();
+        size_t numBands = eqConfig.desired.bands.size();
+        if (numBands == 5)
+        {
+            uint8_t bands[] = {
+                static_cast<uint8_t>(eqConfig.desired.bassLevel + 10),
+                static_cast<uint8_t>(eqConfig.desired.bands[0] + 10),
+                static_cast<uint8_t>(eqConfig.desired.bands[1] + 10),
+                static_cast<uint8_t>(eqConfig.desired.bands[2] + 10),
+                static_cast<uint8_t>(eqConfig.desired.bands[3] + 10),
+                static_cast<uint8_t>(eqConfig.desired.bands[4] + 10)
+            };
+            sendSet<THMSGV2T1::EqEbbParamEq>(bands, THMSGV2T1::EqEbbInquiredType::PRESET_EQ, eqPreset.current);
+        }
+        else if (numBands == 10)
+        {
+            uint8_t bands[] = {
+                static_cast<uint8_t>(eqConfig.desired.bands[0] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[1] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[2] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[3] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[4] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[5] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[6] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[7] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[8] + 6),
+                static_cast<uint8_t>(eqConfig.desired.bands[9] + 6)
+            };
+            sendSet<THMSGV2T1::EqEbbParamEq>(bands, THMSGV2T1::EqEbbInquiredType::PRESET_EQ, eqPreset.current);
+        }
+        else
+        {
+            throw std::runtime_error("Invalid number of bands for equalizer setting");
+        }
         eqConfig.fulfill();
     }
 
@@ -556,18 +577,11 @@ void Headphones::requestInit()
     /* Equalizer */
     if ((deviceCapabilities & DC_EqualizerAvailableCommand) != 0)
     {
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_GET_STATUS),
-            0x00 // Equalizer
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
+        sendGet<THMSGV2T1::EqEbbGetStatus>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
     }
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_GET_PARAM),
-        0x00 // Equalizer
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    /* Equalizer */
+    sendGet<THMSGV2T1::EqEbbGetParam>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
 
     /* Misc Params */
     sendGet<THMSGV2T1::PowerGetParam>(THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION);
@@ -1371,62 +1385,74 @@ HeadphonesEvent Headphones::_handleSystemExtParam(const HeadphonesMessage& msg, 
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleEqualizerAvailable(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleEqEbbStatus(const HeadphonesMessage& msg, CommandType ct)
 {
-    switch (msg[1])
+    auto payload = msg.as<THMSGV2T1::EqEbbStatus>(ct);
+    switch (payload->type)
     {
-    case 0x00:
+    case THMSGV2T1::EqEbbInquiredType::PRESET_EQ:
+    {
         if ((deviceCapabilities & DC_EqualizerAvailableCommand) != 0)
         {
-            eqAvailable.overwrite(!msg[2]);
+            auto payloadSub = msg.as<THMSGV2T1::EqEbbStatusOnOff>(ct);
+            eqAvailable.overwrite(payloadSub->status);
             return HeadphonesEvent::EqualizerAvailableUpdate;
         }
         break;
     }
+    }
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleEqualizer(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleEqEbbParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    // [RET/NOTIFY 00 a2 06] 0a/bass 0a/band1 0a/band2 0a/band3 0a/band4 0a/band5
-    // values have +10 offset
-    eqPreset.overwrite(msg[2]);
-    switch (msg[3])
+    auto payload = msg.as<THMSGV2T1::EqEbbParam>(ct);
+    switch (payload->type)
     {
-    case 0x00:
-        return HeadphonesEvent::EqualizerParamUpdate;
-    case 0x06:
-        eqConfig.overwrite(EqualizerConfig(
-            msg[4] - 10, // Clear Bass
-            std::vector<int>{
-                msg[5] - 10, // 400
-                msg[6] - 10, // 1k
-                msg[7] - 10, // 2.5k
-                msg[8] - 10, // 6.3k
-                msg[9] - 10, // 16k
-            }
-        ));
-        return HeadphonesEvent::EqualizerParamUpdate;
-    case 0x0a:
-        eqConfig.overwrite(EqualizerConfig(
-            0, // Clear Bass not available
-            std::vector<int>{
-                msg[4] - 6, // 31
-                msg[5] - 6, // 63
-                msg[6] - 6, // 125
-                msg[7] - 6, // 250
-                msg[8] - 6, // 500
-                msg[9] - 6, // 1k
-                msg[10] - 6, // 2k
-                msg[11] - 6, // 4k
-                msg[12] - 6, // 8k
-                msg[13] - 6, // 16k
-            }
-        ));
-        return HeadphonesEvent::EqualizerParamUpdate;
-    default:
-        return HeadphonesEvent::MessageUnhandled;
+    case THMSGV2T1::EqEbbInquiredType::PRESET_EQ:
+    {
+        // [RET/NOTIFY 00 a2 06] 0a/bass 0a/band1 0a/band2 0a/band3 0a/band4 0a/band5
+        // values have +10 offset
+        auto payloadSub = msg.as<THMSGV2T1::EqEbbParamEq>(ct);
+        eqPreset.overwrite(payloadSub->presetId);
+        switch (payloadSub->numberOfBandStep)
+        {
+        case 0:
+            return HeadphonesEvent::EqualizerParamUpdate;
+        case 6:
+            eqConfig.overwrite(EqualizerConfig(
+                payloadSub->bandSteps[0] - 10, // Clear Bass
+                std::vector<int>{
+                    payloadSub->bandSteps[1] - 10, // 400
+                    payloadSub->bandSteps[2] - 10, // 1k
+                    payloadSub->bandSteps[3] - 10, // 2.5k
+                    payloadSub->bandSteps[4] - 10, // 6.3k
+                    payloadSub->bandSteps[5] - 10, // 16k
+                }
+            ));
+            return HeadphonesEvent::EqualizerParamUpdate;
+        case 10:
+            eqConfig.overwrite(EqualizerConfig(
+                0, // Clear Bass not available
+                std::vector<int>{
+                    payloadSub->bandSteps[0] - 6, // 31
+                    payloadSub->bandSteps[1] - 6, // 63
+                    payloadSub->bandSteps[2] - 6, // 125
+                    payloadSub->bandSteps[3] - 6, // 250
+                    payloadSub->bandSteps[4] - 6, // 500
+                    payloadSub->bandSteps[5] - 6, // 1k
+                    payloadSub->bandSteps[6] - 6, // 2k
+                    payloadSub->bandSteps[7] - 6, // 4k
+                    payloadSub->bandSteps[8] - 6, // 8k
+                    payloadSub->bandSteps[9] - 6, // 16k
+                }
+            ));
+            return HeadphonesEvent::EqualizerParamUpdate;
+        }
+        break;
     }
+    }
+    return HeadphonesEvent::MessageUnhandled;
 }
 
 HeadphonesEvent Headphones::_handleMiscDataRet(const HeadphonesMessage& msg)
@@ -1541,12 +1567,16 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleSystemExtParam(msg, CT_Notify);
             break;
         case Command::EQEBB_RET_STATUS:
+            result = _handleEqEbbStatus(msg, CT_Ret);
+            break;
         case Command::EQEBB_NTFY_STATUS:
-            result = _handleEqualizerAvailable(msg);
+            result = _handleEqEbbStatus(msg, CT_Notify);
             break;
         case Command::EQEBB_RET_PARAM:
+            result = _handleEqEbbParam(msg, CT_Ret);
+            break;
         case Command::EQEBB_NTFY_PARAM:
-            result = _handleEqualizer(msg);
+            result = _handleEqEbbParam(msg, CT_Notify);
             break;
         case Command::LOG_NTFY_PARAM:
             result = _handleMiscDataRet(msg);

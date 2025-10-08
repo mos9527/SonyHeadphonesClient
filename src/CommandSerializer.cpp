@@ -143,40 +143,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
-	//      https://github.com/Plutoberth/SonyHeadphonesClient/commit/66d8e52aad4ffd08aa78e811a23f67a5bad07d9a
-	Buffer serializeEqualizerSetting(uint8_t preset, char bass, std::vector<int> const& bands)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_SET_PARAM));
-		ret.push_back(0x00);
-		ret.push_back(preset);
-		size_t numBands = bands.size();
-		if (numBands == 5) {
-			ret.push_back(0x06); // data size
-			ret.push_back(bass + 10);
-			ret.push_back(bands[0] + 10);
-			ret.push_back(bands[1] + 10);
-			ret.push_back(bands[2] + 10);
-			ret.push_back(bands[3] + 10);
-			ret.push_back(bands[4] + 10);
-		} else if (numBands == 10) {
-			ret.push_back(0x0a); // data size
-			ret.push_back(bands[0] + 6);
-			ret.push_back(bands[1] + 6);
-			ret.push_back(bands[2] + 6);
-			ret.push_back(bands[3] + 6);
-			ret.push_back(bands[4] + 6);
-			ret.push_back(bands[5] + 6);
-			ret.push_back(bands[6] + 6);
-			ret.push_back(bands[7] + 6);
-			ret.push_back(bands[8] + 6);
-			ret.push_back(bands[9] + 6);
-		} else {
-			throw std::runtime_error("Invalid number of bands for equalizer setting");
-		}
-		return ret;
-	}
 	Buffer serializeEqualizerSetting(uint8_t preset)
 	{
 		Buffer ret;

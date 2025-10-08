@@ -1380,6 +1380,599 @@ struct PowerParamBatterySafeMode : PowerParam
 
 // endregion POWER
 
+// region EQEBB
+
+enum class EqEbbInquiredType : uint8_t
+{
+    // PARAM: [RSN] EqEbbParamEq
+    PRESET_EQ = 0x00,
+    // PARAM: [RSN] EqEbbParamEbb
+    EBB = 0x01,
+    // PARAM: [RSN] EqEbbParamEq
+    PRESET_EQ_NONCUSTOMIZABLE = 0x02,
+    // PARAM: [RSN] EqEbbParamEqAndUltMode
+    PRESET_EQ_AND_ULT_MODE = 0x03,
+    // PARAM: [RSN] EqEbbParamEq
+    PRESET_EQ_AND_ERRORCODE = 0x04,
+    // PARAM: [RSN] EqEbbParamSoundEffect
+    SOUND_EFFECT = 0x30,
+    // PARAM: [RSN] EqEbbParamCustomEq
+    CUSTOM_EQ = 0x31,
+    // PARAM: [ SN] EqEbbParamTurnKeyEq
+    TURN_KEY_EQ = 0x32,
+};
+
+inline bool EqEbbInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<EqEbbInquiredType>(type))
+    {
+    case EqEbbInquiredType::PRESET_EQ:
+    case EqEbbInquiredType::EBB:
+    case EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE:
+    case EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE:
+    case EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE:
+    case EqEbbInquiredType::SOUND_EFFECT:
+    case EqEbbInquiredType::CUSTOM_EQ:
+    case EqEbbInquiredType::TURN_KEY_EQ:
+        return true;
+    }
+    return false;
+}
+
+enum class EqPresetId : uint8_t
+{
+    OFF = 0x00,
+    ROCK = 0x01,
+    POP = 0x02,
+    JAZZ = 0x03,
+    DANCE = 0x04,
+    EDM = 0x05,
+    R_AND_B_HIP_HOP = 0x06,
+    ACOUSTIC = 0x07,
+    RESERVED_FOR_FUTURE_NO8 = 0x08,
+    RESERVED_FOR_FUTURE_NO9 = 0x09,
+    RESERVED_FOR_FUTURE_NO10 = 0x0A,
+    RESERVED_FOR_FUTURE_NO11 = 0x0B,
+    RESERVED_FOR_FUTURE_NO12 = 0x0C,
+    RESERVED_FOR_FUTURE_NO13 = 0x0D,
+    RESERVED_FOR_FUTURE_NO14 = 0x0E,
+    RESERVED_FOR_FUTURE_NO15 = 0x0F,
+    BRIGHT = 0x10,
+    EXCITED = 0x11,
+    MELLOW = 0x12,
+    RELAXED = 0x13,
+    VOCAL = 0x14,
+    TREBLE = 0x15,
+    BASS = 0x16,
+    SPEECH = 0x17,
+    RESERVED_FOR_FUTURE_NO24 = 0x18,
+    RESERVED_FOR_FUTURE_NO25 = 0x19,
+    RESERVED_FOR_FUTURE_NO26 = 0x1A,
+    RESERVED_FOR_FUTURE_NO27 = 0x1B,
+    RESERVED_FOR_FUTURE_NO28 = 0x1C,
+    RESERVED_FOR_FUTURE_NO29 = 0x1D,
+    RESERVED_FOR_FUTURE_NO30 = 0x1E,
+    RESERVED_FOR_FUTURE_NO31 = 0x1F,
+    GAMING_EQ = 0x20,
+    FPS_1 = 0x21,
+    FPS_2 = 0x22,
+    FPS_3 = 0x23,
+    HEAVY = 0x30,
+    CLEAR = 0x31,
+    HARD = 0x32,
+    SOFT = 0x33,
+    CUSTOM = 0xA0,
+    USER_SETTING1 = 0xA1,
+    USER_SETTING2 = 0xA2,
+    USER_SETTING3 = 0xA3,
+    USER_SETTING4 = 0xA4,
+    USER_SETTING5 = 0xA5,
+    ARTIST_COLLAB1 = 0xB0,
+    ARTIST_COLLAB2 = 0xB1,
+    ARTIST_COLLAB3 = 0xB2,
+    ARTIST_COLLAB4 = 0xB3,
+    ARTIST_COLLAB5 = 0xB4,
+    ARTIST_COLLAB6 = 0xB5,
+    ARTIST_COLLAB7 = 0xB6,
+    ARTIST_COLLAB8 = 0xB7,
+    ARTIST_COLLAB9 = 0xB8,
+    ARTIST_COLLAB10 = 0xB9,
+    ARTIST_COLLAB11 = 0xBA,
+    ARTIST_COLLAB12 = 0xBB,
+    UNSPECIFIED = 0xFF,
+};
+
+constexpr std::bitset<256> EqPresetId_values = []
+{
+    std::bitset<256> bs;
+    bs.set(static_cast<size_t>(EqPresetId::OFF));
+    bs.set(static_cast<size_t>(EqPresetId::ROCK));
+    bs.set(static_cast<size_t>(EqPresetId::POP));
+    bs.set(static_cast<size_t>(EqPresetId::JAZZ));
+    bs.set(static_cast<size_t>(EqPresetId::DANCE));
+    bs.set(static_cast<size_t>(EqPresetId::EDM));
+    bs.set(static_cast<size_t>(EqPresetId::R_AND_B_HIP_HOP));
+    bs.set(static_cast<size_t>(EqPresetId::ACOUSTIC));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO8));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO9));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO10));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO11));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO12));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO13));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO14));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO15));
+    bs.set(static_cast<size_t>(EqPresetId::BRIGHT));
+    bs.set(static_cast<size_t>(EqPresetId::EXCITED));
+    bs.set(static_cast<size_t>(EqPresetId::MELLOW));
+    bs.set(static_cast<size_t>(EqPresetId::RELAXED));
+    bs.set(static_cast<size_t>(EqPresetId::VOCAL));
+    bs.set(static_cast<size_t>(EqPresetId::TREBLE));
+    bs.set(static_cast<size_t>(EqPresetId::BASS));
+    bs.set(static_cast<size_t>(EqPresetId::SPEECH));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO24));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO25));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO26));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO27));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO28));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO29));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO30));
+    bs.set(static_cast<size_t>(EqPresetId::RESERVED_FOR_FUTURE_NO31));
+    bs.set(static_cast<size_t>(EqPresetId::GAMING_EQ));
+    bs.set(static_cast<size_t>(EqPresetId::FPS_1));
+    bs.set(static_cast<size_t>(EqPresetId::FPS_2));
+    bs.set(static_cast<size_t>(EqPresetId::FPS_3));
+    bs.set(static_cast<size_t>(EqPresetId::HEAVY));
+    bs.set(static_cast<size_t>(EqPresetId::CLEAR));
+    bs.set(static_cast<size_t>(EqPresetId::HARD));
+    bs.set(static_cast<size_t>(EqPresetId::SOFT));
+    bs.set(static_cast<size_t>(EqPresetId::CUSTOM));
+    bs.set(static_cast<size_t>(EqPresetId::USER_SETTING1));
+    bs.set(static_cast<size_t>(EqPresetId::USER_SETTING2));
+    bs.set(static_cast<size_t>(EqPresetId::USER_SETTING3));
+    bs.set(static_cast<size_t>(EqPresetId::USER_SETTING4));
+    bs.set(static_cast<size_t>(EqPresetId::USER_SETTING5));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB1));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB2));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB3));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB4));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB5));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB6));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB7));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB8));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB9));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB10));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB11));
+    bs.set(static_cast<size_t>(EqPresetId::ARTIST_COLLAB12));
+    bs.set(static_cast<size_t>(EqPresetId::UNSPECIFIED));
+    return bs;
+}();
+
+inline bool EqPresetId_isValidByteCode(uint8_t id)
+{
+    return EqPresetId_values[id];
+}
+
+enum class EqUltMode : uint8_t
+{
+    OFF = 0x00,
+    ULT_1 = 0x01,
+    ULT_2 = 0x02,
+};
+
+inline bool EqUltMode_isValidByteCode(uint8_t mode)
+{
+    switch (static_cast<EqUltMode>(mode))
+    {
+    case EqUltMode::OFF:
+    case EqUltMode::ULT_1:
+    case EqUltMode::ULT_2:
+        return true;
+    }
+    return false;
+}
+
+enum class SoundEffectType : uint8_t
+{
+    SOUND_EFFECT_OFF = 0x00,
+    SOUND_EFFECT_ULT = 0x01,
+    SOUND_EFFECT_ULT1 = 0x02,
+    SOUND_EFFECT_ULT2 = 0x03,
+    SOUND_EFFECT_CUSTOM = 0x04,
+    SOUND_EFFECT_NONE = 0xFF,
+};
+
+inline bool SoundEffectType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<SoundEffectType>(type))
+    {
+    case SoundEffectType::SOUND_EFFECT_OFF:
+    case SoundEffectType::SOUND_EFFECT_ULT:
+    case SoundEffectType::SOUND_EFFECT_ULT1:
+    case SoundEffectType::SOUND_EFFECT_ULT2:
+    case SoundEffectType::SOUND_EFFECT_CUSTOM:
+    case SoundEffectType::SOUND_EFFECT_NONE:
+        return true;
+    }
+    return false;
+}
+
+// region EQEBB_*_STATUS
+
+// region EQEBB_GET_STATUS
+
+struct EqEbbGetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::EQEBB_RET_STATUS;
+
+    EqEbbInquiredType type; // 0x1
+
+    EqEbbGetStatus(EqEbbInquiredType type)
+        : Payload(Command::EQEBB_GET_STATUS)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(EqEbbGetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::EQEBB_GET_STATUS)
+            && EqEbbInquiredType_isValidByteCode(buf[offsetof(EqEbbGetStatus, type)]);
+    }
+};
+
+// endregion EQEBB_GET_STATUS
+
+// region EQEBB_RET_STATUS, EQEBB_NTFY_STATUS
+
+struct EqEbbStatus : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::EQEBB_RET_STATUS,
+        Command::UNKNOWN,
+        Command::EQEBB_NTFY_STATUS,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    EqEbbInquiredType type; // 0x1
+
+    EqEbbStatus(CommandType ct, EqEbbInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(EqEbbStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && EqEbbInquiredType_isValidByteCode(buf[offsetof(EqEbbStatus, type)]);
+    }
+};
+
+struct EqEbbStatusOnOff : EqEbbStatus
+{
+    MessageMdrV2OnOffSettingValue status; // 0x2
+
+    EqEbbStatusOnOff(CommandType ct, EqEbbInquiredType type, MessageMdrV2OnOffSettingValue status)
+        : EqEbbStatus(ct, type)
+        , status(status)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbStatus::isValid(buf, ct)
+            && buf.size() == sizeof(EqEbbStatusOnOff)
+            && MessageMdrV2OnOffSettingValue_isValidByteCode(buf[offsetof(EqEbbStatusOnOff, status)]);
+    }
+};
+
+enum class PresetEqErrorCodeType : uint8_t
+{
+    CALLING = 0x00,
+    DEMO_MODE = 0x01,
+    LISTENING_MODE = 0x02,
+    OTHER = 0xFE,
+};
+
+inline bool PresetEqErrorCodeType_isValidByteCode(uint8_t code)
+{
+    switch (static_cast<PresetEqErrorCodeType>(code))
+    {
+    case PresetEqErrorCodeType::CALLING:
+    case PresetEqErrorCodeType::DEMO_MODE:
+    case PresetEqErrorCodeType::LISTENING_MODE:
+    case PresetEqErrorCodeType::OTHER:
+        return true;
+    }
+    return false;
+}
+
+struct EqEbbStatusErrorCode : EqEbbStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+    uint8_t numberOfErrorCode; // 0x3
+    PresetEqErrorCodeType errorCodeList[]; // 0x4-
+
+private:
+    EqEbbStatusErrorCode(
+        CommandType ct, const std::span<const PresetEqErrorCodeType>& errorCodeList, MessageMdrV2EnableDisable status
+    )
+        : EqEbbStatus(ct, EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE)
+        , status(status)
+        , numberOfErrorCode(errorCodeList.size())
+    {
+        std::memcpy(this->errorCodeList, errorCodeList.data(), sizeof(PresetEqErrorCodeType) * numberOfErrorCode);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(PresetEqErrorCodeType, 255);
+
+    std::span<const PresetEqErrorCodeType> getErrorCodeList() const
+    {
+        return { errorCodeList, numberOfErrorCode };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbStatus::isValid(buf, ct)
+            && buf.size() >= sizeof(EqEbbStatusErrorCode)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(EqEbbStatusErrorCode, status)])
+            && buf.size() == sizeof(EqEbbStatusErrorCode) + sizeof(PresetEqErrorCodeType) * buf[offsetof(EqEbbStatusErrorCode, numberOfErrorCode)];
+        // Not validating every entry for simplicity
+    }
+};
+
+/*struct EqEbbStatusSoundEffect : EqEbbStatus
+{
+    // Not implemented, variable size
+};*/
+
+// endregion EQEBB_RET_STATUS, EQEBB_NTFY_STATUS
+
+// endregion EQEBB_*_STATUS
+
+// region EQEBB_*_PARAM
+
+// region EQEBB_GET_PARAM
+
+struct EqEbbGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::EQEBB_RET_PARAM;
+
+    EqEbbInquiredType type; // 0x1
+
+    EqEbbGetParam(EqEbbInquiredType type)
+        : Payload(Command::EQEBB_GET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(EqEbbGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::EQEBB_GET_PARAM)
+            && EqEbbInquiredType_isValidByteCode(buf[offsetof(EqEbbGetParam, type)]);
+    }
+};
+
+// endregion EQEBB_GET_PARAM
+
+// region EQEBB_RET_PARAM, EQEBB_SET_PARAM, EQEBB_NTFY_PARAM
+
+struct EqEbbParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::EQEBB_RET_PARAM,
+        Command::EQEBB_SET_PARAM,
+        Command::EQEBB_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::EQEBB_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    EqEbbInquiredType type; // 0x1
+
+    EqEbbParam(CommandType ct, EqEbbInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(EqEbbParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && EqEbbInquiredType_isValidByteCode(buf[offsetof(EqEbbParam, type)]);
+    }
+};
+
+// - PRESET_EQ, PRESET_EQ_NONCUSTOMIZABLE, PRESET_EQ_AND_ERRORCODE
+
+struct EqEbbParamEq : EqEbbParam
+{
+    EqPresetId presetId; // 0x2
+    uint8_t numberOfBandStep; // 0x3
+    uint8_t bandSteps[]; // 0x4-
+
+private:
+    EqEbbParamEq(
+        CommandType ct, const std::span<const uint8_t>& bandSteps, EqEbbInquiredType type, EqPresetId presetId
+    )
+        : EqEbbParam(ct, type)
+        , presetId(presetId)
+        , numberOfBandStep(bandSteps.size())
+    {
+        std::memcpy(this->bandSteps, bandSteps.data(), sizeof(uint8_t) * numberOfBandStep);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(uint8_t, 255);
+
+    std::span<const uint8_t> getBandSteps() const
+    {
+        return { bandSteps, numberOfBandStep };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbParam::isValid(buf, ct)
+            && isValidInquiredType(static_cast<EqEbbInquiredType>(buf[offsetof(EqEbbParamEq, type)]))
+            && EqPresetId_isValidByteCode(buf[offsetof(EqEbbParamEq, presetId)])
+            && buf.size() >= sizeof(EqEbbParamEq)
+            && buf.size() == sizeof(EqEbbParamEq) + sizeof(uint8_t) * buf[offsetof(EqEbbParamEq, numberOfBandStep)];
+        // Not validating every band step for simplicity
+    }
+
+    static bool isValidInquiredType(EqEbbInquiredType type)
+    {
+        return type == EqEbbInquiredType::PRESET_EQ
+            || type == EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE
+            || type == EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE;
+    }
+};
+
+// - EBB
+
+struct EqEbbParamEbb : EqEbbParam
+{
+    uint8_t level; // 0x2
+
+    EqEbbParamEbb(CommandType ct, uint8_t level)
+        : EqEbbParam(ct, EqEbbInquiredType::EBB)
+        , level(level)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbParam::isValid(buf, ct)
+            && buf.size() == sizeof(EqEbbParamEbb)
+            && buf[offsetof(EqEbbParamEbb, type)] == static_cast<uint8_t>(EqEbbInquiredType::EBB);
+    }
+};
+
+// - PRESET_EQ_AND_ULT_MODE
+
+struct EqEbbParamEqAndUltMode : EqEbbParam
+{
+    EqPresetId presetId; // 0x2
+    EqUltMode eqUltModeStatus; // 0x3
+    uint8_t numberOfBandStep; // 0x4
+    uint8_t bandSteps[]; // 0x5-
+
+private:
+    EqEbbParamEqAndUltMode(
+        CommandType ct, const std::span<const uint8_t>& bandSteps, EqPresetId presetId, EqUltMode eqUltModeStatus
+    )
+        : EqEbbParam(ct, EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE)
+        , presetId(presetId)
+        , eqUltModeStatus(eqUltModeStatus)
+        , numberOfBandStep(bandSteps.size())
+    {
+        std::memcpy(this->bandSteps, bandSteps.data(), sizeof(uint8_t) * numberOfBandStep);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(uint8_t, 255);
+
+    std::span<const uint8_t> getBandSteps() const
+    {
+        return { bandSteps, numberOfBandStep };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbParam::isValid(buf, ct)
+            && buf.size() >= sizeof(EqEbbParamEqAndUltMode)
+            && buf[offsetof(EqEbbParamEqAndUltMode, type)] == static_cast<uint8_t>(EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE)
+            && EqPresetId_isValidByteCode(buf[offsetof(EqEbbParamEqAndUltMode, presetId)])
+            && EqUltMode_isValidByteCode(buf[offsetof(EqEbbParamEqAndUltMode, eqUltModeStatus)])
+            && buf.size() == sizeof(EqEbbParamEqAndUltMode) + sizeof(uint8_t) * buf[offsetof(EqEbbParamEqAndUltMode, numberOfBandStep)];
+        // Not validating every band step for simplicity
+    }
+};
+
+// - SOUND_EFFECT
+
+struct EqEbbParamSoundEffect : EqEbbParam
+{
+    SoundEffectType soundEffectValue; // 0x2
+
+    EqEbbParamSoundEffect(CommandType ct, SoundEffectType soundEffectValue)
+        : EqEbbParam(ct, EqEbbInquiredType::SOUND_EFFECT)
+        , soundEffectValue(soundEffectValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbParam::isValid(buf, ct)
+            && buf.size() == sizeof(EqEbbParamSoundEffect)
+            && buf[offsetof(EqEbbParamSoundEffect, type)] == static_cast<uint8_t>(EqEbbInquiredType::SOUND_EFFECT)
+            && SoundEffectType_isValidByteCode(buf[offsetof(EqEbbParamSoundEffect, soundEffectValue)]);
+    }
+};
+
+// - CUSTOM_EQ
+
+struct EqEbbParamCustomEq : EqEbbParam
+{
+    uint8_t numberOfBandStep; // 0x2
+    uint8_t bandSteps[]; // 0x3-
+
+private:
+    EqEbbParamCustomEq(CommandType ct, const std::span<const uint8_t>& bandSteps)
+        : EqEbbParam(ct, EqEbbInquiredType::CUSTOM_EQ)
+        , numberOfBandStep(bandSteps.size())
+    {
+        std::memcpy(this->bandSteps, bandSteps.data(), sizeof(uint8_t) * numberOfBandStep);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(uint8_t, 255);
+
+    std::span<const uint8_t> getBandSteps() const
+    {
+        return { bandSteps, numberOfBandStep };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return EqEbbParam::isValid(buf, ct)
+            && buf.size() >= sizeof(EqEbbParamCustomEq)
+            && buf[offsetof(EqEbbParamCustomEq, type)] == static_cast<uint8_t>(EqEbbInquiredType::CUSTOM_EQ)
+            && buf.size() == sizeof(EqEbbParamCustomEq) + sizeof(uint8_t) * buf[offsetof(EqEbbParamCustomEq, numberOfBandStep)];
+        // Not validating every band step for simplicity
+    }
+};
+
+// - TURN_KEY_EQ
+
+/*struct EqEbbParamTurnKeyEq : EqEbbParam
+{
+    // Not implemented, variable size
+};*/
+
+// endregion EQEBB_RET_PARAM, EQEBB_SET_PARAM, EQEBB_NTFY_PARAM
+
+// endregion EQEBB_*_PARAM
+
+// region EQEBB_*_EXTENDED_INFO
+
+// Not implemented
+
+// endregion EQEBB_*_EXTENDED_INFO
+
+// endregion EQEBB
+
 // region NC_ASM
 
 enum class NcAsmInquiredType : uint8_t

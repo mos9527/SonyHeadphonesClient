@@ -298,7 +298,7 @@ public:
 
     // Equalizer
     ReadonlyProperty<bool> eqAvailable{};
-    Property<int> eqPreset;
+    Property<THMSGV2T1::EqPresetId> eqPreset;
     Property<EqualizerConfig> eqConfig;
 
     // [WF only] Touch sensor function
@@ -395,8 +395,8 @@ private:
     HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleEqualizer(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleEqEbbStatus(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleEqEbbParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage& msg);
 
     HeadphonesEvent _handleMessage(const HeadphonesMessage& msg);
