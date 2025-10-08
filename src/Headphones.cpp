@@ -217,11 +217,10 @@ void Headphones::setChanges()
     if (supports(MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF)
         && !autoPauseEnabled.isFulfilled())
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeAutoPauseSetting(autoPauseEnabled.desired),
-            DATA_TYPE::DATA_MDR
+        sendSet<THMSGV2T1::SystemParamCommon>(
+            THMSGV2T1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING,
+            autoPauseEnabled.desired
         );
-        waitForAck();
 
         this->autoPauseEnabled.fulfill();
     }
@@ -280,11 +279,11 @@ void Headphones::setChanges()
     {
         if (!stcEnabled.isFulfilled())
         {
-            this->_conn.sendCommand(
-                CommandSerializer::serializeSpeakToChatEnabled(stcEnabled.desired),
-                DATA_TYPE::DATA_MDR
+            sendSet<THMSGV2T1::SystemParamSmartTalking>(
+                THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2,
+                stcEnabled.desired,
+                /*previewModeOnOffValue*/ false
             );
-            waitForAck();
             stcEnabled.fulfill();
         }
 
@@ -350,11 +349,8 @@ void Headphones::setChanges()
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING)
         && (!touchLeftFunc.isFulfilled() || !touchRightFunc.isFulfilled()))
     {
-        this->_conn.sendCommand(
-            CommandSerializer::serializeTouchSensorAssignment(touchLeftFunc.desired, touchRightFunc.desired),
-            DATA_TYPE::DATA_MDR
-        );
-        waitForAck();
+        THMSGV2T1::Preset presets[] = { touchLeftFunc.desired, touchRightFunc.desired };
+        sendSet<THMSGV2T1::SystemParamAssignableSettings>(presets);
         touchLeftFunc.fulfill();
         touchRightFunc.fulfill();
     }
@@ -537,17 +533,8 @@ void Headphones::requestInit()
     }
 
     /* Speak to chat */
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_GET_PARAM),
-        0x0c // Speak to chat enabled
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
-
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_GET_EXT_PARAM),
-        0x0c // Speak to chat config
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2); // Enabled/disabled
+    sendGet<THMSGV2T1::SystemGetExtParam>(THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2); // Configuration
 
     if (supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
     {
@@ -559,11 +546,7 @@ void Headphones::requestInit()
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
     {
         /* Touch Sensor */
-        _conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_GET_PARAM),
-            0x03, // Touch sensor function
-        }, DATA_TYPE::DATA_MDR);
-        waitForAck();
+        sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::ASSIGNABLE_SETTINGS);
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
@@ -590,11 +573,8 @@ void Headphones::requestInit()
     /* Misc Params */
     sendGet<THMSGV2T1::PowerGetParam>(THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION);
 
-    _conn.sendCommand(Buffer{
-        static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_GET_PARAM),
-        0x01 // Pause when headphones are removed
-    }, DATA_TYPE::DATA_MDR);
-    waitForAck();
+    /* Pause when headphones are removed */
+    sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING);
 
     if (supportsTable2)
     {
@@ -1329,32 +1309,45 @@ HeadphonesEvent Headphones::_handleAudioParam(const HeadphonesMessage& msg, Comm
     return HeadphonesEvent::MessageUnhandled;
 }
 
-HeadphonesEvent Headphones::_handleSystemParam(const HeadphonesMessage& msg)
+HeadphonesEvent Headphones::_handleSystemParam(const HeadphonesMessage& msg, CommandType ct)
 {
-    switch (msg[1])
+    auto payload = msg.as<THMSGV2T1::SystemParam>(ct);
+    switch (payload->type)
     {
-    case 0x01:
+    case THMSGV2T1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING:
+    {
         if (supports(MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
         {
-            autoPauseEnabled.overwrite(!(bool)msg[2]);
+            auto payloadSub = msg.as<THMSGV2T1::SystemParamCommon>(ct);
+            autoPauseEnabled.overwrite(payloadSub->settingValue);
             return HeadphonesEvent::AutoPauseUpdate;
         }
         break;
-    case 0x0c:
+    }
+    case THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2:
+    {
         if (supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
         {
-            stcEnabled.overwrite(!(bool)msg[2]);
+            auto payloadSub = msg.as<THMSGV2T1::SystemParamSmartTalking>(ct);
+            stcEnabled.overwrite(payloadSub->onOffValue);
             return HeadphonesEvent::SpeakToChatEnabledUpdate;
         }
         break;
-    case 0x03:
+    }
+    case THMSGV2T1::SystemInquiredType::ASSIGNABLE_SETTINGS:
+    {
         if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
         {
-            touchLeftFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[3]));
-            touchRightFunc.overwrite(static_cast<TOUCH_SENSOR_FUNCTION>(msg[4]));
-            return HeadphonesEvent::TouchFunctionUpdate;
+            auto payloadSub = msg.as<THMSGV2T1::SystemParamAssignableSettings>(ct);
+            if (payloadSub->numberOfPreset == 2)
+            {
+                touchLeftFunc.overwrite(payloadSub->presets[0]);
+                touchRightFunc.overwrite(payloadSub->presets[1]);
+                return HeadphonesEvent::TouchFunctionUpdate;
+            }
         }
         break;
+    }
     }
     return HeadphonesEvent::MessageUnhandled;
 }
@@ -1533,8 +1526,10 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             result = _handleAudioParam(msg, CT_Notify);
             break;
         case Command::SYSTEM_RET_PARAM:
+            result = _handleSystemParam(msg, CT_Ret);
+            break;
         case Command::SYSTEM_NTFY_PARAM:
-            result = _handleSystemParam(msg);
+            result = _handleSystemParam(msg, CT_Notify);
             break;
         case Command::SYSTEM_RET_EXT_PARAM:
         case Command::SYSTEM_NTFY_EXT_PARAM:

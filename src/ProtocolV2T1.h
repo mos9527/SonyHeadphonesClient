@@ -605,7 +605,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(127);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(char, 127);
 
     std::string getModelName() const
     {
@@ -639,7 +639,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(127);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(char, 127);
 
     std::string getFwVersion() const
     {
@@ -727,7 +727,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(MessageMdrV2SupportFunction, 255);
 
     std::span<const MessageMdrV2SupportFunction> getSupportFunctions() const
     {
@@ -3516,7 +3516,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(ListeningOptionAssignCustomizableItem, 255);
 
     std::span<const ListeningOptionAssignCustomizableItem> getAssignedItems() const
     {
@@ -3641,27 +3641,894 @@ struct AudioNtfyParamConnectionModeClassicAudioLeAudio : AudioParam
 
 // region SYSTEM
 
+enum class SystemInquiredType : uint8_t
+{
+    // PARAM:  [RSN] SystemParamCommon
+    VIBRATOR = 0x00,
+    // PARAM:  [RSN] SystemParamCommon
+    PLAYBACK_CONTROL_BY_WEARING = 0x01,
+    // PARAM:  [RSN] SystemParamSmartTalking
+    SMART_TALKING_MODE_TYPE1 = 0x02,
+    // PARAM:  [RSN] SystemParamAssignableSettings
+    ASSIGNABLE_SETTINGS = 0x03,
+    // PARAM:  [RSN] SystemParamVoiceAssistantSettings
+    VOICE_ASSISTANT_SETTINGS = 0x04,
+    // PARAM:  [RSN] SystemParamCommon
+    VOICE_ASSISTANT_WAKE_WORD = 0x05,
+    // PARAM:  [R N] SystemParamWearingStatusDetector
+    //         [ S ] SystemSetParamWearingStatusDetector
+    WEARING_STATUS_DETECTOR = 0x06,
+    // PARAM:  [RSN] SystemParamEarpieceSelection
+    EARPIECE_SELECTION = 0x07,
+    // PARAM:  [RSN] SystemParamCallSettings
+    CALL_SETTINGS = 0x08,
+    // PARAM:  [ S ] SystemSetParamResetSettings
+    //         [  N] SystemNotifyParamResetSettings
+    RESET_SETTINGS = 0x09,
+    // PARAM:  [RSN] SystemParamCommon
+    AUTO_VOLUME = 0x0A,
+    // PARAM:  [  N] SystemNotifyParamFaceTapTestMode
+    FACE_TAP_TEST_MODE = 0x0B,
+    // PARAM:  [RSN] SystemParamSmartTalking
+    SMART_TALKING_MODE_TYPE2 = 0x0C,
+    // PARAM:  [R N] SystemParamQuickAccess
+    //         [ S ] SystemSetParamQuickAccess
+    QUICK_ACCESS = 0x0D,
+    // PARAM:  [RSN] SystemParamAssignableSettingsWithLimit
+    ASSIGNABLE_SETTINGS_WITH_LIMITATION = 0x0E,
+    // PARAM:  [RSN] SystemParamCommon
+    HEAD_GESTURE_ON_OFF = 0x0F,
+    // PARAM:  [RSN] SystemParamHeadGestureTraining
+    HEAD_GESTURE_TRAINING = 0x10,
+};
+
+inline bool SystemInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<SystemInquiredType>(type))
+    {
+    case SystemInquiredType::VIBRATOR:
+    case SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING:
+    case SystemInquiredType::SMART_TALKING_MODE_TYPE1:
+    case SystemInquiredType::ASSIGNABLE_SETTINGS:
+    case SystemInquiredType::VOICE_ASSISTANT_SETTINGS:
+    case SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD:
+    case SystemInquiredType::WEARING_STATUS_DETECTOR:
+    case SystemInquiredType::EARPIECE_SELECTION:
+    case SystemInquiredType::CALL_SETTINGS:
+    case SystemInquiredType::RESET_SETTINGS:
+    case SystemInquiredType::AUTO_VOLUME:
+    case SystemInquiredType::FACE_TAP_TEST_MODE:
+    case SystemInquiredType::SMART_TALKING_MODE_TYPE2:
+    case SystemInquiredType::QUICK_ACCESS:
+    case SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION:
+    case SystemInquiredType::HEAD_GESTURE_ON_OFF:
+    case SystemInquiredType::HEAD_GESTURE_TRAINING:
+        return true;
+    }
+    return false;
+}
+
+enum class Preset : uint8_t
+{
+    AMBIENT_SOUND_CONTROL = 0x00,
+    VOLUME_CONTROL = 0x10,
+    PLAYBACK_CONTROL = 0x20,
+    TRACK_CONTROL = 0x21,
+    PLAYBACK_CONTROL_VOICE_ASSISTANT_LIMITATION = 0x22,
+    VOICE_RECOGNITION = 0x30,
+    GOOGLE_ASSIST = 0x31,
+    AMAZON_ALEXA = 0x32,
+    TENCENT_XIAOWEI = 0x33,
+    MS = 0x34,
+    AMBIENT_SOUND_CONTROL_QUICK_ACCESS = 0x35,
+    QUICK_ACCESS = 0x36,
+    TENCENT_XIAOWEI_Q_MSC = 0x37,
+    TEAMS = 0x38,
+    GOOGLE_ASSISTANT_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION = 0x39,
+    AMAZON_ALEXA_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION = 0x40,
+    TENCENT_XIAOWEI_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION = 0x41,
+    QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION = 0x42,
+    AMBIENT_SOUND_CONTROL_QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION = 0x43,
+    TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION = 0x44,
+    AMBIENT_SOUND_CONTROL_MIC = 0x45,
+    LISTENING_MODE_QUICK_ACCESS = 0x46,
+    CHAT_MIX = 0x70,
+    CUSTOM1 = 0x71,
+    CUSTOM2 = 0x72,
+    NO_FUNCTION = 0xFF,
+};
+
+inline bool Preset_isValidByteCode(uint8_t preset)
+{
+    switch (static_cast<Preset>(preset))
+    {
+    case Preset::AMBIENT_SOUND_CONTROL:
+    case Preset::VOLUME_CONTROL:
+    case Preset::PLAYBACK_CONTROL:
+    case Preset::TRACK_CONTROL:
+    case Preset::PLAYBACK_CONTROL_VOICE_ASSISTANT_LIMITATION:
+    case Preset::VOICE_RECOGNITION:
+    case Preset::GOOGLE_ASSIST:
+    case Preset::AMAZON_ALEXA:
+    case Preset::TENCENT_XIAOWEI:
+    case Preset::MS:
+    case Preset::AMBIENT_SOUND_CONTROL_QUICK_ACCESS:
+    case Preset::QUICK_ACCESS:
+    case Preset::TENCENT_XIAOWEI_Q_MSC:
+    case Preset::TEAMS:
+    case Preset::GOOGLE_ASSISTANT_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+    case Preset::AMAZON_ALEXA_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+    case Preset::TENCENT_XIAOWEI_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+    case Preset::QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+    case Preset::AMBIENT_SOUND_CONTROL_QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+    case Preset::TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+    case Preset::AMBIENT_SOUND_CONTROL_MIC:
+    case Preset::LISTENING_MODE_QUICK_ACCESS:
+    case Preset::CHAT_MIX:
+    case Preset::CUSTOM1:
+    case Preset::CUSTOM2:
+    case Preset::NO_FUNCTION:
+        return true;
+    }
+    return false;
+}
+
+enum class VoiceAssistant : uint8_t
+{
+    VOICE_RECOGNITION = 0x30,
+    GOOGLE_ASSISTANT = 0x31,
+    AMAZON_ALEXA = 0x32,
+    TENCENT_XIAOWEI = 0x33,
+    SONY_VOICE_ASSISTANT = 0x34,
+    VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE = 0x3F,
+    NO_FUNCTION = 0xFF,
+};
+
+inline bool VoiceAssistant_isValidByteCode(uint8_t va)
+{
+    switch (static_cast<VoiceAssistant>(va))
+    {
+    case VoiceAssistant::VOICE_RECOGNITION:
+    case VoiceAssistant::GOOGLE_ASSISTANT:
+    case VoiceAssistant::AMAZON_ALEXA:
+    case VoiceAssistant::TENCENT_XIAOWEI:
+    case VoiceAssistant::SONY_VOICE_ASSISTANT:
+    case VoiceAssistant::VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE:
+    case VoiceAssistant::NO_FUNCTION:
+        return true;
+    }
+    return false;
+}
+
+enum class EarpieceFittingDetectionOperationStatus : uint8_t
+{
+    DETECTION_IS_NOT_STARTED = 0x00,
+    DETECTION_STARTED = 0x01,
+    DETECTION_COMPLETED_SUCCESSFULLY = 0x02,
+    DETECTION_COMPLETED_UNSUCCESSFULLY = 0x03,
+};
+
+inline bool EarpieceFittingDetectionOperationStatus_isValidByteCode(uint8_t status)
+{
+    switch (static_cast<EarpieceFittingDetectionOperationStatus>(status))
+    {
+    case EarpieceFittingDetectionOperationStatus::DETECTION_IS_NOT_STARTED:
+    case EarpieceFittingDetectionOperationStatus::DETECTION_STARTED:
+    case EarpieceFittingDetectionOperationStatus::DETECTION_COMPLETED_SUCCESSFULLY:
+    case EarpieceFittingDetectionOperationStatus::DETECTION_COMPLETED_UNSUCCESSFULLY:
+        return true;
+    }
+    return false;
+}
+
+enum class EarpieceFittingDetectionOperationErrorCode : uint8_t
+{
+    NO_ERROR = 0x00,
+    LEFT_CONNECTION_ERROR = 0x01,
+    RIGHT_CONNECTION_ERROR = 0x02,
+    FUNCTION_UNAVAILABLE_ERROR = 0x03,
+    LEFT_FITTING_ERROR = 0x04,
+    RIGHT_FITTING_ERROR = 0x05,
+    BOTH_FITTING_ERROR = 0x06,
+    MEASURING_ERROR = 0x07,
+};
+
+inline bool EarpieceFittingDetectionOperationErrorCode_isValidByteCode(uint8_t code)
+{
+    switch (static_cast<EarpieceFittingDetectionOperationErrorCode>(code))
+    {
+    case EarpieceFittingDetectionOperationErrorCode::NO_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::LEFT_CONNECTION_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::RIGHT_CONNECTION_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::FUNCTION_UNAVAILABLE_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::LEFT_FITTING_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::RIGHT_FITTING_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::BOTH_FITTING_ERROR:
+    case EarpieceFittingDetectionOperationErrorCode::MEASURING_ERROR:
+        return true;
+    }
+    return false;
+}
+
+enum class EarpieceSeries : uint8_t
+{
+    OTHER = 0x00,
+    POLYURETHANE = 0x01,
+    HYBRID = 0x02,
+    SOFT_FITTING_FOR_LINKBUDS_FIT = 0x03,
+    NOT_DETERMINED = 0xFF,
+};
+
+inline bool EarpieceSeries_isValidByteCode(uint8_t series)
+{
+    switch (static_cast<EarpieceSeries>(series))
+    {
+    case EarpieceSeries::OTHER:
+    case EarpieceSeries::POLYURETHANE:
+    case EarpieceSeries::HYBRID:
+    case EarpieceSeries::SOFT_FITTING_FOR_LINKBUDS_FIT:
+    case EarpieceSeries::NOT_DETERMINED:
+        return true;
+    }
+    return false;
+}
+
+enum class EarpieceSize : uint8_t
+{
+    SS = 0x00,
+    S = 0x01,
+    M = 0x02,
+    L = 0x03,
+    LL = 0x04,
+    NOT_DETERMINED = 0xFF,
+};
+
+inline bool EarpieceSize_isValidByteCode(uint8_t size)
+{
+    switch (static_cast<EarpieceSize>(size))
+    {
+    case EarpieceSize::SS:
+    case EarpieceSize::S:
+    case EarpieceSize::M:
+    case EarpieceSize::L:
+    case EarpieceSize::LL:
+    case EarpieceSize::NOT_DETERMINED:
+        return true;
+    }
+    return false;
+}
+
+enum class EarpieceFittingDetectionOperation : uint8_t
+{
+    DETECTION_START = 0x00,
+    DETECTION_CANCEL = 0x01,
+    DETECTION_START_FORCEFUL = 0x02,
+};
+
+inline bool EarpieceFittingDetectionOperation_isValidByteCode(uint8_t op)
+{
+    switch (static_cast<EarpieceFittingDetectionOperation>(op))
+    {
+    case EarpieceFittingDetectionOperation::DETECTION_START:
+    case EarpieceFittingDetectionOperation::DETECTION_CANCEL:
+    case EarpieceFittingDetectionOperation::DETECTION_START_FORCEFUL:
+        return true;
+    }
+    return false;
+}
+
+enum class ResetType : uint8_t
+{
+    SETTINGS_ONLY = 0x00,
+    FACTORY_RESET = 0x01,
+};
+
+inline bool ResetType_isValidByteCode(uint32_t type)
+{
+    switch (static_cast<ResetType>(type))
+    {
+    case ResetType::SETTINGS_ONLY:
+    case ResetType::FACTORY_RESET:
+        return true;
+    }
+    return false;
+}
+
+enum class ResetResult : uint8_t
+{
+    SUCCESS = 0x00,
+    ERROR_CONNECTION_LEFT = 0x01,
+    ERROR_CONNECTION_RIGHT = 0x02,
+};
+
+inline bool ResetResult_isValidByteCode(uint8_t result)
+{
+    switch (static_cast<ResetResult>(result))
+    {
+    case ResetResult::SUCCESS:
+    case ResetResult::ERROR_CONNECTION_LEFT:
+    case ResetResult::ERROR_CONNECTION_RIGHT:
+        return true;
+    }
+    return false;
+}
+
+enum class FaceTapKey : uint8_t
+{
+    LEFT_SIDE_KEY = 0x00,
+    RIGHT_SIDE_KEY = 0x01,
+};
+
+inline bool FaceTapKey_isValidByteCode(uint8_t key)
+{
+    switch (static_cast<FaceTapKey>(key))
+    {
+    case FaceTapKey::LEFT_SIDE_KEY:
+    case FaceTapKey::RIGHT_SIDE_KEY:
+        return true;
+    }
+    return false;
+}
+
+enum class FaceTapAction : uint8_t
+{
+    DOUBLE_TAP = 0x00,
+    TRIPLE_TAP = 0x01,
+};
+
+inline bool FaceTapAction_isValidByteCode(uint8_t action)
+{
+    switch (static_cast<FaceTapAction>(action))
+    {
+    case FaceTapAction::DOUBLE_TAP:
+    case FaceTapAction::TRIPLE_TAP:
+        return true;
+    }
+    return false;
+}
+
+enum class HeadGestureAction : uint8_t
+{
+    NOD = 0x00,
+    SWING = 0x01,
+};
+
+inline bool HeadGestureAction_isValidByteCode(uint8_t action)
+{
+    switch (static_cast<HeadGestureAction>(action))
+    {
+    case HeadGestureAction::NOD:
+    case HeadGestureAction::SWING:
+        return true;
+    }
+    return false;
+}
+
 // region SYSTEM_*_CAPABILITY
 
-// TODO
+// Not implemented
 
 // endregion SYSTEM_*_CAPABILITY
 
 // region SYSTEM_*_STATUS
 
-// TODO
+// Not implemented
 
 // endregion SYSTEM_*_STATUS
 
 // region SYSTEM_*_PARAM
 
-// TODO
+// region SYSTEM_GET_PARAM
+
+struct SystemGetParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SYSTEM_RET_PARAM;
+
+    SystemInquiredType type; // 0x1
+
+    SystemGetParam(SystemInquiredType type)
+        : Payload(Command::SYSTEM_GET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SystemGetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SYSTEM_GET_PARAM)
+            && SystemInquiredType_isValidByteCode(buf[offsetof(SystemGetParam, type)]);
+    }
+};
+
+// endregion SYSTEM_GET_PARAM
+
+// region SYSTEM_RET_PARAM, SYSTEM_SET_PARAM, SYSTEM_NTFY_PARAM
+
+struct SystemParam : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::SYSTEM_RET_PARAM,
+        Command::SYSTEM_SET_PARAM,
+        Command::SYSTEM_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    SystemInquiredType type; // 0x1
+
+    SystemParam(CommandType ct, SystemInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(SystemParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && SystemInquiredType_isValidByteCode(buf[offsetof(SystemParam, type)]);
+    }
+};
+
+// - VIBRATOR, PLAYBACK_CONTROL_BY_WEARING, VOICE_ASSISTANT_WAKE_WORD, AUTO_VOLUME, HEAD_GESTURE_ON_OFF
+
+struct SystemParamCommon : SystemParam
+{
+    MessageMdrV2EnableDisable settingValue; // 0x2
+
+    SystemParamCommon(CommandType ct, SystemInquiredType type, MessageMdrV2EnableDisable settingValue)
+        : SystemParam(ct, type)
+        , settingValue(settingValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamCommon)
+            && isValidInquiredType(static_cast<SystemInquiredType>(buf[offsetof(SystemParamCommon, type)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SystemParamCommon, settingValue)]);
+    }
+
+    static bool isValidInquiredType(SystemInquiredType type)
+    {
+        return type == SystemInquiredType::VIBRATOR
+            || type == SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING
+            || type == SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD
+            || type == SystemInquiredType::AUTO_VOLUME
+            || type == SystemInquiredType::HEAD_GESTURE_ON_OFF;
+    }
+};
+
+// - SMART_TALKING_MODE_TYPE1, SMART_TALKING_MODE_TYPE2
+
+struct SystemParamSmartTalking : SystemParam
+{
+    MessageMdrV2EnableDisable onOffValue; // 0x2
+    MessageMdrV2EnableDisable previewModeOnOffValue; // 0x3
+
+    SystemParamSmartTalking(
+        CommandType ct, SystemInquiredType type, MessageMdrV2EnableDisable onOffValue,
+        MessageMdrV2EnableDisable previewModeOnOffValue
+    )
+        : SystemParam(ct, type)
+        , onOffValue(onOffValue)
+        , previewModeOnOffValue(previewModeOnOffValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamSmartTalking)
+            && isValidInquiredType(static_cast<SystemInquiredType>(buf[offsetof(SystemParamSmartTalking, type)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SystemParamSmartTalking, onOffValue)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SystemParamSmartTalking, previewModeOnOffValue)]);
+    }
+
+    static bool isValidInquiredType(SystemInquiredType type)
+    {
+        return type == SystemInquiredType::SMART_TALKING_MODE_TYPE1
+            || type == SystemInquiredType::SMART_TALKING_MODE_TYPE2;
+    }
+};
+
+// - ASSIGNABLE_SETTINGS
+
+struct SystemParamAssignableSettings : SystemParam
+{
+    uint8_t numberOfPreset; // 0x2
+    Preset presets[]; // 0x3-
+
+private:
+    SystemParamAssignableSettings(CommandType ct, const std::span<const Preset>& presets)
+        : SystemParam(ct, SystemInquiredType::ASSIGNABLE_SETTINGS)
+        , numberOfPreset(presets.size())
+    {
+        std::memcpy(this->presets, presets.data(), sizeof(Preset) * numberOfPreset);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(Preset, 255);
+
+    std::span<const Preset> getPresets() const
+    {
+        return { presets, numberOfPreset };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf[offsetof(SystemParamAssignableSettings, type)] == static_cast<uint8_t>(SystemInquiredType::ASSIGNABLE_SETTINGS)
+            && buf.size() >= sizeof(SystemParamAssignableSettings)
+            && buf.size() == sizeof(SystemParamAssignableSettings) + sizeof(Preset) * buf[offsetof(SystemParamAssignableSettings, numberOfPreset)];
+        // Not validating every entry for simplicity
+    }
+};
+
+// - VOICE_ASSISTANT_SETTINGS
+
+struct SystemParamVoiceAssistantSettings : SystemParam
+{
+    VoiceAssistant voiceAssistant; // 0x2
+
+    SystemParamVoiceAssistantSettings(CommandType ct, VoiceAssistant voiceAssistant)
+        : SystemParam(ct, SystemInquiredType::VOICE_ASSISTANT_SETTINGS)
+        , voiceAssistant(voiceAssistant)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamVoiceAssistantSettings)
+            && buf[offsetof(SystemParamVoiceAssistantSettings, type)] == static_cast<uint8_t>(SystemInquiredType::VOICE_ASSISTANT_SETTINGS)
+            && VoiceAssistant_isValidByteCode(buf[offsetof(SystemParamVoiceAssistantSettings, voiceAssistant)]);
+    }
+};
+
+// - WEARING_STATUS_DETECTOR
+
+struct SystemParamWearingStatusDetector : SystemParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::SYSTEM_RET_PARAM,
+        Command::UNKNOWN,
+        Command::SYSTEM_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    EarpieceFittingDetectionOperationStatus operationStatus; // 0x2
+    EarpieceFittingDetectionOperationErrorCode errorCode; // 0x3
+    uint8_t numOfSelectedEarpieces; // 0x4
+    uint8_t indexOfCurrentDetection; // 0x5
+    EarpieceSeries currentDetectingSeries; // 0x6
+    EarpieceSize earpieceSize; // 0x7
+
+    SystemParamWearingStatusDetector(
+        CommandType ct, EarpieceFittingDetectionOperationStatus operationStatus,
+        EarpieceFittingDetectionOperationErrorCode errorCode, uint8_t numOfSelectedEarpieces,
+        uint8_t indexOfCurrentDetection, EarpieceSeries currentDetectingSeries, EarpieceSize earpieceSize
+    )
+        : SystemParam(ct, SystemInquiredType::WEARING_STATUS_DETECTOR)
+        , operationStatus(operationStatus)
+        , errorCode(errorCode)
+        , numOfSelectedEarpieces(numOfSelectedEarpieces)
+        , indexOfCurrentDetection(indexOfCurrentDetection)
+        , currentDetectingSeries(currentDetectingSeries)
+        , earpieceSize(earpieceSize)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamWearingStatusDetector)
+            && buf[offsetof(SystemParamWearingStatusDetector, type)] == static_cast<uint8_t>(SystemInquiredType::WEARING_STATUS_DETECTOR)
+            && EarpieceFittingDetectionOperationStatus_isValidByteCode(buf[offsetof(SystemParamWearingStatusDetector, operationStatus)])
+            && EarpieceFittingDetectionOperationErrorCode_isValidByteCode(buf[offsetof(SystemParamWearingStatusDetector, errorCode)])
+            && EarpieceSeries_isValidByteCode(buf[offsetof(SystemParamWearingStatusDetector, currentDetectingSeries)])
+            && EarpieceSize_isValidByteCode(buf[offsetof(SystemParamWearingStatusDetector, earpieceSize)]);
+    }
+};
+
+// - EARPIECE_SELECTION
+
+struct SystemParamEarpieceSelection : SystemParam
+{
+    EarpieceSeries series; // 0x2
+
+    SystemParamEarpieceSelection(CommandType ct, EarpieceSeries series)
+        : SystemParam(ct, SystemInquiredType::EARPIECE_SELECTION)
+        , series(series)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamEarpieceSelection)
+            && buf[offsetof(SystemParamEarpieceSelection, type)] == static_cast<uint8_t>(SystemInquiredType::EARPIECE_SELECTION)
+            && EarpieceSeries_isValidByteCode(buf[offsetof(SystemParamEarpieceSelection, series)]);
+    }
+};
+
+// - CALL_SETTINGS
+
+struct SystemParamCallSettings : SystemParam
+{
+    MessageMdrV2EnableDisable selfVoiceOnOff; // 0x2
+    uint8_t selfVoiceVolume; // 0x3
+    uint8_t callVoiceVolume; // 0x4
+
+    SystemParamCallSettings(
+        CommandType ct, MessageMdrV2EnableDisable selfVoiceOnOff, uint8_t selfVoiceVolume, uint8_t callVoiceVolume
+    )
+        : SystemParam(ct, SystemInquiredType::CALL_SETTINGS)
+        , selfVoiceOnOff(selfVoiceOnOff)
+        , selfVoiceVolume(selfVoiceVolume)
+        , callVoiceVolume(callVoiceVolume)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamCallSettings)
+            && buf[offsetof(SystemParamCallSettings, type)] == static_cast<uint8_t>(SystemInquiredType::CALL_SETTINGS)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(SystemParamCallSettings, selfVoiceOnOff)]);
+    }
+};
+
+// - QUICK_ACCESS
+
+// Not implemented, variable size
+
+// - ASSIGNABLE_SETTINGS_WITH_LIMITATION
+
+struct SystemParamAssignableSettingsWithLimit : SystemParam
+{
+    uint8_t numberOfPreset; // 0x2
+    Preset presets[]; // 0x3-
+
+private:
+    SystemParamAssignableSettingsWithLimit(CommandType ct, const std::span<const Preset>& presets)
+        : SystemParam(ct, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION)
+        , numberOfPreset(presets.size())
+    {
+        std::memcpy(this->presets, presets.data(), sizeof(Preset) * numberOfPreset);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(Preset, 255);
+
+    std::span<const Preset> getPresets() const
+    {
+        return { presets, numberOfPreset };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf[offsetof(SystemParamAssignableSettingsWithLimit, type)] == static_cast<uint8_t>(SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION)
+            && buf.size() >= sizeof(SystemParamAssignableSettingsWithLimit)
+            && buf.size() == sizeof(SystemParamAssignableSettingsWithLimit) + sizeof(Preset) * buf[offsetof(SystemParamAssignableSettingsWithLimit, numberOfPreset)];
+        // Not validating every entry for simplicity
+    }
+};
+
+// - HEAD_GESTURE_TRAINING
+
+struct SystemParamHeadGestureTraining : SystemParam
+{
+    HeadGestureAction headGestureAction; // 0x2
+
+    SystemParamHeadGestureTraining(CommandType ct, HeadGestureAction headGestureAction)
+        : SystemParam(ct, SystemInquiredType::HEAD_GESTURE_TRAINING)
+        , headGestureAction(headGestureAction)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemParamHeadGestureTraining)
+            && buf[offsetof(SystemParamHeadGestureTraining, type)] == static_cast<uint8_t>(SystemInquiredType::HEAD_GESTURE_TRAINING)
+            && HeadGestureAction_isValidByteCode(buf[offsetof(SystemParamHeadGestureTraining, headGestureAction)]);
+    }
+};
+
+// endregion SYSTEM_RET_PARAM, SYSTEM_SET_PARAM, SYSTEM_NTFY_PARAM
+
+// region SYSTEM_SET_PARAM
+
+// - WEARING_STATUS_DETECTOR
+
+struct SystemSetParamWearingStatusDetector : SystemParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_SET_PARAM,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    EarpieceFittingDetectionOperation operation; // 0x2
+    uint8_t indexOfCurrentDetection; // 0x3
+    EarpieceSeries currentDetectionSeries; // 0x4
+    EarpieceSize currentDetectionSize; // 0x5
+
+    SystemSetParamWearingStatusDetector(
+        CommandType ct, EarpieceFittingDetectionOperation operation, uint8_t indexOfCurrentDetection,
+        EarpieceSeries currentDetectionSeries, EarpieceSize currentDetectionSize
+    )
+        : SystemParam(ct, SystemInquiredType::WEARING_STATUS_DETECTOR)
+        , operation(operation)
+        , indexOfCurrentDetection(indexOfCurrentDetection)
+        , currentDetectionSeries(currentDetectionSeries)
+        , currentDetectionSize(currentDetectionSize)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemSetParamWearingStatusDetector)
+            && buf[offsetof(SystemSetParamWearingStatusDetector, type)] == static_cast<uint8_t>(SystemInquiredType::WEARING_STATUS_DETECTOR)
+            && EarpieceFittingDetectionOperation_isValidByteCode(buf[offsetof(SystemSetParamWearingStatusDetector, operation)])
+            && EarpieceSeries_isValidByteCode(buf[offsetof(SystemSetParamWearingStatusDetector, currentDetectionSeries)])
+            && EarpieceSize_isValidByteCode(buf[offsetof(SystemSetParamWearingStatusDetector, currentDetectionSize)]);
+    }
+};
+
+// - RESET_SETTINGS
+
+struct SystemSetParamResetSettings : SystemParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_SET_PARAM,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_NTFY_PARAM,
+        Command::UNKNOWN,
+    };
+
+    ResetType resetType; // 0x2
+
+    SystemSetParamResetSettings(CommandType ct, ResetType resetType)
+        : SystemParam(ct, SystemInquiredType::RESET_SETTINGS)
+        , resetType(resetType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemSetParamResetSettings)
+            && buf[offsetof(SystemSetParamResetSettings, type)] == static_cast<uint8_t>(SystemInquiredType::RESET_SETTINGS)
+            && ResetType_isValidByteCode(buf[offsetof(SystemSetParamResetSettings, resetType)]);
+    }
+};
+
+// endregion SYSTEM_SET_PARAM
+
+// region SYSTEM_NTFY_PARAM
+
+// - RESET_SETTINGS
+
+struct SystemNotifyParamResetSettings : SystemParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    ResetResult resetResult; // 0x2
+
+    SystemNotifyParamResetSettings(CommandType ct, ResetResult resetResult)
+        : SystemParam(ct, SystemInquiredType::RESET_SETTINGS)
+        , resetResult(resetResult)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemNotifyParamResetSettings)
+            && buf[offsetof(SystemNotifyParamResetSettings, type)] == static_cast<uint8_t>(SystemInquiredType::RESET_SETTINGS)
+            && ResetResult_isValidByteCode(buf[offsetof(SystemNotifyParamResetSettings, resetResult)]);
+    }
+};
+
+// - FACE_TAP_TEST_MODE
+
+struct SystemNotifyParamFaceTapTestMode : SystemParam
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::SYSTEM_NTFY_PARAM,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    FaceTapKey key; // 0x2
+    FaceTapAction action; // 0x3
+
+    SystemNotifyParamFaceTapTestMode(CommandType ct, FaceTapKey key, FaceTapAction action)
+        : SystemParam(ct, SystemInquiredType::FACE_TAP_TEST_MODE)
+        , key(key)
+        , action(action)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return SystemParam::isValid(buf, ct)
+            && buf.size() == sizeof(SystemNotifyParamFaceTapTestMode)
+            && buf[offsetof(SystemNotifyParamFaceTapTestMode, type)] == static_cast<uint8_t>(SystemInquiredType::FACE_TAP_TEST_MODE)
+            && FaceTapKey_isValidByteCode(buf[offsetof(SystemNotifyParamFaceTapTestMode, key)])
+            && FaceTapAction_isValidByteCode(buf[offsetof(SystemNotifyParamFaceTapTestMode, action)]);
+    }
+};
+
+// endregion SYSTEM_NTFY_PARAM
+
+// Not implemented
 
 // endregion SYSTEM_*_PARAM
 
 // region SYSTEM_*_EXT_PARAM
 
-// TODO
+// region SYSTEM_GET_EXT_PARAM
+
+struct SystemGetExtParam : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::SYSTEM_RET_EXT_PARAM;
+
+    SystemInquiredType type; // 0x1
+
+    SystemGetExtParam(SystemInquiredType type)
+        : Payload(Command::SYSTEM_GET_EXT_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(SystemGetExtParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::SYSTEM_GET_EXT_PARAM)
+            && SystemInquiredType_isValidByteCode(buf[offsetof(SystemGetExtParam, type)]);
+    }
+};
+
+// endregion SYSTEM_GET_EXT_PARAM
+
+// Not implemented
 
 // endregion SYSTEM_*_EXT_PARAM
 

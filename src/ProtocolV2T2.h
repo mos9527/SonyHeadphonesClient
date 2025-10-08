@@ -287,7 +287,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(MessageMdrV2SupportFunction, 255);
 
     std::span<const MessageMdrV2SupportFunction> getSupportFunctions() const
     {
@@ -2238,7 +2238,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(SafeListeningData1, 255);
 
     std::span<const SafeListeningData1> getLogDataSpan() const
     {
@@ -2289,7 +2289,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(SafeListeningData2, 255);
 
     std::span<const SafeListeningData2> getLogDataSpan() const
     {
@@ -2374,7 +2374,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(SafeListeningData1, 255);
 
     std::span<const SafeListeningData1> getLogDataSpan() const
     {
@@ -2426,7 +2426,7 @@ private:
     }
 
 public:
-    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(255);
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(SafeListeningData2, 255);
 
     std::span<const SafeListeningData2> getLogDataSpan() const
     {

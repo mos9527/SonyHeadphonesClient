@@ -133,14 +133,6 @@ namespace CommandSerializer
 		return ret;
 	}
 
-	Buffer serializeAutoPauseSetting(bool autoPause) {
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
-		ret.push_back(0x01);
-		ret.push_back(!autoPause);
-		return ret;
-	}
-
 	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
 	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout)
 	{
@@ -158,17 +150,6 @@ namespace CommandSerializer
 		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::ALERT_SET_PARAM));
 		ret.push_back(0x00);
 		ret.push_back(0x07);
-		ret.push_back(0x01);
-		return ret;
-	}
-
-	// from https://github.com/Freeyourgadget/Gadgetbridge/blob/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/sony/headphones/protocol/impl/v3/SonyProtocolImplV3.java
-	Buffer serializeSpeakToChatEnabled(bool enabled)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
-		ret.push_back(0x0c);
-		ret.push_back(!enabled);
 		ret.push_back(0x01);
 		return ret;
 	}
@@ -214,16 +195,6 @@ namespace CommandSerializer
 		ret.push_back(0x00);
 		ret.push_back(preset);
 		ret.push_back(0x00); // data size
-		return ret;
-	}
-	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::SYSTEM_SET_PARAM));
-		ret.push_back(0x03);
-		ret.push_back(0x02);
-		ret.push_back(static_cast<uint8_t>(funcL));
-		ret.push_back(static_cast<uint8_t>(funcR));
 		return ret;
 	}
 }

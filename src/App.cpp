@@ -691,10 +691,10 @@ void App::_drawControls()
 
                 if (_headphones->supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING)
                     && ImGui::TreeNodeEx("Touch Sensor", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    static const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
-                        {TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL, "Playback Control"},
-                        {TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL, "Ambient Sound / Noise Cancelling"},
-                        {TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED, "Not Assigned"}
+                    static const std::map<THMSGV2T1::Preset, const char*> TOUCH_SENSOR_FUNCTION_STR = {
+                        { THMSGV2T1::Preset::PLAYBACK_CONTROL, "Playback Control" },
+                        { THMSGV2T1::Preset::AMBIENT_SOUND_CONTROL_QUICK_ACCESS, "Ambient Sound / Noise Cancelling" },
+                        { THMSGV2T1::Preset::NO_FUNCTION, "Not Assigned "}
                     };
 
                     const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {

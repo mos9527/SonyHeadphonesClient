@@ -302,7 +302,7 @@ public:
     Property<EqualizerConfig> eqConfig;
 
     // [WF only] Touch sensor function
-    Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
+    Property<THMSGV2T1::Preset> touchLeftFunc{}, touchRightFunc{};
 
     // [WH only] [NC/AMB] Button Setting
     Property<THMSGV2T1::Function> ncAmbButtonMode{};
@@ -393,7 +393,7 @@ private:
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage& msg);
     HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage& msg);
     HeadphonesEvent _handleEqualizer(const HeadphonesMessage& msg);
@@ -442,9 +442,9 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
         std::unique_ptr<TPayload> payload = [&]
         {
             if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
-                return createVariableSizePayloadOneArrayAtEnd_CommandType(&size, ct, std::forward<TArgs>(args)...);
+                return createVariableSizePayloadOneArrayAtEnd_CommandType<TPayload>(&size, ct, std::forward<TArgs>(args)...);
             else
-                return createVariableSizePayloadOneArrayAtEnd(&size, std::forward<TArgs>(args)...);
+                return createVariableSizePayloadOneArrayAtEnd<TPayload>(&size, std::forward<TArgs>(args)...);
         }();
 
         const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.get());

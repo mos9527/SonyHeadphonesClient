@@ -566,15 +566,6 @@ enum class ListeningMode
 	Cinema = 0,
 };
 
-enum class TOUCH_SENSOR_FUNCTION : uint8_t
-{
-	PLAYBACK_CONTROL = 0x20,
-	AMBIENT_NC_CONTROL = 0x35,
-	NOT_ASSIGNED = 0xff,
-	
-	NUM_FUNCTIONS = 3
-};
-
 // https://github.com/Plutoberth/SonyHeadphonesClient/commit/66d8e52aad4ffd08aa78e811a23f67a5bad07d9a
 enum class EQ_PRESET_ID: uint8_t {
 	OFF = 0,
