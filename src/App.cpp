@@ -670,6 +670,19 @@ void App::_drawControls()
                     ImGui::TreePop();
                 }
 
+                // Connect to New Device
+                if (!_headphones->pairingMode.current) {
+                    if (ImGui::Button("Connect to New Device")) {
+                        _headphones->pairingMode.desired = true;
+                    }
+                } else {
+                    if (ImGui::Button("Stop")) {
+                        _headphones->pairingMode.desired = false;
+                    }
+                    ImGui::SameLine();
+                    ImGui::Text("Searching %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+                }
+
                 ImGui::EndTabItem();
             }
 

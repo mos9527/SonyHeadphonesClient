@@ -82,6 +82,7 @@ bool Headphones::isChanged()
         && miscVoiceGuidanceVol.isFulfilled()
         && volume.isFulfilled()
         && mpDeviceMac.isFulfilled()
+        && pairingMode.isFulfilled()
         && stcEnabled.isFulfilled()
         && stcLevel.isFulfilled()
         && stcTime.isFulfilled()
@@ -241,7 +242,7 @@ void Headphones::setChanges()
         sendSet<THMSGV2T2::VoiceGuidanceSetParamVolume>(
             THMSGV2T2::VoiceGuidanceInquiredType::VOLUME,
             static_cast<int8_t>(miscVoiceGuidanceVol.desired),
-            /* feedbackSound */ true
+            /*feedbackSound*/ true
         );
 
         this->miscVoiceGuidanceVol.fulfill();
@@ -273,6 +274,16 @@ void Headphones::setChanges()
         // Don't fulfill until PERI_NTFY_EXTENDED_PARAM is received
         // as the device might not have switched yet
         // mpDeviceMac.fulfill();
+    }
+
+    if (!pairingMode.isFulfilled())
+    {
+        sendSet<THMSGV2T2::PeripheralStatusPairingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE,
+            pairingMode.desired ? THMSGV2T2::PeripheralBluetoothMode::INQUIRY_SCAN_MODE : THMSGV2T2::PeripheralBluetoothMode::NORMAL_MODE,
+            /*enableDisableStatus*/ true
+        );
+        pairingMode.fulfill();
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
@@ -528,6 +539,9 @@ void Headphones::requestInit()
 
     if (supportsTable2)
     {
+        /* Pairing Mode*/
+        sendGet<THMSGV2T2::PeripheralGetStatus>(THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
+
         /* Connected Devices */
         sendGet<THMSGV2T2::PeripheralGetParam>(THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
     }
@@ -1095,6 +1109,22 @@ HeadphonesEvent Headphones::_handleVoiceGuidanceParam(const HeadphonesMessage& m
     return HeadphonesEvent::MessageUnhandled;
 }
 
+HeadphonesEvent Headphones::_handlePeripheralStatus(const HeadphonesMessage& msg, CommandType ct)
+{
+    auto payload = msg.as<THMSGV2T2::PeripheralStatus>(ct);
+    switch (payload->inquiredType)
+    {
+    case THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
+    {
+        auto payloadSub = msg.as<THMSGV2T2::PeripheralStatusPairingDeviceManagementCommon>(ct);
+        pairingMode.overwrite(payloadSub->enableDisableStatus
+            && payloadSub->btMode == THMSGV2T2::PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+        return HeadphonesEvent::BluetoothModeUpdate;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
 HeadphonesEvent Headphones::_handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg)
 {
     auto payload = msg.as<THMSGV2T2::PeripheralNotifyExtendedParam>();
@@ -1609,6 +1639,12 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case Command::VOICE_GUIDANCE_NTFY_PARAM:
             result = _handleVoiceGuidanceParam(msg, CT_Notify);
+            break;
+        case Command::PERI_RET_STATUS:
+            result = _handlePeripheralStatus(msg, CT_Ret);
+            break;
+        case Command::PERI_NTFY_STATUS:
+            result = _handlePeripheralStatus(msg, CT_Notify);
             break;
         case Command::PERI_NTFY_EXTENDED_PARAM:
             result = _handlePeripheralNotifyExtendedParam(msg);

@@ -96,6 +96,7 @@ enum class HeadphonesEvent
     EqualizerAvailableUpdate,
     EqualizerParamUpdate,
 
+    BluetoothModeUpdate,
     MultipointDeviceSwitchUpdate,
 
     GeneralSetting1Update,
@@ -258,6 +259,9 @@ public:
 
     uint8_t playbackDevice;
 
+    // Pairing mode
+    Property<bool> pairingMode{};
+
     struct GsCapability
     {
         THMSGV2T1::GsSettingType type;
@@ -387,6 +391,7 @@ private:
     HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handlePeripheralStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);

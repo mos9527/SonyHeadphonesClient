@@ -308,8 +308,6 @@ public:
 
 // region PERI
 
-// region PERI_*_PARAM
-
 enum class PeripheralInquiredType : uint8_t
 {
     PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT = 0x00,
@@ -330,6 +328,120 @@ inline bool PeripheralInquiredType_isValidByteCode(uint8_t type)
     }
     return false;
 }
+
+enum class PeripheralBluetoothMode : uint8_t
+{
+    NORMAL_MODE = 0x00,
+    INQUIRY_SCAN_MODE = 0x01,
+};
+
+inline bool PeripheralBluetoothMode_isValidByteCode(uint8_t mode)
+{
+    switch (static_cast<PeripheralBluetoothMode>(mode))
+    {
+    case PeripheralBluetoothMode::NORMAL_MODE:
+    case PeripheralBluetoothMode::INQUIRY_SCAN_MODE:
+        return true;
+    }
+    return false;
+}
+
+// region PERI_*_STATUS
+
+// region PERI_GET_STATUS
+
+struct PeripheralGetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::PERI_RET_STATUS;
+
+    PeripheralInquiredType inquiredType; // 0x1
+
+    PeripheralGetStatus(PeripheralInquiredType inquiredType)
+        : Payload(Command::PERI_GET_STATUS)
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(PeripheralGetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::PERI_GET_STATUS)
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralGetStatus, inquiredType)]);
+    }
+};
+
+// endregion PERI_GET_STATUS
+
+// region PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
+
+struct PeripheralStatus : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::PERI_RET_STATUS,
+        Command::PERI_SET_STATUS,
+        Command::PERI_NTFY_STATUS
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::PERI_NTFY_STATUS,
+        Command::UNKNOWN
+    };
+
+    PeripheralInquiredType inquiredType; // 0x1
+
+    PeripheralStatus(CommandType ct, PeripheralInquiredType inquiredType)
+        : Payload(COMMAND_IDS[ct])
+        , inquiredType(inquiredType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(PeripheralStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && PeripheralInquiredType_isValidByteCode(buf[offsetof(PeripheralStatus, inquiredType)]);
+    }
+};
+
+// - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+
+struct PeripheralStatusPairingDeviceManagementCommon : PeripheralStatus
+{
+    PeripheralBluetoothMode btMode; // 0x2
+    MessageMdrV2EnableDisable enableDisableStatus; // 0x3
+
+    PeripheralStatusPairingDeviceManagementCommon(
+        CommandType ct, PeripheralInquiredType inquiredType, PeripheralBluetoothMode btMode,
+        MessageMdrV2EnableDisable enableDisableStatus
+    )
+        : PeripheralStatus(ct, inquiredType)
+        , btMode(btMode)
+        , enableDisableStatus(enableDisableStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return PeripheralStatus::isValid(buf, ct)
+            && buf.size() == sizeof(PeripheralStatusPairingDeviceManagementCommon)
+            && isValidInquiredType(static_cast<PeripheralInquiredType>(buf[offsetof(PeripheralStatusPairingDeviceManagementCommon, inquiredType)]))
+            && PeripheralBluetoothMode_isValidByteCode(buf[offsetof(PeripheralStatusPairingDeviceManagementCommon, btMode)])
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(PeripheralStatusPairingDeviceManagementCommon, enableDisableStatus)]);
+    }
+
+    static bool isValidInquiredType(PeripheralInquiredType type)
+    {
+        return type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+            || type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE;
+    }
+};
+
+// endregion PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
+
+// endregion PERI_*_STATUS
+
+// region PERI_*_PARAM
 
 #pragma pack(pop)
 
@@ -1012,8 +1124,7 @@ struct PeripheralNotifyExtendedParam : Payload
     PeripheralNotifyExtendedParam(PeripheralInquiredType inquiredType)
         : Payload(Command::PERI_NTFY_EXTENDED_PARAM)
         , inquiredType(inquiredType)
-    {
-    }
+    {}
 
     static bool isValid(const std::span<const uint8_t>& buf)
     {
@@ -1449,8 +1560,7 @@ struct VoiceGuidanceSetParamVolume : VoiceGuidanceParam
         : VoiceGuidanceParam(ct, inquiredType)
         , volumeValue(volumeValue)
         , feedbackSound(feedbackSound)
-    {
-    }
+    {}
 
     static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
