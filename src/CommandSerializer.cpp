@@ -137,19 +137,9 @@ namespace CommandSerializer
 	{
 		Buffer ret;
 		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::ALERT_SET_PARAM));
-		ret.push_back(0x00);
-		ret.push_back(0x07);
-		ret.push_back(0x01);
-		return ret;
-	}
-
-	Buffer serializeEqualizerSetting(uint8_t preset)
-	{
-		Buffer ret;
-		ret.push_back(static_cast<uint8_t>(THMSGV2T1::Command::EQEBB_SET_PARAM));
-		ret.push_back(0x00);
-		ret.push_back(preset);
-		ret.push_back(0x00); // data size
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::AlertInquiredType::FIXED_MESSAGE));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::AlertMessageType::DISCONNECT_CAUSED_BY_CHANGING_MULTIPOINT));
+		ret.push_back(static_cast<uint8_t>(THMSGV2T1::AlertAction::POSITIVE));
 		return ret;
 	}
 }

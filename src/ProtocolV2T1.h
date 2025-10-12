@@ -2480,6 +2480,986 @@ struct NcAsmParamNcAmbToggle : NcAsmParam
 
 // endregion NC_ASM
 
+// region ALERT
+
+enum class AlertInquiredType : uint8_t
+{
+    // STATUS: [ S ] AlertSetStatusFixedMessage
+    // PARAM:  [ S ] AlertSetParamFixedMessage
+    //         [  N] AlertNotifyParamFixedMessage
+    FIXED_MESSAGE = 0x00,
+    // STATUS: [   ] None
+    // PARAM:  [ S ] AlertSetParamVibrator
+    VIBRATOR_ALERT_NOTIFICATION = 0x01,
+    // STATUS: [   ] None
+    // PARAM:  [ S ] AlertSetParamFixedMessageWithLeftRightSelection
+    //         [  N] AlertNotifyParamFixedMessageWithLeftRightSelection
+    FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION = 0x02,
+    // STATUS: [R  ] AlertRetStatusVoiceAssistant
+    // PARAM:  [   ] None
+    VOICE_ASSISTANT_ALERT_NOTIFICATION = 0x03,
+    // STATUS: [ S ] AlertSetStatusAppBecomesForeground
+    // PARAM:  [ S ] AlertSetParamAppBecomesForeground
+    //         [  N] AlertNotifyParamAppBecomesForeground
+    APP_BECOMES_FOREGROUND = 0x04,
+    // STATUS: [R N] AlertStatusLEAudioAlertNotification
+    //         [ S ] AlertSetStatusLEAudioAlertNotification
+    // PARAM:  [   ] None
+    LE_AUDIO_ALERT_NOTIFICATION = 0x05,
+    // STATUS: [   ] None
+    // PARAM:  [ S ] AlertSetParamFlexibleMessage
+    //         [  N] AlertNotifyParamFlexibleMessage
+    FLEXIBLE_MESSAGE = 0x06,
+};
+
+inline bool AlertInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<AlertInquiredType>(type))
+    {
+    case AlertInquiredType::FIXED_MESSAGE:
+    case AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION:
+    case AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION:
+    case AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION:
+    case AlertInquiredType::APP_BECOMES_FOREGROUND:
+    case AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION:
+    case AlertInquiredType::FLEXIBLE_MESSAGE:
+        return true;
+    }
+    return false;
+}
+
+enum class AlertMessageType : uint8_t
+{
+    DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE = 0x00,
+    DISCONNECT_CAUSED_BY_CHANGING_KEY_ASSIGN = 0x01,
+    NEED_DISCONNECTION_FOR_UPDATING_FIRMWARE = 0x02,
+    GOOGLE_ASSISTANT_IS_NOW_AVAILABLE = 0x03,
+    DUAL_ASSIGN_OF_VOICE_ASSISTANT_IS_UNAVAILABLE = 0x05,
+    DISCONNECT_CAUSED_BY_CHANGING_MULTIPOINT_LDAC_DISABLE = 0x06,
+    DISCONNECT_CAUSED_BY_CHANGING_MULTIPOINT = 0x07,
+    BATTERY_CONSUMPTION_INCREASE_DUE_TO_EQ_AND_UPSCALING = 0x08,
+    CAUTION_FOR_DUAL_ASSIGNMENT_OF_PLAYBACK_CONTROL = 0x09,
+    CAUTION_FOR_DISABLE_TOUCH_SENSOR_PANEL = 0x0A,
+    CAUTION_FOR_DISABLE_TOUCH_SENSOR_PANEL_AND_RECONNECTION = 0x0B,
+    CAUTION_FOR_ABLE_TOUCH_SENSOR_PANEL = 0x0C,
+    CAUTION_FOR_ABLE_TOUCH_SENSOR_PANEL_AND_RECONNECTION = 0x0D,
+    CAUTION_FOR_DISABLE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON = 0x0E,
+    CAUTION_FOR_DISABLE_VOICE_ASSISTANT_ASSIGNABLE_SENSOR = 0x0F,
+    CAUTION_FOR_DISABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_BUTTON = 0x10,
+    CAUTION_FOR_DISABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_SENSOR = 0x11,
+    CAUTION_FOR_ABLE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON = 0x12,
+    CAUTION_FOR_ABLE_VOICE_ASSISTANT_ASSIGNABLE_SENSOR = 0x13,
+    CAUTION_FOR_ABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_BUTTON = 0x14,
+    CAUTION_FOR_ABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_SENSOR = 0x15,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT = 0x16,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_TOUCH_SENSOR_PANEL = 0x17,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_TOUCH_SENSOR_PANEL_MOBILE_OR_SIRI = 0x18,
+    FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD = 0x19,
+    FOREGROUND_CAUTION_WAKE_WORD_IS_AVAILABLE_ONLY_IN_USE_OF_ALEXA = 0x1A,
+    CAUTION_FOR_NOT_CONNECTED_COMPASS_MOUNTING_SIDE_RIGHT = 0x1B,
+    CAUTION_FOR_CONNECTION_MODE_SOUND_QUALITY_PRIOR = 0x1C,
+    CAUTION_FOR_FW_UPDATE_IN_PROGRESS = 0x1D,
+    CAUTION_FOR_DISABLE_SAR_GM1 = 0x1E,
+    CAUTION_FOR_GATT_DISCONNECTION_FOR_SAR = 0x1F,
+    CAUTION_FOR_GATT_TO_ON = 0x20,
+    CANT_ASSIGN_MS_AND_GOOGLE_ASSISTANT_AT_THE_SAME_TIME = 0x21,
+    CAUTION_FOR_GATT_FOR_MS = 0x22,
+    CAUTION_FOR_GATT_FOR_QUICK_ACCESS_SERVICE = 0x23,
+    DISCONNECT_CAUSED_BY_GATT_ON = 0x24,
+    DISCONNECT_AND_CHANGE_KEY_ASSIGN_CAUSED_BY_GATT_ON = 0x25,
+    DISCONNECT_CAUSED_BY_CHANGING_KEY_ASSIGN_AND_CHANGE_GATT_TO_OFF = 0x26,
+    DISCONNECT_CAUSED_BY_CHANGING_VOICE_ASSISTANT_AND_CHANGE_GATT_TO_OFF = 0x27,
+    DISCONNECT_AND_CHANGE_VOICE_ASSISTANT_TO_SIRI_CAUSED_BY_GATT_ON = 0x28,
+    CANT_USE_LDAC_WHILE_GATT_IS_ON = 0x29,
+    CANT_USE_LDAC_IN_SOUND_QUALITY_PRIOR = 0x2A,
+    BATTERY_CONSUMPTION_INCREASE_DUE_TO_SOUND_FUNCTION_1 = 0x2B,
+    DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY = 0x2C,
+    DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC = 0x2D,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_CLASSIC = 0x2E,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE = 0x2F,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_CLASSIC = 0x30,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE = 0x31,
+    BISTO_LCH_ASSIGNMENT_AND_GATT_ACTIVATION_IS_IMPOSSIBLE = 0x32,
+    TEAMS_MUST_BE_ASSIGNED_TO_EITHER_LEFT_OR_RIGHT = 0x33,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_ASSIGNABLE_SETTINGS_VA_QA_CONNECTION_MODE_QA = 0x34,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_ASSIGNABLE_SETTINGS_VA_QA_CONNECTION_MODE_QA = 0x35,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_PDM = 0x36,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_PDM = 0x37,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA = 0x38,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA = 0x39,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA_PDM = 0x40,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA_PDM = 0x41,
+    CANT_USE_LDAC_WHILE_GATT_IS_ON_NO_RIGHT_SIDE_LIMITATION = 0x50,
+    CAUTION_FOR_CHANGING_VOICE_ASSISTANT_TO_SIRI = 0x51,
+    CAUTION_FOR_GATT_TO_OFF_CAUSED_BY_CHANGING_VOICE_ASSISTANT = 0x52,
+    CAUTION_FOR_LDAC_990 = 0x53,
+    CAUTION_FOR_GATT_TO_ON_FOR_QA_EASY_SETTING = 0x54,
+    CAUTION_FOR_FW_UPDATE_IN_PROGRESS_FOR_QA_EASY_SETTING = 0x55,
+    DISCONNECT_CAUSED_BY_GATT_ON_FOR_EASY_SETTING = 0x56,
+    DISCONNECT_AND_CHANGE_KEY_ASSIGN_CAUSED_BY_GATT_ON_FOR_QA_EASY_SETTING = 0x57,
+    DISCONNECT_AND_CHANGE_VOICE_ASSISTANT_TO_SIRI_CAUSED_BY_GATT_ON_FOR_QA_EASY_SETTING = 0x58,
+    CAUTION_FOR_AUTO_VOLUME_OPTIMIZER_TO_ON = 0x59,
+    CAUTION_FOR_AUTO_VOLUME_TO_ON_SVC_IS_ON = 0x5A,
+    CAUTION_FOR_AUTO_VOLUME_TO_ON_SVC_VOLUME_LIMITATION_IS_ON = 0x5B,
+    CAUTION_FOR_EXCLUSIVE_EQ_CHANGING_AND_BGM_MODE = 0x5C,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_OTHER_VOICE_ASSISTANT = 0x5D,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_PLAYBACK_CONTROL_L = 0x5E,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_PLAYBACK_CONTROL_R = 0x5F,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_NC_ASM_QUICK_ACCESS_L = 0x60,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_NC_ASM_QUICK_ACCESS_R = 0x61,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_VOICE_ASSISTANT_TO_NOT_SVA = 0x62,
+    CAUTION_FOR_CAN_USE_GOOGLE_HOT_WORD = 0x63,
+    CAUTION_FOR_CALLING_WHEN_SVA_TRAINING = 0x64,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_ENABLE_REPEAT_TAP = 0x65,
+    CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_DISABLE_REPEAT_TAP = 0x66,
+    CAUTION_FOR_ENABLING_2_DEVICES_CONNECTION_WITH_LDAC = 0x70,
+    CAUTION_FOR_CHANGING_TO_QUALITY_PRIOR_CONNECTION_MODE_WITH_2_DEVICES_CONNECTION = 0x71,
+    CAUTION_FOR_CONNECTED_2_DEVICES_IN_BACKGROUND_WITH_LDAC = 0x72,
+    WARNING_FOR_CHANGING_TO_LDAC_990_WITH_2_DEVICES_CONNECTION = 0x73,
+    DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_SOUND_QUALITY_PRIOR_FROM_LE_AUDIO = 0x74,
+    DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_CONNECTION_QUALITY_PRIOR_FROM_LE_AUDIO = 0x75,
+    DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_SOUND_QUALITY_PRIOR = 0x76,
+    DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_CONNECTION_QUALITY_PRIOR = 0x77,
+    CAUTION_FOR_TV_SOUND_BOOSTER_SETTING_ON = 0x80,
+    CAUTION_FOR_TV_SOUND_BOOSTER_SETTING_OFF = 0x81,
+    CAUTION_FOR_SETTINGS_STAMINA_FROM_ON_TO_OFF = 0x82,
+    CAUTION_FOR_SETTINGS_STAMINA_FROM_ON_TO_OFF_NO_LIGHTING_MODE = 0x83,
+    CAUTION_FOR_SETTINGS_STAMINA_FROM_OFF_TO_ON = 0x84,
+    CAUTION_FOR_SETTINGS_STAMINA_FROM_OFF_TO_ON_NO_LIGHTING_MODE = 0x85,
+    CAUTION_FOR_SETTINGS_SOUND_EFFECT_ON_STAMINA_ON = 0x86,
+    CAUTION_FOR_SETTINGS_SOUND_EFFECT_ON_STAMINA_ON_NO_LIGHTING = 0x87,
+    CAUTION_FOR_SETTINGS_LIGHTING_MODE_ON_WHEN_STAMINA_ON = 0x88,
+    CAUTION_FOR_DIABLING_BGM_MODE = 0x90,
+    CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_NOT_CHARGING = 0x91,
+    CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN = 0x92,
+    TURN_KEY_EQ_SUCCESS = 0x93,
+};
+
+constexpr std::bitset<256> AlertMessageType_values = []
+{
+    using E = AlertMessageType;
+    std::bitset<256> bs;
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_KEY_ASSIGN));
+    bs.set(static_cast<size_t>(E::NEED_DISCONNECTION_FOR_UPDATING_FIRMWARE));
+    bs.set(static_cast<size_t>(E::GOOGLE_ASSISTANT_IS_NOW_AVAILABLE));
+    bs.set(static_cast<size_t>(E::DUAL_ASSIGN_OF_VOICE_ASSISTANT_IS_UNAVAILABLE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_MULTIPOINT_LDAC_DISABLE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_MULTIPOINT));
+    bs.set(static_cast<size_t>(E::BATTERY_CONSUMPTION_INCREASE_DUE_TO_EQ_AND_UPSCALING));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DUAL_ASSIGNMENT_OF_PLAYBACK_CONTROL));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_TOUCH_SENSOR_PANEL));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_TOUCH_SENSOR_PANEL_AND_RECONNECTION));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ABLE_TOUCH_SENSOR_PANEL));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ABLE_TOUCH_SENSOR_PANEL_AND_RECONNECTION));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_VOICE_ASSISTANT_ASSIGNABLE_SENSOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_SENSOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ABLE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ABLE_VOICE_ASSISTANT_ASSIGNABLE_SENSOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ABLE_VOICE_ASSISTANT_AND_RECONNECTION_ASSIGNABLE_SENSOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_TOUCH_SENSOR_PANEL));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_TOUCH_SENSOR_PANEL_MOBILE_OR_SIRI));
+    bs.set(static_cast<size_t>(E::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD));
+    bs.set(static_cast<size_t>(E::FOREGROUND_CAUTION_WAKE_WORD_IS_AVAILABLE_ONLY_IN_USE_OF_ALEXA));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_NOT_CONNECTED_COMPASS_MOUNTING_SIDE_RIGHT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CONNECTION_MODE_SOUND_QUALITY_PRIOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FW_UPDATE_IN_PROGRESS));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DISABLE_SAR_GM1));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_GATT_DISCONNECTION_FOR_SAR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_GATT_TO_ON));
+    bs.set(static_cast<size_t>(E::CANT_ASSIGN_MS_AND_GOOGLE_ASSISTANT_AT_THE_SAME_TIME));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_GATT_FOR_MS));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_GATT_FOR_QUICK_ACCESS_SERVICE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_GATT_ON));
+    bs.set(static_cast<size_t>(E::DISCONNECT_AND_CHANGE_KEY_ASSIGN_CAUSED_BY_GATT_ON));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_KEY_ASSIGN_AND_CHANGE_GATT_TO_OFF));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_VOICE_ASSISTANT_AND_CHANGE_GATT_TO_OFF));
+    bs.set(static_cast<size_t>(E::DISCONNECT_AND_CHANGE_VOICE_ASSISTANT_TO_SIRI_CAUSED_BY_GATT_ON));
+    bs.set(static_cast<size_t>(E::CANT_USE_LDAC_WHILE_GATT_IS_ON));
+    bs.set(static_cast<size_t>(E::CANT_USE_LDAC_IN_SOUND_QUALITY_PRIOR));
+    bs.set(static_cast<size_t>(E::BATTERY_CONSUMPTION_INCREASE_DUE_TO_SOUND_FUNCTION_1));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_CLASSIC));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_CLASSIC));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE));
+    bs.set(static_cast<size_t>(E::BISTO_LCH_ASSIGNMENT_AND_GATT_ACTIVATION_IS_IMPOSSIBLE));
+    bs.set(static_cast<size_t>(E::TEAMS_MUST_BE_ASSIGNED_TO_EITHER_LEFT_OR_RIGHT));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_ASSIGNABLE_SETTINGS_VA_QA_CONNECTION_MODE_QA));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_ASSIGNABLE_SETTINGS_VA_QA_CONNECTION_MODE_QA));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_PDM));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_PDM));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA_PDM));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_VAS_CONNECTION_MODE_QA_PDM));
+    bs.set(static_cast<size_t>(E::CANT_USE_LDAC_WHILE_GATT_IS_ON_NO_RIGHT_SIDE_LIMITATION));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGING_VOICE_ASSISTANT_TO_SIRI));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_GATT_TO_OFF_CAUSED_BY_CHANGING_VOICE_ASSISTANT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_LDAC_990));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_GATT_TO_ON_FOR_QA_EASY_SETTING));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FW_UPDATE_IN_PROGRESS_FOR_QA_EASY_SETTING));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_GATT_ON_FOR_EASY_SETTING));
+    bs.set(static_cast<size_t>(E::DISCONNECT_AND_CHANGE_KEY_ASSIGN_CAUSED_BY_GATT_ON_FOR_QA_EASY_SETTING));
+    bs.set(static_cast<size_t>(E::DISCONNECT_AND_CHANGE_VOICE_ASSISTANT_TO_SIRI_CAUSED_BY_GATT_ON_FOR_QA_EASY_SETTING));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_AUTO_VOLUME_OPTIMIZER_TO_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_AUTO_VOLUME_TO_ON_SVC_IS_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_AUTO_VOLUME_TO_ON_SVC_VOLUME_LIMITATION_IS_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_EXCLUSIVE_EQ_CHANGING_AND_BGM_MODE));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_OTHER_VOICE_ASSISTANT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_PLAYBACK_CONTROL_L));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_PLAYBACK_CONTROL_R));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_NC_ASM_QUICK_ACCESS_L));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_NC_ASM_QUICK_ACCESS_R));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_VOICE_ASSISTANT_TO_NOT_SVA));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CAN_USE_GOOGLE_HOT_WORD));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CALLING_WHEN_SVA_TRAINING));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_ENABLE_REPEAT_TAP));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_DISABLE_REPEAT_TAP));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_ENABLING_2_DEVICES_CONNECTION_WITH_LDAC));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGING_TO_QUALITY_PRIOR_CONNECTION_MODE_WITH_2_DEVICES_CONNECTION));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CONNECTED_2_DEVICES_IN_BACKGROUND_WITH_LDAC));
+    bs.set(static_cast<size_t>(E::WARNING_FOR_CHANGING_TO_LDAC_990_WITH_2_DEVICES_CONNECTION));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_SOUND_QUALITY_PRIOR_FROM_LE_AUDIO));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_CONNECTION_QUALITY_PRIOR_FROM_LE_AUDIO));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_SOUND_QUALITY_PRIOR));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CLASSIC_AUDIO_CONNECTION_QUALITY_PRIOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_TV_SOUND_BOOSTER_SETTING_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_TV_SOUND_BOOSTER_SETTING_OFF));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_STAMINA_FROM_ON_TO_OFF));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_STAMINA_FROM_ON_TO_OFF_NO_LIGHTING_MODE));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_STAMINA_FROM_OFF_TO_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_STAMINA_FROM_OFF_TO_ON_NO_LIGHTING_MODE));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_SOUND_EFFECT_ON_STAMINA_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_SOUND_EFFECT_ON_STAMINA_ON_NO_LIGHTING));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_SETTINGS_LIGHTING_MODE_ON_WHEN_STAMINA_ON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_DIABLING_BGM_MODE));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_NOT_CHARGING));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN));
+    bs.set(static_cast<size_t>(E::TURN_KEY_EQ_SUCCESS));
+    return bs;
+}();
+
+inline bool AlertMessageType_isValidByteCode(uint8_t id)
+{
+    return AlertMessageType_values[id];
+}
+
+enum class AlertMessageTypeWithLeftRightSelection : uint8_t
+{
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON = 0x00,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_SENSOR = 0x01,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_BUTTON = 0x02,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_SENSOR = 0x03,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON = 0x04,
+    CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR = 0x05,
+};
+
+constexpr std::bitset<256> AlertMessageTypeWithLeftRightSelection_values = []
+{
+    using E = AlertMessageTypeWithLeftRightSelection;
+    std::bitset<256> bs;
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_SENSOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_SENSOR));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR));
+    return bs;
+}();
+
+inline bool AlertMessageTypeWithLeftRightSelection_isValidByteCode(uint8_t id)
+{
+    return AlertMessageTypeWithLeftRightSelection_values[id];
+}
+
+enum class AlertFlexibleMessageType : uint8_t
+{
+    BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS = 0x00,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT = 0x01,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT = 0x02,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT = 0x03,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT = 0x04,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION = 0x05,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION = 0x06,
+    BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION = 0x07,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE = 0x08,
+    CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ = 0x09,
+    CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF = 0x0A,
+    BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE = 0x0B,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION = 0x0C,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION = 0x0D,
+    DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY = 0x0E,
+    DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC = 0x0F,
+    DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE = 0x10,
+    DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION = 0x11,
+};
+
+constexpr std::bitset<256> AlertFlexibleMessageType_values = []
+{
+    using E = AlertFlexibleMessageType;
+    std::bitset<256> bs;
+    bs.set(static_cast<size_t>(E::BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION));
+    bs.set(static_cast<size_t>(E::BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ));
+    bs.set(static_cast<size_t>(E::CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF));
+    bs.set(static_cast<size_t>(E::BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE));
+    bs.set(static_cast<size_t>(E::DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION));
+    return bs;
+}();
+
+inline bool AlertFlexibleMessageType_isValidByteCode(uint8_t id)
+{
+    return AlertFlexibleMessageType_values[id];
+}
+
+// region ALERT_*_CAPABILITY
+
+// Not implemented
+
+// endregion ALERT_*_CAPABILITY
+
+// region ALERT_*_STATUS
+
+// region ALERT_GET_STATUS
+
+struct AlertGetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::ALERT_RET_STATUS;
+
+    AlertInquiredType type; // 0x1
+
+    AlertGetStatus(AlertInquiredType type)
+        : Payload(Command::ALERT_GET_STATUS)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(AlertGetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::ALERT_GET_STATUS)
+            && isValidInquiredType(static_cast<AlertInquiredType>(buf[offsetof(AlertGetStatus, type)]));
+    }
+
+    static bool isValidInquiredType(AlertInquiredType type)
+    {
+        return type == AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION
+            || type == AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION;
+    }
+};
+
+// endregion ALERT_GET_STATUS
+
+// region ALERT_RET_STATUS, ALERT_SET_STATUS, ALERT_NOTIFY_STATUS
+
+struct AlertStatus : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::ALERT_RET_STATUS,
+        Command::ALERT_SET_STATUS,
+        Command::ALERT_NTFY_STATUS,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::ALERT_NTFY_STATUS,
+        Command::UNKNOWN,
+    };
+
+    AlertInquiredType type; // 0x1
+
+    AlertStatus(CommandType ct, AlertInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(AlertStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && AlertInquiredType_isValidByteCode(buf[offsetof(AlertStatus, type)]);
+    }
+};
+
+// - LE_AUDIO_ALERT_NOTIFICATION
+
+struct AlertStatusLEAudioAlertNotification : AlertStatus
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::ALERT_RET_STATUS,
+        Command::UNKNOWN,
+        Command::ALERT_NTFY_STATUS,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    MessageMdrV2EnableDisable leAudioAlertStatus; // 0x2
+
+    AlertStatusLEAudioAlertNotification(CommandType ct, MessageMdrV2EnableDisable leAudioAlertStatus)
+        : AlertStatus(ct, AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
+        , leAudioAlertStatus(leAudioAlertStatus)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AlertStatus::isValid(buf, ct)
+            && buf.size() == sizeof(AlertStatusLEAudioAlertNotification)
+            && buf[offsetof(AlertStatusLEAudioAlertNotification, type)] == static_cast<uint8_t>(AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AlertStatusLEAudioAlertNotification, leAudioAlertStatus)]);
+    }
+};
+
+// endregion ALERT_RET_STATUS, ALERT_SET_STATUS, ALERT_NOTIFY_STATUS
+
+// region ALERT_RET_STATUS
+
+// - VOICE_ASSISTANT_ALERT_NOTIFICATION
+
+enum class VoiceAssistantType : uint8_t
+{
+    GOOGLE_ASSISTANT = 0x00,
+    AMAZON_ALEXA = 0x01,
+    TENCENT_XIAOWEI = 0x02,
+};
+
+inline bool VoiceAssistantType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<VoiceAssistantType>(type))
+    {
+    case VoiceAssistantType::GOOGLE_ASSISTANT:
+    case VoiceAssistantType::AMAZON_ALEXA:
+    case VoiceAssistantType::TENCENT_XIAOWEI:
+        return true;
+    }
+    return false;
+}
+
+struct AlertRetStatusVoiceAssistant : AlertStatus
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::ALERT_RET_STATUS,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    uint8_t numberOfVoiceAssistant; // 0x2
+    VoiceAssistantType voiceAssistants[]; // 0x3-
+
+private:
+    AlertRetStatusVoiceAssistant(CommandType ct, const std::span<const VoiceAssistantType>& voiceAssistants)
+        : AlertStatus(ct, AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION)
+        , numberOfVoiceAssistant(voiceAssistants.size())
+    {
+        std::memcpy(this->voiceAssistants, voiceAssistants.data(), sizeof(VoiceAssistantType) * numberOfVoiceAssistant);
+    }
+
+public:
+    VARIABLE_SIZE_PAYLOAD_ONE_ARRAY_AT_END(VoiceAssistantType, 255);
+
+    std::span<const VoiceAssistantType> getVoiceAssistants() const
+    {
+        return { voiceAssistants, numberOfVoiceAssistant };
+    }
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AlertStatus::isValid(buf, ct)
+            && buf.size() >= sizeof(AlertRetStatusVoiceAssistant)
+            && buf[offsetof(AlertRetStatusVoiceAssistant, type)] == static_cast<uint8_t>(AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION)
+            && buf.size() == sizeof(AlertRetStatusVoiceAssistant) + sizeof(VoiceAssistantType) * buf[offsetof(AlertRetStatusVoiceAssistant, numberOfVoiceAssistant)];
+        // Not validating every voice assistant for simplicity
+    }
+};
+
+// endregion ALERT_RET_STATUS
+
+// region ALERT_SET_STATUS
+
+// - FIXED_MESSAGE
+
+struct AlertSetStatusFixedMessage : AlertStatus
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::ALERT_SET_STATUS,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    MessageMdrV2EnableDisable status; // 0x2
+
+    AlertSetStatusFixedMessage(MessageMdrV2EnableDisable status)
+        : AlertStatus(CT_Set, AlertInquiredType::FIXED_MESSAGE)
+        , status(status)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertStatus::isValid(buf, CT_Set)
+            && buf.size() == sizeof(AlertSetStatusFixedMessage)
+            && buf[offsetof(AlertSetStatusFixedMessage, type)] == static_cast<uint8_t>(AlertInquiredType::FIXED_MESSAGE)
+            && buf[offsetof(AlertSetStatusFixedMessage, status)] == static_cast<uint8_t>(MessageMdrV2EnableDisable::ENABLE);
+    }
+};
+
+// - APP_BECOMES_FOREGROUND
+
+struct AlertSetStatusAppBecomesForeground : AlertStatus
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::ALERT_SET_STATUS,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    MessageMdrV2EnableDisable status; // 0x2
+
+    AlertSetStatusAppBecomesForeground(MessageMdrV2EnableDisable status)
+        : AlertStatus(CT_Set, AlertInquiredType::APP_BECOMES_FOREGROUND)
+        , status(status)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertStatus::isValid(buf, CT_Set)
+            && buf.size() == sizeof(AlertSetStatusAppBecomesForeground)
+            && buf[offsetof(AlertSetStatusAppBecomesForeground, type)] == static_cast<uint8_t>(AlertInquiredType::APP_BECOMES_FOREGROUND)
+            && buf[offsetof(AlertSetStatusAppBecomesForeground, status)] == static_cast<uint8_t>(MessageMdrV2EnableDisable::ENABLE);
+    }
+};
+
+// - LE_AUDIO_ALERT_NOTIFICATION
+
+enum class ConfirmationType : uint8_t
+{
+    CONFIRMED = 0x00,
+    CONFIRMED_DONT_SHOW_AGAIN = 0x01,
+};
+
+inline bool ConfirmationType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<ConfirmationType>(type))
+    {
+    case ConfirmationType::CONFIRMED:
+    case ConfirmationType::CONFIRMED_DONT_SHOW_AGAIN:
+        return true;
+    }
+    return false;
+}
+
+struct AlertSetStatusLEAudioAlertNotification : AlertStatus
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::ALERT_SET_STATUS,
+        Command::UNKNOWN,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::ALERT_NTFY_STATUS,
+        Command::UNKNOWN,
+    };
+
+    MessageMdrV2EnableDisable leAudioAlertStatus; // 0x2
+    ConfirmationType confirmationType; // 0x3
+
+    AlertSetStatusLEAudioAlertNotification(
+        MessageMdrV2EnableDisable leAudioAlertStatus, ConfirmationType confirmationType
+    )
+        : AlertStatus(CT_Set, AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
+        , leAudioAlertStatus(leAudioAlertStatus)
+        , confirmationType(confirmationType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertStatus::isValid(buf, CT_Set)
+            && buf.size() == sizeof(AlertSetStatusLEAudioAlertNotification)
+            && buf[offsetof(AlertSetStatusLEAudioAlertNotification, type)] == static_cast<uint8_t>(AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AlertSetStatusLEAudioAlertNotification, leAudioAlertStatus)])
+            && ConfirmationType_isValidByteCode(buf[offsetof(AlertSetStatusLEAudioAlertNotification, confirmationType)]);
+    }
+};
+
+// endregion ALERT_SET_STATUS
+
+// endregion ALERT_*_STATUS
+
+// region ALERT_*_PARAM
+
+// region ALERT_SET_PARAM
+
+struct AlertSetParam : Payload
+{
+    AlertInquiredType type; // 0x1
+
+    AlertSetParam(AlertInquiredType type)
+        : Payload(Command::ALERT_SET_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(AlertSetParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::ALERT_SET_PARAM)
+            && AlertInquiredType_isValidByteCode(buf[offsetof(AlertSetParam, type)]);
+    }
+};
+
+// - FIXED_MESSAGE
+
+enum class AlertAction : uint8_t
+{
+    NEGATIVE = 0x00,
+    POSITIVE = 0x01,
+};
+
+inline bool AlertAction_isValidByteCode(uint8_t action)
+{
+    switch (static_cast<AlertAction>(action))
+    {
+    case AlertAction::NEGATIVE:
+    case AlertAction::POSITIVE:
+        return true;
+    }
+    return false;
+}
+
+struct AlertSetParamFixedMessage : AlertSetParam
+{
+    AlertMessageType messageType; // 0x2
+    AlertAction actionType; // 0x3
+
+    AlertSetParamFixedMessage(AlertMessageType messageType, AlertAction actionType)
+        : AlertSetParam(AlertInquiredType::FIXED_MESSAGE)
+        , messageType(messageType)
+        , actionType(actionType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertSetParam::isValid(buf)
+            && buf.size() == sizeof(AlertSetParamFixedMessage)
+            && buf[offsetof(AlertSetParamFixedMessage, type)] == static_cast<uint8_t>(AlertInquiredType::FIXED_MESSAGE)
+            && AlertMessageType_isValidByteCode(buf[offsetof(AlertSetParamFixedMessage, messageType)])
+            && AlertAction_isValidByteCode(buf[offsetof(AlertSetParamFixedMessage, actionType)]);
+    }
+};
+
+// - VIBRATOR_ALERT_NOTIFICATION
+
+enum class VibrationType : uint8_t
+{
+    NO_PATTERN_SPECIFIED = 0x00,
+};
+
+inline bool VibrationType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<VibrationType>(type))
+    {
+    case VibrationType::NO_PATTERN_SPECIFIED:
+        return true;
+    }
+    return false;
+}
+
+struct AlertSetParamVibrator : AlertSetParam
+{
+    VibrationType vibrationType; // 0x2
+
+    AlertSetParamVibrator(VibrationType vibrationType)
+        : AlertSetParam(AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION)
+        , vibrationType(vibrationType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertSetParam::isValid(buf)
+            && buf.size() == sizeof(AlertSetParamVibrator)
+            && buf[offsetof(AlertSetParamVibrator, type)] == static_cast<uint8_t>(AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION)
+            && buf[offsetof(AlertSetParamVibrator, vibrationType)] == static_cast<uint8_t>(VibrationType::NO_PATTERN_SPECIFIED);
+    }
+};
+
+// - FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
+
+enum class AlertLeftRightAction : uint8_t
+{
+    NEGATIVE = 0x00,
+    LEFT = 0x01,
+    RIGHT = 0x02,
+};
+
+inline bool AlertLeftRightAction_isValidByteCode(uint8_t action)
+{
+    switch (static_cast<AlertLeftRightAction>(action))
+    {
+    case AlertLeftRightAction::NEGATIVE:
+    case AlertLeftRightAction::LEFT:
+    case AlertLeftRightAction::RIGHT:
+        return true;
+    }
+    return false;
+}
+
+struct AlertSetParamFixedMessageWithLeftRightSelection : AlertSetParam
+{
+    AlertMessageTypeWithLeftRightSelection messageType; // 0x2
+    AlertLeftRightAction actionType; // 0x3
+
+    AlertSetParamFixedMessageWithLeftRightSelection(AlertMessageTypeWithLeftRightSelection messageType, AlertLeftRightAction actionType)
+        : AlertSetParam(AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION)
+        , messageType(messageType)
+        , actionType(actionType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertSetParam::isValid(buf)
+            && buf.size() == sizeof(AlertSetParamFixedMessageWithLeftRightSelection)
+            && buf[offsetof(AlertSetParamFixedMessageWithLeftRightSelection, type)] == static_cast<uint8_t>(AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION)
+            && AlertMessageTypeWithLeftRightSelection_isValidByteCode(buf[offsetof(AlertSetParamFixedMessageWithLeftRightSelection, messageType)])
+            && AlertLeftRightAction_isValidByteCode(buf[offsetof(AlertSetParamFixedMessageWithLeftRightSelection, actionType)]);
+    }
+};
+
+// - APP_BECOMES_FOREGROUND
+
+struct AlertSetParamAppBecomesForeground : AlertSetParam
+{
+    AlertMessageType messageType; // 0x2
+    AlertAction actionType; // 0x3
+
+    AlertSetParamAppBecomesForeground(AlertMessageType messageType, AlertAction actionType)
+        : AlertSetParam(AlertInquiredType::APP_BECOMES_FOREGROUND)
+        , messageType(messageType)
+        , actionType(actionType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertSetParam::isValid(buf)
+            && buf.size() == sizeof(AlertSetParamAppBecomesForeground)
+            && buf[offsetof(AlertSetParamAppBecomesForeground, type)] == static_cast<uint8_t>(AlertInquiredType::APP_BECOMES_FOREGROUND)
+            && AlertMessageType_isValidByteCode(buf[offsetof(AlertSetParamAppBecomesForeground, messageType)])
+            && AlertAction_isValidByteCode(buf[offsetof(AlertSetParamAppBecomesForeground, actionType)]);
+    }
+};
+
+// - FLEXIBLE_MESSAGE
+
+struct AlertSetParamFlexibleMessage : AlertSetParam
+{
+    AlertFlexibleMessageType messageType; // 0x2
+    AlertAction actionType; // 0x3
+
+    AlertSetParamFlexibleMessage(AlertFlexibleMessageType messageType, AlertAction actionType)
+        : AlertSetParam(AlertInquiredType::FLEXIBLE_MESSAGE)
+        , messageType(messageType)
+        , actionType(actionType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertSetParam::isValid(buf)
+            && buf.size() == sizeof(AlertSetParamFlexibleMessage)
+            && buf[offsetof(AlertSetParamFlexibleMessage, type)] == static_cast<uint8_t>(AlertInquiredType::FLEXIBLE_MESSAGE)
+            && AlertFlexibleMessageType_isValidByteCode(buf[offsetof(AlertSetParamFlexibleMessage, messageType)])
+            && AlertAction_isValidByteCode(buf[offsetof(AlertSetParamFlexibleMessage, actionType)]);
+    }
+};
+
+// endregion ALERT_SET_PARAM
+
+// region ALERT_NTFY_PARAM
+
+struct AlertNotifyParam : Payload
+{
+    AlertInquiredType type; // 0x1
+
+    AlertNotifyParam(AlertInquiredType type)
+        : Payload(Command::ALERT_NTFY_PARAM)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(AlertNotifyParam)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::ALERT_NTFY_PARAM)
+            && AlertInquiredType_isValidByteCode(buf[offsetof(AlertNotifyParam, type)]);
+    }
+};
+
+// - FIXED_MESSAGE
+
+enum class AlertActionType : uint8_t
+{
+    CONFIRMATION_ONLY = 0x00,
+    POSITIVE_NEGATIVE = 0x01,
+    POSITIVE_CONFIRMATION_WITH_REPLY = 0x02,
+};
+
+inline bool AlertActionType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<AlertActionType>(type))
+    {
+    case AlertActionType::CONFIRMATION_ONLY:
+    case AlertActionType::POSITIVE_NEGATIVE:
+    case AlertActionType::POSITIVE_CONFIRMATION_WITH_REPLY:
+        return true;
+    }
+    return false;
+}
+
+struct AlertNotifyParamFixedMessage : AlertNotifyParam
+{
+    AlertMessageType messageType; // 0x2
+    AlertActionType actionType; // 0x3
+
+    AlertNotifyParamFixedMessage(AlertMessageType messageType, AlertActionType actionType)
+        : AlertNotifyParam(AlertInquiredType::FIXED_MESSAGE)
+        , messageType(messageType)
+        , actionType(actionType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertNotifyParam::isValid(buf)
+            && buf.size() == sizeof(AlertNotifyParamFixedMessage)
+            && buf[offsetof(AlertNotifyParamFixedMessage, type)] == static_cast<uint8_t>(AlertInquiredType::FIXED_MESSAGE)
+            && AlertMessageType_isValidByteCode(buf[offsetof(AlertNotifyParamFixedMessage, messageType)])
+            && AlertActionType_isValidByteCode(buf[offsetof(AlertNotifyParamFixedMessage, actionType)]);
+    }
+};
+
+// - FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
+
+enum class DefaultSelectedLeftRightValue : uint8_t
+{
+    LEFT = 0x00,
+    RIGHT = 0x01,
+};
+
+inline bool DefaultSelectedLeftRightValue_isValidByteCode(uint8_t value)
+{
+    switch (static_cast<DefaultSelectedLeftRightValue>(value))
+    {
+    case DefaultSelectedLeftRightValue::LEFT:
+    case DefaultSelectedLeftRightValue::RIGHT:
+        return true;
+    }
+    return false;
+}
+
+struct AlertNotifyParamFixedMessageWithLeftRightSelection : AlertNotifyParam
+{
+    AlertMessageTypeWithLeftRightSelection messageType; // 0x2
+    DefaultSelectedLeftRightValue defaultSelectedValue; // 0x3
+
+    AlertNotifyParamFixedMessageWithLeftRightSelection(
+        AlertMessageTypeWithLeftRightSelection messageType, DefaultSelectedLeftRightValue defaultSelectedValue
+    )
+        : AlertNotifyParam(AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION)
+        , messageType(messageType)
+        , defaultSelectedValue(defaultSelectedValue)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertNotifyParam::isValid(buf)
+            && buf.size() == sizeof(AlertNotifyParamFixedMessageWithLeftRightSelection)
+            && buf[offsetof(AlertNotifyParamFixedMessageWithLeftRightSelection, type)] == static_cast<uint8_t>(AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION)
+            && AlertMessageTypeWithLeftRightSelection_isValidByteCode(buf[offsetof(AlertNotifyParamFixedMessageWithLeftRightSelection, messageType)])
+            && DefaultSelectedLeftRightValue_isValidByteCode(buf[offsetof(AlertNotifyParamFixedMessageWithLeftRightSelection, defaultSelectedValue)]);
+    }
+};
+
+// - APP_BECOMES_FOREGROUND
+
+struct AlertNotifyParamAppBecomesForeground : AlertNotifyParam
+{
+    AlertMessageType messageType; // 0x2
+    AlertActionType actionType; // 0x3
+
+    AlertNotifyParamAppBecomesForeground(AlertMessageType messageType, AlertActionType actionType)
+        : AlertNotifyParam(AlertInquiredType::APP_BECOMES_FOREGROUND)
+        , messageType(messageType)
+        , actionType(actionType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AlertNotifyParam::isValid(buf)
+            && buf.size() == sizeof(AlertNotifyParamAppBecomesForeground)
+            && buf[offsetof(AlertNotifyParamAppBecomesForeground, type)] == static_cast<uint8_t>(AlertInquiredType::APP_BECOMES_FOREGROUND)
+            && AlertMessageType_isValidByteCode(buf[offsetof(AlertNotifyParamAppBecomesForeground, messageType)])
+            && AlertActionType_isValidByteCode(buf[offsetof(AlertNotifyParamAppBecomesForeground, actionType)]);
+    }
+};
+
+// - FLEXIBLE_MESSAGE
+
+struct AlertNotifyParamFlexibleMessage : AlertNotifyParam
+{
+    // Not implemented, variable size, needs serialization
+};
+
+// endregion ALERT_NTFY_PARAM
+
+// endregion ALERT_*_PARAM
+
+// endregion ALERT
+
 // region PLAY
 
 enum class PlayInquiredType : uint8_t
