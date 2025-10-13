@@ -632,7 +632,10 @@ void App::_drawControls()
                         const std::string& deviceName = notConnected ? NOT_CONNECTED
                             : !device.name.empty() ? device.name : device.mac;
 
-                        ImGui::SetNextItemAllowOverlap();
+                        if (!notConnected) {
+                            ImGui::SetNextItemAllowOverlap();
+                        }
+
                         bool selectableSelected;
                         if (connectedIndex > 0)
                             selectableSelected = ImGui::Selectable((std::to_string(connectedIndex) + ". " + deviceName).c_str(), selected);
@@ -642,20 +645,48 @@ void App::_drawControls()
                             clicked = DeviceEntryClickAction::DeviceEntry;
                         }
 
-                        /*ImGui::SameLine();
-                        if (ImGui::SmallButton("Disconnect") && clicked == DeviceEntryClickAction::None) {
-                            clicked = DeviceEntryClickAction::Disconnect;
+                        if (!notConnected && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+                            ImGui::OpenPopup("DeviceOptions");
                         }
 
-                        ImGui::SameLine();
-                        if (ImGui::SmallButton("Unpair") && clicked == DeviceEntryClickAction::None) {
-                            clicked = DeviceEntryClickAction::Unpair;
-                        }
+                        if (!notConnected) {
+                            int buttonWidth = ImGui::CalcTextSize("...").x + 2 * ImGui::GetStyle().FramePadding.x;
+                            ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - buttonWidth);
+                            if (ImGui::SmallButton("...")) {
+                                ImGui::OpenPopup("DeviceOptions");
+                            }
 
-                        ImGui::SameLine();
-                        if (ImGui::SmallButton("Fix") && clicked == DeviceEntryClickAction::None) {
-                            clicked = DeviceEntryClickAction::Fix;
-                        }*/ // TODO Implement
+                            if (ImGui::BeginPopup("DeviceOptions")) {
+                                if (connectedIndex != 0) {
+                                    if (ImGui::MenuItem("Disconnect") && clicked == DeviceEntryClickAction::None) {
+                                        clicked = DeviceEntryClickAction::Disconnect;
+                                    }
+                                }
+
+                                bool selfDevice = false; // TODO later
+                                if (!selfDevice) {
+                                    if (ImGui::MenuItem("Unpair") && clicked == DeviceEntryClickAction::None) {
+                                        clicked = DeviceEntryClickAction::Unpair;
+                                    }
+                                }
+
+                                // Note: App mentions this as "Fix" which is not a suitable translation from Japanese word "固定".
+                                //       "Pin" is more appropriate in this context.
+                                /*if (connectedIndex != 0) {
+                                    if (selected) {
+                                        if (ImGui::MenuItem("Pin playback to this device") && clicked == DeviceEntryClickAction::None) {
+                                            clicked = DeviceEntryClickAction::Fix;
+                                        }
+                                    } else {
+                                        if (ImGui::MenuItem("Switch playback device and pin") && clicked == DeviceEntryClickAction::None) {
+                                            clicked = DeviceEntryClickAction::Fix;
+                                        }
+                                    }
+                                }*/ // TODO Implement
+
+                                ImGui::EndPopup();
+                            }
+                        }
 
                         ImGui::EndDisabled();
                         ImGui::PopID();
@@ -670,6 +701,18 @@ void App::_drawControls()
                                     _headphones->mpDeviceMac.desired = device.mac;
                                     break;
                                 }
+                                case DeviceEntryClickAction::Disconnect: {
+                                    _headphones->disconnectDevice(device.mac);
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Unpair: {
+                                    _headphones->unpairDevice(device.mac);
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Fix: {
+                                    // TODO
+                                    break;
+                                }
                             }
                         }
                         ImGui::TreePop();
@@ -680,7 +723,11 @@ void App::_drawControls()
                             DeviceEntryClickAction clicked = drawDevice(device, 0, false);
                             switch (clicked) {
                                 case DeviceEntryClickAction::DeviceEntry: {
-                                    // TODO Attempt connection
+                                    _headphones->connectDevice(device.mac);
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Unpair: {
+                                    _headphones->unpairDevice(device.mac);
                                     break;
                                 }
                             }

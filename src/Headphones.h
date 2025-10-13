@@ -370,6 +370,9 @@ public:
     void requestPlaybackControl(THMSGV2T1::PlaybackControl control);
     void respondToFixedMessageAlert(THMSGV2T1::AlertMessageType messageType, THMSGV2T1::AlertAction action);
     void requestPowerOff();
+    void disconnectDevice(const std::string& mac);
+    void connectDevice(const std::string& mac);
+    void unpairDevice(const std::string& mac);
 
     void recvAsync();
     BluetoothWrapper& getConn() { return _conn; }

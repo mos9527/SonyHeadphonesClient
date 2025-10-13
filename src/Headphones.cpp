@@ -760,6 +760,69 @@ void Headphones::requestPowerOff()
     }
 }
 
+void Headphones::disconnectDevice(const std::string& mac)
+{
+    if (supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamParingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
+            THMSGV2T2::ConnectivityActionType::DISCONNECT,
+            mac
+        );
+    }
+    else if (supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+        || supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE))
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamParingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE,
+            THMSGV2T2::ConnectivityActionType::DISCONNECT,
+            mac
+        );
+    }
+}
+
+void Headphones::connectDevice(const std::string& mac)
+{
+    if (supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamParingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
+            THMSGV2T2::ConnectivityActionType::CONNECT,
+            mac
+        );
+    }
+    else if (supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+        || supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE))
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamParingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE,
+            THMSGV2T2::ConnectivityActionType::CONNECT,
+            mac
+        );
+    }
+}
+
+void Headphones::unpairDevice(const std::string& mac)
+{
+    if (supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamParingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
+            THMSGV2T2::ConnectivityActionType::UNPAIR,
+            mac
+        );
+    }
+    else if (supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+        || supports(MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE))
+    {
+        sendSet<THMSGV2T2::PeripheralSetExtendedParamParingDeviceManagementCommon>(
+            THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE,
+            THMSGV2T2::ConnectivityActionType::UNPAIR,
+            mac
+        );
+    }
+}
+
 HeadphonesEvent Headphones::_handleProtocolInfo(const HeadphonesMessage& msg)
 {
     hasInit = true;
@@ -1209,6 +1272,7 @@ HeadphonesEvent Headphones::_handlePeripheralParam(const HeadphonesMessage& msg,
         }
 
         playbackDevice = payloadSub.playbackrightDevice;
+        mpDeviceMac.overwrite(connectedDevices[playbackDevice].mac);
 
         return HeadphonesEvent::ConnectedDeviceUpdate;
     }
@@ -1231,6 +1295,7 @@ HeadphonesEvent Headphones::_handlePeripheralParam(const HeadphonesMessage& msg,
         }
 
         playbackDevice = payloadSub.playbackrightDevice;
+        mpDeviceMac.overwrite(connectedDevices[playbackDevice].mac);
 
         return HeadphonesEvent::ConnectedDeviceUpdate;
     }
