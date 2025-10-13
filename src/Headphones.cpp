@@ -552,7 +552,7 @@ void Headphones::requestInit()
     if (supports(MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
     {
         /* Receive alerts for certain operations like toggling multipoint */
-        sendSet<THMSGV2T1::AlertSetStatusFixedMessage>(true);
+        sendSetAndForget<THMSGV2T1::AlertSetStatusFixedMessage>(true);
     }
 
     /* Playback Metadata */

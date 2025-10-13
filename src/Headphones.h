@@ -360,10 +360,16 @@ public:
     void sendSet(TArgs&&... args);
 
     template <typename TPayload, typename... TArgs>
-    void sendMdrCommandWithType(CommandType ct, TArgs&&... args);
+    void sendGetAndForget(TArgs&&... args);
+
+    template <typename TPayload, typename... TArgs>
+    void sendSetAndForget(TArgs&&... args);
+
+    template <typename TPayload, typename... TArgs>
+    void sendMdrCommandWithType(CommandType ct, bool wait, TArgs&&... args);
 
     template <typename TPayload>
-    void sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span);
+    void sendMdrCommandWithTypeHelper(CommandType ct, bool wait, const BufferSpan& span);
 
     void requestInit();
     void requestSync();
@@ -451,7 +457,7 @@ void Headphones::sendGet(TArgs&&... args)
     {
         static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
     }
-    sendMdrCommandWithType<TPayload>(CT_Get, std::forward<TArgs>(args)...);
+    sendMdrCommandWithType<TPayload>(CT_Get, true, std::forward<TArgs>(args)...);
 }
 
 template <typename TPayload, typename... TArgs>
@@ -461,11 +467,31 @@ void Headphones::sendSet(TArgs&&... args)
     {
         static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
     }
-    sendMdrCommandWithType<TPayload>(CT_Set, std::forward<TArgs>(args)...);
+    sendMdrCommandWithType<TPayload>(CT_Set, true, std::forward<TArgs>(args)...);
 }
 
 template <typename TPayload, typename... TArgs>
-void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
+void Headphones::sendGetAndForget(TArgs&&... args)
+{
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+    {
+        static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
+    }
+    sendMdrCommandWithType<TPayload>(CT_Get, false, std::forward<TArgs>(args)...);
+}
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendSetAndForget(TArgs&&... args)
+{
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+    {
+        static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
+    }
+    sendMdrCommandWithType<TPayload>(CT_Set, false, std::forward<TArgs>(args)...);
+}
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendMdrCommandWithType(CommandType ct, bool wait, TArgs&&... args)
 {
     if constexpr (TPayload::VARIABLE_SIZE_ONE_ARRAY_AT_END)
     {
@@ -479,7 +505,7 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
         }();
 
         const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.get());
-        sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + size));
+        sendMdrCommandWithTypeHelper<TPayload>(ct, wait, BufferSpan(data, data + size));
     }
     else
     {
@@ -496,18 +522,18 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
             std::vector<uint8_t> buf;
             buf.reserve(payload.countBytes());
             payload.serialize(buf);
-            sendMdrCommandWithTypeHelper<TPayload>(ct, buf);
+            sendMdrCommandWithTypeHelper<TPayload>(ct, wait, buf);
         }
         else
         {
             const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
-            sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
+            sendMdrCommandWithTypeHelper<TPayload>(ct, wait, BufferSpan(data, data + sizeof(TPayload)));
         }
     }
 }
 
 template <typename TPayload>
-void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span)
+void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, bool wait, const BufferSpan& span)
 {
     DATA_TYPE type;
     if constexpr (std::is_base_of_v<THMSGV2T1::Payload, TPayload>)
@@ -536,16 +562,19 @@ void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& 
 
     _conn.sendCommand(span.data(), span.size(), type);
 
-    /*uint8_t responseCommandId;
-    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
-        responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_IDS[ct]);
-    else
-        responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_ID);
-    if (responseCommandId != 0xFF)
+    if (wait)
     {
-        _waitForResponseDataType = type;
-        _waitForResponseCommandId = responseCommandId;
-        waitForResponse();
-    }*/
-    waitForAck();
+        /*uint8_t responseCommandId;
+        if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+            responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_IDS[ct]);
+        else
+            responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_ID);
+        if (responseCommandId != 0xFF)
+        {
+            _waitForResponseDataType = type;
+            _waitForResponseCommandId = responseCommandId;
+            waitForResponse();
+        }*/
+        waitForAck();
+    }
 }
