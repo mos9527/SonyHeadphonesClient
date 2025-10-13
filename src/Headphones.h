@@ -108,6 +108,8 @@ enum class HeadphonesEvent
 
     ConnectedDeviceUpdate,
 
+    AlertFixedMessage,
+
     InteractionUpdate,
 };
 
@@ -317,6 +319,23 @@ public:
     bool supportsTable2{};
     DeviceCapabilities deviceCapabilities{};
 
+    // Alerts
+    struct ModalAlert
+    {
+        std::string id;
+        std::string title;
+        std::string message;
+        std::function<void(bool)> onClose;
+        bool open = true; // one-shot
+    };
+    std::vector<ModalAlert> modalAlerts;
+    uint32_t nextModalAlertId = 0;
+    /*THMSGV2T1::AlertMessageType _requestFixedMessageMessageType = static_cast<THMSGV2T1::AlertMessageType>(0xFF);
+    THMSGV2T1::AlertAction _requestFixedMessageAlertAction = static_cast<THMSGV2T1::AlertAction>(0xFF);*/
+
+    void pushModalAlert(const std::string& title, const std::string& message, std::function<void(bool)> callback);
+    void postModalAlertHandling();
+
     bool supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const;
     bool supports(MessageMdrV2FunctionType_Table2 functionTypeTable2) const;
     bool supportsNc() const;
@@ -347,6 +366,7 @@ public:
     void requestInit();
     void requestSync();
     void requestPlaybackControl(THMSGV2T1::PlaybackControl control);
+    void respondToFixedMessageAlert(THMSGV2T1::AlertMessageType messageType, THMSGV2T1::AlertAction action);
     void requestPowerOff();
 
     void recvAsync();
@@ -402,6 +422,7 @@ private:
     HeadphonesEvent _handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleEqEbbStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleEqEbbParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handlyAlertNotifyParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage& msg);
 
     HeadphonesEvent _handleMessage(const HeadphonesMessage& msg);

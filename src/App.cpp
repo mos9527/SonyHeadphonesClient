@@ -67,7 +67,8 @@ bool App::OnUpdate()
                     // poll() will raise an exception and properly let the owner
                     // destruct ourselves.
                 });
-            } else if (_requestPlaybackControl != THMSGV2T1::PlaybackControl::KEY_OFF)
+            }
+            else if (_requestPlaybackControl != THMSGV2T1::PlaybackControl::KEY_OFF)
             {
                 auto control = _requestPlaybackControl;
                 _headphones->_requestFuture.get();
@@ -76,6 +77,19 @@ bool App::OnUpdate()
                 });
                 _requestPlaybackControl = THMSGV2T1::PlaybackControl::KEY_OFF;
             }
+            /*else if (_headphones->_requestFixedMessageMessageType != static_cast<THMSGV2T1::AlertMessageType>(0xFF)
+                && _headphones->_requestFixedMessageAlertAction != static_cast<THMSGV2T1::AlertAction>(0xFF))
+            {
+                auto messageType = _headphones->_requestFixedMessageMessageType;
+                auto action = _headphones->_requestFixedMessageAlertAction;
+                _headphones->_requestFuture.get();
+                _headphones->_requestFuture.setFromAsync([this, messageType, action]() -> void
+                {
+                    _headphones->respondToFixedMessageAlert(messageType, action);
+                });
+                _headphones->_requestFixedMessageMessageType = static_cast<THMSGV2T1::AlertMessageType>(0xFF);
+                _headphones->_requestFixedMessageAlertAction = static_cast<THMSGV2T1::AlertAction>(0xFF);
+            }*/
         }
     }
     else {
@@ -106,6 +120,7 @@ bool App::OnFrame()
             if (_headphones)
             {                
                 _drawControls();
+                _drawModalAlerts();
                 _setHeadphoneSettings();
             }
             else {
@@ -709,7 +724,7 @@ void App::_drawControls()
                                 subjectString = gsc.info.subject.c_str();
                             }
                         }
-                        ImGui::BeginDisabled(gsc.info.subject.empty() || gsc.info.subject == "MULTIPOINT_SETTING");
+                        ImGui::BeginDisabled(gsc.info.subject.empty());
                         ImGui::Checkbox(subjectString, &gsv.desired);
                         if (!gsc.info.summary.empty() && ImGui::IsItemHovered()) {
                             ImGui::BeginTooltip();
@@ -890,6 +905,53 @@ void App::_drawControls()
             ImGui::EndTabBar();
         }
     }
+}
+
+void App::_drawModalAlerts()
+{
+    auto& modalAlerts = _headphones->modalAlerts;
+
+    if (modalAlerts.empty())
+        return;
+
+    Headphones::ModalAlert& dlg = modalAlerts.back();
+
+    if (dlg.open)
+        ImGui::OpenPopup((dlg.title + dlg.id).c_str());
+
+    // Always center this window when appearing
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+
+    if (ImGui::BeginPopupModal((dlg.title + dlg.id).c_str(), nullptr,
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings))
+    {
+        if (!dlg.message.empty())
+        {
+            ImGui::PushTextWrapPos(ImGui::GetMainViewport()->Size.x * 0.7f);
+            ImGui::TextUnformatted(dlg.message.c_str());
+            ImGui::PopTextWrapPos();
+        }
+
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            dlg.onClose(true);
+            dlg.open = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            dlg.onClose(false);
+            dlg.open = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
+    _headphones->postModalAlertHandling();
 }
 
 void App::_drawConfig()

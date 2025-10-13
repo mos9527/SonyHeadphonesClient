@@ -10,6 +10,22 @@ Headphones::Headphones(BluetoothWrapper& conn) : _conn(conn), _recvFuture("recei
     recvAsync();
 }
 
+void Headphones::pushModalAlert(const std::string& title, const std::string& message, std::function<void(bool)> callback)
+{
+    ModalAlert dialog;
+    dialog.id = "##dlg_" + std::to_string(nextModalAlertId++);
+    dialog.title = title;
+    dialog.message = message;
+    dialog.onClose = std::move(callback);
+    modalAlerts.push_back(std::move(dialog));
+}
+
+void Headphones::postModalAlertHandling()
+{
+    // Remove closed dialogs
+    std::erase_if(modalAlerts, [](const ModalAlert& d) { return !d.open; });
+}
+
 bool Headphones::supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const
 {
     return supportFunctions1[(size_t)functionTypeTable1];
@@ -705,6 +721,11 @@ void Headphones::requestPlaybackControl(THMSGV2T1::PlaybackControl control)
         /*status*/ true,
         control
     );
+}
+
+void Headphones::respondToFixedMessageAlert(THMSGV2T1::AlertMessageType messageType, THMSGV2T1::AlertAction action)
+{
+    sendSet<THMSGV2T1::AlertSetParamFixedMessage>(messageType, action);
 }
 
 void Headphones::requestPowerOff()
@@ -1485,6 +1506,56 @@ HeadphonesEvent Headphones::_handleEqEbbParam(const HeadphonesMessage& msg, Comm
     return HeadphonesEvent::MessageUnhandled;
 }
 
+struct FixedMessageAlertDefinition
+{
+    const char* title;
+    const char* message;
+};
+
+constexpr std::array<FixedMessageAlertDefinition, 256> kFixedMessageAlertDefinitions = []{
+    using enum THMSGV2T1::AlertMessageType;
+    std::array<FixedMessageAlertDefinition, 256> arr{};
+    arr[static_cast<size_t>(DISCONNECT_CAUSED_BY_CHANGING_MULTIPOINT)] = {
+        "Reconnection is necessary",
+        "The audio device are temporarily disconnected and will be reconnected again automatically."
+    };
+    // Add more definitions as needed
+    return arr;
+}();
+
+HeadphonesEvent Headphones::_handlyAlertNotifyParam(const HeadphonesMessage& msg)
+{
+    auto payload = msg.as<THMSGV2T1::AlertNotifyParam>();
+    switch (payload->type)
+    {
+    case THMSGV2T1::AlertInquiredType::FIXED_MESSAGE:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AlertNotifyParamFixedMessage>();
+            if (payloadSub->actionType != THMSGV2T1::AlertActionType::POSITIVE_NEGATIVE)
+            {
+                throw std::runtime_error("Unsupported alert action type");
+            }
+            const FixedMessageAlertDefinition& def = kFixedMessageAlertDefinitions[static_cast<size_t>(payloadSub->messageType)];
+            pushModalAlert(
+                def.title ? def.title : THMSGV2T1::AlertMessageType_toString(payloadSub->messageType),
+                def.message ? def.message : "",
+                [this, messageType = payloadSub->messageType](bool result) -> void
+                {
+                    /*_requestFixedMessageMessageType = messageType;
+                    _requestFixedMessageAlertAction = result ? THMSGV2T1::AlertAction::POSITIVE : THMSGV2T1::AlertAction::NEGATIVE;*/ // TODO Figure out async
+                    respondToFixedMessageAlert(messageType, result ? THMSGV2T1::AlertAction::POSITIVE : THMSGV2T1::AlertAction::NEGATIVE);
+                }
+            );
+            return HeadphonesEvent::AlertFixedMessage;
+        }
+        break;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
 HeadphonesEvent Headphones::_handleMiscDataRet(const HeadphonesMessage& msg)
 {
     // NOTE: Plain text data in either JSON or button names(?)
@@ -1607,6 +1678,9 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case Command::EQEBB_NTFY_PARAM:
             result = _handleEqEbbParam(msg, CT_Notify);
+            break;
+        case Command::ALERT_NTFY_PARAM:
+            result = _handlyAlertNotifyParam(msg);
             break;
         case Command::LOG_NTFY_PARAM:
             result = _handleMiscDataRet(msg);

@@ -81,3 +81,5 @@ std::unique_ptr<TPayload> createVariableSizePayloadOneArrayAtEnd_CommandType(
     size_t extra = *outSize - sizeof(TPayload);
     return std::unique_ptr<TPayload>(new(extra) TPayload(ct, elements, std::forward<TArgs>(args)...));
 }
+
+#define ENUMNAME(name) names[static_cast<uint8_t>(name)] = #name

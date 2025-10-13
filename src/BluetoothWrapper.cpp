@@ -104,9 +104,34 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	if (!msg.verify())
 		throw RecoverableException("Invalid checksum!", true);
 #ifdef _DEBUG
-	std::cout << "[recv] ";
-	for (char c : msg.messageBytes) std::cout << std::hex << (int)c << ' ';
-	std::cout << std::endl;
+	auto shouldPrint = [](const CommandSerializer::CommandMessage& msg) {
+		// Filter out ACKs
+		if (msg.getDataType() == DATA_TYPE::ACK)
+			return false;
+		return true;
+	};
+	if (shouldPrint(msg)) {
+		std::cout << "[recv ";
+		DATA_TYPE dt = msg.getDataType();
+		bool isMdr = (dt == DATA_TYPE::DATA_MDR_NO2 || dt == DATA_TYPE::DATA_MDR) && msg.verify();
+		if (isMdr) {
+			if (dt == DATA_TYPE::DATA_MDR)
+				std::cout << "T1-" << THMSGV2T1::Command_toString(static_cast<THMSGV2T1::Command>(msg[0]));
+			else
+				std::cout << "T2-" << THMSGV2T2::Command_toString(static_cast<THMSGV2T2::Command>(msg[0]));
+		}
+		std::cout << "] ";
+		if (isMdr) {
+			for (uint8_t b : msg) {
+				std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(b) << ' ';
+			}
+		} else {
+			for (uint8_t b : msg.messageBytes) {
+				std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(b) << ' ';
+			}
+		}
+		std::cout << std::dec << std::endl; // restore decimal
+	}
 #endif // _DEBUG
 
 	recvCV.notify_one();

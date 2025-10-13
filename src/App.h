@@ -62,6 +62,7 @@ public:
 private:   
     void _drawDeviceDiscovery();
     void _drawControls();
+    void _drawModalAlerts();
     void _drawConfig();
     void _setHeadphoneSettings();
     void _handleHeadphoneInteraction(std::string const& event);

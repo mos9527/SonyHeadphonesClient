@@ -32,8 +32,6 @@ namespace CommandSerializer
 	*/
 	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber);
 
-	Buffer serializeMpToggle2(bool enabled);
-
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{
