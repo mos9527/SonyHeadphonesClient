@@ -75,6 +75,24 @@ bool Headphones::supportsSafeListening() const
         || supports(F2::SAFE_LISTENING_TWS_1) || supports(F2::SAFE_LISTENING_TWS_2);
 }
 
+bool Headphones::supportsPairingDeviceManagement() const
+{
+    using F2 = MessageMdrV2FunctionType_Table2;
+    return supports(F2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
+        || supports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+        || supports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE);
+}
+
+bool Headphones::supportsMultipoint() const
+{
+    using F1 = MessageMdrV2FunctionType_Table1;
+    static const std::string kMultipointSetting = "MULTIPOINT_SETTING";
+    return supports(F1::GENERAL_SETTING_1) && gs1c.current.info.subject == kMultipointSetting
+        || supports(F1::GENERAL_SETTING_2) && gs2c.current.info.subject == kMultipointSetting
+        || supports(F1::GENERAL_SETTING_3) && gs3c.current.info.subject == kMultipointSetting
+        || supports(F1::GENERAL_SETTING_4) && gs4c.current.info.subject == kMultipointSetting;
+}
+
 bool Headphones::supportsAutoPowerOff() const
 {
     using F1 = MessageMdrV2FunctionType_Table1;
@@ -531,6 +549,12 @@ void Headphones::requestInit()
         }
     }
 
+    if (supports(MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
+    {
+        /* Receive alerts for certain operations like toggling multipoint */
+        sendSet<THMSGV2T1::AlertSetStatusFixedMessage>(true);
+    }
+
     /* Playback Metadata */
     sendGet<THMSGV2T1::GetPlayParam>(THMSGV2T1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT);
 
@@ -553,7 +577,7 @@ void Headphones::requestInit()
         sendGet<THMSGV2T1::NcAsmGetParam>(THMSGV2T1::NcAsmInquiredType::ASM_SEAMLESS);
     }
 
-    if (supportsTable2)
+    if (supportsTable2 && supportsPairingDeviceManagement())
     {
         /* Pairing Mode*/
         sendGet<THMSGV2T2::PeripheralGetStatus>(THMSGV2T2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);

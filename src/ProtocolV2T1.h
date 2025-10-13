@@ -3142,14 +3142,14 @@ struct AlertSetStatusFixedMessage : AlertStatus
 
     MessageMdrV2EnableDisable status; // 0x2
 
-    AlertSetStatusFixedMessage(MessageMdrV2EnableDisable status)
-        : AlertStatus(CT_Set, AlertInquiredType::FIXED_MESSAGE)
+    AlertSetStatusFixedMessage(CommandType ct, MessageMdrV2EnableDisable status)
+        : AlertStatus(ct, AlertInquiredType::FIXED_MESSAGE)
         , status(status)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return AlertStatus::isValid(buf, CT_Set)
+        return AlertStatus::isValid(buf, ct)
             && buf.size() == sizeof(AlertSetStatusFixedMessage)
             && buf[offsetof(AlertSetStatusFixedMessage, type)] == static_cast<uint8_t>(AlertInquiredType::FIXED_MESSAGE)
             && buf[offsetof(AlertSetStatusFixedMessage, status)] == static_cast<uint8_t>(MessageMdrV2EnableDisable::ENABLE);
@@ -3175,14 +3175,14 @@ struct AlertSetStatusAppBecomesForeground : AlertStatus
 
     MessageMdrV2EnableDisable status; // 0x2
 
-    AlertSetStatusAppBecomesForeground(MessageMdrV2EnableDisable status)
-        : AlertStatus(CT_Set, AlertInquiredType::APP_BECOMES_FOREGROUND)
+    AlertSetStatusAppBecomesForeground(CommandType ct, MessageMdrV2EnableDisable status)
+        : AlertStatus(ct, AlertInquiredType::APP_BECOMES_FOREGROUND)
         , status(status)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return AlertStatus::isValid(buf, CT_Set)
+        return AlertStatus::isValid(buf, ct)
             && buf.size() == sizeof(AlertSetStatusAppBecomesForeground)
             && buf[offsetof(AlertSetStatusAppBecomesForeground, type)] == static_cast<uint8_t>(AlertInquiredType::APP_BECOMES_FOREGROUND)
             && buf[offsetof(AlertSetStatusAppBecomesForeground, status)] == static_cast<uint8_t>(MessageMdrV2EnableDisable::ENABLE);
@@ -3227,16 +3227,16 @@ struct AlertSetStatusLEAudioAlertNotification : AlertStatus
     ConfirmationType confirmationType; // 0x3
 
     AlertSetStatusLEAudioAlertNotification(
-        MessageMdrV2EnableDisable leAudioAlertStatus, ConfirmationType confirmationType
+        CommandType ct, MessageMdrV2EnableDisable leAudioAlertStatus, ConfirmationType confirmationType
     )
-        : AlertStatus(CT_Set, AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
+        : AlertStatus(ct, AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
         , leAudioAlertStatus(leAudioAlertStatus)
         , confirmationType(confirmationType)
     {}
 
-    static bool isValid(const std::span<const uint8_t>& buf)
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
     {
-        return AlertStatus::isValid(buf, CT_Set)
+        return AlertStatus::isValid(buf, ct)
             && buf.size() == sizeof(AlertSetStatusLEAudioAlertNotification)
             && buf[offsetof(AlertSetStatusLEAudioAlertNotification, type)] == static_cast<uint8_t>(AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION)
             && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AlertSetStatusLEAudioAlertNotification, leAudioAlertStatus)])

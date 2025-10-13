@@ -519,7 +519,9 @@ void App::_drawControls()
             if (ImGui::BeginTabItem("Equalizer")) {
                 bool eqAvailable = (_headphones->deviceCapabilities & DC_EqualizerAvailableCommand) == 0 || _headphones->eqAvailable.current;
                 if (!eqAvailable && _headphones->supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION)) {
+                    ImGui::PushTextWrapPos(0.0f);
                     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please set Listening Mode to Standard to use Equalizer.");
+                    ImGui::PopTextWrapPos();
                 }
                 ImGui::BeginDisabled(!eqAvailable);
                 static const std::map<THMSGV2T1::EqPresetId, const char*> EQ_PRESET_NAMES = {
@@ -610,92 +612,98 @@ void App::_drawControls()
                 ImGui::EndTabItem();
             }
 
-            if (ImGui::BeginTabItem("Devices")) {
-                enum class DeviceEntryClickAction {
-                    None,
-                    DeviceEntry, // Switch playback for connected, attempt connection for paired
-                    Disconnect,
-                    Unpair,
-                    Fix,
-                };
-                auto drawDevice = [](const BluetoothDevice& device, uint8_t connectedIndex, bool selected) -> DeviceEntryClickAction {
-                    DeviceEntryClickAction clicked = DeviceEntryClickAction::None;
-                    ImGui::PushID(&device);
+            if (_headphones->supportsMultipoint() && ImGui::BeginTabItem("Devices")) {
+                if (_headphones->supportsPairingDeviceManagement()) {
+                    enum class DeviceEntryClickAction {
+                        None,
+                        DeviceEntry, // Switch playback for connected, attempt connection for paired
+                        Disconnect,
+                        Unpair,
+                        Fix,
+                    };
+                    auto drawDevice = [](const BluetoothDevice& device, uint8_t connectedIndex, bool selected) -> DeviceEntryClickAction {
+                        DeviceEntryClickAction clicked = DeviceEntryClickAction::None;
+                        ImGui::PushID(&device);
 
-                    bool notConnected = device.mac.empty();
-                    ImGui::BeginDisabled(notConnected);
+                        bool notConnected = device.mac.empty();
+                        ImGui::BeginDisabled(notConnected);
 
-                    static const std::string NOT_CONNECTED = "Not connected";
-                    const std::string& deviceName = notConnected ? NOT_CONNECTED
-                        : !device.name.empty() ? device.name : device.mac;
+                        static const std::string NOT_CONNECTED = "Not connected";
+                        const std::string& deviceName = notConnected ? NOT_CONNECTED
+                            : !device.name.empty() ? device.name : device.mac;
 
-                    ImGui::SetNextItemAllowOverlap();
-                    bool selectableSelected;
-                    if (connectedIndex > 0)
-                        selectableSelected = ImGui::Selectable((std::to_string(connectedIndex) + ". " + deviceName).c_str(), selected);
-                    else
-                        selectableSelected = ImGui::Selectable(deviceName.c_str(), selected);
-                    if (selectableSelected && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::DeviceEntry;
-                    }
+                        ImGui::SetNextItemAllowOverlap();
+                        bool selectableSelected;
+                        if (connectedIndex > 0)
+                            selectableSelected = ImGui::Selectable((std::to_string(connectedIndex) + ". " + deviceName).c_str(), selected);
+                        else
+                            selectableSelected = ImGui::Selectable(deviceName.c_str(), selected);
+                        if (selectableSelected && clicked == DeviceEntryClickAction::None) {
+                            clicked = DeviceEntryClickAction::DeviceEntry;
+                        }
 
-                    /*ImGui::SameLine();
-                    if (ImGui::SmallButton("Disconnect") && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::Disconnect;
-                    }
+                        /*ImGui::SameLine();
+                        if (ImGui::SmallButton("Disconnect") && clicked == DeviceEntryClickAction::None) {
+                            clicked = DeviceEntryClickAction::Disconnect;
+                        }
 
-                    ImGui::SameLine();
-                    if (ImGui::SmallButton("Unpair") && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::Unpair;
-                    }
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton("Unpair") && clicked == DeviceEntryClickAction::None) {
+                            clicked = DeviceEntryClickAction::Unpair;
+                        }
 
-                    ImGui::SameLine();
-                    if (ImGui::SmallButton("Fix") && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::Fix;
-                    }*/ // TODO Implement
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton("Fix") && clicked == DeviceEntryClickAction::None) {
+                            clicked = DeviceEntryClickAction::Fix;
+                        }*/ // TODO Implement
 
-                    ImGui::EndDisabled();
-                    ImGui::PopID();
-                    return clicked;
-                };
+                        ImGui::EndDisabled();
+                        ImGui::PopID();
+                        return clicked;
+                    };
 
-                if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    for (const auto& [connectedIndex, device] : _headphones->connectedDevices) {
-                        DeviceEntryClickAction clicked = drawDevice(device, connectedIndex, connectedIndex == _headphones->playbackDevice);
-                        switch (clicked) {
-                            case DeviceEntryClickAction::DeviceEntry: {
-                                _headphones->mpDeviceMac.desired = device.mac;
-                                break;
+                    if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen)) {
+                        for (const auto& [connectedIndex, device] : _headphones->connectedDevices) {
+                            DeviceEntryClickAction clicked = drawDevice(device, connectedIndex, connectedIndex == _headphones->playbackDevice);
+                            switch (clicked) {
+                                case DeviceEntryClickAction::DeviceEntry: {
+                                    _headphones->mpDeviceMac.desired = device.mac;
+                                    break;
+                                }
                             }
                         }
+                        ImGui::TreePop();
                     }
-                    ImGui::TreePop();
-                }
 
-                if (!_headphones->pairedDevices.empty() && ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    for (const auto& [mac, device] : _headphones->pairedDevices) {
-                        DeviceEntryClickAction clicked = drawDevice(device, 0, false);
-                        switch (clicked) {
-                            case DeviceEntryClickAction::DeviceEntry: {
-                                // TODO Attempt connection
-                                break;
+                    if (!_headphones->pairedDevices.empty() && ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen)) {
+                        for (const auto& [mac, device] : _headphones->pairedDevices) {
+                            DeviceEntryClickAction clicked = drawDevice(device, 0, false);
+                            switch (clicked) {
+                                case DeviceEntryClickAction::DeviceEntry: {
+                                    // TODO Attempt connection
+                                    break;
+                                }
                             }
                         }
+                        ImGui::TreePop();
                     }
-                    ImGui::TreePop();
-                }
 
-                // Connect to New Device
-                if (!_headphones->pairingMode.current) {
-                    if (ImGui::Button("Connect to New Device")) {
-                        _headphones->pairingMode.desired = true;
+                    // Connect to New Device
+                    if (!_headphones->pairingMode.current) {
+                        if (ImGui::Button("Connect to New Device")) {
+                            _headphones->pairingMode.desired = true;
+                        }
+                    } else {
+                        if (ImGui::Button("Stop")) {
+                            _headphones->pairingMode.desired = false;
+                        }
+                        ImGui::SameLine();
+                        ImGui::Text("Searching %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
                     }
                 } else {
-                    if (ImGui::Button("Stop")) {
-                        _headphones->pairingMode.desired = false;
-                    }
-                    ImGui::SameLine();
-                    ImGui::Text("Searching %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+                    ImGui::PushTextWrapPos(0.0f);
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please enable \"Connect to 2 devices simultaneously\" in System settings to manage devices.");
+                    ImGui::PopTextWrapPos();
                 }
 
                 ImGui::EndTabItem();

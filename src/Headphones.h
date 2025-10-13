@@ -341,6 +341,8 @@ public:
     bool supportsNc() const;
     bool supportsAsm() const;
     bool supportsSafeListening() const;
+    bool supportsPairingDeviceManagement() const;
+    bool supportsMultipoint() const;
     bool supportsAutoPowerOff() const;
 
     bool isChanged();
