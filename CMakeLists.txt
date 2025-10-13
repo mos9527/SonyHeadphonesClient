@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD 23)
 
 find_package(Threads REQUIRED)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # https://github.com/llvm/llvm-project/issues/45267
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-invalid-offsetof>)
+endif()
+
 if (WIN32)
     add_executable(SonyHeadphonesClient WIN32)
 elseif(UNIX AND NOT APPLE)
