@@ -614,16 +614,35 @@ void App::_drawControls()
                 }
 
                 if (ImGui::TreeNodeEx("Bluetooth Connection Quality", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    if (ImGui::RadioButton("Priority on Sound Quality", _headphones->connectionQuality.desired == THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR)) {
-                        _headphones->connectionQuality.desired = THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR;
+                    if (ImGui::RadioButton("Priority on Sound Quality", _headphones->connectionMode.desired == THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR)) {
+                        _headphones->connectionMode.desired = THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR;
                     }
-                    if (ImGui::RadioButton("Priority on Connection Quality", _headphones->connectionQuality.desired == THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR)) {
-                        _headphones->connectionQuality.desired = THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR;
+                    if (ImGui::RadioButton("Priority on Connection Quality", _headphones->connectionMode.desired == THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR)) {
+                        _headphones->connectionMode.desired = THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR;
                     }
 
                     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
                     ImGui::TextWrapped("Note: Changing will disconnect and reconnect the headphones' audio stream.");
                     ImGui::PopStyleColor();
+
+                    ImGui::TreePop();
+                }
+
+                static const std::map<THMSGV2T1::UpscalingType, const char*> UpscalingType_STR = {
+                    { THMSGV2T1::UpscalingType::DSEE_HX, "DSEE HX" },
+                    { THMSGV2T1::UpscalingType::DSEE, "DSEE" },
+                    { THMSGV2T1::UpscalingType::DSEE_HX_AI, "DSEE Extreme" },
+                    { THMSGV2T1::UpscalingType::DSEE_ULTIMATE, "DSEE Ultimate" },
+                };
+                auto it = UpscalingType_STR.find(_headphones->upscalingType.current);
+                const char* currentStr = it != UpscalingType_STR.end() ? it->second : "DSEE";
+                if (ImGui::TreeNodeEx("Upscaling", ImGuiTreeNodeFlags_DefaultOpen, "%s", currentStr)) {
+                    if (ImGui::RadioButton("Off", _headphones->upscaling.desired == THMSGV2T1::UpscalingTypeAutoOff::OFF)) {
+                        _headphones->upscaling.desired = THMSGV2T1::UpscalingTypeAutoOff::OFF;
+                    }
+                    if (ImGui::RadioButton("Auto", _headphones->upscaling.desired == THMSGV2T1::UpscalingTypeAutoOff::AUTO)) {
+                        _headphones->upscaling.desired = THMSGV2T1::UpscalingTypeAutoOff::AUTO;
+                    }
 
                     ImGui::TreePop();
                 }

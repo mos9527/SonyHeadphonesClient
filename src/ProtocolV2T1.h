@@ -4904,7 +4904,64 @@ struct AudioGetCapability : Payload
 
 // region AUDIO_RET_CAPABILITY
 
-// Not implemented
+struct AudioRetCapability : Payload
+{
+    AudioInquiredType type; // 0x1
+
+    AudioRetCapability(AudioInquiredType type)
+        : Payload(Command::AUDIO_RET_CAPABILITY)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(AudioRetCapability)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::AUDIO_RET_CAPABILITY)
+            && AudioInquiredType_isValidByteCode(buf[offsetof(AudioRetCapability, type)]);
+    }
+};
+
+// - UPSCALING
+
+enum class UpscalingType : uint8_t
+{
+    DSEE_HX = 0x00,
+    DSEE = 0x01,
+    DSEE_HX_AI = 0x02,
+    DSEE_ULTIMATE = 0x03,
+};
+
+inline bool UpscalingType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<UpscalingType>(type))
+    {
+    case UpscalingType::DSEE_HX:
+    case UpscalingType::DSEE:
+    case UpscalingType::DSEE_HX_AI:
+    case UpscalingType::DSEE_ULTIMATE:
+        return true;
+    }
+    return false;
+}
+
+struct AudioRetCapabilityUpscaling : AudioRetCapability
+{
+    UpscalingType upscalingType; // 0x2
+
+    AudioRetCapabilityUpscaling(UpscalingType upscalingType)
+        : AudioRetCapability(AudioInquiredType::UPSCALING)
+        , upscalingType(upscalingType)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return AudioRetCapability::isValid(buf)
+            && buf.size() == sizeof(AudioRetCapabilityUpscaling)
+            && buf[offsetof(AudioRetCapabilityUpscaling, type)] == static_cast<uint8_t>(AudioInquiredType::UPSCALING)
+            && UpscalingType_isValidByteCode(buf[offsetof(AudioRetCapabilityUpscaling, upscalingType)]);
+    }
+};
 
 // endregion AUDIO_RET_CAPABILITY
 

@@ -117,7 +117,8 @@ bool Headphones::isChanged()
         && listeningModeConfig.isFulfilled()
         && eqConfig.isFulfilled()
         && eqPreset.isFulfilled()
-        && connectionQuality.isFulfilled()
+        && connectionMode.isFulfilled()
+        && upscaling.isFulfilled()
         && touchLeftFunc.isFulfilled()
         && touchRightFunc.isFulfilled()
         && ncAmbButtonMode.isFulfilled()
@@ -359,10 +360,18 @@ void Headphones::setChanges()
         eqConfig.fulfill();
     }
 
-    if (!connectionQuality.isFulfilled())
+    if (supports(MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY)
+        && !connectionMode.isFulfilled())
     {
-        sendSet<THMSGV2T1::AudioParamConnection>(connectionQuality.desired);
-        connectionQuality.fulfill();
+        sendSet<THMSGV2T1::AudioParamConnection>(connectionMode.desired);
+        connectionMode.fulfill();
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF)
+        && !upscaling.isFulfilled())
+    {
+        sendSet<THMSGV2T1::AudioParamUpscaling>(upscaling.desired);
+        upscaling.fulfill();
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING)
@@ -648,6 +657,13 @@ void Headphones::requestInit()
     {
         /* Bluetooth Connection Quality */
         sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::CONNECTION_MODE);
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+    {
+        /* DSEE */
+        sendGet<THMSGV2T1::AudioGetCapability>(THMSGV2T1::AudioInquiredType::UPSCALING);
+        sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::UPSCALING);
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
@@ -1463,6 +1479,25 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
     return HeadphonesEvent::MessageUnhandled;
 }
 
+HeadphonesEvent Headphones::_handleAudioRetCapability(const HeadphonesMessage& msg)
+{
+    auto payload = msg.as<THMSGV2T1::AudioRetCapability>();
+    switch (payload->type)
+    {
+    case THMSGV2T1::AudioInquiredType::UPSCALING:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioRetCapabilityUpscaling>();
+            upscalingType.overwrite(payloadSub->upscalingType);
+            return HeadphonesEvent::UpscalingUpdate;
+        }
+        break;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
 HeadphonesEvent Headphones::_handleAudioParam(const HeadphonesMessage& msg, CommandType ct)
 {
     auto payload = msg.as<THMSGV2T1::AudioParam>(ct);
@@ -1473,8 +1508,18 @@ HeadphonesEvent Headphones::_handleAudioParam(const HeadphonesMessage& msg, Comm
         if (supports(MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
         {
             auto payloadSub = msg.as<THMSGV2T1::AudioParamConnection>(ct);
-            connectionQuality.overwrite(payloadSub->settingValue);
+            connectionMode.overwrite(payloadSub->settingValue);
             return HeadphonesEvent::ConnectionModeUpdate;
+        }
+        break;
+    }
+    case THMSGV2T1::AudioInquiredType::UPSCALING:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioParamUpscaling>(ct);
+            upscaling.overwrite(payloadSub->settingValue);
+            return HeadphonesEvent::UpscalingUpdate;
         }
         break;
     }
@@ -1795,6 +1840,9 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case Command::GENERAL_SETTING_NTNY_PARAM:
             result = _handleGeneralSettingParam(msg, CT_Notify);
+            break;
+        case Command::AUDIO_RET_CAPABILITY:
+            result = _handleAudioRetCapability(msg);
             break;
         case Command::AUDIO_RET_PARAM:
             result = _handleAudioParam(msg, CT_Ret);

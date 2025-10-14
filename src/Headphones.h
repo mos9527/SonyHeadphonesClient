@@ -99,6 +99,7 @@ enum class HeadphonesEvent
     EqualizerParamUpdate,
 
     ConnectionModeUpdate,
+    UpscalingUpdate,
 
     BluetoothModeUpdate,
     MultipointDeviceSwitchUpdate,
@@ -313,7 +314,11 @@ public:
     Property<EqualizerConfig> eqConfig;
 
     // Bluetooth Connection Quality
-    Property<THMSGV2T1::PriorMode> connectionQuality;
+    Property<THMSGV2T1::PriorMode> connectionMode;
+
+    // DSEE
+    ReadonlyProperty<THMSGV2T1::UpscalingType> upscalingType;
+    Property<THMSGV2T1::UpscalingTypeAutoOff> upscaling;
 
     // [WF only] Touch sensor function
     Property<THMSGV2T1::Preset> touchLeftFunc{}, touchRightFunc{};
@@ -438,6 +443,7 @@ private:
     HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleAudioRetCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct);
