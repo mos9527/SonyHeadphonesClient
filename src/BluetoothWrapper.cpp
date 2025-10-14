@@ -27,6 +27,11 @@ int BluetoothWrapper::sendCommand(CommandSerializer::CommandMessage const& cmd)
     if (connector->isConnected()) {
         std::lock_guard guard(this->_connectorMtx);
         auto const &data = cmd.messageBytes;
+#ifdef _DEBUG
+    	std::cout << "[send] ";
+    	for (unsigned char c : data) std::cout << std::hex << (int)c << ' ';
+    	std::cout << std::endl;
+#endif // _DEBUG
         auto bytesSent = this->connector->send((char *) data.data(), data.size());
         return bytesSent;
     }
@@ -72,20 +77,25 @@ std::vector<BluetoothDevice> BluetoothWrapper::getConnectedDevices()
 	return this->connector->getConnectedDevices();
 }
 
+int BluetoothWrapper::_recvIntoBuffer() {
+	std::array<char, MAX_BLUETOOTH_MESSAGE_SIZE> buf{};
+	// Throws if connection is lost
+	int size = this->connector->recv(buf.data(), buf.size());
+	_recvBuffer.insert(_recvBuffer.end(), buf.begin(), buf.begin() + size);
+	return size;
+}
+
 void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 {
-	// char buf[MAX_BLUETOOTH_MESSAGE_SIZE] = { 0 };
-
+	auto recvOne = [&]() {
+		while (_recvBuffer.empty()) _recvIntoBuffer();
+		const char c = _recvBuffer.front();
+		_recvBuffer.pop_front();
+		return c;
+	};
 	msg.messageBytes.clear();
 	msg.messageBytes.reserve(MAX_BLUETOOTH_MESSAGE_SIZE);
 	msg.messageBytes.resize(7);
-
-	const auto recvOne = [this]() {
-		char buf;
-		if (this->connector->recv(&buf, 1) != 1)
-			throw RecoverableException("Connection closed", true);
-		return buf;
-	};
 
 	while (this->connector->isConnected() && recvOne() != START_MARKER);
 	msg.messageBytes[0] = START_MARKER;
@@ -93,10 +103,12 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 	msg.messageBytes[1] = recvOne(); // dataType
 	msg.messageBytes[2] = recvOne(); // seqNumber
 	this->_seqNumber = msg.getSeqNumber();
-
-	this->connector->recv(reinterpret_cast<char*>(&msg.messageBytes[3]), 4);
-	while (msg.messageBytes.back() != END_MARKER) 
-		msg.messageBytes.push_back(recvOne()); 
+	msg.messageBytes[3] = recvOne();
+	msg.messageBytes[4] = recvOne();
+	msg.messageBytes[5] = recvOne();
+	msg.messageBytes[6] = recvOne();
+	while (msg.messageBytes.back() != END_MARKER)
+		msg.messageBytes.push_back(recvOne());
 
 	// int msgSize = msg.getSize();
 	msg.messageBytes = CommandSerializer::_unescapeSpecials(msg.messageBytes);
@@ -133,6 +145,5 @@ void BluetoothWrapper::recvCommand(CommandSerializer::CommandMessage& msg)
 		std::cout << std::dec << std::endl; // restore decimal
 	}
 #endif // _DEBUG
-
 	recvCV.notify_one();
 }

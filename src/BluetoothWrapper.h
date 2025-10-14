@@ -4,16 +4,15 @@
 #include "CommandSerializer.h"
 #include "Constants.h"
 #include <memory>
-#include <vector>
+#include <deque>
 #include <string>
 #include <mutex>
 #include <condition_variable>
-#include <optional>
 
 //Thread-safety: This class is thread-safe.
 class BluetoothWrapper
 {
-public:	
+public:
 	BluetoothWrapper(std::unique_ptr<IBluetoothConnector> connector);
 
 	BluetoothWrapper(const BluetoothWrapper&) = delete;
@@ -38,8 +37,10 @@ public:
 
 	std::condition_variable recvCV;
 	void recvCommand(CommandSerializer::CommandMessage& msg);
-private:
 
+private:
+	int _recvIntoBuffer();
+	std::deque<char> _recvBuffer;
 	std::mutex _connectorMtx;
 	unsigned int _seqNumber = 0;
 };

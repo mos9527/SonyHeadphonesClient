@@ -9,6 +9,11 @@ find_package(Threads REQUIRED)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # https://github.com/llvm/llvm-project/issues/45267
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-invalid-offsetof>)
+    # _DEBUG is a MSVC thing
+    # Define it for other compilers when building in Debug mode
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_definitions(-D_DEBUG)
+    endif()
 endif()
 
 if (WIN32)

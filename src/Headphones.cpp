@@ -296,19 +296,6 @@ void Headphones::setChanges()
     if (!mpDeviceMac.isFulfilled())
     {
         sendSet<THMSGV2T2::PeripheralSetExtendedParamSourceSwitchControl>(mpDeviceMac.desired);
-
-        // XXX: For some reason, multipoint switch command doesn't always work
-        // ...yet appending another command after it makes it much more likely to succeed?
-        /*this->_conn.sendCommand(Buffer{
-            static_cast<uint8_t>(THMSGV2T1::Command::MULTIPOINT_DEVICE_GET), // TODO No such command 0x3A on table 1
-            0x02
-        });
-        waitForAck();*/
-
-
-        // Don't fulfill until PERI_NTFY_EXTENDED_PARAM is received
-        // as the device might not have switched yet
-        // mpDeviceMac.fulfill();
     }
 
     if (!pairingMode.isFulfilled())
