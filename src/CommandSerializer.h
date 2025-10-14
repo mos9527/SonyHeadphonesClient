@@ -32,21 +32,6 @@ namespace CommandSerializer
 	*/
 	Buffer packageDataForBt(const uint8_t* data, size_t len, DATA_TYPE dataType, unsigned int seqNumber);
 
-	Buffer serializeAutoPauseSetting(bool autoPause);
-	Buffer serializeVoiceGuidanceEnabledSetting(bool enabled);
-	Buffer serializeVoiceGuidanceVolumeSetting(char volume);
-	Buffer serializeVolumeSetting(char volume);
-	Buffer serializeMultipointSwitch(const char* macString);
-	Buffer serializePlayControl(PLAYBACK_CONTROL control);
-	Buffer serializeMpToggle2(bool enabled);
-	Buffer serializeSpeakToChatConfig(char sensitivity, char timeout);
-	Buffer serializeSpeakToChatEnabled(bool enabled);
-	Buffer serializeListeningModeBgmSetting(bool bgmModeActive, ListeningModeBgmDistanceMode distanceMode);
-	Buffer serializeListeningModeNonBgmSetting(ListeningMode nonBgmMode);
-	Buffer serializeEqualizerSetting(unsigned char preset, char bass, std::vector<int> const& bands);
-	Buffer serializeEqualizerSetting(unsigned char preset);
-	Buffer serializeTouchSensorAssignment(TOUCH_SENSOR_FUNCTION funcL, TOUCH_SENSOR_FUNCTION funcR);
-
 	// POD Wrapper for any Buffer (of messages) that contains the command payload (which may also be size 0,i.e. ACKs)
 	struct CommandMessage
 	{

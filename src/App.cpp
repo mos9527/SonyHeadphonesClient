@@ -67,15 +67,29 @@ bool App::OnUpdate()
                     // poll() will raise an exception and properly let the owner
                     // destruct ourselves.
                 });
-            } else if (_requestPlaybackControl != PLAYBACK_CONTROL::NONE)
+            }
+            else if (_requestPlaybackControl != THMSGV2T1::PlaybackControl::KEY_OFF)
             {
                 auto control = _requestPlaybackControl;
                 _headphones->_requestFuture.get();
                 _headphones->_requestFuture.setFromAsync([this, control]() {
                     _headphones->requestPlaybackControl(control);
                 });
-                _requestPlaybackControl = PLAYBACK_CONTROL::NONE;
+                _requestPlaybackControl = THMSGV2T1::PlaybackControl::KEY_OFF;
             }
+            /*else if (_headphones->_requestFixedMessageMessageType != static_cast<THMSGV2T1::AlertMessageType>(0xFF)
+                && _headphones->_requestFixedMessageAlertAction != static_cast<THMSGV2T1::AlertAction>(0xFF))
+            {
+                auto messageType = _headphones->_requestFixedMessageMessageType;
+                auto action = _headphones->_requestFixedMessageAlertAction;
+                _headphones->_requestFuture.get();
+                _headphones->_requestFuture.setFromAsync([this, messageType, action]() -> void
+                {
+                    _headphones->respondToFixedMessageAlert(messageType, action);
+                });
+                _headphones->_requestFixedMessageMessageType = static_cast<THMSGV2T1::AlertMessageType>(0xFF);
+                _headphones->_requestFixedMessageAlertAction = static_cast<THMSGV2T1::AlertAction>(0xFF);
+            }*/
         }
     }
     else {
@@ -106,6 +120,7 @@ bool App::OnFrame()
             if (_headphones)
             {                
                 _drawControls();
+                _drawModalAlerts();
                 _setHeadphoneSettings();
             }
             else {
@@ -314,10 +329,10 @@ void App::_drawControls()
     {
         if (ImGui::BeginTabBar("##Controls")) {
             if (ImGui::BeginTabItem("Playback")) {
-                using enum PLAYBACK_CONTROL;
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestPlaybackControl != NONE);
+                using enum THMSGV2T1::PlaybackControl;
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestPlaybackControl != KEY_OFF);
                 ImGui::SliderInt("Volume", &_headphones->volume.desired, 0, 30);
-                if (ImGui::Button("Prev")) _requestPlaybackControl = PREV;
+                if (ImGui::Button("Prev")) _requestPlaybackControl = TRACK_DOWN;
                 ImGui::SameLine();
                 if (_headphones->playPause.current == true /*playing*/) {
                     if (ImGui::Button("Pause")) _requestPlaybackControl = PAUSE;
@@ -326,7 +341,7 @@ void App::_drawControls()
                     if (ImGui::Button("Play")) _requestPlaybackControl = PLAY;
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Next")) _requestPlaybackControl = NEXT;
+                if (ImGui::Button("Next")) _requestPlaybackControl = TRACK_UP;
                 ImGui::EndTabItem();
                 ImGui::PopItemFlag();
             }
@@ -399,8 +414,48 @@ void App::_drawControls()
             if (_headphones->supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2)
                 && ImGui::BeginTabItem("Speak to Chat")) {
                 ImGui::Checkbox("Enabled", &_headphones->stcEnabled.desired);
-                ImGui::SliderInt("STC Level", &_headphones->stcLevel.desired, 0, 2);
-                ImGui::SliderInt("STC Time", &_headphones->stcTime.desired, 0, 3);
+                ImGui::BeginDisabled(!_headphones->stcEnabled.current);
+                {
+                    static const std::map<THMSGV2T1::DetectSensitivity, const char*> STC_SENSITIVITY_STR = {
+                        { THMSGV2T1::DetectSensitivity::AUTO, "Auto" },
+                        { THMSGV2T1::DetectSensitivity::HIGH, "High" },
+                        { THMSGV2T1::DetectSensitivity::LOW, "Low" },
+                    };
+                    auto it = STC_SENSITIVITY_STR.find(_headphones->stcLevel.current);
+                    const char* currentStr = it != STC_SENSITIVITY_STR.end() ? it->second : "Unknown";
+                    if (ImGui::BeginCombo("Voice Detect Sensitivity", currentStr)) {
+                        for (auto const& [k, v] : STC_SENSITIVITY_STR) {
+                            bool is_selected = k == _headphones->stcLevel.current;
+                            if (ImGui::Selectable(v, is_selected))
+                                _headphones->stcLevel.desired = k;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                }
+                {
+                    static const std::map<THMSGV2T1::ModeOutTime, const char*> STC_TIME_STR = {
+                        { THMSGV2T1::ModeOutTime::FAST, "Short (~5s)" },
+                        { THMSGV2T1::ModeOutTime::MID, "Standard (~15s)" },
+                        { THMSGV2T1::ModeOutTime::SLOW, "Long (~30s)" },
+                        { THMSGV2T1::ModeOutTime::NONE, "Don't end automatically" },
+                    };
+                    auto it = STC_TIME_STR.find(_headphones->stcTime.current);
+                    const char* currentStr = it != STC_TIME_STR.end() ? it->second : "Unknown";
+                    if (ImGui::BeginCombo("Mode Duration", currentStr)) {
+                        for (auto const& [k, v] : STC_TIME_STR)
+                        {
+                            bool is_selected = k == _headphones->stcTime.current;
+                            if (ImGui::Selectable(v, is_selected))
+                                _headphones->stcTime.desired = k;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                }
+                ImGui::EndDisabled();
                 ImGui::EndTabItem();
             }
 
@@ -410,20 +465,24 @@ void App::_drawControls()
 
                 // Standard
                 bool radioChanged = false;
-                if (radioChanged |= ImGui::RadioButton("Standard", effectiveMode == ListeningMode::Standard))
+                if (ImGui::RadioButton("Standard", effectiveMode == ListeningMode::Standard)) {
+                    radioChanged |= true;
                     effectiveMode = ListeningMode::Standard;
+                }
 
                 // BGM
-                if (radioChanged |= ImGui::RadioButton("BGM", effectiveMode == ListeningMode::BGM))
+                if (ImGui::RadioButton("BGM", effectiveMode == ListeningMode::BGM)) {
+                    radioChanged |= true;
                     effectiveMode = ListeningMode::BGM;
+                }
                 ImGui::Indent();
                 ImGui::BeginDisabled(!_headphones->listeningModeConfig.current.bgmActive);
 
                 // Distance combo box
-                static const std::map<ListeningModeBgmDistanceMode, const char*> BGM_DISTANCE_MODE_STR = {
-                    {ListeningModeBgmDistanceMode::MyRoom, "My Room"},
-                    {ListeningModeBgmDistanceMode::LivingRoom, "Living Room"},
-                    {ListeningModeBgmDistanceMode::Cafe, "Cafe"},
+                static const std::map<THMSGV2T1::RoomSize, const char*> BGM_DISTANCE_MODE_STR = {
+                    { THMSGV2T1::RoomSize::SMALL, "My Room" },
+                    { THMSGV2T1::RoomSize::MIDDLE, "Living Room" },
+                    { THMSGV2T1::RoomSize::LARGE, "Cafe" },
                 };
                 auto it = BGM_DISTANCE_MODE_STR.find(_headphones->listeningModeConfig.current.bgmDistanceMode);
                 const char* currentStr = it != BGM_DISTANCE_MODE_STR.end() ? it->second : "Unknown";
@@ -442,8 +501,10 @@ void App::_drawControls()
                 ImGui::Unindent();
 
                 // Cinema
-                if (radioChanged |= ImGui::RadioButton("Cinema", effectiveMode == ListeningMode::Cinema))
+                if (ImGui::RadioButton("Cinema", effectiveMode == ListeningMode::Cinema)) {
+                    radioChanged |= true;
                     effectiveMode = ListeningMode::Cinema;
+                }
 
                 if (radioChanged) {
                     _headphones->listeningModeConfig.desired.bgmActive = effectiveMode == ListeningMode::BGM;
@@ -458,34 +519,36 @@ void App::_drawControls()
             if (ImGui::BeginTabItem("Equalizer")) {
                 bool eqAvailable = (_headphones->deviceCapabilities & DC_EqualizerAvailableCommand) == 0 || _headphones->eqAvailable.current;
                 if (!eqAvailable && _headphones->supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION)) {
+                    ImGui::PushTextWrapPos(0.0f);
                     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please set Listening Mode to Standard to use Equalizer.");
+                    ImGui::PopTextWrapPos();
                 }
                 ImGui::BeginDisabled(!eqAvailable);
-                static const std::map<int, const char*> EQ_PRESET_NAMES = {
-                    { 0, "Off" },
-                    { 1, "Rock" },
-                    { 2, "Pop" },
-                    { 3, "Jazz" },
-                    { 4, "Dance" },
-                    { 5, "EDM" },
-                    { 6, "R&B/Hip-Hop" },
-                    { 7, "Acoustic" },
+                static const std::map<THMSGV2T1::EqPresetId, const char*> EQ_PRESET_NAMES = {
+                    { THMSGV2T1::EqPresetId::OFF, "Off" },
+                    { THMSGV2T1::EqPresetId::ROCK, "Rock" },
+                    { THMSGV2T1::EqPresetId::POP, "Pop" },
+                    { THMSGV2T1::EqPresetId::JAZZ, "Jazz" },
+                    { THMSGV2T1::EqPresetId::DANCE, "Dance" },
+                    { THMSGV2T1::EqPresetId::EDM, "EDM" },
+                    { THMSGV2T1::EqPresetId::R_AND_B_HIP_HOP, "R&B/Hip-Hop" },
+                    { THMSGV2T1::EqPresetId::ACOUSTIC, "Acoustic" },
                     // 8-15 reserved for future use
-                    { 16, "Bright" },
-                    { 17, "Excited" },
-                    { 18, "Mellow" },
-                    { 19, "Relaxed" },
-                    { 20, "Vocal" },
-                    { 21, "Treble" },
-                    { 22, "Bass" },
-                    { 23, "Speech" },
+                    { THMSGV2T1::EqPresetId::BRIGHT, "Bright" },
+                    { THMSGV2T1::EqPresetId::EXCITED, "Excited" },
+                    { THMSGV2T1::EqPresetId::MELLOW, "Mellow" },
+                    { THMSGV2T1::EqPresetId::RELAXED, "Relaxed" },
+                    { THMSGV2T1::EqPresetId::VOCAL, "Vocal" },
+                    { THMSGV2T1::EqPresetId::TREBLE, "Treble" },
+                    { THMSGV2T1::EqPresetId::BASS, "Bass" },
+                    { THMSGV2T1::EqPresetId::SPEECH, "Speech" },
                     // 24-31 reserved for future use
-                    { 0xa0, "Custom" },
-                    { 0xa1, "User Setting 1" },
-                    { 0xa2, "User Setting 2" },
-                    { 0xa3, "User Setting 3" },
-                    { 0xa4, "User Setting 4" },
-                    { 0xa5, "User Setting 5" }
+                    { THMSGV2T1::EqPresetId::CUSTOM, "Custom" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING1, "User Setting 1" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING2, "User Setting 2" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING3, "User Setting 3" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING4, "User Setting 4" },
+                    { THMSGV2T1::EqPresetId::USER_SETTING5, "User Setting 5" }
                 };
                 std::string presetName = "Unknown";
                 auto it = EQ_PRESET_NAMES.find(_headphones->eqPreset.current);
@@ -549,79 +612,145 @@ void App::_drawControls()
                 ImGui::EndTabItem();
             }
 
-            if (ImGui::BeginTabItem("Devices")) {
-                enum class DeviceEntryClickAction {
-                    None,
-                    DeviceEntry, // Switch playback for connected, attempt connection for paired
-                    Disconnect,
-                    Unpair,
-                    Fix,
-                };
-                auto drawDevice = [](const BluetoothDevice& device, uint8_t connectedIndex, bool selected) -> DeviceEntryClickAction {
-                    DeviceEntryClickAction clicked = DeviceEntryClickAction::None;
-                    ImGui::PushID(&device);
+            if (_headphones->supportsMultipoint() && ImGui::BeginTabItem("Devices")) {
+                if (_headphones->supportsPairingDeviceManagement()) {
+                    enum class DeviceEntryClickAction {
+                        None,
+                        DeviceEntry, // Switch playback for connected, attempt connection for paired
+                        Disconnect,
+                        Unpair,
+                        Fix,
+                    };
+                    auto drawDevice = [](const BluetoothDevice& device, uint8_t connectedIndex, bool selected) -> DeviceEntryClickAction {
+                        DeviceEntryClickAction clicked = DeviceEntryClickAction::None;
+                        ImGui::PushID(&device);
 
-                    bool notConnected = device.mac.empty();
-                    ImGui::BeginDisabled(notConnected);
+                        bool notConnected = device.mac.empty();
+                        ImGui::BeginDisabled(notConnected);
 
-                    static const std::string NOT_CONNECTED = "Not connected";
-                    const std::string& deviceName = notConnected ? NOT_CONNECTED
-                        : !device.name.empty() ? device.name : device.mac;
+                        static const std::string NOT_CONNECTED = "Not connected";
+                        const std::string& deviceName = notConnected ? NOT_CONNECTED
+                            : !device.name.empty() ? device.name : device.mac;
 
-                    ImGui::SetNextItemAllowOverlap();
-                    bool selectableSelected;
-                    if (connectedIndex > 0)
-                        selectableSelected = ImGui::Selectable((std::to_string(connectedIndex) + ". " + deviceName).c_str(), selected);
-                    else
-                        selectableSelected = ImGui::Selectable(deviceName.c_str(), selected);
-                    if (selectableSelected && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::DeviceEntry;
-                    }
+                        if (!notConnected) {
+                            ImGui::SetNextItemAllowOverlap();
+                        }
 
-                    /*ImGui::SameLine();
-                    if (ImGui::SmallButton("Disconnect") && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::Disconnect;
-                    }
+                        bool selectableSelected;
+                        if (connectedIndex > 0)
+                            selectableSelected = ImGui::Selectable((std::to_string(connectedIndex) + ". " + deviceName).c_str(), selected);
+                        else
+                            selectableSelected = ImGui::Selectable(deviceName.c_str(), selected);
+                        if (selectableSelected && clicked == DeviceEntryClickAction::None) {
+                            clicked = DeviceEntryClickAction::DeviceEntry;
+                        }
 
-                    ImGui::SameLine();
-                    if (ImGui::SmallButton("Unpair") && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::Unpair;
-                    }
+                        if (!notConnected && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+                            ImGui::OpenPopup("DeviceOptions");
+                        }
 
-                    ImGui::SameLine();
-                    if (ImGui::SmallButton("Fix") && clicked == DeviceEntryClickAction::None) {
-                        clicked = DeviceEntryClickAction::Fix;
-                    }*/ // TODO Implement
+                        if (!notConnected) {
+                            int buttonWidth = ImGui::CalcTextSize("...").x + 2 * ImGui::GetStyle().FramePadding.x;
+                            ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - buttonWidth);
+                            if (ImGui::SmallButton("...")) {
+                                ImGui::OpenPopup("DeviceOptions");
+                            }
 
-                    ImGui::EndDisabled();
-                    ImGui::PopID();
-                    return clicked;
-                };
+                            if (ImGui::BeginPopup("DeviceOptions")) {
+                                if (connectedIndex != 0) {
+                                    if (ImGui::MenuItem("Disconnect") && clicked == DeviceEntryClickAction::None) {
+                                        clicked = DeviceEntryClickAction::Disconnect;
+                                    }
+                                }
 
-                if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    for (const auto& [connectedIndex, device] : _headphones->connectedDevices) {
-                        DeviceEntryClickAction clicked = drawDevice(device, connectedIndex, connectedIndex == _headphones->playbackDevice);
-                        switch (clicked) {
-                            case DeviceEntryClickAction::DeviceEntry: {
-                                _headphones->mpDeviceMac.desired = device.mac;
-                                break;
+                                bool selfDevice = false; // TODO later
+                                if (!selfDevice) {
+                                    if (ImGui::MenuItem("Unpair") && clicked == DeviceEntryClickAction::None) {
+                                        clicked = DeviceEntryClickAction::Unpair;
+                                    }
+                                }
+
+                                // Note: App mentions this as "Fix" which is not a suitable translation from Japanese word "固定".
+                                //       "Pin" is more appropriate in this context.
+                                /*if (connectedIndex != 0) {
+                                    if (selected) {
+                                        if (ImGui::MenuItem("Pin playback to this device") && clicked == DeviceEntryClickAction::None) {
+                                            clicked = DeviceEntryClickAction::Fix;
+                                        }
+                                    } else {
+                                        if (ImGui::MenuItem("Switch playback device and pin") && clicked == DeviceEntryClickAction::None) {
+                                            clicked = DeviceEntryClickAction::Fix;
+                                        }
+                                    }
+                                }*/ // TODO Implement
+
+                                ImGui::EndPopup();
                             }
                         }
-                    }
-                    ImGui::TreePop();
-                }
 
-                if (!_headphones->pairedDevices.empty() && ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    for (const auto& [mac, device] : _headphones->pairedDevices) {
-                        DeviceEntryClickAction clicked = drawDevice(device, 0, false);
-                        switch (clicked) {
-                            case DeviceEntryClickAction::DeviceEntry: {
-                                // TODO Attempt connection
-                                break;
+                        ImGui::EndDisabled();
+                        ImGui::PopID();
+                        return clicked;
+                    };
+
+                    if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen)) {
+                        for (const auto& [connectedIndex, device] : _headphones->connectedDevices) {
+                            DeviceEntryClickAction clicked = drawDevice(device, connectedIndex, connectedIndex == _headphones->playbackDevice);
+                            switch (clicked) {
+                                case DeviceEntryClickAction::DeviceEntry: {
+                                    _headphones->mpDeviceMac.desired = device.mac;
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Disconnect: {
+                                    _headphones->disconnectDevice(device.mac);
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Unpair: {
+                                    _headphones->unpairDevice(device.mac);
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Fix: {
+                                    // TODO
+                                    break;
+                                }
                             }
                         }
+                        ImGui::TreePop();
                     }
-                    ImGui::TreePop();
+
+                    if (!_headphones->pairedDevices.empty() && ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen)) {
+                        for (const auto& [mac, device] : _headphones->pairedDevices) {
+                            DeviceEntryClickAction clicked = drawDevice(device, 0, false);
+                            switch (clicked) {
+                                case DeviceEntryClickAction::DeviceEntry: {
+                                    _headphones->connectDevice(device.mac);
+                                    break;
+                                }
+                                case DeviceEntryClickAction::Unpair: {
+                                    _headphones->unpairDevice(device.mac);
+                                    break;
+                                }
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+
+                    // Connect to New Device
+                    if (!_headphones->pairingMode.current) {
+                        if (ImGui::Button("Connect to New Device")) {
+                            _headphones->pairingMode.desired = true;
+                        }
+                    } else {
+                        if (ImGui::Button("Stop")) {
+                            _headphones->pairingMode.desired = false;
+                        }
+                        ImGui::SameLine();
+                        ImGui::Text("Searching %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+                    }
+                } else {
+                    ImGui::PushTextWrapPos(0.0f);
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please enable \"Connect to 2 devices simultaneously\" in System settings to manage devices.");
+                    ImGui::PopTextWrapPos();
                 }
 
                 ImGui::EndTabItem();
@@ -650,7 +779,7 @@ void App::_drawControls()
                                 subjectString = gsc.info.subject.c_str();
                             }
                         }
-                        ImGui::BeginDisabled(gsc.info.subject.empty() || gsc.info.subject == "MULTIPOINT_SETTING");
+                        ImGui::BeginDisabled(gsc.info.subject.empty());
                         ImGui::Checkbox(subjectString, &gsv.desired);
                         if (!gsc.info.summary.empty() && ImGui::IsItemHovered()) {
                             ImGui::BeginTooltip();
@@ -685,10 +814,10 @@ void App::_drawControls()
 
                 if (_headphones->supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING)
                     && ImGui::TreeNodeEx("Touch Sensor", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    static const std::map<TOUCH_SENSOR_FUNCTION, const char*> TOUCH_SENSOR_FUNCTION_STR = {
-                        {TOUCH_SENSOR_FUNCTION::PLAYBACK_CONTROL, "Playback Control"},
-                        {TOUCH_SENSOR_FUNCTION::AMBIENT_NC_CONTROL, "Ambient Sound / Noise Cancelling"},
-                        {TOUCH_SENSOR_FUNCTION::NOT_ASSIGNED, "Not Assigned"}
+                    static const std::map<THMSGV2T1::Preset, const char*> TOUCH_SENSOR_FUNCTION_STR = {
+                        { THMSGV2T1::Preset::PLAYBACK_CONTROL, "Playback Control" },
+                        { THMSGV2T1::Preset::AMBIENT_SOUND_CONTROL_QUICK_ACCESS, "Ambient Sound / Noise Cancelling" },
+                        { THMSGV2T1::Preset::NO_FUNCTION, "Not Assigned "}
                     };
 
                     const auto draw_touch_sensor_combo = [&](auto& prop, const char* label) {
@@ -831,6 +960,53 @@ void App::_drawControls()
             ImGui::EndTabBar();
         }
     }
+}
+
+void App::_drawModalAlerts()
+{
+    auto& modalAlerts = _headphones->modalAlerts;
+
+    if (modalAlerts.empty())
+        return;
+
+    Headphones::ModalAlert& dlg = modalAlerts.back();
+
+    if (dlg.open)
+        ImGui::OpenPopup((dlg.title + dlg.id).c_str());
+
+    // Always center this window when appearing
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+
+    if (ImGui::BeginPopupModal((dlg.title + dlg.id).c_str(), nullptr,
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings))
+    {
+        if (!dlg.message.empty())
+        {
+            ImGui::PushTextWrapPos(ImGui::GetMainViewport()->Size.x * 0.7f);
+            ImGui::TextUnformatted(dlg.message.c_str());
+            ImGui::PopTextWrapPos();
+        }
+
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            dlg.onClose(true);
+            dlg.open = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            dlg.onClose(false);
+            dlg.open = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
+    _headphones->postModalAlertHandling();
 }
 
 void App::_drawConfig()

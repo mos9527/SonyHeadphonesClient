@@ -96,6 +96,7 @@ enum class HeadphonesEvent
     EqualizerAvailableUpdate,
     EqualizerParamUpdate,
 
+    BluetoothModeUpdate,
     MultipointDeviceSwitchUpdate,
 
     GeneralSetting1Update,
@@ -106,6 +107,8 @@ enum class HeadphonesEvent
     SafeListeningParamUpdate,
 
     ConnectedDeviceUpdate,
+
+    AlertFixedMessage,
 
     InteractionUpdate,
 };
@@ -141,14 +144,21 @@ public:
     /* New Listening Mode in WH-1000XM6 */
     struct ListeningModeConfig
     {
-        ListeningMode nonBgmMode{}; // 03 XX
-        bool bgmActive{}; // 04 >XX< ?? (inverted)
-        ListeningModeBgmDistanceMode bgmDistanceMode{}; // 04 ?? >XX<
+        ListeningMode nonBgmMode; // 03 XX
+        bool bgmActive; // 04 >XX< ?? (inverted)
+        THMSGV2T1::RoomSize bgmDistanceMode; // 04 ?? >XX<
 
-        ListeningModeConfig() : nonBgmMode(ListeningMode::Standard), bgmActive(false), bgmDistanceMode(ListeningModeBgmDistanceMode::MyRoom) {}
+        ListeningModeConfig()
+            : nonBgmMode(ListeningMode::Standard)
+            , bgmActive(false)
+            , bgmDistanceMode(THMSGV2T1::RoomSize::SMALL)
+        {}
 
-        ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, ListeningModeBgmDistanceMode bgmDistance)
-            : nonBgmMode(nonBgm), bgmActive(bgmActive), bgmDistanceMode(bgmDistance) {}
+        ListeningModeConfig(ListeningMode nonBgm, bool bgmActive, THMSGV2T1::RoomSize bgmDistance)
+            : nonBgmMode(nonBgm)
+            , bgmActive(bgmActive)
+            , bgmDistanceMode(bgmDistance)
+        {}
 
         ListeningMode getEffectiveMode() const
         {
@@ -251,6 +261,9 @@ public:
 
     uint8_t playbackDevice;
 
+    // Pairing mode
+    Property<bool> pairingMode{};
+
     struct GsCapability
     {
         THMSGV2T1::GsSettingType type;
@@ -281,21 +294,21 @@ public:
     Property<bool> stcEnabled{};
 
     // AUTO:0 HIGH:1 LOW:2
-    Property<int> stcLevel{};
+    Property<THMSGV2T1::DetectSensitivity> stcLevel{};
 
     // SHORT:0 STANDARD:1 LONG:2 OFF(Does not close automatically):3
-    Property<int> stcTime{};
+    Property<THMSGV2T1::ModeOutTime> stcTime{};
 
     // Listening mode
     Property<ListeningModeConfig> listeningModeConfig{};
 
     // Equalizer
     ReadonlyProperty<bool> eqAvailable{};
-    Property<int> eqPreset;
+    Property<THMSGV2T1::EqPresetId> eqPreset;
     Property<EqualizerConfig> eqConfig;
 
     // [WF only] Touch sensor function
-    Property<TOUCH_SENSOR_FUNCTION> touchLeftFunc{}, touchRightFunc{};
+    Property<THMSGV2T1::Preset> touchLeftFunc{}, touchRightFunc{};
 
     // [WH only] [NC/AMB] Button Setting
     Property<THMSGV2T1::Function> ncAmbButtonMode{};
@@ -306,11 +319,30 @@ public:
     bool supportsTable2{};
     DeviceCapabilities deviceCapabilities{};
 
+    // Alerts
+    struct ModalAlert
+    {
+        std::string id;
+        std::string title;
+        std::string message;
+        std::function<void(bool)> onClose;
+        bool open = true; // one-shot
+    };
+    std::vector<ModalAlert> modalAlerts;
+    uint32_t nextModalAlertId = 0;
+    /*THMSGV2T1::AlertMessageType _requestFixedMessageMessageType = static_cast<THMSGV2T1::AlertMessageType>(0xFF);
+    THMSGV2T1::AlertAction _requestFixedMessageAlertAction = static_cast<THMSGV2T1::AlertAction>(0xFF);*/
+
+    void pushModalAlert(const std::string& title, const std::string& message, std::function<void(bool)> callback);
+    void postModalAlertHandling();
+
     bool supports(MessageMdrV2FunctionType_Table1 functionTypeTable1) const;
     bool supports(MessageMdrV2FunctionType_Table2 functionTypeTable2) const;
     bool supportsNc() const;
     bool supportsAsm() const;
     bool supportsSafeListening() const;
+    bool supportsPairingDeviceManagement() const;
+    bool supportsMultipoint() const;
     bool supportsAutoPowerOff() const;
 
     bool isChanged();
@@ -328,16 +360,25 @@ public:
     void sendSet(TArgs&&... args);
 
     template <typename TPayload, typename... TArgs>
-    void sendMdrCommandWithType(CommandType ct, TArgs&&... args);
+    void sendGetAndForget(TArgs&&... args);
+
+    template <typename TPayload, typename... TArgs>
+    void sendSetAndForget(TArgs&&... args);
+
+    template <typename TPayload, typename... TArgs>
+    void sendMdrCommandWithType(CommandType ct, bool wait, TArgs&&... args);
 
     template <typename TPayload>
-    void sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span);
+    void sendMdrCommandWithTypeHelper(CommandType ct, bool wait, const BufferSpan& span);
 
     void requestInit();
     void requestSync();
-    void requestMultipointSwitch(const char* macString);
-    void requestPlaybackControl(PLAYBACK_CONTROL control);
+    void requestPlaybackControl(THMSGV2T1::PlaybackControl control);
+    void respondToFixedMessageAlert(THMSGV2T1::AlertMessageType messageType, THMSGV2T1::AlertAction action);
     void requestPowerOff();
+    void disconnectDevice(const std::string& mac);
+    void connectDevice(const std::string& mac);
+    void unpairDevice(const std::string& mac);
 
     void recvAsync();
     BluetoothWrapper& getConn() { return _conn; }
@@ -376,21 +417,23 @@ private:
     HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage& msg);
     HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage& msg);
-    HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePlaybackParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSafeListeningNotifyParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleSafeListeningExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePowerParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleMultipointDevice(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleVoiceGuidanceParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handlePeripheralStatus(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handlePeripheralNotifyExtendedParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePeripheralParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handlePlaybackStatusControl(const HeadphonesMessage& msg);
+    HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
-    HeadphonesEvent _handleListeningMode(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleSpeakToChat(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleEqualizerAvailable(const HeadphonesMessage& msg);
-    HeadphonesEvent _handleEqualizer(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleEqEbbStatus(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleEqEbbParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handlyAlertNotifyParam(const HeadphonesMessage& msg);
     HeadphonesEvent _handleMiscDataRet(const HeadphonesMessage& msg);
 
     HeadphonesEvent _handleMessage(const HeadphonesMessage& msg);
@@ -414,7 +457,7 @@ void Headphones::sendGet(TArgs&&... args)
     {
         static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
     }
-    sendMdrCommandWithType<TPayload>(CT_Get, std::forward<TArgs>(args)...);
+    sendMdrCommandWithType<TPayload>(CT_Get, true, std::forward<TArgs>(args)...);
 }
 
 template <typename TPayload, typename... TArgs>
@@ -424,11 +467,31 @@ void Headphones::sendSet(TArgs&&... args)
     {
         static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
     }
-    sendMdrCommandWithType<TPayload>(CT_Set, std::forward<TArgs>(args)...);
+    sendMdrCommandWithType<TPayload>(CT_Set, true, std::forward<TArgs>(args)...);
 }
 
 template <typename TPayload, typename... TArgs>
-void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
+void Headphones::sendGetAndForget(TArgs&&... args)
+{
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+    {
+        static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Get]) != 0xFF, "This command does not support Get");
+    }
+    sendMdrCommandWithType<TPayload>(CT_Get, false, std::forward<TArgs>(args)...);
+}
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendSetAndForget(TArgs&&... args)
+{
+    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+    {
+        static_assert(static_cast<uint8_t>(TPayload::COMMAND_IDS[CT_Set]) != 0xFF, "This command does not support Set");
+    }
+    sendMdrCommandWithType<TPayload>(CT_Set, false, std::forward<TArgs>(args)...);
+}
+
+template <typename TPayload, typename... TArgs>
+void Headphones::sendMdrCommandWithType(CommandType ct, bool wait, TArgs&&... args)
 {
     if constexpr (TPayload::VARIABLE_SIZE_ONE_ARRAY_AT_END)
     {
@@ -436,13 +499,13 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
         std::unique_ptr<TPayload> payload = [&]
         {
             if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
-                return createVariableSizePayloadOneArrayAtEnd_CommandType(&size, ct, std::forward<TArgs>(args)...);
+                return createVariableSizePayloadOneArrayAtEnd_CommandType<TPayload>(&size, ct, std::forward<TArgs>(args)...);
             else
-                return createVariableSizePayloadOneArrayAtEnd(&size, std::forward<TArgs>(args)...);
+                return createVariableSizePayloadOneArrayAtEnd<TPayload>(&size, std::forward<TArgs>(args)...);
         }();
 
         const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.get());
-        sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + size));
+        sendMdrCommandWithTypeHelper<TPayload>(ct, wait, BufferSpan(data, data + size));
     }
     else
     {
@@ -457,19 +520,20 @@ void Headphones::sendMdrCommandWithType(CommandType ct, TArgs&&... args)
         if constexpr (TPayload::VARIABLE_SIZE_NEEDS_SERIALIZATION)
         {
             std::vector<uint8_t> buf;
+            buf.reserve(payload.countBytes());
             payload.serialize(buf);
-            sendMdrCommandWithTypeHelper<TPayload>(ct, buf);
+            sendMdrCommandWithTypeHelper<TPayload>(ct, wait, buf);
         }
         else
         {
             const uint8_t* data = reinterpret_cast<const uint8_t*>(&payload);
-            sendMdrCommandWithTypeHelper<TPayload>(ct, BufferSpan(data, data + sizeof(TPayload)));
+            sendMdrCommandWithTypeHelper<TPayload>(ct, wait, BufferSpan(data, data + sizeof(TPayload)));
         }
     }
 }
 
 template <typename TPayload>
-void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& span)
+void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, bool wait, const BufferSpan& span)
 {
     DATA_TYPE type;
     if constexpr (std::is_base_of_v<THMSGV2T1::Payload, TPayload>)
@@ -498,16 +562,19 @@ void Headphones::sendMdrCommandWithTypeHelper(CommandType ct, const BufferSpan& 
 
     _conn.sendCommand(span.data(), span.size(), type);
 
-    /*uint8_t responseCommandId;
-    if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
-        responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_IDS[ct]);
-    else
-        responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_ID);
-    if (responseCommandId != 0xFF)
+    if (wait)
     {
-        _waitForResponseDataType = type;
-        _waitForResponseCommandId = responseCommandId;
-        waitForResponse();
-    }*/
-    waitForAck();
+        /*uint8_t responseCommandId;
+        if constexpr (PayloadIsForMultipleCommandTypes_v<TPayload>)
+            responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_IDS[ct]);
+        else
+            responseCommandId = static_cast<uint8_t>(TPayload::RESPONSE_COMMAND_ID);
+        if (responseCommandId != 0xFF)
+        {
+            _waitForResponseDataType = type;
+            _waitForResponseCommandId = responseCommandId;
+            waitForResponse();
+        }*/
+        waitForAck();
+    }
 }

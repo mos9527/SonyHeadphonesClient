@@ -62,6 +62,7 @@ public:
 private:   
     void _drawDeviceDiscovery();
     void _drawControls();
+    void _drawModalAlerts();
     void _drawConfig();
     void _setHeadphoneSettings();
     void _handleHeadphoneInteraction(std::string const& event);
@@ -73,7 +74,7 @@ private:
     AppConfig & _config;
 
     bool _requestShutdown = false;
-    PLAYBACK_CONTROL _requestPlaybackControl = PLAYBACK_CONTROL::NONE;
+    THMSGV2T1::PlaybackControl _requestPlaybackControl = THMSGV2T1::PlaybackControl::KEY_OFF;
 
     std::vector<std::string> _logs;
     BluetoothDevice _connectedDevice;
