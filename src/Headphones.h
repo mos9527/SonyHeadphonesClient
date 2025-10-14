@@ -72,6 +72,8 @@ enum class HeadphonesEvent
     DeviceInfoUpdate,
     SupportFunctionUpdate,
 
+    CodecUpdate,
+
     NcAsmParamUpdate,
     NcAmbButtonModeUpdate,
     BatteryLevelUpdate,
@@ -246,6 +248,9 @@ public:
     ReadonlyProperty<BatteryData> statBatteryL{};
     ReadonlyProperty<BatteryData> statBatteryR{};
     ReadonlyProperty<BatteryData> statBatteryCase{};
+
+    // Codec
+    ReadonlyProperty<THMSGV2T1::AudioCodec> codec{};
 
     // Volume. 0 ~ 30
     Property<int> volume{};
@@ -431,6 +436,7 @@ private:
     HeadphonesEvent _handleDeviceInfo(const HeadphonesMessage& msg);
     HeadphonesEvent _handleT1SupportFunction(const HeadphonesMessage& msg);
     HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleCommonStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePlaybackParam(const HeadphonesMessage& msg, CommandType ct);

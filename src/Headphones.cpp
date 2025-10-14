@@ -552,7 +552,9 @@ void Headphones::requestInit()
             waitForSupportFunction(kImportantDataRequestTimeout);
         }
 
-        /* Capabilities */
+        /* === Capabilities === */
+
+        /* General Settings */
         if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
         {
             sendGet<THMSGV2T1::GsGetCapability>(
@@ -573,12 +575,23 @@ void Headphones::requestInit()
             sendGet<THMSGV2T1::GsGetCapability>(
                 THMSGV2T1::GsInquiredType::GENERAL_SETTING4, THMSGV2T1::DisplayLanguage::ENGLISH);
         }
+
+        /* DSEE */
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            sendGet<THMSGV2T1::AudioGetCapability>(THMSGV2T1::AudioInquiredType::UPSCALING);
+        }
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
     {
         /* Receive alerts for certain operations like toggling multipoint */
         sendSetAndForget<THMSGV2T1::AlertSetStatusFixedMessage>(true);
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+    {
+        sendGet<THMSGV2T1::CommonGetStatus>(THMSGV2T1::CommonInquiredType::AUDIO_CODEC);
     }
 
     /* Playback Metadata */
@@ -661,7 +674,6 @@ void Headphones::requestInit()
     if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
     {
         /* DSEE */
-        sendGet<THMSGV2T1::AudioGetCapability>(THMSGV2T1::AudioInquiredType::UPSCALING);
         sendGet<THMSGV2T1::AudioGetStatus>(THMSGV2T1::AudioInquiredType::UPSCALING);
         sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::UPSCALING);
     }
@@ -994,6 +1006,24 @@ HeadphonesEvent Headphones::_handleT2SupportFunction(const HeadphonesMessage& ms
         supportFunctionString2.overwrite(oss.str());
         _supportFunctionCV.notify_all();
         return HeadphonesEvent::SupportFunctionUpdate;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
+HeadphonesEvent Headphones::_handleCommonStatus(const HeadphonesMessage& msg, CommandType ct)
+{
+    auto payload = msg.as<THMSGV2T1::CommonStatus>(ct);
+    switch (payload->type)
+    {
+    case THMSGV2T1::CommonInquiredType::AUDIO_CODEC:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::CommonStatusAudioCodec>(ct);
+            codec.overwrite(payloadSub->audioCodec);
+            return HeadphonesEvent::CodecUpdate;
+        }
     }
     }
     return HeadphonesEvent::MessageUnhandled;
@@ -1822,6 +1852,12 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case Command::CONNECT_RET_SUPPORT_FUNCTION:
             result = _handleT1SupportFunction(msg);
+            break;
+        case Command::COMMON_RET_STATUS:
+            result = _handleCommonStatus(msg, CT_Ret);
+            break;
+        case Command::COMMON_NTFY_STATUS:
+            result = _handleCommonStatus(msg, CT_Notify);
             break;
         case Command::NCASM_RET_PARAM:
             result = _handleNcAsmParam(msg, CT_Ret);

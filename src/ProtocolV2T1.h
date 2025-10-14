@@ -750,6 +750,148 @@ public:
 
 // endregion CONNECT
 
+// region COMMON
+
+enum class CommonInquiredType : uint8_t
+{
+    CONCIERGE = 0x00,
+    CONNECTION_STATUS = 0x01,
+    // STATUS: [R N] CommonStatusAudioCodec
+    AUDIO_CODEC = 0x02,
+    UPSCALING_EFFECT = 0x03,
+    BLE_SETUP = 0x04,
+    CONNECTION_ESTABLISHED_TIME = 0x05,
+    DEVICE_SPECIAL_MODE = 0x06,
+    SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION_FOR_CLASSIC = 0x07,
+    TANDEM_RECONNECTION_REQUEST = 0x08,
+    DISPLAY_FW_VERSION = 0x09,
+};
+
+inline bool CommonInquiredType_isValidByteCode(uint8_t type)
+{
+    switch (static_cast<CommonInquiredType>(type))
+    {
+    case CommonInquiredType::CONCIERGE:
+    case CommonInquiredType::CONNECTION_STATUS:
+    case CommonInquiredType::AUDIO_CODEC:
+    case CommonInquiredType::UPSCALING_EFFECT:
+    case CommonInquiredType::BLE_SETUP:
+    case CommonInquiredType::CONNECTION_ESTABLISHED_TIME:
+    case CommonInquiredType::DEVICE_SPECIAL_MODE:
+    case CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION_FOR_CLASSIC:
+    case CommonInquiredType::TANDEM_RECONNECTION_REQUEST:
+    case CommonInquiredType::DISPLAY_FW_VERSION:
+        return true;
+    }
+    return false;
+}
+
+// region COMMON_*_CAPABILITY
+
+// Not implemented
+
+// endregion COMMON_*_CAPABILITY
+
+// region COMMON_*_STATUS
+
+// region COMMON_GET_STATUS
+
+struct CommonGetStatus : Payload
+{
+    static constexpr Command RESPONSE_COMMAND_ID = Command::COMMON_RET_STATUS;
+
+    CommonInquiredType type; // 0x1
+
+    CommonGetStatus(CommonInquiredType type)
+        : Payload(Command::COMMON_GET_STATUS)
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf)
+    {
+        return Payload::isValid(buf)
+            && buf.size() == sizeof(CommonGetStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(Command::COMMON_GET_STATUS)
+            && CommonInquiredType_isValidByteCode(buf[offsetof(CommonGetStatus, type)]);
+    }
+};
+
+// endregion COMMON_GET_STATUS
+
+// region COMMON_RET_STATUS, COMMON_NTFY_STATUS
+
+struct CommonStatus : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::COMMON_RET_STATUS,
+        Command::UNKNOWN,
+        Command::COMMON_NTFY_STATUS,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
+
+    CommonInquiredType type; // 0x1
+
+    CommonStatus(CommandType ct, CommonInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(CommonStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct]);
+    }
+};
+
+// - AUDIO_CODEC
+
+enum class AudioCodec : uint8_t
+{
+    UNSETTLED = 0x00,
+    SBC = 0x01,
+    AAC = 0x02,
+    LDAC = 0x10,
+    APT_X = 0x20,
+    APT_X_HD = 0x21,
+    LC3 = 0x30,
+    OTHER = 0xFF,
+};
+
+struct CommonStatusAudioCodec : CommonStatus
+{
+    AudioCodec audioCodec; // 0x2
+
+    CommonStatusAudioCodec(CommandType ct, AudioCodec audioCodec)
+        : CommonStatus(ct, CommonInquiredType::AUDIO_CODEC)
+        , audioCodec(audioCodec)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return CommonStatus::isValid(buf, ct)
+            && buf.size() == sizeof(CommonStatusAudioCodec);
+    }
+};
+
+// endregion COMMON_RET_STATUS, COMMON_NTFY_STATUS
+
+// endregion COMMON_*_STATUS
+
+// region COMMON_*_PARAM
+
+// Not implemented
+
+// endregion COMMON_*_PARAM
+
+// endregion COMMON
+
 // region POWER
 
 // region POWER_*_STATUS

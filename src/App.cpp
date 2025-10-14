@@ -250,6 +250,7 @@ void App::_drawControls()
             ImGui::TableSetColumnIndex(0);
             {
                 auto drawBatteryProgressBar = [](const Headphones::BatteryData& battery, const char* label) {
+                    ImGui::AlignTextToFramePadding();
                     ImGui::Text("%s:", label); ImGui::SameLine();
                     std::string levelStr = std::to_string(battery.level) + "%";
                     THMSGV2T1::BatteryChargingStatus cs = battery.chargingStatus;
@@ -277,6 +278,21 @@ void App::_drawControls()
                 if (_headphones->supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR)
                     || _headphones->supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD)) {
                     drawBatteryProgressBar(_headphones->statBatteryCase.current, "Case");
+                }
+
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::CODEC_INDICATOR)) {
+                    static const std::map<THMSGV2T1::AudioCodec, const char*> audioCodecMap = {
+                        { THMSGV2T1::AudioCodec::UNSETTLED, "..." },
+                        { THMSGV2T1::AudioCodec::SBC, "SBC" },
+                        { THMSGV2T1::AudioCodec::AAC, "AAC" },
+                        { THMSGV2T1::AudioCodec::LDAC, "LDAC" },
+                        { THMSGV2T1::AudioCodec::APT_X, "aptX" },
+                        { THMSGV2T1::AudioCodec::APT_X_HD, "aptX HD" },
+                        { THMSGV2T1::AudioCodec::LC3, "LC3" },
+                        { THMSGV2T1::AudioCodec::OTHER, "Unknown" },
+                    };
+                    auto it = audioCodecMap.find(_headphones->codec.current);
+                    ImGui::Text("Codec: %s", it != audioCodecMap.end() ? it->second : "Unknown");
                 }
             }
             ImGui::TableSetColumnIndex(1);
