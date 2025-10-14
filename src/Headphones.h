@@ -219,7 +219,8 @@ public:
     Property<THMSGV2T1::NoiseAdaptiveSensitivity> autoAsmSensitivity{};
 
     // Is automatic power off enabled?
-    Property<bool> autoPowerOffEnabled{};
+    Property<THMSGV2T1::AutoPowerOffElements> autoPowerOff{};
+    Property<THMSGV2T1::AutoPowerOffWearingDetectionElements> autoPowerOffWearingDetection{};
 
     // Is "Pause when headphones are removed" enabled?
     Property<bool> autoPauseEnabled{};
@@ -343,7 +344,6 @@ public:
     bool supportsSafeListening() const;
     bool supportsPairingDeviceManagement() const;
     bool supportsMultipoint() const;
-    bool supportsAutoPowerOff() const;
 
     bool isChanged();
     void setChanges();

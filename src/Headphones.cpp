@@ -93,13 +93,6 @@ bool Headphones::supportsMultipoint() const
         || supports(F1::GENERAL_SETTING_4) && gs4c.current.info.subject == kMultipointSetting;
 }
 
-bool Headphones::supportsAutoPowerOff() const
-{
-    using F1 = MessageMdrV2FunctionType_Table1;
-    return /*supports(F1::AUTO_POWER_OFF)
-        ||*/ supports(F1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
-}
-
 bool Headphones::isChanged()
 {
     return !(
@@ -110,7 +103,8 @@ bool Headphones::isChanged()
         && asmLevel.isFulfilled()
         && autoAsmEnabled.isFulfilled()
         && autoAsmSensitivity.isFulfilled()
-        && autoPowerOffEnabled.isFulfilled()
+        && autoPowerOff.isFulfilled()
+        && autoPowerOffWearingDetection.isFulfilled()
         && autoPauseEnabled.isFulfilled()
         && voiceGuidanceEnabled.isFulfilled()
         && miscVoiceGuidanceVol.isFulfilled()
@@ -237,16 +231,23 @@ void Headphones::setChanges()
         autoAsmSensitivity.fulfill();
     }
 
-    if (supportsAutoPowerOff() && !autoPowerOffEnabled.isFulfilled())
+    if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF)
+        && !autoPowerOff.isFulfilled())
+    {
+        sendSet<THMSGV2T1::PowerParamAutoPowerOff>(
+            autoPowerOff.desired,
+            /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffElements::POWER_OFF_IN_5_MIN
+        );
+        this->autoPowerOffWearingDetection.fulfill();
+    }
+    else if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION)
+        && !autoPowerOffWearingDetection.isFulfilled())
     {
         sendSet<THMSGV2T1::PowerParamAutoPowerOffWithWearingDetection>(
-            /*currentPowerOffElements*/ autoPowerOffEnabled.desired
-                ? THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS
-                : THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_DISABLE,
+            autoPowerOffWearingDetection.desired,
             /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN
         );
-
-        this->autoPowerOffEnabled.fulfill();
+        this->autoPowerOffWearingDetection.fulfill();
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF)
@@ -637,8 +638,15 @@ void Headphones::requestInit()
     /* Equalizer */
     sendGet<THMSGV2T1::EqEbbGetParam>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
 
-    /* Misc Params */
-    sendGet<THMSGV2T1::PowerGetParam>(THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION);
+    /* Automatic Power Off */
+    if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
+    {
+        sendGet<THMSGV2T1::PowerGetParam>(THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF);
+    }
+    else if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+    {
+        sendGet<THMSGV2T1::PowerGetParam>(THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION);
+    }
 
     /* Pause when headphones are removed */
     sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING);
@@ -1164,18 +1172,22 @@ HeadphonesEvent Headphones::_handlePowerParam(const HeadphonesMessage& msg, Comm
     auto payload = msg.as<THMSGV2T1::PowerParam>(ct);
     switch (payload->type)
     {
+    case THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::PowerParamAutoPowerOff>(ct);
+            autoPowerOff.overwrite(payloadSub->currentPowerOffElements);
+            return HeadphonesEvent::AutoPowerOffUpdate;
+        }
+        break;
+    }
     case THMSGV2T1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION:
     {
         if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
             auto payloadSub = msg.as<THMSGV2T1::PowerParamAutoPowerOffWithWearingDetection>(ct);
-            THMSGV2T1::AutoPowerOffWearingDetectionElements setting = payloadSub->currentPowerOffElements;
-            if (setting == THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS)
-                autoPowerOffEnabled.overwrite(true);
-            else if (setting == THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_DISABLE)
-                autoPowerOffEnabled.overwrite(false);
-            else
-                break;
+            autoPowerOffWearingDetection.overwrite(payloadSub->currentPowerOffElements);
             return HeadphonesEvent::AutoPowerOffUpdate;
         }
         break;
