@@ -309,7 +309,6 @@ void Headphones::setChanges()
                 listeningModeConfig.desired.nonBgmMode == ListeningMode::Cinema
             );
         }
-        waitForAck();
         listeningModeConfig.fulfill();
     }
 
