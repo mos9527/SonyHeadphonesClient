@@ -731,8 +731,6 @@ void Headphones::requestSync()
             sendGet<THMSGV2T2::SafeListeningGetExtendedParam>(THMSGV2T2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
         }
     }
-
-    waitForAck();
 }
 
 void Headphones::recvAsync()
