@@ -374,9 +374,9 @@ void App::_drawControls()
                         _headphones->asmEnabled.desired = false;
                     }
 
-                    ImGui::Separator();
-
                     if (supportsAsm && _headphones->asmEnabled.current && (!supportsNc || _headphones->asmMode.current == THMSGV2T1::NcAsmMode::ASM)) {
+                        ImGui::Separator();
+
                         ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 1, 20);
                         _headphones->changingAsmLevel.desired = ImGui::IsItemActive()
                             ? THMSGV2T1::ValueChangeStatus::UNDER_CHANGING : THMSGV2T1::ValueChangeStatus::CHANGED;
@@ -515,7 +515,7 @@ void App::_drawControls()
                     }
 
                     ImGui::TreePop();
-                    }
+                }
 
                 if (ImGui::TreeNodeEx("Equalizer", ImGuiTreeNodeFlags_DefaultOpen)) {
                     bool eqAvailable = (_headphones->deviceCapabilities & DC_EqualizerAvailableCommand) == 0 || _headphones->eqAvailable.current;
@@ -610,6 +610,21 @@ void App::_drawControls()
                     }
 
                     ImGui::EndDisabled();
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Bluetooth Connection Quality", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    if (ImGui::RadioButton("Priority on Sound Quality", _headphones->connectionQuality.desired == THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR)) {
+                        _headphones->connectionQuality.desired = THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR;
+                    }
+                    if (ImGui::RadioButton("Priority on Connection Quality", _headphones->connectionQuality.desired == THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR)) {
+                        _headphones->connectionQuality.desired = THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR;
+                    }
+
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+                    ImGui::TextWrapped("Note: Changing will disconnect and reconnect the headphones' audio stream.");
+                    ImGui::PopStyleColor();
+
                     ImGui::TreePop();
                 }
 
@@ -868,6 +883,10 @@ void App::_drawControls()
                     }
 
                     ImGui::TreePop();
+                }
+
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING)) {
+                    ImGui::Checkbox("Head Gesture", &_headphones->headGestureEnabled.desired);
                 }
 
                 if (_headphones->supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF)) {

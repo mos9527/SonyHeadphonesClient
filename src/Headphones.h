@@ -89,12 +89,16 @@ enum class HeadphonesEvent
     SpeakToChatParamUpdate,
     SpeakToChatEnabledUpdate,
 
+    HeadGestureEnabledUpdate,
+
     ListeningModeUpdate,
 
     TouchFunctionUpdate,
 
     EqualizerAvailableUpdate,
     EqualizerParamUpdate,
+
+    ConnectionModeUpdate,
 
     BluetoothModeUpdate,
     MultipointDeviceSwitchUpdate,
@@ -308,11 +312,17 @@ public:
     Property<THMSGV2T1::EqPresetId> eqPreset;
     Property<EqualizerConfig> eqConfig;
 
+    // Bluetooth Connection Quality
+    Property<THMSGV2T1::PriorMode> connectionQuality;
+
     // [WF only] Touch sensor function
     Property<THMSGV2T1::Preset> touchLeftFunc{}, touchRightFunc{};
 
     // [WH only] [NC/AMB] Button Setting
     Property<THMSGV2T1::Function> ncAmbButtonMode{};
+
+    // Head Gesture
+    Property<bool> headGestureEnabled{};
 
     // Protocol version
     uint32_t protocolVersion{};
