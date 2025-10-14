@@ -4712,29 +4712,35 @@ struct GsParamList : GsParam
 
 enum class AudioInquiredType : uint8_t
 {
-    // PARAM:  [RSN] AudioParamConnection
+    // PARAM:      [RSN] AudioParamConnection
     CONNECTION_MODE = 0x00,
-    // PARAM:  [RSN] AudioParamUpscaling
+    // CAPABILITY: [R  ] AudioRetCapabilityUpscaling
+    // STATUS:     [R N] AudioStatusCommon
+    // PARAM:      [RSN] AudioParamUpscaling
     UPSCALING = 0x01,
-    // PARAM:  [RSN] AudioParamConnectionWithLdacStatus
+    // PARAM:      [RSN] AudioParamConnectionWithLdacStatus
     CONNECTION_MODE_WITH_LDAC_STATUS = 0x02,
-    // PARAM:  [RSN] AudioParamBGMMode
+    // STATUS:     [R N] AudioStatusCommon
+    // PARAM:      [RSN] AudioParamBGMMode
     BGM_MODE = 0x03,
-    // PARAM:  [RSN] AudioParamUpmixCinema
+    // STATUS:     [R N] AudioStatusCommon
+    // PARAM:      [RSN] AudioParamUpmixCinema
     UPMIX_CINEMA = 0x04,
-    // PARAM:  [R  ] AudioRetParamConnectionModeClassicAudioLeAudio
-    //         [ S ] AudioSetParamConnectionModeClassicAudioLeAudio
-    //         [  N] AudioNtfyParamConnectionModeClassicAudioLeAudio
+    // PARAM:      [R  ] AudioRetParamConnectionModeClassicAudioLeAudio
+    //             [ S ] AudioSetParamConnectionModeClassicAudioLeAudio
+    //             [  N] AudioNtfyParamConnectionModeClassicAudioLeAudio
     CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO = 0x05,
-    // PARAM:  [RSN] AudioParamVoiceContents
+    // STATUS:     [R N] AudioStatusCommon
+    // PARAM:      [RSN] AudioParamVoiceContents
     VOICE_CONTENTS = 0x06,
-    // PARAM:  [RSN] AudioParamSoundLeakageReduction
+    // STATUS:     [R N] AudioStatusCommon
+    // PARAM:      [RSN] AudioParamSoundLeakageReduction
     SOUND_LEAKAGE_REDUCTION = 0x07,
-    // PARAM:  [RSN] AudioParamListeningOptionAssignCustomizable
+    // PARAM:      [RSN] AudioParamListeningOptionAssignCustomizable
     LISTENING_OPTION_ASSIGN_CUSTOMIZABLE = 0x08,
-    // PARAM:  [RSN] AudioParamBGMMode
+    // PARAM:      [RSN] AudioParamBGMMode
     BGM_MODE_AND_ERRORCODE = 0x09,
-    // PARAM:  [RSN] AudioParamUpmixSeries
+    // PARAM:      [RSN] AudioParamUpmixSeries
     UPMIX_SERIES = 0x0A,
 };
 
@@ -4993,11 +4999,69 @@ struct AudioGetStatus : Payload
 
 // endregion AUDIO_GET_STATUS
 
-// region AUDIO_RET_STATUS, AUDIO_SET_STATUS, AUDIO_NTFY_STATUS
+// region AUDIO_RET_STATUS, AUDIO_NTFY_STATUS
 
-// Not implemented
+struct AudioStatus : Payload
+{
+    static constexpr Command COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::AUDIO_RET_STATUS,
+        Command::UNKNOWN,
+        Command::AUDIO_NTFY_STATUS,
+    };
+    static constexpr Command RESPONSE_COMMAND_IDS[] = {
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+        Command::UNKNOWN,
+    };
 
-// endregion AUDIO_RET_STATUS, AUDIO_SET_STATUS, AUDIO_NTFY_STATUS
+    AudioInquiredType type; // 0x1
+
+    AudioStatus(CommandType ct, AudioInquiredType type)
+        : Payload(COMMAND_IDS[ct])
+        , type(type)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return Payload::isValid(buf)
+            && buf.size() >= sizeof(AudioStatus)
+            && buf[offsetof(Payload, command)] == static_cast<uint8_t>(COMMAND_IDS[ct])
+            && AudioInquiredType_isValidByteCode(buf[offsetof(AudioStatus, type)]);
+    }
+};
+
+// - UPSCALING, BGM_MODE, UPMIX_CINEMA, VOICE_CONTENTS, SOUND_LEAKAGE_REDUCTION
+
+struct AudioStatusCommon : AudioStatus
+{
+    MessageMdrV2EnableDisable status; // 0x2
+
+    AudioStatusCommon(CommandType ct, AudioInquiredType type, MessageMdrV2EnableDisable status)
+        : AudioStatus(ct, type)
+        , status(status)
+    {}
+
+    static bool isValid(const std::span<const uint8_t>& buf, CommandType ct)
+    {
+        return AudioStatus::isValid(buf, ct)
+            && buf.size() == sizeof(AudioStatusCommon)
+            && isValidInquiredType(static_cast<AudioInquiredType>(buf[offsetof(AudioStatus, type)]))
+            && MessageMdrV2EnableDisable_isValidByteCode(buf[offsetof(AudioStatusCommon, status)]);
+    }
+
+    static bool isValidInquiredType(AudioInquiredType type)
+    {
+        return type == AudioInquiredType::UPSCALING
+            || type == AudioInquiredType::BGM_MODE
+            || type == AudioInquiredType::UPMIX_CINEMA
+            || type == AudioInquiredType::VOICE_CONTENTS
+            || type == AudioInquiredType::SOUND_LEAKAGE_REDUCTION;
+    }
+};
+
+// endregion AUDIO_RET_STATUS, AUDIO_NTFY_STATUS
 
 // endregion AUDIO_*_STATUS
 

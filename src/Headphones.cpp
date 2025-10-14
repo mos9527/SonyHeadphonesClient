@@ -663,6 +663,7 @@ void Headphones::requestInit()
     {
         /* DSEE */
         sendGet<THMSGV2T1::AudioGetCapability>(THMSGV2T1::AudioInquiredType::UPSCALING);
+        sendGet<THMSGV2T1::AudioGetStatus>(THMSGV2T1::AudioInquiredType::UPSCALING);
         sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::UPSCALING);
     }
 
@@ -1498,6 +1499,25 @@ HeadphonesEvent Headphones::_handleAudioRetCapability(const HeadphonesMessage& m
     return HeadphonesEvent::MessageUnhandled;
 }
 
+HeadphonesEvent Headphones::_handleAudioStatus(const HeadphonesMessage& msg, CommandType ct)
+{
+    auto payload = msg.as<THMSGV2T1::AudioStatus>(ct);
+    switch (payload->type)
+    {
+    case THMSGV2T1::AudioInquiredType::UPSCALING:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioStatusCommon>(ct);
+            upscalingAvailable.overwrite(payloadSub->status);
+            return HeadphonesEvent::UpscalingUpdate;
+        }
+        break;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
 HeadphonesEvent Headphones::_handleAudioParam(const HeadphonesMessage& msg, CommandType ct)
 {
     auto payload = msg.as<THMSGV2T1::AudioParam>(ct);
@@ -1843,6 +1863,12 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case Command::AUDIO_RET_CAPABILITY:
             result = _handleAudioRetCapability(msg);
+            break;
+        case Command::AUDIO_RET_STATUS:
+            result = _handleAudioStatus(msg, CT_Ret);
+            break;
+        case Command::AUDIO_NTFY_STATUS:
+            result = _handleAudioStatus(msg, CT_Notify);
             break;
         case Command::AUDIO_RET_PARAM:
             result = _handleAudioParam(msg, CT_Ret);

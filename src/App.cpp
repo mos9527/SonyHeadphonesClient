@@ -297,7 +297,7 @@ void App::_drawControls()
                     }
 
                     ImGui::SameLine();
-                    if (_headphones->safeListening.preview.current) {
+                    if (measuringSoundPressure) {
                         if (ImGui::Button("Stop")) {
                             _headphones->safeListening.preview.desired = false;
                         }
@@ -637,12 +637,20 @@ void App::_drawControls()
                 auto it = UpscalingType_STR.find(_headphones->upscalingType.current);
                 const char* currentStr = it != UpscalingType_STR.end() ? it->second : "DSEE";
                 if (ImGui::TreeNodeEx("Upscaling", ImGuiTreeNodeFlags_DefaultOpen, "%s", currentStr)) {
+                    bool upscalingAvailable = _headphones->upscalingAvailable.current;
+                    if (!upscalingAvailable && _headphones->supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION)) {
+                        ImGui::PushTextWrapPos(0.0f);
+                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please set Listening Mode to Standard to use DSEE.");
+                        ImGui::PopTextWrapPos();
+                    }
+                    ImGui::BeginDisabled(!upscalingAvailable);
                     if (ImGui::RadioButton("Off", _headphones->upscaling.desired == THMSGV2T1::UpscalingTypeAutoOff::OFF)) {
                         _headphones->upscaling.desired = THMSGV2T1::UpscalingTypeAutoOff::OFF;
                     }
                     if (ImGui::RadioButton("Auto", _headphones->upscaling.desired == THMSGV2T1::UpscalingTypeAutoOff::AUTO)) {
                         _headphones->upscaling.desired = THMSGV2T1::UpscalingTypeAutoOff::AUTO;
                     }
+                    ImGui::EndDisabled();
 
                     ImGui::TreePop();
                 }
