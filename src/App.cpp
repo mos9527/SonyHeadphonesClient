@@ -106,7 +106,12 @@ bool App::OnFrame()
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestShutdown);
     {
         static bool open = true;
-        ImGui::Begin("Sony Headphones", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+#ifdef _WIN32
+        if (_config.mica && g_micaSupported)
+            windowFlags |= ImGuiWindowFlags_NoBackground;
+#endif
+        ImGui::Begin("Sony Headphones", &open, windowFlags);
         //Legal disclaimer
         if (_config.showDisclaimers) {
             ImGui::Separator();
@@ -250,6 +255,7 @@ void App::_drawControls()
             ImGui::TableSetColumnIndex(0);
             {
                 auto drawBatteryProgressBar = [](const Headphones::BatteryData& battery, const char* label) {
+                    ImGui::AlignTextToFramePadding();
                     ImGui::Text("%s:", label); ImGui::SameLine();
                     std::string levelStr = std::to_string(battery.level) + "%";
                     THMSGV2T1::BatteryChargingStatus cs = battery.chargingStatus;
@@ -278,6 +284,21 @@ void App::_drawControls()
                     || _headphones->supports(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD)) {
                     drawBatteryProgressBar(_headphones->statBatteryCase.current, "Case");
                 }
+
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::CODEC_INDICATOR)) {
+                    static const std::map<THMSGV2T1::AudioCodec, const char*> audioCodecMap = {
+                        { THMSGV2T1::AudioCodec::UNSETTLED, "..." },
+                        { THMSGV2T1::AudioCodec::SBC, "SBC" },
+                        { THMSGV2T1::AudioCodec::AAC, "AAC" },
+                        { THMSGV2T1::AudioCodec::LDAC, "LDAC" },
+                        { THMSGV2T1::AudioCodec::APT_X, "aptX" },
+                        { THMSGV2T1::AudioCodec::APT_X_HD, "aptX HD" },
+                        { THMSGV2T1::AudioCodec::LC3, "LC3" },
+                        { THMSGV2T1::AudioCodec::OTHER, "Unknown" },
+                    };
+                    auto it = audioCodecMap.find(_headphones->codec.current);
+                    ImGui::Text("Codec: %s", it != audioCodecMap.end() ? it->second : "Unknown");
+                }
             }
             ImGui::TableSetColumnIndex(1);
             {
@@ -297,7 +318,7 @@ void App::_drawControls()
                     }
 
                     ImGui::SameLine();
-                    if (_headphones->safeListening.preview.current) {
+                    if (measuringSoundPressure) {
                         if (ImGui::Button("Stop")) {
                             _headphones->safeListening.preview.desired = false;
                         }
@@ -374,9 +395,9 @@ void App::_drawControls()
                         _headphones->asmEnabled.desired = false;
                     }
 
-                    ImGui::Separator();
-
                     if (supportsAsm && _headphones->asmEnabled.current && (!supportsNc || _headphones->asmMode.current == THMSGV2T1::NcAsmMode::ASM)) {
+                        ImGui::Separator();
+
                         ImGui::SliderInt("Ambient Strength", &_headphones->asmLevel.desired, 1, 20);
                         _headphones->changingAsmLevel.desired = ImGui::IsItemActive()
                             ? THMSGV2T1::ValueChangeStatus::UNDER_CHANGING : THMSGV2T1::ValueChangeStatus::CHANGED;
@@ -515,7 +536,7 @@ void App::_drawControls()
                     }
 
                     ImGui::TreePop();
-                    }
+                }
 
                 if (ImGui::TreeNodeEx("Equalizer", ImGuiTreeNodeFlags_DefaultOpen)) {
                     bool eqAvailable = (_headphones->deviceCapabilities & DC_EqualizerAvailableCommand) == 0 || _headphones->eqAvailable.current;
@@ -610,6 +631,48 @@ void App::_drawControls()
                     }
 
                     ImGui::EndDisabled();
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Bluetooth Connection Quality", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    if (ImGui::RadioButton("Priority on Sound Quality", _headphones->connectionMode.desired == THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR)) {
+                        _headphones->connectionMode.desired = THMSGV2T1::PriorMode::SOUND_QUALITY_PRIOR;
+                    }
+                    if (ImGui::RadioButton("Priority on Connection Quality", _headphones->connectionMode.desired == THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR)) {
+                        _headphones->connectionMode.desired = THMSGV2T1::PriorMode::CONNECTION_QUALITY_PRIOR;
+                    }
+
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+                    ImGui::TextWrapped("Note: Changing will disconnect and reconnect the headphones' audio stream.");
+                    ImGui::PopStyleColor();
+
+                    ImGui::TreePop();
+                }
+
+                static const std::map<THMSGV2T1::UpscalingType, const char*> UpscalingType_STR = {
+                    { THMSGV2T1::UpscalingType::DSEE_HX, "DSEE HX" },
+                    { THMSGV2T1::UpscalingType::DSEE, "DSEE" },
+                    { THMSGV2T1::UpscalingType::DSEE_HX_AI, "DSEE Extreme" },
+                    { THMSGV2T1::UpscalingType::DSEE_ULTIMATE, "DSEE Ultimate" },
+                };
+                auto it = UpscalingType_STR.find(_headphones->upscalingType.current);
+                const char* currentStr = it != UpscalingType_STR.end() ? it->second : "DSEE";
+                if (ImGui::TreeNodeEx("Upscaling", ImGuiTreeNodeFlags_DefaultOpen, "%s", currentStr)) {
+                    bool upscalingAvailable = _headphones->upscalingAvailable.current;
+                    if (!upscalingAvailable && _headphones->supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION)) {
+                        ImGui::PushTextWrapPos(0.0f);
+                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Please set Listening Mode to Standard to use DSEE.");
+                        ImGui::PopTextWrapPos();
+                    }
+                    ImGui::BeginDisabled(!upscalingAvailable);
+                    if (ImGui::RadioButton("Off", _headphones->upscaling.desired == THMSGV2T1::UpscalingTypeAutoOff::OFF)) {
+                        _headphones->upscaling.desired = THMSGV2T1::UpscalingTypeAutoOff::OFF;
+                    }
+                    if (ImGui::RadioButton("Auto", _headphones->upscaling.desired == THMSGV2T1::UpscalingTypeAutoOff::AUTO)) {
+                        _headphones->upscaling.desired = THMSGV2T1::UpscalingTypeAutoOff::AUTO;
+                    }
+                    ImGui::EndDisabled();
+
                     ImGui::TreePop();
                 }
 
@@ -870,6 +933,10 @@ void App::_drawControls()
                     ImGui::TreePop();
                 }
 
+                if (_headphones->supports(MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING)) {
+                    ImGui::Checkbox("Head Gesture", &_headphones->headGestureEnabled.desired);
+                }
+
                 if (_headphones->supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF)) {
                     static const std::map<THMSGV2T1::AutoPowerOffElements, const char*> AUTO_POWER_OFF_STR = {
                         // { THMSGV2T1::AutoPowerOffElements::POWER_OFF_IN_5_MIN, "5 minutes of no Bluetooth connection" },
@@ -1125,6 +1192,10 @@ void App::_drawConfig()
             ImGui::SliderInt("Font Size", &_config.imguiFontSize, 10.0f, 64.0f);
             ImGui::InputText("Font File (full path)", &_config.imguiFontFile);
             ImGui::SeparatorText("Misc");
+#ifdef _WIN32
+            if (g_micaSupported)
+                ImGui::Checkbox("Mica Backdrop", &_config.mica);
+#endif
             ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
             ImGui::TreePop();
         }
@@ -1192,6 +1263,9 @@ bool AppConfig::load(std::string const& configPath)
         return false;
 
     toml::table table = toml::parse(file);
+#ifdef _WIN32
+    mica = table["mica"].value<bool>().value_or(true);
+#endif
     showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
 
     imguiSettings = table["imguiSettings"].value<std::string>().value_or("");

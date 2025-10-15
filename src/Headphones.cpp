@@ -117,9 +117,12 @@ bool Headphones::isChanged()
         && listeningModeConfig.isFulfilled()
         && eqConfig.isFulfilled()
         && eqPreset.isFulfilled()
+        && connectionMode.isFulfilled()
+        && upscaling.isFulfilled()
         && touchLeftFunc.isFulfilled()
         && touchRightFunc.isFulfilled()
         && ncAmbButtonMode.isFulfilled()
+        && headGestureEnabled.isFulfilled()
         && gs1.isFulfilled()
         && gs2.isFulfilled()
         && gs3.isFulfilled()
@@ -231,58 +234,6 @@ void Headphones::setChanges()
         autoAsmSensitivity.fulfill();
     }
 
-    if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF)
-        && !autoPowerOff.isFulfilled())
-    {
-        sendSet<THMSGV2T1::PowerParamAutoPowerOff>(
-            autoPowerOff.desired,
-            /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffElements::POWER_OFF_IN_5_MIN
-        );
-        this->autoPowerOffWearingDetection.fulfill();
-    }
-    else if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION)
-        && !autoPowerOffWearingDetection.isFulfilled())
-    {
-        sendSet<THMSGV2T1::PowerParamAutoPowerOffWithWearingDetection>(
-            autoPowerOffWearingDetection.desired,
-            /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN
-        );
-        this->autoPowerOffWearingDetection.fulfill();
-    }
-
-    if (supports(MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF)
-        && !autoPauseEnabled.isFulfilled())
-    {
-        sendSet<THMSGV2T1::SystemParamCommon>(
-            THMSGV2T1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING,
-            autoPauseEnabled.desired
-        );
-
-        this->autoPauseEnabled.fulfill();
-    }
-
-    if (!voiceGuidanceEnabled.isFulfilled())
-    {
-        sendSet<THMSGV2T2::VoiceGuidanceParamSettingMtk>(
-            THMSGV2T2::VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH,
-            voiceGuidanceEnabled.desired
-        );
-
-        this->voiceGuidanceEnabled.fulfill();
-    }
-
-    if (supports(MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT)
-        && !miscVoiceGuidanceVol.isFulfilled())
-    {
-        sendSet<THMSGV2T2::VoiceGuidanceSetParamVolume>(
-            THMSGV2T2::VoiceGuidanceInquiredType::VOLUME,
-            static_cast<int8_t>(miscVoiceGuidanceVol.desired),
-            /*feedbackSound*/ true
-        );
-
-        this->miscVoiceGuidanceVol.fulfill();
-    }
-
     if (!volume.isFulfilled())
     {
         sendSet<THMSGV2T1::PlayParamPlaybackControllerVolume>(
@@ -345,7 +296,6 @@ void Headphones::setChanges()
                 listeningModeConfig.desired.nonBgmMode == ListeningMode::Cinema
             );
         }
-        waitForAck();
         listeningModeConfig.fulfill();
     }
 
@@ -396,6 +346,20 @@ void Headphones::setChanges()
         eqConfig.fulfill();
     }
 
+    if (supports(MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY)
+        && !connectionMode.isFulfilled())
+    {
+        sendSet<THMSGV2T1::AudioParamConnection>(connectionMode.desired);
+        connectionMode.fulfill();
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF)
+        && !upscaling.isFulfilled())
+    {
+        sendSet<THMSGV2T1::AudioParamUpscaling>(upscaling.desired);
+        upscaling.fulfill();
+    }
+
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING)
         && (!touchLeftFunc.isFulfilled() || !touchRightFunc.isFulfilled()))
     {
@@ -409,6 +373,67 @@ void Headphones::setChanges()
     {
         sendSet<THMSGV2T1::NcAsmParamNcAmbToggle>(ncAmbButtonMode.desired);
         ncAmbButtonMode.fulfill();
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING) && !headGestureEnabled.isFulfilled())
+    {
+        sendSet<THMSGV2T1::SystemParamCommon>(
+            THMSGV2T1::SystemInquiredType::HEAD_GESTURE_ON_OFF,
+            headGestureEnabled.desired
+        );
+        headGestureEnabled.fulfill();
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF)
+        && !autoPowerOff.isFulfilled())
+    {
+        sendSet<THMSGV2T1::PowerParamAutoPowerOff>(
+            autoPowerOff.desired,
+            /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffElements::POWER_OFF_IN_5_MIN
+        );
+        this->autoPowerOffWearingDetection.fulfill();
+    }
+    else if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION)
+        && !autoPowerOffWearingDetection.isFulfilled())
+    {
+        sendSet<THMSGV2T1::PowerParamAutoPowerOffWithWearingDetection>(
+            autoPowerOffWearingDetection.desired,
+            /*lastSelectPowerOffElements*/ THMSGV2T1::AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN
+        );
+        this->autoPowerOffWearingDetection.fulfill();
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF)
+        && !autoPauseEnabled.isFulfilled())
+    {
+        sendSet<THMSGV2T1::SystemParamCommon>(
+            THMSGV2T1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING,
+            autoPauseEnabled.desired
+        );
+
+        this->autoPauseEnabled.fulfill();
+    }
+
+    if (!voiceGuidanceEnabled.isFulfilled())
+    {
+        sendSet<THMSGV2T2::VoiceGuidanceParamSettingMtk>(
+            THMSGV2T2::VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH,
+            voiceGuidanceEnabled.desired
+        );
+
+        this->voiceGuidanceEnabled.fulfill();
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT)
+        && !miscVoiceGuidanceVol.isFulfilled())
+    {
+        sendSet<THMSGV2T2::VoiceGuidanceSetParamVolume>(
+            THMSGV2T2::VoiceGuidanceInquiredType::VOLUME,
+            static_cast<int8_t>(miscVoiceGuidanceVol.desired),
+            /*feedbackSound*/ true
+        );
+
+        this->miscVoiceGuidanceVol.fulfill();
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1) && !gs1.isFulfilled())
@@ -514,7 +539,9 @@ void Headphones::requestInit()
             waitForSupportFunction(kImportantDataRequestTimeout);
         }
 
-        /* Capabilities */
+        /* === Capabilities === */
+
+        /* General Settings */
         if (supports(MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
         {
             sendGet<THMSGV2T1::GsGetCapability>(
@@ -535,12 +562,23 @@ void Headphones::requestInit()
             sendGet<THMSGV2T1::GsGetCapability>(
                 THMSGV2T1::GsInquiredType::GENERAL_SETTING4, THMSGV2T1::DisplayLanguage::ENGLISH);
         }
+
+        /* DSEE */
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            sendGet<THMSGV2T1::AudioGetCapability>(THMSGV2T1::AudioInquiredType::UPSCALING);
+        }
     }
 
     if (supports(MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
     {
         /* Receive alerts for certain operations like toggling multipoint */
         sendSetAndForget<THMSGV2T1::AlertSetStatusFixedMessage>(true);
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+    {
+        sendGet<THMSGV2T1::CommonGetStatus>(THMSGV2T1::CommonInquiredType::AUDIO_CODEC);
     }
 
     /* Playback Metadata */
@@ -605,6 +643,28 @@ void Headphones::requestInit()
         sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::UPMIX_CINEMA);
     }
 
+    /* Equalizer */
+    if ((deviceCapabilities & DC_EqualizerAvailableCommand) != 0)
+    {
+        sendGet<THMSGV2T1::EqEbbGetStatus>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
+    }
+
+    /* Equalizer */
+    sendGet<THMSGV2T1::EqEbbGetParam>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
+
+    if (supports(MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+    {
+        /* Bluetooth Connection Quality */
+        sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::CONNECTION_MODE);
+    }
+
+    if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+    {
+        /* DSEE */
+        sendGet<THMSGV2T1::AudioGetStatus>(THMSGV2T1::AudioInquiredType::UPSCALING);
+        sendGet<THMSGV2T1::AudioGetParam>(THMSGV2T1::AudioInquiredType::UPSCALING);
+    }
+
     if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
     {
         /* Touch Sensor */
@@ -616,14 +676,10 @@ void Headphones::requestInit()
         sendGet<THMSGV2T1::NcAsmGetParam>(THMSGV2T1::NcAsmInquiredType::NC_AMB_TOGGLE);
     }
 
-    /* Equalizer */
-    if ((deviceCapabilities & DC_EqualizerAvailableCommand) != 0)
+    if (supports(MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
     {
-        sendGet<THMSGV2T1::EqEbbGetStatus>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
+        sendGet<THMSGV2T1::SystemGetParam>(THMSGV2T1::SystemInquiredType::HEAD_GESTURE_ON_OFF);
     }
-
-    /* Equalizer */
-    sendGet<THMSGV2T1::EqEbbGetParam>(THMSGV2T1::EqEbbInquiredType::PRESET_EQ);
 
     /* Automatic Power Off */
     if (supports(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
@@ -937,6 +993,24 @@ HeadphonesEvent Headphones::_handleT2SupportFunction(const HeadphonesMessage& ms
         supportFunctionString2.overwrite(oss.str());
         _supportFunctionCV.notify_all();
         return HeadphonesEvent::SupportFunctionUpdate;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
+HeadphonesEvent Headphones::_handleCommonStatus(const HeadphonesMessage& msg, CommandType ct)
+{
+    auto payload = msg.as<THMSGV2T1::CommonStatus>(ct);
+    switch (payload->type)
+    {
+    case THMSGV2T1::CommonInquiredType::AUDIO_CODEC:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::CommonStatusAudioCodec>(ct);
+            codec.overwrite(payloadSub->audioCodec);
+            return HeadphonesEvent::CodecUpdate;
+        }
     }
     }
     return HeadphonesEvent::MessageUnhandled;
@@ -1422,11 +1496,69 @@ HeadphonesEvent Headphones::_handleGeneralSettingParam(const HeadphonesMessage& 
     return HeadphonesEvent::MessageUnhandled;
 }
 
+HeadphonesEvent Headphones::_handleAudioRetCapability(const HeadphonesMessage& msg)
+{
+    auto payload = msg.as<THMSGV2T1::AudioRetCapability>();
+    switch (payload->type)
+    {
+    case THMSGV2T1::AudioInquiredType::UPSCALING:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioRetCapabilityUpscaling>();
+            upscalingType.overwrite(payloadSub->upscalingType);
+            return HeadphonesEvent::UpscalingUpdate;
+        }
+        break;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
+HeadphonesEvent Headphones::_handleAudioStatus(const HeadphonesMessage& msg, CommandType ct)
+{
+    auto payload = msg.as<THMSGV2T1::AudioStatus>(ct);
+    switch (payload->type)
+    {
+    case THMSGV2T1::AudioInquiredType::UPSCALING:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioStatusCommon>(ct);
+            upscalingAvailable.overwrite(payloadSub->status);
+            return HeadphonesEvent::UpscalingUpdate;
+        }
+        break;
+    }
+    }
+    return HeadphonesEvent::MessageUnhandled;
+}
+
 HeadphonesEvent Headphones::_handleAudioParam(const HeadphonesMessage& msg, CommandType ct)
 {
     auto payload = msg.as<THMSGV2T1::AudioParam>(ct);
     switch (payload->type)
     {
+    case THMSGV2T1::AudioInquiredType::CONNECTION_MODE:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioParamConnection>(ct);
+            connectionMode.overwrite(payloadSub->settingValue);
+            return HeadphonesEvent::ConnectionModeUpdate;
+        }
+        break;
+    }
+    case THMSGV2T1::AudioInquiredType::UPSCALING:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::AudioParamUpscaling>(ct);
+            upscaling.overwrite(payloadSub->settingValue);
+            return HeadphonesEvent::UpscalingUpdate;
+        }
+        break;
+    }
     case THMSGV2T1::AudioInquiredType::BGM_MODE:
     {
         if (supports(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
@@ -1474,16 +1606,6 @@ HeadphonesEvent Headphones::_handleSystemParam(const HeadphonesMessage& msg, Com
         }
         break;
     }
-    case THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2:
-    {
-        if (supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
-        {
-            auto payloadSub = msg.as<THMSGV2T1::SystemParamSmartTalking>(ct);
-            stcEnabled.overwrite(payloadSub->onOffValue);
-            return HeadphonesEvent::SpeakToChatEnabledUpdate;
-        }
-        break;
-    }
     case THMSGV2T1::SystemInquiredType::ASSIGNABLE_SETTINGS:
     {
         if (supports(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
@@ -1495,6 +1617,26 @@ HeadphonesEvent Headphones::_handleSystemParam(const HeadphonesMessage& msg, Com
                 touchRightFunc.overwrite(payloadSub->presets[1]);
                 return HeadphonesEvent::TouchFunctionUpdate;
             }
+        }
+        break;
+    }
+    case THMSGV2T1::SystemInquiredType::SMART_TALKING_MODE_TYPE2:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::SystemParamSmartTalking>(ct);
+            stcEnabled.overwrite(payloadSub->onOffValue);
+            return HeadphonesEvent::SpeakToChatEnabledUpdate;
+        }
+        break;
+    }
+    case THMSGV2T1::SystemInquiredType::HEAD_GESTURE_ON_OFF:
+    {
+        if (supports(MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+        {
+            auto payloadSub = msg.as<THMSGV2T1::SystemParamCommon>(ct);
+            headGestureEnabled.overwrite(payloadSub->settingValue);
+            return HeadphonesEvent::HeadGestureEnabledUpdate;
         }
         break;
     }
@@ -1698,6 +1840,12 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
         case Command::CONNECT_RET_SUPPORT_FUNCTION:
             result = _handleT1SupportFunction(msg);
             break;
+        case Command::COMMON_RET_STATUS:
+            result = _handleCommonStatus(msg, CT_Ret);
+            break;
+        case Command::COMMON_NTFY_STATUS:
+            result = _handleCommonStatus(msg, CT_Notify);
+            break;
         case Command::NCASM_RET_PARAM:
             result = _handleNcAsmParam(msg, CT_Ret);
             break;
@@ -1734,6 +1882,15 @@ HeadphonesEvent Headphones::_handleMessage(HeadphonesMessage const& msg)
             break;
         case Command::GENERAL_SETTING_NTNY_PARAM:
             result = _handleGeneralSettingParam(msg, CT_Notify);
+            break;
+        case Command::AUDIO_RET_CAPABILITY:
+            result = _handleAudioRetCapability(msg);
+            break;
+        case Command::AUDIO_RET_STATUS:
+            result = _handleAudioStatus(msg, CT_Ret);
+            break;
+        case Command::AUDIO_NTFY_STATUS:
+            result = _handleAudioStatus(msg, CT_Notify);
             break;
         case Command::AUDIO_RET_PARAM:
             result = _handleAudioParam(msg, CT_Ret);

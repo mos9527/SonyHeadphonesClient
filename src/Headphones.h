@@ -72,6 +72,8 @@ enum class HeadphonesEvent
     DeviceInfoUpdate,
     SupportFunctionUpdate,
 
+    CodecUpdate,
+
     NcAsmParamUpdate,
     NcAmbButtonModeUpdate,
     BatteryLevelUpdate,
@@ -89,12 +91,17 @@ enum class HeadphonesEvent
     SpeakToChatParamUpdate,
     SpeakToChatEnabledUpdate,
 
+    HeadGestureEnabledUpdate,
+
     ListeningModeUpdate,
 
     TouchFunctionUpdate,
 
     EqualizerAvailableUpdate,
     EqualizerParamUpdate,
+
+    ConnectionModeUpdate,
+    UpscalingUpdate,
 
     BluetoothModeUpdate,
     MultipointDeviceSwitchUpdate,
@@ -242,6 +249,9 @@ public:
     ReadonlyProperty<BatteryData> statBatteryR{};
     ReadonlyProperty<BatteryData> statBatteryCase{};
 
+    // Codec
+    ReadonlyProperty<THMSGV2T1::AudioCodec> codec{};
+
     // Volume. 0 ~ 30
     Property<int> volume{};
 
@@ -305,14 +315,25 @@ public:
 
     // Equalizer
     ReadonlyProperty<bool> eqAvailable{};
-    Property<THMSGV2T1::EqPresetId> eqPreset;
+    Property<THMSGV2T1::EqPresetId> eqPreset{};
     Property<EqualizerConfig> eqConfig;
+
+    // Bluetooth Connection Quality
+    Property<THMSGV2T1::PriorMode> connectionMode{};
+
+    // DSEE
+    ReadonlyProperty<THMSGV2T1::UpscalingType> upscalingType{};
+    ReadonlyProperty<bool> upscalingAvailable{};
+    Property<THMSGV2T1::UpscalingTypeAutoOff> upscaling{};
 
     // [WF only] Touch sensor function
     Property<THMSGV2T1::Preset> touchLeftFunc{}, touchRightFunc{};
 
     // [WH only] [NC/AMB] Button Setting
     Property<THMSGV2T1::Function> ncAmbButtonMode{};
+
+    // Head Gesture
+    Property<bool> headGestureEnabled{};
 
     // Protocol version
     uint32_t protocolVersion{};
@@ -415,6 +436,7 @@ private:
     HeadphonesEvent _handleDeviceInfo(const HeadphonesMessage& msg);
     HeadphonesEvent _handleT1SupportFunction(const HeadphonesMessage& msg);
     HeadphonesEvent _handleT2SupportFunction(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleCommonStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleNcAsmParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleBatteryLevelRet(const HeadphonesMessage& msg);
     HeadphonesEvent _handlePlaybackParam(const HeadphonesMessage& msg, CommandType ct);
@@ -428,6 +450,8 @@ private:
     HeadphonesEvent _handlePlaybackStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleGsCapability(const HeadphonesMessage& msg);
     HeadphonesEvent _handleGeneralSettingParam(const HeadphonesMessage& msg, CommandType ct);
+    HeadphonesEvent _handleAudioRetCapability(const HeadphonesMessage& msg);
+    HeadphonesEvent _handleAudioStatus(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleAudioParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemParam(const HeadphonesMessage& msg, CommandType ct);
     HeadphonesEvent _handleSystemExtParam(const HeadphonesMessage& msg, CommandType ct);
