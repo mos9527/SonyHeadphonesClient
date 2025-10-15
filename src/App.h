@@ -34,8 +34,16 @@ constexpr auto GUI_DEFAULT_HEIGHT = 700;
 constexpr auto GUI_DEFAULT_WIDTH = 600;
 constexpr auto DEFAULT_FONT_SIZE = 15.0f;
 constexpr auto WINDOW_COLOR = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+#ifdef _WIN32
+extern bool g_micaSupported;
+#endif
+
 struct AppConfig {
 public:
+#ifdef _WIN32
+    bool mica = true;
+#endif
     bool showDisclaimers = true;
     std::string autoConnectDeviceMac{};
     std::vector<std::pair<std::string, std::string>> headphoneInteractionShellCommands{};

@@ -106,7 +106,12 @@ bool App::OnFrame()
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _requestShutdown);
     {
         static bool open = true;
-        ImGui::Begin("Sony Headphones", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+#ifdef _WIN32
+        if (_config.mica && g_micaSupported)
+            windowFlags |= ImGuiWindowFlags_NoBackground;
+#endif
+        ImGui::Begin("Sony Headphones", &open, windowFlags);
         //Legal disclaimer
         if (_config.showDisclaimers) {
             ImGui::Separator();
@@ -1187,6 +1192,10 @@ void App::_drawConfig()
             ImGui::SliderInt("Font Size", &_config.imguiFontSize, 10.0f, 64.0f);
             ImGui::InputText("Font File (full path)", &_config.imguiFontFile);
             ImGui::SeparatorText("Misc");
+#ifdef _WIN32
+            if (g_micaSupported)
+                ImGui::Checkbox("Mica Backdrop", &_config.mica);
+#endif
             ImGui::Checkbox("Show Disclaimers", &_config.showDisclaimers);
             ImGui::TreePop();
         }
@@ -1254,6 +1263,9 @@ bool AppConfig::load(std::string const& configPath)
         return false;
 
     toml::table table = toml::parse(file);
+#ifdef _WIN32
+    mica = table["mica"].value<bool>().value_or(true);
+#endif
     showDisclaimers = table["showDisclaimers"].value<bool>().value_or(true);
 
     imguiSettings = table["imguiSettings"].value<std::string>().value_or("");
