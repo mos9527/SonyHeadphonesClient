@@ -1,87 +1,11 @@
 #pragma once
-
-#include <vector>
-#include <ranges>
 #include <cstdint>
-
-#define HEADPHONES_DEFINE_ENUM_FLAG_OPERATORS(ENUMTYPE) \
-extern "C++" { \
-inline constexpr ENUMTYPE operator | (ENUMTYPE a, ENUMTYPE b) noexcept { return ENUMTYPE(((std::underlying_type_t<ENUMTYPE>)a) | ((std::underlying_type_t<ENUMTYPE>)b)); } \
-inline ENUMTYPE &operator |= (ENUMTYPE &a, ENUMTYPE b) noexcept { return (ENUMTYPE &)(((std::underlying_type_t<ENUMTYPE> &)a) |= ((std::underlying_type_t<ENUMTYPE>)b)); } \
-inline constexpr ENUMTYPE operator & (ENUMTYPE a, ENUMTYPE b) noexcept { return ENUMTYPE(((std::underlying_type_t<ENUMTYPE>)a) & ((std::underlying_type_t<ENUMTYPE>)b)); } \
-inline ENUMTYPE &operator &= (ENUMTYPE &a, ENUMTYPE b) noexcept { return (ENUMTYPE &)(((std::underlying_type_t<ENUMTYPE> &)a) &= ((std::underlying_type_t<ENUMTYPE>)b)); } \
-inline constexpr ENUMTYPE operator ~ (ENUMTYPE a) noexcept { return ENUMTYPE(~((std::underlying_type_t<ENUMTYPE>)a)); } \
-inline constexpr ENUMTYPE operator ^ (ENUMTYPE a, ENUMTYPE b) noexcept { return ENUMTYPE(((std::underlying_type_t<ENUMTYPE>)a) ^ ((std::underlying_type_t<ENUMTYPE>)b)); } \
-inline ENUMTYPE &operator ^= (ENUMTYPE &a, ENUMTYPE b) noexcept { return (ENUMTYPE &)(((std::underlying_type_t<ENUMTYPE> &)a) ^= ((std::underlying_type_t<ENUMTYPE>)b)); } \
-}
-
-inline constexpr auto MAX_BLUETOOTH_MESSAGE_SIZE = 2048;
-inline constexpr char START_MARKER{ 62 };
-inline constexpr char END_MARKER{ 60 };
-
-inline constexpr auto MAC_ADDR_STR_SIZE = 17;
-
-/*
-from `sdptool browse [device mac]` (from bluez-deprecated-tools)
-
-Service Name: Serial HPC
-Service RecHandle: 0x20000000
-Service Class ID List:
-  UUID 128: 956c7b26-d49a-4ba8-b03f-b17d393cb6e2
-Protocol Descriptor List:
-  "L2CAP" (0x0100)
-  "RFCOMM" (0x0003)
-	Channel: 9
-Language Base Attr List:
-  code_ISO639: 0x656e
-  encoding:    0x6a
-  base_offset: 0x100
-Profile Descriptor List:
-  "Serial Port" (0x1101)
-	Version: 0x0102
- */
-
-inline constexpr auto SERVICE_UUID = "956C7B26-D49A-4BA8-B03F-B17D393CB6E2";
-inline uint8_t SERVICE_UUID_IN_BYTES[] = { // this is the SERVICE_UUID but in bytes
-		0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2
-};
-
-#define APP_NAME "Sony Headphones Client v" __HEADPHONES_APP_VERSION__
-#define APP_NAME_W (L"" APP_NAME)
-#define APP_CONFIG_ENV_KEY "SONYHEADPHONESCLIENT_CONFIG_PATH"
-#define APP_CONFIG_NAME "sonyheadphonesclient.toml"
-using Buffer = std::vector<uint8_t>;
-using BufferSpan = std::span<const uint8_t>;
-
-enum class DATA_TYPE : uint8_t
+#include "Protocol.hpp"
+namespace mdr::v2
 {
-	DATA = 0,
-	ACK = 1,
-	DATA_MC_NO1 = 2,
-	DATA_ICD = 9,
-	DATA_EV = 10,
-	DATA_MDR = 12,
-	DATA_COMMON = 13,
-	DATA_MDR_NO2 = 14,
-	SHOT =  16,
-	SHOT_MC_NO1 =  18,
-	SHOT_ICD =  25,
-	SHOT_EV =  26,
-	SHOT_MDR =  28,
-	SHOT_COMMON =  29,
-	SHOT_MDR_NO2 = 30,
-	LARGE_DATA_COMMON =  45,
-	UNKNOWN = 0xff
-};
-
-enum CommandType
-{
-	CT_Get, CT_Ret, CT_Set, CT_Notify
-};
-
 struct MessageMdrV2EnableDisable
 {
-	enum Value : uint8_t
+	enum Value : UInt8
 	{
 		ENABLE = 0,
 		DISABLE = 1
@@ -90,23 +14,13 @@ struct MessageMdrV2EnableDisable
 	constexpr MessageMdrV2EnableDisable(Value v) : value(v) {}
 	constexpr MessageMdrV2EnableDisable(bool v) : value(v ? ENABLE : DISABLE) {}
 
-	constexpr operator bool() const noexcept { return value == ENABLE; }
+    constexpr operator bool() const noexcept { return value == ENABLE; }
+    const bool IsValid() const noexcept { return value == ENABLE || value == DISABLE; }
 };
-
-inline bool MessageMdrV2EnableDisable_isValidByteCode(uint8_t v)
-{
-	switch (static_cast<MessageMdrV2EnableDisable::Value>(v))
-	{
-	case MessageMdrV2EnableDisable::ENABLE:
-	case MessageMdrV2EnableDisable::DISABLE:
-		return true;
-	}
-	return false;
-}
 
 struct MessageMdrV2OnOffSettingValue
 {
-	enum Value : uint8_t
+	enum Value : UInt8
 	{
 		ON = 0,
 		OFF = 1
@@ -116,66 +30,13 @@ struct MessageMdrV2OnOffSettingValue
 	constexpr MessageMdrV2OnOffSettingValue(bool v) : value(v ? ON : OFF) {}
 
 	constexpr operator bool() const noexcept { return value == ON; }
+    const bool IsValid() const noexcept { return value == ON || value == OFF; }
 };
-
-inline bool MessageMdrV2OnOffSettingValue_isValidByteCode(uint8_t v)
-{
-	switch (static_cast<MessageMdrV2OnOffSettingValue::Value>(v))
-	{
-	case MessageMdrV2OnOffSettingValue::ON:
-	case MessageMdrV2OnOffSettingValue::OFF:
-		return true;
-	}
-	return false;
-}
-
-enum class ModelColor : uint8_t
-{
-	Default = 0,
-	Black = 1,
-	White = 2,
-	Silver = 3,
-	Red = 4,
-	Blue = 5,
-	Pink = 6,
-	Yellow = 7,
-	Green = 8,
-	Gray = 9,
-	Gold = 10,
-	Cream = 11,
-	Orange = 12,
-	Brown = 13,
-	Violet = 14,
-};
-
-inline bool ModelColor_isValidByteCode(uint8_t type)
-{
-	switch (static_cast<ModelColor>(type))
-	{
-	case ModelColor::Default:
-	case ModelColor::Black:
-	case ModelColor::White:
-	case ModelColor::Silver:
-	case ModelColor::Red:
-	case ModelColor::Blue:
-	case ModelColor::Pink:
-	case ModelColor::Yellow:
-	case ModelColor::Green:
-	case ModelColor::Gray:
-	case ModelColor::Gold:
-	case ModelColor::Cream:
-	case ModelColor::Orange:
-	case ModelColor::Brown:
-	case ModelColor::Violet:
-		return true;
-	}
-	return false;
-}
 
 // CONNECT_*_SUPPORT_FUNCTION
 // Extracted from Sound Connect iOS 12.2.0
 
-enum class MessageMdrV2FunctionType_Table1 : uint8_t
+enum class MessageMdrV2FunctionType_Table1 : UInt8
 {
 	CONCIERGE_DATA = 0x10,
 	CONNECTION_STATUS = 0x11,
@@ -309,7 +170,7 @@ enum class MessageMdrV2FunctionType_Table1 : uint8_t
 	HEAD_GESTURE_ON_OFF_TRAINING = 0xFF,
 };
 
-inline const char* MessageMdrV2FunctionType_Table1ToString(MessageMdrV2FunctionType_Table1 func)
+inline const char* format_as(MessageMdrV2FunctionType_Table1 func)
 {
 	switch (func)
 	{
@@ -447,7 +308,7 @@ inline const char* MessageMdrV2FunctionType_Table1ToString(MessageMdrV2FunctionT
 	}
 }
 
-enum class MessageMdrV2FunctionType_Table2 : uint8_t
+enum class MessageMdrV2FunctionType_Table2 : UInt8
 {
 	AUTO_STANDBY = 0x20,
 	CHARGE_IN_USE = 0x21,
@@ -495,7 +356,7 @@ enum class MessageMdrV2FunctionType_Table2 : uint8_t
 	LIGHTING_MODE = 0xFC,
 };
 
-inline const char* MessageMdrV2FunctionType_Table2ToString(MessageMdrV2FunctionType_Table2 func)
+inline const char* format_as(MessageMdrV2FunctionType_Table2 func)
 {
 	switch (func)
 	{
@@ -549,81 +410,11 @@ inline const char* MessageMdrV2FunctionType_Table2ToString(MessageMdrV2FunctionT
 
 struct MessageMdrV2SupportFunction
 {
-	union
-	{
-		MessageMdrV2FunctionType_Table1 table1;
-		MessageMdrV2FunctionType_Table2 table2;
-	} functionType;
-	uint8_t priority;
+    union
+    {
+        MessageMdrV2FunctionType_Table1 table1;
+        MessageMdrV2FunctionType_Table2 table2;
+    };
+    uint8_t priority;
 };
-
-// AUDIO_*_PARAM
-
-enum class ListeningMode
-{
-	Standard = 1,
-	BGM = -1, // Should not be sent
-	Cinema = 0,
-};
-
-enum class ListeningModeBgmDistanceMode
-{
-	MyRoom = 0,
-	LivingRoom = 1,
-	Cafe = 2,
-};
-
-enum class PLAYBACK_CONTROL : uint8_t
-{
-	NONE = 0,
-	PAUSE = 1,
-	NEXT = 2,
-	PREV = 3,
-	PLAY = 7
-};
-
-enum class PLAYBACK_CONTROL_RESPONSE : uint8_t
-{
-	PLAY = 1,
-	PAUSE = 2
-};
-
-enum class TOUCH_SENSOR_FUNCTION : uint8_t
-{
-	PLAYBACK_CONTROL = 0x20,
-	AMBIENT_NC_CONTROL = 0x35,
-	NOT_ASSIGNED = 0xff,
-	
-	NUM_FUNCTIONS = 3
-};
-
-// https://github.com/Plutoberth/SonyHeadphonesClient/commit/66d8e52aad4ffd08aa78e811a23f67a5bad07d9a
-enum class EQ_PRESET_ID: uint8_t {
-	OFF = 0,
-	ROCK = 1,
-	POP = 2,
-	JAZZ = 3,
-	DANCE = 4,
-	EDM = 5,
-	R_AND_B_HIP_HOP = 6,
-	ACOUSTIC = 7,
-	/*RESERVED_FOR_FUTURE_NO8 = 8,… */
-	/*RESERVED_FOR_FUTURE_NO15 = 15,*/
-	BRIGHT = 16,
-	EXCITED = 17,
-	MELLOW = 18,
-	RELAXED = 19,
-	VOCAL = 20,
-	TREBLE = 21,
-	BASS = 22,
-	SPEECH = 23,
-	/*RESERVED_FOR_FUTURE_NO24 = 24,… */
-	/*RESERVED_FOR_FUTURE_NO31 = 31,*/
-	CUSTOM = 0xa0,
-	USER_SETTING1 = 0xa1,
-	USER_SETTING2 = 0xa2,
-	USER_SETTING3 = 0xa3,
-	USER_SETTING4 = 0xa4,
-	USER_SETTING5 = 0xa5,
-	UNSPECIFIED = 0xff,
-};
+}
