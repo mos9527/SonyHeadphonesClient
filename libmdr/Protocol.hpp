@@ -201,4 +201,7 @@ namespace mdr
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
         std::memcpy(&out, data, sizeof(Type)); \
     }
+    #define MDR_DEFINE_EXTERN_SERIALIZATION(Type) \
+    static size_t Serialize(const Type &data, UInt8* out); \
+    static void Deserialize(UInt8* data, Type &out);
 }

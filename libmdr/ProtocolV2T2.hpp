@@ -272,8 +272,7 @@ namespace mdr::v2::t2
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
         MDRPodArray<MessageMdrV2SupportFunction> supportFunctions; // 0x2-
 
-        static size_t Serialize(const ConnectRetSupportFunction& data, UInt8* out);
-        static void Deserialize(UInt8* data, ConnectRetSupportFunction& out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);
     };
 
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
@@ -385,8 +384,7 @@ namespace mdr::v2::t2
         MDRArray<PeripheralDeviceInfo> deviceList;
         UInt8 playbackDevice;
 
-        static size_t Serialize(const PeripheralParamPairingDeviceManagementClassicBt &data, UInt8* out);
-        static void Deserialize(UInt8* data, PeripheralParamPairingDeviceManagementClassicBt &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(PeripheralParamPairingDeviceManagementClassicBt);
     };
 
     // - SOURCE_SWITCH_CONTROL
@@ -418,8 +416,7 @@ namespace mdr::v2::t2
         MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice> deviceList;
         UInt8 playbackDevice;
 
-        static size_t Serialize(const PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice &data, UInt8* out);
-        static void Deserialize(UInt8* data, PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice);
     };
 
 #pragma pack(push, 1)
@@ -882,8 +879,7 @@ namespace mdr::v2::t2
         SafeListeningNotifyStatusHbs base;
         MDRPodArray<SafeListeningData1> data;
 
-        static size_t Serialize(const SafeListeningNotifyStatusHbs1 &data, UInt8* out);
-        static void Deserialize(UInt8* data, SafeListeningNotifyStatusHbs1 &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs1);
     };
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs1>);
     // - SAFE_LISTENING_HBS_2
@@ -893,8 +889,7 @@ namespace mdr::v2::t2
         SafeListeningNotifyStatusHbs base;
         MDRPodArray<SafeListeningData2> data;
 
-        static size_t Serialize(const SafeListeningNotifyStatusHbs2 &data, UInt8* out);
-        static void Deserialize(UInt8* data, SafeListeningNotifyStatusHbs2 &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs2);        
     };
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs2>);
     // - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
@@ -915,8 +910,7 @@ namespace mdr::v2::t2
         SafeListeningNotifyStatusTws base;
         MDRPodArray<SafeListeningData1> data;
 
-        static size_t Serialize(const SafeListeningNotifyStatusTws1 &data, UInt8* out);
-        static void Deserialize(UInt8* data, SafeListeningNotifyStatusTws1 &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusTws1);
     };
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws1>);
     // - SAFE_LISTENING_TWS_2
@@ -926,8 +920,7 @@ namespace mdr::v2::t2
         SafeListeningNotifyStatusTws base;
         MDRPodArray<SafeListeningData2> data;
 
-        static size_t Serialize(const SafeListeningNotifyStatusTws2 &data, UInt8* out);
-        static void Deserialize(UInt8* data, SafeListeningNotifyStatusTws2 &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusTws2);
     };
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws2>);
 

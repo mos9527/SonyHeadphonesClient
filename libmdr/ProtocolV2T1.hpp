@@ -1101,8 +1101,7 @@ enum class SystemInquiredType : UInt8
             ConnectRetDeviceInfoSeriesAndColor  // SERIES_AND_COLOR_INFO
         > info; // 0x2-
 
-        static size_t Serialize(const ConnectRetDeviceInfo &data, UInt8* out);
-        static void Deserialize(UInt8* data, ConnectRetDeviceInfo &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetDeviceInfo);
     };
     static_assert(MDRIsSerializable<ConnectRetDeviceInfo>);
 
@@ -1122,8 +1121,7 @@ enum class SystemInquiredType : UInt8
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
         MDRPodArray<MessageMdrV2SupportFunction> supportFunctions; // 0x2-
 
-        static size_t Serialize(const ConnectRetSupportFunction &data, UInt8* out);
-        static void Deserialize(UInt8* data, ConnectRetSupportFunction &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);        
     };
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
     // endregion Connect
@@ -1375,8 +1373,7 @@ enum class SystemInquiredType : UInt8
         MessageMdrV2EnableDisable value{MessageMdrV2EnableDisable::DISABLE}; // 0x2
         MDRPodArray<PresetEqErrorCodeType> errors; // 0x3, 0x4-
 
-        static size_t Serialize(const EqEbbStatusErrorCode &data, UInt8* out);
-        static void Deserialize(UInt8* data, EqEbbStatusErrorCode &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbStatusErrorCode);
     };
     static_assert(MDRIsSerializable<EqEbbStatusErrorCode>);
     /*struct EqEbbStatusSoundEffect : EqEbbStatus
@@ -1401,8 +1398,7 @@ enum class SystemInquiredType : UInt8
         EqPresetId presetId{EqPresetId::OFF}; // 0x2
         MDRPodArray<UInt8> bands; // 0x3, 0x4-
 
-        static size_t Serialize(const EqEbbParamEq &data, UInt8* out);
-        static void Deserialize(UInt8* data, EqEbbParamEq &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbParamEq);
     };
     static_assert(MDRIsSerializable<EqEbbParamEq>);
     // - EBB
@@ -1426,8 +1422,7 @@ enum class SystemInquiredType : UInt8
         EqUltMode eqUltModeStatus{EqUltMode::OFF}; // 0x3
         MDRPodArray<UInt8> bandSteps; // 0x4, 0x5-
 
-        static size_t Serialize(const EqEbbParamEqAndUltMode &data, UInt8* out);
-        static void Deserialize(UInt8* data, EqEbbParamEqAndUltMode &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbParamEqAndUltMode);
     };
     static_assert(MDRIsSerializable<EqEbbParamEqAndUltMode>);
     // - SOUND_EFFECT
@@ -1449,8 +1444,7 @@ enum class SystemInquiredType : UInt8
         EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::CUSTOM_EQ};
         MDRPodArray<UInt8> bandSteps; // 0x2, 0x3-
 
-        static size_t Serialize(const EqEbbParamCustomEq &data, UInt8* out);
-        static void Deserialize(UInt8* data, EqEbbParamCustomEq &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbParamCustomEq);
     };
     static_assert(MDRIsSerializable<EqEbbParamCustomEq>);
     // - TURN_KEY_EQ
@@ -1560,8 +1554,7 @@ enum class SystemInquiredType : UInt8
         AlertBase base{Command::ALERT_RET_STATUS, AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION};
         MDRPodArray<VoiceAssistantType> voiceAssistants;
 
-        static size_t Serialize(const AlertRetStatusVoiceAssistant &data, UInt8* out);
-        static void Deserialize(UInt8* data, AlertRetStatusVoiceAssistant &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(AlertRetStatusVoiceAssistant);
     };
     static_assert(MDRIsSerializable<AlertRetStatusVoiceAssistant>);
     
@@ -1780,8 +1773,7 @@ enum class SystemInquiredType : UInt8
         PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
         Array<PlaybackName,4> playbackNames; // Hardcoded
 
-        static size_t Serialize(const PlayParamPlaybackControllerName &data, UInt8* out);
-        static void Deserialize(UInt8* data, PlayParamPlaybackControllerName &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(PlayParamPlaybackControllerName);
     };
     // - MUSIC_VOLUME, CALL_VOLUME
     struct PlayParamPlaybackControllerVolume
@@ -1840,8 +1832,7 @@ enum class SystemInquiredType : UInt8
         GsSettingType settingType; // 0x2
         GsSettingInfo settingInfo; // 0x3-...
 
-        static size_t Serialize(const GsRetCapability &data, UInt8* out);
-        static void Deserialize(UInt8* data, GsRetCapability &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(GsRetCapability);
     };
     static_assert(MDRIsSerializable<GsRetCapability>);
     struct GsGetParam
@@ -2005,8 +1996,7 @@ enum class SystemInquiredType : UInt8
         AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE};
         MDRPodArray<ListeningOptionAssignCustomizableItem> items;
 
-        static size_t Serialize(const AudioParamListeningOptionAssignCustomizableItem &data, UInt8* out);
-        static void Deserialize(UInt8* data, AudioParamListeningOptionAssignCustomizableItem &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(AudioParamListeningOptionAssignCustomizableItem);
     };
     // - UPMIX_SERIES
     struct AudioParamUpmixSeries
@@ -2079,8 +2069,7 @@ enum class SystemInquiredType : UInt8
         SystemBase base{ Command::SYSTEM_RET_PARAM };
         MDRPodArray<Preset> presets;
 
-        static size_t Serialize(const SystemParamAssignableSettings &data, UInt8* out);
-        static void Deserialize(UInt8* data, SystemParamAssignableSettings &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SystemParamAssignableSettings);
     };
     static_assert(MDRIsSerializable<SystemParamAssignableSettings>);
     // - VOICE_ASSISTANT_SETTINGS
@@ -2133,8 +2122,7 @@ enum class SystemInquiredType : UInt8
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION};
         MDRPodArray<Preset> presets;
 
-        static size_t Serialize(const SystemParamAssignableSettingsWithLimit& data, UInt8* out);
-        static void Deserialize(UInt8* data, SystemParamAssignableSettingsWithLimit& out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SystemParamAssignableSettingsWithLimit);
     };
     static_assert(MDRIsSerializable<SystemParamAssignableSettingsWithLimit>);
     // - HEAD_GESTURE_TRAINING
@@ -2231,8 +2219,7 @@ enum class SystemInquiredType : UInt8
         SystemExtBase base;
         MDRArray<AssignableSettingsPreset> presets;
 
-        static size_t Serialize(const SystemExtParamAssignableSettings &data, UInt8* out);
-        static void Deserialize(UInt8* data, SystemExtParamAssignableSettings &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SystemExtParamAssignableSettings);
     };
     // - WEARING_STATUS_DETECTOR
     struct SystemExtParamWearingStatusDetector
@@ -2264,10 +2251,9 @@ enum class SystemInquiredType : UInt8
         SystemExtBase base{ Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION};
         MDRArray<AssignableSettingsPreset> presets;
 
-        static size_t Serialize(const SystemExtParamAssignableSettingsWithLimit &data, UInt8* out);
-        static void Deserialize(UInt8* data, SystemExtParamAssignableSettingsWithLimit &out);
+        MDR_DEFINE_EXTERN_SERIALIZATION(SystemExtParamAssignableSettingsWithLimit);
     };
-    static_assert(MDRIsSerializable<SystemExtParamAssignableSettingsWithLimit>);;
+    static_assert(MDRIsSerializable<SystemExtParamAssignableSettingsWithLimit>);
     // - CALL_SETTINGS
     struct SystemSetExtParamCallSettings
     {

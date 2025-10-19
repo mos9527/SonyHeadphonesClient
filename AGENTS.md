@@ -45,8 +45,7 @@ struct ConnectRetSupportFunction
     ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
     MDRPodArray<MessageMdrV2SupportFunction> supportFunctions; // 0x2-
 
-    static size_t Serialize(const ConnectRetSupportFunction &data, UInt8* out);
-    static MDRSerializationResult Deserialize(UInt8* data, ConnectRetSupportFunction &out);
+    MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);
 };
 static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
 ... <extra code>
@@ -98,6 +97,8 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
 ### Non-trivial Serialization/Deserialization signature
 - On failure, exceptions are always thrown.
 - Serialize _always_ returns non-zero amount of bytes written, or throws.
+- Declaration in Headers always uses `MDR_DEFINE_EXTERN_SERIALIZATION(Type)` macro.
+- Implementation in translation units always uses the following signatures:
 ```c++
     static size_t Serialize(const Type &data, UInt8* out);
     static void Deserialize(UInt8* data, Type &out);
