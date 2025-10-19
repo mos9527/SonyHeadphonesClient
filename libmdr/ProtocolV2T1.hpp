@@ -1766,16 +1766,18 @@ namespace mdr::v2::t1
         PlaybackNameStatus playbackNameStatus;
         MDRPrefixedString playbackName;
 
-        static void Read(UInt8** ppSrcBuffer, PlaybackName &out, size_t maxSize = ~0LL);
-        static size_t Write(const PlaybackName &data, UInt8** ppDstBuffer);
+        MDR_DEFINE_EXTERN_READ_WRITE(PlaybackName);
     };
+    static_assert(MDRIsReadWritable<PlaybackName>);
     struct PlayParamPlaybackControllerName
     {
         PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
         Array<PlaybackName,4> playbackNames; // Hardcoded
 
+        MDR_CODEGEN_IGNORE_SERIALIZATION;
         MDR_DEFINE_EXTERN_SERIALIZATION(PlayParamPlaybackControllerName);
     };
+    static_assert(MDRIsSerializable<PlayParamPlaybackControllerName>);
     // - MUSIC_VOLUME, CALL_VOLUME
     struct PlayParamPlaybackControllerVolume
     {
@@ -1823,9 +1825,9 @@ namespace mdr::v2::t1
         MDRPrefixedString subject;
         MDRPrefixedString summary;
 
-        static void Read(UInt8** ppSrcBuffer, GsSettingInfo &out, size_t maxSize = ~0LL);
-        static size_t Write(const GsSettingInfo &data, UInt8** ppDstBuffer);
+        MDR_DEFINE_EXTERN_READ_WRITE(GsSettingInfo);
     };
+    static_assert(MDRIsReadWritable<GsSettingInfo>);
     struct GsRetCapability
     {
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY};
@@ -2186,9 +2188,10 @@ namespace mdr::v2::t1
     {
         Preset preset;
         MDRPodArray<AssignableSettingsAction> actions;
-        static void Read(UInt8** ppSrcBuffer, AssignableSettingsPreset &out, size_t maxSize = ~0LL);
-        static size_t Write(const AssignableSettingsPreset &data, UInt8** ppDstBuffer);
+
+        MDR_DEFINE_EXTERN_READ_WRITE(AssignableSettingsPreset);
     };
+    static_assert(MDRIsReadWritable<AssignableSettingsPreset>);
     struct SystemGetExtParam
     {
         static constexpr Command kResponseCommand = Command::SYSTEM_RET_EXT_PARAM;

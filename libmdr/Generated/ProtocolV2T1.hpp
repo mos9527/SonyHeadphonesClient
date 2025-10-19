@@ -1146,7 +1146,7 @@ namespace mdr::v2::t1 {
             default: return "Unknown";
         }
     }
-    static const bool is_valid(Command value) {
+    static bool is_valid(Command value) {
         using enum Command;
         switch (value) {
             case CONNECT_GET_PROTOCOL_INFO:
@@ -1297,7 +1297,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ConnectInquiredType value) {
+    static bool is_valid(ConnectInquiredType value) {
         using enum ConnectInquiredType;
         switch (value) {
             case FIXED_VALUE:
@@ -1305,7 +1305,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(DeviceInfoType value) {
+    static bool is_valid(DeviceInfoType value) {
         using enum DeviceInfoType;
         switch (value) {
             case MODEL_NAME:
@@ -1316,7 +1316,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ModelSeriesType value) {
+    static bool is_valid(ModelSeriesType value) {
         using enum ModelSeriesType;
         switch (value) {
             case NO_SERIES:
@@ -1334,7 +1334,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(CommonInquiredType value) {
+    static bool is_valid(CommonInquiredType value) {
         using enum CommonInquiredType;
         switch (value) {
             case CONCIERGE:
@@ -1351,7 +1351,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AudioCodec value) {
+    static bool is_valid(AudioCodec value) {
         using enum AudioCodec;
         switch (value) {
             case UNSETTLED:
@@ -1366,7 +1366,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PowerInquiredType value) {
+    static bool is_valid(PowerInquiredType value) {
         using enum PowerInquiredType;
         switch (value) {
             case BATTERY:
@@ -1389,7 +1389,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(BatteryChargingStatus value) {
+    static bool is_valid(BatteryChargingStatus value) {
         using enum BatteryChargingStatus;
         switch (value) {
             case NOT_CHARGING:
@@ -1400,7 +1400,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PowerOffSettingValue value) {
+    static bool is_valid(PowerOffSettingValue value) {
         using enum PowerOffSettingValue;
         switch (value) {
             case USER_POWER_OFF:
@@ -1409,7 +1409,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AutoPowerOffElements value) {
+    static bool is_valid(AutoPowerOffElements value) {
         using enum AutoPowerOffElements;
         switch (value) {
             case POWER_OFF_IN_5_MIN:
@@ -1422,7 +1422,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AutoPowerOffWearingDetectionElements value) {
+    static bool is_valid(AutoPowerOffWearingDetectionElements value) {
         using enum AutoPowerOffWearingDetectionElements;
         switch (value) {
             case POWER_OFF_IN_5_MIN:
@@ -1436,7 +1436,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EqEbbInquiredType value) {
+    static bool is_valid(EqEbbInquiredType value) {
         using enum EqEbbInquiredType;
         switch (value) {
             case PRESET_EQ:
@@ -1451,7 +1451,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EqPresetId value) {
+    static bool is_valid(EqPresetId value) {
         using enum EqPresetId;
         switch (value) {
             case OFF:
@@ -1517,7 +1517,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EqUltMode value) {
+    static bool is_valid(EqUltMode value) {
         using enum EqUltMode;
         switch (value) {
             case OFF:
@@ -1527,7 +1527,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(SoundEffectType value) {
+    static bool is_valid(SoundEffectType value) {
         using enum SoundEffectType;
         switch (value) {
             case SOUND_EFFECT_OFF:
@@ -1540,7 +1540,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PresetEqErrorCodeType value) {
+    static bool is_valid(PresetEqErrorCodeType value) {
         using enum PresetEqErrorCodeType;
         switch (value) {
             case CALLING:
@@ -1551,7 +1551,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(NcAsmInquiredType value) {
+    static bool is_valid(NcAsmInquiredType value) {
         using enum NcAsmInquiredType;
         switch (value) {
             case NC_ON_OFF:
@@ -1572,7 +1572,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ValueChangeStatus value) {
+    static bool is_valid(ValueChangeStatus value) {
         using enum ValueChangeStatus;
         switch (value) {
             case UNDER_CHANGING:
@@ -1581,7 +1581,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(NcAsmOnOffValue value) {
+    static bool is_valid(NcAsmOnOffValue value) {
         using enum NcAsmOnOffValue;
         switch (value) {
             case OFF:
@@ -1590,7 +1590,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(NcAsmMode value) {
+    static bool is_valid(NcAsmMode value) {
         using enum NcAsmMode;
         switch (value) {
             case NC:
@@ -1599,7 +1599,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AmbientSoundMode value) {
+    static bool is_valid(AmbientSoundMode value) {
         using enum AmbientSoundMode;
         switch (value) {
             case NORMAL:
@@ -1608,7 +1608,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(NoiseAdaptiveSensitivity value) {
+    static bool is_valid(NoiseAdaptiveSensitivity value) {
         using enum NoiseAdaptiveSensitivity;
         switch (value) {
             case STANDARD:
@@ -1618,7 +1618,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(Function value) {
+    static bool is_valid(Function value) {
         using enum Function;
         switch (value) {
             case NO_FUNCTION:
@@ -1668,7 +1668,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertInquiredType value) {
+    static bool is_valid(AlertInquiredType value) {
         using enum AlertInquiredType;
         switch (value) {
             case FIXED_MESSAGE:
@@ -1682,7 +1682,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertMessageType value) {
+    static bool is_valid(AlertMessageType value) {
         using enum AlertMessageType;
         switch (value) {
             case DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE:
@@ -1792,7 +1792,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertFlexibleMessageType value) {
+    static bool is_valid(AlertFlexibleMessageType value) {
         using enum AlertFlexibleMessageType;
         switch (value) {
             case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS:
@@ -1817,7 +1817,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(VoiceAssistantType value) {
+    static bool is_valid(VoiceAssistantType value) {
         using enum VoiceAssistantType;
         switch (value) {
             case GOOGLE_ASSISTANT:
@@ -1827,7 +1827,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ConfirmationType value) {
+    static bool is_valid(ConfirmationType value) {
         using enum ConfirmationType;
         switch (value) {
             case CONFIRMED:
@@ -1836,7 +1836,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertAction value) {
+    static bool is_valid(AlertAction value) {
         using enum AlertAction;
         switch (value) {
             case NEGATIVE:
@@ -1845,7 +1845,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(VibrationType value) {
+    static bool is_valid(VibrationType value) {
         using enum VibrationType;
         switch (value) {
             case NO_PATTERN_SPECIFIED:
@@ -1853,7 +1853,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertMessageTypeWithLeftRightSelection value) {
+    static bool is_valid(AlertMessageTypeWithLeftRightSelection value) {
         using enum AlertMessageTypeWithLeftRightSelection;
         switch (value) {
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON:
@@ -1866,7 +1866,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertLeftRightAction value) {
+    static bool is_valid(AlertLeftRightAction value) {
         using enum AlertLeftRightAction;
         switch (value) {
             case NEGATIVE:
@@ -1876,7 +1876,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AlertActionType value) {
+    static bool is_valid(AlertActionType value) {
         using enum AlertActionType;
         switch (value) {
             case CONFIRMATION_ONLY:
@@ -1886,7 +1886,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(DefaultSelectedLeftRightValue value) {
+    static bool is_valid(DefaultSelectedLeftRightValue value) {
         using enum DefaultSelectedLeftRightValue;
         switch (value) {
             case LEFT:
@@ -1895,7 +1895,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PlayInquiredType value) {
+    static bool is_valid(PlayInquiredType value) {
         using enum PlayInquiredType;
         switch (value) {
             case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
@@ -1910,7 +1910,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PlaybackStatus value) {
+    static bool is_valid(PlaybackStatus value) {
         using enum PlaybackStatus;
         switch (value) {
             case UNSETTLED:
@@ -1921,7 +1921,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(MusicCallStatus value) {
+    static bool is_valid(MusicCallStatus value) {
         using enum MusicCallStatus;
         switch (value) {
             case MUSIC:
@@ -1930,7 +1930,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PlaybackControl value) {
+    static bool is_valid(PlaybackControl value) {
         using enum PlaybackControl;
         switch (value) {
             case KEY_OFF:
@@ -1947,7 +1947,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PlaybackNameStatus value) {
+    static bool is_valid(PlaybackNameStatus value) {
         using enum PlaybackNameStatus;
         switch (value) {
             case UNSETTLED:
@@ -1957,7 +1957,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PlayMode value) {
+    static bool is_valid(PlayMode value) {
         using enum PlayMode;
         switch (value) {
             case PLAY_MODE_OFF:
@@ -1970,7 +1970,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(GsInquiredType value) {
+    static bool is_valid(GsInquiredType value) {
         using enum GsInquiredType;
         switch (value) {
             case GENERAL_SETTING1:
@@ -1981,7 +1981,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(GsSettingType value) {
+    static bool is_valid(GsSettingType value) {
         using enum GsSettingType;
         switch (value) {
             case BOOLEAN_TYPE:
@@ -1990,7 +1990,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(GsSettingValue value) {
+    static bool is_valid(GsSettingValue value) {
         using enum GsSettingValue;
         switch (value) {
             case ON:
@@ -1999,7 +1999,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(DisplayLanguage value) {
+    static bool is_valid(DisplayLanguage value) {
         using enum DisplayLanguage;
         switch (value) {
             case UNDEFINED_LANGUAGE:
@@ -2023,7 +2023,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(GsStringFormat value) {
+    static bool is_valid(GsStringFormat value) {
         using enum GsStringFormat;
         switch (value) {
             case RAW_NAME:
@@ -2032,7 +2032,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(AudioInquiredType value) {
+    static bool is_valid(AudioInquiredType value) {
         using enum AudioInquiredType;
         switch (value) {
             case CONNECTION_MODE:
@@ -2050,7 +2050,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(PriorMode value) {
+    static bool is_valid(PriorMode value) {
         using enum PriorMode;
         switch (value) {
             case SOUND_QUALITY_PRIOR:
@@ -2060,7 +2060,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(UpscalingTypeAutoOff value) {
+    static bool is_valid(UpscalingTypeAutoOff value) {
         using enum UpscalingTypeAutoOff;
         switch (value) {
             case OFF:
@@ -2069,7 +2069,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(RoomSize value) {
+    static bool is_valid(RoomSize value) {
         using enum RoomSize;
         switch (value) {
             case SMALL:
@@ -2079,7 +2079,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ListeningOptionAssignCustomizableItem value) {
+    static bool is_valid(ListeningOptionAssignCustomizableItem value) {
         using enum ListeningOptionAssignCustomizableItem;
         switch (value) {
             case STANDARD:
@@ -2091,7 +2091,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(UpmixItemId value) {
+    static bool is_valid(UpmixItemId value) {
         using enum UpmixItemId;
         switch (value) {
             case NONE:
@@ -2102,7 +2102,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(SwitchingStream value) {
+    static bool is_valid(SwitchingStream value) {
         using enum SwitchingStream;
         switch (value) {
             case NONE:
@@ -2112,7 +2112,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(UpscalingType value) {
+    static bool is_valid(UpscalingType value) {
         using enum UpscalingType;
         switch (value) {
             case DSEE_HX:
@@ -2123,7 +2123,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(SystemInquiredType value) {
+    static bool is_valid(SystemInquiredType value) {
         using enum SystemInquiredType;
         switch (value) {
             case VIBRATOR:
@@ -2147,7 +2147,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(Preset value) {
+    static bool is_valid(Preset value) {
         using enum Preset;
         switch (value) {
             case AMBIENT_SOUND_CONTROL:
@@ -2180,7 +2180,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(VoiceAssistant value) {
+    static bool is_valid(VoiceAssistant value) {
         using enum VoiceAssistant;
         switch (value) {
             case VOICE_RECOGNITION:
@@ -2194,7 +2194,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EarpieceFittingDetectionOperationStatus value) {
+    static bool is_valid(EarpieceFittingDetectionOperationStatus value) {
         using enum EarpieceFittingDetectionOperationStatus;
         switch (value) {
             case DETECTION_IS_NOT_STARTED:
@@ -2205,7 +2205,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EarpieceFittingDetectionOperationErrorCode value) {
+    static bool is_valid(EarpieceFittingDetectionOperationErrorCode value) {
         using enum EarpieceFittingDetectionOperationErrorCode;
         switch (value) {
             case NO_ERROR:
@@ -2220,7 +2220,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EarpieceSeries value) {
+    static bool is_valid(EarpieceSeries value) {
         using enum EarpieceSeries;
         switch (value) {
             case OTHER:
@@ -2232,7 +2232,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EarpieceSize value) {
+    static bool is_valid(EarpieceSize value) {
         using enum EarpieceSize;
         switch (value) {
             case SS:
@@ -2245,7 +2245,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EarpieceFittingDetectionOperation value) {
+    static bool is_valid(EarpieceFittingDetectionOperation value) {
         using enum EarpieceFittingDetectionOperation;
         switch (value) {
             case DETECTION_START:
@@ -2255,7 +2255,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ResetType value) {
+    static bool is_valid(ResetType value) {
         using enum ResetType;
         switch (value) {
             case SETTINGS_ONLY:
@@ -2264,7 +2264,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ResetResult value) {
+    static bool is_valid(ResetResult value) {
         using enum ResetResult;
         switch (value) {
             case SUCCESS:
@@ -2274,7 +2274,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(FaceTapKey value) {
+    static bool is_valid(FaceTapKey value) {
         using enum FaceTapKey;
         switch (value) {
             case LEFT_SIDE_KEY:
@@ -2283,7 +2283,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(FaceTapAction value) {
+    static bool is_valid(FaceTapAction value) {
         using enum FaceTapAction;
         switch (value) {
             case DOUBLE_TAP:
@@ -2292,7 +2292,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(HeadGestureAction value) {
+    static bool is_valid(HeadGestureAction value) {
         using enum HeadGestureAction;
         switch (value) {
             case NOD:
@@ -2301,7 +2301,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(DetectSensitivity value) {
+    static bool is_valid(DetectSensitivity value) {
         using enum DetectSensitivity;
         switch (value) {
             case AUTO:
@@ -2311,7 +2311,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(ModeOutTime value) {
+    static bool is_valid(ModeOutTime value) {
         using enum ModeOutTime;
         switch (value) {
             case FAST:
@@ -2322,7 +2322,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(Action value) {
+    static bool is_valid(Action value) {
         using enum Action;
         switch (value) {
             case SINGLE_TAP:
@@ -2337,7 +2337,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(EarpieceFittingDetectionResult value) {
+    static bool is_valid(EarpieceFittingDetectionResult value) {
         using enum EarpieceFittingDetectionResult;
         switch (value) {
             case GOOD:
@@ -2346,7 +2346,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(CallSettingsTestSoundControl value) {
+    static bool is_valid(CallSettingsTestSoundControl value) {
         using enum CallSettingsTestSoundControl;
         switch (value) {
             case START:
@@ -2354,7 +2354,7 @@ namespace mdr::v2::t1 {
         default: return false;
         }
     }
-    static const bool is_valid(CallSettingsTestSoundControlAck value) {
+    static bool is_valid(CallSettingsTestSoundControlAck value) {
         using enum CallSettingsTestSoundControlAck;
         switch (value) {
             case ACK:

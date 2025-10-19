@@ -214,6 +214,18 @@ namespace mdr
     static size_t Serialize(const Type &data, UInt8* out); \
     static void Deserialize(UInt8* data, Type &out);
     /**
+     * @brief Macro to declare external read/write methods for non-trivial types.
+     *
+     * @note This declares @ref Read and @ref Write in the current scope,
+     *       which must be a struct.
+     *
+     * @note The implementations must be provided elsewhere, ideally in a corresponding
+     *       translation unit, which may or may not be generated.
+     */
+    #define MDR_DEFINE_EXTERN_READ_WRITE(SubType) \
+    static void Read(UInt8** ppSrcBuffer, SubType &out, size_t maxSize = ~0LL); \
+    static size_t Write(const SubType &data, UInt8** ppDstBuffer);
+    /**
      * @brief Macro to mark the struct to implement bespoke serialization logic.
      */
     #define MDR_CODEGEN_IGNORE_SERIALIZATION

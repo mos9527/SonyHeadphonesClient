@@ -188,7 +188,7 @@ namespace mdr::v2 {
             default: return "Unknown";
         }
     }
-    static const bool is_valid(MessageMdrV2FunctionType_Table1 value) {
+    static bool is_valid(MessageMdrV2FunctionType_Table1 value) {
         using enum MessageMdrV2FunctionType_Table1;
         switch (value) {
             case CONCIERGE_DATA:
@@ -325,7 +325,7 @@ namespace mdr::v2 {
         default: return false;
         }
     }
-    static const bool is_valid(MessageMdrV2FunctionType_Table2 value) {
+    static bool is_valid(MessageMdrV2FunctionType_Table2 value) {
         using enum MessageMdrV2FunctionType_Table2;
         switch (value) {
             case AUTO_STANDBY:

@@ -331,10 +331,9 @@ namespace mdr::v2::t2
         UInt8 connectedStatus;
         MDRPrefixedString btFriendlyName;
 
-        static void Read(UInt8** ppSrcBuffer, PeripheralDeviceInfo &out, size_t maxSize = ~0LL);
-        static size_t Write(const PeripheralDeviceInfo &data, UInt8** ppDstBuffer);
+        MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfo);
     };
-
+    static_assert(MDRIsReadWritable<PeripheralDeviceInfo>);
     struct PeripheralDeviceInfoWithBluetoothClassOfDevice
     {
         static constexpr size_t kMacAddressLength = 17;
@@ -346,10 +345,9 @@ namespace mdr::v2::t2
         Int32BE bluetoothClassOfDevice;
         MDRPrefixedString btFriendlyName;
 
-        static void Read(UInt8** ppSrcBuffer, PeripheralDeviceInfoWithBluetoothClassOfDevice &out, size_t maxSize = ~0LL);
-        static size_t Write(const PeripheralDeviceInfoWithBluetoothClassOfDevice &data, UInt8** ppDstBuffer);
+        MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfoWithBluetoothClassOfDevice);
     };
-
+    static_assert(MDRIsReadWritable<PeripheralDeviceInfoWithBluetoothClassOfDevice>);
 #pragma pack(push, 1)
 
     // region PERI_GET_PARAM

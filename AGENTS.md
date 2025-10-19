@@ -88,13 +88,17 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
     - Use `MDRPrefixedString::Read` and `MDRPrefixedString::Write` for dynamic strings
 ## Snippets
 ### Read/Write signature
+- This is meant for non-trivial Read/Write functions, for **fields** that require special handling.
 - On failure, exceptions are always thrown.
 - Write _always_ returns non-zero amount of bytes written, or throws.
+- Declaration in Headers always uses `MDR_DEFINE_EXTERN_READ_WRITE(SubType)` macro.
+- Implementation in translation units always uses the following signatures:
 ```c++
     static void Read(UInt8** ppSrcBuffer, Type &out, size_t maxSize = ~0LL);
     static size_t Write(const Type &data, UInt8** ppDstBuffer);
 ```
 ### Non-trivial Serialization/Deserialization signature
+- This is meant for non-trivial Serialize/Deserialize functions, for **structs** that require special handling.
 - On failure, exceptions are always thrown.
 - Serialize _always_ returns non-zero amount of bytes written, or throws.
 - Declaration in Headers always uses `MDR_DEFINE_EXTERN_SERIALIZATION(Type)` macro.

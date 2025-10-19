@@ -243,7 +243,7 @@ namespace mdr::v2::t2 {
             default: return "Unknown";
         }
     }
-    static const bool is_valid(Command value) {
+    static bool is_valid(Command value) {
         using enum Command;
         switch (value) {
             case CONNECT_GET_SUPPORT_FUNCTION:
@@ -333,7 +333,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(ConnectInquiredType value) {
+    static bool is_valid(ConnectInquiredType value) {
         using enum ConnectInquiredType;
         switch (value) {
             case FIXED_VALUE:
@@ -341,7 +341,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(PeripheralInquiredType value) {
+    static bool is_valid(PeripheralInquiredType value) {
         using enum PeripheralInquiredType;
         switch (value) {
             case PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
@@ -352,7 +352,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(PeripheralBluetoothMode value) {
+    static bool is_valid(PeripheralBluetoothMode value) {
         using enum PeripheralBluetoothMode;
         switch (value) {
             case NORMAL_MODE:
@@ -361,7 +361,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(ConnectivityActionType value) {
+    static bool is_valid(ConnectivityActionType value) {
         using enum ConnectivityActionType;
         switch (value) {
             case DISCONNECT:
@@ -371,7 +371,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(PeripheralResult value) {
+    static bool is_valid(PeripheralResult value) {
         using enum PeripheralResult;
         switch (value) {
             case DISCONNECTION_SUCCESS:
@@ -394,7 +394,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(SourceSwitchControlResult value) {
+    static bool is_valid(SourceSwitchControlResult value) {
         using enum SourceSwitchControlResult;
         switch (value) {
             case SUCCESS:
@@ -406,7 +406,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(VoiceGuidanceInquiredType value) {
+    static bool is_valid(VoiceGuidanceInquiredType value) {
         using enum VoiceGuidanceInquiredType;
         switch (value) {
             case MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH:
@@ -422,7 +422,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(VoiceGuidanceLanguage value) {
+    static bool is_valid(VoiceGuidanceLanguage value) {
         using enum VoiceGuidanceLanguage;
         switch (value) {
             case UNDEFINED_LANGUAGE:
@@ -445,7 +445,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(SafeListeningInquiredType value) {
+    static bool is_valid(SafeListeningInquiredType value) {
         using enum SafeListeningInquiredType;
         switch (value) {
             case SAFE_LISTENING_HBS_1:
@@ -457,7 +457,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(SafeListeningErrorCause value) {
+    static bool is_valid(SafeListeningErrorCause value) {
         using enum SafeListeningErrorCause;
         switch (value) {
             case NOT_PLAYING:
@@ -467,7 +467,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(SafeListeningTargetType value) {
+    static bool is_valid(SafeListeningTargetType value) {
         using enum SafeListeningTargetType;
         switch (value) {
             case HBS:
@@ -477,7 +477,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(SafeListeningLogDataStatus value) {
+    static bool is_valid(SafeListeningLogDataStatus value) {
         using enum SafeListeningLogDataStatus;
         switch (value) {
             case DISCONNECTED:
@@ -489,7 +489,7 @@ namespace mdr::v2::t2 {
         default: return false;
         }
     }
-    static const bool is_valid(SafeListeningWHOStandardLevel value) {
+    static bool is_valid(SafeListeningWHOStandardLevel value) {
         using enum SafeListeningWHOStandardLevel;
         switch (value) {
             case NORMAL:
