@@ -9,4 +9,3 @@ file(
 )
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
 add_library(libmdr ${SOURCES} ${INCLUDES})
-

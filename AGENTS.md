@@ -6,7 +6,7 @@ A MDR Payload struct
   either through trivial serialization macro (`MDR_DEFINE_TRIVIAL_SERIALIZATION`) or through custom serialization functions.
 - Always has a static assertion to verify it implements the `MDRIsSerializable` concept.
 - May contain dynamic array types (vectors or strings), otherwise it should use the trivial serialization macro (see the next section).
-- _ALWAYS_ trivially copyable (no user-defined constructors, destructors, or copy/move operators).
+- _ALWAYS_ trivially copyable (no user-defined constructors, destructors, or copy/move operators) UNLESS contains dynamic array types (vectors or strings).
 - _ALWAYS_ in standard layout (no virtual functions, no multiple inheritance, all non-static data members have the same access control). 
 ## Trivially Serializable Payloads (PODs)
 These are payload structs that can be trivially serialized and deserialized in memory. This implies:

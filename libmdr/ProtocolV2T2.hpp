@@ -1,11 +1,9 @@
 #pragma once
-
 #include "ProtocolV2.hpp"
 #pragma pack(push, 1)
 
 namespace mdr::v2::t2
 {
-
     // Extracted from Sound Connect iOS 11.0.1
     enum class Command : UInt8
     {
@@ -120,14 +118,143 @@ namespace mdr::v2::t2
 
         UNKNOWN = 0xFF
     };
-
-    // region Connect
-
     enum class ConnectInquiredType : UInt8
     {
         FIXED_VALUE = 0,
     };
+    enum class PeripheralInquiredType : UInt8
+    {
+        PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT = 0x00,
+        SOURCE_SWITCH_CONTROL = 0x01,
+        PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE = 0x02,
+        MUSIC_HAND_OVER_SETTING = 0x03,
+    };
 
+    enum class PeripheralBluetoothMode : UInt8
+    {
+        NORMAL_MODE = 0x00,
+        INQUIRY_SCAN_MODE = 0x01,
+    };
+    enum class ConnectivityActionType : UInt8
+    {
+        DISCONNECT = 0x00,
+        CONNECT = 0x01,
+        UNPAIR = 0x02,
+    };
+
+    enum class PeripheralResult : UInt8
+    {
+        DISCONNECTION_SUCCESS = 0x00,
+        DISCONNECTION_ERROR = 0x01,
+        DISCONNECTION_IN_PROGRESS = 0x02,
+        DISCONNECTION_BUSY = 0x03,
+
+        CONNECTION_SUCCESS = 0x10,
+        CONNECTION_ERROR = 0x11,
+        CONNECTION_IN_PROGRESS = 0x12,
+        CONNECTION_BUSY = 0x13,
+
+        UNPAIRING_SUCCESS = 0x20,
+        UNPAIRING_ERROR = 0x21,
+        UNPAIRING_IN_PROGRESS = 0x22,
+        UNPAIRING_BUSY = 0x23,
+
+        PAIRING_SUCCESS = 0x30,
+        PAIRING_ERROR = 0x31,
+        PAIRING_IN_PROGRESS = 0x32,
+        PAIRING_BUSY = 0x33,
+    };
+
+    enum class SourceSwitchControlResult : UInt8
+    {
+        SUCCESS = 0x00,
+        FAIL = 0x01,
+        FAIL_CALLING = 0x02,
+        FAIL_A2DP_NOT_CONNECT = 0x03,
+        FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT = 0x04,
+    };
+     enum class VoiceGuidanceInquiredType : UInt8
+    {
+        // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
+        MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH = 0x0,
+        // PARAM:  [R  ] VoiceGuidanceParamSettingSupportLangSwitch
+        //         [ SN] VoiceGuidanceParamSettingMtk
+        MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH = 0x1,
+        // PARAM:  [RSN] VoiceGuidanceParamSettingSupportLangSwitch
+        SUPPORT_LANGUAGE_SWITCH = 0x2,
+        // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
+        ONLY_ON_OFF_SETTING = 0x3,
+        // PARAM:  [R N] VoiceGuidanceParamVolume
+        //         [ S ] VoiceGuidanceSetParamVolume
+        VOLUME = 0x20,
+        // PARAM:  [R N] VoiceGuidanceParamVolume
+        //         [ S ] VoiceGuidanceSetParamVolume
+        VOLUME_SETTING_FIXED_TO_5_STEPS = 0x21,
+        // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
+        BATTERY_LV_VOICE = 0x30,
+        // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
+        POWER_ONOFF_SOUND = 0x31,
+        // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
+        SOUNDEFFECT_ULT_BEEP_ONOFF = 0x32,
+    };
+
+    enum class VoiceGuidanceLanguage : UInt8
+    {
+        UNDEFINED_LANGUAGE = 0x00,
+        ENGLISH = 0x01,
+        FRENCH = 0x02,
+        GERMAN = 0x03,
+        SPANISH = 0x04,
+        ITALIAN = 0x05,
+        PORTUGUESE = 0x06,
+        DUTCH = 0x07,
+        SWEDISH = 0x08,
+        FINNISH = 0x09,
+        RUSSIAN = 0x0A,
+        JAPANESE = 0x0B,
+        BRAZILIAN_PORTUGUESE = 0x0D,
+        KOREAN = 0x0F,
+        TURKISH = 0x10,
+        CHINESE = 0xF0,
+    };
+    enum class SafeListeningInquiredType : UInt8
+    {
+        SAFE_LISTENING_HBS_1 = 0x0,
+        SAFE_LISTENING_TWS_1 = 0x1,
+        SAFE_LISTENING_HBS_2 = 0x2,
+        SAFE_LISTENING_TWS_2 = 0x3,
+        SAFE_VOLUME_CONTROL = 0x4,
+    };
+
+    enum class SafeListeningErrorCause : UInt8
+    {
+        NOT_PLAYING = 0x0,
+        IN_CALL = 0x1,
+        DETACHED = 0x2,
+    };
+
+    enum class SafeListeningTargetType : UInt8
+    {
+        HBS = 0x00,
+        TWS_L = 0x01,
+        TWS_R = 0x02,
+    };
+
+    enum class SafeListeningLogDataStatus : UInt8
+    {
+        DISCONNECTED = 0x00,
+        SENDING = 0x01,
+        COMPLETED = 0x02,
+        NOT_SENDING = 0x03,
+        ERROR = 0x04,
+    };
+
+    enum class SafeListeningWHOStandardLevel : UInt8
+    {
+        NORMAL = 0x0,
+        SENSITIVE = 0x1,
+    };
+    // region Connect
     struct ConnectGetSupportFunction
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_SUPPORT_FUNCTION;
@@ -154,19 +281,7 @@ namespace mdr::v2::t2
 
     // region Peripheral
 
-    enum class PeripheralInquiredType : UInt8
-    {
-        PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT = 0x00,
-        SOURCE_SWITCH_CONTROL = 0x01,
-        PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE = 0x02,
-        MUSIC_HAND_OVER_SETTING = 0x03,
-    };
 
-    enum class PeripheralBluetoothMode : UInt8
-    {
-        NORMAL_MODE = 0x00,
-        INQUIRY_SCAN_MODE = 0x01,
-    };
 
     // region PERI_*_STATUS
 
@@ -325,44 +440,7 @@ namespace mdr::v2::t2
 
     // region PERI_*_EXTENDED_PARAM
 
-    enum class ConnectivityActionType : UInt8
-    {
-        DISCONNECT = 0x00,
-        CONNECT = 0x01,
-        UNPAIR = 0x02,
-    };
-
-    enum class PeripheralResult : UInt8
-    {
-        DISCONNECTION_SUCCESS = 0x00,
-        DISCONNECTION_ERROR = 0x01,
-        DISCONNECTION_IN_PROGRESS = 0x02,
-        DISCONNECTION_BUSY = 0x03,
-
-        CONNECTION_SUCCESS = 0x10,
-        CONNECTION_ERROR = 0x11,
-        CONNECTION_IN_PROGRESS = 0x12,
-        CONNECTION_BUSY = 0x13,
-
-        UNPAIRING_SUCCESS = 0x20,
-        UNPAIRING_ERROR = 0x21,
-        UNPAIRING_IN_PROGRESS = 0x22,
-        UNPAIRING_BUSY = 0x23,
-
-        PAIRING_SUCCESS = 0x30,
-        PAIRING_ERROR = 0x31,
-        PAIRING_IN_PROGRESS = 0x32,
-        PAIRING_BUSY = 0x33,
-    };
-
-    enum class SourceSwitchControlResult : UInt8
-    {
-        SUCCESS = 0x00,
-        FAIL = 0x01,
-        FAIL_CALLING = 0x02,
-        FAIL_A2DP_NOT_CONNECT = 0x03,
-        FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT = 0x04,
-    };
+    
 
     // region PERI_SET_EXTENDED_PARAM
 
@@ -441,51 +519,7 @@ namespace mdr::v2::t2
 
     // region VOICE_GUIDANCE
 
-    enum class VoiceGuidanceInquiredType : UInt8
-    {
-        // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
-        MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH = 0x0,
-        // PARAM:  [R  ] VoiceGuidanceParamSettingSupportLangSwitch
-        //         [ SN] VoiceGuidanceParamSettingMtk
-        MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH = 0x1,
-        // PARAM:  [RSN] VoiceGuidanceParamSettingSupportLangSwitch
-        SUPPORT_LANGUAGE_SWITCH = 0x2,
-        // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
-        ONLY_ON_OFF_SETTING = 0x3,
-        // PARAM:  [R N] VoiceGuidanceParamVolume
-        //         [ S ] VoiceGuidanceSetParamVolume
-        VOLUME = 0x20,
-        // PARAM:  [R N] VoiceGuidanceParamVolume
-        //         [ S ] VoiceGuidanceSetParamVolume
-        VOLUME_SETTING_FIXED_TO_5_STEPS = 0x21,
-        // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
-        BATTERY_LV_VOICE = 0x30,
-        // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
-        POWER_ONOFF_SOUND = 0x31,
-        // PARAM:  [RSN] VoiceGuidanceParamSettingOnOff
-        SOUNDEFFECT_ULT_BEEP_ONOFF = 0x32,
-    };
-
-    enum class VoiceGuidanceLanguage : UInt8
-    {
-        UNDEFINED_LANGUAGE = 0x00,
-        ENGLISH = 0x01,
-        FRENCH = 0x02,
-        GERMAN = 0x03,
-        SPANISH = 0x04,
-        ITALIAN = 0x05,
-        PORTUGUESE = 0x06,
-        DUTCH = 0x07,
-        SWEDISH = 0x08,
-        FINNISH = 0x09,
-        RUSSIAN = 0x0A,
-        JAPANESE = 0x0B,
-        BRAZILIAN_PORTUGUESE = 0x0D,
-        KOREAN = 0x0F,
-        TURKISH = 0x10,
-        CHINESE = 0xF0,
-    };
-
+   
     // region VOICE_GUIDANCE_*_CAPABILITY
 
     // Not implemented
@@ -589,21 +623,7 @@ namespace mdr::v2::t2
 
     // region SAFE_LISTENING Common Enums
 
-    enum class SafeListeningInquiredType : UInt8
-    {
-        SAFE_LISTENING_HBS_1 = 0x0,
-        SAFE_LISTENING_TWS_1 = 0x1,
-        SAFE_LISTENING_HBS_2 = 0x2,
-        SAFE_LISTENING_TWS_2 = 0x3,
-        SAFE_VOLUME_CONTROL = 0x4,
-    };
-
-    enum class SafeListeningErrorCause : UInt8
-    {
-        NOT_PLAYING = 0x0,
-        IN_CALL = 0x1,
-        DETACHED = 0x2,
-    };
+    
     // endregion SAFE_LISTENING Common Enums
 
     // region SAFE_LISTENING_*_CAPABILITY
@@ -643,13 +663,6 @@ namespace mdr::v2::t2
 
     // region SAFE_LISTENING_*_STATUS Common Structs and Enums
 
-    enum class SafeListeningTargetType : UInt8
-    {
-        HBS = 0x00,
-        TWS_L = 0x01,
-        TWS_R = 0x02,
-    };
-
     struct SafeListeningData
     {
         SafeListeningTargetType targetType; // 0x0
@@ -676,20 +689,6 @@ namespace mdr::v2::t2
         Int16BE rtcRC; // 0x4-0x5
     };
 
-    enum class SafeListeningLogDataStatus : UInt8
-    {
-        DISCONNECTED = 0x00,
-        SENDING = 0x01,
-        COMPLETED = 0x02,
-        NOT_SENDING = 0x03,
-        ERROR = 0x04,
-    };
-
-    enum class SafeListeningWHOStandardLevel : UInt8
-    {
-        NORMAL = 0x0,
-        SENSITIVE = 0x1,
-    };
 
     // endregion SAFE_LISTENING_*_STATUS Common Structs and Enums
 
@@ -1087,3 +1086,5 @@ namespace mdr::v2::t2
 } // namespace mdr::v2::t2
 
 #pragma pack(pop)
+
+#include "Generated/ProtocolV2T2.hpp"
