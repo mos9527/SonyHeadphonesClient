@@ -103,3 +103,5 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
     static size_t Serialize(const Type &data, UInt8* out);
     static void Deserialize(UInt8* data, Type &out);
 ```
+- To have the codegen _exclude_ a struct, include `MDR_CODEGEN_IGNORE_SERIALIZATION` within the context
+  of the said struct.

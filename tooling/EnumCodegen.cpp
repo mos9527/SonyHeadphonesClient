@@ -1,36 +1,14 @@
-#include <clang-c/Index.h>
-#include <fmt/base.h>
-#include <string>
-using namespace fmt;
+#include "Codegen.hpp"
 // Q: Why are these globals?
 // A: We don't need to capture these in lambdas.
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 
-std::string getFullParentName(CXCursor c)
-{
-    std::string s;
-    while (true)
-    {
-        CXString name = clang_getCursorSpelling(c);
-        std::string nameStr = clang_getCString(name);
-        clang_disposeString(name);
-        if (nameStr.empty())
-            break;
-        if (clang_getCursorKind(c) != CXCursor_TranslationUnit)
-            s = nameStr + (s.empty() ? "" : "::") + s;
-        c = clang_getCursorSemanticParent(c);
-        if (clang_equalCursors(c, clang_getNullCursor()))
-            break;
-    }
-    return s;
-}
-
 std::string gPrevDeclName;
-CXCursorVisitor gEnumIn, gEnumVisit, gEnumOut;
-CXChildVisitResult visitor(CXCursor c, CXCursor parent, CXClientData)
+CXCursorVisitor gVisitIn, gVisit, gVisitOut;
+CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
 {
-    CXCursorKind kind = clang_getCursorKind(c);
+    CXCursorKind kind = clang_getCursorKind(cursor);
     switch (kind)
     {
     case CXCursor_Namespace:
@@ -40,13 +18,13 @@ CXChildVisitResult visitor(CXCursor c, CXCursor parent, CXClientData)
         std::string parentStr = getFullParentName(parent);
         if (parentStr != gNamespaceName)
             return CXChildVisit_Continue;
-        CXString name = clang_getCursorSpelling(c);
+        CXString name = clang_getCursorSpelling(cursor);
         if (!gPrevDeclName.empty() && gPrevDeclName != clang_getCString(name))
-            gEnumOut(c, parent, nullptr);
-        gEnumIn(c, parent, nullptr);
+            gVisitOut(cursor, parent, nullptr);
+        gVisitIn(cursor, parent, nullptr);
         clang_visitChildren(
-            c,
-            gEnumVisit,
+            cursor,
+            gVisit,
             nullptr);
         gPrevDeclName = clang_getCString(name);
         clang_disposeString(name);
@@ -56,6 +34,14 @@ CXChildVisitResult visitor(CXCursor c, CXCursor parent, CXClientData)
         return CXChildVisit_Continue;
     }
 }
+void doVisit(CXCursor cursor, CXCursorVisitor in, CXCursorVisitor visit, CXCursorVisitor out)
+{
+    gVisit = visit, gVisitIn = in, gVisitOut = out;
+    gPrevDeclName.clear();
+    clang_visitChildren(cursor, structVisitor, nullptr);
+    out(cursor, cursor, nullptr);
+}
+
 CXChildVisitResult enumNameIn(CXCursor c, CXCursor, CXClientData)
 {
     CXString name = clang_getCursorSpelling(c);
@@ -103,19 +89,12 @@ CXChildVisitResult enumRangeOut(CXCursor, CXCursor, CXClientData)
     println("    }}");
     return CXChildVisit_Continue;
 }
-void doVisit(CXCursor cursor, CXCursorVisitor in, CXCursorVisitor visit, CXCursorVisitor out)
-{
-    gEnumVisit = visit, gEnumIn = in, gEnumOut = out;
-    gPrevDeclName.clear();
-    clang_visitChildren(cursor, visitor, nullptr);
-    out(cursor, cursor, nullptr);
-}
 int main( int argc, char** argv )
 {
     if (argc != 3)
     {
         println("usage: {} <source-file> <namespace-name>", argv[0]);
-        println("\tGenerate enum codegen for the given source file and namespace name.");
+        println("\tGenerate enum helper functions from the given source file and namespace name.");
         println("\tOutput is printed to stdout.");
         return 1;
     }

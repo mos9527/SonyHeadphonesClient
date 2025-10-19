@@ -5,7 +5,7 @@
 namespace mdr::v2::t1
 {
     // Extracted from Sound Connect iOS 11.0.1
-enum class Command : UInt8
+    enum class Command : UInt8
     {
         CONNECT_GET_PROTOCOL_INFO = 0x00,
         CONNECT_RET_PROTOCOL_INFO = 0x01,
@@ -444,7 +444,7 @@ enum class Command : UInt8
         GAME_UP = 0x71,
         CHAT_UP = 0x72,
     };
-enum class AlertInquiredType : UInt8
+    enum class AlertInquiredType : UInt8
     {
         // STATUS: [ S ] AlertSetStatusFixedMessage
         // PARAM:  [ S ] AlertSetParamFixedMessage
@@ -650,7 +650,7 @@ enum class AlertInquiredType : UInt8
         LEFT = 0x00,
         RIGHT = 0x01,
     };
-enum class PlayInquiredType : UInt8
+    enum class PlayInquiredType : UInt8
     {
         // STATUS: [R N] PlayStatusPlaybackController
         //         [ S ] SetPlayStatusPlaybackController
@@ -764,7 +764,7 @@ enum class PlayInquiredType : UInt8
         RAW_NAME = 0x00,
         ENUM_NAME = 0x01,
     };
-enum class AudioInquiredType : UInt8
+    enum class AudioInquiredType : UInt8
     {
         // PARAM:      [RSN] AudioParamConnection
         CONNECTION_MODE = 0x00,
@@ -842,7 +842,7 @@ enum class AudioInquiredType : UInt8
         DSEE_HX_AI = 0x02,
         DSEE_ULTIMATE = 0x03,
     };
-enum class SystemInquiredType : UInt8
+    enum class SystemInquiredType : UInt8
     {
         // PARAM:     [RSN] SystemParamCommon
         // EXT_PARAM: [   ] None
@@ -1101,6 +1101,7 @@ enum class SystemInquiredType : UInt8
             ConnectRetDeviceInfoSeriesAndColor  // SERIES_AND_COLOR_INFO
         > info; // 0x2-
 
+        MDR_CODEGEN_IGNORE_SERIALIZATION
         MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetDeviceInfo);
     };
     static_assert(MDRIsSerializable<ConnectRetDeviceInfo>);

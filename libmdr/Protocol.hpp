@@ -201,7 +201,20 @@ namespace mdr
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
         std::memcpy(&out, data, sizeof(Type)); \
     }
+    /**
+     * @brief Macro to declare external serialization methods for non-trivial types.
+     *
+     * @note This declares @ref Serialize and @ref Deserialize in the current scope,
+     *       which must be a struct.
+     *
+     * @note The implementations must be provided elsewhere, ideally in a corresponding
+     *       translation unit, which may or may not be generated.
+     */
     #define MDR_DEFINE_EXTERN_SERIALIZATION(Type) \
     static size_t Serialize(const Type &data, UInt8* out); \
     static void Deserialize(UInt8* data, Type &out);
+    /**
+     * @brief Macro to mark the struct to implement bespoke serialization logic.
+     */
+    #define MDR_CODEGEN_IGNORE_SERIALIZATION
 }
