@@ -9,8 +9,6 @@ const char* kMDRReservedRWStructs[] = {
     "MDRPrefixedString",
     "MDRArray",
 };
-// Q: Why are these globals?
-// A: We don't need to capture these in lambdas.
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 using MacroPair = std::pair<int, std::string>; // Line, Name
@@ -65,7 +63,7 @@ struct FieldSerializeVisitorParams
     bool isRead = false;
     bool isWrite = false;
 };
-CXChildVisitResult fieldSerializeVisitor(CXCursor cursor, CXCursor parent, CXClientData pParams)
+CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClientData pParams)
 {
     const auto* params = static_cast<const FieldSerializeVisitorParams*>(pParams);
     CXCursorKind kind = clang_getCursorKind(cursor);
@@ -147,7 +145,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 println("    {{");
                 println("        UInt8* ptr = *ppDstBuffer;");
                 params.isRead = false, params.isWrite = true;
-                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
                 println("        return *ppDstBuffer - ptr;");
                 println("    }}");
                 // Read
@@ -155,7 +153,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 println("    void {}::Read(UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
                 println("    {{");
                 params.isRead = true, params.isWrite = false;
-                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
                 println("    }}");
             }
         } else
@@ -168,14 +166,14 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 println("    {{");
                 println("        UInt8* ptr = out;");
                 params.isSerialize = true, params.isDeserialize = false;
-                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
                 println("        return ptr - out;");
                 println("    }}");
                 // Deserialize
                 println("    void {}::Deserialize(UInt8* data, {}& out)", structName,structName);
                 println("    {{");
                 params.isSerialize = false, params.isDeserialize = true;
-                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
                 println("    }}");
             }
             clang_disposeString(name);

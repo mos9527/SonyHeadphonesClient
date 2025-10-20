@@ -187,7 +187,7 @@ namespace mdr
     /**
      * @brief Macro for POD types that can be serialized/deserialized via std::memcpy.
      *
-     * @note  This defines @ref Serialize and @ref Deserialize in the current scope,
+     * @note  This defines @ref Serialize and @ref Deserialize and @ref Validate in the current scope,
      *        which must be a struct.
      */
     #define MDR_DEFINE_TRIVIAL_SERIALIZATION(Type) \
@@ -200,11 +200,12 @@ namespace mdr
     static void Deserialize(UInt8* data, Type &out) { \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
         std::memcpy(&out, data, sizeof(Type)); \
-    }
+    } \
+    static bool Validate(const Type& data);
     /**
      * @brief Macro to declare external serialization methods for non-trivial types.
      *
-     * @note This declares @ref Serialize and @ref Deserialize in the current scope,
+     * @note This declares @ref Serialize, @ref Deserialize and @ref Validate in the current scope,
      *       which must be a struct.
      *
      * @note The implementations must be provided elsewhere, ideally in a corresponding
@@ -212,7 +213,8 @@ namespace mdr
      */
     #define MDR_DEFINE_EXTERN_SERIALIZATION(Type) \
     static size_t Serialize(const Type &data, UInt8* out); \
-    static void Deserialize(UInt8* data, Type &out);
+    static void Deserialize(UInt8* data, Type &out); \
+    static bool Validate(const Type& data);
     /**
      * @brief Macro to declare external read/write methods for non-trivial types.
      *

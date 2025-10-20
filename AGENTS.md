@@ -113,14 +113,22 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
 ## Validation
 - ALL structs MUST implement static assertions to verify they implement the `MDRIsSerializable` concept.
 - ALL structs MUST implement data validation
-  - Declaration in Headers ALWAYS uses `MDR_DEFINE_EXTERN_VALIDATION(Type)` macro.
-  - Implementation in translation units ALWAYS uses the following signature if excluded from codegen:
-    ```c++
-        static bool Validate(const Type &data);
-    ``` 
-  - Exclusion from codegen is done by including `MDR_CODEGEN_IGNORE_VALIDATION` within the context
-    of the said struct.
-
+  - `CODEGEN` comments hints the codegen tool to generate validation code for the struct.
+  - For details, see the next section
+### `CODEGEN` validation comments
+`CODEGEN` comments are one-line markups that provide hints to the codegen tool to generate validation code for the fields.
+- Placed above the field they apply to.
+- Multiple `CODEGEN` comments can be placed above a field, each on its own line.
+- General syntax: `CODEGEN [Verb] [Arguments]`
+#### Verbs
+- `CODEGEN EnumRange [Values...]`
+Declare that the field is an enum, and its value must be one of the specified values.
+Multiple values are seperated by spaces.
+- `CODEGEN Range [Min] [Max]`
+Declare that the field is a numeric type, and its value must be within the specified range (inclusive).
+- `CODEGEN Field [Field Name] [Verb] [Arguments]`
+Declare that the field is a struct, and the specified verb and arguments apply to the specified field within the struct.
+Nested validation can be achieved by declaring `Field base.field1.field2 ...` to reach deeper levels.
 ## Summary
 ### Macros to use in Headers
 - `MDR_DEFINE_TRIVIAL_SERIALIZATION(Type)` for trivially serializable structs.

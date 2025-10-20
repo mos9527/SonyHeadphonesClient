@@ -2,6 +2,22 @@
 #pragma once
 
 namespace mdr::v2 {
+    static const char* format_as(MessageMdrV2EnableDisable value) {
+        using enum MessageMdrV2EnableDisable;
+        switch (value) {
+            case ENABLE: return "ENABLE";
+            case DISABLE: return "DISABLE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(MessageMdrV2OnOffSettingValue value) {
+        using enum MessageMdrV2OnOffSettingValue;
+        switch (value) {
+            case ON: return "ON";
+            case OFF: return "OFF";
+            default: return "Unknown";
+        }
+    }
     static const char* format_as(MessageMdrV2FunctionType_Table1 value) {
         using enum MessageMdrV2FunctionType_Table1;
         switch (value) {
@@ -186,6 +202,24 @@ namespace mdr::v2 {
             case USB_BROWSER: return "USB_BROWSER";
             case LIGHTING_MODE: return "LIGHTING_MODE";
             default: return "Unknown";
+        }
+    }
+    static bool is_valid(MessageMdrV2EnableDisable value) {
+        using enum MessageMdrV2EnableDisable;
+        switch (value) {
+            case ENABLE:
+            case DISABLE:
+            return true;
+        default: return false;
+        }
+    }
+    static bool is_valid(MessageMdrV2OnOffSettingValue value) {
+        using enum MessageMdrV2OnOffSettingValue;
+        switch (value) {
+            case ON:
+            case OFF:
+            return true;
+        default: return false;
         }
     }
     static bool is_valid(MessageMdrV2FunctionType_Table1 value) {

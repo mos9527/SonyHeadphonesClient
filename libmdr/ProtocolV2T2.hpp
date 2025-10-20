@@ -5,6 +5,7 @@
 namespace mdr::v2::t2
 {
     // Extracted from Sound Connect iOS 11.0.1
+    // region Enums
     enum class Command : UInt8
     {
         CONNECT_GET_SUPPORT_FUNCTION = 0x06,
@@ -259,6 +260,7 @@ namespace mdr::v2::t2
         NORMAL = 0x0,
         SENSITIVE = 0x1,
     };
+    // endregion Enums
 
     // region Connect
     struct ConnectGetSupportFunction
@@ -283,7 +285,6 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
     // endregion Connect
-
     // region Peripheral
 
 
@@ -527,8 +528,7 @@ namespace mdr::v2::t2
     // endregion PERI_*_EXTENDED_PARAM
 
     // endregion PERI
-
-    // region VOICE_GUIDANCE
+    // region VoiceGuidance
 
 
     // region VOICE_GUIDANCE_*_CAPABILITY
@@ -635,9 +635,8 @@ namespace mdr::v2::t2
 
     // endregion VOICE_GUIDANCE_*_PARAM
 
-    // endregion VOICE_GUIDANCE
-
-    // region SAFE_LISTENING
+    // endregion VoiceGuidance
+    // region SafeListening
 
     // region SAFE_LISTENING Common Enums
 
@@ -1129,8 +1128,7 @@ namespace mdr::v2::t2
 
     // endregion SAFE_LISTENING_*_EXTENDED_PARAM
 
-    // endregion SAFE_LISTENING
-
+    // endregion SafeListening
 } // namespace mdr::v2::t2
 
 #pragma pack(pop)

@@ -14,3 +14,6 @@ target_link_libraries(tooling_EnumCodegen PRIVATE fmt::fmt libclang)
 
 add_executable(tooling_SerializationCodegen SerializationCodegen.cpp)
 target_link_libraries(tooling_SerializationCodegen PRIVATE fmt::fmt libclang)
+
+add_executable(tooling_ValidationCodegen ValidationCodegen.cpp)
+target_link_libraries(tooling_ValidationCodegen PRIVATE fmt::fmt libclang)

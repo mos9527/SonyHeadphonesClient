@@ -5,6 +5,7 @@
 namespace mdr::v2::t1
 {
     // Extracted from Sound Connect iOS 11.0.1
+    // region Enums
     enum class Command : UInt8
     {
         CONNECT_GET_PROTOCOL_INFO = 0x00,
@@ -1114,13 +1115,16 @@ namespace mdr::v2::t1
     {
         ACK = 0x00,
     };
+    // endregion Enums
 
     // region Connect
     struct ConnectGetProtocolInfo
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_PROTOCOL_INFO;
-        Command command{Command::CONNECT_GET_PROTOCOL_INFO}; // 0x0
-        ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
+        // CODEGEN EnumRange Command::CONNECT_GET_PROTOCOL_INFO
+        Command command{Command::CONNECT_GET_PROTOCOL_INFO};
+        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetProtocolInfo);
     };
@@ -1129,8 +1133,10 @@ namespace mdr::v2::t1
 
     struct ConnectRetProtocolInfo
     {
-        Command command{Command::CONNECT_RET_PROTOCOL_INFO}; // 0x0
-        ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
+        // CODEGEN EnumRange Command::CONNECT_RET_PROTOCOL_INFO
+        Command command{Command::CONNECT_RET_PROTOCOL_INFO};
+        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE};
         Int32BE protocolVersion; // 0x2-0x5
         MessageMdrV2EnableDisable supportTable1Value; // 0x6
         MessageMdrV2EnableDisable supportTable2Value; // 0x7
@@ -1456,7 +1462,6 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<PowerParamBatterySafeMode>);
     // endregion Power
-
     // region EQ
     struct EqEbbGetStatus
     {
@@ -1480,6 +1485,7 @@ namespace mdr::v2::t1
     {
         static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_STATUS;
 
+        // CODEGEN Field command EnumRange Command::EQEBB_NTFY_STATUS
         EqEbbBase base;
         MessageMdrV2OnOffSettingValue value{MessageMdrV2OnOffSettingValue::OFF}; // 0x2
 

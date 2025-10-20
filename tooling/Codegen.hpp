@@ -2,6 +2,7 @@
 
 #include <clang-c/Index.h>
 #include <fmt/base.h>
+#include <fmt/format.h>
 #include <string>
 #include <string_view>
 

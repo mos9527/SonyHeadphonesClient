@@ -3,34 +3,16 @@
 #include "Protocol.hpp"
 namespace mdr::v2
 {
-struct MessageMdrV2EnableDisable
+enum class MessageMdrV2EnableDisable : UInt8
 {
-	enum Value : UInt8
-	{
-		ENABLE = 0,
-		DISABLE = 1
-	} value;
-
-	constexpr MessageMdrV2EnableDisable(Value v) : value(v) {}
-	constexpr MessageMdrV2EnableDisable(bool v) : value(v ? ENABLE : DISABLE) {}
-
-    constexpr operator bool() const noexcept { return value == ENABLE; }
-    const bool IsValid() const noexcept { return value == ENABLE || value == DISABLE; }
+    ENABLE = 0,
+    DISABLE = 1
 };
 
-struct MessageMdrV2OnOffSettingValue
+enum class MessageMdrV2OnOffSettingValue : UInt8
 {
-	enum Value : UInt8
-	{
-		ON = 0,
-		OFF = 1
-	} value;
-
-	constexpr MessageMdrV2OnOffSettingValue(Value v) : value(v) {}
-	constexpr MessageMdrV2OnOffSettingValue(bool v) : value(v ? ON : OFF) {}
-
-	constexpr operator bool() const noexcept { return value == ON; }
-    const bool IsValid() const noexcept { return value == ON || value == OFF; }
+    ON = 0,
+    OFF = 1
 };
 
 // CONNECT_*_SUPPORT_FUNCTION
