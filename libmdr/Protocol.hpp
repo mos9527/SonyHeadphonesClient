@@ -112,6 +112,10 @@ namespace mdr
             *ppDstBuffer += str.value.length();
             return str.value.length() + 1;
         }
+        auto begin() { return value.begin(); }
+        auto end() { return value.end(); }
+        auto begin() const  { return value.begin(); }
+        auto end() const { return value.end(); }
     };
 
     /**
@@ -142,6 +146,10 @@ namespace mdr
             *ppDstBuffer += sizeof(size);
             return size + 1;
         }
+        auto begin() { return value.begin(); }
+        auto end() { return value.end(); }
+        auto begin() const  { return value.begin(); }
+        auto end() const { return value.end(); }
     };
 
     /**
@@ -170,6 +178,10 @@ namespace mdr
                 T::Write(elem, ppDstBuffer);
             return *ppDstBuffer - ptr;
         }
+        auto begin() { return value.begin(); }
+        auto end() { return value.end(); }
+        auto begin() const  { return value.begin(); }
+        auto end() const { return value.end(); }
     };
 
     /**

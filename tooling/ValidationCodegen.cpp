@@ -19,8 +19,12 @@ std::map<std::string, ValidationVerb> kCodegenTokens = {
     {"Range", ValidationVerb::Range},
     {"Field", ValidationVerb::Field},
 };
-const char* kCODEGEN = "CODEGEN";
 
+const char* kCODEGEN = "CODEGEN";
+const char* kMDRReservedIterableStructs[] = {
+    "MDRPodArray",
+    "MDRArray",
+};
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 std::vector<std::string> gSource; // Source lines
@@ -44,143 +48,12 @@ std::string emitThrowRuntimeError(std::string_view name, std::string_view msg)
     return format("throw std::runtime_error(\"{}: {}\")", name, msg);
 }
 
-void emitLineEnumIsValid(std::string_view parentName, std::string_view fieldName)
+int gDepth = 0;
+std::string emitIndent(){ return std::basic_string(gDepth * 4, ' '); }
+void emitLineEnumIsValid(std::string_view scopeFieldName)
 {
-    println("        if (!is_valid({}.{})) {};", parentName, fieldName,
-            emitThrowRuntimeError(format("{}.{}", parentName, fieldName), "Bad enum value"));
-}
-
-void emitCodegenCheck(CXCursor cursor, std::string const& check)
-{
-    CXString name = clang_getCursorSpelling(cursor);
-    std::string fieldName = format("data.{}", clang_getCString(name));
-    clang_disposeString(name);
-
-    std::stringstream cin(check);
-    std::string tok;
-    cin >> tok; // CODEGEN
-    CHECK(kCodegenTokens[tok] == ValidationVerb::CODEGEN, "Expected CODEGEN token");
-    while (cin)
-    {
-        cin >> tok; // Verb
-        ValidationVerb verb = kCodegenTokens[tok];
-        switch (verb)
-        {
-        case ValidationVerb::EnumRange:
-        {
-            std::ostringstream cout, diagOut;
-            while (cin >> tok)
-            {
-                diagOut << tok;
-                cout << format("{} != {}", fieldName, tok);
-                if (cin >> tok)
-                    cout << " || ", diagOut << " ";
-            }
-            println("        if ({}) {};", cout.str(),
-                    emitThrowRuntimeError(fieldName, format("EnumRange check fail, must be one of {}", diagOut.str())));
-            break;
-        }
-        case ValidationVerb::Range:
-        {
-            int mn, mx;
-            cin >> mn >> mx;
-        }
-        case ValidationVerb::Field:
-        {
-            cin >> tok;
-            fieldName = format("{}.{}", fieldName, tok);
-            break;
-        }
-        default:
-            CHECK(false, format("Unexpected token {}", tok));
-        }
-    }
-}
-
-CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor parent, CXClientData pData)
-{
-    auto* pParentName = static_cast<std::string*>(pData);
-    CXString name = clang_getCursorSpelling(cursor);
-    CXType type = clang_getCursorType(cursor);
-    CXCursor typeDecl = clang_getTypeDeclaration(type);
-    CXCursorKind typeKind = clang_getCursorKind(typeDecl);
-    CXString typeName = clang_getTypeSpelling(type);
-    // if (kind == CXCursor_FieldDecl)
-    //     println("        // {}.{}", *pParentName, clang_getCString(name));
-    switch (typeKind)
-    {
-    case CXCursor_EnumDecl:
-        emitLineEnumIsValid(*pParentName, clang_getCString(name));
-        break;
-    case CXCursor_StructDecl:
-    {
-        std::string newParentName = format("{}.{}", *pParentName, clang_getCString(name));
-        clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &newParentName);
-        break;
-    }
-    }
-    clang_disposeString(name);
-    clang_disposeString(typeName);
-    return CXChildVisit_Continue;
-}
-
-void emitValidationForField(CXCursor cursor, const std::vector<std::string>& comments)
-{
-    CXString name = clang_getCursorSpelling(cursor);
-    CXType type = clang_getCursorType(cursor);
-    CXCursor typeDecl = clang_getTypeDeclaration(type);
-    CXCursorKind typeKind = clang_getCursorKind(typeDecl);
-    CXString typeName = clang_getTypeSpelling(type);
-    // println("        // data.{}", clang_getCString(name));
-    switch (typeKind)
-    {
-    case CXCursor_EnumDecl:
-    {
-        // Enums should always be in range
-        emitLineEnumIsValid("data", clang_getCString(name));
-        break;
-    }
-    case CXCursor_StructDecl:
-    {
-        // Nested struct. Enums should apply as well.
-        std::string parentName = format("data.{}", clang_getCString(name));
-        clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &parentName);
-    }
-    default:
-        break;
-    }
-    // Parse CODEGEN checks
-    // These are not necessarily stricter than default checks above
-    for (auto& comment : comments)
-        emitCodegenCheck(cursor, comment);
-    clang_disposeString(typeName);
-    clang_disposeString(name);
-}
-
-CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClientData)
-{
-    using enum ValidationVerb;
-    CXCursorKind kind = clang_getCursorKind(cursor);
-    if (kind == CXCursor_FieldDecl)
-    {
-        std::vector<std::string> comments;
-        CXSourceLocation loc = clang_getCursorLocation(cursor);
-        auto [lineMin, lineMax] = getCursorExtents(parent);
-        CXFile file;
-        unsigned line, col, offset;
-        clang_getSpellingLocation(loc, &file, &line, &col, &offset);
-        for (line = line - 1; line >= lineMin; line--)
-        {
-            auto& ln = gSource[line];
-            trimCommentString(ln);
-            if (!ln.starts_with(kCODEGEN))
-                break;
-            comments.emplace_back(ln);
-        }
-        std::ranges::reverse(comments);
-        emitValidationForField(cursor, comments);
-    }
-    return CXChildVisit_Continue;
+    println("{}if (!is_valid({})) {};", emitIndent(), scopeFieldName,
+            emitThrowRuntimeError(format("{}", scopeFieldName), "Bad enum value"));
 }
 
 struct MethodVisitorResult
@@ -205,6 +78,140 @@ CXChildVisitResult methodVisitor(CXCursor cursor, CXCursor parent, CXClientData 
     return CXChildVisit_Continue;
 }
 
+void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string const& check)
+{
+    CXString name = clang_getCursorSpelling(cursor);
+    clang_disposeString(name);
+    std::string scopeFiledName = fieldName;
+    std::stringstream cin(check);
+    std::string tok;
+    cin >> tok; // CODEGEN
+    CHECK(kCodegenTokens[tok] == ValidationVerb::CODEGEN, "Expected CODEGEN token");
+    while (cin)
+    {
+        cin >> tok; // Verb
+        ValidationVerb verb = kCodegenTokens[tok];
+        switch (verb)
+        {
+        case ValidationVerb::EnumRange:
+        {
+            std::ostringstream cout, diagOut;
+            while (cin >> tok)
+            {
+                diagOut << tok;
+                cout << format("{} != {}", scopeFiledName, tok);
+                if (cin >> tok)
+                    cout << " || ", diagOut << " ";
+            }
+            println("{}if ({}) {};", emitIndent(), cout.str(),
+                    emitThrowRuntimeError(scopeFiledName, format("EnumRange check fail, must be one of {}", diagOut.str())));
+            break;
+        }
+        case ValidationVerb::Range:
+        {
+            int mn, mx;
+            cin >> mn >> mx;
+            println("{}if ({} < {} || {} > {}) {};", emitIndent(), scopeFiledName, mn, scopeFiledName, mx,
+                    emitThrowRuntimeError(scopeFiledName, format("Range check fail, must be in [{}, {}]", mn, mx)));
+        }
+        case ValidationVerb::Field:
+        {
+            cin >> tok;
+            scopeFiledName = format("{}.{}", scopeFiledName, tok);
+            break;
+        }
+        default:
+            CHECK(false, format("Unexpected token {}", tok));
+        }
+    }
+}
+std::map<std::string, std::vector<std::string>> gCodegenComments;
+CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClientData pData)
+{
+    auto* pParentName = static_cast<std::string*>(pData);
+    if (clang_Cursor_getStorageClass(cursor) == CX_SC_Static)
+        return CXChildVisit_Continue; // Ignore static members
+    CXString name = clang_getCursorSpelling(cursor);
+    CXType type = clang_getCursorType(cursor);
+    CXCursor typeDecl = clang_getTypeDeclaration(type);
+    CXCursorKind typeKind = clang_getCursorKind(typeDecl);
+    CXString typeName = clang_getTypeSpelling(type);
+    // Emit for-each loop for iterable types
+    bool isIterable = false;
+    std::string typeNameStr = clang_getCString(typeName);
+    for (const char* reserved : kMDRReservedIterableStructs)
+        if (typeNameStr.starts_with(reserved))
+            isIterable = true;
+    std::string newParentName = format("{}.{}", *pParentName, clang_getCString(name));
+    std::string forClauseName = format("{}_elem", clang_getCString(name));
+    if (isIterable)
+    {
+        // Deduce element type
+        type = clang_Type_getTemplateArgumentAsType(type, 0);
+        typeDecl = clang_getTypeDeclaration(type);
+        typeKind = clang_getCursorKind(typeDecl);
+        clang_disposeString(typeName);
+        typeName = clang_getTypeSpelling(type);
+        // Enter for-each clause
+        println("{}for (const auto& {} : {}.{}) {{", emitIndent(), forClauseName, *pParentName, clang_getCString(name));
+        gDepth++;
+        newParentName = forClauseName;
+    }
+    switch (typeKind)
+    {
+    case CXCursor_EnumDecl:
+        emitLineEnumIsValid(newParentName);
+        break;
+    case CXCursor_StructDecl:
+    {
+        clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &newParentName);
+        break;
+    }
+    default:
+        break;
+    }
+    // Emit CODEGEN specific checks
+    for (auto& check : gCodegenComments[clang_getCString(name)])
+    {
+        emitCodegenCheck(cursor, newParentName, check);
+    }
+    clang_disposeString(name);
+    clang_disposeString(typeName);
+    if (isIterable)
+    {
+        gDepth--;
+        println("{}}}", emitIndent());
+    }
+    return CXChildVisit_Continue;
+}
+
+CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClientData)
+{
+    using enum ValidationVerb;
+    CXCursorKind kind = clang_getCursorKind(cursor);
+    CXString name = clang_getCursorSpelling(cursor);
+    std::string fieldName = clang_getCString(name);
+    clang_disposeString(name);
+    if (kind == CXCursor_FieldDecl)
+    {
+        CXSourceLocation loc = clang_getCursorLocation(cursor);
+        auto [lineMin, lineMax] = getCursorExtents(parent);
+        CXFile file;
+        unsigned line, col, offset;
+        clang_getSpellingLocation(loc, &file, &line, &col, &offset);
+        for (line = line - 1; line >= lineMin; line--)
+        {
+            auto& ln = gSource[line];
+            trimCommentString(ln);
+            if (!ln.starts_with(kCODEGEN))
+                break;
+            gCodegenComments[fieldName].emplace_back(ln);
+        }
+        std::ranges::reverse(gCodegenComments[fieldName]);
+    }
+    return CXChildVisit_Continue;
+}
+
 CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
 {
     CXCursorKind kind = clang_getCursorKind(cursor);
@@ -224,10 +231,16 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         // Emit Validate bodies
         if (methods.hasValidate)
         {
-            println("    bool {}::Validate(const {}& data) {{", structName,structName);
+            gCodegenComments.clear();
+            // Collect comments
             clang_visitChildren(cursor, fieldValidateVisitor, nullptr);
-            println("        return true;");
-            println("    }};");
+            println("{}bool {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
+            gDepth++;
+            std::string firstParent = "data";
+            clang_visitChildren(cursor, fieldValidateNestedVisitor, &firstParent);
+            println("{}return true;", emitIndent());
+            gDepth--;
+            println("{}}};", emitIndent());
         }
         clang_disposeString(name);
         return CXChildVisit_Continue;

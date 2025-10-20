@@ -1498,7 +1498,6 @@ namespace mdr::v2::t1
     {
         static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_STATUS;
         static constexpr EqEbbInquiredType kInquiredType = EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE;
-
         EqEbbBase base;
         MessageMdrV2EnableDisable value{MessageMdrV2EnableDisable::DISABLE}; // 0x2
         MDRPodArray<PresetEqErrorCodeType> errors; // 0x3, 0x4-
