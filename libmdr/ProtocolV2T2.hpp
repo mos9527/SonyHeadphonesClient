@@ -118,10 +118,12 @@ namespace mdr::v2::t2
 
         UNKNOWN = 0xFF
     };
+
     enum class ConnectInquiredType : UInt8
     {
         FIXED_VALUE = 0,
     };
+
     enum class PeripheralInquiredType : UInt8
     {
         PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT = 0x00,
@@ -135,6 +137,7 @@ namespace mdr::v2::t2
         NORMAL_MODE = 0x00,
         INQUIRY_SCAN_MODE = 0x01,
     };
+
     enum class ConnectivityActionType : UInt8
     {
         DISCONNECT = 0x00,
@@ -173,7 +176,8 @@ namespace mdr::v2::t2
         FAIL_A2DP_NOT_CONNECT = 0x03,
         FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT = 0x04,
     };
-     enum class VoiceGuidanceInquiredType : UInt8
+
+    enum class VoiceGuidanceInquiredType : UInt8
     {
         // PARAM:  [RSN] VoiceGuidanceParamSettingMtk
         MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH = 0x0,
@@ -217,6 +221,7 @@ namespace mdr::v2::t2
         TURKISH = 0x10,
         CHINESE = 0xF0,
     };
+
     enum class SafeListeningInquiredType : UInt8
     {
         SAFE_LISTENING_HBS_1 = 0x0,
@@ -254,6 +259,7 @@ namespace mdr::v2::t2
         NORMAL = 0x0,
         SENSITIVE = 0x1,
     };
+
     // region Connect
     struct ConnectGetSupportFunction
     {
@@ -279,7 +285,6 @@ namespace mdr::v2::t2
     // endregion Connect
 
     // region Peripheral
-
 
 
     // region PERI_*_STATUS
@@ -315,6 +320,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralStatusPairingDeviceManagementCommon);
     };
+
     static_assert(MDRIsSerializable<PeripheralStatusPairingDeviceManagementCommon>);
 
     // endregion PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
@@ -333,7 +339,9 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfo);
     };
+
     static_assert(MDRIsReadWritable<PeripheralDeviceInfo>);
+
     struct PeripheralDeviceInfoWithBluetoothClassOfDevice
     {
         static constexpr size_t kMacAddressLength = 17;
@@ -347,6 +355,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfoWithBluetoothClassOfDevice);
     };
+
     static_assert(MDRIsReadWritable<PeripheralDeviceInfoWithBluetoothClassOfDevice>);
 #pragma pack(push, 1)
 
@@ -359,6 +368,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetParam);
     };
+
     static_assert(MDRIsSerializable<PeripheralGetParam>);
     // endregion PERI_GET_PARAM
 
@@ -377,7 +387,7 @@ namespace mdr::v2::t2
         static constexpr size_t kMaxBtFriendlyNameLength = 128;
 
         PeripheralBase base{Command::PERI_GET_PARAM,
-            PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT};
+                            PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT};
 
         MDRArray<PeripheralDeviceInfo> deviceList;
         UInt8 playbackDevice;
@@ -394,6 +404,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralParamSourceSwitchControl);
     };
+
     static_assert(MDRIsSerializable<PeripheralParamSourceSwitchControl>);
     // - PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
 
@@ -409,7 +420,7 @@ namespace mdr::v2::t2
         static constexpr size_t kMaxBtFriendlyNameLength = 128;
 
         PeripheralBase base{Command::PERI_GET_PARAM,
-            PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE};
+                            PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE};
 
         MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice> deviceList;
         UInt8 playbackDevice;
@@ -428,6 +439,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralParamMusicHandOverSetting);
     };
+
     static_assert(MDRIsSerializable<PeripheralParamMusicHandOverSetting>);
     // endregion PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
 
@@ -435,7 +447,6 @@ namespace mdr::v2::t2
 
     // region PERI_*_EXTENDED_PARAM
 
-    
 
     // region PERI_SET_EXTENDED_PARAM
 
@@ -446,6 +457,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralSetExtendedParam);
     };
+
     static_assert(MDRIsSerializable<PeripheralSetExtendedParam>);
 
     // - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
@@ -460,6 +472,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralStatusPairingDeviceManagementCommon);
     };
+
     static_assert(MDRIsSerializable<PeripheralStatusPairingDeviceManagementCommon>);
 
     // - SOURCE_SWITCH_CONTROL
@@ -473,6 +486,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralSetExtendedParamSourceSwitchControl);
     };
+
     static_assert(MDRIsSerializable<PeripheralSetExtendedParamSourceSwitchControl>);
 
     // endregion PERI_SET_EXTENDED_PARAM
@@ -491,6 +505,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralNotifyExtendedParamParingDeviceManagementCommon);
     };
+
     static_assert(MDRIsSerializable<PeripheralNotifyExtendedParamParingDeviceManagementCommon>);
     // - SOURCE_SWITCH_CONTROL
 
@@ -499,11 +514,12 @@ namespace mdr::v2::t2
         static constexpr size_t kBluetoothDeviceAddressLength = 17;
         PeripheralBase base{Command::PERI_NTFY_EXTENDED_PARAM, PeripheralInquiredType::SOURCE_SWITCH_CONTROL};
         SourceSwitchControlResult result; // 0x2
-        Array<char, kBluetoothDeviceAddressLength>  targetBdAddress;
+        Array<char, kBluetoothDeviceAddressLength> targetBdAddress;
         // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralNotifyExtendedParamSourceSwitchControl);
     };
+
     static_assert(MDRIsSerializable<PeripheralNotifyExtendedParamSourceSwitchControl>);
 
     // endregion PERI_NTFY_EXTENDED_PARAM
@@ -514,7 +530,7 @@ namespace mdr::v2::t2
 
     // region VOICE_GUIDANCE
 
-   
+
     // region VOICE_GUIDANCE_*_CAPABILITY
 
     // Not implemented
@@ -536,6 +552,7 @@ namespace mdr::v2::t2
         Command command{Command::VOICE_GUIDANCE_GET_PARAM};
         VoiceGuidanceInquiredType inquiredType; // 0x1
     };
+
     struct VoiceGuidanceGetParam
     {
         static constexpr Command kResponseCommand = Command::VOICE_GUIDANCE_RET_PARAM;
@@ -543,6 +560,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceGetParam);
     };
+
     static_assert(MDRIsSerializable<VoiceGuidanceGetParam>);
     // endregion VOICE_GUIDANCE_GET_PARAM
 
@@ -558,6 +576,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingMtk);
     };
+
     static_assert(MDRIsSerializable<VoiceGuidanceParamSettingMtk>);
     // - MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH, SUPPORT_LANGUAGE_SWITCH
 
@@ -569,6 +588,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingSupportLangSwitch);
     };
+
     static_assert(MDRIsSerializable<VoiceGuidanceParamSettingSupportLangSwitch>);
     // - VOLUME, VOLUME_SETTING_FIXED_TO_5_STEPS
 
@@ -579,6 +599,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamVolume);
     };
+
     static_assert(MDRIsSerializable<VoiceGuidanceParamVolume>);
 
 
@@ -591,6 +612,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingOnOff);
     };
+
     static_assert(MDRIsSerializable<VoiceGuidanceParamSettingOnOff>);
 
     // endregion VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
@@ -607,6 +629,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceSetParamVolume);
     };
+
     static_assert(MDRIsSerializable<VoiceGuidanceSetParamVolume>);
     // endregion VOICE_GUIDANCE_SET_PARAM
 
@@ -618,7 +641,7 @@ namespace mdr::v2::t2
 
     // region SAFE_LISTENING Common Enums
 
-    
+
     // endregion SAFE_LISTENING Common Enums
 
     // region SAFE_LISTENING_*_CAPABILITY
@@ -633,6 +656,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetCapability);
     };
+
     static_assert(MDRIsSerializable<SafeListeningGetCapability>);
     // endregion SAFE_LISTENING_GET_CAPABILITY
 
@@ -649,6 +673,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetCapability);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetCapability>);
     // endregion SAFE_LISTENING_RET_CAPABILITY
 
@@ -697,6 +722,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetStatus);
     };
+
     static_assert(MDRIsSerializable<SafeListeningGetStatus>);
     // endregion SAFE_LISTENING_GET_STATUS
 
@@ -709,6 +735,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatus);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatus>);
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
 
@@ -718,6 +745,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusSL);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusSL>);
     // - SAFE_LISTENING_HBS_*
 
@@ -728,6 +756,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusHbs);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusHbs>);
     // - SAFE_LISTENING_HBS_1
 
@@ -738,6 +767,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusHbs1);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusHbs1>);
     // - SAFE_LISTENING_HBS_2
 
@@ -748,6 +778,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusHbs2);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusHbs2>);
     // - SAFE_LISTENING_TWS_*
 
@@ -759,6 +790,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusTws>);
     // - SAFE_LISTENING_TWS_1
 
@@ -770,6 +802,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws1);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusTws1>);
     // - SAFE_LISTENING_TWS_2
 
@@ -781,6 +814,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetStatusTws2>);
     // endregion SAFE_LISTENING_RET_STATUS
 
@@ -794,6 +828,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatus);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetStatus>);
 
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
@@ -804,6 +839,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusSL);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetStatusSL>);
     // - SAFE_LISTENING_HBS_1, SAFE_LISTENING_HBS_2
 
@@ -815,6 +851,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusHbs);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetStatusHbs>);
     // - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
 
@@ -828,6 +865,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusTws);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetStatusTws>);
     // - SAFE_VOLUME_CONTROL
 
@@ -838,6 +876,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusSVC);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetStatusSVC>);
     // endregion SAFE_LISTENING_SET_STATUS
 
@@ -850,6 +889,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatus);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatus>);
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
 
@@ -859,6 +899,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusSL);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusSL>);
     // - SAFE_LISTENING_HBS_1, SAFE_LISTENING_HBS_2
 
@@ -869,6 +910,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusHbs);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs>);
     // - SAFE_LISTENING_HBS_1
 
@@ -879,6 +921,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs1);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs1>);
     // - SAFE_LISTENING_HBS_2
 
@@ -887,8 +930,9 @@ namespace mdr::v2::t2
         SafeListeningNotifyStatusHbs base;
         MDRPodArray<SafeListeningData2> data;
 
-        MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs2);        
+        MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs2);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs2>);
     // - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
 
@@ -900,6 +944,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusTws);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws>);
     // - SAFE_LISTENING_TWS_1
 
@@ -910,6 +955,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusTws1);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws1>);
     // - SAFE_LISTENING_TWS_2
 
@@ -920,6 +966,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusTws2);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws2>);
 
     // - SAFE_VOLUME_CONTROL
@@ -948,6 +995,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetParam);
     };
+
     static_assert(MDRIsSerializable<SafeListeningGetParam>);
 
     // endregion SAFE_LISTENING_GET_PARAM
@@ -962,6 +1010,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetParam);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetParam>);
 
     // endregion SAFE_LISTENING_RET_PARAM
@@ -976,6 +1025,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetParam);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetParam>);
 
     // - SAFE_LISTENING_*
@@ -988,6 +1038,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetParamSL);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetParamSL>);
 
     // - SAFE_VOLUME_CONTROL
@@ -1000,6 +1051,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetParamSVC);
     };
+
     static_assert(MDRIsSerializable<SafeListeningSetParamSVC>);
 
     // endregion SAFE_LISTENING_SET_PARAM
@@ -1013,6 +1065,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyParam);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyParam>);
     // - SAFE_LISTENING_*
 
@@ -1024,6 +1077,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyParamSL);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyParamSL>);
     // - SAFE_VOLUME_CONTROL
 
@@ -1035,6 +1089,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyParamSVC);
     };
+
     static_assert(MDRIsSerializable<SafeListeningNotifyParamSVC>);
     // endregion SAFE_LISTENING_NTFY_PARAM
 
@@ -1052,6 +1107,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetExtendedParam);
     };
+
     static_assert(MDRIsSerializable<SafeListeningGetExtendedParam>);
     // endregion SAFE_LISTENING_GET_EXTENDED_PARAM
 
@@ -1066,6 +1122,7 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetExtendedParam);
     };
+
     static_assert(MDRIsSerializable<SafeListeningRetExtendedParam>);
 
     // endregion SAFE_LISTENING_RET_EXTENDED_PARAM

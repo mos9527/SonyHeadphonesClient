@@ -5,9 +5,9 @@ namespace mdr::v2::t1 {
     size_t ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.command, &ptr);
-        ptr += MDRPod::Write(data.inquiredType, &ptr);
-        ptr += MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr);
+        MDRPod::Write(data.command, &ptr);
+        MDRPod::Write(data.inquiredType, &ptr);
+        MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr);
         return ptr - out;
     }
     void ConnectRetSupportFunction::Deserialize(UInt8* data, ConnectRetSupportFunction& out)
@@ -19,9 +19,9 @@ namespace mdr::v2::t1 {
     size_t EqEbbStatusErrorCode::Serialize(const EqEbbStatusErrorCode& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPod::Write(data.value, &ptr);
-        ptr += MDRPodArray<PresetEqErrorCodeType>::Write(data.errors, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPod::Write(data.value, &ptr);
+        MDRPodArray<PresetEqErrorCodeType>::Write(data.errors, &ptr);
         return ptr - out;
     }
     void EqEbbStatusErrorCode::Deserialize(UInt8* data, EqEbbStatusErrorCode& out)
@@ -33,9 +33,9 @@ namespace mdr::v2::t1 {
     size_t EqEbbParamEq::Serialize(const EqEbbParamEq& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPod::Write(data.presetId, &ptr);
-        ptr += MDRPodArray<UInt8>::Write(data.bands, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPod::Write(data.presetId, &ptr);
+        MDRPodArray<UInt8>::Write(data.bands, &ptr);
         return ptr - out;
     }
     void EqEbbParamEq::Deserialize(UInt8* data, EqEbbParamEq& out)
@@ -47,10 +47,10 @@ namespace mdr::v2::t1 {
     size_t EqEbbParamEqAndUltMode::Serialize(const EqEbbParamEqAndUltMode& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPod::Write(data.presetId, &ptr);
-        ptr += MDRPod::Write(data.eqUltModeStatus, &ptr);
-        ptr += MDRPodArray<UInt8>::Write(data.bandSteps, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPod::Write(data.presetId, &ptr);
+        MDRPod::Write(data.eqUltModeStatus, &ptr);
+        MDRPodArray<UInt8>::Write(data.bandSteps, &ptr);
         return ptr - out;
     }
     void EqEbbParamEqAndUltMode::Deserialize(UInt8* data, EqEbbParamEqAndUltMode& out)
@@ -63,8 +63,8 @@ namespace mdr::v2::t1 {
     size_t EqEbbParamCustomEq::Serialize(const EqEbbParamCustomEq& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPodArray<UInt8>::Write(data.bandSteps, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPodArray<UInt8>::Write(data.bandSteps, &ptr);
         return ptr - out;
     }
     void EqEbbParamCustomEq::Deserialize(UInt8* data, EqEbbParamCustomEq& out)
@@ -75,8 +75,8 @@ namespace mdr::v2::t1 {
     size_t AlertRetStatusVoiceAssistant::Serialize(const AlertRetStatusVoiceAssistant& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPodArray<VoiceAssistantType>::Write(data.voiceAssistants, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPodArray<VoiceAssistantType>::Write(data.voiceAssistants, &ptr);
         return ptr - out;
     }
     void AlertRetStatusVoiceAssistant::Deserialize(UInt8* data, AlertRetStatusVoiceAssistant& out)
@@ -84,13 +84,39 @@ namespace mdr::v2::t1 {
         MDRPod::Read(&data, out.base);
         MDRPodArray<VoiceAssistantType>::Read(&data, out.voiceAssistants);
     }
+    size_t PlaybackName::Write(const PlaybackName& data, UInt8** ppDstBuffer)
+    {
+        UInt8* ptr = *ppDstBuffer;
+        MDRPod::Write(data.playbackNameStatus, ppDstBuffer);
+        MDRPrefixedString::Write(data.playbackName, ppDstBuffer);
+        return *ppDstBuffer - ptr;
+    }
+    void PlaybackName::Read(UInt8** ppSrcBuffer, PlaybackName& out, size_t maxSize)
+    {
+        MDRPod::Read(ppSrcBuffer, out.playbackNameStatus, maxSize);
+        MDRPrefixedString::Read(ppSrcBuffer, out.playbackName, maxSize);
+    }
+    size_t GsSettingInfo::Write(const GsSettingInfo& data, UInt8** ppDstBuffer)
+    {
+        UInt8* ptr = *ppDstBuffer;
+        MDRPod::Write(data.stringFormat, ppDstBuffer);
+        MDRPrefixedString::Write(data.subject, ppDstBuffer);
+        MDRPrefixedString::Write(data.summary, ppDstBuffer);
+        return *ppDstBuffer - ptr;
+    }
+    void GsSettingInfo::Read(UInt8** ppSrcBuffer, GsSettingInfo& out, size_t maxSize)
+    {
+        MDRPod::Read(ppSrcBuffer, out.stringFormat, maxSize);
+        MDRPrefixedString::Read(ppSrcBuffer, out.subject, maxSize);
+        MDRPrefixedString::Read(ppSrcBuffer, out.summary, maxSize);
+    }
     size_t GsRetCapability::Serialize(const GsRetCapability& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.command, &ptr);
-        ptr += MDRPod::Write(data.type, &ptr);
-        ptr += MDRPod::Write(data.settingType, &ptr);
-        ptr += GsSettingInfo::Write(data.settingInfo, &ptr);
+        MDRPod::Write(data.command, &ptr);
+        MDRPod::Write(data.type, &ptr);
+        MDRPod::Write(data.settingType, &ptr);
+        GsSettingInfo::Write(data.settingInfo, &ptr);
         return ptr - out;
     }
     void GsRetCapability::Deserialize(UInt8* data, GsRetCapability& out)
@@ -103,8 +129,8 @@ namespace mdr::v2::t1 {
     size_t AudioParamListeningOptionAssignCustomizableItem::Serialize(const AudioParamListeningOptionAssignCustomizableItem& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPodArray<ListeningOptionAssignCustomizableItem>::Write(data.items, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPodArray<ListeningOptionAssignCustomizableItem>::Write(data.items, &ptr);
         return ptr - out;
     }
     void AudioParamListeningOptionAssignCustomizableItem::Deserialize(UInt8* data, AudioParamListeningOptionAssignCustomizableItem& out)
@@ -115,8 +141,8 @@ namespace mdr::v2::t1 {
     size_t SystemParamAssignableSettings::Serialize(const SystemParamAssignableSettings& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPodArray<Preset>::Write(data.presets, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPodArray<Preset>::Write(data.presets, &ptr);
         return ptr - out;
     }
     void SystemParamAssignableSettings::Deserialize(UInt8* data, SystemParamAssignableSettings& out)
@@ -127,8 +153,8 @@ namespace mdr::v2::t1 {
     size_t SystemParamAssignableSettingsWithLimit::Serialize(const SystemParamAssignableSettingsWithLimit& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRPodArray<Preset>::Write(data.presets, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRPodArray<Preset>::Write(data.presets, &ptr);
         return ptr - out;
     }
     void SystemParamAssignableSettingsWithLimit::Deserialize(UInt8* data, SystemParamAssignableSettingsWithLimit& out)
@@ -136,11 +162,23 @@ namespace mdr::v2::t1 {
         MDRPod::Read(&data, out.base);
         MDRPodArray<Preset>::Read(&data, out.presets);
     }
+    size_t AssignableSettingsPreset::Write(const AssignableSettingsPreset& data, UInt8** ppDstBuffer)
+    {
+        UInt8* ptr = *ppDstBuffer;
+        MDRPod::Write(data.preset, ppDstBuffer);
+        MDRPodArray<AssignableSettingsAction>::Write(data.actions, ppDstBuffer);
+        return *ppDstBuffer - ptr;
+    }
+    void AssignableSettingsPreset::Read(UInt8** ppSrcBuffer, AssignableSettingsPreset& out, size_t maxSize)
+    {
+        MDRPod::Read(ppSrcBuffer, out.preset, maxSize);
+        MDRPodArray<AssignableSettingsAction>::Read(ppSrcBuffer, out.actions, maxSize);
+    }
     size_t SystemExtParamAssignableSettings::Serialize(const SystemExtParamAssignableSettings& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr);
         return ptr - out;
     }
     void SystemExtParamAssignableSettings::Deserialize(UInt8* data, SystemExtParamAssignableSettings& out)
@@ -151,8 +189,8 @@ namespace mdr::v2::t1 {
     size_t SystemExtParamAssignableSettingsWithLimit::Serialize(const SystemExtParamAssignableSettingsWithLimit& data, UInt8* out)
     {
         UInt8* ptr = out;
-        ptr += MDRPod::Write(data.base, &ptr);
-        ptr += MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr);
+        MDRPod::Write(data.base, &ptr);
+        MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr);
         return ptr - out;
     }
     void SystemExtParamAssignableSettingsWithLimit::Deserialize(UInt8* data, SystemExtParamAssignableSettingsWithLimit& out)

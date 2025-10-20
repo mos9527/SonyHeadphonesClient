@@ -1,13 +1,13 @@
 # Payload Struct Implementation Details (libmdr)
 A MDR Payload struct 
-- Always has a `Command` enum field named `command` as the first field, with a default value set to the command it represents.
+- ALWAYS has a `Command` enum field named `command` as the first field, with a default value set to the command it represents.
     - May have a `static constexpr Command kResponseCommand` field if the command has a well-defined response command.
-- Always implements the `MDRIsSerializable` concept, which means it can be serialized and deserialized to/from a byte buffer,
+- ALWAYS implements the `MDRIsSerializable` concept, which means it can be serialized and deserialized to/from a byte buffer,
   either through trivial serialization macro (`MDR_DEFINE_TRIVIAL_SERIALIZATION`) or through custom serialization functions.
-- Always has a static assertion to verify it implements the `MDRIsSerializable` concept.
-- May contain dynamic array types (vectors or strings), otherwise it should use the trivial serialization macro (see the next section).
-- _ALWAYS_ trivially copyable (no user-defined constructors, destructors, or copy/move operators) UNLESS contains dynamic array types (vectors or strings).
-- _ALWAYS_ in standard layout (no virtual functions, no multiple inheritance, all non-static data members have the same access control). 
+- ALWAYS has a static assertion to verify it implements the `MDRIsSerializable` concept.
+- MAY contain dynamic array types (vectors or strings), otherwise it should use the trivial serialization macro (see the next section).
+- ALWAYS trivially copyable (no user-defined constructors, destructors, or copy/move operators) UNLESS contains dynamic array types (vectors or strings).
+- ALWAYS in standard layout (no virtual functions, no multiple inheritance, all non-static data members have the same access control). 
 ## Trivially Serializable Payloads (PODs)
 These are payload structs that can be trivially serialized and deserialized in memory. This implies:
 - No dynamic array types (vectors or strings)
@@ -69,16 +69,16 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
     return MDRSerializationResult::OK;
 }
 ```
-- The struct has no alignment requirements.
-- This field declaration has no ordering requirements, though  recommended and has been followed in practice.
-- The struct implements static `Serialize` and `Deserialize` functions to handle the serialization and deserialization logic.
-- Helper functions are provided to perform RWs
-    - All `Read` has the signature of     
+- The struct has NO alignment requirements (any packing).
+- This field declaration has NO ordering requirements, though  recommended and has been followed in practice.
+- The struct ALWAYS implements external static `Serialize` and `Deserialize` functions to handle the serialization and deserialization logic.
+- Helper functions are provided to perform RWs on subtypes for fields
+    - ALL `Read` has the signature of     
         `void Read(UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize = ~0LL)`
     
     And will advance the `*ppSrcBuffer` pointer by the number of bytes read.            
         The optional `maxSize` parameter can be used to limit the maximum size of the string to read.
-    - All `Write` has the signature of        
+    - ALL `Write` has the signature of        
         `size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer)`        
         returning the number of bytes written, or 0 on failure.     
 
@@ -89,9 +89,9 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
 ## Snippets
 ### Read/Write signature
 - This is meant for non-trivial Read/Write functions, for **fields** that require special handling.
-- On failure, exceptions are always thrown.
-- Write _always_ returns non-zero amount of bytes written, or throws.
-- Declaration in Headers always uses `MDR_DEFINE_EXTERN_READ_WRITE(SubType)` macro.
+- On failure, exceptions are ALWAYS thrown.
+- Write ALWAYS returns non-zero amount of bytes written, or throws.
+- Declaration in Headers ALWAYS uses `MDR_DEFINE_EXTERN_READ_WRITE(SubType)` macro.
 - Implementation in translation units always uses the following signatures:
 ```c++
     static void Read(UInt8** ppSrcBuffer, Type &out, size_t maxSize = ~0LL);
@@ -99,13 +99,33 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
 ```
 ### Non-trivial Serialization/Deserialization signature
 - This is meant for non-trivial Serialize/Deserialize functions, for **structs** that require special handling.
-- On failure, exceptions are always thrown.
-- Serialize _always_ returns non-zero amount of bytes written, or throws.
-- Declaration in Headers always uses `MDR_DEFINE_EXTERN_SERIALIZATION(Type)` macro.
-- Implementation in translation units always uses the following signatures:
+- On failure, exceptions are ALWAYS thrown.
+- Serialize ALWAYS returns non-zero amount of bytes written, or throws.
+- Declaration in Headers ALWAYS uses `MDR_DEFINE_EXTERN_SERIALIZATION(Type)` macro.
+- Implementation in translation units ALWAYS uses the following signatures:
 ```c++
     static size_t Serialize(const Type &data, UInt8* out);
     static void Deserialize(UInt8* data, Type &out);
 ```
-- To have the codegen _exclude_ a struct, include `MDR_CODEGEN_IGNORE_SERIALIZATION` within the context
+- To have the codegen *exclude* a struct, include `MDR_CODEGEN_IGNORE_SERIALIZATION` within the context
   of the said struct.
+
+## Validation
+- ALL structs MUST implement static assertions to verify they implement the `MDRIsSerializable` concept.
+- ALL structs MUST implement data validation
+  - Declaration in Headers ALWAYS uses `MDR_DEFINE_EXTERN_VALIDATION(Type)` macro.
+  - Implementation in translation units ALWAYS uses the following signature if excluded from codegen:
+    ```c++
+        static bool Validate(const Type &data);
+    ``` 
+  - Exclusion from codegen is done by including `MDR_CODEGEN_IGNORE_VALIDATION` within the context
+    of the said struct.
+
+## Summary
+### Macros to use in Headers
+- `MDR_DEFINE_TRIVIAL_SERIALIZATION(Type)` for trivially serializable structs.
+- `MDR_DEFINE_EXTERN_SERIALIZATION(Type)` for non-trivially serializable structs, where codegen will generate implementations.
+  - `MDR_CODEGEN_IGNORE_SERIALIZATION` to exclude a struct from codegen serialization impl generation, and implement manually.
+- `MDR_DEFINE_EXTERN_READ_WRITE(SubType)` for non-trivially serializable fields structs declaration, where codegen will generate implementations.
+  - `MDR_CODEGEN_IGNORE_SERIALIZATION` to exclude a field struct from codegen serialization impl generation, and implement manually.
+  - `MDR_CODEGEN_IGNORE_VALIDATION` to exclude a struct from codegen validation.

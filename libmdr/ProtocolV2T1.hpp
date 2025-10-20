@@ -152,10 +152,12 @@ namespace mdr::v2::t1
         SYSTEM_NTFY_EXT_PARAM = 0xFD,
         UNKNOWN = 0xFF
     };
+
     enum class ConnectInquiredType : UInt8
     {
         FIXED_VALUE = 0,
     };
+
     enum class DeviceInfoType : UInt8
     {
         MODEL_NAME = 1,
@@ -163,6 +165,7 @@ namespace mdr::v2::t1
         SERIES_AND_COLOR_INFO = 3,
         INSTRUCTION_GUIDE = 4,
     };
+
     enum class ModelSeriesType : UInt8
     {
         NO_SERIES = 0,
@@ -177,6 +180,7 @@ namespace mdr::v2::t1
         LINKPOD = 0x80,
         GAMING = 0x90,
     };
+
     enum class CommonInquiredType : UInt8
     {
         CONCIERGE = 0x00,
@@ -191,6 +195,7 @@ namespace mdr::v2::t1
         TANDEM_RECONNECTION_REQUEST = 0x08,
         DISPLAY_FW_VERSION = 0x09,
     };
+
     enum class AudioCodec : UInt8
     {
         UNSETTLED = 0x00,
@@ -202,6 +207,7 @@ namespace mdr::v2::t1
         LC3 = 0x30,
         OTHER = 0xFF,
     };
+
     enum class PowerInquiredType : UInt8
     {
         BATTERY = 0x00,
@@ -221,6 +227,7 @@ namespace mdr::v2::t1
         STAMINA = 0x0E,
         AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF = 0x0F,
     };
+
     enum class BatteryChargingStatus : UInt8
     {
         NOT_CHARGING = 0,
@@ -228,11 +235,13 @@ namespace mdr::v2::t1
         UNKNOWN = 2,
         CHARGED = 3,
     };
+
     enum class PowerOffSettingValue : UInt8
     {
         USER_POWER_OFF = 0x01,
         FACTORY_POWER_OFF = 0xFF,
     };
+
     enum class AutoPowerOffElements : UInt8
     {
         POWER_OFF_IN_5_MIN = 0x00,
@@ -242,6 +251,7 @@ namespace mdr::v2::t1
         POWER_OFF_IN_15_MIN = 0x04,
         POWER_OFF_DISABLE = 0x11,
     };
+
     enum class AutoPowerOffWearingDetectionElements : UInt8
     {
         POWER_OFF_IN_5_MIN = 0x00,
@@ -252,6 +262,7 @@ namespace mdr::v2::t1
         POWER_OFF_WHEN_REMOVED_FROM_EARS = 0x10,
         POWER_OFF_DISABLE = 0x11,
     };
+
     enum class EqEbbInquiredType : UInt8
     {
         // PARAM: [RSN] EqEbbParamEq
@@ -271,6 +282,7 @@ namespace mdr::v2::t1
         // PARAM: [ SN] EqEbbParamTurnKeyEq
         TURN_KEY_EQ = 0x32,
     };
+
     enum class EqPresetId : UInt8
     {
         OFF = 0x00,
@@ -333,12 +345,14 @@ namespace mdr::v2::t1
         ARTIST_COLLAB12 = 0xBB,
         UNSPECIFIED = 0xFF,
     };
+
     enum class EqUltMode : UInt8
     {
         OFF = 0x00,
         ULT_1 = 0x01,
         ULT_2 = 0x02,
     };
+
     enum class SoundEffectType : UInt8
     {
         SOUND_EFFECT_OFF = 0x00,
@@ -348,6 +362,7 @@ namespace mdr::v2::t1
         SOUND_EFFECT_CUSTOM = 0x04,
         SOUND_EFFECT_NONE = 0xFF,
     };
+
     enum class PresetEqErrorCodeType : UInt8
     {
         CALLING = 0x00,
@@ -355,6 +370,7 @@ namespace mdr::v2::t1
         LISTENING_MODE = 0x02,
         OTHER = 0xFE,
     };
+
     enum class NcAsmInquiredType : UInt8
     {
         NC_ON_OFF = 0x1,
@@ -372,32 +388,38 @@ namespace mdr::v2::t1
         NC_AMB_TOGGLE = 0x30,
         NC_TEST_MODE = 0x40,
     };
+
     enum class ValueChangeStatus : UInt8
     {
         UNDER_CHANGING = 0,
         CHANGED = 1,
     };
+
     enum class NcAsmOnOffValue : UInt8
     {
         OFF = 0,
         ON = 1,
     };
+
     enum class NcAsmMode : UInt8
     {
         NC = 0,
         ASM = 1,
     };
+
     enum class AmbientSoundMode : UInt8
     {
         NORMAL = 0,
         VOICE = 1,
     };
+
     enum class NoiseAdaptiveSensitivity : UInt8
     {
         STANDARD = 0,
         HIGH = 1,
         LOW = 2,
     };
+
     enum class Function : UInt8
     {
         NO_FUNCTION = 0x00,
@@ -444,6 +466,7 @@ namespace mdr::v2::t1
         GAME_UP = 0x71,
         CHAT_UP = 0x72,
     };
+
     enum class AlertInquiredType : UInt8
     {
         // STATUS: [ S ] AlertSetStatusFixedMessage
@@ -473,6 +496,7 @@ namespace mdr::v2::t1
         //         [  N] AlertNotifyParamFlexibleMessage
         FLEXIBLE_MESSAGE = 0x06,
     };
+
     enum class AlertMessageType : UInt8
     {
         DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE = 0x00,
@@ -582,6 +606,7 @@ namespace mdr::v2::t1
         CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN = 0x92,
         TURN_KEY_EQ_SUCCESS = 0x93,
     };
+
     enum class AlertFlexibleMessageType : UInt8
     {
         BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS = 0x00,
@@ -604,26 +629,31 @@ namespace mdr::v2::t1
         0x10,
         DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION = 0x11,
     };
+
     enum class VoiceAssistantType : UInt8
     {
         GOOGLE_ASSISTANT = 0x00,
         AMAZON_ALEXA = 0x01,
         TENCENT_XIAOWEI = 0x02,
     };
+
     enum class ConfirmationType : UInt8
     {
         CONFIRMED = 0x00,
         CONFIRMED_DONT_SHOW_AGAIN = 0x01,
     };
+
     enum class AlertAction : UInt8
     {
         NEGATIVE = 0x00,
         POSITIVE = 0x01,
     };
+
     enum class VibrationType : UInt8
     {
         NO_PATTERN_SPECIFIED = 0x00,
     };
+
     enum class AlertMessageTypeWithLeftRightSelection : UInt8
     {
         CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON = 0x00,
@@ -633,23 +663,27 @@ namespace mdr::v2::t1
         CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON = 0x04,
         CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR = 0x05,
     };
+
     enum class AlertLeftRightAction : UInt8
     {
         NEGATIVE = 0x00,
         LEFT = 0x01,
         RIGHT = 0x02,
     };
+
     enum class AlertActionType : UInt8
     {
         CONFIRMATION_ONLY = 0x00,
         POSITIVE_NEGATIVE = 0x01,
         POSITIVE_CONFIRMATION_WITH_REPLY = 0x02,
     };
+
     enum class DefaultSelectedLeftRightValue : UInt8
     {
         LEFT = 0x00,
         RIGHT = 0x01,
     };
+
     enum class PlayInquiredType : UInt8
     {
         // STATUS: [R N] PlayStatusPlaybackController
@@ -682,6 +716,7 @@ namespace mdr::v2::t1
         // PARAM:  [RSN] PlayParamPlayMode
         PLAY_MODE = 0x40,
     };
+
     enum class PlaybackStatus : UInt8
     {
         UNSETTLED = 0x00,
@@ -689,11 +724,13 @@ namespace mdr::v2::t1
         PAUSE = 0x02,
         STOP = 0x03,
     };
+
     enum class MusicCallStatus : UInt8
     {
         MUSIC = 0x0,
         CALL = 0x1,
     };
+
     enum class PlaybackControl : UInt8
     {
         KEY_OFF = 0x00,
@@ -707,12 +744,14 @@ namespace mdr::v2::t1
         FAST_FORWARD = 0x08,
         FAST_REWIND = 0x09,
     };
+
     enum class PlaybackNameStatus
     {
         UNSETTLED = 0,
         NOTHING = 1,
         SETTLED = 2,
     };
+
     enum class PlayMode : UInt8
     {
         PLAY_MODE_OFF = 0x00,
@@ -722,6 +761,7 @@ namespace mdr::v2::t1
         REPEAT_TRACK = 0x04,
         SHUFFLE_ALL = 0x05,
     };
+
     enum class GsInquiredType : UInt8
     {
         GENERAL_SETTING1 = 0xD1, ///< Capture Voice During a Phone Call
@@ -729,16 +769,19 @@ namespace mdr::v2::t1
         GENERAL_SETTING3 = 0xD3, ///< Touch sensor control panel
         GENERAL_SETTING4 = 0xD4,
     };
+
     enum class GsSettingType : UInt8
     {
         BOOLEAN_TYPE = 0x00,
         LIST_TYPE = 0x01,
     };
+
     enum class GsSettingValue : UInt8
     {
         ON = 0x00,
         OFF = 0x01,
     };
+
     enum class DisplayLanguage : UInt8
     {
         UNDEFINED_LANGUAGE = 0x00,
@@ -759,11 +802,13 @@ namespace mdr::v2::t1
         KOREAN = 0x0F,
         TURKISH = 0x10,
     };
+
     enum class GsStringFormat
     {
         RAW_NAME = 0x00,
         ENUM_NAME = 0x01,
     };
+
     enum class AudioInquiredType : UInt8
     {
         // PARAM:      [RSN] AudioParamConnection
@@ -797,23 +842,27 @@ namespace mdr::v2::t1
         // PARAM:      [RSN] AudioParamUpmixSeries
         UPMIX_SERIES = 0x0A,
     };
+
     enum class PriorMode : UInt8
     {
         SOUND_QUALITY_PRIOR = 0x00,
         CONNECTION_QUALITY_PRIOR = 0x01,
         LOW_LATENCY_PRIOR_BETA = 0x02,
     };
+
     enum class UpscalingTypeAutoOff : UInt8
     {
         OFF = 0x00,
         AUTO = 0x01,
     };
+
     enum class RoomSize : UInt8
     {
         SMALL = 0x00,
         MIDDLE = 0x01,
         LARGE = 0x02,
     };
+
     enum class ListeningOptionAssignCustomizableItem : UInt8
     {
         STANDARD = 0x00,
@@ -822,6 +871,7 @@ namespace mdr::v2::t1
         UPMIX_GAME = 0x03,
         UPMIX_MUSIC = 0x04,
     };
+
     enum class UpmixItemId : UInt8
     {
         NONE = 0x00,
@@ -829,12 +879,14 @@ namespace mdr::v2::t1
         GAME = 0x02,
         MUSIC = 0x03,
     };
+
     enum class SwitchingStream : UInt8
     {
         NONE = 0x00,
         LE_AUDIO = 0x01,
         CLASSIC_AUDIO = 0x02,
     };
+
     enum class UpscalingType : UInt8
     {
         DSEE_HX = 0x00,
@@ -842,6 +894,7 @@ namespace mdr::v2::t1
         DSEE_HX_AI = 0x02,
         DSEE_ULTIMATE = 0x03,
     };
+
     enum class SystemInquiredType : UInt8
     {
         // PARAM:     [RSN] SystemParamCommon
@@ -900,6 +953,7 @@ namespace mdr::v2::t1
         // EXT_PARAM: [   ] None
         HEAD_GESTURE_TRAINING = 0x10,
     };
+
     enum class Preset : UInt8
     {
         AMBIENT_SOUND_CONTROL = 0x00,
@@ -929,6 +983,7 @@ namespace mdr::v2::t1
         CUSTOM2 = 0x72,
         NO_FUNCTION = 0xFF,
     };
+
     enum class VoiceAssistant : UInt8
     {
         VOICE_RECOGNITION = 0x30,
@@ -939,6 +994,7 @@ namespace mdr::v2::t1
         VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE = 0x3F,
         NO_FUNCTION = 0xFF,
     };
+
     enum class EarpieceFittingDetectionOperationStatus : UInt8
     {
         DETECTION_IS_NOT_STARTED = 0x00,
@@ -946,6 +1002,7 @@ namespace mdr::v2::t1
         DETECTION_COMPLETED_SUCCESSFULLY = 0x02,
         DETECTION_COMPLETED_UNSUCCESSFULLY = 0x03,
     };
+
     enum class EarpieceFittingDetectionOperationErrorCode : UInt8
     {
         NO_ERROR = 0x00,
@@ -957,6 +1014,7 @@ namespace mdr::v2::t1
         BOTH_FITTING_ERROR = 0x06,
         MEASURING_ERROR = 0x07,
     };
+
     enum class EarpieceSeries : UInt8
     {
         OTHER = 0x00,
@@ -965,6 +1023,7 @@ namespace mdr::v2::t1
         SOFT_FITTING_FOR_LINKBUDS_FIT = 0x03,
         NOT_DETERMINED = 0xFF,
     };
+
     enum class EarpieceSize : UInt8
     {
         SS = 0x00,
@@ -974,44 +1033,52 @@ namespace mdr::v2::t1
         LL = 0x04,
         NOT_DETERMINED = 0xFF,
     };
+
     enum class EarpieceFittingDetectionOperation : UInt8
     {
         DETECTION_START = 0x00,
         DETECTION_CANCEL = 0x01,
         DETECTION_START_FORCEFUL = 0x02,
     };
+
     enum class ResetType : UInt8
     {
         SETTINGS_ONLY = 0x00,
         FACTORY_RESET = 0x01,
     };
+
     enum class ResetResult : UInt8
     {
         SUCCESS = 0x00,
         ERROR_CONNECTION_LEFT = 0x01,
         ERROR_CONNECTION_RIGHT = 0x02,
     };
+
     enum class FaceTapKey : UInt8
     {
         LEFT_SIDE_KEY = 0x00,
         RIGHT_SIDE_KEY = 0x01,
     };
+
     enum class FaceTapAction : UInt8
     {
         DOUBLE_TAP = 0x00,
         TRIPLE_TAP = 0x01,
     };
+
     enum class HeadGestureAction : UInt8
     {
         NOD = 0x00,
         SWING = 0x01,
     };
+
     enum class DetectSensitivity : UInt8
     {
         AUTO = 0x00,
         HIGH = 0x01,
         LOW = 0x02,
     };
+
     enum class ModeOutTime : UInt8
     {
         FAST = 0x00,
@@ -1019,6 +1086,7 @@ namespace mdr::v2::t1
         SLOW = 0x02,
         NONE = 0x03,
     };
+
     enum class Action : UInt8
     {
         SINGLE_TAP = 0x00,
@@ -1030,19 +1098,23 @@ namespace mdr::v2::t1
         LONG_PRESS_THEN_ACTIVATE = 0x21,
         LONG_PRESS_DURING_ACTIVATE = 0x22,
     };
+
     enum class EarpieceFittingDetectionResult : UInt8
     {
         GOOD = 0x00,
         POOR = 0x01,
     };
+
     enum class CallSettingsTestSoundControl : UInt8
     {
         START = 0x00,
     };
+
     enum class CallSettingsTestSoundControlAck : UInt8
     {
         ACK = 0x00,
     };
+
     // region Connect
     struct ConnectGetProtocolInfo
     {
@@ -1052,8 +1124,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetProtocolInfo);
     };
+
     static_assert(MDRIsSerializable<ConnectGetProtocolInfo>);
-    
+
     struct ConnectRetProtocolInfo
     {
         Command command{Command::CONNECT_RET_PROTOCOL_INFO}; // 0x0
@@ -1064,6 +1137,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectRetProtocolInfo);
     };
+
     static_assert(MDRIsSerializable<ConnectRetProtocolInfo>);
 
     struct ConnectGetCapabilityInfo
@@ -1073,7 +1147,8 @@ namespace mdr::v2::t1
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetCapabilityInfo);
-    };    
+    };
+
     struct ConnectGetDeviceInfo
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_DEVICE_INFO;
@@ -1082,28 +1157,39 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetDeviceInfo);
     };
+
     static_assert(MDRIsSerializable<ConnectGetDeviceInfo>);
-    
-    struct ConnectRetDeviceInfoModelName { MDRPrefixedString value; };
-    struct ConnectRetDeviceInfoFwVersion { MDRPrefixedString value; };
+
+    struct ConnectRetDeviceInfoModelName
+    {
+        MDRPrefixedString value;
+    };
+
+    struct ConnectRetDeviceInfoFwVersion
+    {
+        MDRPrefixedString value;
+    };
+
     struct ConnectRetDeviceInfoSeriesAndColor
     {
         ModelSeriesType series;
         ModelColor color;
     };
+
     struct ConnectRetDeviceInfo
     {
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
         DeviceInfoType type; // 0x1
         Variant<
-            ConnectRetDeviceInfoModelName,      // MODEL_NAME
-            ConnectRetDeviceInfoFwVersion,      // FW_VERSION
-            ConnectRetDeviceInfoSeriesAndColor  // SERIES_AND_COLOR_INFO
+            ConnectRetDeviceInfoModelName, // MODEL_NAME
+            ConnectRetDeviceInfoFwVersion, // FW_VERSION
+            ConnectRetDeviceInfoSeriesAndColor // SERIES_AND_COLOR_INFO
         > info; // 0x2-
 
         MDR_CODEGEN_IGNORE_SERIALIZATION
         MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetDeviceInfo);
     };
+
     static_assert(MDRIsSerializable<ConnectRetDeviceInfo>);
 
     struct ConnectGetSupportFunction
@@ -1114,6 +1200,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetSupportFunction);
     };
+
     static_assert(MDRIsSerializable<ConnectGetSupportFunction>);
 
     struct ConnectRetSupportFunction
@@ -1122,8 +1209,9 @@ namespace mdr::v2::t1
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
         MDRPodArray<MessageMdrV2SupportFunction> supportFunctions; // 0x2-
 
-        MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);        
+        MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);
     };
+
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
     // endregion Connect
     // region Power
@@ -1136,7 +1224,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonGetStatus);
     };
+
     static_assert(MDRIsSerializable<CommonGetStatus>);
+
     // - AUDIO_CODEC
     struct CommonStatusAudioCodec
     {
@@ -1146,7 +1236,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonStatusAudioCodec);
     };
+
     static_assert(MDRIsSerializable<CommonStatusAudioCodec>);
+
     // Not implemented
     struct PowerGetStatus
     {
@@ -1157,12 +1249,15 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerGetStatus);
     };
-    static_assert(MDRIsSerializable<PowerGetStatus>);    
+
+    static_assert(MDRIsSerializable<PowerGetStatus>);
+
     struct PowerBatteryStatus
     {
         UInt8 batteryLevel{0}; // 0x0, 0-100
         BatteryChargingStatus chargingStatus{BatteryChargingStatus::UNKNOWN}; // 0x1
     };
+
     struct PowerLeftRightBatteryStatus
     {
         UInt8 leftBatteryLevel{0}; // 0x0, 0-100
@@ -1170,6 +1265,7 @@ namespace mdr::v2::t1
         UInt8 rightBatteryLevel{0}; // 0x2, 0-100
         BatteryChargingStatus rightChargingStatus{BatteryChargingStatus::UNKNOWN}; // 0x3
     };
+
     struct PowerBatteryThresholdStatus
     {
         PowerBatteryStatus batteryStatus{}; // 0x0-0x1
@@ -1187,7 +1283,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusBattery);
     };
+
     static_assert(MDRIsSerializable<PowerRetStatusBattery>);
+
     // - LEFT_RIGHT_BATTERY
     struct PowerRetStatusLeftRightBattery
     {
@@ -1199,7 +1297,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusLeftRightBattery);
     };
+
     static_assert(MDRIsSerializable<PowerRetStatusLeftRightBattery>);
+
     // - CRADLE_BATTERY
     struct PowerRetStatusCradleBattery
     {
@@ -1211,7 +1311,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusCradleBattery);
     };
+
     static_assert(MDRIsSerializable<PowerRetStatusCradleBattery>);
+
     // - BATTERY_WITH_THRESHOLD
     struct PowerRetStatusBatteryThreshold
     {
@@ -1223,7 +1325,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusBatteryThreshold);
     };
+
     static_assert(MDRIsSerializable<PowerRetStatusBatteryThreshold>);
+
     // - LR_BATTERY_WITH_THRESHOLD
     struct PowerRetStatusLeftRightBatteryThreshold
     {
@@ -1237,7 +1341,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusLeftRightBatteryThreshold);
     };
+
     static_assert(MDRIsSerializable<PowerRetStatusLeftRightBatteryThreshold>);
+
     // - CRADLE_BATTERY_WITH_THRESHOLD
     struct PowerRetStatusCradleBatteryThreshold
     {
@@ -1249,7 +1355,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusCradleBatteryThreshold);
     };
+
     static_assert(MDRIsSerializable<PowerRetStatusCradleBatteryThreshold>);
+
     struct PowerSetStatus
     {
         static constexpr Command kResponseCommand = Command::POWER_NTFY_STATUS;
@@ -1258,7 +1366,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerSetStatus);
     };
+
     static_assert(MDRIsSerializable<PowerSetStatus>);
+
     // - POWER_OFF
     struct PowerSetStatusPowerOff
     {
@@ -1270,6 +1380,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerSetStatusPowerOff);
     };
+
     static_assert(MDRIsSerializable<PowerSetStatusPowerOff>);
 
     struct PowerGetParam
@@ -1281,6 +1392,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerGetParam);
     };
+
     static_assert(MDRIsSerializable<PowerGetParam>);
 
     // - AUTO_POWER_OFF
@@ -1295,6 +1407,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerParamAutoPowerOff);
     };
+
     static_assert(MDRIsSerializable<PowerParamAutoPowerOff>);
 
     // - AUTO_POWER_OFF_WEARING_DETECTION
@@ -1304,11 +1417,14 @@ namespace mdr::v2::t1
 
         Command command{Command::POWER_RET_PARAM}; // 0x0
         PowerInquiredType type{kPowerInquiredType}; // 0x1
-        AutoPowerOffWearingDetectionElements currentPowerOffElements{AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
-        AutoPowerOffWearingDetectionElements lastSelectPowerOffElements{AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x3
+        AutoPowerOffWearingDetectionElements currentPowerOffElements{
+            AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
+        AutoPowerOffWearingDetectionElements lastSelectPowerOffElements{
+            AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerParamAutoPowerOffWithWearingDetection);
     };
+
     static_assert(MDRIsSerializable<PowerParamAutoPowerOffWithWearingDetection>);
 
     // - POWER_SAVE_MODE, CARING_CHARGE, BT_STANDBY, STAMINA, AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
@@ -1322,6 +1438,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerParamSettingOnOff);
     };
+
     static_assert(MDRIsSerializable<PowerParamSettingOnOff>);
 
     // - BATTERY_SAFE_MODE
@@ -1336,6 +1453,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerParamBatterySafeMode);
     };
+
     static_assert(MDRIsSerializable<PowerParamBatterySafeMode>);
     // endregion Power
 
@@ -1348,13 +1466,16 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetStatus);
     };
+
     static_assert(MDRIsSerializable<EqEbbGetStatus>);
+
     // 0x0, 0x1
     struct EqEbbBase
     {
         Command command{Command::EQEBB_RET_STATUS}; // 0x0
         EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
     };
+
     struct EqEbbStatusOnOff
     {
         static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_STATUS;
@@ -1364,7 +1485,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbStatusOnOff);
     };
+
     static_assert(MDRIsSerializable<EqEbbStatusOnOff>);
+
     struct EqEbbStatusErrorCode
     {
         static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_STATUS;
@@ -1376,6 +1499,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbStatusErrorCode);
     };
+
     static_assert(MDRIsSerializable<EqEbbStatusErrorCode>);
     /*struct EqEbbStatusSoundEffect : EqEbbStatus
     {
@@ -1385,11 +1509,13 @@ namespace mdr::v2::t1
     {
         static constexpr Command kResponseCommand = Command::EQEBB_RET_PARAM;
 
-        EqEbbBase base{Command::EQEBB_GET_PARAM,EqEbbInquiredType::PRESET_EQ};
+        EqEbbBase base{Command::EQEBB_GET_PARAM, EqEbbInquiredType::PRESET_EQ};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetParam);
     };
+
     static_assert(MDRIsSerializable<EqEbbGetParam>);
+
     // - PRESET_EQ, PRESET_EQ_NONCUSTOMIZABLE, PRESET_EQ_AND_ERRORCODE
     struct EqEbbParamEq
     {
@@ -1401,7 +1527,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbParamEq);
     };
+
     static_assert(MDRIsSerializable<EqEbbParamEq>);
+
     // - EBB
     struct EqEbbParamEbb
     {
@@ -1412,7 +1540,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbParamEbb);
     };
+
     static_assert(MDRIsSerializable<EqEbbParamEbb>);
+
     // - PRESET_EQ_AND_ULT_MODE
     struct EqEbbParamEqAndUltMode
     {
@@ -1425,7 +1555,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbParamEqAndUltMode);
     };
+
     static_assert(MDRIsSerializable<EqEbbParamEqAndUltMode>);
+
     // - SOUND_EFFECT
     struct EqEbbParamSoundEffect
     {
@@ -1436,7 +1568,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbParamSoundEffect);
     };
+
     static_assert(MDRIsSerializable<EqEbbParamSoundEffect>);
+
     // - CUSTOM_EQ
     struct EqEbbParamCustomEq
     {
@@ -1447,6 +1581,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbParamCustomEq);
     };
+
     static_assert(MDRIsSerializable<EqEbbParamCustomEq>);
     // - TURN_KEY_EQ
     /*struct EqEbbParamTurnKeyEq : EqEbbParam
@@ -1456,7 +1591,7 @@ namespace mdr::v2::t1
     // endregion EQ
     // region NC/ASM
     // Not implemented
-        struct NcAsmGetParam
+    struct NcAsmGetParam
     {
         static constexpr Command kResponseCommand = Command::NCASM_RET_PARAM;
         Command command{Command::NCASM_GET_PARAM};
@@ -1464,7 +1599,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmGetParam);
     };
+
     static_assert(MDRIsSerializable<NcAsmGetParam>);
+
     // 0x1-0x3
     struct NcAsmParamBase
     {
@@ -1473,6 +1610,7 @@ namespace mdr::v2::t1
         ValueChangeStatus valueChangeStatus; // 0x2
         NcAsmOnOffValue ncAsmTotalEffect; // 0x3
     };
+
     // - MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
     struct NcAsmParamModeNcDualModeSwitchAsmSeamless
     {
@@ -1483,7 +1621,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamModeNcDualModeSwitchAsmSeamless);
     };
+
     static_assert(MDRIsSerializable<NcAsmParamModeNcDualModeSwitchAsmSeamless>);
+
     // - MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
     struct NcAsmParamModeNcDualModeSwitchAsmSeamlessNa
     {
@@ -1496,7 +1636,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamModeNcDualModeSwitchAsmSeamlessNa);
     };
+
     static_assert(MDRIsSerializable<NcAsmParamModeNcDualModeSwitchAsmSeamlessNa>);
+
     // - ASM_ON_OFF
     struct NcAsmParamAsmOnOff
     {
@@ -1506,7 +1648,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamAsmOnOff);
     };
+
     static_assert(MDRIsSerializable<NcAsmParamAsmOnOff>);
+
     // - ASM_SEAMLESS
     struct NcAsmParamAsmSeamless
     {
@@ -1516,7 +1660,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamAsmSeamless);
     };
+
     static_assert(MDRIsSerializable<NcAsmParamAsmSeamless>);
+
     // - NC_AMB_TOGGLE
     struct NcAsmParamNcAmbToggle
     {
@@ -1524,22 +1670,26 @@ namespace mdr::v2::t1
         Function function; // 0x2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamNcAmbToggle);
     };
+
     static_assert(MDRIsSerializable<NcAsmParamNcAmbToggle>);
     // endregion NC/ASM
     // region Alert
-    
+
     struct AlertBase
     {
         Command command{Command::ALERT_RET_STATUS};
         AlertInquiredType type; // 0x1
     };
+
     struct AlertGetStatus
     {
         static constexpr Command kResponseCommand = Command::ALERT_RET_STATUS;
         AlertBase base{Command::ALERT_GET_STATUS, AlertInquiredType::FIXED_MESSAGE};
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertGetStatus);
     };
+
     static_assert(MDRIsSerializable<AlertGetStatus>);
+
     // - LE_AUDIO_ALERT_NOTIFICATION
     struct AlertStatusLEAudioAlertNotification
     {
@@ -1548,7 +1698,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertStatusLEAudioAlertNotification);
     };
+
     static_assert(MDRIsSerializable<AlertStatusLEAudioAlertNotification>);
+
     // - VOICE_ASSISTANT_ALERT_NOTIFICATION
     struct AlertRetStatusVoiceAssistant
     {
@@ -1557,8 +1709,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(AlertRetStatusVoiceAssistant);
     };
+
     static_assert(MDRIsSerializable<AlertRetStatusVoiceAssistant>);
-    
+
     // - FIXED_MESSAGE
     struct AlertSetStatusFixedMessage
     {
@@ -1567,7 +1720,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetStatusFixedMessage);
     };
+
     static_assert(MDRIsSerializable<AlertSetStatusFixedMessage>);
+
     // - APP_BECOMES_FOREGROUND
     struct AlertSetStatusAppBecomesForeground
     {
@@ -1576,6 +1731,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetStatusAppBecomesForeground);
     };
+
     static_assert(MDRIsSerializable<AlertSetStatusAppBecomesForeground>);
     // - LE_AUDIO_ALERT_NOTIFICATION
 
@@ -1587,56 +1743,67 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetStatusLEAudioAlertNotification);
     };
+
     static_assert(MDRIsSerializable<AlertSetStatusLEAudioAlertNotification>);
+
     // - FIXED_MESSAGE
     struct AlertSetParamFixedMessage
     {
-        AlertBase base{ Command::ALERT_SET_PARAM, AlertInquiredType::FIXED_MESSAGE };
+        AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::FIXED_MESSAGE};
         AlertMessageType messageType; // 0x2
         AlertAction actionType; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetParamFixedMessage);
     };
+
     static_assert(MDRIsSerializable<AlertSetParamFixedMessage>);
     // - VIBRATOR_ALERT_NOTIFICATION
 
     struct AlertSetParamVibrator
     {
-        AlertBase base{ Command::ALERT_SET_PARAM, AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION };
+        AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION};
         VibrationType vibrationType; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetParamVibrator);
     };
+
     static_assert(MDRIsSerializable<AlertSetParamVibrator>);
+
     // - FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
     struct AlertSetParamFixedMessageWithLeftRightSelection
     {
-        AlertBase base{ Command::ALERT_SET_PARAM, AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION };
+        AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION};
         AlertMessageTypeWithLeftRightSelection messageType; // 0x2
         AlertLeftRightAction actionType; // 0x3
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetParamFixedMessageWithLeftRightSelection);
     };
+
     static_assert(MDRIsSerializable<AlertSetParamFixedMessageWithLeftRightSelection>);
+
     // - APP_BECOMES_FOREGROUND
     struct AlertSetParamAppBecomesForeground
     {
-        AlertBase base{ Command::ALERT_SET_PARAM, AlertInquiredType::APP_BECOMES_FOREGROUND };
+        AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::APP_BECOMES_FOREGROUND};
         AlertMessageType messageType; // 0x2
         AlertAction actionType; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetParamAppBecomesForeground);
     };
+
     static_assert(MDRIsSerializable<AlertSetParamAppBecomesForeground>);
+
     // - FLEXIBLE_MESSAGE
     struct AlertSetParamFlexibleMessage
     {
-        AlertBase base{ Command::ALERT_SET_PARAM, AlertInquiredType::FLEXIBLE_MESSAGE };
+        AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::FLEXIBLE_MESSAGE};
         AlertFlexibleMessageType messageType; // 0x2
         AlertAction actionType; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertSetParamFlexibleMessage);
     };
+
     static_assert(MDRIsSerializable<AlertSetParamFlexibleMessage>);
+
     // - FIXED_MESSAGE
     struct AlertNotifyParamFixedMessage
     {
@@ -1646,7 +1813,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertNotifyParamFixedMessage);
     };
+
     static_assert(MDRIsSerializable<AlertNotifyParamFixedMessage>);
+
     // - FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
     struct AlertNotifyParamFixedMessageWithLeftRightSelection
     {
@@ -1656,7 +1825,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertNotifyParamFixedMessageWithLeftRightSelection);
     };
+
     static_assert(MDRIsSerializable<AlertNotifyParamFixedMessageWithLeftRightSelection>);
+
     // - APP_BECOMES_FOREGROUND
     struct AlertNotifyParamAppBecomesForeground
     {
@@ -1666,6 +1837,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertNotifyParamAppBecomesForeground);
     };
+
     static_assert(MDRIsSerializable<AlertNotifyParamAppBecomesForeground>);
     // - FLEXIBLE_MESSAGE
     // struct AlertNotifyParamFlexibleMessage
@@ -1674,7 +1846,7 @@ namespace mdr::v2::t1
     // };
     // endregion Alert
     // region Playback
-    
+
     struct GetPlayStatus
     {
         static constexpr Command kResponseCommand = Command::PLAY_RET_STATUS;
@@ -1683,29 +1855,33 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayStatus);
     };
+
     static_assert(MDRIsSerializable<GetPlayStatus>);
-    
+
     struct PlayBase
     {
         Command command{Command::PLAY_RET_STATUS};
         PlayInquiredType playInquiredType; // 0x1
     };
+
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT
     struct PlayStatusPlaybackController
     {
-    PlayBase base{ Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
+        PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackStatus playbackStatus; // 0x3
         MusicCallStatus musicCallStatus; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayStatusPlaybackController);
     };
+
     static_assert(MDRIsSerializable<PlayStatusPlaybackController>);
 
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE
     struct PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange
     {
-    PlayBase base{ Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE};
+        PlayBase base{Command::PLAY_RET_STATUS,
+                      PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackStatus playbackStatus; // 0x3
         MusicCallStatus musicCallStatus; // 0x4
@@ -1713,37 +1889,43 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange);
     };
+
     static_assert(MDRIsSerializable<PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange>);
 
     // - PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
     struct PlayStatusPlaybackControlWithFunctionChange
     {
-    PlayBase base{ Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
+        PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackStatus playbackStatus; // 0x3
         MessageMdrV2EnableDisable playbackControlStatus; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayStatusPlaybackControlWithFunctionChange);
     };
+
     static_assert(MDRIsSerializable<PlayStatusPlaybackControlWithFunctionChange>);
+
     // - PLAY_MODE
     struct PlayStatusCommon
     {
-    PlayBase base{ Command::PLAY_RET_STATUS, PlayInquiredType::PLAY_MODE};
+        PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAY_MODE};
         MessageMdrV2EnableDisable status; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayStatusCommon);
     };
+
     static_assert(MDRIsSerializable<PlayStatusCommon>);
+
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
     struct SetPlayStatusPlaybackController
     {
-        PlayBase base{ Command::PLAY_SET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
+        PlayBase base{Command::PLAY_SET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackControl control; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayStatusPlaybackController);
     };
+
     static_assert(MDRIsSerializable<SetPlayStatusPlaybackController>);
 
     struct GetPlayParam
@@ -1753,13 +1935,15 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayParam);
     };
+
     static_assert(MDRIsSerializable<GetPlayParam>);
-    
+
     struct PlayParamBase
     {
         Command command{Command::PLAY_RET_PARAM};
         PlayInquiredType playInquiredType; // 0x1
     };
+
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
     struct PlaybackName
     {
@@ -1768,16 +1952,20 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackName);
     };
+
     static_assert(MDRIsReadWritable<PlaybackName>);
+
     struct PlayParamPlaybackControllerName
     {
         PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
-        Array<PlaybackName,4> playbackNames; // Hardcoded
+        Array<PlaybackName, 4> playbackNames; // Hardcoded
 
         MDR_CODEGEN_IGNORE_SERIALIZATION;
         MDR_DEFINE_EXTERN_SERIALIZATION(PlayParamPlaybackControllerName);
     };
+
     static_assert(MDRIsSerializable<PlayParamPlaybackControllerName>);
+
     // - MUSIC_VOLUME, CALL_VOLUME
     struct PlayParamPlaybackControllerVolume
     {
@@ -1786,7 +1974,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayParamPlaybackControllerVolume);
     };
+
     static_assert(MDRIsSerializable<PlayParamPlaybackControllerVolume>);
+
     // - MUSIC_VOLUME_WITH_MUTE, CALL_VOLUME_WITH_MUTE
     struct PlayParamPlaybackControllerVolumeWithMute
     {
@@ -1796,7 +1986,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayParamPlaybackControllerVolumeWithMute);
     };
+
     static_assert(MDRIsSerializable<PlayParamPlaybackControllerVolumeWithMute>);
+
     // - PLAY_MODE
     struct PlayParamPlayMode
     {
@@ -1805,10 +1997,11 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayParamPlayMode);
     };
+
     static_assert(MDRIsSerializable<PlayParamPlayMode>);
     // endregion Playback
     // region General Setting
-    
+
     struct GsGetCapability
     {
         static constexpr Command kResponseCommand = Command::GENERAL_SETTING_RET_CAPABILITY;
@@ -1818,7 +2011,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GsGetCapability);
     };
+
     static_assert(MDRIsSerializable<GsGetCapability>);
+
     struct GsSettingInfo
     {
         GsStringFormat stringFormat;
@@ -1827,7 +2022,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_READ_WRITE(GsSettingInfo);
     };
+
     static_assert(MDRIsReadWritable<GsSettingInfo>);
+
     struct GsRetCapability
     {
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY};
@@ -1837,7 +2034,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(GsRetCapability);
     };
+
     static_assert(MDRIsSerializable<GsRetCapability>);
+
     struct GsGetParam
     {
         static constexpr Command kResponseCommand = Command::GENERAL_SETTING_RET_PARAM;
@@ -1846,34 +2045,42 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GsGetParam);
     };
+
     static_assert(MDRIsSerializable<GsGetParam>);
+
     struct GsParamBase
     {
         Command command{Command::GENERAL_SETTING_RET_PARAM};
         GsInquiredType type; // 0x1
         GsSettingType settingType; // 0x2
     };
+
     // - BOOLEAN_TYPE
     struct GsParamBoolean
     {
-        GsParamBase base{ Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1, GsSettingType::BOOLEAN_TYPE };
+        GsParamBase base{Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1,
+                         GsSettingType::BOOLEAN_TYPE};
         GsSettingValue settingValue; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GsParamBoolean);
     };
+
     static_assert(MDRIsSerializable<GsParamBoolean>);
+
     // - LIST_TYPE
     struct GsParamList
     {
-        GsParamBase base{ Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1, GsSettingType::LIST_TYPE };
+        GsParamBase base{Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1,
+                         GsSettingType::LIST_TYPE};
         UInt8 currentElementIndex; // 0x3, 0-63
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GsParamList);
     };
+
     static_assert(MDRIsSerializable<GsParamList>);
     // endregion General Setting
     // region Audio
-    
+
     struct AudioGetCapability
     {
         static constexpr Command kResponseCommand = Command::AUDIO_RET_CAPABILITY;
@@ -1882,13 +2089,15 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioGetCapability);
     };
+
     static_assert(MDRIsSerializable<AudioGetCapability>);
-    
+
     struct AudioRetCapabilityBase
     {
         Command command{Command::AUDIO_RET_CAPABILITY};
         AudioInquiredType type; // 0x1
     };
+
     // - UPSCALING
     struct AudioRetCapabilityUpscaling
     {
@@ -1897,6 +2106,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioRetCapabilityUpscaling);
     };
+
     static_assert(MDRIsSerializable<AudioRetCapabilityUpscaling>);
 
     struct AudioGetStatus
@@ -1907,13 +2117,15 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioGetStatus);
     };
+
     static_assert(MDRIsSerializable<AudioGetStatus>);
-    
+
     struct AudioBase
     {
         Command command{Command::AUDIO_RET_STATUS};
         AudioInquiredType type; // 0x1
     };
+
     // - UPSCALING, BGM_MODE, UPMIX_CINEMA, VOICE_CONTENTS, SOUND_LEAKAGE_REDUCTION
     struct AudioGetParam
     {
@@ -1922,95 +2134,112 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioGetParam);
     };
+
     // - CONNECTION_MODE
     struct AudioParamConnection
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE};
         PriorMode settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamConnection);
     };
+
     static_assert(MDRIsSerializable<AudioParamConnection>);
+
     // - UPSCALING
     struct AudioParamUpscaling
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::UPSCALING};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPSCALING};
         UpscalingTypeAutoOff settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamUpscaling);
     };
+
     static_assert(MDRIsSerializable<AudioParamUpscaling>);
+
     // - CONNECTION_MODE_WITH_LDAC_STATUS
     struct AudioParamConnectionWithLdacStatus
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS };
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS};
         PriorMode settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamConnectionWithLdacStatus);
     };
+
     static_assert(MDRIsSerializable<AudioParamConnectionWithLdacStatus>);
+
     // - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
     struct AudioRetParamConnectionModeClassicAudioLeAudio
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO};
         PriorMode settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioRetParamConnectionModeClassicAudioLeAudio);
     };
+
     static_assert(MDRIsSerializable<AudioRetParamConnectionModeClassicAudioLeAudio>);
+
     // - BGM_MODE, BGM_MODE_AND_ERRORCODE
     struct AudioParamBGMMode
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::BGM_MODE };
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::BGM_MODE};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
         RoomSize targetRoomSize; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamBGMMode);
     };
+
     static_assert(MDRIsSerializable<AudioParamBGMMode>);
+
     // - UPMIX_CINEMA
     struct AudioParamUpmixCinema
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_CINEMA};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_CINEMA};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamUpmixCinema);
     };
+
     static_assert(MDRIsSerializable<AudioParamUpmixCinema>);
+
     // - VOICE_CONTENTS
     struct AudioParamVoiceContents
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::VOICE_CONTENTS};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::VOICE_CONTENTS};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamVoiceContents);
     };
+
     // - SOUND_LEAKAGE_REDUCTION
     struct AudioParamSoundLeakageReduction
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::SOUND_LEAKAGE_REDUCTION};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::SOUND_LEAKAGE_REDUCTION};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamSoundLeakageReduction);
     };
+
     // - LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
     struct AudioParamListeningOptionAssignCustomizableItem
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE};
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE};
         MDRPodArray<ListeningOptionAssignCustomizableItem> items;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(AudioParamListeningOptionAssignCustomizableItem);
     };
+
     // - UPMIX_SERIES
     struct AudioParamUpmixSeries
     {
-        AudioBase base{ Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_SERIES };
+        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_SERIES};
         UpmixItemId upmixItemId; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamUpmixSeries);
     };
+
     static_assert(MDRIsSerializable<AudioParamUpmixSeries>);
-    
+
     // - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
     struct AudioSetParamConnectionModeClassicAudioLeAudio
     {
@@ -2020,8 +2249,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioSetParamConnectionModeClassicAudioLeAudio);
     };
+
     static_assert(MDRIsSerializable<AudioSetParamConnectionModeClassicAudioLeAudio>);
-    
+
     // - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
     struct AudioNtfyParamConnectionModeClassicAudioLeAudio
     {
@@ -2031,10 +2261,11 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioNtfyParamConnectionModeClassicAudioLeAudio);
     };
+
     static_assert(MDRIsSerializable<AudioNtfyParamConnectionModeClassicAudioLeAudio>);
     // endregion Audio
     // region System
-    
+
     struct SystemGetParam
     {
         static constexpr Command kResponseCommand = Command::SYSTEM_RET_PARAM;
@@ -2043,47 +2274,56 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemGetParam);
     };
+
     static_assert(MDRIsSerializable<SystemGetParam>);
-    
+
     struct SystemBase
     {
         Command command{Command::SYSTEM_RET_PARAM};
         SystemInquiredType type; // 0x1
     };
+
     // - VIBRATOR, PLAYBACK_CONTROL_BY_WEARING, VOICE_ASSISTANT_WAKE_WORD, AUTO_VOLUME, HEAD_GESTURE_ON_OFF
     struct SystemParamCommon
     {
-        SystemBase base{ Command::SYSTEM_RET_PARAM };
+        SystemBase base{Command::SYSTEM_RET_PARAM};
         MessageMdrV2EnableDisable settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamCommon);
     };
+
     static_assert(MDRIsSerializable<SystemParamCommon>);
+
     // - SMART_TALKING_MODE_TYPE1, SMART_TALKING_MODE_TYPE2
     struct SystemParamSmartTalking
     {
-        SystemBase base{ Command::SYSTEM_RET_PARAM };
+        SystemBase base{Command::SYSTEM_RET_PARAM};
         MessageMdrV2EnableDisable onOffValue; // 0x2
         MessageMdrV2EnableDisable previewModeOnOffValue; // 0x3
     };
+
     // - ASSIGNABLE_SETTINGS
     struct SystemParamAssignableSettings
     {
-        SystemBase base{ Command::SYSTEM_RET_PARAM };
+        SystemBase base{Command::SYSTEM_RET_PARAM};
         MDRPodArray<Preset> presets;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemParamAssignableSettings);
     };
+
     static_assert(MDRIsSerializable<SystemParamAssignableSettings>);
+
     // - VOICE_ASSISTANT_SETTINGS
     struct SystemParamVoiceAssistantSettings
     {
-        SystemBase base{ Command::SYSTEM_RET_PARAM, SystemInquiredType::VOICE_ASSISTANT_SETTINGS};
+        SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::VOICE_ASSISTANT_SETTINGS};
         VoiceAssistant voiceAssistant; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamVoiceAssistantSettings);
     };
+
     static_assert(MDRIsSerializable<SystemParamVoiceAssistantSettings>);
+
     // - WEARING_STATUS_DETECTOR
     struct SystemParamWearingStatusDetector
     {
@@ -2097,7 +2337,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamWearingStatusDetector);
     };
+
     static_assert(MDRIsSerializable<SystemParamWearingStatusDetector>);
+
     // - EARPIECE_SELECTION
     struct SystemParamEarpieceSelection
     {
@@ -2106,7 +2348,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamEarpieceSelection);
     };
+
     static_assert(MDRIsSerializable<SystemParamEarpieceSelection>);
+
     // - CALL_SETTINGS
     struct SystemParamCallSettings
     {
@@ -2117,6 +2361,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamCallSettings);
     };
+
     static_assert(MDRIsSerializable<SystemParamCallSettings>);
     // - QUICK_ACCESS (Not implemented, variable size)
     // - ASSIGNABLE_SETTINGS_WITH_LIMITATION
@@ -2127,7 +2372,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemParamAssignableSettingsWithLimit);
     };
+
     static_assert(MDRIsSerializable<SystemParamAssignableSettingsWithLimit>);
+
     // - HEAD_GESTURE_TRAINING
     struct SystemParamHeadGestureTraining
     {
@@ -2136,6 +2383,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamHeadGestureTraining);
     };
+
     static_assert(MDRIsSerializable<SystemParamHeadGestureTraining>);
 
     // - WEARING_STATUS_DETECTOR
@@ -2149,7 +2397,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemSetParamWearingStatusDetector);
     };
+
     static_assert(MDRIsSerializable<SystemSetParamWearingStatusDetector>);
+
     // - RESET_SETTINGS
     struct SystemSetParamResetSettings
     {
@@ -2158,6 +2408,7 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemSetParamResetSettings);
     };
+
     static_assert(MDRIsSerializable<SystemSetParamResetSettings>);
 
     // - RESET_SETTINGS
@@ -2168,7 +2419,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemNotifyParamResetSettings);
     };
+
     static_assert(MDRIsSerializable<SystemNotifyParamResetSettings>);
+
     // - FACE_TAP_TEST_MODE
     struct SystemNotifyParamFaceTapTestMode
     {
@@ -2178,12 +2431,15 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemNotifyParamFaceTapTestMode);
     };
-    static_assert(MDRIsSerializable<SystemNotifyParamFaceTapTestMode>);    
+
+    static_assert(MDRIsSerializable<SystemNotifyParamFaceTapTestMode>);
+
     struct AssignableSettingsAction
     {
         Action action;
         Function function;
     };
+
     struct AssignableSettingsPreset
     {
         Preset preset;
@@ -2191,7 +2447,9 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_READ_WRITE(AssignableSettingsPreset);
     };
+
     static_assert(MDRIsReadWritable<AssignableSettingsPreset>);
+
     struct SystemGetExtParam
     {
         static constexpr Command kResponseCommand = Command::SYSTEM_RET_EXT_PARAM;
@@ -2200,23 +2458,28 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemGetExtParam);
     };
+
     static_assert(MDRIsSerializable<SystemGetExtParam>);
+
     struct SystemExtBase
     {
         Command command{Command::SYSTEM_RET_EXT_PARAM};
         SystemInquiredType type; // 0x1
     };
+
     // - SMART_TALKING_MODE_TYPE1
     struct SystemExtParamSmartTalkingMode1
     {
-        SystemExtBase base{ Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
+        SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
         DetectSensitivity detectSensitivity; // 0x2
         MessageMdrV2EnableDisable voiceFocus; // 0x3
         ModeOutTime modeOffTime; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemExtParamSmartTalkingMode1);
     };
+
     static_assert(MDRIsSerializable<SystemExtParamSmartTalkingMode1>);
+
     // - ASSIGNABLE_SETTINGS
     struct SystemExtParamAssignableSettings
     {
@@ -2225,10 +2488,11 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemExtParamAssignableSettings);
     };
+
     // - WEARING_STATUS_DETECTOR
     struct SystemExtParamWearingStatusDetector
     {
-        SystemExtBase base{ Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::WEARING_STATUS_DETECTOR};
+        SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::WEARING_STATUS_DETECTOR};
         EarpieceFittingDetectionResult fittingResultLeft; // 0x2
         EarpieceFittingDetectionResult fittingResultRight; // 0x3
         EarpieceSeries bestEarpieceSeriesLeft; // 0x4
@@ -2238,43 +2502,52 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemExtParamWearingStatusDetector);
     };
+
     static_assert(MDRIsSerializable<SystemExtParamWearingStatusDetector>);
+
     // - SMART_TALKING_MODE_TYPE2
     struct SystemExtParamSmartTalkingMode2
     {
-        SystemExtBase base{ Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE2};
+        SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE2};
         DetectSensitivity detectSensitivity; // 0x2
         ModeOutTime modeOffTime; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemExtParamSmartTalkingMode2);
     };
+
     static_assert(MDRIsSerializable<SystemExtParamSmartTalkingMode2>);
+
     // - ASSIGNABLE_SETTINGS_WITH_LIMITATION
     struct SystemExtParamAssignableSettingsWithLimit
     {
-        SystemExtBase base{ Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION};
+        SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION};
         MDRArray<AssignableSettingsPreset> presets;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemExtParamAssignableSettingsWithLimit);
     };
+
     static_assert(MDRIsSerializable<SystemExtParamAssignableSettingsWithLimit>);
+
     // - CALL_SETTINGS
     struct SystemSetExtParamCallSettings
     {
-        SystemExtBase base{ Command::SYSTEM_SET_EXT_PARAM, SystemInquiredType::CALL_SETTINGS};
+        SystemExtBase base{Command::SYSTEM_SET_EXT_PARAM, SystemInquiredType::CALL_SETTINGS};
         CallSettingsTestSoundControl testSoundControl; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemSetExtParamCallSettings);
     };
+
     static_assert(MDRIsSerializable<SystemSetExtParamCallSettings>);
+
     // - CALL_SETTINGS
     struct SystemNotifyExtParamCallSettings
     {
-        SystemExtBase base{ Command::SYSTEM_NTFY_EXT_PARAM, SystemInquiredType::CALL_SETTINGS};
+        SystemExtBase base{Command::SYSTEM_NTFY_EXT_PARAM, SystemInquiredType::CALL_SETTINGS};
         CallSettingsTestSoundControlAck testSoundControlAck; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemNotifyExtParamCallSettings);
     };
+
     static_assert(MDRIsSerializable<SystemNotifyExtParamCallSettings>);
     // endregion System
 } // namespace mdr::v2::t1

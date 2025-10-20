@@ -3,6 +3,7 @@
 #include "Codegen.hpp"
 const char* kMDRExternMacro = "MDR_DEFINE_EXTERN_SERIALIZATION";
 const char* kMDRIgnoredMacro = "MDR_CODEGEN_IGNORE_SERIALIZATION";
+const char* kMDRRWMacro = "MDR_DEFINE_EXTERN_READ_WRITE";
 const char* kMDRReservedRWStructs[] = {
     "MDRPodArray",
     "MDRPrefixedString",
@@ -57,14 +58,16 @@ CXChildVisitResult methodVisitor(CXCursor cursor, CXCursor parent, CXClientData 
     }
     return CXChildVisit_Continue;
 }
-struct FieldVisitorParams
+struct FieldSerializeVisitorParams
 {
     bool isSerialize = false;
     bool isDeserialize = false;
+    bool isRead = false;
+    bool isWrite = false;
 };
 CXChildVisitResult fieldSerializeVisitor(CXCursor cursor, CXCursor parent, CXClientData pParams)
 {
-    const auto* params = static_cast<const FieldVisitorParams*>(pParams);
+    const auto* params = static_cast<const FieldSerializeVisitorParams*>(pParams);
     CXCursorKind kind = clang_getCursorKind(cursor);
     if (kind == CXCursor_FieldDecl)
     {
@@ -83,16 +86,24 @@ CXChildVisitResult fieldSerializeVisitor(CXCursor cursor, CXCursor parent, CXCli
         if (result.hasWrite && result.hasRead)
         {
             if (params->isSerialize)
-                println("        ptr += {}::Write(data.{}, &ptr);", clang_getCString(typeName), clang_getCString(name));
-            else if (params->isDeserialize)
+                println("        {}::Write(data.{}, &ptr);", clang_getCString(typeName), clang_getCString(name));
+            if (params->isWrite)
+                println("        {}::Write(data.{}, ppDstBuffer);", clang_getCString(typeName), clang_getCString(name));
+            if (params->isDeserialize)
                 println("        {}::Read(&data, out.{});", clang_getCString(typeName), clang_getCString(name));
+            if (params->isRead)
+                println("        {}::Read(ppSrcBuffer, out.{}, maxSize);", clang_getCString(typeName), clang_getCString(name));
         }
         else
         {
             if (params->isSerialize)
-                println("        ptr += MDRPod::Write(data.{}, &ptr);", clang_getCString(name));
-            else if (params->isDeserialize)
+                println("        MDRPod::Write(data.{}, &ptr);", clang_getCString(name));
+            if (params->isWrite)
+                println("        MDRPod::Write(data.{}, ppDstBuffer);", clang_getCString(name));
+            if (params->isDeserialize)
                 println("        MDRPod::Read(&data, out.{});", clang_getCString(name));
+            if (params->isRead)
+                println("        MDRPod::Read(ppSrcBuffer, out.{}, maxSize);", clang_getCString(name));
         }
         clang_disposeString(name);
         clang_disposeString(typeName);
@@ -117,32 +128,58 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         auto [startLine, endLine] = getCursorExtents(cursor);
         auto start = std::ranges::lower_bound(gMacros, MacroPair{startLine,""});
         std::vector<std::string> macros;
-        bool isExtern = false, isIgnored = false;
+        bool isExtern = false, isIgnored = false, isRWFieldStruct = false;
         for (auto it = start; it != gMacros.end() && it->first < endLine; ++it)
         {
             if (it->second == kMDRIgnoredMacro) isIgnored = true;
             if (it->second == kMDRExternMacro) isExtern = true;
+            if (it->second == kMDRRWMacro) isRWFieldStruct = true;
         }
-        FieldVisitorParams params{};
-        // Emit serialization bodies
-        if (isExtern && !isIgnored)
+        FieldSerializeVisitorParams params{};
+        if (isRWFieldStruct)
         {
-            // Serialize
-            println("    size_t {}::Serialize(const {}& data, UInt8* out)", structName,structName);
-            println("    {{");
-            println("        UInt8* ptr = out;");
-            params.isSerialize = true, params.isDeserialize = false;
-            clang_visitChildren(cursor, fieldSerializeVisitor, &params);
-            println("        return ptr - out;");
-            println("    }}");
-            // Deserialize
-            println("    void {}::Deserialize(UInt8* data, {}& out)", structName,structName);
-            println("    {{");
-            params.isSerialize = false, params.isDeserialize = true;
-            clang_visitChildren(cursor, fieldSerializeVisitor, &params);
-            println("    }}");
+            // Emit field RW bodies
+            if (!isIgnored)
+            {
+                // Write
+                // static size_t Write(const Type &data, UInt8** ppDstBuffer);
+                println("    size_t {}::Write(const {}& data, UInt8** ppDstBuffer)", structName,structName);
+                println("    {{");
+                println("        UInt8* ptr = *ppDstBuffer;");
+                params.isRead = false, params.isWrite = true;
+                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                println("        return *ppDstBuffer - ptr;");
+                println("    }}");
+                // Read
+                // static void Read(UInt8** ppSrcBuffer, Type &out, size_t maxSize = ~0LL);
+                println("    void {}::Read(UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
+                println("    {{");
+                params.isRead = true, params.isWrite = false;
+                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                println("    }}");
+            }
+        } else
+        {
+            // Emit serialization bodies
+            if (isExtern && !isIgnored)
+            {
+                // Serialize
+                println("    size_t {}::Serialize(const {}& data, UInt8* out)", structName,structName);
+                println("    {{");
+                println("        UInt8* ptr = out;");
+                params.isSerialize = true, params.isDeserialize = false;
+                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                println("        return ptr - out;");
+                println("    }}");
+                // Deserialize
+                println("    void {}::Deserialize(UInt8* data, {}& out)", structName,structName);
+                println("    {{");
+                params.isSerialize = false, params.isDeserialize = true;
+                clang_visitChildren(cursor, fieldSerializeVisitor, &params);
+                println("    }}");
+            }
+            clang_disposeString(name);
         }
-        clang_disposeString(name);
         return CXChildVisit_Continue;
     }
     default:
