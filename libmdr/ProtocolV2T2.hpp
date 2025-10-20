@@ -471,10 +471,10 @@ namespace mdr::v2::t2
         Array<char, kBluetoothDeviceAddressLength> targetBdAddress;
         // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
 
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralStatusPairingDeviceManagementCommon);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralSetExtendedParamParingDeviceManagementCommon);
     };
 
-    static_assert(MDRIsSerializable<PeripheralStatusPairingDeviceManagementCommon>);
+    static_assert(MDRIsSerializable<PeripheralSetExtendedParamParingDeviceManagementCommon>);
 
     // - SOURCE_SWITCH_CONTROL
 
@@ -805,13 +805,13 @@ namespace mdr::v2::t2
     static_assert(MDRIsSerializable<SafeListeningRetStatusTws1>);
     // - SAFE_LISTENING_TWS_2
 
-    struct SafeListeningRetStatusTws2 : SafeListeningRetStatusTws
+    struct SafeListeningRetStatusTws2
     {
         SafeListeningRetStatusTws base;
         SafeListeningData2 currentDataLeft; // 0x4-0x10
         SafeListeningData2 currentDataRight; // 0x11-0x1D
 
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws2);
     };
 
     static_assert(MDRIsSerializable<SafeListeningRetStatusTws2>);
