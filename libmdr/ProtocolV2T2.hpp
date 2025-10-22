@@ -5,7 +5,7 @@
 namespace mdr::v2::t2
 {
     // Extracted from Sound Connect iOS 11.0.1
-    // region Enums
+    #pragma region Enums
     enum class Command : UInt8
     {
         CONNECT_GET_SUPPORT_FUNCTION = 0x06,
@@ -260,9 +260,9 @@ namespace mdr::v2::t2
         NORMAL = 0x0,
         SENSITIVE = 0x1,
     };
-    // endregion Enums
+    #pragma endregion Enums
 
-    // region Connect
+    #pragma region Connect
     struct ConnectGetSupportFunction
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_SUPPORT_FUNCTION;
@@ -284,13 +284,13 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
-    // endregion Connect
-    // region Peripheral
+    #pragma endregion Connect
+    #pragma region Peripheral
 
 
-    // region PERI_*_STATUS
+    #pragma region PERI_*_STATUS
 
-    // region PERI_GET_STATUS
+    #pragma region PERI_GET_STATUS
     struct PeripheralBase
     {
         Command command{Command::PERI_GET_STATUS};
@@ -306,9 +306,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<PeripheralGetStatus>);
-    // endregion PERI_GET_STATUS
+    #pragma endregion PERI_GET_STATUS
 
-    // region PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
+    #pragma region PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
 
 
     // - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
@@ -324,11 +324,11 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<PeripheralStatusPairingDeviceManagementCommon>);
 
-    // endregion PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
+    #pragma endregion PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
 
-    // endregion PERI_*_STATUS
+    #pragma endregion PERI_*_STATUS
 
-    // region PERI_*_PARAM
+    #pragma region PERI_*_PARAM
 
     struct PeripheralDeviceInfo
     {
@@ -360,7 +360,7 @@ namespace mdr::v2::t2
     static_assert(MDRIsReadWritable<PeripheralDeviceInfoWithBluetoothClassOfDevice>);
 #pragma pack(push, 1)
 
-    // region PERI_GET_PARAM
+    #pragma region PERI_GET_PARAM
 
     struct PeripheralGetParam
     {
@@ -371,9 +371,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<PeripheralGetParam>);
-    // endregion PERI_GET_PARAM
+    #pragma endregion PERI_GET_PARAM
 
-    // region PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
+    #pragma region PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
     // - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
 
 #pragma pack(pop)
@@ -442,14 +442,14 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<PeripheralParamMusicHandOverSetting>);
-    // endregion PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
+    #pragma endregion PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
 
-    // endregion PERI_*_PARAM
+    #pragma endregion PERI_*_PARAM
 
-    // region PERI_*_EXTENDED_PARAM
+    #pragma region PERI_*_EXTENDED_PARAM
 
 
-    // region PERI_SET_EXTENDED_PARAM
+    #pragma region PERI_SET_EXTENDED_PARAM
 
     struct PeripheralSetExtendedParam
     {
@@ -490,9 +490,9 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<PeripheralSetExtendedParamSourceSwitchControl>);
 
-    // endregion PERI_SET_EXTENDED_PARAM
+    #pragma endregion PERI_SET_EXTENDED_PARAM
 
-    // region PERI_NTFY_EXTENDED_PARAM
+    #pragma region PERI_NTFY_EXTENDED_PARAM
     // - PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT, PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
 
     struct PeripheralNotifyExtendedParamParingDeviceManagementCommon
@@ -523,29 +523,29 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<PeripheralNotifyExtendedParamSourceSwitchControl>);
 
-    // endregion PERI_NTFY_EXTENDED_PARAM
+    #pragma endregion PERI_NTFY_EXTENDED_PARAM
 
-    // endregion PERI_*_EXTENDED_PARAM
+    #pragma endregion PERI_*_EXTENDED_PARAM
 
-    // endregion PERI
-    // region VoiceGuidance
+    #pragma endregion PERI
+    #pragma region VoiceGuidance
 
 
-    // region VOICE_GUIDANCE_*_CAPABILITY
-
-    // Not implemented
-
-    // endregion VOICE_GUIDANCE_*_CAPABILITY
-
-    // region VOICE_GUIDANCE_*_STATUS
+    #pragma region VOICE_GUIDANCE_*_CAPABILITY
 
     // Not implemented
 
-    // endregion VOICE_GUIDANCE_*_STATUS
+    #pragma endregion VOICE_GUIDANCE_*_CAPABILITY
 
-    // region VOICE_GUIDANCE_*_PARAM
+    #pragma region VOICE_GUIDANCE_*_STATUS
 
-    // region VOICE_GUIDANCE_GET_PARAM
+    // Not implemented
+
+    #pragma endregion VOICE_GUIDANCE_*_STATUS
+
+    #pragma region VOICE_GUIDANCE_*_PARAM
+
+    #pragma region VOICE_GUIDANCE_GET_PARAM
 
     struct VoiceGuidanceBase
     {
@@ -562,9 +562,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<VoiceGuidanceGetParam>);
-    // endregion VOICE_GUIDANCE_GET_PARAM
+    #pragma endregion VOICE_GUIDANCE_GET_PARAM
 
-    // region VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
+    #pragma region VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
 
 
     // - MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH, ONLY_ON_OFF_SETTING
@@ -615,9 +615,9 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<VoiceGuidanceParamSettingOnOff>);
 
-    // endregion VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
+    #pragma endregion VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
 
-    // region VOICE_GUIDANCE_SET_PARAM
+    #pragma region VOICE_GUIDANCE_SET_PARAM
 
     // - VOLUME, VOLUME_SETTING_FIXED_TO_5_STEPS
 
@@ -631,21 +631,21 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<VoiceGuidanceSetParamVolume>);
-    // endregion VOICE_GUIDANCE_SET_PARAM
+    #pragma endregion VOICE_GUIDANCE_SET_PARAM
 
-    // endregion VOICE_GUIDANCE_*_PARAM
+    #pragma endregion VOICE_GUIDANCE_*_PARAM
 
-    // endregion VoiceGuidance
-    // region SafeListening
+    #pragma endregion VoiceGuidance
+    #pragma region SafeListening
 
-    // region SAFE_LISTENING Common Enums
+    #pragma region SAFE_LISTENING Common Enums
 
 
-    // endregion SAFE_LISTENING Common Enums
+    #pragma endregion SAFE_LISTENING Common Enums
 
-    // region SAFE_LISTENING_*_CAPABILITY
+    #pragma region SAFE_LISTENING_*_CAPABILITY
 
-    // region SAFE_LISTENING_GET_CAPABILITY
+    #pragma region SAFE_LISTENING_GET_CAPABILITY
 
     struct SafeListeningGetCapability
     {
@@ -657,9 +657,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningGetCapability>);
-    // endregion SAFE_LISTENING_GET_CAPABILITY
+    #pragma endregion SAFE_LISTENING_GET_CAPABILITY
 
-    // region SAFE_LISTENING_RET_CAPABILITY
+    #pragma region SAFE_LISTENING_RET_CAPABILITY
 
     struct SafeListeningRetCapability
     {
@@ -674,13 +674,13 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningRetCapability>);
-    // endregion SAFE_LISTENING_RET_CAPABILITY
+    #pragma endregion SAFE_LISTENING_RET_CAPABILITY
 
-    // endregion SAFE_LISTENING_*_CAPABILITY
+    #pragma endregion SAFE_LISTENING_*_CAPABILITY
 
-    // region SAFE_LISTENING_*_STATUS
+    #pragma region SAFE_LISTENING_*_STATUS
 
-    // region SAFE_LISTENING_*_STATUS Common Structs and Enums
+    #pragma region SAFE_LISTENING_*_STATUS Common Structs and Enums
 
     struct SafeListeningData
     {
@@ -709,9 +709,9 @@ namespace mdr::v2::t2
     };
 
 
-    // endregion SAFE_LISTENING_*_STATUS Common Structs and Enums
+    #pragma endregion SAFE_LISTENING_*_STATUS Common Structs and Enums
 
-    // region SAFE_LISTENING_GET_STATUS
+    #pragma region SAFE_LISTENING_GET_STATUS
 
     struct SafeListeningGetStatus
     {
@@ -723,9 +723,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningGetStatus>);
-    // endregion SAFE_LISTENING_GET_STATUS
+    #pragma endregion SAFE_LISTENING_GET_STATUS
 
-    // region SAFE_LISTENING_RET_STATUS
+    #pragma region SAFE_LISTENING_RET_STATUS
 
     struct SafeListeningRetStatus
     {
@@ -815,9 +815,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningRetStatusTws2>);
-    // endregion SAFE_LISTENING_RET_STATUS
+    #pragma endregion SAFE_LISTENING_RET_STATUS
 
-    // region SAFE_LISTENING_SET_STATUS
+    #pragma region SAFE_LISTENING_SET_STATUS
 
     struct SafeListeningSetStatus
     {
@@ -877,9 +877,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningSetStatusSVC>);
-    // endregion SAFE_LISTENING_SET_STATUS
+    #pragma endregion SAFE_LISTENING_SET_STATUS
 
-    // region SAFE_LISTENING_NTFY_STATUS
+    #pragma region SAFE_LISTENING_NTFY_STATUS
 
     struct SafeListeningNotifyStatus
     {
@@ -978,13 +978,13 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusSVC);
     };
 
-    // endregion SAFE_LISTENING_NTFY_STATUS
+    #pragma endregion SAFE_LISTENING_NTFY_STATUS
 
-    // endregion SAFE_LISTENING_*_STATUS
+    #pragma endregion SAFE_LISTENING_*_STATUS
 
-    // region SAFE_LISTENING_*_PARAM
+    #pragma region SAFE_LISTENING_*_PARAM
 
-    // region SAFE_LISTENING_GET_PARAM
+    #pragma region SAFE_LISTENING_GET_PARAM
 
     struct SafeListeningGetParam
     {
@@ -997,9 +997,9 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<SafeListeningGetParam>);
 
-    // endregion SAFE_LISTENING_GET_PARAM
+    #pragma endregion SAFE_LISTENING_GET_PARAM
 
-    // region SAFE_LISTENING_RET_PARAM
+    #pragma region SAFE_LISTENING_RET_PARAM
 
     struct SafeListeningRetParam
     {
@@ -1012,9 +1012,9 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<SafeListeningRetParam>);
 
-    // endregion SAFE_LISTENING_RET_PARAM
+    #pragma endregion SAFE_LISTENING_RET_PARAM
 
-    // region SAFE_LISTENING_SET_PARAM
+    #pragma region SAFE_LISTENING_SET_PARAM
 
     struct SafeListeningSetParam
     {
@@ -1053,9 +1053,9 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<SafeListeningSetParamSVC>);
 
-    // endregion SAFE_LISTENING_SET_PARAM
+    #pragma endregion SAFE_LISTENING_SET_PARAM
 
-    // region SAFE_LISTENING_NTFY_PARAM
+    #pragma region SAFE_LISTENING_NTFY_PARAM
 
     struct SafeListeningNotifyParam
     {
@@ -1090,13 +1090,13 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningNotifyParamSVC>);
-    // endregion SAFE_LISTENING_NTFY_PARAM
+    #pragma endregion SAFE_LISTENING_NTFY_PARAM
 
-    // endregion SAFE_LISTENING_*_PARAM
+    #pragma endregion SAFE_LISTENING_*_PARAM
 
-    // region SAFE_LISTENING_*_EXTENDED_PARAM
+    #pragma region SAFE_LISTENING_*_EXTENDED_PARAM
 
-    // region SAFE_LISTENING_GET_EXTENDED_PARAM
+    #pragma region SAFE_LISTENING_GET_EXTENDED_PARAM
 
     struct SafeListeningGetExtendedParam
     {
@@ -1108,9 +1108,9 @@ namespace mdr::v2::t2
     };
 
     static_assert(MDRIsSerializable<SafeListeningGetExtendedParam>);
-    // endregion SAFE_LISTENING_GET_EXTENDED_PARAM
+    #pragma endregion SAFE_LISTENING_GET_EXTENDED_PARAM
 
-    // region SAFE_LISTENING_RET_EXTENDED_PARAM
+    #pragma region SAFE_LISTENING_RET_EXTENDED_PARAM
 
     struct SafeListeningRetExtendedParam
     {
@@ -1124,11 +1124,11 @@ namespace mdr::v2::t2
 
     static_assert(MDRIsSerializable<SafeListeningRetExtendedParam>);
 
-    // endregion SAFE_LISTENING_RET_EXTENDED_PARAM
+    #pragma endregion SAFE_LISTENING_RET_EXTENDED_PARAM
 
-    // endregion SAFE_LISTENING_*_EXTENDED_PARAM
+    #pragma endregion SAFE_LISTENING_*_EXTENDED_PARAM
 
-    // endregion SafeListening
+    #pragma endregion SafeListening
 } // namespace mdr::v2::t2
 
 #pragma pack(pop)

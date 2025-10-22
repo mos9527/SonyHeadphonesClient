@@ -5,7 +5,7 @@
 namespace mdr::v2::t1
 {
     // Extracted from Sound Connect iOS 11.0.1
-    // region Enums
+    #pragma region Enums
     enum class Command : UInt8
     {
         CONNECT_GET_PROTOCOL_INFO = 0x00,
@@ -1115,9 +1115,9 @@ namespace mdr::v2::t1
     {
         ACK = 0x00,
     };
-    // endregion Enums
+    #pragma endregion Enums
 
-    // region Connect
+    #pragma region Connect
     struct ConnectGetProtocolInfo
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_PROTOCOL_INFO;
@@ -1219,8 +1219,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
-    // endregion Connect
-    // region Power
+    #pragma endregion Connect
+    #pragma region Power
     // Not implemented
     struct CommonGetStatus
     {
@@ -1461,8 +1461,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<PowerParamBatterySafeMode>);
-    // endregion Power
-    // region EQ
+    #pragma endregion Power
+    #pragma region EQ
     struct EqEbbGetStatus
     {
         static constexpr Command kResponseCommand = Command::EQEBB_RET_STATUS;
@@ -1593,8 +1593,8 @@ namespace mdr::v2::t1
     {
         // Not implemented, variable size
     };*/
-    // endregion EQ
-    // region NC/ASM
+    #pragma endregion EQ
+    #pragma region NC/ASM
     // Not implemented
     struct NcAsmGetParam
     {
@@ -1677,8 +1677,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<NcAsmParamNcAmbToggle>);
-    // endregion NC/ASM
-    // region Alert
+    #pragma endregion NC/ASM
+    #pragma region Alert
 
     struct AlertBase
     {
@@ -1849,8 +1849,8 @@ namespace mdr::v2::t1
     // {
     //     // Not implemented, variable size, needs serialization
     // };
-    // endregion Alert
-    // region Playback
+    #pragma endregion Alert
+    #pragma region Playback
 
     struct GetPlayStatus
     {
@@ -2004,8 +2004,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<PlayParamPlayMode>);
-    // endregion Playback
-    // region General Setting
+    #pragma endregion Playback
+    #pragma region General Setting
 
     struct GsGetCapability
     {
@@ -2083,8 +2083,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<GsParamList>);
-    // endregion General Setting
-    // region Audio
+    #pragma endregion General Setting
+    #pragma region Audio
 
     struct AudioGetCapability
     {
@@ -2268,8 +2268,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<AudioNtfyParamConnectionModeClassicAudioLeAudio>);
-    // endregion Audio
-    // region System
+    #pragma endregion Audio
+    #pragma region System
 
     struct SystemGetParam
     {
@@ -2554,7 +2554,7 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<SystemNotifyExtParamCallSettings>);
-    // endregion System
+    #pragma endregion System
 } // namespace mdr::v2::t1
 
 #pragma pack(pop)

@@ -128,7 +128,13 @@ Multiple values are seperated by spaces.
 Declare that the field is a numeric type, and its value must be within the specified range (inclusive).
 - `CODEGEN Field [Field Name] [Verb] [Arguments]`
 Declare that the field is a struct, and the specified verb and arguments apply to the specified field within the struct.
-Nested validation can be achieved by declaring `Field base.field1.field2 ...` to reach deeper levels.
+Nested validation can be achieved by declaring `Field field1.field2 ...` on, e.g. `base` to reach `base.field.field2`.
+#### Array (Iterable) types
+Array type of objects of any type can have their validation code emitted through the codegen as well. This applies to:
+- `MDRArray<T>`
+- `MDRPodArray<T>`
+All prior verbs, if specified, will be applied to _each_ element in the array. Nested structs will be automatically inlined in-place and
+emit corresponding code with proper nesting and indentation.
 ## Summary
 ### Macros to use in Headers
 - `MDR_DEFINE_TRIVIAL_SERIALIZATION(Type)` for trivially serializable structs.
