@@ -729,23 +729,23 @@ namespace mdr::v2::t2
 
 #pragma region SAFE_LISTENING_RET_STATUS
 
-    struct SafeListeningRetStatus
+    struct SafeListeningBase
     {
         // CODEGEN EnumRange Command::SAFE_LISTENING_RET_STATUS
         Command command{Command::SAFE_LISTENING_RET_STATUS};
         SafeListeningInquiredType type; // 0x1
 
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatus);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningBase);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatus>);
+    static_assert(MDRIsSerializable<SafeListeningBase>);
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
 
     struct SafeListeningRetStatusSL
     {
         // CODEGEN Field command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningRetStatus base{Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
+        SafeListeningBase base{Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusSL);
     };
@@ -795,7 +795,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN Field command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningRetStatus base{Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1};
+        SafeListeningBase base{Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1};
         SafeListeningLogDataStatus logDataStatusLeft; // 0x2
         SafeListeningLogDataStatus logDataStatusRight; // 0x3
 

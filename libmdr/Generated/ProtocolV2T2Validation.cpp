@@ -170,7 +170,7 @@ bool SafeListeningGetStatus::Validate(const SafeListeningGetStatus& data) {
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
-bool SafeListeningRetStatus::Validate(const SafeListeningRetStatus& data) {
+bool SafeListeningBase::Validate(const SafeListeningBase& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
     if (data.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
