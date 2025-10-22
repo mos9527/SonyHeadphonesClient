@@ -2,9 +2,9 @@
 #include "ProtocolV2.hpp"
 #pragma pack(push, 1)
 
+// Extracted from Sound Connect iOS 11.0.1
 namespace mdr::v2::t1
 {
-    // Extracted from Sound Connect iOS 11.0.1
 #pragma region Enums
     enum class Command : UInt8
     {

@@ -4,11 +4,13 @@
 namespace mdr::v2::t2 {
 bool ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_GET_SUPPORT_FUNCTION) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_GET_SUPPORT_FUNCTION");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
 bool ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_RET_SUPPORT_FUNCTION) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_RET_SUPPORT_FUNCTION");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     for (const auto& supportFunctions_elem : data.supportFunctions) {
     }
@@ -16,230 +18,293 @@ bool ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) 
 };
 bool PeripheralGetStatus::Validate(const PeripheralGetStatus& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_GET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_GET_STATUS");
     return true;
 };
 bool PeripheralStatusPairingDeviceManagementCommon::Validate(const PeripheralStatusPairingDeviceManagementCommon& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_RET_STATUS && data.base.command != Command::PERI_SET_STATUS && data.base.command != Command::PERI_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_RET_STATUS Command::PERI_SET_STATUS Command::PERI_NTFY_STATUS");
+    if (data.base.type != PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT && data.base.type != PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE");
     if (!is_valid(data.btMode)) throw std::runtime_error("data.btMode: Bad enum value");
     if (!is_valid(data.enableDisableStatus)) throw std::runtime_error("data.enableDisableStatus: Bad enum value");
     return true;
 };
 bool PeripheralGetParam::Validate(const PeripheralGetParam& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_GET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_GET_PARAM");
     return true;
 };
 bool PeripheralParamPairingDeviceManagementClassicBt::Validate(const PeripheralParamPairingDeviceManagementClassicBt& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_RET_PARAM && data.base.command != Command::PERI_SET_PARAM && data.base.command != Command::PERI_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_RET_PARAM Command::PERI_SET_PARAM Command::PERI_NTFY_PARAM");
+    if (data.base.type != PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT");
     for (const auto& deviceList_elem : data.deviceList) {
+        if (deviceList_elem.btFriendlyName.value.length() < 0 || deviceList_elem.btFriendlyName.value.length() > 128) throw std::runtime_error("deviceList_elem.btFriendlyName.value.length(): Range check fail, must be in [0, 128]");
     }
     return true;
 };
 bool PeripheralParamSourceSwitchControl::Validate(const PeripheralParamSourceSwitchControl& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_RET_PARAM && data.base.command != Command::PERI_SET_PARAM && data.base.command != Command::PERI_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_RET_PARAM Command::PERI_SET_PARAM Command::PERI_NTFY_PARAM");
+    if (data.base.type != PeripheralInquiredType::SOURCE_SWITCH_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::SOURCE_SWITCH_CONTROL");
     if (!is_valid(data.sourceKeeping)) throw std::runtime_error("data.sourceKeeping: Bad enum value");
     return true;
 };
 bool PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_RET_PARAM && data.base.command != Command::PERI_SET_PARAM && data.base.command != Command::PERI_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_RET_PARAM Command::PERI_SET_PARAM Command::PERI_NTFY_PARAM");
+    if (data.base.type != PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE");
     for (const auto& deviceList_elem : data.deviceList) {
+        if (deviceList_elem.btFriendlyName.value.length() < 0 || deviceList_elem.btFriendlyName.value.length() > 128) throw std::runtime_error("deviceList_elem.btFriendlyName.value.length(): Range check fail, must be in [0, 128]");
     }
     return true;
 };
 bool PeripheralParamMusicHandOverSetting::Validate(const PeripheralParamMusicHandOverSetting& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_RET_PARAM && data.base.command != Command::PERI_SET_PARAM && data.base.command != Command::PERI_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_RET_PARAM Command::PERI_SET_PARAM Command::PERI_NTFY_PARAM");
+    if (data.base.type != PeripheralInquiredType::MUSIC_HAND_OVER_SETTING) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::MUSIC_HAND_OVER_SETTING");
     if (!is_valid(data.isOn)) throw std::runtime_error("data.isOn: Bad enum value");
-    return true;
-};
-bool PeripheralSetExtendedParam::Validate(const PeripheralSetExtendedParam& data) {
-    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
     return true;
 };
 bool PeripheralSetExtendedParamParingDeviceManagementCommon::Validate(const PeripheralSetExtendedParamParingDeviceManagementCommon& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_SET_EXTENDED_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_SET_EXTENDED_PARAM");
+    if (data.base.type != PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT && data.base.type != PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE");
     if (!is_valid(data.connectivityActionType)) throw std::runtime_error("data.connectivityActionType: Bad enum value");
     return true;
 };
 bool PeripheralSetExtendedParamSourceSwitchControl::Validate(const PeripheralSetExtendedParamSourceSwitchControl& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_SET_EXTENDED_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_SET_EXTENDED_PARAM");
+    if (data.base.type != PeripheralInquiredType::SOURCE_SWITCH_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::SOURCE_SWITCH_CONTROL");
     return true;
 };
 bool PeripheralNotifyExtendedParamParingDeviceManagementCommon::Validate(const PeripheralNotifyExtendedParamParingDeviceManagementCommon& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_NTFY_EXTENDED_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_NTFY_EXTENDED_PARAM");
     if (!is_valid(data.connectivityActionType)) throw std::runtime_error("data.connectivityActionType: Bad enum value");
     if (!is_valid(data.peripheralResult)) throw std::runtime_error("data.peripheralResult: Bad enum value");
     return true;
 };
 bool PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const PeripheralNotifyExtendedParamSourceSwitchControl& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PERI_NTFY_EXTENDED_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PERI_NTFY_EXTENDED_PARAM");
+    if (data.base.type != PeripheralInquiredType::SOURCE_SWITCH_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PeripheralInquiredType::SOURCE_SWITCH_CONTROL");
     if (!is_valid(data.result)) throw std::runtime_error("data.result: Bad enum value");
     return true;
 };
 bool VoiceGuidanceGetParam::Validate(const VoiceGuidanceGetParam& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::VOICE_GUIDANCE_GET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::VOICE_GUIDANCE_GET_PARAM");
     return true;
 };
 bool VoiceGuidanceParamSettingMtk::Validate(const VoiceGuidanceParamSettingMtk& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::VOICE_GUIDANCE_GET_PARAM && data.base.command != Command::VOICE_GUIDANCE_SET_PARAM && data.base.command != Command::VOICE_GUIDANCE_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::VOICE_GUIDANCE_GET_PARAM Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM");
+    if (data.base.type != VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH && data.base.type != VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH && data.base.type != VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool VoiceGuidanceParamSettingSupportLangSwitch::Validate(const VoiceGuidanceParamSettingSupportLangSwitch& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::VOICE_GUIDANCE_GET_PARAM && data.base.command != Command::VOICE_GUIDANCE_SET_PARAM && data.base.command != Command::VOICE_GUIDANCE_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::VOICE_GUIDANCE_GET_PARAM Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM");
+    if (data.base.type != VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH && data.base.type != VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     if (!is_valid(data.languageValue)) throw std::runtime_error("data.languageValue: Bad enum value");
     return true;
 };
 bool VoiceGuidanceParamVolume::Validate(const VoiceGuidanceParamVolume& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::VOICE_GUIDANCE_SET_PARAM && data.base.command != Command::VOICE_GUIDANCE_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM");
+    if (data.base.type != VoiceGuidanceInquiredType::VOLUME && data.base.type != VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of VoiceGuidanceInquiredType::VOLUME VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS");
+    if (data.volumeValue < -2 || data.volumeValue > 2) throw std::runtime_error("data.volumeValue: Range check fail, must be in [-2, 2]");
     return true;
 };
 bool VoiceGuidanceParamSettingOnOff::Validate(const VoiceGuidanceParamSettingOnOff& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::VOICE_GUIDANCE_RET_PARAM && data.base.command != Command::VOICE_GUIDANCE_SET_PARAM && data.base.command != Command::VOICE_GUIDANCE_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::VOICE_GUIDANCE_RET_PARAM Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM");
+    if (data.base.type != VoiceGuidanceInquiredType::BATTERY_LV_VOICE && data.base.type != VoiceGuidanceInquiredType::POWER_ONOFF_SOUND && data.base.type != VoiceGuidanceInquiredType::SOUNDEFFECT_ULT_BEEP_ONOFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of VoiceGuidanceInquiredType::BATTERY_LV_VOICE VoiceGuidanceInquiredType::POWER_ONOFF_SOUND VoiceGuidanceInquiredType::SOUNDEFFECT_ULT_BEEP_ONOFF");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetParamVolume& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::VOICE_GUIDANCE_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::VOICE_GUIDANCE_SET_PARAM");
+    if (data.base.type != VoiceGuidanceInquiredType::VOLUME && data.base.type != VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of VoiceGuidanceInquiredType::VOLUME VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS");
+    if (data.volumeValue < -2 || data.volumeValue > 2) throw std::runtime_error("data.volumeValue: Range check fail, must be in [-2, 2]");
     if (!is_valid(data.feedbackSound)) throw std::runtime_error("data.feedbackSound: Bad enum value");
     return true;
 };
 bool SafeListeningGetCapability::Validate(const SafeListeningGetCapability& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_GET_CAPABILITY) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_GET_CAPABILITY");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningRetCapability::Validate(const SafeListeningRetCapability& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_RET_CAPABILITY) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_CAPABILITY");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
 bool SafeListeningGetStatus::Validate(const SafeListeningGetStatus& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_GET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_GET_STATUS");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatus::Validate(const SafeListeningRetStatus& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatusSL::Validate(const SafeListeningRetStatusSL& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     return true;
 };
 bool SafeListeningRetStatusHbs::Validate(const SafeListeningRetStatusHbs& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2");
     if (!is_valid(data.logDataStatus)) throw std::runtime_error("data.logDataStatus: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatusHbs1::Validate(const SafeListeningRetStatusHbs1& data) {
     if (!is_valid(data.base.base.base.command)) throw std::runtime_error("data.base.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.base.inquiredType)) throw std::runtime_error("data.base.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.base.type)) throw std::runtime_error("data.base.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatus)) throw std::runtime_error("data.base.logDataStatus: Bad enum value");
+    if (data.base.base.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1) throw std::runtime_error("data.base.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1");
     if (!is_valid(data.currentData.data.targetType)) throw std::runtime_error("data.currentData.data.targetType: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatusHbs2::Validate(const SafeListeningRetStatusHbs2& data) {
     if (!is_valid(data.base.base.base.command)) throw std::runtime_error("data.base.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.base.inquiredType)) throw std::runtime_error("data.base.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.base.type)) throw std::runtime_error("data.base.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatus)) throw std::runtime_error("data.base.logDataStatus: Bad enum value");
+    if (data.base.base.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2) throw std::runtime_error("data.base.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_2");
     if (!is_valid(data.currentData.data.targetType)) throw std::runtime_error("data.currentData.data.targetType: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatusTws::Validate(const SafeListeningRetStatusTws& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     if (!is_valid(data.logDataStatusLeft)) throw std::runtime_error("data.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.logDataStatusRight)) throw std::runtime_error("data.logDataStatusRight: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatusTws1::Validate(const SafeListeningRetStatusTws1& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatusLeft)) throw std::runtime_error("data.base.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.base.logDataStatusRight)) throw std::runtime_error("data.base.logDataStatusRight: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_1");
     if (!is_valid(data.currentDataLeft.data.targetType)) throw std::runtime_error("data.currentDataLeft.data.targetType: Bad enum value");
     if (!is_valid(data.currentDataRight.data.targetType)) throw std::runtime_error("data.currentDataRight.data.targetType: Bad enum value");
     return true;
 };
 bool SafeListeningRetStatusTws2::Validate(const SafeListeningRetStatusTws2& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatusLeft)) throw std::runtime_error("data.base.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.base.logDataStatusRight)) throw std::runtime_error("data.base.logDataStatusRight: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_RET_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     if (!is_valid(data.currentDataLeft.data.targetType)) throw std::runtime_error("data.currentDataLeft.data.targetType: Bad enum value");
     if (!is_valid(data.currentDataRight.data.targetType)) throw std::runtime_error("data.currentDataRight.data.targetType: Bad enum value");
     return true;
 };
 bool SafeListeningSetStatus::Validate(const SafeListeningSetStatus& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_SET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_STATUS");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningSetStatusSL::Validate(const SafeListeningSetStatusSL& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_STATUS");
+    if (data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     return true;
 };
 bool SafeListeningSetStatusHbs::Validate(const SafeListeningSetStatusHbs& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_SET_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2");
     if (!is_valid(data.logDataStatus)) throw std::runtime_error("data.logDataStatus: Bad enum value");
     return true;
 };
 bool SafeListeningSetStatusTws::Validate(const SafeListeningSetStatusTws& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_SET_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     if (!is_valid(data.logDataStatusLeft)) throw std::runtime_error("data.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.logDataStatusRight)) throw std::runtime_error("data.logDataStatusRight: Bad enum value");
     return true;
 };
 bool SafeListeningSetStatusSVC::Validate(const SafeListeningSetStatusSVC& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_STATUS");
+    if (data.base.type != SafeListeningInquiredType::SAFE_VOLUME_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_VOLUME_CONTROL");
     if (!is_valid(data.whoStandardLevel)) throw std::runtime_error("data.whoStandardLevel: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyStatus::Validate(const SafeListeningNotifyStatus& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyStatusSL::Validate(const SafeListeningNotifyStatusSL& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     return true;
 };
 bool SafeListeningNotifyStatusHbs::Validate(const SafeListeningNotifyStatusHbs& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2");
     if (!is_valid(data.logDataStatus)) throw std::runtime_error("data.logDataStatus: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotifyStatusHbs1& data) {
     if (!is_valid(data.base.base.base.command)) throw std::runtime_error("data.base.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.base.inquiredType)) throw std::runtime_error("data.base.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.base.type)) throw std::runtime_error("data.base.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatus)) throw std::runtime_error("data.base.logDataStatus: Bad enum value");
+    if (data.base.base.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1) throw std::runtime_error("data.base.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1");
     for (const auto& data_elem : data.data) {
         if (!is_valid(data_elem.data.targetType)) throw std::runtime_error("data_elem.data.targetType: Bad enum value");
     }
@@ -247,8 +312,10 @@ bool SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotifyStatusHbs1
 };
 bool SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotifyStatusHbs2& data) {
     if (!is_valid(data.base.base.base.command)) throw std::runtime_error("data.base.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.base.inquiredType)) throw std::runtime_error("data.base.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.base.type)) throw std::runtime_error("data.base.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatus)) throw std::runtime_error("data.base.logDataStatus: Bad enum value");
+    if (data.base.base.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2) throw std::runtime_error("data.base.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_2");
     for (const auto& data_elem : data.data) {
         if (!is_valid(data_elem.data.targetType)) throw std::runtime_error("data_elem.data.targetType: Bad enum value");
     }
@@ -256,16 +323,20 @@ bool SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotifyStatusHbs2
 };
 bool SafeListeningNotifyStatusTws::Validate(const SafeListeningNotifyStatusTws& data) {
     if (!is_valid(data.base.base.command)) throw std::runtime_error("data.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.inquiredType)) throw std::runtime_error("data.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.type)) throw std::runtime_error("data.base.base.type: Bad enum value");
+    if (data.base.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     if (!is_valid(data.logDataStatusLeft)) throw std::runtime_error("data.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.logDataStatusRight)) throw std::runtime_error("data.logDataStatusRight: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotifyStatusTws1& data) {
     if (!is_valid(data.base.base.base.command)) throw std::runtime_error("data.base.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.base.inquiredType)) throw std::runtime_error("data.base.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.base.type)) throw std::runtime_error("data.base.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatusLeft)) throw std::runtime_error("data.base.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.base.logDataStatusRight)) throw std::runtime_error("data.base.logDataStatusRight: Bad enum value");
+    if (data.base.base.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1) throw std::runtime_error("data.base.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_1");
     for (const auto& data_elem : data.data) {
         if (!is_valid(data_elem.data.targetType)) throw std::runtime_error("data_elem.data.targetType: Bad enum value");
     }
@@ -273,9 +344,11 @@ bool SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotifyStatusTws1
 };
 bool SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotifyStatusTws2& data) {
     if (!is_valid(data.base.base.base.command)) throw std::runtime_error("data.base.base.base.command: Bad enum value");
-    if (!is_valid(data.base.base.base.inquiredType)) throw std::runtime_error("data.base.base.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.base.base.type)) throw std::runtime_error("data.base.base.base.type: Bad enum value");
     if (!is_valid(data.base.logDataStatusLeft)) throw std::runtime_error("data.base.logDataStatusLeft: Bad enum value");
     if (!is_valid(data.base.logDataStatusRight)) throw std::runtime_error("data.base.logDataStatusRight: Bad enum value");
+    if (data.base.base.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.base.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.base.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.base.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     for (const auto& data_elem : data.data) {
         if (!is_valid(data_elem.data.targetType)) throw std::runtime_error("data_elem.data.targetType: Bad enum value");
     }
@@ -283,66 +356,82 @@ bool SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotifyStatusTws2
 };
 bool SafeListeningNotifyStatusSVC::Validate(const SafeListeningNotifyStatusSVC& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_STATUS");
+    if (data.base.type != SafeListeningInquiredType::SAFE_VOLUME_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_VOLUME_CONTROL");
     if (!is_valid(data.whoStandardLevel)) throw std::runtime_error("data.whoStandardLevel: Bad enum value");
     return true;
 };
 bool SafeListeningGetParam::Validate(const SafeListeningGetParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_GET_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_GET_PARAM");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
 bool SafeListeningRetParam::Validate(const SafeListeningRetParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_RET_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_PARAM");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     if (!is_valid(data.availability)) throw std::runtime_error("data.availability: Bad enum value");
     return true;
 };
 bool SafeListeningSetParam::Validate(const SafeListeningSetParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_SET_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_PARAM");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningSetParamSL::Validate(const SafeListeningSetParamSL& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_PARAM");
+    if (data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     if (!is_valid(data.safeListeningMode)) throw std::runtime_error("data.safeListeningMode: Bad enum value");
     if (!is_valid(data.previewMode)) throw std::runtime_error("data.previewMode: Bad enum value");
     return true;
 };
 bool SafeListeningSetParamSVC::Validate(const SafeListeningSetParamSVC& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_SET_PARAM");
+    if (data.base.type != SafeListeningInquiredType::SAFE_VOLUME_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_VOLUME_CONTROL");
     if (!is_valid(data.volumeLimitationMode)) throw std::runtime_error("data.volumeLimitationMode: Bad enum value");
     if (!is_valid(data.safeVolumeControlMode)) throw std::runtime_error("data.safeVolumeControlMode: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyParam::Validate(const SafeListeningNotifyParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_NTFY_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_PARAM");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyParamSL::Validate(const SafeListeningNotifyParamSL& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_PARAM");
+    if (data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_1 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_HBS_2 && data.base.type != SafeListeningInquiredType::SAFE_LISTENING_TWS_2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2");
     if (!is_valid(data.safeListeningMode)) throw std::runtime_error("data.safeListeningMode: Bad enum value");
     if (!is_valid(data.previewMode)) throw std::runtime_error("data.previewMode: Bad enum value");
     return true;
 };
 bool SafeListeningNotifyParamSVC::Validate(const SafeListeningNotifyParamSVC& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.inquiredType)) throw std::runtime_error("data.base.inquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SAFE_LISTENING_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_NTFY_PARAM");
+    if (data.base.type != SafeListeningInquiredType::SAFE_VOLUME_CONTROL) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SafeListeningInquiredType::SAFE_VOLUME_CONTROL");
     if (!is_valid(data.volumeLimitationMode)) throw std::runtime_error("data.volumeLimitationMode: Bad enum value");
     if (!is_valid(data.safeVolumeControlMode)) throw std::runtime_error("data.safeVolumeControlMode: Bad enum value");
     return true;
 };
 bool SafeListeningGetExtendedParam::Validate(const SafeListeningGetExtendedParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_GET_EXTENDED_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_GET_EXTENDED_PARAM");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SafeListeningRetExtendedParam::Validate(const SafeListeningRetExtendedParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SAFE_LISTENING_RET_EXTENDED_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SAFE_LISTENING_RET_EXTENDED_PARAM");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     if (!is_valid(data.errorCause)) throw std::runtime_error("data.errorCause: Bad enum value");
     return true;

@@ -8,6 +8,7 @@
 namespace mdr
 {
     typedef uint8_t UInt8;
+    typedef int8_t Int8;
     struct Int32BE
     {
         int32_t value;
@@ -204,12 +205,14 @@ namespace mdr
      */
     #define MDR_DEFINE_TRIVIAL_SERIALIZATION(Type) \
     static size_t Serialize(const Type &data, UInt8* out) { \
+        static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
         const UInt8 *ptr = reinterpret_cast<const UInt8*>(&data); \
         std::memcpy(out, ptr, sizeof(Type)); \
         return sizeof(Type); \
     } \
     static void Deserialize(UInt8* data, Type &out) { \
+        static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
         std::memcpy(&out, data, sizeof(Type)); \
     } \
