@@ -41,6 +41,7 @@ void trimCommentString(std::string& s)
 {
     s.erase(s.begin(), s.begin() + s.find_last_of("/") + 1);
     s.erase(s.begin(), s.begin() + s.find_first_of(" ") + 1);
+    while (!s.empty() && (s.back() == ' ' || s.back() == '\r' || s.back() == '\n')) s.pop_back();
 }
 
 std::string emitThrowRuntimeError(std::string_view name, std::string_view msg)
@@ -96,12 +97,15 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
         case ValidationVerb::EnumRange:
         {
             std::ostringstream cout, diagOut;
-            while (cin >> tok)
+            cin >> tok;
+            while (true)
             {
                 diagOut << tok;
                 cout << format("{} != {}", scopeFiledName, tok);
                 if (cin >> tok)
-                    cout << " || ", diagOut << " ";
+                    cout << " && ", diagOut << " ";
+                else
+                    break;
             }
             println("{}if ({}) {};", emitIndent(), cout.str(),
                     emitThrowRuntimeError(scopeFiledName, format("EnumRange check fail, must be one of {}", diagOut.str())));
@@ -126,6 +130,7 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
     }
 }
 std::map<std::string, std::vector<std::string>> gCodegenComments;
+int gVisitDepth = 0;
 CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClientData pData)
 {
     auto* pParentName = static_cast<std::string*>(pData);
@@ -164,17 +169,19 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         break;
     case CXCursor_StructDecl:
     {
+        gVisitDepth++;
         clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &newParentName);
+        gVisitDepth--;
         break;
     }
     default:
         break;
     }
     // Emit CODEGEN specific checks
-    for (auto& check : gCodegenComments[clang_getCString(name)])
-    {
-        emitCodegenCheck(cursor, newParentName, check);
-    }
+    // We only do this at the top level to avoid duplicate field names
+    if (gVisitDepth == 0)
+        for (auto& check : gCodegenComments[clang_getCString(name)])
+            emitCodegenCheck(cursor, newParentName, check);
     clang_disposeString(name);
     clang_disposeString(typeName);
     if (isIterable)

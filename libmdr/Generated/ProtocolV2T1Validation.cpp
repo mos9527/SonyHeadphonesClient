@@ -6,157 +6,181 @@ bool ConnectGetProtocolInfo::Validate(const ConnectGetProtocolInfo& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
     if (data.command != Command::CONNECT_GET_PROTOCOL_INFO) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_GET_PROTOCOL_INFO");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
-    if (data.inquiredType != ConnectInquiredType::FIXED_VALUE) throw std::runtime_error("data.inquiredType: EnumRange check fail, must be one of ConnectInquiredType::FIXED_VALUE");
     return true;
 };
 bool ConnectRetProtocolInfo::Validate(const ConnectRetProtocolInfo& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
     if (data.command != Command::CONNECT_RET_PROTOCOL_INFO) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_RET_PROTOCOL_INFO");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
-    if (data.inquiredType != ConnectInquiredType::FIXED_VALUE) throw std::runtime_error("data.inquiredType: EnumRange check fail, must be one of ConnectInquiredType::FIXED_VALUE");
     if (!is_valid(data.supportTable1Value)) throw std::runtime_error("data.supportTable1Value: Bad enum value");
     if (!is_valid(data.supportTable2Value)) throw std::runtime_error("data.supportTable2Value: Bad enum value");
     return true;
 };
 bool ConnectGetCapabilityInfo::Validate(const ConnectGetCapabilityInfo& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_GET_CAPABILITY_INFO) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_GET_CAPABILITY_INFO");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
 bool ConnectGetDeviceInfo::Validate(const ConnectGetDeviceInfo& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_GET_DEVICE_INFO) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_GET_DEVICE_INFO");
     if (!is_valid(data.deviceInfoType)) throw std::runtime_error("data.deviceInfoType: Bad enum value");
     return true;
 };
 bool ConnectRetDeviceInfo::Validate(const ConnectRetDeviceInfo& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_RET_DEVICE_INFO) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_RET_DEVICE_INFO");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_GET_SUPPORT_FUNCTION) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_GET_SUPPORT_FUNCTION");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     return true;
 };
 bool ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::CONNECT_RET_SUPPORT_FUNCTION) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::CONNECT_RET_SUPPORT_FUNCTION");
     if (!is_valid(data.inquiredType)) throw std::runtime_error("data.inquiredType: Bad enum value");
     for (const auto& supportFunctions_elem : data.supportFunctions) {
     }
     return true;
 };
-bool CommonGetStatus::Validate(const CommonGetStatus& data) {
+bool CommonBase::Validate(const CommonBase& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::COMMON_GET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::COMMON_GET_STATUS");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool CommonStatusAudioCodec::Validate(const CommonStatusAudioCodec& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::COMMON_GET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::COMMON_GET_STATUS");
+    if (data.base.type != CommonInquiredType::AUDIO_CODEC) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of CommonInquiredType::AUDIO_CODEC");
     if (!is_valid(data.audioCodec)) throw std::runtime_error("data.audioCodec: Bad enum value");
-    return true;
-};
-bool PowerGetStatus::Validate(const PowerGetStatus& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool PowerRetStatusBattery::Validate(const PowerRetStatusBattery& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     if (!is_valid(data.batteryStatus.chargingStatus)) throw std::runtime_error("data.batteryStatus.chargingStatus: Bad enum value");
+    if (data.batteryStatus.batteryLevel < 0 || data.batteryStatus.batteryLevel > 100) throw std::runtime_error("data.batteryStatus.batteryLevel: Range check fail, must be in [0, 100]");
     return true;
 };
 bool PowerRetStatusLeftRightBattery::Validate(const PowerRetStatusLeftRightBattery& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_RET_STATUS");
+    if (data.base.type != PowerInquiredType::LEFT_RIGHT_BATTERY) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::LEFT_RIGHT_BATTERY");
     if (!is_valid(data.batteryStatus.leftChargingStatus)) throw std::runtime_error("data.batteryStatus.leftChargingStatus: Bad enum value");
     if (!is_valid(data.batteryStatus.rightChargingStatus)) throw std::runtime_error("data.batteryStatus.rightChargingStatus: Bad enum value");
+    if (data.batteryStatus.leftBatteryLevel < 0 || data.batteryStatus.leftBatteryLevel > 100) throw std::runtime_error("data.batteryStatus.leftBatteryLevel: Range check fail, must be in [0, 100]");
+    if (data.batteryStatus.rightBatteryLevel < 0 || data.batteryStatus.rightBatteryLevel > 100) throw std::runtime_error("data.batteryStatus.rightBatteryLevel: Range check fail, must be in [0, 100]");
     return true;
 };
 bool PowerRetStatusCradleBattery::Validate(const PowerRetStatusCradleBattery& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_RET_STATUS");
+    if (data.base.type != PowerInquiredType::CRADLE_BATTERY) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::CRADLE_BATTERY");
     if (!is_valid(data.batteryStatus.chargingStatus)) throw std::runtime_error("data.batteryStatus.chargingStatus: Bad enum value");
     return true;
 };
 bool PowerRetStatusBatteryThreshold::Validate(const PowerRetStatusBatteryThreshold& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_RET_STATUS");
+    if (data.base.type != PowerInquiredType::BATTERY_WITH_THRESHOLD) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::BATTERY_WITH_THRESHOLD");
     if (!is_valid(data.batteryStatus.batteryStatus.chargingStatus)) throw std::runtime_error("data.batteryStatus.batteryStatus.chargingStatus: Bad enum value");
+    if (data.batteryStatus.batteryStatus.batteryLevel < 0 || data.batteryStatus.batteryStatus.batteryLevel > 100) throw std::runtime_error("data.batteryStatus.batteryStatus.batteryLevel: Range check fail, must be in [0, 100]");
+    if (data.batteryStatus.batteryThreshold < 0 || data.batteryStatus.batteryThreshold > 100) throw std::runtime_error("data.batteryStatus.batteryThreshold: Range check fail, must be in [0, 100]");
     return true;
 };
 bool PowerRetStatusLeftRightBatteryThreshold::Validate(const PowerRetStatusLeftRightBatteryThreshold& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_RET_STATUS");
+    if (data.base.type != PowerInquiredType::LR_BATTERY_WITH_THRESHOLD) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::LR_BATTERY_WITH_THRESHOLD");
     if (!is_valid(data.batteryStatus.leftChargingStatus)) throw std::runtime_error("data.batteryStatus.leftChargingStatus: Bad enum value");
     if (!is_valid(data.batteryStatus.rightChargingStatus)) throw std::runtime_error("data.batteryStatus.rightChargingStatus: Bad enum value");
+    if (data.batteryStatus.leftBatteryLevel < 0 || data.batteryStatus.leftBatteryLevel > 100) throw std::runtime_error("data.batteryStatus.leftBatteryLevel: Range check fail, must be in [0, 100]");
+    if (data.batteryStatus.rightBatteryLevel < 0 || data.batteryStatus.rightBatteryLevel > 100) throw std::runtime_error("data.batteryStatus.rightBatteryLevel: Range check fail, must be in [0, 100]");
+    if (data.leftBatteryThreshold < 0 || data.leftBatteryThreshold > 100) throw std::runtime_error("data.leftBatteryThreshold: Range check fail, must be in [0, 100]");
+    if (data.rightBatteryThreshold < 0 || data.rightBatteryThreshold > 100) throw std::runtime_error("data.rightBatteryThreshold: Range check fail, must be in [0, 100]");
     return true;
 };
 bool PowerRetStatusCradleBatteryThreshold::Validate(const PowerRetStatusCradleBatteryThreshold& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_RET_STATUS");
+    if (data.base.type != PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD");
     if (!is_valid(data.batteryStatus.batteryStatus.chargingStatus)) throw std::runtime_error("data.batteryStatus.batteryStatus.chargingStatus: Bad enum value");
-    return true;
-};
-bool PowerSetStatus::Validate(const PowerSetStatus& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (data.batteryStatus.batteryStatus.batteryLevel < 0 || data.batteryStatus.batteryStatus.batteryLevel > 100) throw std::runtime_error("data.batteryStatus.batteryStatus.batteryLevel: Range check fail, must be in [0, 100]");
     return true;
 };
 bool PowerSetStatusPowerOff::Validate(const PowerSetStatusPowerOff& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_SET_STATUS");
+    if (data.base.type != PowerInquiredType::POWER_OFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::POWER_OFF");
     if (!is_valid(data.powerOffSettingValue)) throw std::runtime_error("data.powerOffSettingValue: Bad enum value");
     return true;
 };
 bool PowerGetParam::Validate(const PowerGetParam& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_GET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_GET_PARAM");
+    if (data.base.type != PowerInquiredType::AUTO_POWER_OFF && data.base.type != PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION && data.base.type != PowerInquiredType::POWER_SAVE_MODE && data.base.type != PowerInquiredType::BATTERY_SAFE_MODE && data.base.type != PowerInquiredType::CARING_CHARGE && data.base.type != PowerInquiredType::BT_STANDBY && data.base.type != PowerInquiredType::STAMINA && data.base.type != PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF");
     return true;
 };
 bool PowerParamAutoPowerOff::Validate(const PowerParamAutoPowerOff& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_GET_PARAM && data.base.command != Command::POWER_RET_PARAM && data.base.command != Command::POWER_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM");
+    if (data.base.type != PowerInquiredType::AUTO_POWER_OFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF");
     if (!is_valid(data.currentPowerOffElements)) throw std::runtime_error("data.currentPowerOffElements: Bad enum value");
     if (!is_valid(data.lastSelectPowerOffElements)) throw std::runtime_error("data.lastSelectPowerOffElements: Bad enum value");
     return true;
 };
 bool PowerParamAutoPowerOffWithWearingDetection::Validate(const PowerParamAutoPowerOffWithWearingDetection& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_GET_PARAM && data.base.command != Command::POWER_RET_PARAM && data.base.command != Command::POWER_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM");
+    if (data.base.type != PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION");
     if (!is_valid(data.currentPowerOffElements)) throw std::runtime_error("data.currentPowerOffElements: Bad enum value");
     if (!is_valid(data.lastSelectPowerOffElements)) throw std::runtime_error("data.lastSelectPowerOffElements: Bad enum value");
     return true;
 };
 bool PowerParamSettingOnOff::Validate(const PowerParamSettingOnOff& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_GET_PARAM && data.base.command != Command::POWER_RET_PARAM && data.base.command != Command::POWER_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM");
+    if (data.base.type != PowerInquiredType::POWER_SAVE_MODE && data.base.type != PowerInquiredType::CARING_CHARGE && data.base.type != PowerInquiredType::BT_STANDBY && data.base.type != PowerInquiredType::STAMINA && data.base.type != PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF");
     if (!is_valid(data.onOffSetting)) throw std::runtime_error("data.onOffSetting: Bad enum value");
     return true;
 };
 bool PowerParamBatterySafeMode::Validate(const PowerParamBatterySafeMode& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
+    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::POWER_GET_PARAM && data.base.command != Command::POWER_RET_PARAM && data.base.command != Command::POWER_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM");
+    if (data.base.type != PowerInquiredType::BATTERY_SAFE_MODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PowerInquiredType::BATTERY_SAFE_MODE");
     if (!is_valid(data.onOffSettingValue)) throw std::runtime_error("data.onOffSettingValue: Bad enum value");
     if (!is_valid(data.effectStatus)) throw std::runtime_error("data.effectStatus: Bad enum value");
     return true;
 };
 bool EqEbbGetStatus::Validate(const EqEbbGetStatus& data) {
-    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
-    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
-    return true;
-};
-bool EqEbbStatusOnOff::Validate(const EqEbbStatusOnOff& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
-    if (data.base.command != Command::EQEBB_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_NTFY_STATUS");
-    if (!is_valid(data.value)) throw std::runtime_error("data.value: Bad enum value");
+    if (data.base.command != Command::EQEBB_GET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_GET_STATUS");
     return true;
 };
 bool EqEbbStatusErrorCode::Validate(const EqEbbStatusErrorCode& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_RET_STATUS && data.base.command != Command::EQEBB_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_RET_STATUS Command::EQEBB_NTFY_STATUS");
+    if (data.base.type != EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE");
     if (!is_valid(data.value)) throw std::runtime_error("data.value: Bad enum value");
     for (const auto& errors_elem : data.errors) {
         if (!is_valid(errors_elem)) throw std::runtime_error("errors_elem: Bad enum value");
@@ -166,11 +190,14 @@ bool EqEbbStatusErrorCode::Validate(const EqEbbStatusErrorCode& data) {
 bool EqEbbGetParam::Validate(const EqEbbGetParam& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_GET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_GET_PARAM");
     return true;
 };
 bool EqEbbParamEq::Validate(const EqEbbParamEq& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_RET_PARAM && data.base.command != Command::EQEBB_SET_PARAM && data.base.command != Command::EQEBB_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM");
+    if (data.base.type != EqEbbInquiredType::PRESET_EQ && data.base.type != EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE && data.base.type != EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of EqEbbInquiredType::PRESET_EQ EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE");
     if (!is_valid(data.presetId)) throw std::runtime_error("data.presetId: Bad enum value");
     for (const auto& bands_elem : data.bands) {
     }
@@ -179,11 +206,15 @@ bool EqEbbParamEq::Validate(const EqEbbParamEq& data) {
 bool EqEbbParamEbb::Validate(const EqEbbParamEbb& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_RET_PARAM && data.base.command != Command::EQEBB_SET_PARAM && data.base.command != Command::EQEBB_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM");
+    if (data.base.type != EqEbbInquiredType::EBB) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of EqEbbInquiredType::EBB");
     return true;
 };
 bool EqEbbParamEqAndUltMode::Validate(const EqEbbParamEqAndUltMode& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_RET_PARAM && data.base.command != Command::EQEBB_SET_PARAM && data.base.command != Command::EQEBB_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM");
+    if (data.base.type != EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE");
     if (!is_valid(data.presetId)) throw std::runtime_error("data.presetId: Bad enum value");
     if (!is_valid(data.eqUltModeStatus)) throw std::runtime_error("data.eqUltModeStatus: Bad enum value");
     for (const auto& bandSteps_elem : data.bandSteps) {
@@ -193,18 +224,23 @@ bool EqEbbParamEqAndUltMode::Validate(const EqEbbParamEqAndUltMode& data) {
 bool EqEbbParamSoundEffect::Validate(const EqEbbParamSoundEffect& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_RET_PARAM && data.base.command != Command::EQEBB_SET_PARAM && data.base.command != Command::EQEBB_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM");
+    if (data.base.type != EqEbbInquiredType::SOUND_EFFECT) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of EqEbbInquiredType::SOUND_EFFECT");
     if (!is_valid(data.soundEffectValue)) throw std::runtime_error("data.soundEffectValue: Bad enum value");
     return true;
 };
 bool EqEbbParamCustomEq::Validate(const EqEbbParamCustomEq& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::EQEBB_RET_PARAM && data.base.command != Command::EQEBB_SET_PARAM && data.base.command != Command::EQEBB_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM");
+    if (data.base.type != EqEbbInquiredType::CUSTOM_EQ) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of EqEbbInquiredType::CUSTOM_EQ");
     for (const auto& bandSteps_elem : data.bandSteps) {
     }
     return true;
 };
 bool NcAsmGetParam::Validate(const NcAsmGetParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::NCASM_GET_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::NCASM_GET_PARAM");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
@@ -213,6 +249,8 @@ bool NcAsmParamModeNcDualModeSwitchAsmSeamless::Validate(const NcAsmParamModeNcD
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.valueChangeStatus)) throw std::runtime_error("data.base.valueChangeStatus: Bad enum value");
     if (!is_valid(data.base.ncAsmTotalEffect)) throw std::runtime_error("data.base.ncAsmTotalEffect: Bad enum value");
+    if (data.base.command != Command::NCASM_RET_PARAM && data.base.command != Command::NCASM_SET_PARAM && data.base.command != Command::NCASM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM");
+    if (data.base.type != NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS");
     if (!is_valid(data.ncAsmMode)) throw std::runtime_error("data.ncAsmMode: Bad enum value");
     if (!is_valid(data.ambientSoundMode)) throw std::runtime_error("data.ambientSoundMode: Bad enum value");
     return true;
@@ -222,6 +260,8 @@ bool NcAsmParamModeNcDualModeSwitchAsmSeamlessNa::Validate(const NcAsmParamModeN
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.valueChangeStatus)) throw std::runtime_error("data.base.valueChangeStatus: Bad enum value");
     if (!is_valid(data.base.ncAsmTotalEffect)) throw std::runtime_error("data.base.ncAsmTotalEffect: Bad enum value");
+    if (data.base.command != Command::NCASM_RET_PARAM && data.base.command != Command::NCASM_SET_PARAM && data.base.command != Command::NCASM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM");
+    if (data.base.type != NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA");
     if (!is_valid(data.ncAsmMode)) throw std::runtime_error("data.ncAsmMode: Bad enum value");
     if (!is_valid(data.ambientSoundMode)) throw std::runtime_error("data.ambientSoundMode: Bad enum value");
     if (!is_valid(data.noiseAdaptiveOnOffValue)) throw std::runtime_error("data.noiseAdaptiveOnOffValue: Bad enum value");
@@ -233,6 +273,8 @@ bool NcAsmParamAsmOnOff::Validate(const NcAsmParamAsmOnOff& data) {
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.valueChangeStatus)) throw std::runtime_error("data.base.valueChangeStatus: Bad enum value");
     if (!is_valid(data.base.ncAsmTotalEffect)) throw std::runtime_error("data.base.ncAsmTotalEffect: Bad enum value");
+    if (data.base.command != Command::NCASM_RET_PARAM && data.base.command != Command::NCASM_SET_PARAM && data.base.command != Command::NCASM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM");
+    if (data.base.type != NcAsmInquiredType::ASM_ON_OFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of NcAsmInquiredType::ASM_ON_OFF");
     if (!is_valid(data.ambientSoundMode)) throw std::runtime_error("data.ambientSoundMode: Bad enum value");
     if (!is_valid(data.ambientSoundValue)) throw std::runtime_error("data.ambientSoundValue: Bad enum value");
     return true;
@@ -242,6 +284,8 @@ bool NcAsmParamAsmSeamless::Validate(const NcAsmParamAsmSeamless& data) {
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.valueChangeStatus)) throw std::runtime_error("data.base.valueChangeStatus: Bad enum value");
     if (!is_valid(data.base.ncAsmTotalEffect)) throw std::runtime_error("data.base.ncAsmTotalEffect: Bad enum value");
+    if (data.base.command != Command::NCASM_RET_PARAM && data.base.command != Command::NCASM_SET_PARAM && data.base.command != Command::NCASM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM");
+    if (data.base.type != NcAsmInquiredType::ASM_SEAMLESS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of NcAsmInquiredType::ASM_SEAMLESS");
     if (!is_valid(data.ambientSoundMode)) throw std::runtime_error("data.ambientSoundMode: Bad enum value");
     return true;
 };
@@ -250,23 +294,30 @@ bool NcAsmParamNcAmbToggle::Validate(const NcAsmParamNcAmbToggle& data) {
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.valueChangeStatus)) throw std::runtime_error("data.base.valueChangeStatus: Bad enum value");
     if (!is_valid(data.base.ncAsmTotalEffect)) throw std::runtime_error("data.base.ncAsmTotalEffect: Bad enum value");
+    if (data.base.command != Command::NCASM_RET_PARAM && data.base.command != Command::NCASM_SET_PARAM && data.base.command != Command::NCASM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM");
+    if (data.base.type != NcAsmInquiredType::NC_AMB_TOGGLE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of NcAsmInquiredType::NC_AMB_TOGGLE");
     if (!is_valid(data.function)) throw std::runtime_error("data.function: Bad enum value");
     return true;
 };
 bool AlertGetStatus::Validate(const AlertGetStatus& data) {
-    if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::ALERT_GET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::ALERT_GET_STATUS");
+    if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool AlertStatusLEAudioAlertNotification::Validate(const AlertStatusLEAudioAlertNotification& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_RET_STATUS && data.base.command != Command::ALERT_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_RET_STATUS Command::ALERT_NTFY_STATUS");
+    if (data.base.type != AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION");
     if (!is_valid(data.leAudioAlertStatus)) throw std::runtime_error("data.leAudioAlertStatus: Bad enum value");
     return true;
 };
 bool AlertRetStatusVoiceAssistant::Validate(const AlertRetStatusVoiceAssistant& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_RET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_RET_STATUS");
+    if (data.base.type != AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION");
     for (const auto& voiceAssistants_elem : data.voiceAssistants) {
         if (!is_valid(voiceAssistants_elem)) throw std::runtime_error("voiceAssistants_elem: Bad enum value");
     }
@@ -275,18 +326,24 @@ bool AlertRetStatusVoiceAssistant::Validate(const AlertRetStatusVoiceAssistant& 
 bool AlertSetStatusFixedMessage::Validate(const AlertSetStatusFixedMessage& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_STATUS");
+    if (data.base.type != AlertInquiredType::FIXED_MESSAGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     return true;
 };
 bool AlertSetStatusAppBecomesForeground::Validate(const AlertSetStatusAppBecomesForeground& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_STATUS");
+    if (data.base.type != AlertInquiredType::APP_BECOMES_FOREGROUND) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::APP_BECOMES_FOREGROUND");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     return true;
 };
 bool AlertSetStatusLEAudioAlertNotification::Validate(const AlertSetStatusLEAudioAlertNotification& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_STATUS");
+    if (data.base.type != AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION");
     if (!is_valid(data.leAudioAlertStatus)) throw std::runtime_error("data.leAudioAlertStatus: Bad enum value");
     if (!is_valid(data.confirmationType)) throw std::runtime_error("data.confirmationType: Bad enum value");
     return true;
@@ -294,6 +351,8 @@ bool AlertSetStatusLEAudioAlertNotification::Validate(const AlertSetStatusLEAudi
 bool AlertSetParamFixedMessage::Validate(const AlertSetParamFixedMessage& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_PARAM");
+    if (data.base.type != AlertInquiredType::FIXED_MESSAGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.actionType)) throw std::runtime_error("data.actionType: Bad enum value");
     return true;
@@ -301,12 +360,16 @@ bool AlertSetParamFixedMessage::Validate(const AlertSetParamFixedMessage& data) 
 bool AlertSetParamVibrator::Validate(const AlertSetParamVibrator& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_PARAM");
+    if (data.base.type != AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION");
     if (!is_valid(data.vibrationType)) throw std::runtime_error("data.vibrationType: Bad enum value");
     return true;
 };
 bool AlertSetParamFixedMessageWithLeftRightSelection::Validate(const AlertSetParamFixedMessageWithLeftRightSelection& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_PARAM");
+    if (data.base.type != AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.actionType)) throw std::runtime_error("data.actionType: Bad enum value");
     return true;
@@ -314,6 +377,8 @@ bool AlertSetParamFixedMessageWithLeftRightSelection::Validate(const AlertSetPar
 bool AlertSetParamAppBecomesForeground::Validate(const AlertSetParamAppBecomesForeground& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_PARAM");
+    if (data.base.type != AlertInquiredType::APP_BECOMES_FOREGROUND) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::APP_BECOMES_FOREGROUND");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.actionType)) throw std::runtime_error("data.actionType: Bad enum value");
     return true;
@@ -321,6 +386,8 @@ bool AlertSetParamAppBecomesForeground::Validate(const AlertSetParamAppBecomesFo
 bool AlertSetParamFlexibleMessage::Validate(const AlertSetParamFlexibleMessage& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_SET_PARAM");
+    if (data.base.type != AlertInquiredType::FLEXIBLE_MESSAGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::FLEXIBLE_MESSAGE");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.actionType)) throw std::runtime_error("data.actionType: Bad enum value");
     return true;
@@ -328,6 +395,8 @@ bool AlertSetParamFlexibleMessage::Validate(const AlertSetParamFlexibleMessage& 
 bool AlertNotifyParamFixedMessage::Validate(const AlertNotifyParamFixedMessage& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_NTFY_PARAM");
+    if (data.base.type != AlertInquiredType::FIXED_MESSAGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.actionType)) throw std::runtime_error("data.actionType: Bad enum value");
     return true;
@@ -335,6 +404,8 @@ bool AlertNotifyParamFixedMessage::Validate(const AlertNotifyParamFixedMessage& 
 bool AlertNotifyParamFixedMessageWithLeftRightSelection::Validate(const AlertNotifyParamFixedMessageWithLeftRightSelection& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_NTFY_PARAM");
+    if (data.base.type != AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.defaultSelectedValue)) throw std::runtime_error("data.defaultSelectedValue: Bad enum value");
     return true;
@@ -342,18 +413,23 @@ bool AlertNotifyParamFixedMessageWithLeftRightSelection::Validate(const AlertNot
 bool AlertNotifyParamAppBecomesForeground::Validate(const AlertNotifyParamAppBecomesForeground& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::ALERT_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::ALERT_NTFY_PARAM");
+    if (data.base.type != AlertInquiredType::APP_BECOMES_FOREGROUND) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AlertInquiredType::APP_BECOMES_FOREGROUND");
     if (!is_valid(data.messageType)) throw std::runtime_error("data.messageType: Bad enum value");
     if (!is_valid(data.actionType)) throw std::runtime_error("data.actionType: Bad enum value");
     return true;
 };
 bool GetPlayStatus::Validate(const GetPlayStatus& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::PLAY_GET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::PLAY_GET_STATUS");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool PlayStatusPlaybackController::Validate(const PlayStatusPlaybackController& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_RET_STATUS && data.base.command != Command::PLAY_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS");
+    if (data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     if (!is_valid(data.playbackStatus)) throw std::runtime_error("data.playbackStatus: Bad enum value");
     if (!is_valid(data.musicCallStatus)) throw std::runtime_error("data.musicCallStatus: Bad enum value");
@@ -361,7 +437,9 @@ bool PlayStatusPlaybackController::Validate(const PlayStatusPlaybackController& 
 };
 bool PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange::Validate(const PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_RET_STATUS && data.base.command != Command::PLAY_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS");
+    if (data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     if (!is_valid(data.playbackStatus)) throw std::runtime_error("data.playbackStatus: Bad enum value");
     if (!is_valid(data.musicCallStatus)) throw std::runtime_error("data.musicCallStatus: Bad enum value");
@@ -370,7 +448,9 @@ bool PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange::Validat
 };
 bool PlayStatusPlaybackControlWithFunctionChange::Validate(const PlayStatusPlaybackControlWithFunctionChange& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_RET_STATUS && data.base.command != Command::PLAY_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS");
+    if (data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     if (!is_valid(data.playbackStatus)) throw std::runtime_error("data.playbackStatus: Bad enum value");
     if (!is_valid(data.playbackControlStatus)) throw std::runtime_error("data.playbackControlStatus: Bad enum value");
@@ -378,52 +458,66 @@ bool PlayStatusPlaybackControlWithFunctionChange::Validate(const PlayStatusPlayb
 };
 bool PlayStatusCommon::Validate(const PlayStatusCommon& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_RET_STATUS && data.base.command != Command::PLAY_NTFY_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     return true;
 };
-bool SetPlayStatusPlaybackController::Validate(const SetPlayStatusPlaybackController& data) {
+bool PlayStatusSetPlaybackController::Validate(const PlayStatusSetPlaybackController& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_SET_STATUS) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_SET_STATUS");
+    if (data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT && data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE && data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE");
     if (!is_valid(data.status)) throw std::runtime_error("data.status: Bad enum value");
     if (!is_valid(data.control)) throw std::runtime_error("data.control: Bad enum value");
     return true;
 };
-bool GetPlayParam::Validate(const GetPlayParam& data) {
+bool PlayGetParam::Validate(const PlayGetParam& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_GET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_GET_PARAM");
     return true;
 };
 bool PlayParamPlaybackControllerName::Validate(const PlayParamPlaybackControllerName& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_RET_PARAM && data.base.command != Command::PLAY_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM");
+    if (data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT && data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE && data.base.type != PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE");
     return true;
 };
 bool PlayParamPlaybackControllerVolume::Validate(const PlayParamPlaybackControllerVolume& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_SET_PARAM && data.base.command != Command::PLAY_RET_PARAM && data.base.command != Command::PLAY_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM");
+    if (data.base.type != PlayInquiredType::MUSIC_VOLUME && data.base.type != PlayInquiredType::CALL_VOLUME && data.base.type != PlayInquiredType::MUSIC_VOLUME_WITH_MUTE && data.base.type != PlayInquiredType::CALL_VOLUME_WITH_MUTE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::MUSIC_VOLUME PlayInquiredType::CALL_VOLUME PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE");
     return true;
 };
 bool PlayParamPlaybackControllerVolumeWithMute::Validate(const PlayParamPlaybackControllerVolumeWithMute& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_RET_PARAM && data.base.command != Command::PLAY_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM");
+    if (data.base.type != PlayInquiredType::MUSIC_VOLUME_WITH_MUTE && data.base.type != PlayInquiredType::CALL_VOLUME_WITH_MUTE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE");
     if (!is_valid(data.muteSetting)) throw std::runtime_error("data.muteSetting: Bad enum value");
     return true;
 };
 bool PlayParamPlayMode::Validate(const PlayParamPlayMode& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
-    if (!is_valid(data.base.playInquiredType)) throw std::runtime_error("data.base.playInquiredType: Bad enum value");
+    if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::PLAY_SET_PARAM && data.base.command != Command::PLAY_RET_PARAM && data.base.command != Command::PLAY_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM");
+    if (data.base.type != PlayInquiredType::PLAY_MODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of PlayInquiredType::PLAY_MODE");
     if (!is_valid(data.playMode)) throw std::runtime_error("data.playMode: Bad enum value");
     return true;
 };
 bool GsGetCapability::Validate(const GsGetCapability& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::GENERAL_SETTING_GET_CAPABILITY) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::GENERAL_SETTING_GET_CAPABILITY");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     if (!is_valid(data.displayLanguage)) throw std::runtime_error("data.displayLanguage: Bad enum value");
     return true;
 };
 bool GsRetCapability::Validate(const GsRetCapability& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::GENERAL_SETTING_RET_CAPABILITY) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::GENERAL_SETTING_RET_CAPABILITY");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     if (!is_valid(data.settingType)) throw std::runtime_error("data.settingType: Bad enum value");
     if (!is_valid(data.settingInfo.stringFormat)) throw std::runtime_error("data.settingInfo.stringFormat: Bad enum value");
@@ -431,6 +525,7 @@ bool GsRetCapability::Validate(const GsRetCapability& data) {
 };
 bool GsGetParam::Validate(const GsGetParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::GENERAL_SETTING_GET_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::GENERAL_SETTING_GET_PARAM");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
@@ -438,6 +533,8 @@ bool GsParamBoolean::Validate(const GsParamBoolean& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.settingType)) throw std::runtime_error("data.base.settingType: Bad enum value");
+    if (data.base.command != Command::GENERAL_SETTING_RET_PARAM && data.base.command != Command::GENERAL_SETTING_SET_PARAM && data.base.command != Command::GENERAL_SETTING_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM");
+    if (data.base.settingType != GsSettingType::BOOLEAN_TYPE) throw std::runtime_error("data.base.settingType: EnumRange check fail, must be one of GsSettingType::BOOLEAN_TYPE");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
@@ -445,56 +542,73 @@ bool GsParamList::Validate(const GsParamList& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
     if (!is_valid(data.base.settingType)) throw std::runtime_error("data.base.settingType: Bad enum value");
+    if (data.base.command != Command::GENERAL_SETTING_RET_PARAM && data.base.command != Command::GENERAL_SETTING_SET_PARAM && data.base.command != Command::GENERAL_SETTING_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM");
+    if (data.base.settingType != GsSettingType::LIST_TYPE) throw std::runtime_error("data.base.settingType: EnumRange check fail, must be one of GsSettingType::LIST_TYPE");
     return true;
 };
 bool AudioGetCapability::Validate(const AudioGetCapability& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::AUDIO_GET_CAPABILITY) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::AUDIO_GET_CAPABILITY");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool AudioRetCapabilityUpscaling::Validate(const AudioRetCapabilityUpscaling& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_CAPABILITY) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_CAPABILITY");
+    if (data.base.type != AudioInquiredType::UPSCALING) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::UPSCALING");
     if (!is_valid(data.upscalingType)) throw std::runtime_error("data.upscalingType: Bad enum value");
     return true;
 };
 bool AudioGetStatus::Validate(const AudioGetStatus& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::AUDIO_GET_STATUS) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::AUDIO_GET_STATUS");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool AudioGetParam::Validate(const AudioGetParam& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_GET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_GET_PARAM");
     return true;
 };
 bool AudioParamConnection::Validate(const AudioParamConnection& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::CONNECTION_MODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool AudioParamUpscaling::Validate(const AudioParamUpscaling& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::UPSCALING) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::UPSCALING");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool AudioParamConnectionWithLdacStatus::Validate(const AudioParamConnectionWithLdacStatus& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool AudioRetParamConnectionModeClassicAudioLeAudio::Validate(const AudioRetParamConnectionModeClassicAudioLeAudio& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM");
+    if (data.base.type != AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool AudioParamBGMMode::Validate(const AudioParamBGMMode& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::BGM_MODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::BGM_MODE");
     if (!is_valid(data.onOffSettingValue)) throw std::runtime_error("data.onOffSettingValue: Bad enum value");
     if (!is_valid(data.targetRoomSize)) throw std::runtime_error("data.targetRoomSize: Bad enum value");
     return true;
@@ -502,24 +616,32 @@ bool AudioParamBGMMode::Validate(const AudioParamBGMMode& data) {
 bool AudioParamUpmixCinema::Validate(const AudioParamUpmixCinema& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::UPMIX_CINEMA) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::UPMIX_CINEMA");
     if (!is_valid(data.onOffSettingValue)) throw std::runtime_error("data.onOffSettingValue: Bad enum value");
     return true;
 };
 bool AudioParamVoiceContents::Validate(const AudioParamVoiceContents& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::VOICE_CONTENTS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::VOICE_CONTENTS");
     if (!is_valid(data.onOffSettingValue)) throw std::runtime_error("data.onOffSettingValue: Bad enum value");
     return true;
 };
 bool AudioParamSoundLeakageReduction::Validate(const AudioParamSoundLeakageReduction& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::SOUND_LEAKAGE_REDUCTION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::SOUND_LEAKAGE_REDUCTION");
     if (!is_valid(data.onOffSettingValue)) throw std::runtime_error("data.onOffSettingValue: Bad enum value");
     return true;
 };
 bool AudioParamListeningOptionAssignCustomizableItem::Validate(const AudioParamListeningOptionAssignCustomizableItem& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE");
     for (const auto& items_elem : data.items) {
         if (!is_valid(items_elem)) throw std::runtime_error("items_elem: Bad enum value");
     }
@@ -528,12 +650,16 @@ bool AudioParamListeningOptionAssignCustomizableItem::Validate(const AudioParamL
 bool AudioParamUpmixSeries::Validate(const AudioParamUpmixSeries& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_RET_PARAM && data.base.command != Command::AUDIO_SET_PARAM && data.base.command != Command::AUDIO_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM");
+    if (data.base.type != AudioInquiredType::UPMIX_SERIES) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::UPMIX_SERIES");
     if (!is_valid(data.upmixItemId)) throw std::runtime_error("data.upmixItemId: Bad enum value");
     return true;
 };
 bool AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const AudioSetParamConnectionModeClassicAudioLeAudio& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::AUDIO_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::AUDIO_SET_PARAM");
+    if (data.base.type != AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     if (!is_valid(data.alertConfirmation)) throw std::runtime_error("data.alertConfirmation: Bad enum value");
     return true;
@@ -547,18 +673,23 @@ bool AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const AudioNtfyPa
 };
 bool SystemGetParam::Validate(const SystemGetParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SYSTEM_GET_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SYSTEM_GET_PARAM");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SystemParamCommon::Validate(const SystemParamCommon& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::VIBRATOR && data.base.type != SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING && data.base.type != SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD && data.base.type != SystemInquiredType::AUTO_VOLUME && data.base.type != SystemInquiredType::HEAD_GESTURE_ON_OFF) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::VIBRATOR SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD SystemInquiredType::AUTO_VOLUME SystemInquiredType::HEAD_GESTURE_ON_OFF");
     if (!is_valid(data.settingValue)) throw std::runtime_error("data.settingValue: Bad enum value");
     return true;
 };
 bool SystemParamAssignableSettings::Validate(const SystemParamAssignableSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::ASSIGNABLE_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS");
     for (const auto& presets_elem : data.presets) {
         if (!is_valid(presets_elem)) throw std::runtime_error("presets_elem: Bad enum value");
     }
@@ -567,12 +698,16 @@ bool SystemParamAssignableSettings::Validate(const SystemParamAssignableSettings
 bool SystemParamVoiceAssistantSettings::Validate(const SystemParamVoiceAssistantSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::VOICE_ASSISTANT_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::VOICE_ASSISTANT_SETTINGS");
     if (!is_valid(data.voiceAssistant)) throw std::runtime_error("data.voiceAssistant: Bad enum value");
     return true;
 };
 bool SystemParamWearingStatusDetector::Validate(const SystemParamWearingStatusDetector& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::WEARING_STATUS_DETECTOR) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::WEARING_STATUS_DETECTOR");
     if (!is_valid(data.operationStatus)) throw std::runtime_error("data.operationStatus: Bad enum value");
     if (!is_valid(data.errorCode)) throw std::runtime_error("data.errorCode: Bad enum value");
     if (!is_valid(data.currentDetectingSeries)) throw std::runtime_error("data.currentDetectingSeries: Bad enum value");
@@ -582,18 +717,24 @@ bool SystemParamWearingStatusDetector::Validate(const SystemParamWearingStatusDe
 bool SystemParamEarpieceSelection::Validate(const SystemParamEarpieceSelection& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::EARPIECE_SELECTION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::EARPIECE_SELECTION");
     if (!is_valid(data.series)) throw std::runtime_error("data.series: Bad enum value");
     return true;
 };
 bool SystemParamCallSettings::Validate(const SystemParamCallSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::CALL_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::CALL_SETTINGS");
     if (!is_valid(data.selfVoiceOnOff)) throw std::runtime_error("data.selfVoiceOnOff: Bad enum value");
     return true;
 };
 bool SystemParamAssignableSettingsWithLimit::Validate(const SystemParamAssignableSettingsWithLimit& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION");
     for (const auto& presets_elem : data.presets) {
         if (!is_valid(presets_elem)) throw std::runtime_error("presets_elem: Bad enum value");
     }
@@ -602,12 +743,16 @@ bool SystemParamAssignableSettingsWithLimit::Validate(const SystemParamAssignabl
 bool SystemParamHeadGestureTraining::Validate(const SystemParamHeadGestureTraining& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_PARAM && data.base.command != Command::SYSTEM_SET_PARAM && data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::HEAD_GESTURE_TRAINING) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::HEAD_GESTURE_TRAINING");
     if (!is_valid(data.headGestureAction)) throw std::runtime_error("data.headGestureAction: Bad enum value");
     return true;
 };
 bool SystemSetParamWearingStatusDetector::Validate(const SystemSetParamWearingStatusDetector& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_SET_PARAM");
+    if (data.base.type != SystemInquiredType::WEARING_STATUS_DETECTOR) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::WEARING_STATUS_DETECTOR");
     if (!is_valid(data.operation)) throw std::runtime_error("data.operation: Bad enum value");
     if (!is_valid(data.currentDetectionSeries)) throw std::runtime_error("data.currentDetectionSeries: Bad enum value");
     if (!is_valid(data.currentDetectionSize)) throw std::runtime_error("data.currentDetectionSize: Bad enum value");
@@ -616,30 +761,39 @@ bool SystemSetParamWearingStatusDetector::Validate(const SystemSetParamWearingSt
 bool SystemSetParamResetSettings::Validate(const SystemSetParamResetSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_SET_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_SET_PARAM");
+    if (data.base.type != SystemInquiredType::RESET_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::RESET_SETTINGS");
     if (!is_valid(data.resetType)) throw std::runtime_error("data.resetType: Bad enum value");
     return true;
 };
 bool SystemNotifyParamResetSettings::Validate(const SystemNotifyParamResetSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::RESET_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::RESET_SETTINGS");
     if (!is_valid(data.resetResult)) throw std::runtime_error("data.resetResult: Bad enum value");
     return true;
 };
 bool SystemNotifyParamFaceTapTestMode::Validate(const SystemNotifyParamFaceTapTestMode& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_NTFY_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_NTFY_PARAM");
+    if (data.base.type != SystemInquiredType::FACE_TAP_TEST_MODE) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::FACE_TAP_TEST_MODE");
     if (!is_valid(data.key)) throw std::runtime_error("data.key: Bad enum value");
     if (!is_valid(data.action)) throw std::runtime_error("data.action: Bad enum value");
     return true;
 };
 bool SystemGetExtParam::Validate(const SystemGetExtParam& data) {
     if (!is_valid(data.command)) throw std::runtime_error("data.command: Bad enum value");
+    if (data.command != Command::SYSTEM_GET_EXT_PARAM) throw std::runtime_error("data.command: EnumRange check fail, must be one of Command::SYSTEM_GET_EXT_PARAM");
     if (!is_valid(data.type)) throw std::runtime_error("data.type: Bad enum value");
     return true;
 };
 bool SystemExtParamSmartTalkingMode1::Validate(const SystemExtParamSmartTalkingMode1& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_EXT_PARAM && data.base.command != Command::SYSTEM_SET_EXT_PARAM && data.base.command != Command::SYSTEM_NTFY_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::SMART_TALKING_MODE_TYPE1) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::SMART_TALKING_MODE_TYPE1");
     if (!is_valid(data.detectSensitivity)) throw std::runtime_error("data.detectSensitivity: Bad enum value");
     if (!is_valid(data.voiceFocus)) throw std::runtime_error("data.voiceFocus: Bad enum value");
     if (!is_valid(data.modeOffTime)) throw std::runtime_error("data.modeOffTime: Bad enum value");
@@ -648,6 +802,8 @@ bool SystemExtParamSmartTalkingMode1::Validate(const SystemExtParamSmartTalkingM
 bool SystemExtParamAssignableSettings::Validate(const SystemExtParamAssignableSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_EXT_PARAM && data.base.command != Command::SYSTEM_SET_EXT_PARAM && data.base.command != Command::SYSTEM_NTFY_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::ASSIGNABLE_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS");
     for (const auto& presets_elem : data.presets) {
         if (!is_valid(presets_elem.preset)) throw std::runtime_error("presets_elem.preset: Bad enum value");
         for (const auto& actions_elem : presets_elem.actions) {
@@ -660,6 +816,8 @@ bool SystemExtParamAssignableSettings::Validate(const SystemExtParamAssignableSe
 bool SystemExtParamWearingStatusDetector::Validate(const SystemExtParamWearingStatusDetector& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_EXT_PARAM && data.base.command != Command::SYSTEM_SET_EXT_PARAM && data.base.command != Command::SYSTEM_NTFY_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::WEARING_STATUS_DETECTOR) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::WEARING_STATUS_DETECTOR");
     if (!is_valid(data.fittingResultLeft)) throw std::runtime_error("data.fittingResultLeft: Bad enum value");
     if (!is_valid(data.fittingResultRight)) throw std::runtime_error("data.fittingResultRight: Bad enum value");
     if (!is_valid(data.bestEarpieceSeriesLeft)) throw std::runtime_error("data.bestEarpieceSeriesLeft: Bad enum value");
@@ -671,6 +829,8 @@ bool SystemExtParamWearingStatusDetector::Validate(const SystemExtParamWearingSt
 bool SystemExtParamSmartTalkingMode2::Validate(const SystemExtParamSmartTalkingMode2& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_EXT_PARAM && data.base.command != Command::SYSTEM_SET_EXT_PARAM && data.base.command != Command::SYSTEM_NTFY_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::SMART_TALKING_MODE_TYPE2) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::SMART_TALKING_MODE_TYPE2");
     if (!is_valid(data.detectSensitivity)) throw std::runtime_error("data.detectSensitivity: Bad enum value");
     if (!is_valid(data.modeOffTime)) throw std::runtime_error("data.modeOffTime: Bad enum value");
     return true;
@@ -678,6 +838,8 @@ bool SystemExtParamSmartTalkingMode2::Validate(const SystemExtParamSmartTalkingM
 bool SystemExtParamAssignableSettingsWithLimit::Validate(const SystemExtParamAssignableSettingsWithLimit& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_RET_EXT_PARAM && data.base.command != Command::SYSTEM_SET_EXT_PARAM && data.base.command != Command::SYSTEM_NTFY_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION");
     for (const auto& presets_elem : data.presets) {
         if (!is_valid(presets_elem.preset)) throw std::runtime_error("presets_elem.preset: Bad enum value");
         for (const auto& actions_elem : presets_elem.actions) {
@@ -690,12 +852,16 @@ bool SystemExtParamAssignableSettingsWithLimit::Validate(const SystemExtParamAss
 bool SystemSetExtParamCallSettings::Validate(const SystemSetExtParamCallSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_SET_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_SET_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::CALL_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::CALL_SETTINGS");
     if (!is_valid(data.testSoundControl)) throw std::runtime_error("data.testSoundControl: Bad enum value");
     return true;
 };
 bool SystemNotifyExtParamCallSettings::Validate(const SystemNotifyExtParamCallSettings& data) {
     if (!is_valid(data.base.command)) throw std::runtime_error("data.base.command: Bad enum value");
     if (!is_valid(data.base.type)) throw std::runtime_error("data.base.type: Bad enum value");
+    if (data.base.command != Command::SYSTEM_NTFY_EXT_PARAM) throw std::runtime_error("data.base.command: EnumRange check fail, must be one of Command::SYSTEM_NTFY_EXT_PARAM");
+    if (data.base.type != SystemInquiredType::CALL_SETTINGS) throw std::runtime_error("data.base.type: EnumRange check fail, must be one of SystemInquiredType::CALL_SETTINGS");
     if (!is_valid(data.testSoundControlAck)) throw std::runtime_error("data.testSoundControlAck: Bad enum value");
     return true;
 };

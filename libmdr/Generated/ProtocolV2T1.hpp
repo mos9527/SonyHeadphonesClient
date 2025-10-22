@@ -124,7 +124,7 @@ namespace mdr::v2::t1 {
             case GENERAL_SETTING_GET_PARAM: return "GENERAL_SETTING_GET_PARAM";
             case GENERAL_SETTING_RET_PARAM: return "GENERAL_SETTING_RET_PARAM";
             case GENERAL_SETTING_SET_PARAM: return "GENERAL_SETTING_SET_PARAM";
-            case GENERAL_SETTING_NTNY_PARAM: return "GENERAL_SETTING_NTNY_PARAM";
+            case GENERAL_SETTING_NTFY_PARAM: return "GENERAL_SETTING_NTFY_PARAM";
             case AUDIO_GET_CAPABILITY: return "AUDIO_GET_CAPABILITY";
             case AUDIO_RET_CAPABILITY: return "AUDIO_RET_CAPABILITY";
             case AUDIO_GET_STATUS: return "AUDIO_GET_STATUS";
@@ -1268,7 +1268,7 @@ namespace mdr::v2::t1 {
             case GENERAL_SETTING_GET_PARAM:
             case GENERAL_SETTING_RET_PARAM:
             case GENERAL_SETTING_SET_PARAM:
-            case GENERAL_SETTING_NTNY_PARAM:
+            case GENERAL_SETTING_NTFY_PARAM:
             case AUDIO_GET_CAPABILITY:
             case AUDIO_RET_CAPABILITY:
             case AUDIO_GET_STATUS:

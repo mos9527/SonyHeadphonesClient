@@ -5,7 +5,7 @@
 namespace mdr::v2::t1
 {
     // Extracted from Sound Connect iOS 11.0.1
-    #pragma region Enums
+#pragma region Enums
     enum class Command : UInt8
     {
         CONNECT_GET_PROTOCOL_INFO = 0x00,
@@ -127,7 +127,7 @@ namespace mdr::v2::t1
         GENERAL_SETTING_GET_PARAM = 0xD6,
         GENERAL_SETTING_RET_PARAM = 0xD7,
         GENERAL_SETTING_SET_PARAM = 0xD8,
-        GENERAL_SETTING_NTNY_PARAM = 0xD9,
+        GENERAL_SETTING_NTFY_PARAM = 0xD9,
         AUDIO_GET_CAPABILITY = 0xE0,
         AUDIO_RET_CAPABILITY = 0xE1,
         AUDIO_GET_STATUS = 0xE2,
@@ -1115,15 +1115,14 @@ namespace mdr::v2::t1
     {
         ACK = 0x00,
     };
-    #pragma endregion Enums
+#pragma endregion Enums
 
-    #pragma region Connect
+#pragma region Connect
     struct ConnectGetProtocolInfo
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_PROTOCOL_INFO;
         // CODEGEN EnumRange Command::CONNECT_GET_PROTOCOL_INFO
         Command command{Command::CONNECT_GET_PROTOCOL_INFO};
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetProtocolInfo);
@@ -1135,7 +1134,6 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_PROTOCOL_INFO
         Command command{Command::CONNECT_RET_PROTOCOL_INFO};
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE};
         Int32BE protocolVersion; // 0x2-0x5
         MessageMdrV2EnableDisable supportTable1Value; // 0x6
@@ -1149,6 +1147,7 @@ namespace mdr::v2::t1
     struct ConnectGetCapabilityInfo
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_CAPABILITY_INFO;
+        // CODEGEN EnumRange Command::CONNECT_GET_CAPABILITY_INFO
         Command command{Command::CONNECT_GET_CAPABILITY_INFO}; // 0x0
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
 
@@ -1158,6 +1157,7 @@ namespace mdr::v2::t1
     struct ConnectGetDeviceInfo
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_DEVICE_INFO;
+        // CODEGEN EnumRange Command::CONNECT_GET_DEVICE_INFO
         Command command{Command::CONNECT_GET_DEVICE_INFO}; // 0x0
         DeviceInfoType deviceInfoType; // 0x1
 
@@ -1184,6 +1184,7 @@ namespace mdr::v2::t1
 
     struct ConnectRetDeviceInfo
     {
+        // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
         DeviceInfoType type; // 0x1
         Variant<
@@ -1201,6 +1202,7 @@ namespace mdr::v2::t1
     struct ConnectGetSupportFunction
     {
         static constexpr Command kResponseCommand = Command::CONNECT_RET_SUPPORT_FUNCTION;
+        // CODEGEN EnumRange Command::CONNECT_GET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
 
@@ -1211,6 +1213,7 @@ namespace mdr::v2::t1
 
     struct ConnectRetSupportFunction
     {
+        // CODEGEN EnumRange Command::CONNECT_RET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_RET_SUPPORT_FUNCTION}; // 0x0
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
         MDRPodArray<MessageMdrV2SupportFunction> supportFunctions; // 0x2-
@@ -1219,25 +1222,26 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
-    #pragma endregion Connect
-    #pragma region Power
-    // Not implemented
-    struct CommonGetStatus
+#pragma endregion Connect
+#pragma region Common
+    struct CommonBase
     {
         static constexpr Command kResponseCommand = Command::COMMON_RET_STATUS;
+        // CODEGEN EnumRange Command::COMMON_GET_STATUS
         Command command{Command::COMMON_GET_STATUS}; // 0x0
         CommonInquiredType type; // 0x1
 
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonGetStatus);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonBase);
     };
 
-    static_assert(MDRIsSerializable<CommonGetStatus>);
+    static_assert(MDRIsSerializable<CommonBase>);
 
     // - AUDIO_CODEC
     struct CommonStatusAudioCodec
     {
-        Command command{Command::COMMON_GET_STATUS}; // 0x0
-        CommonInquiredType type{CommonInquiredType::AUDIO_CODEC}; // 0x1
+        // CODEGEN Field command EnumRange Command::COMMON_GET_STATUS
+        // CODEGEN Field type EnumRange CommonInquiredType::AUDIO_CODEC
+        CommonBase base{Command::COMMON_GET_STATUS, CommonInquiredType::AUDIO_CODEC};
         AudioCodec audioCodec; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonStatusAudioCodec);
@@ -1245,18 +1249,17 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<CommonStatusAudioCodec>);
 
+#pragma endregion
+#pragma region Power
     // Not implemented
-    struct PowerGetStatus
+
+    // Not implemented
+    struct PowerBase
     {
         static constexpr Command kResponseCommand = Command::POWER_RET_STATUS;
-
         Command command{Command::POWER_GET_STATUS}; // 0x0
-        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
-
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerGetStatus);
+        PowerInquiredType type; // 0x1
     };
-
-    static_assert(MDRIsSerializable<PowerGetStatus>);
 
     struct PowerBatteryStatus
     {
@@ -1285,6 +1288,7 @@ namespace mdr::v2::t1
 
         Command command{Command::POWER_RET_STATUS}; // 0x0
         PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field batteryLevel Range 0 100
         PowerBatteryStatus batteryStatus{}; // 0x2-0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusBattery);
@@ -1295,10 +1299,11 @@ namespace mdr::v2::t1
     // - LEFT_RIGHT_BATTERY
     struct PowerRetStatusLeftRightBattery
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::LEFT_RIGHT_BATTERY;
-
-        Command command{Command::POWER_RET_STATUS}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_RET_STATUS
+        // CODEGEN Field type EnumRange PowerInquiredType::LEFT_RIGHT_BATTERY
+        PowerBase base{Command::POWER_RET_STATUS, PowerInquiredType::LEFT_RIGHT_BATTERY};
+        // CODEGEN Field leftBatteryLevel Range 0 100
+        // CODEGEN Field rightBatteryLevel Range 0 100
         PowerLeftRightBatteryStatus batteryStatus{}; // 0x2-0x5
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusLeftRightBattery);
@@ -1309,10 +1314,9 @@ namespace mdr::v2::t1
     // - CRADLE_BATTERY
     struct PowerRetStatusCradleBattery
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::CRADLE_BATTERY;
-
-        Command command{Command::POWER_RET_STATUS}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_RET_STATUS
+        // CODEGEN Field type EnumRange PowerInquiredType::CRADLE_BATTERY
+        PowerBase base{Command::POWER_RET_STATUS, PowerInquiredType::CRADLE_BATTERY};
         PowerBatteryStatus batteryStatus{}; // 0x2-0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusCradleBattery);
@@ -1323,10 +1327,11 @@ namespace mdr::v2::t1
     // - BATTERY_WITH_THRESHOLD
     struct PowerRetStatusBatteryThreshold
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::BATTERY_WITH_THRESHOLD;
-
-        Command command{Command::POWER_RET_STATUS}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_RET_STATUS
+        // CODEGEN Field type EnumRange PowerInquiredType::BATTERY_WITH_THRESHOLD
+        PowerBase base{Command::POWER_RET_STATUS, PowerInquiredType::BATTERY_WITH_THRESHOLD};
+        // CODEGEN Field batteryStatus.batteryLevel Range 0 100
+        // CODEGEN Field batteryThreshold Range 0 100
         PowerBatteryThresholdStatus batteryStatus{}; // 0x2-0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusBatteryThreshold);
@@ -1337,12 +1342,15 @@ namespace mdr::v2::t1
     // - LR_BATTERY_WITH_THRESHOLD
     struct PowerRetStatusLeftRightBatteryThreshold
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::LR_BATTERY_WITH_THRESHOLD;
-
-        Command command{Command::POWER_RET_STATUS}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_RET_STATUS
+        // CODEGEN Field type EnumRange PowerInquiredType::LR_BATTERY_WITH_THRESHOLD
+        PowerBase base{Command::POWER_RET_STATUS, PowerInquiredType::LR_BATTERY_WITH_THRESHOLD};
+        // CODEGEN Field leftBatteryLevel Range 0 100
+        // CODEGEN Field rightBatteryLevel Range 0 100
         PowerLeftRightBatteryStatus batteryStatus{}; // 0x2-0x5
+        // CODEGEN Range 0 100
         UInt8 leftBatteryThreshold{0}; // 0x6, 0-100
+        // CODEGEN Range 0 100
         UInt8 rightBatteryThreshold{0}; // 0x7, 0-100
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusLeftRightBatteryThreshold);
@@ -1353,10 +1361,10 @@ namespace mdr::v2::t1
     // - CRADLE_BATTERY_WITH_THRESHOLD
     struct PowerRetStatusCradleBatteryThreshold
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD;
-
-        Command command{Command::POWER_RET_STATUS}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_RET_STATUS
+        // CODEGEN Field type EnumRange PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD
+        PowerBase base{Command::POWER_RET_STATUS, PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD};
+        // CODEGEN Field batteryStatus.batteryLevel Range 0 100
         PowerBatteryThresholdStatus batteryStatus{}; // 0x2-0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerRetStatusCradleBatteryThreshold);
@@ -1364,24 +1372,12 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<PowerRetStatusCradleBatteryThreshold>);
 
-    struct PowerSetStatus
-    {
-        static constexpr Command kResponseCommand = Command::POWER_NTFY_STATUS;
-        Command command{Command::POWER_SET_STATUS}; // 0x0
-        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
-
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerSetStatus);
-    };
-
-    static_assert(MDRIsSerializable<PowerSetStatus>);
-
     // - POWER_OFF
     struct PowerSetStatusPowerOff
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::POWER_OFF;
-
-        Command command{Command::POWER_SET_STATUS}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_SET_STATUS
+        // CODEGEN Field type EnumRange PowerInquiredType::POWER_OFF
+        PowerBase base{Command::POWER_SET_STATUS, PowerInquiredType::POWER_OFF};
         PowerOffSettingValue powerOffSettingValue{PowerOffSettingValue::USER_POWER_OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerSetStatusPowerOff);
@@ -1391,10 +1387,9 @@ namespace mdr::v2::t1
 
     struct PowerGetParam
     {
-        static constexpr Command kResponseCommand = Command::POWER_RET_PARAM;
-
-        Command command{Command::POWER_GET_PARAM}; // 0x0
-        PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM
+        // CODEGEN Field type EnumRange PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
+        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::AUTO_POWER_OFF};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerGetParam);
     };
@@ -1404,10 +1399,9 @@ namespace mdr::v2::t1
     // - AUTO_POWER_OFF
     struct PowerParamAutoPowerOff
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::AUTO_POWER_OFF;
-
-        Command command{Command::POWER_RET_PARAM}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
+        // CODEGEN Field type EnumRange PowerInquiredType::AUTO_POWER_OFF
+        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::AUTO_POWER_OFF};
         AutoPowerOffElements currentPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x2
         AutoPowerOffElements lastSelectPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x3
 
@@ -1419,10 +1413,9 @@ namespace mdr::v2::t1
     // - AUTO_POWER_OFF_WEARING_DETECTION
     struct PowerParamAutoPowerOffWithWearingDetection
     {
-        static constexpr PowerInquiredType kPowerInquiredType = PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION;
-
-        Command command{Command::POWER_RET_PARAM}; // 0x0
-        PowerInquiredType type{kPowerInquiredType}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
+        // CODEGEN Field type EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION};
         AutoPowerOffWearingDetectionElements currentPowerOffElements{
             AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
         AutoPowerOffWearingDetectionElements lastSelectPowerOffElements{
@@ -1436,10 +1429,9 @@ namespace mdr::v2::t1
     // - POWER_SAVE_MODE, CARING_CHARGE, BT_STANDBY, STAMINA, AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
     struct PowerParamSettingOnOff
     {
-        static constexpr Command kNotificationCommand = Command::POWER_NTFY_PARAM;
-
-        Command command{Command::POWER_RET_PARAM}; // 0x0
-        PowerInquiredType type{PowerInquiredType::POWER_SAVE_MODE}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
+        // CODEGEN Field type EnumRange PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
+        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::POWER_SAVE_MODE};
         MessageMdrV2OnOffSettingValue onOffSetting{MessageMdrV2OnOffSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerParamSettingOnOff);
@@ -1450,10 +1442,9 @@ namespace mdr::v2::t1
     // - BATTERY_SAFE_MODE
     struct PowerParamBatterySafeMode
     {
-        static constexpr Command kNotificationCommand = Command::POWER_NTFY_PARAM;
-
-        Command command{Command::POWER_RET_PARAM}; // 0x0
-        PowerInquiredType type{PowerInquiredType::BATTERY_SAFE_MODE}; // 0x1
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
+        // CODEGEN Field type EnumRange PowerInquiredType::BATTERY_SAFE_MODE
+        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::BATTERY_SAFE_MODE};
         MessageMdrV2OnOffSettingValue onOffSettingValue{MessageMdrV2OnOffSettingValue::OFF}; // 0x2
         MessageMdrV2OnOffSettingValue effectStatus{MessageMdrV2OnOffSettingValue::OFF}; // 0x3
 
@@ -1461,19 +1452,8 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<PowerParamBatterySafeMode>);
-    #pragma endregion Power
-    #pragma region EQ
-    struct EqEbbGetStatus
-    {
-        static constexpr Command kResponseCommand = Command::EQEBB_RET_STATUS;
-        Command command{Command::EQEBB_GET_STATUS}; // 0x0
-        EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
-
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetStatus);
-    };
-
-    static_assert(MDRIsSerializable<EqEbbGetStatus>);
-
+#pragma endregion Power
+#pragma region EQ
     // 0x0, 0x1
     struct EqEbbBase
     {
@@ -1481,24 +1461,22 @@ namespace mdr::v2::t1
         EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
     };
 
-    struct EqEbbStatusOnOff
+    struct EqEbbGetStatus
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_STATUS;
+        static constexpr Command kResponseCommand = Command::EQEBB_RET_STATUS;
+        // CODEGEN Field command EnumRange Command::EQEBB_GET_STATUS
+        EqEbbBase base{Command::EQEBB_GET_STATUS, EqEbbInquiredType::PRESET_EQ};
 
-        // CODEGEN Field command EnumRange Command::EQEBB_NTFY_STATUS
-        EqEbbBase base;
-        MessageMdrV2OnOffSettingValue value{MessageMdrV2OnOffSettingValue::OFF}; // 0x2
-
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbStatusOnOff);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetStatus);
     };
 
-    static_assert(MDRIsSerializable<EqEbbStatusOnOff>);
+    static_assert(MDRIsSerializable<EqEbbGetStatus>);
 
     struct EqEbbStatusErrorCode
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_STATUS;
-        static constexpr EqEbbInquiredType kInquiredType = EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE;
-        EqEbbBase base;
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_STATUS Command::EQEBB_NTFY_STATUS
+        // CODEGEN Field type EnumRange EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE
+        EqEbbBase base{Command::EQEBB_RET_STATUS, EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE};
         MessageMdrV2EnableDisable value{MessageMdrV2EnableDisable::DISABLE}; // 0x2
         MDRPodArray<PresetEqErrorCodeType> errors; // 0x3, 0x4-
 
@@ -1506,14 +1484,10 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<EqEbbStatusErrorCode>);
-    /*struct EqEbbStatusSoundEffect : EqEbbStatus
-    {
-        // Not implemented, variable size
-    };*/
+
     struct EqEbbGetParam
     {
-        static constexpr Command kResponseCommand = Command::EQEBB_RET_PARAM;
-
+        // CODEGEN Field command EnumRange Command::EQEBB_GET_PARAM
         EqEbbBase base{Command::EQEBB_GET_PARAM, EqEbbInquiredType::PRESET_EQ};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetParam);
@@ -1521,12 +1495,13 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<EqEbbGetParam>);
 
+
     // - PRESET_EQ, PRESET_EQ_NONCUSTOMIZABLE, PRESET_EQ_AND_ERRORCODE
     struct EqEbbParamEq
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_PARAM;
-
-        EqEbbBase base;
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM
+        // CODEGEN Field type EnumRange EqEbbInquiredType::PRESET_EQ EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE
+        EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::PRESET_EQ};
         EqPresetId presetId{EqPresetId::OFF}; // 0x2
         MDRPodArray<UInt8> bands; // 0x3, 0x4-
 
@@ -1538,8 +1513,8 @@ namespace mdr::v2::t1
     // - EBB
     struct EqEbbParamEbb
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_PARAM;
-
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM
+        // CODEGEN Field type EnumRange EqEbbInquiredType::EBB
         EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::EBB};
         UInt8 level{0}; // 0x2
 
@@ -1551,8 +1526,8 @@ namespace mdr::v2::t1
     // - PRESET_EQ_AND_ULT_MODE
     struct EqEbbParamEqAndUltMode
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_PARAM;
-
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM
+        // CODEGEN Field type EnumRange EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE
         EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE};
         EqPresetId presetId{EqPresetId::OFF}; // 0x2
         EqUltMode eqUltModeStatus{EqUltMode::OFF}; // 0x3
@@ -1566,8 +1541,8 @@ namespace mdr::v2::t1
     // - SOUND_EFFECT
     struct EqEbbParamSoundEffect
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_PARAM;
-
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM
+        // CODEGEN Field type EnumRange EqEbbInquiredType::SOUND_EFFECT
         EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::SOUND_EFFECT};
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
 
@@ -1579,8 +1554,8 @@ namespace mdr::v2::t1
     // - CUSTOM_EQ
     struct EqEbbParamCustomEq
     {
-        static constexpr Command kNotificationCommand = Command::EQEBB_NTFY_PARAM;
-
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM
+        // CODEGEN Field type EnumRange EqEbbInquiredType::CUSTOM_EQ
         EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::CUSTOM_EQ};
         MDRPodArray<UInt8> bandSteps; // 0x2, 0x3-
 
@@ -1588,17 +1563,11 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<EqEbbParamCustomEq>);
-    // - TURN_KEY_EQ
-    /*struct EqEbbParamTurnKeyEq : EqEbbParam
-    {
-        // Not implemented, variable size
-    };*/
-    #pragma endregion EQ
-    #pragma region NC/ASM
-    // Not implemented
+#pragma endregion EQ
+#pragma region NC/ASM
     struct NcAsmGetParam
     {
-        static constexpr Command kResponseCommand = Command::NCASM_RET_PARAM;
+        // CODEGEN EnumRange Command::NCASM_GET_PARAM
         Command command{Command::NCASM_GET_PARAM};
         NcAsmInquiredType type; // 0x1
 
@@ -1619,6 +1588,8 @@ namespace mdr::v2::t1
     // - MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
     struct NcAsmParamModeNcDualModeSwitchAsmSeamless
     {
+        // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
+        // CODEGEN Field type EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
         NcAsmParamBase base;
         NcAsmMode ncAsmMode; // 0x4
         AmbientSoundMode ambientSoundMode; // 0x5
@@ -1632,6 +1603,8 @@ namespace mdr::v2::t1
     // - MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
     struct NcAsmParamModeNcDualModeSwitchAsmSeamlessNa
     {
+        // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
+        // CODEGEN Field type EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
         NcAsmParamBase base;
         NcAsmMode ncAsmMode; // 0x4
         AmbientSoundMode ambientSoundMode; // 0x5
@@ -1647,6 +1620,8 @@ namespace mdr::v2::t1
     // - ASM_ON_OFF
     struct NcAsmParamAsmOnOff
     {
+        // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
+        // CODEGEN Field type EnumRange NcAsmInquiredType::ASM_ON_OFF
         NcAsmParamBase base;
         AmbientSoundMode ambientSoundMode; // 0x4
         NcAsmOnOffValue ambientSoundValue; // 0x5
@@ -1659,6 +1634,8 @@ namespace mdr::v2::t1
     // - ASM_SEAMLESS
     struct NcAsmParamAsmSeamless
     {
+        // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
+        // CODEGEN Field type EnumRange NcAsmInquiredType::ASM_SEAMLESS
         NcAsmParamBase base;
         AmbientSoundMode ambientSoundMode; // 0x4
         UInt8 ambientSoundLevelValue; // 0x5
@@ -1671,14 +1648,16 @@ namespace mdr::v2::t1
     // - NC_AMB_TOGGLE
     struct NcAsmParamNcAmbToggle
     {
+        // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
+        // CODEGEN Field type EnumRange NcAsmInquiredType::NC_AMB_TOGGLE
         NcAsmParamBase base;
         Function function; // 0x2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamNcAmbToggle);
     };
 
     static_assert(MDRIsSerializable<NcAsmParamNcAmbToggle>);
-    #pragma endregion NC/ASM
-    #pragma region Alert
+#pragma endregion NC/ASM
+#pragma region Alert
 
     struct AlertBase
     {
@@ -1688,8 +1667,9 @@ namespace mdr::v2::t1
 
     struct AlertGetStatus
     {
-        static constexpr Command kResponseCommand = Command::ALERT_RET_STATUS;
-        AlertBase base{Command::ALERT_GET_STATUS, AlertInquiredType::FIXED_MESSAGE};
+        // CODEGEN EnumRange Command::ALERT_GET_STATUS
+        Command command{Command::ALERT_GET_STATUS};
+        AlertInquiredType type; // 0x1
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertGetStatus);
     };
 
@@ -1698,6 +1678,8 @@ namespace mdr::v2::t1
     // - LE_AUDIO_ALERT_NOTIFICATION
     struct AlertStatusLEAudioAlertNotification
     {
+        // CODEGEN Field command EnumRange Command::ALERT_RET_STATUS Command::ALERT_NTFY_STATUS
+        // CODEGEN Field type EnumRange AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION
         AlertBase base{Command::ALERT_RET_STATUS, AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION};
         MessageMdrV2EnableDisable leAudioAlertStatus; // 0x2
 
@@ -1709,6 +1691,8 @@ namespace mdr::v2::t1
     // - VOICE_ASSISTANT_ALERT_NOTIFICATION
     struct AlertRetStatusVoiceAssistant
     {
+        // CODEGEN Field command EnumRange Command::ALERT_RET_STATUS
+        // CODEGEN Field type EnumRange AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION
         AlertBase base{Command::ALERT_RET_STATUS, AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION};
         MDRPodArray<VoiceAssistantType> voiceAssistants;
 
@@ -1720,6 +1704,8 @@ namespace mdr::v2::t1
     // - FIXED_MESSAGE
     struct AlertSetStatusFixedMessage
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_STATUS
+        // CODEGEN Field type EnumRange AlertInquiredType::FIXED_MESSAGE
         AlertBase base{Command::ALERT_SET_STATUS, AlertInquiredType::FIXED_MESSAGE};
         MessageMdrV2EnableDisable status; // 0x2
 
@@ -1731,6 +1717,8 @@ namespace mdr::v2::t1
     // - APP_BECOMES_FOREGROUND
     struct AlertSetStatusAppBecomesForeground
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_STATUS
+        // CODEGEN Field type EnumRange AlertInquiredType::APP_BECOMES_FOREGROUND
         AlertBase base{Command::ALERT_SET_STATUS, AlertInquiredType::APP_BECOMES_FOREGROUND};
         MessageMdrV2EnableDisable status; // 0x2
 
@@ -1742,6 +1730,8 @@ namespace mdr::v2::t1
 
     struct AlertSetStatusLEAudioAlertNotification
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_STATUS
+        // CODEGEN Field type EnumRange AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION
         AlertBase base{Command::ALERT_SET_STATUS, AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION};
         MessageMdrV2EnableDisable leAudioAlertStatus; // 0x2
         ConfirmationType confirmationType; // 0x3
@@ -1754,6 +1744,8 @@ namespace mdr::v2::t1
     // - FIXED_MESSAGE
     struct AlertSetParamFixedMessage
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::FIXED_MESSAGE
         AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::FIXED_MESSAGE};
         AlertMessageType messageType; // 0x2
         AlertAction actionType; // 0x3
@@ -1766,6 +1758,8 @@ namespace mdr::v2::t1
 
     struct AlertSetParamVibrator
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION
         AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION};
         VibrationType vibrationType; // 0x2
 
@@ -1777,6 +1771,8 @@ namespace mdr::v2::t1
     // - FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
     struct AlertSetParamFixedMessageWithLeftRightSelection
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
         AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION};
         AlertMessageTypeWithLeftRightSelection messageType; // 0x2
         AlertLeftRightAction actionType; // 0x3
@@ -1788,6 +1784,8 @@ namespace mdr::v2::t1
     // - APP_BECOMES_FOREGROUND
     struct AlertSetParamAppBecomesForeground
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::APP_BECOMES_FOREGROUND
         AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::APP_BECOMES_FOREGROUND};
         AlertMessageType messageType; // 0x2
         AlertAction actionType; // 0x3
@@ -1800,6 +1798,8 @@ namespace mdr::v2::t1
     // - FLEXIBLE_MESSAGE
     struct AlertSetParamFlexibleMessage
     {
+        // CODEGEN Field command EnumRange Command::ALERT_SET_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::FLEXIBLE_MESSAGE
         AlertBase base{Command::ALERT_SET_PARAM, AlertInquiredType::FLEXIBLE_MESSAGE};
         AlertFlexibleMessageType messageType; // 0x2
         AlertAction actionType; // 0x3
@@ -1812,6 +1812,8 @@ namespace mdr::v2::t1
     // - FIXED_MESSAGE
     struct AlertNotifyParamFixedMessage
     {
+        // CODEGEN Field command EnumRange Command::ALERT_NTFY_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::FIXED_MESSAGE
         AlertBase base{Command::ALERT_NTFY_PARAM, AlertInquiredType::FIXED_MESSAGE};
         AlertMessageType messageType; // 0x2
         AlertActionType actionType; // 0x3
@@ -1824,6 +1826,8 @@ namespace mdr::v2::t1
     // - FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
     struct AlertNotifyParamFixedMessageWithLeftRightSelection
     {
+        // CODEGEN Field command EnumRange Command::ALERT_NTFY_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
         AlertBase base{Command::ALERT_NTFY_PARAM, AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION};
         AlertMessageTypeWithLeftRightSelection messageType; // 0x2
         DefaultSelectedLeftRightValue defaultSelectedValue; // 0x3
@@ -1836,6 +1840,8 @@ namespace mdr::v2::t1
     // - APP_BECOMES_FOREGROUND
     struct AlertNotifyParamAppBecomesForeground
     {
+        // CODEGEN Field command EnumRange Command::ALERT_NTFY_PARAM
+        // CODEGEN Field type EnumRange AlertInquiredType::APP_BECOMES_FOREGROUND
         AlertBase base{Command::ALERT_NTFY_PARAM, AlertInquiredType::APP_BECOMES_FOREGROUND};
         AlertMessageType messageType; // 0x2
         AlertActionType actionType; // 0x3
@@ -1844,17 +1850,12 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<AlertNotifyParamAppBecomesForeground>);
-    // - FLEXIBLE_MESSAGE
-    // struct AlertNotifyParamFlexibleMessage
-    // {
-    //     // Not implemented, variable size, needs serialization
-    // };
-    #pragma endregion Alert
-    #pragma region Playback
+#pragma endregion Alert
+#pragma region Playback
 
     struct GetPlayStatus
     {
-        static constexpr Command kResponseCommand = Command::PLAY_RET_STATUS;
+        // CODEGEN EnumRange Command::PLAY_GET_STATUS
         Command command{Command::PLAY_GET_STATUS};
         PlayInquiredType type; // 0x1
 
@@ -1866,13 +1867,15 @@ namespace mdr::v2::t1
     struct PlayBase
     {
         Command command{Command::PLAY_RET_STATUS};
-        PlayInquiredType playInquiredType; // 0x1
+        PlayInquiredType type; // 0x1
     };
 
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT
     struct PlayStatusPlaybackController
     {
-        PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
+        // CODEGEN Field command EnumRange Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS
+        // CODEGEN Field type EnumRange PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT
+        PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackStatus playbackStatus; // 0x3
         MusicCallStatus musicCallStatus; // 0x4
@@ -1885,6 +1888,8 @@ namespace mdr::v2::t1
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE
     struct PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange
     {
+        // CODEGEN Field command EnumRange Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS
+        // CODEGEN Field type EnumRange PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE
         PlayBase base{Command::PLAY_RET_STATUS,
                       PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
@@ -1900,6 +1905,8 @@ namespace mdr::v2::t1
     // - PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
     struct PlayStatusPlaybackControlWithFunctionChange
     {
+        // CODEGEN Field command EnumRange Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS
+        // CODEGEN Field type EnumRange PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
         PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackStatus playbackStatus; // 0x3
@@ -1913,6 +1920,7 @@ namespace mdr::v2::t1
     // - PLAY_MODE
     struct PlayStatusCommon
     {
+        // CODEGEN Field command EnumRange Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS
         PlayBase base{Command::PLAY_RET_STATUS, PlayInquiredType::PLAY_MODE};
         MessageMdrV2EnableDisable status; // 0x2
 
@@ -1922,31 +1930,33 @@ namespace mdr::v2::t1
     static_assert(MDRIsSerializable<PlayStatusCommon>);
 
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
-    struct SetPlayStatusPlaybackController
+    struct PlayStatusSetPlaybackController
     {
+        // CODEGEN Field command EnumRange Command::PLAY_SET_STATUS
+        // CODEGEN Field type EnumRange PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
         PlayBase base{Command::PLAY_SET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackControl control; // 0x3
 
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayStatusPlaybackController);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayStatusSetPlaybackController);
     };
 
-    static_assert(MDRIsSerializable<SetPlayStatusPlaybackController>);
+    static_assert(MDRIsSerializable<PlayStatusSetPlaybackController>);
 
-    struct GetPlayParam
+    struct PlayGetParam
     {
-        static constexpr Command kResponseCommand = Command::PLAY_RET_PARAM;
+        // CODEGEN Field command EnumRange Command::PLAY_GET_PARAM
         PlayBase base{Command::PLAY_GET_PARAM};
 
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayParam);
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayGetParam);
     };
 
-    static_assert(MDRIsSerializable<GetPlayParam>);
+    static_assert(MDRIsSerializable<PlayGetParam>);
 
     struct PlayParamBase
     {
         Command command{Command::PLAY_RET_PARAM};
-        PlayInquiredType playInquiredType; // 0x1
+        PlayInquiredType type; // 0x1
     };
 
     // - PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
@@ -1962,7 +1972,9 @@ namespace mdr::v2::t1
 
     struct PlayParamPlaybackControllerName
     {
-        PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
+        // CODEGEN Field command EnumRange Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM
+        // CODEGEN Field type EnumRange PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
+        PlayParamBase base{Command::PLAY_RET_PARAM, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
         Array<PlaybackName, 4> playbackNames; // Hardcoded
 
         MDR_CODEGEN_IGNORE_SERIALIZATION;
@@ -1974,7 +1986,9 @@ namespace mdr::v2::t1
     // - MUSIC_VOLUME, CALL_VOLUME
     struct PlayParamPlaybackControllerVolume
     {
-        PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::MUSIC_VOLUME};
+        // CODEGEN Field command EnumRange Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM
+        // CODEGEN Field type EnumRange PlayInquiredType::MUSIC_VOLUME PlayInquiredType::CALL_VOLUME PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE
+        PlayParamBase base{Command::PLAY_RET_PARAM, PlayInquiredType::MUSIC_VOLUME};
         UInt8 volumeValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayParamPlaybackControllerVolume);
@@ -1985,6 +1999,8 @@ namespace mdr::v2::t1
     // - MUSIC_VOLUME_WITH_MUTE, CALL_VOLUME_WITH_MUTE
     struct PlayParamPlaybackControllerVolumeWithMute
     {
+        // CODEGEN Field command EnumRange Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM
+        // CODEGEN Field type EnumRange PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE
         PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::MUSIC_VOLUME_WITH_MUTE};
         UInt8 volumeValue; // 0x2
         MessageMdrV2EnableDisable muteSetting; // 0x3
@@ -1997,6 +2013,8 @@ namespace mdr::v2::t1
     // - PLAY_MODE
     struct PlayParamPlayMode
     {
+        // CODEGEN Field command EnumRange Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM
+        // CODEGEN Field type EnumRange PlayInquiredType::PLAY_MODE
         PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::PLAY_MODE};
         PlayMode playMode; // 0x2
 
@@ -2004,12 +2022,12 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<PlayParamPlayMode>);
-    #pragma endregion Playback
-    #pragma region General Setting
+#pragma endregion Playback
+#pragma region General Setting
 
     struct GsGetCapability
     {
-        static constexpr Command kResponseCommand = Command::GENERAL_SETTING_RET_CAPABILITY;
+        // CODEGEN EnumRange Command::GENERAL_SETTING_GET_CAPABILITY
         Command command{Command::GENERAL_SETTING_GET_CAPABILITY};
         GsInquiredType type; // 0x1
         DisplayLanguage displayLanguage; // 0x2
@@ -2032,6 +2050,7 @@ namespace mdr::v2::t1
 
     struct GsRetCapability
     {
+        // CODEGEN EnumRange Command::GENERAL_SETTING_RET_CAPABILITY
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY};
         GsInquiredType type; // 0x1
         GsSettingType settingType; // 0x2
@@ -2044,7 +2063,7 @@ namespace mdr::v2::t1
 
     struct GsGetParam
     {
-        static constexpr Command kResponseCommand = Command::GENERAL_SETTING_RET_PARAM;
+        // CODEGEN EnumRange Command::GENERAL_SETTING_GET_PARAM
         Command command{Command::GENERAL_SETTING_GET_PARAM};
         GsInquiredType type; // 0x1
 
@@ -2063,6 +2082,8 @@ namespace mdr::v2::t1
     // - BOOLEAN_TYPE
     struct GsParamBoolean
     {
+        // CODEGEN Field command EnumRange Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM
+        // CODEGEN Field settingType EnumRange GsSettingType::BOOLEAN_TYPE
         GsParamBase base{Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1,
                          GsSettingType::BOOLEAN_TYPE};
         GsSettingValue settingValue; // 0x3
@@ -2075,6 +2096,8 @@ namespace mdr::v2::t1
     // - LIST_TYPE
     struct GsParamList
     {
+        // CODEGEN Field command EnumRange Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM
+        // CODEGEN Field settingType EnumRange GsSettingType::LIST_TYPE
         GsParamBase base{Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1,
                          GsSettingType::LIST_TYPE};
         UInt8 currentElementIndex; // 0x3, 0-63
@@ -2083,12 +2106,12 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<GsParamList>);
-    #pragma endregion General Setting
-    #pragma region Audio
+#pragma endregion General Setting
+#pragma region Audio
 
     struct AudioGetCapability
     {
-        static constexpr Command kResponseCommand = Command::AUDIO_RET_CAPABILITY;
+        // CODEGEN EnumRange Command::AUDIO_GET_CAPABILITY
         Command command{Command::AUDIO_GET_CAPABILITY};
         AudioInquiredType type; // 0x1
 
@@ -2097,16 +2120,18 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<AudioGetCapability>);
 
-    struct AudioRetCapabilityBase
+    struct AudioBase
     {
-        Command command{Command::AUDIO_RET_CAPABILITY};
+        Command command{Command::AUDIO_RET_STATUS};
         AudioInquiredType type; // 0x1
     };
 
     // - UPSCALING
     struct AudioRetCapabilityUpscaling
     {
-        AudioRetCapabilityBase base{Command::AUDIO_RET_CAPABILITY, AudioInquiredType::UPSCALING};
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_CAPABILITY
+        // CODEGEN Field type EnumRange AudioInquiredType::UPSCALING
+        AudioBase base{Command::AUDIO_RET_CAPABILITY, AudioInquiredType::UPSCALING};
         UpscalingType upscalingType; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioRetCapabilityUpscaling);
@@ -2116,7 +2141,7 @@ namespace mdr::v2::t1
 
     struct AudioGetStatus
     {
-        static constexpr Command kResponseCommand = Command::AUDIO_RET_STATUS;
+        // CODEGEN EnumRange Command::AUDIO_GET_STATUS
         Command command{Command::AUDIO_GET_STATUS};
         AudioInquiredType type; // 0x1
 
@@ -2125,16 +2150,10 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<AudioGetStatus>);
 
-    struct AudioBase
-    {
-        Command command{Command::AUDIO_RET_STATUS};
-        AudioInquiredType type; // 0x1
-    };
-
     // - UPSCALING, BGM_MODE, UPMIX_CINEMA, VOICE_CONTENTS, SOUND_LEAKAGE_REDUCTION
     struct AudioGetParam
     {
-        static constexpr Command kResponseCommand = Command::AUDIO_RET_PARAM;
+        // CODEGEN Field command EnumRange Command::AUDIO_GET_PARAM
         AudioBase base{Command::AUDIO_GET_PARAM};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioGetParam);
@@ -2143,6 +2162,8 @@ namespace mdr::v2::t1
     // - CONNECTION_MODE
     struct AudioParamConnection
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE};
         PriorMode settingValue; // 0x2
 
@@ -2154,6 +2175,8 @@ namespace mdr::v2::t1
     // - UPSCALING
     struct AudioParamUpscaling
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::UPSCALING
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPSCALING};
         UpscalingTypeAutoOff settingValue; // 0x2
 
@@ -2165,6 +2188,8 @@ namespace mdr::v2::t1
     // - CONNECTION_MODE_WITH_LDAC_STATUS
     struct AudioParamConnectionWithLdacStatus
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS};
         PriorMode settingValue; // 0x2
 
@@ -2176,6 +2201,8 @@ namespace mdr::v2::t1
     // - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
     struct AudioRetParamConnectionModeClassicAudioLeAudio
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO};
         PriorMode settingValue; // 0x2
 
@@ -2187,6 +2214,8 @@ namespace mdr::v2::t1
     // - BGM_MODE, BGM_MODE_AND_ERRORCODE
     struct AudioParamBGMMode
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::BGM_MODE
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::BGM_MODE};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
         RoomSize targetRoomSize; // 0x3
@@ -2199,6 +2228,8 @@ namespace mdr::v2::t1
     // - UPMIX_CINEMA
     struct AudioParamUpmixCinema
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::UPMIX_CINEMA
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_CINEMA};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
@@ -2210,6 +2241,8 @@ namespace mdr::v2::t1
     // - VOICE_CONTENTS
     struct AudioParamVoiceContents
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::VOICE_CONTENTS
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::VOICE_CONTENTS};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
@@ -2219,6 +2252,8 @@ namespace mdr::v2::t1
     // - SOUND_LEAKAGE_REDUCTION
     struct AudioParamSoundLeakageReduction
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::SOUND_LEAKAGE_REDUCTION
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::SOUND_LEAKAGE_REDUCTION};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
@@ -2228,6 +2263,8 @@ namespace mdr::v2::t1
     // - LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
     struct AudioParamListeningOptionAssignCustomizableItem
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE};
         MDRPodArray<ListeningOptionAssignCustomizableItem> items;
 
@@ -2237,6 +2274,8 @@ namespace mdr::v2::t1
     // - UPMIX_SERIES
     struct AudioParamUpmixSeries
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::UPMIX_SERIES
         AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_SERIES};
         UpmixItemId upmixItemId; // 0x2
 
@@ -2248,6 +2287,8 @@ namespace mdr::v2::t1
     // - CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
     struct AudioSetParamConnectionModeClassicAudioLeAudio
     {
+        // CODEGEN Field command EnumRange Command::AUDIO_SET_PARAM
+        // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
         AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO};
         PriorMode settingValue; // 0x2
         MessageMdrV2EnableDisable alertConfirmation; // 0x3
@@ -2268,12 +2309,12 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<AudioNtfyParamConnectionModeClassicAudioLeAudio>);
-    #pragma endregion Audio
-    #pragma region System
+#pragma endregion Audio
+#pragma region System
 
     struct SystemGetParam
     {
-        static constexpr Command kResponseCommand = Command::SYSTEM_RET_PARAM;
+        // CODEGEN EnumRange Command::SYSTEM_GET_PARAM
         Command command{Command::SYSTEM_GET_PARAM};
         SystemInquiredType type; // 0x1
 
@@ -2291,6 +2332,8 @@ namespace mdr::v2::t1
     // - VIBRATOR, PLAYBACK_CONTROL_BY_WEARING, VOICE_ASSISTANT_WAKE_WORD, AUTO_VOLUME, HEAD_GESTURE_ON_OFF
     struct SystemParamCommon
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::VIBRATOR SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD SystemInquiredType::AUTO_VOLUME SystemInquiredType::HEAD_GESTURE_ON_OFF
         SystemBase base{Command::SYSTEM_RET_PARAM};
         MessageMdrV2EnableDisable settingValue; // 0x2
 
@@ -2302,7 +2345,9 @@ namespace mdr::v2::t1
     // - SMART_TALKING_MODE_TYPE1, SMART_TALKING_MODE_TYPE2
     struct SystemParamSmartTalking
     {
-        SystemBase base{Command::SYSTEM_RET_PARAM};
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE1 SystemInquiredType::SMART_TALKING_MODE_TYPE2
+        SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
         MessageMdrV2EnableDisable onOffValue; // 0x2
         MessageMdrV2EnableDisable previewModeOnOffValue; // 0x3
     };
@@ -2310,7 +2355,9 @@ namespace mdr::v2::t1
     // - ASSIGNABLE_SETTINGS
     struct SystemParamAssignableSettings
     {
-        SystemBase base{Command::SYSTEM_RET_PARAM};
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS};
         MDRPodArray<Preset> presets;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemParamAssignableSettings);
@@ -2321,6 +2368,8 @@ namespace mdr::v2::t1
     // - VOICE_ASSISTANT_SETTINGS
     struct SystemParamVoiceAssistantSettings
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::VOICE_ASSISTANT_SETTINGS
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::VOICE_ASSISTANT_SETTINGS};
         VoiceAssistant voiceAssistant; // 0x2
 
@@ -2332,6 +2381,8 @@ namespace mdr::v2::t1
     // - WEARING_STATUS_DETECTOR
     struct SystemParamWearingStatusDetector
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::WEARING_STATUS_DETECTOR};
         EarpieceFittingDetectionOperationStatus operationStatus; // 0x2
         EarpieceFittingDetectionOperationErrorCode errorCode; // 0x3
@@ -2348,6 +2399,8 @@ namespace mdr::v2::t1
     // - EARPIECE_SELECTION
     struct SystemParamEarpieceSelection
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::EARPIECE_SELECTION
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::EARPIECE_SELECTION};
         EarpieceSeries series; // 0x2
 
@@ -2359,6 +2412,8 @@ namespace mdr::v2::t1
     // - CALL_SETTINGS
     struct SystemParamCallSettings
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::CALL_SETTINGS
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::CALL_SETTINGS};
         MessageMdrV2EnableDisable selfVoiceOnOff; // 0x2
         UInt8 selfVoiceVolume; // 0x3
@@ -2372,6 +2427,8 @@ namespace mdr::v2::t1
     // - ASSIGNABLE_SETTINGS_WITH_LIMITATION
     struct SystemParamAssignableSettingsWithLimit
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION};
         MDRPodArray<Preset> presets;
 
@@ -2383,6 +2440,8 @@ namespace mdr::v2::t1
     // - HEAD_GESTURE_TRAINING
     struct SystemParamHeadGestureTraining
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::HEAD_GESTURE_TRAINING
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::HEAD_GESTURE_TRAINING};
         HeadGestureAction headGestureAction; // 0x2
 
@@ -2394,6 +2453,8 @@ namespace mdr::v2::t1
     // - WEARING_STATUS_DETECTOR
     struct SystemSetParamWearingStatusDetector
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_SET_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
         SystemBase base{Command::SYSTEM_SET_PARAM, SystemInquiredType::WEARING_STATUS_DETECTOR};
         EarpieceFittingDetectionOperation operation; // 0x2
         UInt8 indexOfCurrentDetection; // 0x3
@@ -2408,6 +2469,8 @@ namespace mdr::v2::t1
     // - RESET_SETTINGS
     struct SystemSetParamResetSettings
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_SET_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::RESET_SETTINGS
         SystemBase base{Command::SYSTEM_SET_PARAM, SystemInquiredType::RESET_SETTINGS};
         ResetType resetType; // 0x2
 
@@ -2419,6 +2482,8 @@ namespace mdr::v2::t1
     // - RESET_SETTINGS
     struct SystemNotifyParamResetSettings
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::RESET_SETTINGS
         SystemBase base{Command::SYSTEM_NTFY_PARAM, SystemInquiredType::RESET_SETTINGS};
         ResetResult resetResult; // 0x2
 
@@ -2430,6 +2495,8 @@ namespace mdr::v2::t1
     // - FACE_TAP_TEST_MODE
     struct SystemNotifyParamFaceTapTestMode
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_NTFY_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::FACE_TAP_TEST_MODE
         SystemBase base{Command::SYSTEM_NTFY_PARAM, SystemInquiredType::FACE_TAP_TEST_MODE};
         FaceTapKey key; // 0x2
         FaceTapAction action; // 0x3
@@ -2457,7 +2524,7 @@ namespace mdr::v2::t1
 
     struct SystemGetExtParam
     {
-        static constexpr Command kResponseCommand = Command::SYSTEM_RET_EXT_PARAM;
+        // CODEGEN EnumRange Command::SYSTEM_GET_EXT_PARAM
         Command command{Command::SYSTEM_GET_EXT_PARAM};
         SystemInquiredType type; // 0x1
 
@@ -2475,6 +2542,8 @@ namespace mdr::v2::t1
     // - SMART_TALKING_MODE_TYPE1
     struct SystemExtParamSmartTalkingMode1
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE1
         SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
         DetectSensitivity detectSensitivity; // 0x2
         MessageMdrV2EnableDisable voiceFocus; // 0x3
@@ -2488,7 +2557,9 @@ namespace mdr::v2::t1
     // - ASSIGNABLE_SETTINGS
     struct SystemExtParamAssignableSettings
     {
-        SystemExtBase base;
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS};
         MDRArray<AssignableSettingsPreset> presets;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemExtParamAssignableSettings);
@@ -2497,6 +2568,8 @@ namespace mdr::v2::t1
     // - WEARING_STATUS_DETECTOR
     struct SystemExtParamWearingStatusDetector
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
         SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::WEARING_STATUS_DETECTOR};
         EarpieceFittingDetectionResult fittingResultLeft; // 0x2
         EarpieceFittingDetectionResult fittingResultRight; // 0x3
@@ -2513,6 +2586,8 @@ namespace mdr::v2::t1
     // - SMART_TALKING_MODE_TYPE2
     struct SystemExtParamSmartTalkingMode2
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE2
         SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE2};
         DetectSensitivity detectSensitivity; // 0x2
         ModeOutTime modeOffTime; // 0x3
@@ -2525,6 +2600,8 @@ namespace mdr::v2::t1
     // - ASSIGNABLE_SETTINGS_WITH_LIMITATION
     struct SystemExtParamAssignableSettingsWithLimit
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
         SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION};
         MDRArray<AssignableSettingsPreset> presets;
 
@@ -2536,6 +2613,8 @@ namespace mdr::v2::t1
     // - CALL_SETTINGS
     struct SystemSetExtParamCallSettings
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_SET_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::CALL_SETTINGS
         SystemExtBase base{Command::SYSTEM_SET_EXT_PARAM, SystemInquiredType::CALL_SETTINGS};
         CallSettingsTestSoundControl testSoundControl; // 0x2
 
@@ -2547,6 +2626,8 @@ namespace mdr::v2::t1
     // - CALL_SETTINGS
     struct SystemNotifyExtParamCallSettings
     {
+        // CODEGEN Field command EnumRange Command::SYSTEM_NTFY_EXT_PARAM
+        // CODEGEN Field type EnumRange SystemInquiredType::CALL_SETTINGS
         SystemExtBase base{Command::SYSTEM_NTFY_EXT_PARAM, SystemInquiredType::CALL_SETTINGS};
         CallSettingsTestSoundControlAck testSoundControlAck; // 0x2
 
@@ -2554,7 +2635,7 @@ namespace mdr::v2::t1
     };
 
     static_assert(MDRIsSerializable<SystemNotifyExtParamCallSettings>);
-    #pragma endregion System
+#pragma endregion System
 } // namespace mdr::v2::t1
 
 #pragma pack(pop)
