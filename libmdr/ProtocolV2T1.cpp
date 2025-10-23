@@ -23,7 +23,7 @@ namespace mdr::v2::t1
         default:
         case INSTRUCTION_GUIDE:
             [[unlikely]]
-                throw std::runtime_error("Unsupported INSTRUCTION_GUIDE");
+            MDR_CHECK(false, "Unsupported INSTRUCTION_GUIDE");
         }
         return ptr - out;
     }
@@ -47,7 +47,7 @@ namespace mdr::v2::t1
         default:
         case INSTRUCTION_GUIDE:
             [[unlikely]]
-                throw std::runtime_error("Unsupported INSTRUCTION_GUIDE");
+            MDR_CHECK(false, "Unsupported INSTRUCTION_GUIDE");
         }
     }
     size_t PlayParamPlaybackControllerName::Serialize(const PlayParamPlaybackControllerName& data, UInt8* out)

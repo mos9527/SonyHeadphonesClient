@@ -169,6 +169,27 @@ namespace mdr::v2::t1 {
             default: return "Unknown";
         }
     }
+    static const char* format_as(ModelColor value) {
+        using enum ModelColor;
+        switch (value) {
+            case DEFAULT: return "DEFAULT";
+            case BLACK: return "BLACK";
+            case WHITE: return "WHITE";
+            case SILVER: return "SILVER";
+            case RED: return "RED";
+            case BLUE: return "BLUE";
+            case PINK: return "PINK";
+            case YELLOW: return "YELLOW";
+            case GREEN: return "GREEN";
+            case GRAY: return "GRAY";
+            case GOLD: return "GOLD";
+            case CREAM: return "CREAM";
+            case ORANGE: return "ORANGE";
+            case BROWN: return "BROWN";
+            case VIOLET: return "VIOLET";
+            default: return "Unknown";
+        }
+    }
     static const char* format_as(ModelSeriesType value) {
         using enum ModelSeriesType;
         switch (value) {
@@ -1312,6 +1333,28 @@ namespace mdr::v2::t1 {
             case FW_VERSION:
             case SERIES_AND_COLOR_INFO:
             case INSTRUCTION_GUIDE:
+            return true;
+        default: return false;
+        }
+    }
+    static bool is_valid(ModelColor value) {
+        using enum ModelColor;
+        switch (value) {
+            case DEFAULT:
+            case BLACK:
+            case WHITE:
+            case SILVER:
+            case RED:
+            case BLUE:
+            case PINK:
+            case YELLOW:
+            case GREEN:
+            case GRAY:
+            case GOLD:
+            case CREAM:
+            case ORANGE:
+            case BROWN:
+            case VIOLET:
             return true;
         default: return false;
         }

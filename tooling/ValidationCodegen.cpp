@@ -44,19 +44,8 @@ void trimCommentString(std::string& s)
     while (!s.empty() && (s.back() == ' ' || s.back() == '\r' || s.back() == '\n')) s.pop_back();
 }
 
-std::string emitThrowRuntimeError(std::string_view name, std::string_view msg)
-{
-    return format("throw std::runtime_error(\"{}: {}\")", name, msg);
-}
-
 int gDepth = 0;
 std::string emitIndent(){ return std::basic_string(gDepth * 4, ' '); }
-void emitLineEnumIsValid(std::string_view scopeFieldName)
-{
-    println("{}if (!is_valid({})) {};", emitIndent(), scopeFieldName,
-            emitThrowRuntimeError(format("{}", scopeFieldName), "Bad enum value"));
-}
-
 struct MethodVisitorResult
 {
     bool hasValidate = false;
@@ -107,16 +96,19 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
                 else
                     break;
             }
-            println("{}if ({}) {};", emitIndent(), cout.str(),
-                    emitThrowRuntimeError(scopeFiledName, format("EnumRange check fail, must be one of {}", diagOut.str())));
+            print("{}MDR_CHECK(", emitIndent());
+            print("is_valid({}), ", scopeFiledName);
+            print("\"EnumRange check fail, must be one of {}, got {{}}\",", diagOut.str());
+            println("{});", scopeFiledName);
             break;
         }
         case ValidationVerb::Range:
         {
             int mn, mx;
             cin >> mn >> mx;
-            println("{}if ({} < {} || {} > {}) {};", emitIndent(), scopeFiledName, mn, scopeFiledName, mx,
-                    emitThrowRuntimeError(scopeFiledName, format("Range check fail, must be in [{}, {}]", mn, mx)));
+            print("{}MDR_CHECK(", emitIndent());
+            print("{} >= {} && {} <= {}, ", scopeFiledName, mn,  scopeFiledName, mx);
+            println("\"Range check fail, must be in [{}, {}], got {{}}\", {});", mn, mx, scopeFiledName);
         }
         case ValidationVerb::Field:
         {
@@ -165,7 +157,10 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
     switch (typeKind)
     {
     case CXCursor_EnumDecl:
-        emitLineEnumIsValid(newParentName);
+        println("{}MDR_CHECK(is_valid({}), \"{} got an invalid enum value\");",
+            emitIndent(),
+            newParentName,
+            clang_getCString(name));
         break;
     case CXCursor_StructDecl:
     {

@@ -167,6 +167,25 @@ namespace mdr::v2::t1
         INSTRUCTION_GUIDE = 4,
     };
 
+    enum class ModelColor : UInt8
+    {
+        DEFAULT = 0,
+        BLACK = 1,
+        WHITE = 2,
+        SILVER = 3,
+        RED = 4,
+        BLUE = 5,
+        PINK = 6,
+        YELLOW = 7,
+        GREEN = 8,
+        GRAY = 9,
+        GOLD = 10,
+        CREAM = 11,
+        ORANGE = 12,
+        BROWN = 13,
+        VIOLET = 14,
+    };
+
     enum class ModelSeriesType : UInt8
     {
         NO_SERIES = 0,

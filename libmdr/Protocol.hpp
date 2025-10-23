@@ -1,20 +1,27 @@
 #pragma once
-#include <string>
-#include <vector>
+
 #include <cstdint>
-#include <variant>
 #include <cstring>
-#include "Constants.hpp"
+#include <stdexcept>
+#include <string>
+#include <variant>
+#include <vector>
+#include <span>
+
+#include <fmt/format.h>
+#define MDR_CHECK(expr, format_str, ...) \
+    if(!(expr)) throw std::runtime_error(fmt::format(format_str __VA_OPT__(,) __VA_ARGS__));
+
 namespace mdr
 {
     typedef uint8_t UInt8;
     typedef int8_t Int8;
     struct Int32BE
     {
-        int32_t value;
+        int32_t value; // Big-endian
 
         Int32BE() : value(0) {}
-        Int32BE(int32_t v) : value(v) {}
+        Int32BE(int32_t v) : value(Swap(v)) {}
 
         static uint32_t Swap(uint32_t v) // Compiles into bswap
         {
@@ -32,10 +39,10 @@ namespace mdr
     };
     struct Int16BE
     {
-        int16_t value;
+        int16_t value; // Big-endian
 
         Int16BE() : value(0) {}
-        Int16BE(int16_t v) : value(v) {}
+        Int16BE(int16_t v) : value(Swap(v)) {}
 
         static uint16_t Swap(uint16_t v)
         {
@@ -73,8 +80,7 @@ namespace mdr
         template<typename T> static void Read(UInt8** ppSrcBuffer, T& value, size_t maxSize = ~0LL)
         {
             static_assert(MDRIsTrivial<T>, "MDRPod::Read requires trivial type T");
-            if (sizeof(T) > maxSize)
-                throw std::runtime_error("Not enough data to read");
+            MDR_CHECK(sizeof(T) < maxSize, "Not enough data to read");
             std::memcpy(&value, *ppSrcBuffer, sizeof(T));
             *ppSrcBuffer += sizeof(T);
         }
@@ -97,26 +103,24 @@ namespace mdr
         std::string value;
         static void Read(UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize = ~0LL)
         {
-            UInt8 length = **ppSrcBuffer++;
-            if (length > 128 || length > maxSize - 1)
-                throw std::runtime_error("Invalid string length");
-            str.value.resize(length);
-            std::memcpy(str.value.data(), *ppSrcBuffer, length);
-            *ppSrcBuffer += length;
+            const UInt8 len = **ppSrcBuffer++;
+            MDR_CHECK(len < 128 && len <= maxSize, "Invalid string length");
+            str.value.resize(len);
+            std::memcpy(str.value.data(), *ppSrcBuffer, len);
+            *ppSrcBuffer += len;
         }
         static size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer)
         {
-            if (str.value.length() > 128)
-                throw std::runtime_error("String too long to write");
+            MDR_CHECK(str.value.length() < 128, "String too long to write");
             **ppDstBuffer++ = static_cast<UInt8>(str.value.length());
             std::memcpy(*ppDstBuffer, str.value.data(), str.value.length());
             *ppDstBuffer += str.value.length();
             return str.value.length() + 1;
         }
-        auto begin() { return value.begin(); }
-        auto end() { return value.end(); }
-        auto begin() const  { return value.begin(); }
-        auto end() const { return value.end(); }
+        [[nodiscard]] auto begin() { return value.begin(); }
+        [[nodiscard]] auto end() { return value.end(); }
+        [[nodiscard]] auto begin() const  { return value.begin(); }
+        [[nodiscard]] auto end() const { return value.end(); }
     };
 
     /**
@@ -131,8 +135,7 @@ namespace mdr
         {
             UInt8 count = **ppSrcBuffer++;
             size_t size = sizeof(T) * count;
-            if (size > maxSize)
-                throw std::runtime_error("Invalid array length");
+            MDR_CHECK(size <= maxSize, "Invalid array size");
             value.value.resize(size);
             std::memcpy(value.value.data(), *ppSrcBuffer, size);
             *ppSrcBuffer += size;
@@ -140,8 +143,7 @@ namespace mdr
         static size_t Write(MDRPodArray const& value, UInt8** ppDstBuffer)
         {
             size_t size = sizeof(T) * value.value.size();
-            if (size > 255)
-                throw std::runtime_error("Array too long to write");
+            MDR_CHECK(size < 256, "Array too long to write");
             **ppDstBuffer++ = static_cast<UInt8>(value.value.size());
             std::memcpy(*ppDstBuffer, &size, sizeof(size));
             *ppDstBuffer += sizeof(size);
@@ -172,8 +174,7 @@ namespace mdr
         static size_t Write(MDRArray const& value, UInt8** ppDstBuffer)
         {
             UInt8* ptr = *ppDstBuffer;
-            if (value.value.size() > 255)
-                throw std::runtime_error("Array too long to write");
+            MDR_CHECK(value.value.size() < 256, "Array too long to write");
             **ppDstBuffer++ = static_cast<UInt8>(value.value.size());
             for (const T& elem : value.value)
                 T::Write(elem, ppDstBuffer);
@@ -197,6 +198,10 @@ namespace mdr
      * @breif Alias for std::vector. This does not map to any specific protocol type directly.
      */
     template<typename T> using Vector = std::vector<T>;
+    /**
+     * @brief Alias for std::span w/o extents. This does not map to any specific protocol type directly.
+     */
+    template<typename T> using Span = std::span<T>;
     /**
      * @brief Macro for POD types that can be serialized/deserialized via std::memcpy.
      *

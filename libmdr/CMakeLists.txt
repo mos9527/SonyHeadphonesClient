@@ -7,5 +7,9 @@ file(
     GLOB_RECURSE INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
 )
+include(FetchContent)
+FetchContent_MakeAvailable(fmt)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
 add_library(libmdr ${SOURCES} ${INCLUDES})
+target_link_libraries(libmdr PRIVATE fmt::fmt)
