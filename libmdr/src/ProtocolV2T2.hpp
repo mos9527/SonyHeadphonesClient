@@ -261,6 +261,13 @@ namespace mdr::v2::t2
     };
 #pragma endregion Enums
 
+    struct CommandBase
+    {
+        Command command;
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(CommandBase);
+    };
+    static_assert(MDRIsSerializable<CommandBase>);
 #pragma region Connect
     struct ConnectGetSupportFunction
     {

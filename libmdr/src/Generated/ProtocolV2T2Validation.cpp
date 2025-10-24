@@ -2,6 +2,10 @@
 #include "../ProtocolV2T2.hpp"
 
 namespace mdr::v2::t2 {
+bool CommandBase::Validate(const CommandBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    return true;
+};
 bool ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::CONNECT_GET_SUPPORT_FUNCTION, got {}",data.command);

@@ -1,12 +1,9 @@
 #include "Command.hpp"
+
+#include <algorithm>
+
 namespace mdr
 {
-    constexpr uint8_t kEscapedByteSentry = 0x3D; // '='
-    constexpr uint8_t kEscaped60 = 44; // 0x3C -> 0x3D 0x2C
-    constexpr uint8_t kEscaped61 = 45; // 0x3D -> 0x3D 0x2D
-    constexpr uint8_t kEscaped62 = 46; // 0x3E -> 0x3D 0x2E
-    inline constexpr char kStartMarker{ 62 }; // >
-    inline constexpr char kEndMarker{ 60 }; // <
     UInt8 Checksum(Span<const UInt8> data)
     {
         UInt8 sum = 0;
@@ -14,7 +11,8 @@ namespace mdr
             sum += byte;
         return sum;
     }
-    MDRBuffer Escape(Span<const UInt8> data)
+
+    MDRBuffer Escape(Span<const UInt8> data) noexcept
     {
         MDRBuffer res;
         res.reserve(data.size() << 1u); // Worst case scenario
@@ -38,7 +36,8 @@ namespace mdr
         }
         return res;
     }
-    MDRBuffer Unescape(Span<const UInt8> data)
+
+    MDRBuffer Unescape(Span<const UInt8> data) noexcept
     {
         MDRBuffer res;
         res.reserve(data.size());
@@ -48,7 +47,8 @@ namespace mdr
             UInt8 byte = *pData++;
             if (byte == kEscapedByteSentry)
             {
-                MDR_CHECK(pData != pEnd, "Invalid escape sequence at end of data");
+                if (pData == pEnd)
+                    return {};
                 UInt8 next = *pData++;
                 switch (next)
                 {
@@ -62,7 +62,7 @@ namespace mdr
                     res.emplace_back(62);
                     break;
                 default:
-                    MDR_CHECK(false, "Invalid escape sequence byte: {}", next);
+                    return {};
                 }
             }
             else
@@ -72,16 +72,16 @@ namespace mdr
         }
         return res;
     }
-    MDRBuffer Pack(MDRDataType type, MDRCommandSeqNumber seq, Span<UInt8> serializedData)
+
+    MDRBuffer Pack(MDRDataType type, MDRCommandSeqNumber seq, Span<UInt8> serializedData) noexcept
     {
-        MDR_CHECK(is_valid(type), "Invalid data type");
         MDRBuffer unescaped;
         unescaped.reserve((serializedData.size() << 1u) + 7u); // Worst case scenario
         unescaped.emplace_back(static_cast<UInt8>(type));
         unescaped.emplace_back(seq);
         // Int32BE unescaped size
         {
-            Int32BE dataSize{ static_cast<int32_t>(serializedData.size()) };
+            Int32BE dataSize{static_cast<int32_t>(serializedData.size())};
             UInt8* pData = unescaped.data();
             unescaped.insert(unescaped.end(), 4u, 0u);
             MDRPod::Write(dataSize, &pData);
@@ -96,26 +96,37 @@ namespace mdr
         return res;
     }
 
-    MDRBuffer Unpack(Span<const UInt8> packedData, MDRDataType& outType, MDRCommandSeqNumber& outSeq)
+    MDRUnpackResult Unpack(Span<const UInt8> command, MDRBuffer& outData, MDRDataType& outType,
+                           MDRCommandSeqNumber& outSeq) noexcept
     {
-        MDRBuffer res, serializedData;
-        MDR_CHECK(packedData.size() >= 7u, "Packed data too small");
-        MDR_CHECK(packedData[0] == static_cast<UInt8>(kStartMarker), "Invalid start marker");
-        Span payload{ res.begin() + 1, res.end() - 1 };
-        res = Unescape(payload);
-        UInt8* pData = res.data();
-        MDRPod::Read(&pData, outType);
-        MDR_CHECK(is_valid(outType), "Invalid data type");
-        MDRPod::Read(&pData, outSeq);
-        Int32BE dataSize;
-        MDRPod::Read(&pData, dataSize);
-        MDR_CHECK(dataSize >= 0, "Invalid data size. Got {}", static_cast<int32_t>(dataSize));
-        serializedData.resize(dataSize);
-        std::memcpy(serializedData.data(), pData, dataSize);
-        pData += static_cast<size_t>(dataSize);
-        UInt8 checksum, calcChecksum;
-        MDRPod::Read(&pData, checksum);
-        MDR_CHECK(checksum == (calcChecksum=Checksum(payload)), "Invalid checksum. Got {}, expected {}", checksum, calcChecksum);
-        return serializedData;
+
+        if (command.size() < 2)
+            return MDRUnpackResult::INCOMPLETE;
+        if (command.front() != kStartMarker || command.back() != kEndMarker)
+            return MDRUnpackResult::BAD_MARKER;
+        // Skip start/end markers
+        command = command.subspan(1, command.size() - 1);
+        MDRBuffer unescaped = Unescape(command);
+        command = unescaped;
+        // Type,seq
+        outType = static_cast<MDRDataType>(command[0]);
+        outSeq = command[1];
+        command = command.subspan(2);
+        // Big-endian in
+        Int32BE outSize = command[0] << 24u | command[1] << 16u | command[2] << 8u | command[3];
+        Span data = command.subspan(4);
+        // Data...,checksum
+        UInt8 checksum = data.back();
+        // Checksum incl. type,seq,data
+        UInt8 curChecksum = Checksum(Span(unescaped).subspan(0, unescaped.size() - 1));
+        if (checksum != curChecksum)
+            return MDRUnpackResult::BAD_CHECKSUM;
+        // Data...
+        data = data.subspan(0, data.size() - 1);
+        if (data.size() != outSize) [[unlikely]]
+            return MDRUnpackResult::INCOMPLETE;
+        outData.resize(data.size());
+        std::ranges::copy(data, outData.begin());
+        return MDRUnpackResult::OK;
     }
 }

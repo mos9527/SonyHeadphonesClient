@@ -25,6 +25,16 @@ namespace mdr {
             default: return "Unknown";
         }
     }
+    static const char* format_as(MDRUnpackResult value) {
+        using enum MDRUnpackResult;
+        switch (value) {
+            case OK: return "OK";
+            case INCOMPLETE: return "INCOMPLETE";
+            case BAD_MARKER: return "BAD_MARKER";
+            case BAD_CHECKSUM: return "BAD_CHECKSUM";
+            default: return "Unknown";
+        }
+    }
     static bool is_valid(MDRDataType value) {
         using enum MDRDataType;
         switch (value) {
@@ -45,6 +55,17 @@ namespace mdr {
             case SHOT_MDR_NO2:
             case LARGE_DATA_COMMON:
             case UNKNOWN:
+            return true;
+        default: return false;
+        }
+    }
+    static bool is_valid(MDRUnpackResult value) {
+        using enum MDRUnpackResult;
+        switch (value) {
+            case OK:
+            case INCOMPLETE:
+            case BAD_MARKER:
+            case BAD_CHECKSUM:
             return true;
         default: return false;
         }
