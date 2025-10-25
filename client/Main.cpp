@@ -24,21 +24,21 @@ int main()
         int res = conn->connect(conn->user, devices[targetDevice].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
         conn->freeList(conn->user, &devices);
         fmt::println("Connect: {}", mdrResultString(res));
-        if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
+        if (res != MDR_RESULT_OK)
         {
             fmt::println("connect failed ({}, {})", mdrResultString(res), conn->getLastError(conn->user));
             return -1;
         }
     }
-    fmt::println("Connect OK");
     MDRHeadphones* headphones = mdrHeadphonesCreate(conn);
-
+    mdrHeadphonesRequestInit(headphones);
     while (true)
     {
         int res = mdrHeadphonesPollEvents(headphones);
         if (res != MDR_RESULT_OK)
         {
-            fmt::println("headphones died: {} ({})", mdrResultString(res), mdrHeadphonesGetLastError(headphones));
+            fmt::println("headphones died: {} (headphones={}, conn={})", mdrResultString(res),
+                         mdrHeadphonesGetLastError(headphones), conn->getLastError(conn->user));
             return -1;
         }
     }

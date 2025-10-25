@@ -209,4 +209,4 @@ struct MessageMdrV2SupportFunction
 };
 }
 
-#include "Generated/ProtocolV2.hpp"
+#include "Generated/ProtocolV2Enum.hpp"

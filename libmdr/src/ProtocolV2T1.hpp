@@ -1146,7 +1146,6 @@ namespace mdr::v2::t1
 #pragma region Connect
     struct ConnectGetProtocolInfo
     {
-        static constexpr Command kResponseCommand = Command::CONNECT_RET_PROTOCOL_INFO;
         // CODEGEN EnumRange Command::CONNECT_GET_PROTOCOL_INFO
         Command command{Command::CONNECT_GET_PROTOCOL_INFO};
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE};
@@ -1172,7 +1171,6 @@ namespace mdr::v2::t1
 
     struct ConnectGetCapabilityInfo
     {
-        static constexpr Command kResponseCommand = Command::CONNECT_RET_CAPABILITY_INFO;
         // CODEGEN EnumRange Command::CONNECT_GET_CAPABILITY_INFO
         Command command{Command::CONNECT_GET_CAPABILITY_INFO}; // 0x0
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
@@ -1181,8 +1179,7 @@ namespace mdr::v2::t1
     };
 
     struct ConnectGetDeviceInfo
-    {
-        static constexpr Command kResponseCommand = Command::CONNECT_RET_DEVICE_INFO;
+    {        
         // CODEGEN EnumRange Command::CONNECT_GET_DEVICE_INFO
         Command command{Command::CONNECT_GET_DEVICE_INFO}; // 0x0
         DeviceInfoType deviceInfoType; // 0x1
@@ -1226,8 +1223,7 @@ namespace mdr::v2::t1
     static_assert(MDRIsSerializable<ConnectRetDeviceInfo>);
 
     struct ConnectGetSupportFunction
-    {
-        static constexpr Command kResponseCommand = Command::CONNECT_RET_SUPPORT_FUNCTION;
+    {        
         // CODEGEN EnumRange Command::CONNECT_GET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
         ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
@@ -1251,8 +1247,7 @@ namespace mdr::v2::t1
 #pragma endregion Connect
 #pragma region Common
     struct CommonBase
-    {
-        static constexpr Command kResponseCommand = Command::COMMON_RET_STATUS;
+    {        
         // CODEGEN EnumRange Command::COMMON_GET_STATUS
         Command command{Command::COMMON_GET_STATUS}; // 0x0
         CommonInquiredType type; // 0x1
@@ -1281,8 +1276,7 @@ namespace mdr::v2::t1
 
     // Not implemented
     struct PowerBase
-    {
-        static constexpr Command kResponseCommand = Command::POWER_RET_STATUS;
+    {        
         Command command{Command::POWER_GET_STATUS}; // 0x0
         PowerInquiredType type; // 0x1
     };
@@ -1488,8 +1482,7 @@ namespace mdr::v2::t1
     };
 
     struct EqEbbGetStatus
-    {
-        static constexpr Command kResponseCommand = Command::EQEBB_RET_STATUS;
+    {        
         // CODEGEN Field command EnumRange Command::EQEBB_GET_STATUS
         EqEbbBase base{Command::EQEBB_GET_STATUS, EqEbbInquiredType::PRESET_EQ};
 
@@ -2666,4 +2659,5 @@ namespace mdr::v2::t1
 
 #pragma pack(pop)
 
-#include "Generated/ProtocolV2T1.hpp"
+#include "Generated/ProtocolV2T1Enum.hpp"
+#include "Generated/ProtocolV2T1Traits.hpp"

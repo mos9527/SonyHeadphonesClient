@@ -49,8 +49,7 @@ namespace mdr
             {
                 if (pData == pEnd)
                     return {};
-                UInt8 next = *pData++;
-                switch (next)
+                switch (*pData++)
                 {
                 case kEscaped60:
                     res.emplace_back(60);
@@ -82,8 +81,8 @@ namespace mdr
         // Int32BE unescaped size
         {
             Int32BE dataSize{static_cast<int32_t>(serializedData.size())};
-            UInt8* pData = unescaped.data();
             unescaped.insert(unescaped.end(), 4u, 0u);
+            UInt8* pData = &unescaped.back() - 3;
             MDRPod::Write(dataSize, &pData);
         }
         unescaped.insert(unescaped.end(), serializedData.begin(), serializedData.end());
@@ -105,7 +104,7 @@ namespace mdr
         if (command.front() != kStartMarker || command.back() != kEndMarker)
             return MDRUnpackResult::BAD_MARKER;
         // Skip start/end markers
-        command = command.subspan(1, command.size() - 1);
+        command = command.subspan(1, command.size() - 2);
         MDRBuffer unescaped = Unescape(command);
         command = unescaped;
         // Type,seq
@@ -118,7 +117,8 @@ namespace mdr
         // Data...,checksum
         UInt8 checksum = data.back();
         // Checksum incl. type,seq,data
-        UInt8 curChecksum = Checksum(Span(unescaped).subspan(0, unescaped.size() - 1));
+        Span checkData = Span(unescaped).subspan(0, unescaped.size() - 1);
+        UInt8 curChecksum = Checksum(checkData);
         if (checksum != curChecksum)
             return MDRUnpackResult::BAD_CHECKSUM;
         // Data...

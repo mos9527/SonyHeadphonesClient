@@ -17,3 +17,6 @@ target_link_libraries(tooling_SerializationCodegen PRIVATE fmt::fmt libclang)
 
 add_executable(tooling_ValidationCodegen ValidationCodegen.cpp)
 target_link_libraries(tooling_ValidationCodegen PRIVATE fmt::fmt libclang)
+
+add_executable(tooling_TraitsCodegen TraitsCodegen.cpp)
+target_link_libraries(tooling_TraitsCodegen PRIVATE fmt::fmt libclang)

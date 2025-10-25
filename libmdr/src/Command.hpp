@@ -10,27 +10,6 @@ namespace mdr
     inline constexpr char kStartMarker{62}; // >
     inline constexpr char kEndMarker{60}; // <
 
-    enum class MDRDataType : UInt8
-    {
-        DATA = 0,
-        ACK = 1,
-        DATA_MC_NO1 = 2,
-        DATA_ICD = 9,
-        DATA_EV = 10,
-        DATA_MDR = 12,
-        DATA_COMMON = 13,
-        DATA_MDR_NO2 = 14,
-        SHOT = 16,
-        SHOT_MC_NO1 = 18,
-        SHOT_ICD = 25,
-        SHOT_EV = 26,
-        SHOT_MDR = 28,
-        SHOT_COMMON = 29,
-        SHOT_MDR_NO2 = 30,
-        LARGE_DATA_COMMON = 45,
-        UNKNOWN = 0xff
-    };
-
     // Upstream mentioned chunking w/ sizes above 2048
     // https://github.com/Plutoberth/SonyHeadphonesClient/blob/5620e8ed5deccb957338b54e371b215146080819/Client/CommandSerializer.cpp#L128
     constexpr size_t kMDRMaxPacketSize = 2048;

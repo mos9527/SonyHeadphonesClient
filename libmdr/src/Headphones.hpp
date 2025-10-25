@@ -29,18 +29,21 @@ struct MDRTask
                     return p.next;
                 return std::noop_coroutine();
             }
+
+            static void await_resume() noexcept
+            {
+            }
         };
 
         static final_awaiter final_suspend() noexcept { return final_awaiter{}; }
         MDRTask get_return_object();
+
+        static void return_void() noexcept
+        {
+        }
     };
 
     using value_type = void;
-
-    static void return_void() noexcept
-    {
-    }
-
     std::coroutine_handle<promise_type> coroutine{nullptr};
 
     MDRTask() = default;
@@ -92,42 +95,55 @@ inline MDRTask MDRTask::promise_type::get_return_object()
 
 struct MDRHeadphones
 {
+    enum AwaitType
+    {
+        // Wait for an immediate ACK from the device on the current task
+        AWAIT_ACK = 0,
+        AWAIT_PROTOCOL_INFO = 1,
+        AWAIT_SUPPORT_FUNCTION = 2,
+        AWAIT_NUM_TYPES = 3
+    };
     // NOLINTBEGIN
     struct Awaiter
     {
-        enum AwaitType
-        {
-            AWAIT_ACK = 0,
-            AWAIT_PROTOCOL_INFO = 1,
-            AWAIT_SUPPORT_FUNCTION = 2,
-            NUM_TYPES = 3
-        };
-
         MDRHeadphones* self;
         AwaitType type;
         static bool await_ready() noexcept { return false; }
 
         void await_suspend(std::coroutine_handle<> handle) noexcept
         {
-            auto& dst = self->mAwaiters[static_cast<size_t>(type)] = handle;
+            auto& dst = self->mAwaiters[static_cast<size_t>(type)];
             if (dst) [[unlikely]]
-                std::terminate(); // This is probably your fault.
+                std::terminate(); // This is your fault.
+                                  // How'd you get more than one task at a time running?
             if (handle)
-                 dst = handle;
+                dst = handle;
+        }
+
+        static void await_resume() noexcept {
         }
     };
 
     // NOLINTEND
-    std::array<std::coroutine_handle<>, Awaiter::NUM_TYPES> mAwaiters{};
-    MDRConnection* mConn;
-    std::deque<UInt8> mRecvBuf, mSendBuf;
-    MDRTask mTask;
-    std::string mLastError;
+    std::string mLastError{"Nothing here to see"};
 
-    MDRHeadphones(MDRConnection* conn) :
+    std::deque<UInt8> mRecvBuf, mSendBuf;
+    MDRConnection* mConn;
+
+    MDRCommandSeqNumber mSeqNumber{0};
+
+    std::array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
+    MDRTask mTask;
+
+    explicit MDRHeadphones(MDRConnection* conn) :
         mConn(conn)
     {
     }
+
+    // Pinned.
+    MDRHeadphones(MDRHeadphones const&) = delete;
+    MDRHeadphones(MDRHeadphones&&) = delete;
+
     int Receive();
     int Send();
     /**
@@ -147,11 +163,13 @@ struct MDRHeadphones
      * @brief This does what you think it does.
      */
     [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
-#pragma region Tasks
 
+#pragma region Tasks
+    MDRTask RequestInit();
 #pragma endregion
+
 private:
-    // XXX: So, very naive.
+    // XXX: So, very naive. We just die if anything bad happens.
     void ExceptionHandler(auto&& func)
     {
         try
@@ -160,18 +178,38 @@ private:
         }
         catch (std::runtime_error& exc)
         {
+            fmt::println("!!! Exception: {}", exc.what());
             mLastError = exc.what();
+            mConn->disconnect(mConn->user);
         }
     }
+
     /**
      * @brief This does what you think it does.
      */
-    Awaiter Await(Awaiter::AwaitType type);
+    Awaiter Await(AwaitType type);
     /**
-     * @note Queues a command payload to be sent through @ref Send
+     * @note Queues a command payload to be sent through @ref Send. You generally don't need to call this directly.
      * @note Non-blocking. Need @ref Sent to be polled periodically.
      */
-    void SendCommand(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
+    void SendCommandImpl(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
+    void SendACK(MDRCommandSeqNumber seq);
+    /**
+     * @note Queues a command payload to be sent through @ref Send, with a @ref AWAIT_ACK wait
+     * @note Non-blocking. Need @ref Sent to be polled periodically.
+     */
+    template<MDRIsSerializable T, typename ...Args>
+    MDRTask SendCommandACK(Args&&... args)
+    {
+        UInt8 buf[kMDRMaxPacketSize];
+
+        MDRDataType type = MDRTraits<T>::kDataType;
+        T command(std::forward<Args>(args)...);
+        T::Validate(command); // <- Throws if something's bad
+        size_t size = T::Serialize(command, buf);
+        SendCommandImpl({ buf, buf + size}, type, mSeqNumber);
+        co_await Await(AWAIT_ACK);
+    }
     /**
      * @brief Check if the coroutine frame has been completed - and if so, resets the current @ref mTask
      *        and allow subsequent @ref Invoke calls to take effect.
@@ -182,4 +220,3 @@ private:
     void HandleCommandV2T1(Span<const UInt8> command, MDRCommandSeqNumber seq);
     void HandleCommandV2T2(Span<const UInt8> command, MDRCommandSeqNumber seq);
 };
-

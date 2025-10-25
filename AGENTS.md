@@ -1,7 +1,6 @@
 # Payload Struct Implementation Details (libmdr)
 A MDR Payload struct 
 - ALWAYS has a `Command` enum field named `command` as the first field, with a default value set to the command it represents.
-    - May have a `static constexpr Command kResponseCommand` field if the command has a well-defined response command.
 - ALWAYS implements the `MDRIsSerializable` concept, which means it can be serialized and deserialized to/from a byte buffer,
   either through trivial serialization macro (`MDR_DEFINE_TRIVIAL_SERIALIZATION`) or through custom serialization functions (see below).
 - ALWAYS has a static assertion to verify it implements the `MDRIsSerializable` concept.

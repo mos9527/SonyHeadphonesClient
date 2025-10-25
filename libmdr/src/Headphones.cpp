@@ -1,6 +1,6 @@
 #include "Headphones.hpp"
-
-MDRHeadphones::Awaiter MDRHeadphones::Await(Awaiter::AwaitType type)
+#include <fmt/base.h>
+MDRHeadphones::Awaiter MDRHeadphones::Await(AwaitType type)
 {
     return Awaiter{this, type};
 }
@@ -12,6 +12,10 @@ int MDRHeadphones::Receive()
     const int r = mConn->recv(mConn->user, buf, kMDRMaxPacketSize, &recvd);
     if (r != MDR_RESULT_OK)
         return r;
+    fmt::println("-- recv");
+    for (char* p = buf; p != buf + recvd; p++)
+        fmt::print("{:02X} ", static_cast<UInt8>(*p));
+    fmt::println("\n--");
     mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
     return r;
 }
@@ -26,6 +30,10 @@ int MDRHeadphones::Send()
     const int r = mConn->send(mConn->user, buf, toSend, &sent);
     if (r != MDR_RESULT_OK)
         return r;
+    fmt::println("-- send");
+    for (char* p = buf; p != buf + sent; p++)
+        fmt::print("{:02X} ", static_cast<UInt8>(*p));
+    fmt::println("\n--");
     mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
     return r;
 }
@@ -34,13 +42,16 @@ int MDRHeadphones::Send()
 void MDRHeadphones::Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
 {
     using enum MDRDataType;
+    mSeqNumber = seq;
     switch (type)
     {
     case ACK:
         return HandleAck(seq);
     case DATA_MDR:
+        SendACK(seq);
         return HandleCommandV2T1(command, seq);
     case DATA_MDR_NO2:
+        SendACK(seq);
         return HandleCommandV2T2(command, seq);
     default:
         break;
@@ -54,7 +65,7 @@ void MDRHeadphones::MoveNext()
     auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
     if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
         return; // Incomplete
-    MDRBuffer packedCommand{commandBegin, commandEnd};
+    MDRBuffer packedCommand{commandBegin, commandEnd + 1};
     MDRBuffer command;
     MDRDataType type;
     MDRCommandSeqNumber seqNum;
@@ -68,8 +79,8 @@ void MDRHeadphones::MoveNext()
     case MDRUnpackResult::INCOMPLETE:
         // Incomplete. Nop.
         break;
-    case MDRUnpackResult::BAD_MARKER:
-    case MDRUnpackResult::BAD_CHECKSUM:
+    case MDRUnpackResult::BAD_MARKER: [[unlikely]]
+    case MDRUnpackResult::BAD_CHECKSUM: [[unlikely]]
         // Unlikely. What we have now makes no sense yet markers are intact.
         mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
         break;
@@ -99,15 +110,20 @@ bool MDRHeadphones::TaskMoveNext()
     return true;
 }
 
-void MDRHeadphones::SendCommand(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
+void MDRHeadphones::SendCommandImpl(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
 {
     MDRBuffer packed = MDRPackCommand(type, seq, command);
     mSendBuf.insert(mSendBuf.end(), packed.begin(), packed.end());
 }
 
+void MDRHeadphones::SendACK(MDRCommandSeqNumber seq)
+{
+    SendCommandImpl({}, MDRDataType::ACK, 1 - seq);
+}
+
 void MDRHeadphones::HandleAck(MDRCommandSeqNumber)
 {
-    auto& await = mAwaiters[Awaiter::AWAIT_ACK];
+    auto& await = mAwaiters[AWAIT_ACK];
     await.resume();
     await = {};
 }
@@ -161,9 +177,21 @@ int mdrHeadphonesPollEvents(MDRHeadphones* h)
     return MDR_RESULT_OK;
 }
 
-
+int mdrHeadphonesRequestInit(MDRHeadphones* h)
+{
+    return h->Invoke(h->RequestInit());
+}
 const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
 {
     return h->GetLastError();
 }
 }
+
+#pragma region Tasks
+MDRTask MDRHeadphones::RequestInit()
+{
+    fmt::println("Init in");
+    co_await SendCommandACK<v2::t1::ConnectGetProtocolInfo>();
+    fmt::println("PROTO ACK!");
+}
+#pragma endregion

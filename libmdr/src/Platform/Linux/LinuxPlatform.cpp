@@ -1,10 +1,9 @@
-
 #include <mdr/ConnectionLinux.h>
 #include "DBusHelper.hpp"
 
 #include <unistd.h>
-#include <sys/poll.h>
 #include <sys/socket.h>
+#include <sys/poll.h>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
@@ -37,7 +36,7 @@ struct MDRConnectionLinux
     static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
-        ptr->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+        ptr->fd = socket(AF_BLUETOOTH, SOCK_STREAM | SOCK_NONBLOCK, BTPROTO_RFCOMM);
         if (!ptr->fd)
         {
             ptr->lastError = "Failed to create RFCOMM socket";
@@ -61,14 +60,28 @@ struct MDRConnectionLinux
         };
         str2ba(macAddress, &addr.rc_bdaddr);
         int res = connect(ptr->fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
-        if (res != 0 && res != EINPROGRESS)
+        if (res != 0 && errno != EINPROGRESS)
         {
             close(ptr->fd);
             ptr->fd = 0;
             ptr->lastError = strerror(errno);
             return MDR_RESULT_ERROR_NET;
         }
-        return MDR_RESULT_INPROGRESS;
+        if (errno == EINPROGRESS)
+        {
+            // Wait for connect to complete
+            pollfd pfd{
+                .fd = ptr->fd,
+                .events = POLLOUT
+            };
+            res = poll(&pfd, 1, -1);
+            if (res <= 0)
+            {
+                ptr->lastError = strerror(errno);
+                return MDR_RESULT_ERROR_NET;
+            }
+        }
+        return MDR_RESULT_OK;
     }
 
     static void Disconnect(void* user) noexcept
@@ -83,18 +96,16 @@ struct MDRConnectionLinux
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         if (!ptr->fd)
             return MDR_RESULT_ERROR_NO_CONNECTION;
-        pollfd pfd{.fd = ptr->fd, .events = POLLIN};
-        int res = poll(&pfd, 1, 0);
-        if (res == 0)
-            return MDR_RESULT_INPROGRESS;
-        if (res < 0)
+        ssize_t received = recv(ptr->fd, dst, size, 0);
+        if (received == 0)
+            return MDR_RESULT_ERROR_NO_CONNECTION;
+        if (received < 0)
         {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                return MDR_RESULT_INPROGRESS;
             ptr->lastError = strerror(errno);
             return MDR_RESULT_ERROR_NET;
         }
-        ssize_t received = recv(ptr->fd, dst, size, 0);
-        if (received <= 0)
-            return MDR_RESULT_ERROR_NET;
         *pReceived = static_cast<int>(received);
         return MDR_RESULT_OK;
     }
@@ -104,18 +115,16 @@ struct MDRConnectionLinux
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         if (!ptr->fd)
             return MDR_RESULT_ERROR_NO_CONNECTION;
-        pollfd pfd{.fd = ptr->fd, .events = POLLOUT};
-        int res = poll(&pfd, 1, 0);
-        if (res == 0)
-            return MDR_RESULT_INPROGRESS;
-        if (res < 0)
+        ssize_t sent = send(ptr->fd, src, size, 0);
+        if (sent == 0)
+            return MDR_RESULT_ERROR_NO_CONNECTION;
+        if (sent < 0)
         {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                return MDR_RESULT_INPROGRESS;
             ptr->lastError = strerror(errno);
             return MDR_RESULT_ERROR_NET;
         }
-        ssize_t sent = send(ptr->fd, src, size, 0);
-        if (sent <= 0)
-            return MDR_RESULT_ERROR_NET;
         *pSent = static_cast<int>(sent);
         return MDR_RESULT_OK;
     }
