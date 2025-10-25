@@ -73,7 +73,7 @@ namespace mdr
         return res;
     }
 
-    MDRBuffer Pack(MDRDataType type, MDRCommandSeqNumber seq, Span<UInt8> serializedData) noexcept
+    MDRBuffer MDRPackCommand(MDRDataType type, MDRCommandSeqNumber seq, Span<const UInt8> serializedData) noexcept
     {
         MDRBuffer unescaped;
         unescaped.reserve((serializedData.size() << 1u) + 7u); // Worst case scenario
@@ -96,7 +96,7 @@ namespace mdr
         return res;
     }
 
-    MDRUnpackResult Unpack(Span<const UInt8> command, MDRBuffer& outData, MDRDataType& outType,
+    MDRUnpackResult MDRUnpackCommand(Span<const UInt8> command, MDRBuffer& outData, MDRDataType& outType,
                            MDRCommandSeqNumber& outSeq) noexcept
     {
 

@@ -1,80 +1,69 @@
-#include "Command.hpp"
-#include "ProtocolV2T1.hpp"
-#include "ProtocolV2T2.hpp"
-#include "mdr/Headphones.h"
+#include "Headphones.hpp"
 
-#include <deque>
-using namespace mdr;
-
-struct MDRHeadphone
+MDRHeadphones::Awaiter MDRHeadphones::Await(Awaiter::AwaitType type)
 {
-    MDRConnection* conn;
-    std::deque<UInt8> recvBuf, sendBuf;
+    return Awaiter{this, type};
+}
 
-    MDRHeadphone(MDRConnection* conn) :
-        conn(conn)
-    {
-    }
-
-    int Receive();
-    int Send();
-
-    /**
-     * @note Queues a command payload to be sent through @ref Send
-     * @note Non-blocking. Need @ref Sent to be polled periodically.
-     */
-    void SendCommand(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
-
-    /**
-     * @brief Dequeues a _complete_ command payload and spawns appropriate coroutines - and advances them _here_.
-     * @note  This is a no-op if buffer is incomplete and no complete command payload can be produced.
-     * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically.
-     * @note  This is your best friend.
-     */
-    void MoveNext();
-};
-
-int MDRHeadphone::Receive()
+int MDRHeadphones::Receive()
 {
     char buf[kMDRMaxPacketSize];
     int recvd;
-    const int r = conn->recv(conn->user, buf, kMDRMaxPacketSize, &recvd);
+    const int r = mConn->recv(mConn->user, buf, kMDRMaxPacketSize, &recvd);
     if (r != MDR_RESULT_OK)
         return r;
-    recvBuf.insert(recvBuf.end(), buf, buf + recvd);
+    mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
     return r;
 }
 
-int MDRHeadphone::Send()
+int MDRHeadphones::Send()
 {
-    if (sendBuf.empty())
+    if (mSendBuf.empty())
         return MDR_RESULT_OK;
     char buf[kMDRMaxPacketSize];
-    int toSend = std::min(sendBuf.size(), kMDRMaxPacketSize), sent = 0;
-    std::copy(sendBuf.begin(), sendBuf.begin() + toSend, buf);
-    const int r = conn->send(conn->user, buf, toSend, &sent);
+    int toSend = std::min(mSendBuf.size(), kMDRMaxPacketSize), sent = 0;
+    std::copy(mSendBuf.begin(), mSendBuf.begin() + toSend, buf);
+    const int r = mConn->send(mConn->user, buf, toSend, &sent);
     if (r != MDR_RESULT_OK)
         return r;
-    sendBuf.erase(sendBuf.begin(), sendBuf.begin() + sent);
+    mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
     return r;
 }
 
-void MDRHeadphone::MoveNext()
+
+void MDRHeadphones::Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
 {
-    auto commandBegin = std::ranges::find(recvBuf, kStartMarker);
-    auto commandEnd = std::ranges::find(commandBegin, recvBuf.end(), kEndMarker);
-    if (commandBegin == recvBuf.end() || commandEnd == recvBuf.end())
+    using enum MDRDataType;
+    switch (type)
+    {
+    case ACK:
+        return HandleAck(seq);
+    case DATA_MDR:
+        return HandleCommandV2T1(command, seq);
+    case DATA_MDR_NO2:
+        return HandleCommandV2T2(command, seq);
+    default:
+        break;
+    }
+}
+
+void MDRHeadphones::MoveNext()
+{
+    ExceptionHandler([this] { TaskMoveNext(); });
+    auto commandBegin = std::ranges::find(mRecvBuf, kStartMarker);
+    auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
+    if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
         return; // Incomplete
     MDRBuffer packedCommand{commandBegin, commandEnd};
     MDRBuffer command;
     MDRDataType type;
     MDRCommandSeqNumber seqNum;
-    MDRUnpackResult res = Unpack(packedCommand, command, type, seqNum);
+    MDRUnpackResult res = MDRUnpackCommand(packedCommand, command, type, seqNum);
     switch (res)
     {
     case MDRUnpackResult::OK:
-        recvBuf.erase(recvBuf.begin(), commandEnd);
-        // --> HandleCommand(command, type, seqNum);
+        mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
+        Handle(command, type, seqNum);
         break;
     case MDRUnpackResult::INCOMPLETE:
         // Incomplete. Nop.
@@ -82,34 +71,83 @@ void MDRHeadphone::MoveNext()
     case MDRUnpackResult::BAD_MARKER:
     case MDRUnpackResult::BAD_CHECKSUM:
         // Unlikely. What we have now makes no sense yet markers are intact.
-        recvBuf.erase(recvBuf.begin(), commandEnd);
+        mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
         break;
     }
 }
 
-void MDRHeadphone::SendCommand(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
+int MDRHeadphones::Invoke(MDRTask&& task)
 {
-    MDRBuffer packed = Pack(type, seq, command);
-    sendBuf.insert(sendBuf.end(), packed.begin(), packed.end());
+    if (mTask)
+        return MDR_RESULT_INPROGRESS;
+    mTask = std::move(task);
+    mTask.coroutine.resume();
+    ExceptionHandler([this] { TaskMoveNext(); });
+    return MDR_RESULT_OK;
+}
+
+bool MDRHeadphones::TaskMoveNext()
+{
+    if (!mTask)
+        return true;
+    if (!mTask.coroutine.done())
+        return false;
+    auto& [exec, next] = mTask.coroutine.promise();
+    if (exec)
+        std::rethrow_exception(exec);
+    mTask = {};
+    return true;
+}
+
+void MDRHeadphones::SendCommand(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
+{
+    MDRBuffer packed = MDRPackCommand(type, seq, command);
+    mSendBuf.insert(mSendBuf.end(), packed.begin(), packed.end());
+}
+
+void MDRHeadphones::HandleAck(MDRCommandSeqNumber)
+{
+    auto& await = mAwaiters[Awaiter::AWAIT_ACK];
+    await.resume();
+    await = {};
 }
 
 extern "C" {
-MDRHeadphone* mdrHeadphonesCreate(MDRConnection* conn)
+const char* mdrResultString(int err)
 {
-    return new MDRHeadphone(conn);
+    switch (err)
+    {
+        case MDR_RESULT_OK:
+            return "OK";
+        case MDR_RESULT_INPROGRESS:
+            return "Task in progress";
+        case MDR_RESULT_ERROR_GENERAL:
+            return "General error";
+        case MDR_RESULT_ERROR_NOT_FOUND:
+            return "Resource not found";
+        case MDR_RESULT_ERROR_TIMEOUT:
+            return "Timed out";
+        case MDR_RESULT_ERROR_NET:
+            return "Networking error";
+        case MDR_RESULT_ERROR_NO_CONNECTION:
+            return "No connection has been established";
+        case MDR_RESULT_ERROR_BAD_ADDRESS:
+            return "Invalid address information";
+        default:
+            return "Unknown";
+    }
+}
+MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
+{
+    return new MDRHeadphones(conn);
 }
 
-void mdrHeadphonesDestroy(MDRHeadphone* h)
+void mdrHeadphonesDestroy(MDRHeadphones* h)
 {
     delete h;
 }
 
-int mdrHeadphonesConnect(MDRHeadphone* h, const char* macAddress, const uint8_t* uuid)
-{
-    return h->conn->connect(h->conn->user, macAddress, uuid);
-}
-
-int mdrHeadphonesPollEvents(MDRHeadphone* h)
+int mdrHeadphonesPollEvents(MDRHeadphones* h)
 {
     // Non-blocking. INPROGRESS are expected, not so much for others.
     // Failfast if that happens - the owner usually has to die.
@@ -121,5 +159,11 @@ int mdrHeadphonesPollEvents(MDRHeadphone* h)
         return r;
     h->MoveNext();
     return MDR_RESULT_OK;
+}
+
+
+const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
+{
+    return h->GetLastError();
 }
 }

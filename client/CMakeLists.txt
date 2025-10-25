@@ -8,6 +8,18 @@ file(
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
 )
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
-add_library(SonyHeadphonesClient ${SOURCES} ${INCLUDES})
+add_executable(SonyHeadphonesClient ${SOURCES} ${INCLUDES})
 
-target_link_libraries(SonyHeadphonesClient PRIVATE libmdr)
+target_link_libraries(SonyHeadphonesClient PRIVATE fmt::fmt mdr mdr_Includes)
+
+option(CLIENT_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
+if (CLIENT_BUILD_WITH_ASAN)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        add_compile_options("/fsanitize=address")
+        add_link_options("/fsanitize=address")
+    else ()
+        add_compile_options("-fsanitize=address")
+        add_link_options("-fsanitize=address")
+    endif ()
+endif()
+

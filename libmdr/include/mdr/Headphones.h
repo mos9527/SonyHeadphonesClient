@@ -7,8 +7,9 @@
 #define MDR_RESULT_ERROR_TIMEOUT 4
 #define MDR_RESULT_ERROR_NET 5
 #define MDR_RESULT_ERROR_NO_CONNECTION 6
+#define MDR_RESULT_ERROR_BAD_ADDRESS 7
 
-#define MDR_SERVICE_UUID_XM5 { 0x95, 0x6C, 0x7B, 0x26, 0xD4, 0x9A, 0x4B, 0xA8, 0xB0, 0x3F, 0xB1, 0x7D, 0x39, 0x3C, 0xB6, 0xE2 }
+#define MDR_SERVICE_UUID_XM5 "956C7B26-D49A-4BA8-B03F-B17D393CB6E2"
 
 struct MDRDeviceInfo
 {
@@ -20,7 +21,7 @@ struct MDRConnection
 {
     void* user;
 
-    int (*connect)(void* user, const char* macAddress, const unsigned char* uuid);
+    int (*connect)(void* user, const char* macAddress, const char* serviceUUID);
     void (*disconnect)(void* user);
 
     int (*recv)(void* user, char* dst, int size, int* pReceived);
@@ -28,23 +29,29 @@ struct MDRConnection
 
     int (*list)(void* user, MDRDeviceInfo** ppList, int* pCount);
     int (*freeList)(void* user, MDRDeviceInfo** ppList);
-
+    /**
+     * @brief Get error information from the last @ref MDRConnection
+     *        operation.
+     * @note  Implementations MUST guarantee to NEVER return a nullptr.
+     */
     const char* (*getLastError)(void* user);
 };
 
-struct MDRHeadphone;
+struct MDRHeadphones;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-MDRHeadphone* mdrHeadphonesCreate(MDRConnection*);
+const char* mdrResultString(int err);
 
-void mdrHeadphonesDestroy(MDRHeadphone*);
+MDRHeadphones* mdrHeadphonesCreate(MDRConnection*);
+void mdrHeadphonesDestroy(MDRHeadphones*);
 
-int mdrHeadphonesConnect(MDRHeadphone*, const char* macAddress, const unsigned char* uuid);
-int mdrHeadphonesPollEvents(MDRHeadphone*);
-int mdrHeadphonesRequestInit(MDRHeadphone*);
+int mdrHeadphonesPollEvents(MDRHeadphones*);
+int mdrHeadphonesRequestInit(MDRHeadphones*);
+
+const char* mdrHeadphonesGetLastError(MDRHeadphones*);
 #ifdef __cplusplus
 }
 #endif

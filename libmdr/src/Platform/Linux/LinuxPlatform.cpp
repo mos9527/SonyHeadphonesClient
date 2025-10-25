@@ -1,3 +1,4 @@
+
 #include <mdr/ConnectionLinux.h>
 #include "DBusHelper.hpp"
 
@@ -8,6 +9,7 @@
 #include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
 
+#include "../Platform.hpp"
 struct MDRConnectionLinux
 {
     MDRConnection mdrConn;
@@ -17,7 +19,7 @@ struct MDRConnectionLinux
     int fd;
 
     MDRConnectionLinux() noexcept :
-        lastError(nullptr),
+        lastError(""),
         dbusConn(dbus_open_system_bus()), fd(0),
         mdrConn({
             .user = this,
@@ -32,7 +34,7 @@ struct MDRConnectionLinux
     {
     }
 
-    static int Connect(void* user, const char* macAddress, const uint8_t* uuid) noexcept
+    static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         ptr->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
@@ -43,6 +45,10 @@ struct MDRConnectionLinux
         }
         unsigned int linkmode = RFCOMM_LM_AUTH | RFCOMM_LM_ENCRYPT;
         setsockopt(ptr->fd, SOL_RFCOMM, RFCOMM_LM, &linkmode, sizeof(linkmode));
+        uint8_t uuid[16];
+        if (serviceUUIDtoBytes(serviceUUID, uuid) != 0)
+            return MDR_RESULT_ERROR_BAD_ADDRESS;
+        // TODO: This blocks - figure out how SDP_NON_BLOCKING works
         uint8_t ch = sdp_getServiceChannel(macAddress, uuid);
         if (!ch)
         {
@@ -124,8 +130,9 @@ struct MDRConnectionLinux
         {
             std::string name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
             std::string address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
-            strncpy((*ppList)[i].szDeviceName, name.c_str(), sizeof((*ppList)[i].szDeviceName) - 1);
-            strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(), sizeof((*ppList)[i].szDeviceMacAddress) - 1);
+            // std::string is always null-terminated
+            strncpy((*ppList)[i].szDeviceName, name.c_str(), name.size() + 1);
+            strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(),  address.size() + 1);
         }
         return MDR_RESULT_OK;
     }

@@ -45,7 +45,7 @@ namespace mdr
      * <END_MARKER>
      * @endcode
      **/
-    MDRBuffer Pack(MDRDataType type, MDRCommandSeqNumber seq, Span<const UInt8> serializedData) noexcept;
+    MDRBuffer MDRPackCommand(MDRDataType type, MDRCommandSeqNumber seq, Span<const UInt8> serializedData) noexcept;
 
     enum class MDRUnpackResult
     {
@@ -58,7 +58,7 @@ namespace mdr
     /**
      * @brief Unpacks an MDR packet, returning the contained data and outputting the type and sequence number
      **/
-    MDRUnpackResult Unpack(Span<const UInt8> packedCommand, MDRBuffer& outData, MDRDataType& outType,
+    MDRUnpackResult MDRUnpackCommand(Span<const UInt8> packedCommand, MDRBuffer& outData, MDRDataType& outType,
                            MDRCommandSeqNumber& outSeq) noexcept;
 } // namespace mdr
 
