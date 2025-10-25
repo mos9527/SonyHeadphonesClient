@@ -11,13 +11,13 @@
 
 #define MDR_SERVICE_UUID_XM5 "956C7B26-D49A-4BA8-B03F-B17D393CB6E2"
 
-struct MDRDeviceInfo
+typedef struct MDRDeviceInfo
 {
     char szDeviceName[128];
     char szDeviceMacAddress[18];
-};
+} MDRDeviceInfo;
 
-struct MDRConnection
+typedef struct MDRConnection
 {
     void* user;
 
@@ -35,9 +35,9 @@ struct MDRConnection
      * @note  Implementations MUST guarantee to NEVER return a nullptr.
      */
     const char* (*getLastError)(void* user);
-};
+} MDRConnection;
 
-struct MDRHeadphones;
+typedef struct MDRHeadphones MDRHeadphones;
 
 #ifdef __cplusplus
 extern "C" {

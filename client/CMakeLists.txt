@@ -1,16 +1,12 @@
 cmake_minimum_required(VERSION 3.26)
 file(
     GLOB_RECURSE SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
 )
-file(
-    GLOB_RECURSE INCLUDES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 add_executable(SonyHeadphonesClient ${SOURCES} ${INCLUDES})
 
-target_link_libraries(SonyHeadphonesClient PRIVATE fmt::fmt mdr mdr_Includes)
+target_link_libraries(SonyHeadphonesClient PRIVATE mdr mdr_Includes)
 
 option(CLIENT_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
 if (CLIENT_BUILD_WITH_ASAN)

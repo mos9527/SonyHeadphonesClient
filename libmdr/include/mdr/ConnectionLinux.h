@@ -1,7 +1,7 @@
 #pragma once
 #include "Headphones.h"
 
-struct MDRConnectionLinux;
+typedef struct MDRConnectionLinux MDRConnectionLinux;
 
 #ifdef __cplusplus
 extern "C" {
