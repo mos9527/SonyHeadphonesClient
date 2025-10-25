@@ -54,7 +54,7 @@ struct MDRTask
     };
     MDRTask(const MDRTask&) = delete;
 
-    MDRTask& operator=(MDRTask&& other)
+    MDRTask& operator=(MDRTask&& other) noexcept
     {
         std::swap(coroutine, other.coroutine), other.coroutine = nullptr;
         return *this;

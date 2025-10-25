@@ -18,7 +18,7 @@ struct MDRConnectionLinux
     int fd;
 
     MDRConnectionLinux() noexcept :
-        lastError(""),
+        lastError(MDR_DEFAULT_ERROR_STRING),
         dbusConn(dbus_open_system_bus()), fd(0),
         mdrConn({
             .user = this,
@@ -148,8 +148,11 @@ struct MDRConnectionLinux
 
     static int FreeList(void*, MDRDeviceInfo** ppList) noexcept
     {
-        delete[] *ppList;
-        *ppList = nullptr;
+        if (*ppList)
+        {
+            delete[] *ppList;
+            *ppList = nullptr;
+        }
         return MDR_RESULT_OK;
     }
 

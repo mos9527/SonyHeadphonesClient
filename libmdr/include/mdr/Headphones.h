@@ -32,6 +32,7 @@ typedef struct MDRConnection
     /**
      * @brief Get error information from the last @ref MDRConnection
      *        operation.
+     *        MAY be locale dependent - but, ALWAYS return a null-terminated UTF-8 string.
      * @note  Implementations MUST guarantee to NEVER return a nullptr.
      */
     const char* (*getLastError)(void* user);
