@@ -1,4 +1,4 @@
-#include <mdr/ConnectionLinux.h>
+#include <mdr/LinuxPlatform.h>
 #include "DBusHelper.hpp"
 
 #include <unistd.h>

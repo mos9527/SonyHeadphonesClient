@@ -1,4 +1,4 @@
-#include <mdr/ConnectionLinux.h>
+#include <mdr/LinuxPlatform.h>
 #include <mdr/Headphones.h>
 #include <stdio.h>
 #include <string.h>
