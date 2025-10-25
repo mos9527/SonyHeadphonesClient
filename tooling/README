@@ -1,0 +1,18 @@
+Tooling
+---
+This folder includes the codegen stuff based on Clang. So do get your Clang/LLVM header
+files!
+
+Windows
+===
+Get the latest release from https://github.com/llvm/llvm-project/releases.
+
+Setup CMAKE_PREFIX_PATH, and include `C:\Program Files\LLVM` or wherever you'd installed it.
+
+Linux
+===
+You are on your own. Your `clang` package probably includes the requisite libs already - if not, try `llvm-dev`
+
+macOS
+===
+Get `llvm` from Homebrew and add to PATH.
