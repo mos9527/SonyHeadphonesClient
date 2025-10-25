@@ -123,7 +123,7 @@ namespace mdr
             return MDRUnpackResult::BAD_CHECKSUM;
         // Data...
         data = data.subspan(0, data.size() - 1);
-        if (data.size() != outSize) [[unlikely]]
+        if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
             return MDRUnpackResult::INCOMPLETE;
         outData.resize(data.size());
         std::ranges::copy(data, outData.begin());

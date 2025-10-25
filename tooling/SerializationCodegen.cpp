@@ -11,7 +11,7 @@ const char* kMDRReservedRWStructs[] = {
 };
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
-using MacroPair = std::pair<int, std::string>; // Line, Name
+using MacroPair = std::pair<unsigned, std::string>; // Line, Name
 std::vector<MacroPair> gMacros;
 CXChildVisitResult macroVisitor(CXCursor cursor, CXCursor parent, CXClientData)
 {

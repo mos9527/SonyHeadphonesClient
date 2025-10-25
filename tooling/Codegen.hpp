@@ -28,7 +28,7 @@ inline std::string getFullParentName(CXCursor c)
     return s;
 }
 
-inline std::pair<int,int> getCursorExtents(CXCursor cursor)
+inline std::pair<unsigned,unsigned> getCursorExtents(CXCursor cursor)
 {
     CXSourceRange range = clang_getCursorExtent(cursor);
     CXSourceLocation startLoc = clang_getRangeStart(range);

@@ -18,8 +18,6 @@ struct MDRConnectionLinux
     int fd;
 
     MDRConnectionLinux() noexcept :
-        lastError(MDR_DEFAULT_ERROR_STRING),
-        dbusConn(dbus_open_system_bus()), fd(0),
         mdrConn({
             .user = this,
             .connect = Connect,
@@ -29,7 +27,9 @@ struct MDRConnectionLinux
             .list = List,
             .freeList = FreeList,
             .getLastError = GetLastError
-        })
+        }),
+        lastError(MDR_DEFAULT_ERROR_STRING), dbusConn(dbus_open_system_bus()),
+        fd(0)
     {
     }
 
@@ -135,7 +135,7 @@ struct MDRConnectionLinux
         auto paths = dbus_list_adapters(ptr->dbusConn);
         *ppList = new MDRDeviceInfo[paths.size()];
         *pCount = static_cast<int>(paths.size());
-        for (int i = 0; i < paths.size(); ++i)
+        for (size_t i = 0; i < paths.size(); ++i)
         {
             std::string name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
             std::string address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");

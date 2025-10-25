@@ -8,7 +8,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options("/Zc:preprocessor")
     add_compile_options("/utf-8")    
 else()
-    add_compile_options("-Wall")
+    add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable")
 endif()
 
 set(MDR_PLATFORM_OS "")
