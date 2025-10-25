@@ -7,6 +7,7 @@
 #include <variant>
 #include <vector>
 #include <span>
+#include <array>
 
 #include <fmt/format.h>
 #define MDR_CHECK(expr, format_str, ...) \

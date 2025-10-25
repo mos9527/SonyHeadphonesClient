@@ -1,4 +1,9 @@
+#ifdef MDR_PLATFORM_LINUX
 #include <mdr/LinuxPlatform.h>
+#elif MDR_PLATFORM_WIN32
+#include <mdr/WindowsPlatform.h>
+#endif
+
 #include <mdr/Headphones.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,8 +12,13 @@ const char* kTestDeviceName = "WF-1000XM5";
 
 int main()
 {
+#ifdef MDR_PLATFORM_LINUX
     MDRConnectionLinux* platform = mdrConnectionLinuxCreate();
     MDRConnection* conn = mdrConnectionLinuxGet(platform);
+#elif MDR_PLATFORM_WIN32
+    MDRConnectionWindows* platform = mdrConnectionWindowsCreate();
+    MDRConnection* conn = mdrConnectionWindowsGet(platform);
+#endif
     MDRDeviceInfo* devices;
     int numDevices;
     conn->list(conn->user, &devices, &numDevices);
@@ -43,19 +53,21 @@ int main()
     MDRHeadphones* headphones = mdrHeadphonesCreate(conn);
     mdrHeadphonesRequestInit(headphones);
 
-    while (true)
+    while (1)
     {
         int res = mdrHeadphonesPollEvents(headphones);
         if (res != MDR_RESULT_OK)
         {
-            printf("headphones died: %s (headphones=%s, conn=%s)\n",
-                   mdrResultString(res),
-                   mdrHeadphonesGetLastError(headphones),
-                   conn->getLastError(conn->user));
+            printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrResultString(res),
+                   mdrHeadphonesGetLastError(headphones), conn->getLastError(conn->user));
             return -1;
         }
     }
     mdrHeadphonesDestroy(headphones);
+#ifdef MDR_PLATFORM_LINUX
     mdrConnectionLinuxDestroy(platform);
+#elif MDR_PLATFORM_WIN32
+    mdrConnectionWindowsDestroy(platform);
+#endif
     return 0;
 }

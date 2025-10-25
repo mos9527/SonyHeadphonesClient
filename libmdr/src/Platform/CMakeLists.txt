@@ -7,11 +7,11 @@ file(
 
 add_library(mdr_Platform INTERFACE ${INCLUDES})
 
-if (UNIX AND NOT APPLE)
+if (MDR_PLATFORM_OS STREQUAL "LINUX")
     message(STATUS "Configuring for Linux platform")
     add_subdirectory(Linux)
     target_link_libraries(mdr_Platform INTERFACE mdr_PlatformLinux)
-elseif (WIN32)
+elseif (MDR_PLATFORM_OS STREQUAL "WIN32")
     message(STATUS "Configuring for Windows platform")
     add_subdirectory(Windows)
     target_link_libraries(mdr_Platform INTERFACE mdr_PlatformWindows)
