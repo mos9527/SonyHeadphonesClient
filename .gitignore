@@ -520,11 +520,8 @@ MigrationBackup/
 # End of https://www.toptal.com/developers/gitignore/api/c++,visualstudio,python
 Client/imgui.ini
 
-# vscode
+# VSCode
 .vscode/
-
-# linux build
-Client/linux/sonyheadphonesclient.build/
 
 # CLion
 .idea/
@@ -532,3 +529,7 @@ cmake-build*/
 
 # macOS stuff
 .DS_Store
+
+# Visual Studio Generator files
+*.sln
+*.vcxproj
