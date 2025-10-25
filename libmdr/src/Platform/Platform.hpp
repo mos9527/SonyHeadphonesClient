@@ -47,7 +47,8 @@ inline unsigned long long macAddressToULL(const char* szMacAddres) {
         unsigned long long ULL;
         unsigned char b[8];
     } u;
+    u.ULL = 0ULL;
     for (int i = 0; i < 6; i++)
-        u.b[i] = static_cast<unsigned char>(buf[i]);
+        u.b[5 - i] = static_cast<unsigned char>(buf[i]);
     return u.ULL;
 }

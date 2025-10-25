@@ -1,6 +1,9 @@
 #include <mdr/WindowsPlatform.h>
 #include "../Platform.hpp"
 
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <BluetoothAPIs.h>
 #include <rpc.h>
 #include <winsock2.h>
@@ -40,7 +43,10 @@ struct MDRConnectionWindows
         if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), szMessage,
                            sizeof(szMessage), NULL) == 0)
             return "Unknown Error";
-        return ToU8String(szMessage);
+        std::string res = ToU8String(szMessage);
+        res.pop_back(); // \n
+        res.pop_back(); // \r
+        return res;
     }
     static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
@@ -88,7 +94,7 @@ struct MDRConnectionWindows
             if (err != WSAEWOULDBLOCK && err != WSAEINPROGRESS)
             {
                 closesocket(ptr->conn);
-                ptr->lastError = FormatErrorString(::GetLastError());
+                ptr->lastError = FormatErrorString(err);
                 return MDR_RESULT_ERROR_NET;
             }
             // Wait for connect to complete
@@ -125,7 +131,7 @@ struct MDRConnectionWindows
         if (receieved < 0)
         {
             int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK && err == WSAEINPROGRESS)
+            if (err == WSAEWOULDBLOCK || err == WSAEINPROGRESS)
                 return MDR_RESULT_INPROGRESS;
             ptr->lastError = FormatErrorString(err);
             return MDR_RESULT_ERROR_NET;
@@ -145,7 +151,7 @@ struct MDRConnectionWindows
         if (sent < 0)
         {
             int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK && err == WSAEINPROGRESS)
+            if (err == WSAEWOULDBLOCK || err == WSAEINPROGRESS)
                 return MDR_RESULT_INPROGRESS;
             ptr->lastError = FormatErrorString(err);
             return MDR_RESULT_ERROR_NET;
@@ -202,9 +208,13 @@ struct MDRConnectionWindows
             do
             {
                 auto const& pBytes = deviceInfo.Address.rgBytes;
-                devices.emplace_back(ToU8String(deviceInfo.szName),
-                                     fmt::format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[0], pBytes[1],
-                                                 pBytes[2], pBytes[3], pBytes[4], pBytes[5], pBytes[6]));
+                std::string szName = ToU8String(deviceInfo.szName);
+                std::string szMacAddress = fmt::format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[5], pBytes[4],
+                                                 pBytes[3], pBytes[2], pBytes[1], pBytes[0]);
+                devices.emplace_back();
+                auto& back = devices.back();
+                strncpy(back.szDeviceName, szName.c_str(), szName.size() + 1);
+                strncpy(back.szDeviceMacAddress, szMacAddress.c_str(), szMacAddress.size() + 1);
             }
             while (BluetoothFindNextDevice(deviceFindHandle, &deviceInfo));
             if (!BluetoothFindDeviceClose(deviceFindHandle))
@@ -213,12 +223,15 @@ struct MDRConnectionWindows
                 return MDR_RESULT_ERROR_NET;
             }
         }
-        while (FindHandleBluetoothFindNextRadio(radioFindHandle, &radio));
+        while (BluetoothFindNextRadio(radioFindHandle, &radio));
         if (!BluetoothFindRadioClose(radioFindHandle))
         {
             ptr->lastError = FormatErrorString(::GetLastError());
             return MDR_RESULT_ERROR_NET;
-        }
+        } 
+        *ppList = new MDRDeviceInfo[devices.size()];
+        std::memcpy(*ppList, devices.data(), devices.size() * sizeof(MDRDeviceInfo));
+        *pCount = devices.size();
         return MDR_RESULT_OK;
     }
 
