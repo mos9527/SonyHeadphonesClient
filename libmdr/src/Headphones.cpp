@@ -79,6 +79,8 @@ int MDRHeadphones::MoveNext()
     // Task done?
     if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
         return taskResult;
+    if (mRecvBuf.empty())
+        return MDR_HEADPHONES_NO_EVENT;
     auto commandBegin = std::ranges::find(mRecvBuf, kStartMarker);
     auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
     if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
@@ -420,16 +422,18 @@ const char* mdrResultString(int err)
     }
 }
 
-const char* mdrHeadphonesEventString(int evt)
+const char* mdrHeadphonesString(int err)
 {
-    switch (evt)
+    switch (err)
     {
     case MDR_HEADPHONES_NO_EVENT:
-        return "No Event";
+        return "No event";
     case MDR_HEADPHONES_ERROR:
         return "Error";
     case MDR_HEADPHONES_INITIALIZED:
         return "Initialized";
+    case MDR_HEADPHONES_FEATURE_UNSUPPORTED:
+        return "Feature unsupported";
     default:
         return "Unknown";
     }
@@ -450,6 +454,10 @@ int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived)
 int mdrConnectionSend(MDRConnection* conn, const char* src, int size, int* pSent)
 {
     return conn->send(conn->user, src, size, pSent);
+}
+int mdrConnectionPoll(MDRConnection* conn, int timeout)
+{
+    return conn->poll(conn->user, timeout);
 }
 int mdrConnectionGetDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList, int* pCount)
 {
@@ -476,14 +484,17 @@ void mdrHeadphonesDestroy(MDRHeadphones* h)
 
 int mdrHeadphonesPollEvents(MDRHeadphones* h)
 {
-    // Non-blocking. INPROGRESS are expected, not so much for others.
-    // Failfast if that happens - the owner usually has to die.
-    int r = h->Send();
-    if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-        return MDR_HEADPHONES_ERROR;
-    r = h->Receive();
-    if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-        return MDR_HEADPHONES_ERROR;
+    if (mdrConnectionPoll(h->mConn, 0) == MDR_RESULT_OK)
+    {
+        // Non-blocking. INPROGRESS are expected, not so much for others.
+        // Failfast if that happens - the owner usually has to die.
+        int r = h->Send();
+        if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+            return MDR_HEADPHONES_ERROR;
+        r = h->Receive();
+        if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+            return MDR_HEADPHONES_ERROR;
+    }
     return h->MoveNext();
 }
 int mdrHeadphonesRequestIsReady(MDRHeadphones* h)

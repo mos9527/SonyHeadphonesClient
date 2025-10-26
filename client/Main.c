@@ -43,7 +43,7 @@ int main()
         mdrConnectionFreeDevicesList(conn, &devices);
         printf("Connect: %s\n", mdrResultString(res));
 
-        if (res != MDR_RESULT_OK)
+        if (res != MDR_RESULT_INPROGRESS)
         {
             printf("connect failed (%s, %s)\n", mdrResultString(res), mdrConnectionGetLastError(conn));
             return -1;
@@ -55,11 +55,16 @@ int main()
 
     while (1)
     {
+        if (mdrConnectionPoll(conn, -1) != MDR_RESULT_OK)
+        {
+            printf("Connection poll failed.\n");
+            return -1;
+        }
         int evt = mdrHeadphonesPollEvents(headphones);
         switch (evt)
         {
         case MDR_HEADPHONES_ERROR:
-            printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrHeadphonesEventString(evt),
+            printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrHeadphonesString(evt),
                    mdrHeadphonesGetLastError(headphones),  mdrConnectionGetLastError(conn));
             return -1;
         case MDR_HEADPHONES_INITIALIZED:

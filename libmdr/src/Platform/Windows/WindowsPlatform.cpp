@@ -25,6 +25,7 @@ struct MDRConnectionWindows
                                                       .disconnect = Disconnect,
                                                       .recv = Recv,
                                                       .send = Send,
+                                                      .poll = Poll,
                                                       .getDevicesList = GetDevicesList,
                                                       .freeDevicesList = FreeDevicesList,
                                                       .getLastError = GetLastError}),
@@ -97,16 +98,8 @@ struct MDRConnectionWindows
                 ptr->lastError = FormatErrorString(err);
                 return MDR_RESULT_ERROR_NET;
             }
-            // Wait for connect to complete
-            WSAPOLLFD pfd{.fd = ptr->conn, .events = POLLOUT};
-            int res = WSAPoll(&pfd, 1, -1);
-            if (res <= 0)
-            {
-                ptr->lastError = FormatErrorString(WSAGetLastError());
-                return MDR_RESULT_ERROR_NET;
-            }
         }
-        return MDR_RESULT_OK;
+        return MDR_RESULT_INPROGRESS;
     }
 
     static void Disconnect(void* user) noexcept
@@ -158,6 +151,24 @@ struct MDRConnectionWindows
         }
         *pSent = sent;
         return MDR_RESULT_OK;
+    }
+
+    static int Poll(void* user, int timeout) noexcept
+    {
+        auto* ptr = static_cast<MDRConnectionWindows*>(user);
+        if (ptr->conn == INVALID_SOCKET)
+            return MDR_RESULT_ERROR_NO_CONNECTION;
+        WSAPOLLFD pfd{
+            .fd = ptr->fd,
+            .events = POLLIN | POLLOUT,
+        };
+        int res = WSAPoll(&pfd,1,timeout);
+        if (res > 0)
+            return MDR_RESULT_OK;
+        if (res == 0)
+            return MDR_RESULT_ERROR_TIMEOUT;
+        ptr->lastError = FormatErrorString(WSAGetLastError());
+        return MDR_RESULT_ERROR_NET;
     }
 
     static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept

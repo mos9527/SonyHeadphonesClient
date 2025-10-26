@@ -25,6 +25,7 @@ struct MDRConnectionLinux
             .disconnect = Disconnect,
             .recv = Recv,
             .send = Send,
+            .poll = Poll,
             .getDevicesList = GetDevicesList,
             .freeDevicesList = FreeDevicesList,
             .getLastError = GetLastError
@@ -68,21 +69,7 @@ struct MDRConnectionLinux
             ptr->lastError = strerror(errno);
             return MDR_RESULT_ERROR_NET;
         }
-        if (errno == EINPROGRESS)
-        {
-            // Wait for connect to complete
-            pollfd pfd{
-                .fd = ptr->fd,
-                .events = POLLOUT
-            };
-            res = poll(&pfd, 1, -1);
-            if (res <= 0)
-            {
-                ptr->lastError = strerror(errno);
-                return MDR_RESULT_ERROR_NET;
-            }
-        }
-        return MDR_RESULT_OK;
+        return MDR_RESULT_INPROGRESS;
     }
 
     static void Disconnect(void* user) noexcept
@@ -128,6 +115,24 @@ struct MDRConnectionLinux
         }
         *pSent = static_cast<int>(sent);
         return MDR_RESULT_OK;
+    }
+
+    static int Poll(void* user, int timeout) noexcept
+    {
+        auto* ptr = static_cast<MDRConnectionLinux*>(user);
+        if (!ptr->fd)
+            return MDR_RESULT_ERROR_NO_CONNECTION;
+        pollfd pfd{
+            .fd = ptr->fd,
+            .events = POLLIN | POLLOUT,
+        };
+        int res = poll(&pfd,1,timeout);
+        if (res > 0)
+            return MDR_RESULT_OK;
+        if (res == 0)
+            return MDR_RESULT_ERROR_TIMEOUT;
+        ptr->lastError = strerror(errno);
+        return MDR_RESULT_ERROR_NET;
     }
 
     static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
