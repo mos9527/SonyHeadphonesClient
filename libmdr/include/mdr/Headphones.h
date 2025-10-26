@@ -43,6 +43,7 @@ typedef struct MDRHeadphones MDRHeadphones;
 #define MDR_HEADPHONES_NO_EVENT 0
 #define MDR_HEADPHONES_ERROR 1
 #define MDR_HEADPHONES_INITIALIZED 2
+#define MDR_HEADPHONES_SYNC_COMPLETED 3
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,10 +65,15 @@ int mdrHeadphonesPollEvents(MDRHeadphones*);
 /**
  * @brief Send initialization payloads to the headphones.
  * @note  The official app does the same things - so you should too.
- * @return @ref MDR_RESULT_OK if requested, @ref MDR_RESULT_INPROGRESS otherwise.
+ * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
  */
 int mdrHeadphonesRequestInit(MDRHeadphones*);
-
+/**
+ * @brief Send query payloads to the headphones, for values that don't automatically update
+ *        (e.g. Battery levels)
+ * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
+ */
+int mdrHeadphonesRequestSync(MDRHeadphones*);
 const char* mdrHeadphonesGetLastError(MDRHeadphones*);
 #ifdef __cplusplus
 }

@@ -21,9 +21,9 @@ bool ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) 
     return true;
 };
 bool PeripheralGetStatus::Validate(const PeripheralGetStatus& data) {
-    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::PERI_GET_STATUS, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::PERI_GET_STATUS, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool PeripheralStatusPairingDeviceManagementCommon::Validate(const PeripheralStatusPairingDeviceManagementCommon& data) {
@@ -36,9 +36,9 @@ bool PeripheralStatusPairingDeviceManagementCommon::Validate(const PeripheralSta
     return true;
 };
 bool PeripheralGetParam::Validate(const PeripheralGetParam& data) {
-    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::PERI_GET_PARAM, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::PERI_GET_PARAM, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool PeripheralParamPairingDeviceManagementClassicBt::Validate(const PeripheralParamPairingDeviceManagementClassicBt& data) {
@@ -109,9 +109,9 @@ bool PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const Peripheral
     return true;
 };
 bool VoiceGuidanceGetParam::Validate(const VoiceGuidanceGetParam& data) {
-    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::VOICE_GUIDANCE_GET_PARAM, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::VOICE_GUIDANCE_GET_PARAM, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool VoiceGuidanceParamSettingMtk::Validate(const VoiceGuidanceParamSettingMtk& data) {

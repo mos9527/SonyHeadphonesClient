@@ -11,10 +11,10 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::ConnectRetSupportFunction> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralBase> {
+    template<> struct MDRTraits<v2::t2::PeripheralGetStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralGetStatus> {
+    template<> struct MDRTraits<v2::t2::PeripheralBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::PeripheralStatusPairingDeviceManagementCommon> {
@@ -53,10 +53,10 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::PeripheralNotifyExtendedParamSourceSwitchControl> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceBase> {
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetParam> {
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::VoiceGuidanceParamSettingMtk> {

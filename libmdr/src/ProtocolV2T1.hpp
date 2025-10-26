@@ -1246,9 +1246,18 @@ namespace mdr::v2::t1
     static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
 #pragma endregion Connect
 #pragma region Common
-    struct CommonBase
-    {        
+    struct CommonGetStatus
+    {
         // CODEGEN EnumRange Command::COMMON_GET_STATUS
+        Command command{Command::COMMON_GET_STATUS}; // 0x0
+        CommonInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonGetStatus);
+    };
+    static_assert(MDRIsSerializable<CommonGetStatus>);
+
+    struct CommonBase
+    {
         Command command{Command::COMMON_GET_STATUS}; // 0x0
         CommonInquiredType type; // 0x1
 
@@ -1263,7 +1272,7 @@ namespace mdr::v2::t1
         // CODEGEN Field command EnumRange Command::COMMON_GET_STATUS
         // CODEGEN Field type EnumRange CommonInquiredType::AUDIO_CODEC
         CommonBase base{Command::COMMON_GET_STATUS, CommonInquiredType::AUDIO_CODEC};
-        AudioCodec audioCodec; // 0x2
+        AudioCodec audioCodec{AudioCodec::UNSETTLED}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonStatusAudioCodec);
     };
@@ -1272,9 +1281,17 @@ namespace mdr::v2::t1
 
 #pragma endregion
 #pragma region Power
-    // Not implemented
+    struct PowerGetStatus
+    {
+        // CODEGEN EnumRange Command::POWER_GET_STATUS
+        Command command{Command::POWER_GET_STATUS}; // 0x0
+        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
 
-    // Not implemented
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerGetStatus);
+    };
+
+    static_assert(MDRIsSerializable<PowerGetStatus>);
+
     struct PowerBase
     {        
         Command command{Command::POWER_GET_STATUS}; // 0x0
@@ -1407,9 +1424,10 @@ namespace mdr::v2::t1
 
     struct PowerGetParam
     {
-        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM
-        // CODEGEN Field type EnumRange PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
-        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::AUTO_POWER_OFF};
+        // CODEGEN EnumRange Command::POWER_GET_PARAM
+        Command command{Command::POWER_GET_PARAM}; // 0x0
+        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF
+        PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerGetParam);
     };
@@ -1483,8 +1501,9 @@ namespace mdr::v2::t1
 
     struct EqEbbGetStatus
     {        
-        // CODEGEN Field command EnumRange Command::EQEBB_GET_STATUS
-        EqEbbBase base{Command::EQEBB_GET_STATUS, EqEbbInquiredType::PRESET_EQ};
+        // CODEGEN EnumRange Command::EQEBB_GET_STATUS
+        Command command{Command::EQEBB_GET_STATUS}; // 0x0
+        EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetStatus);
     };
@@ -1872,6 +1891,16 @@ namespace mdr::v2::t1
 #pragma endregion Alert
 #pragma region Playback
 
+    struct GetPlayParam
+    {
+        // CODEGEN EnumRange Command::PLAY_GET_STATUS
+        Command command{Command::PLAY_GET_PARAM};
+        PlayInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayParam);
+    };
+    static_assert(MDRIsSerializable<GetPlayParam>);
+
     struct GetPlayStatus
     {
         // CODEGEN EnumRange Command::PLAY_GET_STATUS
@@ -2172,8 +2201,9 @@ namespace mdr::v2::t1
     // - UPSCALING, BGM_MODE, UPMIX_CINEMA, VOICE_CONTENTS, SOUND_LEAKAGE_REDUCTION
     struct AudioGetParam
     {
-        // CODEGEN Field command EnumRange Command::AUDIO_GET_PARAM
-        AudioBase base{Command::AUDIO_GET_PARAM};
+        // CODEGEN EnumRange Command::AUDIO_GET_PARAM
+        Command command{Command::AUDIO_GET_PARAM};
+        AudioInquiredType type; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioGetParam);
     };

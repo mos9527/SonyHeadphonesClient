@@ -297,21 +297,21 @@ namespace mdr::v2::t2
 #pragma region PERI_*_STATUS
 
 #pragma region PERI_GET_STATUS
+    struct PeripheralGetStatus
+    {
+        // CODEGEN EnumRange Command::PERI_GET_STATUS
+        Command command{Command::PERI_GET_STATUS};
+        PeripheralInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetStatus);
+    };
+    static_assert(MDRIsSerializable<PeripheralGetStatus>);
+
     struct PeripheralBase
     {
         Command command{Command::PERI_GET_STATUS};
         PeripheralInquiredType type; // 0x1
     };
-
-    struct PeripheralGetStatus
-    {
-        // CODEGEN Field command EnumRange Command::PERI_GET_STATUS
-        PeripheralBase base{Command::PERI_GET_STATUS};
-
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetStatus);
-    };
-
-    static_assert(MDRIsSerializable<PeripheralGetStatus>);
 #pragma endregion PERI_GET_STATUS
 
 #pragma region PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
@@ -370,8 +370,9 @@ namespace mdr::v2::t2
 
     struct PeripheralGetParam
     {
-        // CODEGEN Field command EnumRange Command::PERI_GET_PARAM
-        PeripheralBase base{Command::PERI_GET_PARAM};
+        // CODEGEN EnumRange Command::PERI_GET_PARAM
+        Command command{Command::PERI_GET_STATUS};
+        PeripheralInquiredType type; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetParam);
     };
@@ -542,22 +543,21 @@ namespace mdr::v2::t2
 #pragma region VOICE_GUIDANCE_*_PARAM
 
 #pragma region VOICE_GUIDANCE_GET_PARAM
+    struct VoiceGuidanceGetParam
+    {
+        // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_PARAM
+        Command command{Command::VOICE_GUIDANCE_GET_PARAM};
+        VoiceGuidanceInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceGetParam);
+    };
+    static_assert(MDRIsSerializable<VoiceGuidanceGetParam>);
 
     struct VoiceGuidanceBase
     {
         Command command{Command::VOICE_GUIDANCE_GET_PARAM};
         VoiceGuidanceInquiredType type; // 0x1
     };
-
-    struct VoiceGuidanceGetParam
-    {
-        // CODEGEN Field command EnumRange Command::VOICE_GUIDANCE_GET_PARAM
-        VoiceGuidanceBase base{Command::VOICE_GUIDANCE_GET_PARAM};
-
-        MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceGetParam);
-    };
-
-    static_assert(MDRIsSerializable<VoiceGuidanceGetParam>);
 #pragma endregion VOICE_GUIDANCE_GET_PARAM
 
 #pragma region VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM

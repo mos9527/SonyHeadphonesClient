@@ -1,5 +1,8 @@
 #include "Headphones.hpp"
+#include <ranges>
+#include <algorithm>
 #include <fmt/base.h>
+
 MDRHeadphones::Awaiter MDRHeadphones::Await(AwaitType type)
 {
     return Awaiter{this, type};
@@ -94,9 +97,10 @@ int MDRHeadphones::MoveNext()
         // Incomplete. Nop.
         break;
     case MDRUnpackResult::BAD_MARKER: [[unlikely]]
-    case MDRUnpackResult::BAD_CHECKSUM: [[unlikely]]
-        // Unlikely. What we have now makes no sense yet markers are intact.
-        mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
+    case MDRUnpackResult::BAD_CHECKSUM:
+        [[unlikely]]
+            // Unlikely. What we have now makes no sense yet markers are intact.
+            mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
         break;
     }
     return MDR_HEADPHONES_NO_EVENT; // No event
@@ -144,36 +148,39 @@ const char* mdrResultString(int err)
 {
     switch (err)
     {
-        case MDR_RESULT_OK:
-            return "OK";
-        case MDR_RESULT_INPROGRESS:
-            return "Task in progress";
-        case MDR_RESULT_ERROR_GENERAL:
-            return "General error";
-        case MDR_RESULT_ERROR_NOT_FOUND:
-            return "Resource not found";
-        case MDR_RESULT_ERROR_TIMEOUT:
-            return "Timed out";
-        case MDR_RESULT_ERROR_NET:
-            return "Networking error";
-        case MDR_RESULT_ERROR_NO_CONNECTION:
-            return "No connection has been established";
-        case MDR_RESULT_ERROR_BAD_ADDRESS:
-            return "Invalid address information";
-        default:
-            return "Unknown";
+    case MDR_RESULT_OK:
+        return "OK";
+    case MDR_RESULT_INPROGRESS:
+        return "Task in progress";
+    case MDR_RESULT_ERROR_GENERAL:
+        return "General error";
+    case MDR_RESULT_ERROR_NOT_FOUND:
+        return "Resource not found";
+    case MDR_RESULT_ERROR_TIMEOUT:
+        return "Timed out";
+    case MDR_RESULT_ERROR_NET:
+        return "Networking error";
+    case MDR_RESULT_ERROR_NO_CONNECTION:
+        return "No connection has been established";
+    case MDR_RESULT_ERROR_BAD_ADDRESS:
+        return "Invalid address information";
+    default:
+        return "Unknown";
     }
 }
+
 const char* mdrHeadphonesEventString(int evt)
 {
     switch (evt)
     {
-        case MDR_HEADPHONES_NO_EVENT:
-            return "No Event";
-        case MDR_HEADPHONES_INITIALIZED:
-            return "Initialized";
-        default:
-            return "Unknown";
+    case MDR_HEADPHONES_NO_EVENT:
+        return "No Event";
+    case MDR_HEADPHONES_ERROR:
+        return "Error";
+    case MDR_HEADPHONES_INITIALIZED:
+        return "Initialized";
+    default:
+        return "Unknown";
     }
 }
 
@@ -204,6 +211,12 @@ int mdrHeadphonesRequestInit(MDRHeadphones* h)
 {
     return h->Invoke(h->RequestInit());
 }
+
+int mdrHeadphonesRequestSync(MDRHeadphones* h)
+{
+    return h->Invoke(h->RequestSync());
+}
+
 const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
 {
     return h->GetLastError();
@@ -213,6 +226,7 @@ const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
 // Sigh.
 // NOLINTBEGIN
 #pragma region Tasks
+// XXX: Maybe RequestInitV2? Maybe someone with a pair of XM4s could help with V1 :D
 MDRTask MDRHeadphones::RequestInit()
 {
     SendCommandACK(v2::t1::ConnectGetProtocolInfo);
@@ -235,24 +249,226 @@ MDRTask MDRHeadphones::RequestInit()
             SendCommandACK(v2::t2::ConnectGetSupportFunction);
             co_await Await(AWAIT_SUPPORT_FUNCTION);
         }
+
+        /* General Setting */
+        v2::t1::DisplayLanguage lang = v2::t1::DisplayLanguage::ENGLISH;
+        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
+        {
+            SendCommandACK(v2::t1::GsGetCapability, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING1, .displayLanguage = lang
+                           });
+            SendCommandACK(v2::t1::GsGetParam, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING1
+                           });
+        }
+        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
+        {
+            SendCommandACK(v2::t1::GsGetCapability, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING2, .displayLanguage = lang
+                           });
+            SendCommandACK(v2::t1::GsGetParam, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING2
+                           });
+        }
+        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
+        {
+            SendCommandACK(v2::t1::GsGetCapability, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING3, .displayLanguage = lang
+                           });
+            SendCommandACK(v2::t1::GsGetParam, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING3
+                           });
+        }
+        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
+        {
+            SendCommandACK(v2::t1::GsGetCapability, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING4, .displayLanguage = lang
+                           });
+            SendCommandACK(v2::t1::GsGetParam, {
+                           .type = v2::t1::GsInquiredType::GENERAL_SETTING4
+                           });
+        }
+
+        /* DSEE */
+        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+            SendCommandACK(v2::t1::AudioGetCapability, {
+                       .type = v2::t1::AudioInquiredType::UPSCALING
+                       });
     }
-    mInitialized = true;
-    fmt::println("=== Table 1 Functions");
-    for (UInt8 i = 0; i < 255; i++)
+    /* [NO ACK] Receive alerts for certain operations like toggling multipoint */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
+        SendCommandImpl<v2::t1::AlertSetStatusFixedMessage>({.status = v2::MessageMdrV2EnableDisable::ENABLE});
+
+    /* Codec Type */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+        SendCommandACK(v2::t1::CommonGetStatus, { .type = v2::t1::CommonInquiredType::AUDIO_CODEC });
+
+    /* Playback Metadata */
+    SendCommandACK(v2::t1::GetPlayParam,
+                   { .type = v2::t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+
+    /* Playback Volume */
+    SendCommandACK(v2::t1::GetPlayParam, { .type = v2::t1::PlayInquiredType::MUSIC_VOLUME });
+
+    /* Play/Pause */
+    if (mSupportFunctions.contains(
+        v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
     {
-        auto sv = static_cast<v2::MessageMdrV2FunctionType_Table1>(i);
-        if (mSupportFunctions.table1Functions[i] && is_valid(sv))
-            fmt::println("\t{}", sv);
+        SendCommandACK(v2::t1::NcAsmGetParam,
+                       { .type = v2::t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS});
     }
-    fmt::println("=== Table 2 Functions");
-    for (UInt8 i = 0; i < 255; i++)
+    else if (mSupportFunctions.contains(
+        v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
     {
-        auto sv = static_cast<v2::MessageMdrV2FunctionType_Table2>(i);
-        if (mSupportFunctions.table2Functions[i] && is_valid(sv))
-            fmt::println("\t{}", sv);
+        SendCommandACK(v2::t1::NcAsmGetParam,
+                       { .type = v2::t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA});
+    }
+    else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+    {
+        SendCommandACK(v2::t1::NcAsmGetParam, { .type = v2::t1::NcAsmInquiredType::ASM_SEAMLESS});
     }
 
+    /* Pairing Management */
+    constexpr v2::MessageMdrV2FunctionType_Table2 kPairingFunctions[] = {
+        v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
+        v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
+        v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
+    };
+    if (std::ranges::any_of(kPairingFunctions, [&](auto x) { return mSupportFunctions.contains(x); }))
+    {
+        /* Pairing Mode */
+        SendCommandACK(v2::t2::PeripheralGetStatus,
+                       {.type = v2::t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+                       });
+
+        /* Connected Devices */
+        SendCommandACK(v2::t2::PeripheralGetParam,
+                       {.type = v2::t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+                       });
+    }
+
+    /* Speak To Chat */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+    {
+        SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
+        SendCommandACK(v2::t1::SystemGetExtParam, {.type = v2::t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
+    }
+
+    /* Listening Mode */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
+    {
+        SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::BGM_MODE});
+        SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::UPMIX_CINEMA});
+    }
+
+    /* Equalizer */
+    SendCommandACK(v2::t1::EqEbbGetStatus, {.type = v2::t1::EqEbbInquiredType::PRESET_EQ});
+
+    /* Connection Quality */
+    if (mSupportFunctions.contains(
+        v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+        SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::CONNECTION_MODE});
+
+    /* DSEE */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+    {
+        SendCommandACK(v2::t1::AudioGetStatus, {.type = v2::t1::AudioInquiredType::UPSCALING});
+        SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::UPSCALING});
+    }
+
+    /* Touch Sensor */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
+        SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::ASSIGNABLE_SETTINGS });
+
+    /* NC/AMB Toggle */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        SendCommandACK(v2::t1::NcAsmGetParam, {.type = v2::t1::NcAsmInquiredType::NC_AMB_TOGGLE });
+
+    /* Head Gesture */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+        SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::HEAD_GESTURE_ON_OFF });
+
+    /* Auto Power Off */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
+    {
+        SendCommandACK(v2::t1::PowerGetParam, {.type = v2::t1::PowerInquiredType::AUTO_POWER_OFF});
+    }
+    else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+    {
+        SendCommandACK(v2::t1::PowerGetParam, {.type = v2::t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
+    }
+
+    /* Pause when headphones are removed */
+    SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
+
+    /* Voice Guidance */
+    if (mProto.hasTable2)
+    {
+        // Enabled
+        SendCommandACK(v2::t2::VoiceGuidanceGetParam,
+                       {
+                       .type = v2::t2::VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH
+                       });
+        // Volume
+        SendCommandACK(v2::t2::VoiceGuidanceGetParam, {.type = v2::t2::VoiceGuidanceInquiredType::VOLUME});
+    }
+
+    /* LOG_SET_STATUS */
+    // XXX: Figure out if there's a struct for this in the app
+    constexpr UInt8 kLogSetStatusCommand[] = {
+        static_cast<UInt8>(v2::t1::Command::LOG_SET_STATUS),
+        0x01, 0x00
+    };
+    SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
+    co_await Await(AWAIT_ACK);
+
+    mInitialized = true;
     co_return MDR_HEADPHONES_INITIALIZED;
+}
+MDRTask MDRHeadphones::RequestSync()
+{
+    /* Single Battery */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+    {
+        SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::BATTERY});
+    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+    {
+        SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::BATTERY_WITH_THRESHOLD});
+    }
+
+    /* L + R Battery */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+    {
+        SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::LEFT_RIGHT_BATTERY});
+    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+    {
+        SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::LR_BATTERY_WITH_THRESHOLD});
+    }
+
+    /* Case Battery */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+    {
+        SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::CRADLE_BATTERY});
+    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+    {
+        SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD});
+    }
+
+    /* Sound Pressure */
+    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
+    {
+        SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1});
+    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+    {
+        SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2});
+    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+    {
+        SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1});
+    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+    {
+        SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
+    }
+    co_return MDR_HEADPHONES_SYNC_COMPLETED;
 }
 #pragma endregion
 // NOLINTEND

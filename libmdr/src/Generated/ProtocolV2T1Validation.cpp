@@ -52,9 +52,14 @@ bool ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) 
     }
     return true;
 };
-bool CommonBase::Validate(const CommonBase& data) {
+bool CommonGetStatus::Validate(const CommonGetStatus& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::COMMON_GET_STATUS, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
+bool CommonBase::Validate(const CommonBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
@@ -64,6 +69,12 @@ bool CommonStatusAudioCodec::Validate(const CommonStatusAudioCodec& data) {
     MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::COMMON_GET_STATUS, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of CommonInquiredType::AUDIO_CODEC, got {}",data.base.type);
     MDR_CHECK(is_valid(data.audioCodec), "audioCodec got an invalid enum value");
+    return true;
+};
+bool PowerGetStatus::Validate(const PowerGetStatus& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::POWER_GET_STATUS, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool PowerRetStatusBattery::Validate(const PowerRetStatusBattery& data) {
@@ -133,10 +144,10 @@ bool PowerSetStatusPowerOff::Validate(const PowerSetStatusPowerOff& data) {
     return true;
 };
 bool PowerGetParam::Validate(const PowerGetParam& data) {
-    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::POWER_GET_PARAM, got {}",data.base.command);
-    MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF, got {}",data.base.type);
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::POWER_GET_PARAM, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF, got {}",data.type);
     return true;
 };
 bool PowerParamAutoPowerOff::Validate(const PowerParamAutoPowerOff& data) {
@@ -175,9 +186,9 @@ bool PowerParamBatterySafeMode::Validate(const PowerParamBatterySafeMode& data) 
     return true;
 };
 bool EqEbbGetStatus::Validate(const EqEbbGetStatus& data) {
-    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::EQEBB_GET_STATUS, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::EQEBB_GET_STATUS, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool EqEbbStatusErrorCode::Validate(const EqEbbStatusErrorCode& data) {
@@ -423,6 +434,12 @@ bool AlertNotifyParamAppBecomesForeground::Validate(const AlertNotifyParamAppBec
     MDR_CHECK(is_valid(data.actionType), "actionType got an invalid enum value");
     return true;
 };
+bool GetPlayParam::Validate(const GetPlayParam& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::PLAY_GET_STATUS, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
 bool GetPlayStatus::Validate(const GetPlayStatus& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::PLAY_GET_STATUS, got {}",data.command);
@@ -571,9 +588,9 @@ bool AudioGetStatus::Validate(const AudioGetStatus& data) {
     return true;
 };
 bool AudioGetParam::Validate(const AudioGetParam& data) {
-    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::AUDIO_GET_PARAM, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::AUDIO_GET_PARAM, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool AudioParamConnection::Validate(const AudioParamConnection& data) {

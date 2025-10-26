@@ -35,10 +35,16 @@ namespace mdr {
     template<> struct MDRTraits<v2::t1::ConnectRetSupportFunction> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v2::t1::CommonGetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v2::t1::CommonBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::CommonStatusAudioCodec> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v2::t1::PowerGetStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::PowerBase> {
@@ -180,6 +186,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::AlertNotifyParamAppBecomesForeground> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v2::t1::GetPlayParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::GetPlayStatus> {

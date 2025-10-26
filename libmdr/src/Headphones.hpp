@@ -183,18 +183,27 @@ struct MDRHeadphones
     {
         Array<UInt8, 256> table1Functions;
         Array<UInt8, 256> table2Functions;
+        [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table1 v) const
+        {
+            return table1Functions[static_cast<UInt8>(v)];
+        }
+        [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table2 v) const
+        {
+            return table2Functions[static_cast<UInt8>(v)];
+        }
     } mSupportFunctions{};
     // Set by @ref RequestInit
     bool mInitialized{};
 #pragma endregion
 #pragma region Tasks
     MDRTask RequestInit();
+    MDRTask RequestSync();
 #pragma endregion
 
 
 private:
     // XXX: So, very naive. We just die if anything bad happens.
-    auto ExceptionHandler(auto&& func)
+    bool ExceptionHandler(auto&& func)
     {
         try
         {
@@ -206,6 +215,7 @@ private:
             mLastError = exc.what();
             mConn->disconnect(mConn->user);
         }
+        return false;
     }
 
     /**
@@ -240,6 +250,7 @@ private:
     /**
      * @brief Check if the coroutine frame has been completed - and if so, resets the current @ref mTask
      *        and allow subsequent @ref Invoke calls to take effect.
+     * @return true if a task has been completed _here_. No tasks, or in-progress results in false.
      */
     bool TaskMoveNext(int& result);
     /**
@@ -254,7 +265,8 @@ private:
 
 // NOLINTBEGIN
 /**
- * @brief Sends command through @ref SendCommandImpl<T>, and wait for an ACK.
+ * @brief Sends command through @ref SendCommandImpl<T>, and re-schedule ourselves to
+ *        await for an ACK on the coroutine.
  * @param Type Command payload of @ref MDRIsSerializable type
  * @note  This is ONLY meaningful within a @ref MDRTask coroutine, as this schedules
  *        the current task to wait on a @ref AWAIT_ACK event.
@@ -266,6 +278,8 @@ private:
  * TL;DR, this helps with compiler bloats. Use it well.
  */
 #define SendCommandACK(Type, ...) \
-    SendCommandImpl<Type>( __VA_ARGS__ ); \
-    co_await Await(AWAIT_ACK);
+    { \
+        SendCommandImpl<Type>( __VA_ARGS__ ); \
+        co_await Await(AWAIT_ACK); \
+    }
 // NOLINTEND
