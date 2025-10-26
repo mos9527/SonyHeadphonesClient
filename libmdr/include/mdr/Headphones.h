@@ -41,6 +41,8 @@ typedef struct MDRConnection
 typedef struct MDRHeadphones MDRHeadphones;
 
 #define MDR_HEADPHONES_NO_EVENT 0
+#define MDR_HEADPHONES_ERROR 1
+#define MDR_HEADPHONES_INITIALIZED 2
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,9 +57,15 @@ const char* mdrHeadphonesEventString(int evt);
 /**
  * @breif Receive commands and process events. This is non-blocking, and should be
  *        run in a tight loop.
+ * @note  This is your best friend. Use it.
  * @return One of MDR_HEADPHONES_* event types
  */
 int mdrHeadphonesPollEvents(MDRHeadphones*);
+/**
+ * @brief Send initialization payloads to the headphones.
+ * @note  The official app does the same things - so you should too.
+ * @return @ref MDR_RESULT_OK if requested, @ref MDR_RESULT_INPROGRESS otherwise.
+ */
 int mdrHeadphonesRequestInit(MDRHeadphones*);
 
 const char* mdrHeadphonesGetLastError(MDRHeadphones*);

@@ -49,14 +49,15 @@ int MDRHeadphones::Send()
 }
 
 
-void MDRHeadphones::Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
+int MDRHeadphones::Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
 {
     using enum MDRDataType;
     mSeqNumber = seq;
     switch (type)
     {
     case ACK:
-        return HandleAck(seq);
+        HandleAck(seq);
+        break;
     case DATA_MDR:
         SendACK(seq);
         return HandleCommandV2T1(command, seq);
@@ -66,15 +67,19 @@ void MDRHeadphones::Handle(Span<const UInt8> command, MDRDataType type, MDRComma
     default:
         break;
     }
+    return MDR_HEADPHONES_NO_EVENT;
 }
 
-void MDRHeadphones::MoveNext()
+int MDRHeadphones::MoveNext()
 {
-    ExceptionHandler([this] { TaskMoveNext(); });
+    int taskResult;
+    // Task done?
+    if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
+        return taskResult;
     auto commandBegin = std::ranges::find(mRecvBuf, kStartMarker);
     auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
     if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
-        return; // Incomplete
+        return MDR_HEADPHONES_NO_EVENT; // Incomplete
     MDRBuffer packedCommand{commandBegin, commandEnd + 1};
     MDRBuffer command;
     MDRDataType type;
@@ -84,8 +89,7 @@ void MDRHeadphones::MoveNext()
     {
     case MDRUnpackResult::OK:
         mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
-        Handle(command, type, seqNum);
-        break;
+        return Handle(command, type, seqNum);
     case MDRUnpackResult::INCOMPLETE:
         // Incomplete. Nop.
         break;
@@ -95,6 +99,7 @@ void MDRHeadphones::MoveNext()
         mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
         break;
     }
+    return MDR_HEADPHONES_NO_EVENT; // No event
 }
 
 int MDRHeadphones::Invoke(MDRTask&& task)
@@ -103,17 +108,15 @@ int MDRHeadphones::Invoke(MDRTask&& task)
         return MDR_RESULT_INPROGRESS;
     mTask = std::move(task);
     mTask.coroutine.resume();
-    ExceptionHandler([this] { TaskMoveNext(); });
     return MDR_RESULT_OK;
 }
 
-bool MDRHeadphones::TaskMoveNext()
+bool MDRHeadphones::TaskMoveNext(int& result)
 {
-    if (!mTask)
-        return true;
-    if (!mTask.coroutine.done())
+    if (!mTask || !mTask.coroutine.done())
         return false;
-    auto& [exec, next] = mTask.coroutine.promise();
+    auto& [exec, next, value] = mTask.coroutine.promise();
+    result = value;
     if (exec)
         std::rethrow_exception(exec);
     mTask = {};
@@ -161,6 +164,19 @@ const char* mdrResultString(int err)
             return "Unknown";
     }
 }
+const char* mdrHeadphonesEventString(int evt)
+{
+    switch (evt)
+    {
+        case MDR_HEADPHONES_NO_EVENT:
+            return "No Event";
+        case MDR_HEADPHONES_INITIALIZED:
+            return "Initialized";
+        default:
+            return "Unknown";
+    }
+}
+
 MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
 {
     return new MDRHeadphones(conn);
@@ -177,12 +193,11 @@ int mdrHeadphonesPollEvents(MDRHeadphones* h)
     // Failfast if that happens - the owner usually has to die.
     int r = h->Send();
     if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-        return r;
+        return MDR_HEADPHONES_ERROR;
     r = h->Receive();
     if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-        return r;
-    h->MoveNext();
-    return MDR_RESULT_OK;
+        return MDR_HEADPHONES_ERROR;
+    return h->MoveNext();
 }
 
 int mdrHeadphonesRequestInit(MDRHeadphones* h)
@@ -201,6 +216,7 @@ const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
 MDRTask MDRHeadphones::RequestInit()
 {
     SendCommandACK(v2::t1::ConnectGetProtocolInfo);
+    co_await Await(AWAIT_PROTOCOL_INFO);
     MDR_CHECK(mProto.hasTable1, "Device doesn't support MDR V2 Table 1");
     SendCommandACK(v2::t1::ConnectGetCapabilityInfo);
 
@@ -221,7 +237,6 @@ MDRTask MDRHeadphones::RequestInit()
         }
     }
     mInitialized = true;
-    fmt::println("Init OK!!!");
     fmt::println("=== Table 1 Functions");
     for (UInt8 i = 0; i < 255; i++)
     {
@@ -236,6 +251,8 @@ MDRTask MDRHeadphones::RequestInit()
         if (mSupportFunctions.table2Functions[i] && is_valid(sv))
             fmt::println("\t{}", sv);
     }
+
+    co_return MDR_HEADPHONES_INITIALIZED;
 }
 #pragma endregion
 // NOLINTEND

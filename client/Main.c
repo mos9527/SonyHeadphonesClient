@@ -55,14 +55,21 @@ int main()
 
     while (1)
     {
-        int res = mdrHeadphonesPollEvents(headphones);
-        if (res != MDR_RESULT_OK)
+        int evt = mdrHeadphonesPollEvents(headphones);
+        switch (evt)
         {
-            printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrResultString(res),
+        case MDR_HEADPHONES_ERROR:
+            printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrHeadphonesEventString(evt),
                    mdrHeadphonesGetLastError(headphones), conn->getLastError(conn->user));
             return -1;
+        case MDR_HEADPHONES_INITIALIZED:
+            printf("Initialized. We're done.\n");
+            goto END;
+        default:
+            break;
         }
     }
+END:
     mdrHeadphonesDestroy(headphones);
 #ifdef MDR_PLATFORM_LINUX
     mdrConnectionLinuxDestroy(platform);

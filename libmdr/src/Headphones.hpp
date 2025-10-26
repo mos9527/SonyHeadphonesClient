@@ -8,14 +8,18 @@
 #include <coroutine>
 
 using namespace mdr;
-// Coroutine task boilerplate from https://github.com/mos9527/coro
 // NOLINTBEGIN
+/**
+ * @brief Coroutine task boilerplate from https://github.com/mos9527/coro
+ * @note The coroutine MUST return one of MDR_HEADPHONES_... values indicating its completion.
+ */
 struct MDRTask
 {
     struct promise_type
     {
         std::exception_ptr exception;
         std::coroutine_handle<> next;
+        int result;
         static std::suspend_always initial_suspend() noexcept { return {}; }
         void unhandled_exception() noexcept { exception = std::current_exception(); }
 
@@ -38,9 +42,7 @@ struct MDRTask
         static final_awaiter final_suspend() noexcept { return final_awaiter{}; }
         MDRTask get_return_object();
 
-        static void return_void() noexcept
-        {
-        }
+        void return_value(int v) { result = v; }
     };
 
     using value_type = void;
@@ -151,11 +153,12 @@ struct MDRHeadphones
      * @note  This is a no-op if buffer is incomplete and no complete command payload can be produced.
      * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically.
      * @note  This is your best friend.
+     * @return One of MDR_HEADPHONES_* event types
      */
-    void MoveNext();
+    int MoveNext();
     /**
-     * @brief Executes the task, and _may_ schedule it later if it wants to @ref Await on something
-     * @return @ref MDR_RESULT_OK if task has been resumed _at least_ once, @ref MDR_RESULT_INPROGRESS if _another_ task
+     * @brief Schedules the task to be run on the next @ref MoveNext call.
+     * @return @ref MDR_RESULT_OK if task has been scheduled, @ref MDR_RESULT_INPROGRESS if _another_ task
      *         is still being executed.
      */
     int Invoke(MDRTask&& task);
@@ -171,7 +174,7 @@ struct MDRHeadphones
         int version;
         int hasTable1;
         int hasTable2;
-    } mProto;
+    } mProto{};
     // Q: Why not std::bitset?
     // A: They are not constexpr until C++23 - while std::array[] are since 14.
     //    Since there's no other C++23 feature usage anywhere else in the lib,
@@ -191,11 +194,11 @@ struct MDRHeadphones
 
 private:
     // XXX: So, very naive. We just die if anything bad happens.
-    void ExceptionHandler(auto&& func)
+    auto ExceptionHandler(auto&& func)
     {
         try
         {
-            func();
+            return func();
         }
         catch (std::runtime_error& exc)
         {
@@ -238,11 +241,15 @@ private:
      * @brief Check if the coroutine frame has been completed - and if so, resets the current @ref mTask
      *        and allow subsequent @ref Invoke calls to take effect.
      */
-    bool TaskMoveNext();
-    void Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
+    bool TaskMoveNext(int& result);
+    /**
+     * @brief Handles current command, and generates a event associated with it.
+     * @return One of MDR_HEADPHONES_* event types
+     */
+    int Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
+    int HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
+    int HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
     void HandleAck(MDRCommandSeqNumber seq);
-    void HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
-    void HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
 };
 
 // NOLINTBEGIN
@@ -257,7 +264,6 @@ private:
  * while all we need is merely a `co_await`...
  *
  * TL;DR, this helps with compiler bloats. Use it well.
- *
  */
 #define SendCommandACK(Type, ...) \
     SendCommandImpl<Type>( __VA_ARGS__ ); \

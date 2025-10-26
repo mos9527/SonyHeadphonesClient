@@ -21,7 +21,7 @@ void HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
     for (auto fun : res.supportFunctions)
         self->mSupportFunctions.table1Functions[static_cast<UInt8>(fun.table1)] = true;
 }
-void MDRHeadphones::HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
+int MDRHeadphones::HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
 {
     CommandBase base;
     CommandBase::Deserialize(cmd.data(), base);
@@ -30,11 +30,14 @@ void MDRHeadphones::HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber
     {
     case CONNECT_RET_PROTOCOL_INFO:
         HandleProtocolInfo(this, cmd);
-        return Awake(AWAIT_PROTOCOL_INFO);
+        Awake(AWAIT_PROTOCOL_INFO);
+        break;
     case CONNECT_RET_SUPPORT_FUNCTION:
         HandleSupportFunctionT1(this, cmd);
-        return Awake(AWAIT_SUPPORT_FUNCTION);
+        Awake(AWAIT_SUPPORT_FUNCTION);
+        break;
     default:
         fmt::println("** Unhandled {}", base.command);
     }
+    return MDR_HEADPHONES_NO_EVENT;
 }

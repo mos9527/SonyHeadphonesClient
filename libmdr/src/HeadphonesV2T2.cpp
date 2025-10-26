@@ -10,7 +10,7 @@ void HandleSupportFunctionT2(MDRHeadphones* self, Span<const UInt8> cmd)
     for (auto fun : res.supportFunctions)
         self->mSupportFunctions.table2Functions[static_cast<UInt8>(fun.table2)] = true;
 }
-void MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
+int MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
 {
     using namespace v2::t2;
     using enum Command;
@@ -20,8 +20,11 @@ void MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber
     {
     case CONNECT_RET_SUPPORT_FUNCTION:
         HandleSupportFunctionT2(this, cmd);
-        return Awake(AWAIT_SUPPORT_FUNCTION);
+        Awake(AWAIT_SUPPORT_FUNCTION);
+        break;
     default:
         fmt::println("** Unhandled {}", base.command);
+        break;
     }
+    return MDR_HEADPHONES_NO_EVENT;
 }
