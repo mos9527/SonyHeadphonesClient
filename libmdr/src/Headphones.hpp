@@ -127,7 +127,7 @@ struct MDRHeadphones
     };
 
     // NOLINTEND
-    std::string mLastError{"Nothing here to see"};
+    std::string mLastError{};
 
     std::deque<UInt8> mRecvBuf, mSendBuf;
     MDRConnection* mConn;
@@ -160,6 +160,7 @@ struct MDRHeadphones
      * @brief Schedules the task to be run on the next @ref MoveNext call.
      * @return @ref MDR_RESULT_OK if task has been scheduled, @ref MDR_RESULT_INPROGRESS if _another_ task
      *         is still being executed.
+     * @note @ref TaskMoveNext frees the completed task.
      */
     int Invoke(MDRTask&& task);
     /**
@@ -248,9 +249,10 @@ private:
         SendCommandImpl({ buf, buf + size}, type, mSeqNumber);
     }
     /**
-     * @brief Check if the coroutine frame has been completed - and if so, resets the current @ref mTask
+     * @brief Check if the coroutine frame has been completed - and if so, frees the current @ref mTask
      *        and allow subsequent @ref Invoke calls to take effect.
      * @return true if a task has been completed _here_. No tasks, or in-progress results in false.
+     * @note Tasks are spawned with @ref Invoke.
      */
     bool TaskMoveNext(int& result);
     /**

@@ -25,8 +25,8 @@ struct MDRConnectionWindows
                                                       .disconnect = Disconnect,
                                                       .recv = Recv,
                                                       .send = Send,
-                                                      .list = List,
-                                                      .freeList = FreeList,
+                                                      .getDevicesList = GetDevicesList,
+                                                      .freeDevicesList = FreeDevicesList,
                                                       .getLastError = GetLastError}),
         conn(INVALID_SOCKET)
     {
@@ -160,7 +160,7 @@ struct MDRConnectionWindows
         return MDR_RESULT_OK;
     }
 
-    static int List(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
+    static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         auto* ptr = static_cast<MDRConnectionWindows*>(user);
         BLUETOOTH_FIND_RADIO_PARAMS radioFindParams = {sizeof(BLUETOOTH_FIND_RADIO_PARAMS)};
@@ -235,7 +235,7 @@ struct MDRConnectionWindows
         return MDR_RESULT_OK;
     }
 
-    static int FreeList(void*, MDRDeviceInfo** ppList) noexcept
+    static int FreeDevicesList(void*, MDRDeviceInfo** ppList) noexcept
     {
         if (*ppList)
         {
@@ -251,11 +251,9 @@ struct MDRConnectionWindows
         return ptr->lastError.c_str();
     }
 };
+
 extern "C" {
-
 MDRConnectionWindows* mdrConnectionWindowsCreate() { return new MDRConnectionWindows(); }
-
 void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { delete instance; }
-
 MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* instance) { return &instance->mdrConn; }
 }

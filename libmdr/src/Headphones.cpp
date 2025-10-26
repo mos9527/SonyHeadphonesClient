@@ -22,7 +22,7 @@ int MDRHeadphones::Receive()
 {
     char buf[kMDRMaxPacketSize];
     int recvd;
-    const int r = mConn->recv(mConn->user, buf, kMDRMaxPacketSize, &recvd);
+    const int r = mdrConnectionRecv(mConn, buf, kMDRMaxPacketSize, &recvd);
     if (r != MDR_RESULT_OK)
         return r;
     fmt::print("<< ");
@@ -40,7 +40,7 @@ int MDRHeadphones::Send()
     char buf[kMDRMaxPacketSize];
     int toSend = std::min(mSendBuf.size(), kMDRMaxPacketSize), sent = 0;
     std::copy(mSendBuf.begin(), mSendBuf.begin() + toSend, buf);
-    const int r = mConn->send(mConn->user, buf, toSend, &sent);
+    const int r = mdrConnectionSend(mConn, buf, toSend, &sent);
     if (r != MDR_RESULT_OK)
         return r;
     fmt::print(">> ");
@@ -141,86 +141,6 @@ void MDRHeadphones::SendACK(MDRCommandSeqNumber seq)
 void MDRHeadphones::HandleAck(MDRCommandSeqNumber)
 {
     Awake(AWAIT_ACK);
-}
-
-extern "C" {
-const char* mdrResultString(int err)
-{
-    switch (err)
-    {
-    case MDR_RESULT_OK:
-        return "OK";
-    case MDR_RESULT_INPROGRESS:
-        return "Task in progress";
-    case MDR_RESULT_ERROR_GENERAL:
-        return "General error";
-    case MDR_RESULT_ERROR_NOT_FOUND:
-        return "Resource not found";
-    case MDR_RESULT_ERROR_TIMEOUT:
-        return "Timed out";
-    case MDR_RESULT_ERROR_NET:
-        return "Networking error";
-    case MDR_RESULT_ERROR_NO_CONNECTION:
-        return "No connection has been established";
-    case MDR_RESULT_ERROR_BAD_ADDRESS:
-        return "Invalid address information";
-    default:
-        return "Unknown";
-    }
-}
-
-const char* mdrHeadphonesEventString(int evt)
-{
-    switch (evt)
-    {
-    case MDR_HEADPHONES_NO_EVENT:
-        return "No Event";
-    case MDR_HEADPHONES_ERROR:
-        return "Error";
-    case MDR_HEADPHONES_INITIALIZED:
-        return "Initialized";
-    default:
-        return "Unknown";
-    }
-}
-
-MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
-{
-    return new MDRHeadphones(conn);
-}
-
-void mdrHeadphonesDestroy(MDRHeadphones* h)
-{
-    delete h;
-}
-
-int mdrHeadphonesPollEvents(MDRHeadphones* h)
-{
-    // Non-blocking. INPROGRESS are expected, not so much for others.
-    // Failfast if that happens - the owner usually has to die.
-    int r = h->Send();
-    if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-        return MDR_HEADPHONES_ERROR;
-    r = h->Receive();
-    if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-        return MDR_HEADPHONES_ERROR;
-    return h->MoveNext();
-}
-
-int mdrHeadphonesRequestInit(MDRHeadphones* h)
-{
-    return h->Invoke(h->RequestInit());
-}
-
-int mdrHeadphonesRequestSync(MDRHeadphones* h)
-{
-    return h->Invoke(h->RequestSync());
-}
-
-const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
-{
-    return h->GetLastError();
-}
 }
 
 // Sigh.
@@ -472,3 +392,119 @@ MDRTask MDRHeadphones::RequestSync()
 }
 #pragma endregion
 // NOLINTEND
+
+#pragma region C Exports
+extern "C" {
+const char* mdrResultString(int err)
+{
+    switch (err)
+    {
+    case MDR_RESULT_OK:
+        return "OK";
+    case MDR_RESULT_INPROGRESS:
+        return "Task in progress";
+    case MDR_RESULT_ERROR_GENERAL:
+        return "General error";
+    case MDR_RESULT_ERROR_NOT_FOUND:
+        return "Resource not found";
+    case MDR_RESULT_ERROR_TIMEOUT:
+        return "Timed out";
+    case MDR_RESULT_ERROR_NET:
+        return "Networking error";
+    case MDR_RESULT_ERROR_NO_CONNECTION:
+        return "No connection has been established";
+    case MDR_RESULT_ERROR_BAD_ADDRESS:
+        return "Invalid address information";
+    default:
+        return "Unknown";
+    }
+}
+
+const char* mdrHeadphonesEventString(int evt)
+{
+    switch (evt)
+    {
+    case MDR_HEADPHONES_NO_EVENT:
+        return "No Event";
+    case MDR_HEADPHONES_ERROR:
+        return "Error";
+    case MDR_HEADPHONES_INITIALIZED:
+        return "Initialized";
+    default:
+        return "Unknown";
+    }
+}
+
+int mdrConnectionConnect(MDRConnection* conn, const char* macAddress, const char* serviceUUID)
+{
+    return conn->connect(conn->user, macAddress, serviceUUID);
+}
+void mdrConnectionDisconnect(MDRConnection* conn)
+{
+    return conn->disconnect(conn->user);
+}
+int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived)
+{
+    return conn->recv(conn->user, dst, size, pReceived);
+}
+int mdrConnectionSend(MDRConnection* conn, const char* src, int size, int* pSent)
+{
+    return conn->send(conn->user, src, size, pSent);
+}
+int mdrConnectionGetDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList, int* pCount)
+{
+    return conn->getDevicesList(conn->user, ppList, pCount);
+}
+int mdrConnectionFreeDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList)
+{
+    return conn->freeDevicesList(conn->user, ppList);
+}
+const char* mdrConnectionGetLastError(MDRConnection* conn)
+{
+    return conn->getLastError(conn->user);
+}
+
+MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
+{
+    return new MDRHeadphones(conn);
+}
+
+void mdrHeadphonesDestroy(MDRHeadphones* h)
+{
+    delete h;
+}
+
+int mdrHeadphonesPollEvents(MDRHeadphones* h)
+{
+    // Non-blocking. INPROGRESS are expected, not so much for others.
+    // Failfast if that happens - the owner usually has to die.
+    int r = h->Send();
+    if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+        return MDR_HEADPHONES_ERROR;
+    r = h->Receive();
+    if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+        return MDR_HEADPHONES_ERROR;
+    return h->MoveNext();
+}
+int mdrHeadphonesRequestIsReady(MDRHeadphones* h)
+{
+    if (h->mTask)
+        return MDR_RESULT_INPROGRESS;
+    return MDR_RESULT_OK;
+}
+int mdrHeadphonesRequestInit(MDRHeadphones* h)
+{
+    return h->Invoke(h->RequestInit());
+}
+
+int mdrHeadphonesRequestSync(MDRHeadphones* h)
+{
+    return h->Invoke(h->RequestSync());
+}
+
+const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
+{
+    return h->GetLastError();
+}
+}
+#pragma endregion

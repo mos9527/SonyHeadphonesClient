@@ -7,9 +7,8 @@ typedef struct MDRConnectionLinux MDRConnectionLinux;
 extern "C" {
 #endif
 MDRConnectionLinux* mdrConnectionLinuxCreate();
-void mdrConnectionLinuxDestroy(MDRConnectionLinux*);
-
 MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux*);
+void mdrConnectionLinuxDestroy(MDRConnectionLinux*);
 #ifdef __cplusplus
 }
 #endif

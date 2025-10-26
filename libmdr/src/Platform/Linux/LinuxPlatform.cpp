@@ -9,6 +9,7 @@
 #include <bluetooth/rfcomm.h>
 
 #include "../Platform.hpp"
+
 struct MDRConnectionLinux
 {
     MDRConnection mdrConn;
@@ -24,8 +25,8 @@ struct MDRConnectionLinux
             .disconnect = Disconnect,
             .recv = Recv,
             .send = Send,
-            .list = List,
-            .freeList = FreeList,
+            .getDevicesList = GetDevicesList,
+            .freeDevicesList = FreeDevicesList,
             .getLastError = GetLastError
         }),
         lastError(MDR_DEFAULT_ERROR_STRING), dbusConn(dbus_open_system_bus()),
@@ -129,7 +130,7 @@ struct MDRConnectionLinux
         return MDR_RESULT_OK;
     }
 
-    static int List(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
+    static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         auto paths = dbus_list_adapters(ptr->dbusConn);
@@ -141,12 +142,12 @@ struct MDRConnectionLinux
             std::string address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
             // std::string is always null-terminated
             strncpy((*ppList)[i].szDeviceName, name.c_str(), name.size() + 1);
-            strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(),  address.size() + 1);
+            strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(), address.size() + 1);
         }
         return MDR_RESULT_OK;
     }
 
-    static int FreeList(void*, MDRDeviceInfo** ppList) noexcept
+    static int FreeDevicesList(void*, MDRDeviceInfo** ppList) noexcept
     {
         if (*ppList)
         {
@@ -163,21 +164,8 @@ struct MDRConnectionLinux
     }
 };
 
-
 extern "C" {
-
-MDRConnectionLinux* mdrConnectionLinuxCreate()
-{
-    return new MDRConnectionLinux();
-}
-
-void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance)
-{
-    delete instance;
-}
-
-MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux* instance)
-{
-    return &instance->mdrConn;
-}
+MDRConnectionLinux* mdrConnectionLinuxCreate() { return new MDRConnectionLinux(); }
+void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance) { delete instance; }
+MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux* instance) { return &instance->mdrConn; }
 }

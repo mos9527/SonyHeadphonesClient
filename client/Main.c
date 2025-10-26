@@ -21,7 +21,7 @@ int main()
 #endif
     MDRDeviceInfo* devices;
     int numDevices;
-    conn->list(conn->user, &devices, &numDevices);
+    mdrConnectionGetDevicesList(conn, &devices, &numDevices);
 
     int targetDevice = -1;
     for (int i = 0; i < numDevices; i++)
@@ -34,18 +34,18 @@ int main()
     if (targetDevice == -1)
     {
         printf("Target device %s not found.\n", kTestDeviceName);
-        conn->freeList(conn->user, &devices);
+        mdrConnectionFreeDevicesList(conn, &devices);
         return -1;
     }
 
     {
-        int res = conn->connect(conn->user, devices[targetDevice].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
-        conn->freeList(conn->user, &devices);
+        int res = mdrConnectionConnect(conn, devices[targetDevice].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
+        mdrConnectionFreeDevicesList(conn, &devices);
         printf("Connect: %s\n", mdrResultString(res));
 
         if (res != MDR_RESULT_OK)
         {
-            printf("connect failed (%s, %s)\n", mdrResultString(res), conn->getLastError(conn->user));
+            printf("connect failed (%s, %s)\n", mdrResultString(res), mdrConnectionGetLastError(conn));
             return -1;
         }
     }
@@ -60,7 +60,7 @@ int main()
         {
         case MDR_HEADPHONES_ERROR:
             printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrHeadphonesEventString(evt),
-                   mdrHeadphonesGetLastError(headphones), conn->getLastError(conn->user));
+                   mdrHeadphonesGetLastError(headphones),  mdrConnectionGetLastError(conn));
             return -1;
         case MDR_HEADPHONES_INITIALIZED:
             printf("Initialized. We're done.\n");
