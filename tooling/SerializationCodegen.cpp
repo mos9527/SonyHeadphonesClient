@@ -150,7 +150,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 println("    }}");
                 // Read
                 // static void Read(UInt8** ppSrcBuffer, Type &out, size_t maxSize = ~0LL);
-                println("    void {}::Read(UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
+                println("    void {}::Read(const UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
                 println("    {{");
                 params.isRead = true, params.isWrite = false;
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
@@ -170,7 +170,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 println("        return ptr - out;");
                 println("    }}");
                 // Deserialize
-                println("    void {}::Deserialize(UInt8* data, {}& out)", structName,structName);
+                println("    void {}::Deserialize(const UInt8* data, {}& out)", structName,structName);
                 println("    {{");
                 params.isSerialize = false, params.isDeserialize = true;
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);

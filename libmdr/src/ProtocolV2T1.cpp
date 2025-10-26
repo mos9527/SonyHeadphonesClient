@@ -28,7 +28,7 @@ namespace mdr::v2::t1
         return ptr - out;
     }
 
-    void ConnectRetDeviceInfo::Deserialize(UInt8* data, ConnectRetDeviceInfo& out)
+    void ConnectRetDeviceInfo::Deserialize(const UInt8* data, ConnectRetDeviceInfo& out)
     {
         using enum DeviceInfoType;
         MDRPod::Read(&data, out.command);
@@ -59,7 +59,7 @@ namespace mdr::v2::t1
         return ptr - out;
     }
 
-    void PlayParamPlaybackControllerName::Deserialize(UInt8* data, PlayParamPlaybackControllerName& out)
+    void PlayParamPlaybackControllerName::Deserialize(const UInt8* data, PlayParamPlaybackControllerName& out)
     {
         MDRPod::Read(&data, out.base);
         for (auto& elem : out.playbackNames)

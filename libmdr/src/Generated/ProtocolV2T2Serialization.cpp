@@ -10,7 +10,7 @@ namespace mdr::v2::t2 {
         MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr);
         return ptr - out;
     }
-    void ConnectRetSupportFunction::Deserialize(UInt8* data, ConnectRetSupportFunction& out)
+    void ConnectRetSupportFunction::Deserialize(const UInt8* data, ConnectRetSupportFunction& out)
     {
         MDRPod::Read(&data, out.command);
         MDRPod::Read(&data, out.inquiredType);
@@ -24,7 +24,7 @@ namespace mdr::v2::t2 {
         MDRPrefixedString::Write(data.btFriendlyName, ppDstBuffer);
         return *ppDstBuffer - ptr;
     }
-    void PeripheralDeviceInfo::Read(UInt8** ppSrcBuffer, PeripheralDeviceInfo& out, size_t maxSize)
+    void PeripheralDeviceInfo::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfo& out, size_t maxSize)
     {
         MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize);
         MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize);
@@ -39,7 +39,7 @@ namespace mdr::v2::t2 {
         MDRPrefixedString::Write(data.btFriendlyName, ppDstBuffer);
         return *ppDstBuffer - ptr;
     }
-    void PeripheralDeviceInfoWithBluetoothClassOfDevice::Read(UInt8** ppSrcBuffer, PeripheralDeviceInfoWithBluetoothClassOfDevice& out, size_t maxSize)
+    void PeripheralDeviceInfoWithBluetoothClassOfDevice::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfoWithBluetoothClassOfDevice& out, size_t maxSize)
     {
         MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize);
         MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize);
@@ -54,7 +54,7 @@ namespace mdr::v2::t2 {
         MDRPod::Write(data.playbackDevice, &ptr);
         return ptr - out;
     }
-    void PeripheralParamPairingDeviceManagementClassicBt::Deserialize(UInt8* data, PeripheralParamPairingDeviceManagementClassicBt& out)
+    void PeripheralParamPairingDeviceManagementClassicBt::Deserialize(const UInt8* data, PeripheralParamPairingDeviceManagementClassicBt& out)
     {
         MDRPod::Read(&data, out.base);
         MDRArray<PeripheralDeviceInfo>::Read(&data, out.deviceList);
@@ -68,7 +68,7 @@ namespace mdr::v2::t2 {
         MDRPod::Write(data.playbackDevice, &ptr);
         return ptr - out;
     }
-    void PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(UInt8* data, PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& out)
+    void PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(const UInt8* data, PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& out)
     {
         MDRPod::Read(&data, out.base);
         MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice>::Read(&data, out.deviceList);
@@ -81,7 +81,7 @@ namespace mdr::v2::t2 {
         MDRPodArray<SafeListeningData1>::Write(data.data, &ptr);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusHbs1::Deserialize(UInt8* data, SafeListeningNotifyStatusHbs1& out)
+    void SafeListeningNotifyStatusHbs1::Deserialize(const UInt8* data, SafeListeningNotifyStatusHbs1& out)
     {
         MDRPod::Read(&data, out.base);
         MDRPodArray<SafeListeningData1>::Read(&data, out.data);
@@ -93,7 +93,7 @@ namespace mdr::v2::t2 {
         MDRPodArray<SafeListeningData2>::Write(data.data, &ptr);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusHbs2::Deserialize(UInt8* data, SafeListeningNotifyStatusHbs2& out)
+    void SafeListeningNotifyStatusHbs2::Deserialize(const UInt8* data, SafeListeningNotifyStatusHbs2& out)
     {
         MDRPod::Read(&data, out.base);
         MDRPodArray<SafeListeningData2>::Read(&data, out.data);
@@ -105,7 +105,7 @@ namespace mdr::v2::t2 {
         MDRPodArray<SafeListeningData1>::Write(data.data, &ptr);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusTws1::Deserialize(UInt8* data, SafeListeningNotifyStatusTws1& out)
+    void SafeListeningNotifyStatusTws1::Deserialize(const UInt8* data, SafeListeningNotifyStatusTws1& out)
     {
         MDRPod::Read(&data, out.base);
         MDRPodArray<SafeListeningData1>::Read(&data, out.data);
@@ -117,7 +117,7 @@ namespace mdr::v2::t2 {
         MDRPodArray<SafeListeningData2>::Write(data.data, &ptr);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusTws2::Deserialize(UInt8* data, SafeListeningNotifyStatusTws2& out)
+    void SafeListeningNotifyStatusTws2::Deserialize(const UInt8* data, SafeListeningNotifyStatusTws2& out)
     {
         MDRPod::Read(&data, out.base);
         MDRPodArray<SafeListeningData2>::Read(&data, out.data);
