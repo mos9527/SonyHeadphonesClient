@@ -191,7 +191,7 @@ const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
 MDRTask MDRHeadphones::RequestInit()
 {
     fmt::println("Init in");
-    co_await SendCommandACK<v2::t1::ConnectGetProtocolInfo>();
+    SendCommandACK(v2::t1::ConnectGetProtocolInfo);
     fmt::println("PROTO ACK!");
 }
 #pragma endregion

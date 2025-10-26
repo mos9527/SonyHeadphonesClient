@@ -195,11 +195,12 @@ private:
     void SendCommandImpl(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
     void SendACK(MDRCommandSeqNumber seq);
     /**
-     * @note Queues a command payload to be sent through @ref Send, with a @ref AWAIT_ACK wait
+     * @note Queues a command payload of @ref MDRIsSerializable type to be sent through @ref Send.
      * @note Non-blocking. Need @ref Sent to be polled periodically.
+     * @note You _usually_ need to wait for an @ref AWAIT_ACK. Use the @ref MDR_SEND_COMMAND_ACK macro to send and wait for one!
      */
     template<MDRIsSerializable T, typename ...Args>
-    MDRTask SendCommandACK(Args&&... args)
+    void SendCommandImpl(Args&&... args)
     {
         UInt8 buf[kMDRMaxPacketSize];
 
@@ -208,7 +209,6 @@ private:
         T::Validate(command); // <- Throws if something's bad
         size_t size = T::Serialize(command, buf);
         SendCommandImpl({ buf, buf + size}, type, mSeqNumber);
-        co_await Await(AWAIT_ACK);
     }
     /**
      * @brief Check if the coroutine frame has been completed - and if so, resets the current @ref mTask
@@ -220,3 +220,21 @@ private:
     void HandleCommandV2T1(Span<const UInt8> command, MDRCommandSeqNumber seq);
     void HandleCommandV2T2(Span<const UInt8> command, MDRCommandSeqNumber seq);
 };
+
+// NOLINTBEGIN
+/**
+ * @brief Sends command through @ref SendCommandImpl<T>, and wait for an ACK.
+ * @param Type Command payload of @ref MDRIsSerializable type
+ * @note  This is ONLY meaningful within a @ref MDRTask coroutine, as this schedules
+ *        the current task to wait on a @ref AWAIT_ACK event.
+ *
+ * As to _why_ this is here instead of a templated member function - instantiated
+ * templates would create their own @ref MDRTask and generate code for EACH of them,
+ * while all we need is merely a `co_await`...
+ *
+ * TL;DR, this helps with compiler bloats. Use it well.
+ */
+#define SendCommandACK(Type, ...) \
+    SendCommandImpl<Type>( __VA_OPT__(,) __VA_ARGS__ ); \
+    co_await Await(AWAIT_ACK);
+// NOLINTEND
