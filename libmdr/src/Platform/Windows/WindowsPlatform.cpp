@@ -159,7 +159,7 @@ struct MDRConnectionWindows
         if (ptr->conn == INVALID_SOCKET)
             return MDR_RESULT_ERROR_NO_CONNECTION;
         WSAPOLLFD pfd{
-            .fd = ptr->fd,
+            .fd = ptr->conn,
             .events = POLLIN | POLLOUT,
         };
         int res = WSAPoll(&pfd,1,timeout);
