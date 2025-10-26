@@ -40,6 +40,8 @@ typedef struct MDRConnection
 
 typedef struct MDRHeadphones MDRHeadphones;
 
+#define MDR_HEADPHONES_NO_EVENT 0
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,6 +51,12 @@ const char* mdrResultString(int err);
 MDRHeadphones* mdrHeadphonesCreate(MDRConnection*);
 void mdrHeadphonesDestroy(MDRHeadphones*);
 
+const char* mdrHeadphonesEventString(int evt);
+/**
+ * @breif Receive commands and process events. This is non-blocking, and should be
+ *        run in a tight loop.
+ * @return One of MDR_HEADPHONES_* event types
+ */
 int mdrHeadphonesPollEvents(MDRHeadphones*);
 int mdrHeadphonesRequestInit(MDRHeadphones*);
 

@@ -164,9 +164,30 @@ struct MDRHeadphones
      */
     [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
 
+#pragma region States
+    // ConnectRetProtocolInfo
+    struct
+    {
+        int version;
+        int hasTable1;
+        int hasTable2;
+    } mProto;
+    // Q: Why not std::bitset?
+    // A: They are not constexpr until C++23 - while std::array[] are since 14.
+    //    Since there's no other C++23 feature usage anywhere else in the lib,
+    //    we're sticking with C++20 as is.
+    struct
+    {
+        Array<UInt8, 256> table1Functions;
+        Array<UInt8, 256> table2Functions;
+    } mSupportFunctions{};
+    // Set by @ref RequestInit
+    bool mInitialized{};
+#pragma endregion
 #pragma region Tasks
     MDRTask RequestInit();
 #pragma endregion
+
 
 private:
     // XXX: So, very naive. We just die if anything bad happens.
@@ -189,6 +210,10 @@ private:
      */
     Awaiter Await(AwaitType type);
     /**
+     * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
+     */
+    void Awake(AwaitType type);
+    /**
      * @note Queues a command payload to be sent through @ref Send. You generally don't need to call this directly.
      * @note Non-blocking. Need @ref Sent to be polled periodically.
      */
@@ -199,13 +224,12 @@ private:
      * @note Non-blocking. Need @ref Sent to be polled periodically.
      * @note You _usually_ need to wait for an @ref AWAIT_ACK. Use the @ref MDR_SEND_COMMAND_ACK macro to send and wait for one!
      */
-    template<MDRIsSerializable T, typename ...Args>
-    void SendCommandImpl(Args&&... args)
+    template<MDRIsSerializable T>
+    void SendCommandImpl(T const& command = {})
     {
         UInt8 buf[kMDRMaxPacketSize];
 
         MDRDataType type = MDRTraits<T>::kDataType;
-        T command(std::forward<Args>(args)...);
         T::Validate(command); // <- Throws if something's bad
         size_t size = T::Serialize(command, buf);
         SendCommandImpl({ buf, buf + size}, type, mSeqNumber);
@@ -217,8 +241,8 @@ private:
     bool TaskMoveNext();
     void Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
     void HandleAck(MDRCommandSeqNumber seq);
-    void HandleCommandV2T1(Span<const UInt8> command, MDRCommandSeqNumber seq);
-    void HandleCommandV2T2(Span<const UInt8> command, MDRCommandSeqNumber seq);
+    void HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
+    void HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
 };
 
 // NOLINTBEGIN
@@ -233,8 +257,9 @@ private:
  * while all we need is merely a `co_await`...
  *
  * TL;DR, this helps with compiler bloats. Use it well.
+ *
  */
 #define SendCommandACK(Type, ...) \
-    SendCommandImpl<Type>( __VA_OPT__(,) __VA_ARGS__ ); \
+    SendCommandImpl<Type>( __VA_ARGS__ ); \
     co_await Await(AWAIT_ACK);
 // NOLINTEND

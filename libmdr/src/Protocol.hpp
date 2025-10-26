@@ -163,7 +163,7 @@ namespace mdr
 
         static void Read(const UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize = ~0LL)
         {
-            const UInt8 len = **ppSrcBuffer++;
+            const UInt8 len = *(*ppSrcBuffer)++;
             MDR_CHECK(len < 128 && len <= maxSize, "Invalid string length");
             str.value.resize(len);
             std::memcpy(str.value.data(), *ppSrcBuffer, len);
@@ -173,7 +173,7 @@ namespace mdr
         static size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer)
         {
             MDR_CHECK(str.value.length() < 128, "String too long to write");
-            **ppDstBuffer++ = static_cast<UInt8>(str.value.length());
+            *(*ppDstBuffer)++ = static_cast<UInt8>(str.value.length());
             std::memcpy(*ppDstBuffer, str.value.data(), str.value.length());
             *ppDstBuffer += str.value.length();
             return str.value.length() + 1;
@@ -196,10 +196,10 @@ namespace mdr
 
         static void Read(const UInt8** ppSrcBuffer, MDRPodArray& value, size_t maxSize = ~0LL)
         {
-            UInt8 count = **ppSrcBuffer++;
+            UInt8 count = *(*ppSrcBuffer)++;
             size_t size = sizeof(T) * count;
             MDR_CHECK(size <= maxSize, "Invalid array size");
-            value.value.resize(size);
+            value.value.resize(count);
             std::memcpy(value.value.data(), *ppSrcBuffer, size);
             *ppSrcBuffer += size;
         }
@@ -208,9 +208,9 @@ namespace mdr
         {
             size_t size = sizeof(T) * value.value.size();
             MDR_CHECK(size < 256, "Array too long to write");
-            **ppDstBuffer++ = static_cast<UInt8>(value.value.size());
-            std::memcpy(*ppDstBuffer, &size, sizeof(size));
-            *ppDstBuffer += sizeof(size);
+            *(*ppDstBuffer)++ = static_cast<UInt8>(value.value.size());
+            std::memcpy(*ppDstBuffer, value.value.data(), size);
+            *ppDstBuffer += size;
             return size + 1;
         }
 
@@ -233,7 +233,7 @@ namespace mdr
 
         static void Read(const UInt8** ppSrcBuffer, MDRArray& value, size_t maxSize = ~0LL)
         {
-            UInt8 count = **ppSrcBuffer++;
+            UInt8 count = *(*ppSrcBuffer)++;
             value.value.resize(count);
             for (T& elem : value.value)
                 T::Read(ppSrcBuffer, elem, maxSize);
@@ -243,7 +243,7 @@ namespace mdr
         {
             UInt8* ptr = *ppDstBuffer;
             MDR_CHECK(value.value.size() < 256, "Array too long to write");
-            **ppDstBuffer++ = static_cast<UInt8>(value.value.size());
+            *(*ppDstBuffer)++ = static_cast<UInt8>(value.value.size());
             for (const T& elem : value.value)
                 T::Write(elem, ppDstBuffer);
             return *ppDstBuffer - ptr;

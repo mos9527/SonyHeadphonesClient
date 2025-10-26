@@ -5,6 +5,16 @@ MDRHeadphones::Awaiter MDRHeadphones::Await(AwaitType type)
     return Awaiter{this, type};
 }
 
+void MDRHeadphones::Awake(AwaitType type)
+{
+    auto await = mAwaiters[type];
+    if (await)
+    {
+        mAwaiters[type] = nullptr;
+        await.resume();
+    }
+}
+
 int MDRHeadphones::Receive()
 {
     char buf[kMDRMaxPacketSize];
@@ -12,10 +22,10 @@ int MDRHeadphones::Receive()
     const int r = mConn->recv(mConn->user, buf, kMDRMaxPacketSize, &recvd);
     if (r != MDR_RESULT_OK)
         return r;
-    fmt::println("-- recv");
+    fmt::print("<< ");
     for (char* p = buf; p != buf + recvd; p++)
         fmt::print("{:02X} ", static_cast<UInt8>(*p));
-    fmt::println("\n--");
+    fmt::println("");
     mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
     return r;
 }
@@ -30,10 +40,10 @@ int MDRHeadphones::Send()
     const int r = mConn->send(mConn->user, buf, toSend, &sent);
     if (r != MDR_RESULT_OK)
         return r;
-    fmt::println("-- send");
+    fmt::print(">> ");
     for (char* p = buf; p != buf + sent; p++)
         fmt::print("{:02X} ", static_cast<UInt8>(*p));
-    fmt::println("\n--");
+    fmt::println("");
     mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
     return r;
 }
@@ -123,9 +133,7 @@ void MDRHeadphones::SendACK(MDRCommandSeqNumber seq)
 
 void MDRHeadphones::HandleAck(MDRCommandSeqNumber)
 {
-    auto& await = mAwaiters[AWAIT_ACK];
-    await.resume();
-    await = {};
+    Awake(AWAIT_ACK);
 }
 
 extern "C" {
@@ -187,11 +195,47 @@ const char* mdrHeadphonesGetLastError(MDRHeadphones* h)
 }
 }
 
+// Sigh.
+// NOLINTBEGIN
 #pragma region Tasks
 MDRTask MDRHeadphones::RequestInit()
 {
-    fmt::println("Init in");
     SendCommandACK(v2::t1::ConnectGetProtocolInfo);
-    fmt::println("PROTO ACK!");
+    MDR_CHECK(mProto.hasTable1, "Device doesn't support MDR V2 Table 1");
+    SendCommandACK(v2::t1::ConnectGetCapabilityInfo);
+
+    /* Device Info */
+    SendCommandACK(v2::t1::ConnectGetDeviceInfo, {.deviceInfoType = v2::t1::DeviceInfoType::FW_VERSION});
+    SendCommandACK(v2::t1::ConnectGetDeviceInfo, {.deviceInfoType = v2::t1::DeviceInfoType::MODEL_NAME});
+    SendCommandACK(v2::t1::ConnectGetDeviceInfo, {.deviceInfoType = v2::t1::DeviceInfoType::SERIES_AND_COLOR_INFO});
+
+    // Following are cached by the offical app based on the MAC address
+    {
+        /* Support Functions */
+        SendCommandACK(v2::t1::ConnectGetSupportFunction);
+        co_await Await(AWAIT_SUPPORT_FUNCTION);
+        if (mProto.hasTable2)
+        {
+            SendCommandACK(v2::t2::ConnectGetSupportFunction);
+            co_await Await(AWAIT_SUPPORT_FUNCTION);
+        }
+    }
+    mInitialized = true;
+    fmt::println("Init OK!!!");
+    fmt::println("=== Table 1 Functions");
+    for (UInt8 i = 0; i < 255; i++)
+    {
+        auto sv = static_cast<v2::MessageMdrV2FunctionType_Table1>(i);
+        if (mSupportFunctions.table1Functions[i] && is_valid(sv))
+            fmt::println("\t{}", sv);
+    }
+    fmt::println("=== Table 2 Functions");
+    for (UInt8 i = 0; i < 255; i++)
+    {
+        auto sv = static_cast<v2::MessageMdrV2FunctionType_Table2>(i);
+        if (mSupportFunctions.table2Functions[i] && is_valid(sv))
+            fmt::println("\t{}", sv);
+    }
 }
 #pragma endregion
+// NOLINTEND
