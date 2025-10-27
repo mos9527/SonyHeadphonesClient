@@ -17,12 +17,13 @@ inline int serviceUUIDtoBytes(const char* szSrc, uint8_t* dst)
     if (strlen(szSrc) != 36)
         return -1;
     unsigned int buf[16];
-    int ret = sscanf(szSrc,
-                     "%2x%2x%2x%2x-%2x%2x-%2x%2x-%2x%2x-%2x%2x%2x%2x%2x%2x",
-                     &buf[0], &buf[1], &buf[2], &buf[3],
-                     &buf[4], &buf[5], &buf[6], &buf[7],
-                     &buf[8], &buf[9], &buf[10], &buf[11],
-                     &buf[12], &buf[13], &buf[14], &buf[15]);
+    int ret;
+    ret = sscanf(szSrc,
+                 "%2x%2x%2x%2x-%2x%2x-%2x%2x-%2x%2x-%2x%2x%2x%2x%2x%2x",
+                 &buf[0], &buf[1], &buf[2], &buf[3],
+                 &buf[4], &buf[5], &buf[6], &buf[7],
+                 &buf[8], &buf[9], &buf[10], &buf[11],
+                 &buf[12], &buf[13], &buf[14], &buf[15]);
 
     if (ret != 16)
         return -1;
@@ -38,17 +39,18 @@ inline int serviceUUIDtoBytes(const char* szSrc, uint8_t* dst)
 */
 inline unsigned long long macAddressToULL(const char* szMacAddres) {
     unsigned int buf[6];
-    int ret =
-        sscanf(szMacAddres, "%2x:%2x:%2x:%2x:%2x:%2x", &buf[0], &buf[1], &buf[2], &buf[3], &buf[4], &buf[5]);
+    int ret;
+    ret = sscanf(szMacAddres, "%2x:%2x:%2x:%2x:%2x:%2x", &buf[0], &buf[1], &buf[2], &buf[3], &buf[4], &buf[5]);
     if (ret != 6)
         return ~0ULL;
     union
     {
-        unsigned long long ULL;
+        unsigned long long ull;
         unsigned char b[8];
     } u;
-    u.ULL = 0ULL;
+    u.ull = 0ULL;
     for (int i = 0; i < 6; i++)
         u.b[5 - i] = static_cast<unsigned char>(buf[i]);
-    return u.ULL;
+    return u.ull;
 }
+

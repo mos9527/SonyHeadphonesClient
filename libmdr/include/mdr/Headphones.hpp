@@ -1,0 +1,351 @@
+#pragma once
+#include "Command.hpp"
+#include "ProtocolV2T1.hpp"
+#include "ProtocolV2T2.hpp"
+#include <mdr-c/Headphones.h>
+
+#include <deque>
+#include <coroutine>
+
+namespace mdr
+{
+    // NOLINTBEGIN
+    /**
+     * @brief Coroutine task boilerplate from https://github.com/mos9527/coro
+     * @note The coroutine MUST return one of MDR_HEADPHONES_... values indicating its completion.
+     */
+    struct MDRTask
+    {
+        struct promise_type
+        {
+            std::exception_ptr exception;
+            std::coroutine_handle<> next;
+            int result;
+            static std::suspend_always initial_suspend() noexcept { return {}; }
+            void unhandled_exception() noexcept { exception = std::current_exception(); }
+
+            struct final_awaiter
+            {
+                static bool await_ready() noexcept { return false; }
+
+                std::coroutine_handle<> await_suspend(std::coroutine_handle<promise_type> other) noexcept
+                {
+                    if (auto& p = other.promise(); p.next)
+                        return p.next;
+                    return std::noop_coroutine();
+                }
+
+                static void await_resume() noexcept
+                {
+                }
+            };
+
+            static final_awaiter final_suspend() noexcept { return final_awaiter{}; }
+            MDRTask get_return_object();
+
+            void return_value(int v) { result = v; }
+        };
+
+        using value_type = void;
+        std::coroutine_handle<promise_type> coroutine{nullptr};
+
+        MDRTask() = default;
+
+        explicit MDRTask(std::coroutine_handle<promise_type> handle) :
+            coroutine(handle)
+        {
+        };
+        MDRTask(const MDRTask&) = delete;
+
+        MDRTask& operator=(MDRTask&& other) noexcept
+        {
+            std::swap(coroutine, other.coroutine), other.coroutine = nullptr;
+            return *this;
+        }
+
+        MDRTask& operator=(MDRTask const&) = delete;
+        MDRTask(MDRTask&& other) noexcept { *this = std::move(other); }
+        constexpr operator bool() const noexcept { return coroutine != nullptr; }
+
+        ~MDRTask()
+        {
+            if (coroutine)
+                coroutine.destroy();
+        }
+
+        bool await_ready() const noexcept { return !coroutine || coroutine.done(); }
+
+        std::coroutine_handle<> await_suspend(std::coroutine_handle<> next) noexcept
+        {
+            coroutine.promise().next = next;
+            return coroutine;
+        }
+
+        void await_resume()
+        {
+            auto& p = coroutine.promise();
+            if (p.exception)
+                std::rethrow_exception(p.exception);
+        }
+    };
+
+    inline MDRTask MDRTask::promise_type::get_return_object()
+    {
+        return MDRTask{std::coroutine_handle<MDRTask::promise_type>::from_promise(*this)};
+    }
+
+    // NOLINTEND
+    template <typename T>
+    struct MDRProperty
+    {
+        T desired{};
+        T current{};
+
+        void overwrite(T const& value)
+        {
+            desired = current = value;
+        }
+    };
+
+    struct MDRHeadphones
+    {
+        enum AwaitType
+        {
+            // Wait for an immediate ACK from the device on the current task
+            AWAIT_ACK = 0,
+            AWAIT_PROTOCOL_INFO = 1,
+            AWAIT_SUPPORT_FUNCTION = 2,
+            AWAIT_NUM_TYPES = 3
+        };
+
+        // NOLINTBEGIN
+        struct Awaiter
+        {
+            MDRHeadphones* self;
+            AwaitType type;
+            static bool await_ready() noexcept { return false; }
+
+            void await_suspend(std::coroutine_handle<> handle) noexcept
+            {
+                auto& dst = self->mAwaiters[static_cast<size_t>(type)];
+                if (dst) [[unlikely]]
+                    std::terminate(); // This is your fault.
+                // How'd you get more than one task at a time running?
+                if (handle)
+                    dst = handle;
+            }
+
+            static void await_resume() noexcept
+            {
+            }
+        };
+
+        // NOLINTEND
+        std::string mLastError{};
+
+        std::deque<UInt8> mRecvBuf, mSendBuf;
+        MDRConnection* mConn;
+
+        MDRCommandSeqNumber mSeqNumber{0};
+
+        std::array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
+        MDRTask mTask;
+
+        explicit MDRHeadphones(MDRConnection* conn) :
+            mConn(conn)
+        {
+        }
+
+        // Pinned.
+        MDRHeadphones(MDRHeadphones const&) = delete;
+        MDRHeadphones(MDRHeadphones&&) = delete;
+
+        int Receive();
+        int Send();
+        /**
+         * @brief Dequeues a _complete_ command payload and spawns appropriate coroutines - and advances them _here_.
+         * @note  This is a no-op if buffer is incomplete and no complete command payload can be produced.
+         * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically.
+         * @note  This is your best friend.
+         * @return One of MDR_HEADPHONES_* event types
+         */
+        int MoveNext();
+        /**
+         * @brief Schedules the task to be run on the next @ref MoveNext call.
+         * @return @ref MDR_RESULT_OK if task has been scheduled, @ref MDR_RESULT_INPROGRESS if _another_ task
+         *         is still being executed.
+         * @note @ref TaskMoveNext frees the completed task.
+         */
+        int Invoke(MDRTask&& task);
+        /**
+         * @brief This does what you think it does.
+         *        Schedules the calling coroutine to be executed once the next @ref AwaitType
+         *        event has arrived through @ref MoveNext
+         * @note  As always, needs @ref mdrHeadphonesPollEvents
+         */
+        Awaiter Await(AwaitType type);
+        /**
+         * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
+         */
+        void Awake(AwaitType type);
+        /**
+         * @brief This does what you think it does.
+         */
+        [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
+
+#pragma region States
+        // @ref HandleProtocolInfoT1
+        struct
+        {
+            int version;
+            int hasTable1;
+            int hasTable2;
+        } mProtocol{};
+
+        // @ref HandleSupportFunctionT1
+        // Q: Why not std::bitset?
+        // A: They are not constexpr until C++23 - while std::array[] are since 14.
+        //    Since there's no other C++23 feature usage anywhere else in the lib,
+        //    we're sticking with C++20 as is.
+        struct
+        {
+            Array<bool, 256> table1Functions;
+            Array<bool, 256> table2Functions;
+
+            [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table1 v) const
+            {
+                return table1Functions[static_cast<UInt8>(v)];
+            }
+
+            [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table2 v) const
+            {
+                return table2Functions[static_cast<UInt8>(v)];
+            }
+        } mSupport{};
+
+        std::string mUniqueId;
+        std::string mFWVersion;
+        std::string mModelName;
+        v2::t1::ModelSeriesType mModelSeries{};
+        v2::t1::ModelColor mModelColor{};
+        v2::t1::AudioCodec mAudioCodec{};
+#pragma endregion
+
+#pragma region Properties
+        MDRProperty<bool> mNcAsmEnabled;
+        MDRProperty<bool> mNcAsmFocusOnVoice;
+        MDRProperty<UInt8> mNcAsmAmbientLevel; // 0-20. 0 is not possible on the App.
+        MDRProperty<v2::t1::Function> mNcAsmButtonFunction;
+        MDRProperty<v2::t1::NcAsmMode> mNcAsmMode;
+        MDRProperty<bool> mNcAsmAutoAsmEnabled; // WH-1000XM6+
+        MDRProperty<v2::t1::NoiseAdaptiveSensitivity> mNcAsmNoiseAdaptiveSensitivity; // WH-1000XM6+
+
+        MDRProperty<v2::t1::AutoPowerOffElements> mPowerAutoOff;
+        MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPowerAutoOffWearingDetection;
+
+        MDRProperty<v2::t1::PlaybackStatus> mPlaybackStatus;
+
+        struct GsCapability
+        {
+            v2::t1::GsSettingType type;
+            v2::t1::GsSettingInfo value;
+        };
+
+        MDRProperty<GsCapability> mGsCapability1, mGsCapability2,
+                                  mGsCapability3, mGsCapability4;
+        MDRProperty<bool> mGsParamBool1, mGsParamBool2,
+                          mGsParamBool3, mGsParamBool4;
+
+        MDRProperty<v2::t1::UpscalingType> mUpscalingType;
+        MDRProperty<bool> mUpscalingAvailable;
+        MDRProperty<bool> mUpscalingEnabled;
+
+        MDRProperty<v2::t1::PriorMode> mAudioPriorityMode;
+
+        MDRProperty<bool> mBGMModeEnabled;
+        MDRProperty<v2::t1::RoomSize> mBGMModeRoomSize;
+        MDRProperty<bool> mUpmixCinemaEnabled;
+#pragma endregion
+
+#pragma region Tasks
+        MDRTask RequestInit();
+        MDRTask RequestSync();
+#pragma endregion
+
+    private:
+        // XXX: So, very naive. We just die if anything bad happens.
+        bool ExceptionHandler(auto&& func)
+        {
+            try
+            {
+                return func();
+            }
+            catch (std::runtime_error& exc)
+            {
+                fmt::println("!!! Exception: {}", exc.what());
+                mLastError = exc.what();
+                mConn->disconnect(mConn->user);
+            }
+            return false;
+        }
+
+        /**
+         * @note Queues a command payload to be sent through @ref Send. You generally don't need to call this directly.
+         * @note Non-blocking. Need @ref Sent to be polled periodically.
+         */
+        void SendCommandImpl(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
+        void SendACK(MDRCommandSeqNumber seq);
+        /**
+         * @note Queues a command payload of @ref MDRIsSerializable type to be sent through @ref Send.
+         * @note Non-blocking. Need @ref Sent to be polled periodically.
+         * @note You _usually_ need to wait for an @ref AWAIT_ACK. Use the @ref MDR_SEND_COMMAND_ACK macro to send and wait for one!
+         */
+        template <MDRIsSerializable T>
+        void SendCommandImpl(T const& command = {})
+        {
+            UInt8 buf[kMDRMaxPacketSize];
+
+            MDRDataType type = MDRTraits<T>::kDataType;
+            T::Validate(command); // <- Throws if something's bad
+            size_t size = T::Serialize(command, buf);
+            SendCommandImpl({buf, buf + size}, type, mSeqNumber);
+        }
+
+        /**
+         * @brief Check if the coroutine frame has been completed - and if so, frees the current @ref mTask
+         *        and allow subsequent @ref Invoke calls to take effect.
+         * @return true if a task has been completed _here_. No tasks, or in-progress results in false.
+         * @note Tasks are spawned with @ref Invoke.
+         */
+        bool TaskMoveNext(int& result);
+        /**
+         * @brief Handles current command, and generates an event associated with it.
+         * @return One of MDR_HEADPHONES_* event types
+         */
+        int Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
+        int HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
+        int HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
+        void HandleAck(MDRCommandSeqNumber seq);
+    };
+}
+
+// NOLINTBEGIN
+/**
+ * @brief Sends command through @ref SendCommandImpl<T>, and re-schedule ourselves to
+ *        co_await for an @ref Await(AWAIT_ACK) on the coroutine.
+ * @param Type Command payload of @ref MDRIsSerializable type
+ * @note  This is ONLY meaningful within a @ref MDRTask coroutine, as this schedules
+ *        the current task to wait on a @ref AWAIT_ACK event.
+ *
+ * As to _why_ this is here instead of a templated member function - instantiated
+ * templates would create their own @ref MDRTask and generate code for EACH of them,
+ * while all we need is merely a `co_await`...
+ *
+ * TL;DR, this helps with compiler bloats. Use it well.
+ */
+#define SendCommandACK(Type, ...) \
+    { \
+    SendCommandImpl<Type>( __VA_ARGS__ ); \
+    co_await Await(AWAIT_ACK); \
+    }
+// NOLINTEND

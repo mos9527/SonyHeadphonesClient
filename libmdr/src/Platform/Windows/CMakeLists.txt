@@ -10,4 +10,4 @@ file(
 )
 
 add_library(mdr_PlatformWindows ${SOURCES} ${INCLUDES})
-target_link_libraries(mdr_PlatformWindows PRIVATE mdr_Includes fmt::fmt ws2_32.lib rpcrt4.lib Bthprops.lib)
+target_link_libraries(mdr_PlatformWindows PRIVATE mdr-c fmt::fmt ws2_32.lib rpcrt4.lib Bthprops.lib)

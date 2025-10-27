@@ -18,7 +18,7 @@ file(
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 add_executable(SonyHeadphonesClient ${SOURCES} ${INCLUDES})
 
-target_link_libraries(SonyHeadphonesClient PRIVATE mdr mdr_Includes)
+target_link_libraries(SonyHeadphonesClient PRIVATE mdr)
 
 
 

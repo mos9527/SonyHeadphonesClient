@@ -1,5 +1,5 @@
 #pragma once
-#include "Headphones.h"
+#include "../../Connection.h"
 
 typedef struct MDRConnectionWindows MDRConnectionWindows;
 

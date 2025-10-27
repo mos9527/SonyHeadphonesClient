@@ -1,6 +1,3 @@
-#include <mdr/WindowsPlatform.h>
-#include "../Platform.hpp"
-
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -12,6 +9,10 @@
 #include <fmt/format.h>
 #include <string>
 #include <vector>
+
+#include "../Platform.hpp"
+#include <mdr/Platform/Windows/WindowsPlatform.hpp>
+
 static bool gWSAStartup = false;
 struct MDRConnectionWindows
 {

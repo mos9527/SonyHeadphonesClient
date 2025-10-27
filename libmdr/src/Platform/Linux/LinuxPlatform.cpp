@@ -1,4 +1,3 @@
-#include <mdr/LinuxPlatform.h>
 #include "DBusHelper.hpp"
 
 #include <unistd.h>
@@ -9,7 +8,7 @@
 #include <bluetooth/rfcomm.h>
 
 #include "../Platform.hpp"
-
+#include <mdr/Platform/Linux/LinuxPlatform.hpp>
 struct MDRConnectionLinux
 {
     MDRConnection mdrConn;

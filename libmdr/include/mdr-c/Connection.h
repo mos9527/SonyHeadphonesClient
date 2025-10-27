@@ -1,23 +1,5 @@
 #pragma once
-// MDR_RESULT...
-#define MDR_RESULT_OK 0
-#define MDR_RESULT_INPROGRESS 1
-#define MDR_RESULT_ERROR_GENERAL 2
-#define MDR_RESULT_ERROR_NOT_FOUND 3
-#define MDR_RESULT_ERROR_TIMEOUT 4
-#define MDR_RESULT_ERROR_NET 5
-#define MDR_RESULT_ERROR_NO_CONNECTION 6
-#define MDR_RESULT_ERROR_BAD_ADDRESS 7
-// MDR_HEADPHONES...
-#define MDR_HEADPHONES_NO_EVENT 0
-#define MDR_HEADPHONES_ERROR 1
-#define MDR_HEADPHONES_INITIALIZED 2
-#define MDR_HEADPHONES_SYNC_COMPLETED 3
-#define MDR_HEADPHONES_FEATURE_UNSUPPORTED 4
-#define MDR_HEADPHONES_STATE_UPDATE 5
-// Service UUIDs
-// XM5s and newer
-#define MDR_SERVICE_UUID_XM5 "956C7B26-D49A-4BA8-B03F-B17D393CB6E2"
+#include "Base.h"
 /**
  * @brief Structs for your devices.
  */
@@ -53,24 +35,10 @@ typedef struct MDRConnection
     const char* (*getLastError)(void* user);
 } MDRConnection;
 
-typedef struct MDRHeadphones MDRHeadphones;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#pragma region mdr[...]String
-/**
- * @brief Format MDR_RESULT_... error codes as null-terminated strings
- */
-const char* mdrResultString(int err);
-/**
- * @brief Format MDR_HEADPHONES_... error codes as null-terminated strings
- */
-const char* mdrHeadphonesString(int err);
-#pragma endregion
-
-#pragma region mdrConnection
 /**
  * @brief Connect to a device using the specified MAC address and service UUID.
  * @param conn The connection object created by platform-specific backends.
@@ -134,54 +102,6 @@ int mdrConnectionFreeDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList);
  * @return Null-terminated string describing the error.
  */
 const char* mdrConnectionGetLastError(MDRConnection* conn);
-#pragma endregion
-
-#pragma region mdrHeadphones
-/**
- * @brief Create a new MDRHeadphones instance.
- * @return A pointer to the new MDRHeadphones instance, or NULL on failure.
- */
-MDRHeadphones* mdrHeadphonesCreate(MDRConnection*);
-/**
- * @brief Destroy an MDRHeadphones instance and free its resources.
- */
-void mdrHeadphonesDestroy(MDRHeadphones*);
-/**
- * @breif Receive commands and process events. This is non-blocking, and should be
- *        run in - for example - your UI loop.
- * @note  This is your best friend. Use it.
- * @note  This function does not block. To not burn cycles for fun - poll on your @ref MDRConnection
- *        with @ref mdrConnectionPoll is recommended
- * @return One of MDR_HEADPHONES_* event types
- */
-int mdrHeadphonesPollEvents(MDRHeadphones*);
-/**
- * @brief Check if @ref MDRHeadphones is ready to do more requests.
- * @return @ref MDR_RESULT_OK is true, @ref MDR_RESULT_INPROGRESS if occupied.
- */
-int mdrHeadphonesRequestIsReady(MDRHeadphones*);
-/**
- * @brief Send initialization payloads to the headphones.
- * @note  The official app does the same things - so you should too.
- * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
- *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_INITIALIZED can be polled
- *         upon completion.
- */
-int mdrHeadphonesRequestInit(MDRHeadphones*);
-/**
- * @brief Send query payloads to the headphones, for values that don't automatically update
- *        (e.g. Battery levels)
- * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
- *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_SYNC_COMPLETED can be polled
- *         upon completion.
- */
-int mdrHeadphonesRequestSync(MDRHeadphones*);
-/**
- * @brief Get a string describing the last error that occurred.
- * @return A null-terminated string describing the last error.
- */
-const char* mdrHeadphonesGetLastError(MDRHeadphones*);
-#pragma endregion
 #ifdef __cplusplus
 }
 #endif

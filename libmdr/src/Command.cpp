@@ -1,5 +1,4 @@
-#include "Command.hpp"
-
+#include <mdr/Command.hpp>
 #include <algorithm>
 
 namespace mdr
@@ -96,7 +95,7 @@ namespace mdr
     }
 
     MDRUnpackResult MDRUnpackCommand(Span<const UInt8> command, MDRBuffer& outData, MDRDataType& outType,
-                           MDRCommandSeqNumber& outSeq) noexcept
+                                     MDRCommandSeqNumber& outSeq) noexcept
     {
 
         if (command.size() < 2)

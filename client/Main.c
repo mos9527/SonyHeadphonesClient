@@ -1,10 +1,10 @@
 #ifdef MDR_PLATFORM_LINUX
-#include <mdr/LinuxPlatform.h>
+#include <mdr-c/Platform/Linux/LinuxPlatform.h>
 #elif MDR_PLATFORM_WIN32
-#include <mdr/WindowsPlatform.h>
+#include <mdr-c/Platform/Windows/WindowsPlatform.h>
 #endif
 
-#include <mdr/Headphones.h>
+#include <mdr-c/Headphones.h>
 #include <stdio.h>
 #include <string.h>
 
