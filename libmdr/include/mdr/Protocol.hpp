@@ -201,6 +201,7 @@ namespace mdr
         [[nodiscard]] auto end() { return value.end(); }
         [[nodiscard]] auto begin() const { return value.begin(); }
         [[nodiscard]] auto end() const { return value.end(); }
+        [[nodiscard]] constexpr size_t size() const { return value.size(); }
     };
 
     /**
@@ -232,10 +233,11 @@ namespace mdr
             return size + 1;
         }
 
-        auto begin() { return value.begin(); }
-        auto end() { return value.end(); }
-        auto begin() const { return value.begin(); }
-        auto end() const { return value.end(); }
+        [[nodiscard]] auto begin() { return value.begin(); }
+        [[nodiscard]] auto end() { return value.end(); }
+        [[nodiscard]] auto begin() const { return value.begin(); }
+        [[nodiscard]] auto end() const { return value.end(); }
+        [[nodiscard]] constexpr size_t size() const { return value.size(); }
     };
 
     /**
@@ -267,10 +269,11 @@ namespace mdr
             return *ppDstBuffer - ptr;
         }
 
-        auto begin() { return value.begin(); }
-        auto end() { return value.end(); }
-        auto begin() const { return value.begin(); }
-        auto end() const { return value.end(); }
+        [[nodiscard]] auto begin() { return value.begin(); }
+        [[nodiscard]] auto end() { return value.end(); }
+        [[nodiscard]] auto begin() const { return value.begin(); }
+        [[nodiscard]] auto end() const { return value.end(); }
+        [[nodiscard]] constexpr size_t size() const { return value.size(); }
     };
 
     /**
@@ -298,10 +301,11 @@ namespace mdr
             return *ppDstBuffer - ptr;
         }
 
-        auto begin() { return value.begin(); }
-        auto end() { return value.end(); }
-        auto begin() const { return value.begin(); }
-        auto end() const { return value.end(); }
+        [[nodiscard]] auto begin() { return value.begin(); }
+        [[nodiscard]] auto end() { return value.end(); }
+        [[nodiscard]] auto begin() const { return value.begin(); }
+        [[nodiscard]] auto end() const { return value.end(); }
+        [[nodiscard]] constexpr size_t size() const { return value.size(); }
     };
 
     /**

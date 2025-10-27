@@ -229,6 +229,10 @@ namespace mdr
         v2::t1::ModelSeriesType mModelSeries{};
         v2::t1::ModelColor mModelColor{};
         v2::t1::AudioCodec mAudioCodec{};
+
+        v2::t1::AlertMessageType mLastAlertMessage{};
+        std::string mLastInteractionMessage;
+        std::string mLastDeviceJSONMessage;
 #pragma endregion
 
 #pragma region Properties
@@ -265,6 +269,21 @@ namespace mdr
         MDRProperty<bool> mBGMModeEnabled;
         MDRProperty<v2::t1::RoomSize> mBGMModeRoomSize;
         MDRProperty<bool> mUpmixCinemaEnabled;
+
+        MDRProperty<bool> mAutoPauseEnabled;
+
+        MDRProperty<v2::t1::Preset> mTouchFunctionLeft, mTouchFunctionRight;
+
+        MDRProperty<bool> mSpeakToChatEnabled;
+        MDRProperty<v2::t1::DetectSensitivity> mSpeakToChatDetectSensitivity;
+        MDRProperty<v2::t1::ModeOutTime> mSpeakToModeOutTime;
+
+        MDRProperty<bool> mHeadGestureEnabled;
+
+        MDRProperty<bool> mEqAvailable;
+        MDRProperty<int> mEqClearBass;
+        // Non-zero band count of either 5: [400,1k,2.5k,6.3k,16k] or 10: [31,63,125,250,500,1k,2k,4k,8k,16k]
+        MDRProperty<Vector<int>> mEqConfig;
 #pragma endregion
 
 #pragma region Tasks

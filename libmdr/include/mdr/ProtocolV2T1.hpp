@@ -1493,6 +1493,8 @@ namespace mdr::v2::t1
     {
         Command command{Command::EQEBB_RET_STATUS}; // 0x0
         EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbBase);
     };
 
     struct EqEbbGetStatus
@@ -1504,6 +1506,14 @@ namespace mdr::v2::t1
         MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbGetStatus);
     };
 
+    struct EqEbbStatusOnOff
+    {
+        // CODEGEN Field command EnumRange Command::EQEBB_RET_STATUS Command::EQEBB_NTFY_STATUS
+        EqEbbBase base{Command::EQEBB_RET_STATUS, EqEbbInquiredType::PRESET_EQ};
+        MessageMdrV2OnOffSettingValue status;
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(EqEbbStatusOnOff);
+    };
 
     struct EqEbbStatusErrorCode
     {
@@ -1684,6 +1694,8 @@ namespace mdr::v2::t1
     {
         Command command{Command::ALERT_RET_STATUS};
         AlertInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertBase);
     };
 
     struct AlertGetStatus
@@ -1691,6 +1703,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::ALERT_GET_STATUS
         Command command{Command::ALERT_GET_STATUS};
         AlertInquiredType type; // 0x1
+
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AlertGetStatus);
     };
 
@@ -2328,6 +2341,8 @@ namespace mdr::v2::t1
     {
         Command command{Command::SYSTEM_RET_PARAM};
         SystemInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemBase);
     };
 
     // - VIBRATOR, PLAYBACK_CONTROL_BY_WEARING, VOICE_ASSISTANT_WAKE_WORD, AUTO_VOLUME, HEAD_GESTURE_ON_OFF
@@ -2350,6 +2365,8 @@ namespace mdr::v2::t1
         SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
         MessageMdrV2EnableDisable onOffValue; // 0x2
         MessageMdrV2EnableDisable previewModeOnOffValue; // 0x3
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemParamSmartTalking);
     };
 
     // - ASSIGNABLE_SETTINGS
@@ -2524,6 +2541,8 @@ namespace mdr::v2::t1
     {
         Command command{Command::SYSTEM_RET_EXT_PARAM};
         SystemInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemExtBase);
     };
 
     // - SMART_TALKING_MODE_TYPE1

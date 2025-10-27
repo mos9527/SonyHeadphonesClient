@@ -1,5 +1,6 @@
 #include <mdr/Headphones.hpp>
 #include <algorithm>
+
 namespace mdr
 {
     using namespace v2::t1;
@@ -401,6 +402,226 @@ namespace mdr
         return MDR_HEADPHONES_NO_EVENT;
     }
 
+    int HandleSystemParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        SystemBase base;
+        SystemBase::Deserialize(cmd.data(), base);
+        using enum SystemInquiredType;
+        switch (base.type)
+        {
+        case PLAYBACK_CONTROL_BY_WEARING:
+        {
+            if (self->mSupport.contains(
+                v2::MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+            {
+                SystemParamCommon res;
+                SystemParamCommon::Deserialize(cmd.data(), res);
+                self->mAutoPauseEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                return MDR_HEADPHONES_STATE_UPDATE;
+            }
+            return MDR_HEADPHONES_NO_EVENT;
+        }
+        case ASSIGNABLE_SETTINGS:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
+            {
+                SystemParamAssignableSettings res;
+                SystemParamAssignableSettings::Deserialize(cmd.data(), res);
+                if (res.presets.size() == 2)
+                {
+                    self->mTouchFunctionLeft.overwrite(res.presets.value[0]);
+                    self->mTouchFunctionRight.overwrite(res.presets.value[1]);
+                }
+                return MDR_HEADPHONES_STATE_UPDATE;
+            }
+            return MDR_HEADPHONES_NO_EVENT;
+        }
+        case SMART_TALKING_MODE_TYPE2:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+            {
+                SystemParamSmartTalking res;
+                SystemParamSmartTalking::Deserialize(cmd.data(), res);
+                self->mSpeakToChatEnabled.overwrite(res.onOffValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                return MDR_HEADPHONES_STATE_UPDATE;
+            }
+            return MDR_HEADPHONES_NO_EVENT;
+        }
+        case HEAD_GESTURE_ON_OFF:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+            {
+                SystemParamCommon res;
+                SystemParamCommon::Deserialize(cmd.data(), res);
+                self->mHeadGestureEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                return MDR_HEADPHONES_STATE_UPDATE;
+            }
+            return MDR_HEADPHONES_NO_EVENT;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_NO_EVENT;
+    }
+
+    int HandleSystemExtParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        SystemExtBase base;
+        SystemExtBase::Deserialize(cmd.data(), base);
+        using enum SystemInquiredType;
+        switch (base.type)
+        {
+        case SMART_TALKING_MODE_TYPE2:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+            {
+                SystemExtParamSmartTalkingMode2 res;
+                SystemExtParamSmartTalkingMode2::Deserialize(cmd.data(), res);
+                self->mSpeakToChatDetectSensitivity.overwrite(res.detectSensitivity);
+                self->mSpeakToModeOutTime.overwrite(res.modeOffTime);
+                return MDR_HEADPHONES_STATE_UPDATE;
+            }
+            return MDR_HEADPHONES_NO_EVENT;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_NO_EVENT;
+    }
+
+    int HandleEqEbbStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        EqEbbBase base;
+        EqEbbBase::Deserialize(cmd.data(), base);
+        using enum EqEbbInquiredType;
+        switch (base.type)
+        {
+        case PRESET_EQ:
+        {
+            EqEbbStatusOnOff res;
+            EqEbbStatusOnOff::Deserialize(cmd.data(), res);
+            self->mEqAvailable.overwrite(res.status == v2::MessageMdrV2OnOffSettingValue::ON);
+            return MDR_HEADPHONES_STATE_UPDATE;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_NO_EVENT;
+    }
+
+    int HandleEqEbbParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        EqEbbBase base;
+        EqEbbBase::Deserialize(cmd.data(), base);
+        using enum EqEbbInquiredType;
+        switch (base.type)
+        {
+        case PRESET_EQ:
+        {
+            EqEbbParamEq res;
+            EqEbbParamEq::Deserialize(cmd.data(), res);
+            switch (res.bands.size())
+            {
+            case 0:
+                return MDR_HEADPHONES_STATE_UPDATE;
+            case 6:
+                self->mEqClearBass.overwrite(res.bands.value[0]);
+                self->mEqConfig.overwrite({
+                    res.bands.value[1] - 10, // 400
+                    res.bands.value[2] - 10, // 1k
+                    res.bands.value[3] - 10, // 2.5k
+                    res.bands.value[4] - 10, // 6.3k
+                    res.bands.value[5] - 10, // 16k
+                });
+                return MDR_HEADPHONES_STATE_UPDATE;
+            case 10:
+                self->mEqClearBass.overwrite(0); // Unavailable
+                self->mEqConfig.overwrite({
+                    res.bands.value[0] - 6, // 31
+                    res.bands.value[1] - 6, // 63
+                    res.bands.value[2] - 6, // 125
+                    res.bands.value[3] - 6, // 250
+                    res.bands.value[4] - 6, // 500
+                    res.bands.value[5] - 6, // 1k
+                    res.bands.value[6] - 6, // 2k
+                    res.bands.value[7] - 6, // 4k
+                    res.bands.value[8] - 6, // 8k
+                    res.bands.value[9] - 6, // 16k
+                });
+                return MDR_HEADPHONES_STATE_UPDATE;
+            default:
+                break;
+            }
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_NO_EVENT;
+    }
+
+    int HandleAlertParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        AlertBase base;
+        AlertBase::Deserialize(cmd.data(), base);
+        using enum AlertInquiredType;
+        switch (base.type)
+        {
+        case FIXED_MESSAGE:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
+            {
+                AlertNotifyParamFixedMessage res;
+                AlertNotifyParamFixedMessage::Deserialize(cmd.data(), res);
+                using enum AlertActionType;
+                switch (res.actionType)
+                {
+                case POSITIVE_NEGATIVE:
+                {
+                    self->mLastAlertMessage = res.messageType;
+                    return MDR_HEADPHONES_STATE_UPDATE;
+                }
+                default:
+                    break;
+                }
+            }
+            return MDR_HEADPHONES_NO_EVENT;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_NO_EVENT;
+    }
+
+    int HandleLogParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        // XXX: Don't have the corresponding struct in the official app yet, and
+        //      these don't get serialized in a way that's consistent with the rest.
+        //      So excuse the rawdogged parsing - FIXME.
+        const UInt8* begin = nullptr;
+        switch (cmd[1])
+        {
+        case 0x00:
+        {
+            MDRPrefixedString res;
+            if (cmd[2])
+                begin = &cmd[2]; // key...
+            else
+                begin = &cmd[3]; // op...
+            MDRPrefixedString::Read(&begin, res, cmd.size());
+            self->mLastDeviceJSONMessage = res.value;
+            return MDR_HEADPHONES_STATE_UPDATE;
+        }
+        case 0x01:
+        {
+            self->mLastInteractionMessage = std::string(cmd.begin() + 4, cmd.end());
+            return MDR_HEADPHONES_STATE_UPDATE;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_NO_EVENT;
+    }
+
     int MDRHeadphones::HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
     {
         CommandBase base;
@@ -441,6 +662,22 @@ namespace mdr
         case AUDIO_RET_PARAM:
         case AUDIO_NTFY_PARAM:
             return HandleAudioParamT1(this, cmd);
+        case SYSTEM_RET_PARAM:
+        case SYSTEM_NTFY_PARAM:
+            return HandleSystemParamT1(this, cmd);
+        case SYSTEM_RET_EXT_PARAM:
+        case SYSTEM_NTFY_EXT_PARAM:
+            return HandleSystemExtParamT1(this, cmd);
+        case EQEBB_RET_STATUS:
+        case EQEBB_NTFY_STATUS:
+            return HandleEqEbbStatusT1(this, cmd);
+        case EQEBB_RET_PARAM:
+        case EQEBB_NTFY_PARAM:
+            return HandleEqEbbParamT1(this, cmd);
+        case ALERT_NTFY_PARAM:
+            return HandleAlertParamT1(this, cmd);
+        case LOG_NTFY_PARAM:
+            return HandleLogParamT1(this, cmd);
         default:
             fmt::println("^^ Unhandled {}", base.command);
         }
