@@ -104,6 +104,9 @@ namespace mdr {
     template<> struct MDRTraits<v2::t1::EqEbbGetStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v2::t1::EqEbbStatusOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v2::t1::EqEbbStatusErrorCode> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };

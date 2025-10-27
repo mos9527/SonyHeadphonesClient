@@ -26,6 +26,11 @@ bool PeripheralGetStatus::Validate(const PeripheralGetStatus& data) {
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
+bool PeripheralBase::Validate(const PeripheralBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
 bool PeripheralStatusPairingDeviceManagementCommon::Validate(const PeripheralStatusPairingDeviceManagementCommon& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
@@ -111,6 +116,11 @@ bool PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const Peripheral
 bool VoiceGuidanceGetParam::Validate(const VoiceGuidanceGetParam& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::VOICE_GUIDANCE_GET_PARAM, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
+bool VoiceGuidanceBase::Validate(const VoiceGuidanceBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };

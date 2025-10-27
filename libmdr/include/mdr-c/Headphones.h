@@ -24,7 +24,7 @@ void mdrHeadphonesDestroy(MDRHeadphones*);
  * @note  This is your best friend. Use it.
  * @note  This function does not block. To not burn cycles for fun - poll on your @ref MDRConnection
  *        with @ref mdrConnectionPoll is recommended
- * @return One of MDR_HEADPHONES_* event types
+ * @return One of MDR_HEADPHONES_* values
  */
 int mdrHeadphonesPollEvents(MDRHeadphones*);
 /**

@@ -64,10 +64,10 @@ int main()
         switch (evt)
         {
         case MDR_HEADPHONES_ERROR:
-            printf("headphones died: %s (headphones=%s, conn=%s)\n", mdrHeadphonesString(evt),
-                   mdrHeadphonesGetLastError(headphones),  mdrConnectionGetLastError(conn));
+            printf("headphones died: %s (conn=%s)\n",
+                   mdrHeadphonesGetLastError(headphones), mdrConnectionGetLastError(conn));
             return -1;
-        case MDR_HEADPHONES_INITIALIZED:
+        case MDR_HEADPHONES_TASK_INIT_OK:
             printf("Initialized. We're done.\n");
             goto END;
         default:

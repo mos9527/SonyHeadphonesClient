@@ -216,10 +216,22 @@ bool PowerParamBatterySafeMode::Validate(const PowerParamBatterySafeMode& data) 
     MDR_CHECK(is_valid(data.effectStatus), "effectStatus got an invalid enum value");
     return true;
 };
+bool EqEbbBase::Validate(const EqEbbBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
 bool EqEbbGetStatus::Validate(const EqEbbGetStatus& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::EQEBB_GET_STATUS, got {}",data.command);
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
+bool EqEbbStatusOnOff::Validate(const EqEbbStatusOnOff& data) {
+    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
+    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::EQEBB_RET_STATUS Command::EQEBB_NTFY_STATUS, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.status), "status got an invalid enum value");
     return true;
 };
 bool EqEbbStatusErrorCode::Validate(const EqEbbStatusErrorCode& data) {
@@ -350,6 +362,11 @@ bool NcAsmParamNcAmbToggle::Validate(const NcAsmParamNcAmbToggle& data) {
     MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of NcAsmInquiredType::NC_AMB_TOGGLE, got {}",data.base.type);
     MDR_CHECK(is_valid(data.function), "function got an invalid enum value");
+    return true;
+};
+bool AlertBase::Validate(const AlertBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool AlertGetStatus::Validate(const AlertGetStatus& data) {
@@ -759,12 +776,26 @@ bool SystemGetParam::Validate(const SystemGetParam& data) {
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
+bool SystemBase::Validate(const SystemBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
 bool SystemParamCommon::Validate(const SystemParamCommon& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
     MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of SystemInquiredType::VIBRATOR SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD SystemInquiredType::AUTO_VOLUME SystemInquiredType::HEAD_GESTURE_ON_OFF, got {}",data.base.type);
     MDR_CHECK(is_valid(data.settingValue), "settingValue got an invalid enum value");
+    return true;
+};
+bool SystemParamSmartTalking::Validate(const SystemParamSmartTalking& data) {
+    MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
+    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of SystemInquiredType::SMART_TALKING_MODE_TYPE1 SystemInquiredType::SMART_TALKING_MODE_TYPE2, got {}",data.base.type);
+    MDR_CHECK(is_valid(data.onOffValue), "onOffValue got an invalid enum value");
+    MDR_CHECK(is_valid(data.previewModeOnOffValue), "previewModeOnOffValue got an invalid enum value");
     return true;
 };
 bool SystemParamAssignableSettings::Validate(const SystemParamAssignableSettings& data) {
@@ -868,6 +899,11 @@ bool SystemNotifyParamFaceTapTestMode::Validate(const SystemNotifyParamFaceTapTe
 bool SystemGetExtParam::Validate(const SystemGetExtParam& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::SYSTEM_GET_EXT_PARAM, got {}",data.command);
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
+bool SystemExtBase::Validate(const SystemExtBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };

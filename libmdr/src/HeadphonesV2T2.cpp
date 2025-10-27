@@ -13,7 +13,7 @@ namespace mdr
         for (auto fun : res.supportFunctions)
             self->mSupport.table2Functions[static_cast<UInt8>(fun.table2)] = true;
         self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
-        return MDR_HEADPHONES_STATE_UPDATE;
+        return MDR_HEADPHONES_EVT_SUPPORT_FUNCTIONS;
     }
 
     int HandleVoiceGuidanceParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -28,19 +28,19 @@ namespace mdr
             VoiceGuidanceParamSettingMtk res;
             VoiceGuidanceParamSettingMtk::Deserialize(cmd.data(), res);
             self->mVoiceGuidanceEnabled.overwrite(res.settingValue == v2::MessageMdrV2OnOffSettingValue::ON);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE;
         }
         case VOLUME:
         {
             VoiceGuidanceParamVolume res;
             VoiceGuidanceParamVolume::Deserialize(cmd.data(), res);
             self->mVoiceGuidanceVolume.overwrite(res.volumeValue);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_VOLUME;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandlePeripheralStatusT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -56,12 +56,12 @@ namespace mdr
             PeripheralStatusPairingDeviceManagementCommon::Deserialize(cmd.data(), res);
             self->mPairingMode.overwrite(res.enableDisableStatus == v2::MessageMdrV2EnableDisable::ENABLE &&
                 res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_BLUETOOTH_MODE;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandlePeripheralNotifyExtendedParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -76,12 +76,12 @@ namespace mdr
             PeripheralNotifyExtendedParamSourceSwitchControl res;
             PeripheralNotifyExtendedParamSourceSwitchControl::Deserialize(cmd.data(), res);
             self->mMultipointDeviceMac.overwrite(String(res.targetBdAddress.begin(), res.targetBdAddress.end()));
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_MULTIPOINT_SWITCH;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandlePeripheralParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -105,7 +105,7 @@ namespace mdr
             self->mPairedDevicesPlaybackDeviceIndex = res.playbackDevice;
             self->mMultipointDeviceMac.overwrite(
                 self->mPairedDevices[self->mPairedDevicesPlaybackDeviceIndex].macAddress);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
         }
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
@@ -121,12 +121,12 @@ namespace mdr
             self->mPairedDevicesPlaybackDeviceIndex = res.playbackDevice;
             self->mMultipointDeviceMac.overwrite(
                 self->mPairedDevices[self->mPairedDevicesPlaybackDeviceIndex].macAddress);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleSafeListeningParamsT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -144,12 +144,12 @@ namespace mdr
             SafeListeningNotifyParamSL res;
             SafeListeningNotifyParamSL::Deserialize(cmd.data(), res);
             self->mSafeListeningPreviewMode.overwrite(res.previewMode == v2::MessageMdrV2EnableDisable::ENABLE);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_SAFE_LISTENING_PARAM;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleSafeListeningExtendedParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -157,7 +157,7 @@ namespace mdr
         SafeListeningRetExtendedParam res;
         SafeListeningRetExtendedParam::Deserialize(cmd.data(), res);
         self->mSafeListeningSoundPressure = res.levelPerPeriod;
-        return MDR_HEADPHONES_STATE_UPDATE;
+        return MDR_HEADPHONES_EVT_SOUND_PRESSURE;
     }
 
     int MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
@@ -189,6 +189,6 @@ namespace mdr
             fmt::println("** Unhandled {}", base.command);
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 }

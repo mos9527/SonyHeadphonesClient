@@ -15,7 +15,7 @@ namespace mdr
             .hasTable2 = res.supportTable1Value == v2::MessageMdrV2EnableDisable::ENABLE
         };
         self->Awake(MDRHeadphones::AWAIT_PROTOCOL_INFO);
-        return MDR_HEADPHONES_STATE_UPDATE; // <- XXX Change these
+        return MDR_HEADPHONES_EVT_OK;
     }
 
     int HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -26,7 +26,7 @@ namespace mdr
         for (auto fun : res.supportFunctions)
             self->mSupport.table1Functions[static_cast<UInt8>(fun.table1)] = true;
         self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
-        return MDR_HEADPHONES_STATE_UPDATE;
+        return MDR_HEADPHONES_EVT_SUPPORT_FUNCTIONS;
     }
 
     int HandleCapabilityInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -34,7 +34,7 @@ namespace mdr
         ConnectRetCapabilityInfo res;
         ConnectRetCapabilityInfo::Deserialize(cmd.data(), res);
         self->mUniqueId = res.uniqueID.value;
-        return MDR_HEADPHONES_STATE_UPDATE;
+        return MDR_HEADPHONES_EVT_OK;
     }
 
     int HandleDeviceInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -49,14 +49,14 @@ namespace mdr
             ConnectRetDeviceInfoModelName res;
             ConnectRetDeviceInfoModelName::Deserialize(cmd.data(), res);
             self->mModelName = res.value.value;
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_DEVICE_INFO;
         }
         case FW_VERSION:
         {
             ConnectRetDeviceInfoFwVersion res;
             ConnectRetDeviceInfoFwVersion::Deserialize(cmd.data(), res);
             self->mFWVersion = res.value.value;
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_DEVICE_INFO;
         }
         case SERIES_AND_COLOR_INFO:
         {
@@ -64,12 +64,12 @@ namespace mdr
             ConnectRetDeviceInfoSeriesAndColor::Deserialize(cmd.data(), res);
             self->mModelSeries = res.series;
             self->mModelColor = res.color;
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_DEVICE_INFO;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleCommonStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -84,12 +84,12 @@ namespace mdr
             CommonStatusAudioCodec res;
             CommonStatusAudioCodec::Deserialize(cmd.data(), res);
             self->mAudioCodec = res.audioCodec;
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_CODEC;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleNcAsmParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -110,7 +110,7 @@ namespace mdr
                 self->mNcAsmMode.overwrite(res.ncAsmMode);
                 self->mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                 self->mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_NCASM_PARAM;
             }
             break;
         }
@@ -127,7 +127,7 @@ namespace mdr
                 self->mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
                 self->mNcAsmAutoAsmEnabled.overwrite(res.noiseAdaptiveOnOffValue == NcAsmOnOffValue::ON);
                 self->mNcAsmNoiseAdaptiveSensitivity.overwrite(res.noiseAdaptiveSensitivitySettings);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_NCASM_PARAM;
             }
             break;
         }
@@ -140,7 +140,7 @@ namespace mdr
                 self->mNcAsmEnabled.overwrite(res.base.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                 self->mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                 self->mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_NCASM_PARAM;
             }
             break;
         }
@@ -151,14 +151,14 @@ namespace mdr
                 NcAsmParamNcAmbToggle res;
                 NcAsmParamNcAmbToggle::Deserialize(cmd.data(), res);
                 self->mNcAsmButtonFunction.overwrite(res.function);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_NCASM_BUTTON_MODE;
             }
             break;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandlePowerStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -175,7 +175,7 @@ namespace mdr
                 PowerParamAutoPowerOff res;
                 PowerParamAutoPowerOff::Deserialize(cmd.data(), res);
                 self->mPowerAutoOff.overwrite(res.currentPowerOffElements);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_AUTO_POWER_OFF_PARAM;
             }
             break;
         }
@@ -186,14 +186,14 @@ namespace mdr
                 PowerParamAutoPowerOffWithWearingDetection res;
                 PowerParamAutoPowerOffWithWearingDetection::Deserialize(cmd.data(), res);
                 self->mPowerAutoOffWearingDetection.overwrite(res.currentPowerOffElements);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_AUTO_POWER_OFF_PARAM;
             }
             break;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandlePlaybackStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -208,12 +208,12 @@ namespace mdr
             PlayStatusPlaybackController res;
             PlayStatusPlaybackController::Deserialize(cmd.data(), res);
             self->mPlaybackStatus.overwrite(res.playbackStatus);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_PLAYBACK_METADATA;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleGsCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -226,27 +226,27 @@ namespace mdr
         case GENERAL_SETTING1:
         {
             self->mGsCapability1.overwrite({res.settingType, res.settingInfo});
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_GENERAL_SETTING_1;
         }
         case GENERAL_SETTING2:
         {
             self->mGsCapability2.overwrite({res.settingType, res.settingInfo});
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_GENERAL_SETTING_2;
         }
         case GENERAL_SETTING3:
         {
             self->mGsCapability3.overwrite({res.settingType, res.settingInfo});
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_GENERAL_SETTING_3;
         }
         case GENERAL_SETTING4:
         {
             self->mGsCapability4.overwrite({res.settingType, res.settingInfo});
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_GENERAL_SETTING_4;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleGsParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -264,12 +264,12 @@ namespace mdr
                 GsParamBoolean res;
                 GsParamBoolean::Deserialize(cmd.data(), res);
                 dstBool.overwrite(res.settingValue == GsSettingValue::ON);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_OK;
             }
             default:
                 break;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         };
         switch (base.type)
         {
@@ -292,7 +292,7 @@ namespace mdr
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleAudioCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -309,14 +309,14 @@ namespace mdr
                 AudioRetCapabilityUpscaling res;
                 AudioRetCapabilityUpscaling::Deserialize(cmd.data(), res);
                 self->mUpscalingType.overwrite(res.upscalingType);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleAudioStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -333,14 +333,14 @@ namespace mdr
                 AudioStatusCommon res;
                 AudioStatusCommon::Deserialize(cmd.data(), res);
                 self->mUpscalingAvailable.overwrite(res.status == v2::MessageMdrV2EnableDisable::ENABLE);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleAudioParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -358,9 +358,9 @@ namespace mdr
                 AudioParamConnection res;
                 AudioParamConnection::Deserialize(cmd.data(), res);
                 self->mAudioPriorityMode.overwrite(res.settingValue);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_CONNECTION_MODE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case UPSCALING:
         {
@@ -369,9 +369,9 @@ namespace mdr
                 AudioParamUpscaling res;
                 AudioParamUpscaling::Deserialize(cmd.data(), res);
                 self->mUpscalingEnabled.overwrite(res.settingValue == UpscalingTypeAutoOff::AUTO);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case BGM_MODE:
         {
@@ -381,9 +381,9 @@ namespace mdr
                 AudioParamBGMMode::Deserialize(cmd.data(), res);
                 self->mBGMModeEnabled.overwrite(res.onOffSettingValue == v2::MessageMdrV2EnableDisable::ENABLE);
                 self->mBGMModeRoomSize.overwrite(res.targetRoomSize);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_OK;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case UPMIX_CINEMA:
         {
@@ -392,14 +392,14 @@ namespace mdr
                 AudioParamUpmixCinema res;
                 AudioParamUpmixCinema::Deserialize(cmd.data(), res);
                 self->mUpmixCinemaEnabled.overwrite(res.onOffSettingValue == v2::MessageMdrV2EnableDisable::ENABLE);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_OK;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleSystemParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -417,9 +417,9 @@ namespace mdr
                 SystemParamCommon res;
                 SystemParamCommon::Deserialize(cmd.data(), res);
                 self->mAutoPauseEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case ASSIGNABLE_SETTINGS:
         {
@@ -432,9 +432,9 @@ namespace mdr
                     self->mTouchFunctionLeft.overwrite(res.presets.value[0]);
                     self->mTouchFunctionRight.overwrite(res.presets.value[1]);
                 }
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_NCASM_BUTTON_MODE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case SMART_TALKING_MODE_TYPE2:
         {
@@ -443,9 +443,9 @@ namespace mdr
                 SystemParamSmartTalking res;
                 SystemParamSmartTalking::Deserialize(cmd.data(), res);
                 self->mSpeakToChatEnabled.overwrite(res.onOffValue == v2::MessageMdrV2EnableDisable::ENABLE);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_ENABLED;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case HEAD_GESTURE_ON_OFF:
         {
@@ -454,14 +454,14 @@ namespace mdr
                 SystemParamCommon res;
                 SystemParamCommon::Deserialize(cmd.data(), res);
                 self->mHeadGestureEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_HEAD_GESTURE;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleSystemExtParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -479,14 +479,14 @@ namespace mdr
                 SystemExtParamSmartTalkingMode2::Deserialize(cmd.data(), res);
                 self->mSpeakToChatDetectSensitivity.overwrite(res.detectSensitivity);
                 self->mSpeakToModeOutTime.overwrite(res.modeOffTime);
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_PARAM;
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleEqEbbStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -501,12 +501,12 @@ namespace mdr
             EqEbbStatusOnOff res;
             EqEbbStatusOnOff::Deserialize(cmd.data(), res);
             self->mEqAvailable.overwrite(res.status == v2::MessageMdrV2OnOffSettingValue::ON);
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_EQUALIZER_AVAILABLE;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleEqEbbParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -523,7 +523,7 @@ namespace mdr
             switch (res.bands.size())
             {
             case 0:
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_EQUALIZER_PARAM;
             case 6:
                 self->mEqClearBass.overwrite(res.bands.value[0]);
                 self->mEqConfig.overwrite({
@@ -533,7 +533,7 @@ namespace mdr
                     res.bands.value[4] - 10, // 6.3k
                     res.bands.value[5] - 10, // 16k
                 });
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_EQUALIZER_PARAM;
             case 10:
                 self->mEqClearBass.overwrite(0); // Unavailable
                 self->mEqConfig.overwrite({
@@ -548,7 +548,7 @@ namespace mdr
                     res.bands.value[8] - 6, // 8k
                     res.bands.value[9] - 6, // 16k
                 });
-                return MDR_HEADPHONES_STATE_UPDATE;
+                return MDR_HEADPHONES_EVT_EQUALIZER_PARAM;
             default:
                 break;
             }
@@ -556,7 +556,7 @@ namespace mdr
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleAlertParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -578,18 +578,18 @@ namespace mdr
                 case POSITIVE_NEGATIVE:
                 {
                     self->mLastAlertMessage = res.messageType;
-                    return MDR_HEADPHONES_STATE_UPDATE;
+                    return MDR_HEADPHONES_EVT_ALERT;
                 }
                 default:
                     break;
                 }
             }
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int HandleLogParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -609,17 +609,17 @@ namespace mdr
                 begin = &cmd[3]; // op...
             MDRPrefixedString::Read(&begin, res, cmd.size());
             self->mLastDeviceJSONMessage = res.value;
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_OK;
         }
         case 0x01:
         {
             self->mLastInteractionMessage = std::string(cmd.begin() + 4, cmd.end());
-            return MDR_HEADPHONES_STATE_UPDATE;
+            return MDR_HEADPHONES_EVT_OK;
         }
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int MDRHeadphones::HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
@@ -681,6 +681,6 @@ namespace mdr
         default:
             fmt::println("^^ Unhandled {}", base.command);
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 }

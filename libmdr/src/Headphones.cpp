@@ -92,7 +92,7 @@ namespace mdr
         default:
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT;
+        return MDR_HEADPHONES_EVT_UNHANDLED;
     }
 
     int MDRHeadphones::MoveNext()
@@ -102,11 +102,11 @@ namespace mdr
         if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
             return taskResult;
         if (mRecvBuf.empty())
-            return MDR_HEADPHONES_NO_EVENT;
+            return MDR_HEADPHONES_INPROGRESS;
         auto commandBegin = std::ranges::find(mRecvBuf, kStartMarker);
         auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
         if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
-            return MDR_HEADPHONES_NO_EVENT; // Incomplete
+            return MDR_HEADPHONES_INPROGRESS; // Incomplete
         MDRBuffer packedCommand{commandBegin, commandEnd + 1};
         MDRBuffer command;
         MDRDataType type;
@@ -126,7 +126,7 @@ namespace mdr
                 mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
             break;
         }
-        return MDR_HEADPHONES_NO_EVENT; // No event
+        return MDR_HEADPHONES_INPROGRESS; // No event
     }
 
     int MDRHeadphones::Invoke(MDRTask&& task)
@@ -368,7 +368,7 @@ namespace mdr
         };
         SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
         co_await Await(AWAIT_ACK);
-        co_return MDR_HEADPHONES_INITIALIZED;
+        co_return MDR_HEADPHONES_TASK_INIT_OK;
     }
 
     MDRTask MDRHeadphones::RequestSync()
@@ -424,7 +424,7 @@ namespace mdr
             SendCommandACK(v2::t2::SafeListeningGetExtendedParam,
                            {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
-        co_return MDR_HEADPHONES_SYNC_COMPLETED;
+        co_return MDR_HEADPHONES_TASK_SYNC_OK;
     }
 #pragma endregion
     // NOLINTEND
@@ -452,27 +452,6 @@ const char* mdrResultString(int err)
         return "No connection has been established";
     case MDR_RESULT_ERROR_BAD_ADDRESS:
         return "Invalid address information";
-    default:
-        return "Unknown";
-    }
-}
-
-const char* mdrHeadphonesString(int err)
-{
-    switch (err)
-    {
-    case MDR_HEADPHONES_NO_EVENT:
-        return "No event";
-    case MDR_HEADPHONES_ERROR:
-        return "Error";
-    case MDR_HEADPHONES_INITIALIZED:
-        return "Initialized";
-    case MDR_HEADPHONES_FEATURE_UNSUPPORTED:
-        return "Feature unsupported";
-    case MDR_HEADPHONES_SYNC_COMPLETED:
-        return "Sync OK";
-    case MDR_HEADPHONES_STATE_UPDATE:
-        return "State update";
     default:
         return "Unknown";
     }
