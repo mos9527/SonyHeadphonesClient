@@ -8,6 +8,7 @@ const char* kMDRReservedRWStructs[] = {
     "MDRPodArray",
     "MDRPrefixedString",
     "MDRArray",
+    "MDRFixedArray"
 };
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";

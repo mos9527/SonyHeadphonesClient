@@ -20,6 +20,9 @@ namespace mdr {
     template<> struct MDRTraits<v2::t1::ConnectRetCapabilityInfo> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v2::t1::ConnectRetDeviceInfoBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v2::t1::ConnectRetDeviceInfoModelName> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -27,9 +30,6 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::ConnectRetDeviceInfoSeriesAndColor> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
-    };
-    template<> struct MDRTraits<v2::t1::ConnectRetDeviceInfo> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::ConnectGetSupportFunction> {
@@ -276,6 +276,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::AudioParamUpscaling> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v2::t1::AudioStatusCommon> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v2::t1::AudioParamConnectionWithLdacStatus> {

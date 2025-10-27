@@ -3,7 +3,6 @@ A MDR Payload struct
 - ALWAYS has a `Command` enum field named `command` as the first field, with a default value set to the command it represents.
 - ALWAYS implements the `MDRIsSerializable` concept, which means it can be serialized and deserialized to/from a byte buffer,
   either through trivial serialization macro (`MDR_DEFINE_TRIVIAL_SERIALIZATION`) or through custom serialization functions (see below).
-- ALWAYS has a static assertion to verify it implements the `MDRIsSerializable` concept.
 - MAY contain dynamic array types (vectors or strings), otherwise it should use the trivial serialization macro (see the next section).
 - ALWAYS trivially copyable (no user-defined constructors, destructors, or copy/move operators) UNLESS contains dynamic array types (vectors or strings).
 - ALWAYS in standard layout (no virtual functions, no multiple inheritance, all non-static data members have the same access control). 
@@ -27,7 +26,6 @@ struct ConnectRetProtocolInfo
 
     MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectRetProtocolInfo);
 };
-static_assert(MDRIsSerializable<ConnectRetProtocolInfo>);
 ... <extra code>
 #pragma pack(pop)
 ```
@@ -46,7 +44,6 @@ struct ConnectRetSupportFunction
 
     MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);
 };
-static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
 ... <extra code>
 // NOTE: Auto-generated serialization implementation
 // Generated/ProtocolV2T1Serialization.cpp
@@ -113,7 +110,6 @@ MDRSerializationResult ConnectRetSupportFunction::Deserialize(UInt8* data, Conne
   of the said struct.
 
 ## Validation
-- ALL structs MUST implement static assertions to verify they implement the `MDRIsSerializable` concept.
 - ALL structs MUST implement data validation
   - `CODEGEN` comments hints the codegen tool to generate validation code for the struct.
   - For details, see the next section

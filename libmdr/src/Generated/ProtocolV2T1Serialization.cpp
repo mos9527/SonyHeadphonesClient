@@ -18,6 +18,44 @@ namespace mdr::v2::t1 {
         MDRPod::Read(&data, out.capabilityCounter);
         MDRPrefixedString::Read(&data, out.uniqueID);
     }
+    size_t ConnectRetDeviceInfoModelName::Serialize(const ConnectRetDeviceInfoModelName& data, UInt8* out)
+    {
+        UInt8* ptr = out;
+        MDRPod::Write(data.base, &ptr);
+        MDRPrefixedString::Write(data.value, &ptr);
+        return ptr - out;
+    }
+    void ConnectRetDeviceInfoModelName::Deserialize(const UInt8* data, ConnectRetDeviceInfoModelName& out)
+    {
+        MDRPod::Read(&data, out.base);
+        MDRPrefixedString::Read(&data, out.value);
+    }
+    size_t ConnectRetDeviceInfoFwVersion::Serialize(const ConnectRetDeviceInfoFwVersion& data, UInt8* out)
+    {
+        UInt8* ptr = out;
+        MDRPod::Write(data.base, &ptr);
+        MDRPrefixedString::Write(data.value, &ptr);
+        return ptr - out;
+    }
+    void ConnectRetDeviceInfoFwVersion::Deserialize(const UInt8* data, ConnectRetDeviceInfoFwVersion& out)
+    {
+        MDRPod::Read(&data, out.base);
+        MDRPrefixedString::Read(&data, out.value);
+    }
+    size_t ConnectRetDeviceInfoSeriesAndColor::Serialize(const ConnectRetDeviceInfoSeriesAndColor& data, UInt8* out)
+    {
+        UInt8* ptr = out;
+        MDRPod::Write(data.base, &ptr);
+        MDRPod::Write(data.series, &ptr);
+        MDRPod::Write(data.color, &ptr);
+        return ptr - out;
+    }
+    void ConnectRetDeviceInfoSeriesAndColor::Deserialize(const UInt8* data, ConnectRetDeviceInfoSeriesAndColor& out)
+    {
+        MDRPod::Read(&data, out.base);
+        MDRPod::Read(&data, out.series);
+        MDRPod::Read(&data, out.color);
+    }
     size_t ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out)
     {
         UInt8* ptr = out;
@@ -111,6 +149,18 @@ namespace mdr::v2::t1 {
     {
         MDRPod::Read(ppSrcBuffer, out.playbackNameStatus, maxSize);
         MDRPrefixedString::Read(ppSrcBuffer, out.playbackName, maxSize);
+    }
+    size_t PlayParamPlaybackControllerName::Serialize(const PlayParamPlaybackControllerName& data, UInt8* out)
+    {
+        UInt8* ptr = out;
+        MDRPod::Write(data.base, &ptr);
+        MDRFixedArray<PlaybackName, 4>::Write(data.playbackNames, &ptr);
+        return ptr - out;
+    }
+    void PlayParamPlaybackControllerName::Deserialize(const UInt8* data, PlayParamPlaybackControllerName& out)
+    {
+        MDRPod::Read(&data, out.base);
+        MDRFixedArray<PlaybackName, 4>::Read(&data, out.playbackNames);
     }
     size_t GsSettingInfo::Write(const GsSettingInfo& data, UInt8** ppDstBuffer)
     {

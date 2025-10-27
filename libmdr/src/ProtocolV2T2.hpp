@@ -267,7 +267,6 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommandBase);
     };
-    static_assert(MDRIsSerializable<CommandBase>);
 #pragma region Connect
     struct ConnectGetSupportFunction
     {
@@ -278,7 +277,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetSupportFunction);
     };
 
-    static_assert(MDRIsSerializable<ConnectGetSupportFunction>);
 
     struct ConnectRetSupportFunction
     {
@@ -290,7 +288,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetSupportFunction);
     };
 
-    static_assert(MDRIsSerializable<ConnectRetSupportFunction>);
 #pragma endregion Connect
 #pragma region Peripheral
 
@@ -305,7 +302,6 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetStatus);
     };
-    static_assert(MDRIsSerializable<PeripheralGetStatus>);
 
     struct PeripheralBase
     {
@@ -330,7 +326,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralStatusPairingDeviceManagementCommon);
     };
 
-    static_assert(MDRIsSerializable<PeripheralStatusPairingDeviceManagementCommon>);
 
 #pragma endregion PERI_RET_STATUS, PERI_SET_STATUS, PERI_NTFY_STATUS
 
@@ -349,7 +344,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfo);
     };
 
-    static_assert(MDRIsReadWritable<PeripheralDeviceInfo>);
 
     struct PeripheralDeviceInfoWithBluetoothClassOfDevice
     {
@@ -365,7 +359,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfoWithBluetoothClassOfDevice);
     };
 
-    static_assert(MDRIsReadWritable<PeripheralDeviceInfoWithBluetoothClassOfDevice>);
 #pragma region PERI_GET_PARAM
 
     struct PeripheralGetParam
@@ -377,7 +370,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetParam);
     };
 
-    static_assert(MDRIsSerializable<PeripheralGetParam>);
 #pragma endregion PERI_GET_PARAM
 
 #pragma region PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
@@ -411,7 +403,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralParamSourceSwitchControl);
     };
 
-    static_assert(MDRIsSerializable<PeripheralParamSourceSwitchControl>);
     // - PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
 
     struct PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice
@@ -441,7 +432,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralParamMusicHandOverSetting);
     };
 
-    static_assert(MDRIsSerializable<PeripheralParamMusicHandOverSetting>);
 #pragma endregion PERI_RET_PARAM, PERI_SET_PARAM, PERI_NTFY_PARAM
 
 #pragma endregion PERI_*_PARAM
@@ -466,7 +456,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralSetExtendedParamParingDeviceManagementCommon);
     };
 
-    static_assert(MDRIsSerializable<PeripheralSetExtendedParamParingDeviceManagementCommon>);
 
     // - SOURCE_SWITCH_CONTROL
 
@@ -482,7 +471,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralSetExtendedParamSourceSwitchControl);
     };
 
-    static_assert(MDRIsSerializable<PeripheralSetExtendedParamSourceSwitchControl>);
 
 #pragma endregion PERI_SET_EXTENDED_PARAM
 
@@ -502,7 +490,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralNotifyExtendedParamParingDeviceManagementCommon);
     };
 
-    static_assert(MDRIsSerializable<PeripheralNotifyExtendedParamParingDeviceManagementCommon>);
     // - SOURCE_SWITCH_CONTROL
 
     struct PeripheralNotifyExtendedParamSourceSwitchControl
@@ -518,7 +505,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralNotifyExtendedParamSourceSwitchControl);
     };
 
-    static_assert(MDRIsSerializable<PeripheralNotifyExtendedParamSourceSwitchControl>);
 
 #pragma endregion PERI_NTFY_EXTENDED_PARAM
 
@@ -551,7 +537,6 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceGetParam);
     };
-    static_assert(MDRIsSerializable<VoiceGuidanceGetParam>);
 
     struct VoiceGuidanceBase
     {
@@ -575,7 +560,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingMtk);
     };
 
-    static_assert(MDRIsSerializable<VoiceGuidanceParamSettingMtk>);
     // - MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH, SUPPORT_LANGUAGE_SWITCH
 
     struct VoiceGuidanceParamSettingSupportLangSwitch
@@ -589,7 +573,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingSupportLangSwitch);
     };
 
-    static_assert(MDRIsSerializable<VoiceGuidanceParamSettingSupportLangSwitch>);
     // - VOLUME, VOLUME_SETTING_FIXED_TO_5_STEPS
 
     struct VoiceGuidanceParamVolume
@@ -602,8 +585,6 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamVolume);
     };
-
-    static_assert(MDRIsSerializable<VoiceGuidanceParamVolume>);
 
 
     // - BATTERY_LV_VOICE, POWER_ONOFF_SOUND, SOUNDEFFECT_ULT_BEEP_ONOFF
@@ -618,7 +599,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingOnOff);
     };
 
-    static_assert(MDRIsSerializable<VoiceGuidanceParamSettingOnOff>);
 
 #pragma endregion VOICE_GUIDANCE_RET_PARAM, VOICE_GUIDANCE_SET_PARAM, VOICE_GUIDANCE_NTFY_PARAM
 
@@ -638,7 +618,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceSetParamVolume);
     };
 
-    static_assert(MDRIsSerializable<VoiceGuidanceSetParamVolume>);
 #pragma endregion VOICE_GUIDANCE_SET_PARAM
 
 #pragma endregion VOICE_GUIDANCE_*_PARAM
@@ -664,7 +643,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetCapability);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningGetCapability>);
 #pragma endregion SAFE_LISTENING_GET_CAPABILITY
 
 #pragma region SAFE_LISTENING_RET_CAPABILITY
@@ -682,7 +660,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetCapability);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetCapability>);
 #pragma endregion SAFE_LISTENING_RET_CAPABILITY
 
 #pragma endregion SAFE_LISTENING_*_CAPABILITY
@@ -731,7 +708,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetStatus);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningGetStatus>);
 #pragma endregion SAFE_LISTENING_GET_STATUS
 
 #pragma region SAFE_LISTENING_RET_STATUS
@@ -745,7 +721,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningBase);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningBase>);
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
 
     struct SafeListeningRetStatusSL
@@ -756,46 +731,46 @@ namespace mdr::v2::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusSL);
     };
-    static_assert(MDRIsSerializable<SafeListeningRetStatusSL>);
+
     // - SAFE_LISTENING_HBS_*
 
     struct SafeListeningRetStatusHbs
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2
-        SafeListeningRetStatusSL base{Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
+        SafeListeningRetStatusSL base{Command::SAFE_LISTENING_RET_STATUS,
+                                      SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
         SafeListeningLogDataStatus logDataStatus; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusHbs);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatusHbs>);
     // - SAFE_LISTENING_HBS_1
 
     struct SafeListeningRetStatusHbs1
     {
         // CODEGEN Field base.base.command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field base.base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1
-        SafeListeningRetStatusHbs base{.base = {.base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1}}};
+        SafeListeningRetStatusHbs base{
+            .base = {.base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1}}};
         SafeListeningData1 currentData; // 0x3-0xF
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusHbs1);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatusHbs1>);
     // - SAFE_LISTENING_HBS_2
 
     struct SafeListeningRetStatusHbs2
     {
         // CODEGEN Field base.base.command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field base.base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_2
-        SafeListeningRetStatusHbs base{.base = {.base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_2}}};
+        SafeListeningRetStatusHbs base{
+            .base = {.base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_2}}};
         SafeListeningData2 currentData; // 0x3-0x10
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusHbs2);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatusHbs2>);
     // - SAFE_LISTENING_TWS_*
 
     struct SafeListeningRetStatusTws
@@ -809,35 +784,34 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatusTws>);
     // - SAFE_LISTENING_TWS_1
 
     struct SafeListeningRetStatusTws1
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_1
-        SafeListeningRetStatusTws base{.base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
+        SafeListeningRetStatusTws base{
+            .base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
         SafeListeningData1 currentDataLeft; // 0x4-0xF
         SafeListeningData1 currentDataRight; // 0x10-0x1B
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws1);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatusTws1>);
     // - SAFE_LISTENING_TWS_2
 
     struct SafeListeningRetStatusTws2
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_RET_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningRetStatusTws base{.base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_2}};
+        SafeListeningRetStatusTws base{
+            .base = {Command::SAFE_LISTENING_RET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_2}};
         SafeListeningData2 currentDataLeft; // 0x4-0x10
         SafeListeningData2 currentDataRight; // 0x11-0x1D
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetStatusTws2);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetStatusTws2>);
 #pragma endregion SAFE_LISTENING_RET_STATUS
 
 #pragma region SAFE_LISTENING_SET_STATUS
@@ -851,7 +825,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatus);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetStatus>);
 
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
 
@@ -859,33 +832,34 @@ namespace mdr::v2::t2
     {
         // CODEGEN Field command EnumRange Command::SAFE_LISTENING_SET_STATUS
         // CODEGEN Field type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningSetStatus base{Command::SAFE_LISTENING_SET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
+        SafeListeningSetStatus base{Command::SAFE_LISTENING_SET_STATUS,
+                                    SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusSL);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetStatusSL>);
     // - SAFE_LISTENING_HBS_1, SAFE_LISTENING_HBS_2
 
     struct SafeListeningSetStatusHbs
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_SET_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2
-        SafeListeningSetStatusSL base{.base = {Command::SAFE_LISTENING_SET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1}};
+        SafeListeningSetStatusSL base{
+            .base = {Command::SAFE_LISTENING_SET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1}};
         SafeListeningLogDataStatus logDataStatus; // 0x2
         SafeListeningStatus status; // 0x3-0x8
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusHbs);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetStatusHbs>);
     // - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
 
     struct SafeListeningSetStatusTws
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_SET_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningSetStatusSL base{.base = {Command::SAFE_LISTENING_SET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
+        SafeListeningSetStatusSL base{
+            .base = {Command::SAFE_LISTENING_SET_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
         SafeListeningLogDataStatus logDataStatusLeft; // 0x2
         SafeListeningLogDataStatus logDataStatusRight; // 0x3
         SafeListeningStatus statusLeft; // 0x4-0x9
@@ -894,7 +868,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusTws);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetStatusTws>);
     // - SAFE_VOLUME_CONTROL
 
     struct SafeListeningSetStatusSVC
@@ -907,7 +880,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetStatusSVC);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetStatusSVC>);
 #pragma endregion SAFE_LISTENING_SET_STATUS
 
 #pragma region SAFE_LISTENING_NTFY_STATUS
@@ -921,98 +893,97 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatus);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatus>);
     // - SAFE_LISTENING_HBS_*, SAFE_LISTENING_TWS_*
 
     struct SafeListeningNotifyStatusSL
     {
         // CODEGEN Field command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2 SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningNotifyStatus base{Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
+        SafeListeningNotifyStatus base{Command::SAFE_LISTENING_NTFY_STATUS,
+                                       SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusSL);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusSL>);
     // - SAFE_LISTENING_HBS_1, SAFE_LISTENING_HBS_2
 
     struct SafeListeningNotifyStatusHbs
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1 SafeListeningInquiredType::SAFE_LISTENING_HBS_2
-        SafeListeningNotifyStatusSL base{Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
+        SafeListeningNotifyStatusSL base{Command::SAFE_LISTENING_NTFY_STATUS,
+                                         SafeListeningInquiredType::SAFE_LISTENING_HBS_1};
         SafeListeningLogDataStatus logDataStatus; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusHbs);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs>);
     // - SAFE_LISTENING_HBS_1
 
     struct SafeListeningNotifyStatusHbs1
     {
         // CODEGEN Field base.base.command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field base.base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_1
-        SafeListeningNotifyStatusHbs base{.base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1}};
+        SafeListeningNotifyStatusHbs base{
+            .base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_1}};
         MDRPodArray<SafeListeningData1> data;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs1);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs1>);
     // - SAFE_LISTENING_HBS_2
 
     struct SafeListeningNotifyStatusHbs2
     {
         // CODEGEN Field base.base.command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field base.base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_HBS_2
-        SafeListeningNotifyStatusHbs base{.base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_2}};
+        SafeListeningNotifyStatusHbs base{
+            .base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_HBS_2}};
         MDRPodArray<SafeListeningData2> data;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusHbs2);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusHbs2>);
     // - SAFE_LISTENING_TWS_1, SAFE_LISTENING_TWS_2
 
     struct SafeListeningNotifyStatusTws
     {
         // CODEGEN Field base.command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_1 SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningNotifyStatusSL base{.base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
+        SafeListeningNotifyStatusSL base{
+            .base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
         SafeListeningLogDataStatus logDataStatusLeft; // 0x2
         SafeListeningLogDataStatus logDataStatusRight; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusTws);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws>);
     // - SAFE_LISTENING_TWS_1
 
     struct SafeListeningNotifyStatusTws1
     {
         // CODEGEN Field base.base.command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field base.base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_1
-        SafeListeningNotifyStatusTws base{.base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
+        SafeListeningNotifyStatusTws base{
+            .base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_1}};
         MDRPodArray<SafeListeningData1> data;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusTws1);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws1>);
     // - SAFE_LISTENING_TWS_2
 
     struct SafeListeningNotifyStatusTws2
     {
         // CODEGEN Field base.base.command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field base.base.type EnumRange SafeListeningInquiredType::SAFE_LISTENING_TWS_2
-        SafeListeningNotifyStatusTws base{.base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_2}};
+        SafeListeningNotifyStatusTws base{
+            .base = {Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_LISTENING_TWS_2}};
         MDRPodArray<SafeListeningData2> data;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SafeListeningNotifyStatusTws2);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyStatusTws2>);
 
     // - SAFE_VOLUME_CONTROL
 
@@ -1020,7 +991,8 @@ namespace mdr::v2::t2
     {
         // CODEGEN Field command EnumRange Command::SAFE_LISTENING_NTFY_STATUS
         // CODEGEN Field type EnumRange SafeListeningInquiredType::SAFE_VOLUME_CONTROL
-        SafeListeningNotifyStatus base{Command::SAFE_LISTENING_NTFY_STATUS, SafeListeningInquiredType::SAFE_VOLUME_CONTROL};
+        SafeListeningNotifyStatus base{Command::SAFE_LISTENING_NTFY_STATUS,
+                                       SafeListeningInquiredType::SAFE_VOLUME_CONTROL};
         SafeListeningWHOStandardLevel whoStandardLevel; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyStatusSVC);
@@ -1043,7 +1015,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetParam);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningGetParam>);
 
 #pragma endregion SAFE_LISTENING_GET_PARAM
 
@@ -1059,7 +1030,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetParam);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetParam>);
 
 #pragma endregion SAFE_LISTENING_RET_PARAM
 
@@ -1074,7 +1044,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetParam);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetParam>);
 
     // - SAFE_LISTENING_*
 
@@ -1089,7 +1058,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetParamSL);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetParamSL>);
 
     // - SAFE_VOLUME_CONTROL
 
@@ -1104,7 +1072,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningSetParamSVC);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningSetParamSVC>);
 
 #pragma endregion SAFE_LISTENING_SET_PARAM
 
@@ -1119,7 +1086,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyParam);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyParam>);
     // - SAFE_LISTENING_*
 
     struct SafeListeningNotifyParamSL
@@ -1133,7 +1099,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyParamSL);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyParamSL>);
     // - SAFE_VOLUME_CONTROL
 
     struct SafeListeningNotifyParamSVC
@@ -1147,7 +1112,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningNotifyParamSVC);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningNotifyParamSVC>);
 #pragma endregion SAFE_LISTENING_NTFY_PARAM
 
 #pragma endregion SAFE_LISTENING_*_PARAM
@@ -1165,7 +1129,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningGetExtendedParam);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningGetExtendedParam>);
 #pragma endregion SAFE_LISTENING_GET_EXTENDED_PARAM
 
 #pragma region SAFE_LISTENING_RET_EXTENDED_PARAM
@@ -1181,7 +1144,6 @@ namespace mdr::v2::t2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetExtendedParam);
     };
 
-    static_assert(MDRIsSerializable<SafeListeningRetExtendedParam>);
 
 #pragma endregion SAFE_LISTENING_RET_EXTENDED_PARAM
 

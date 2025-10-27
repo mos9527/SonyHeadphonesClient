@@ -153,13 +153,31 @@ namespace mdr
             return sizeof(T);
         }
     };
-
+    /**
+     * @breif Alias for std::string. This does not map to any specific protocol type directly.
+     */
+    using String = std::basic_string<char>;
+    /**
+     * @breif Alias for std::array. This does not map to any specific protocol type directly.
+     */
+    template <typename T, size_t Size>
+    using Array = std::array<T, Size>;
+    /**
+     * @breif Alias for std::vector. This does not map to any specific protocol type directly.
+     */
+    template <typename T>
+    using Vector = std::vector<T>;
+    /**
+     * @brief Alias for std::span w/o extents. This does not map to any specific protocol type directly.
+     */
+    template <typename T>
+    using Span = std::span<T>;
     /**
      * @brief String prefixed with a length byte. Max len=128
      */
     struct MDRPrefixedString
     {
-        std::string value;
+        String value;
 
         static void Read(const UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize = ~0LL)
         {
@@ -192,7 +210,7 @@ namespace mdr
     template <typename T>
     struct MDRPodArray
     {
-        std::vector<T> value;
+        Vector<T> value;
 
         static void Read(const UInt8** ppSrcBuffer, MDRPodArray& value, size_t maxSize = ~0LL)
         {
@@ -229,7 +247,7 @@ namespace mdr
     {
         static_assert(MDRIsReadWritable<T>,
                       "MDRArray requires T to implement Read and Write methods of consistent signatures");
-        std::vector<T> value;
+        Vector<T> value;
 
         static void Read(const UInt8** ppSrcBuffer, MDRArray& value, size_t maxSize = ~0LL)
         {
@@ -256,25 +274,36 @@ namespace mdr
     };
 
     /**
-     * @brief Alias for std::variant. This does not map to any specific protocol type directly.
-     */
-    template <typename... Args>
-    using Variant = std::variant<Args...>;
-    /**
-     * @brief Alias for std::array. This does not map to any specific protocol type directly.
+     * @brief Non-POD Array with a fixed size
+     * @tparam T Type that implements @ref Read and @ref Write methods.
      */
     template <typename T, size_t Size>
-    using Array = std::array<T, Size>;
-    /**
-     * @breif Alias for std::vector. This does not map to any specific protocol type directly.
-     */
-    template <typename T>
-    using Vector = std::vector<T>;
-    /**
-     * @brief Alias for std::span w/o extents. This does not map to any specific protocol type directly.
-     */
-    template <typename T>
-    using Span = std::span<T>;
+    struct MDRFixedArray
+    {
+        static_assert(MDRIsReadWritable<T>,
+                      "MDRFixedArray requires T to implement Read and Write methods of consistent signatures");
+        Array<T, Size> value;
+
+        static void Read(const UInt8** ppSrcBuffer, MDRFixedArray& value, size_t maxSize = ~0LL)
+        {
+            for (T& elem : value.value)
+                T::Read(ppSrcBuffer, elem, maxSize);
+        }
+
+        static size_t Write(MDRFixedArray const& value, UInt8** ppDstBuffer)
+        {
+            UInt8* ptr = *ppDstBuffer;
+            for (const T& elem : value.value)
+                T::Write(elem, ppDstBuffer);
+            return *ppDstBuffer - ptr;
+        }
+
+        auto begin() { return value.begin(); }
+        auto end() { return value.end(); }
+        auto begin() const { return value.begin(); }
+        auto end() const { return value.end(); }
+    };
+
     /**
      * @brief Macro for POD types that can be serialized/deserialized via std::memcpy.
      *

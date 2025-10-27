@@ -178,6 +178,17 @@ struct MDRHeadphones
     int Invoke(MDRTask&& task);
     /**
      * @brief This does what you think it does.
+     *        Schedules the calling coroutine to be executed once the next @ref AwaitType
+     *        event has arrived through @ref MoveNext
+     * @note  As always, needs @ref mdrHeadphonesPollEvents
+     */
+    Awaiter Await(AwaitType type);
+    /**
+     * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
+     */
+    void Awake(AwaitType type);
+    /**
+     * @brief This does what you think it does.
      */
     [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
 
@@ -230,6 +241,21 @@ struct MDRHeadphones
 
     MDRProperty<v2::t1::AutoPowerOffElements> mPropertyPowerAutoOff;
     MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPropertyPowerAutoOffWearingDetection;
+
+    MDRProperty<v2::t1::PlaybackStatus> mPropertyPlaybackStatus;
+
+    struct GsCapability
+    {
+        v2::t1::GsSettingType type;
+        v2::t1::GsSettingInfo value;
+    };
+    MDRProperty<GsCapability> mPropertyGsCapability1, mPropertyGsCapability2,
+                             mPropertyGsCapability3, mPropertyGsCapability4;
+    MDRProperty<bool> mPropertyGsParamBool1,mPropertyGsParamBool2,
+                      mPropertyGsParamBool3,mPropertyGsParamBool4;
+
+    MDRProperty<v2::t1::UpscalingType> mPropertyUpscalingType;
+    MDRProperty<bool> mPropertyUpscalingAvailable;
 #pragma endregion
 
 #pragma region Tasks
@@ -254,17 +280,6 @@ private:
         return false;
     }
 
-    /**
-     * @brief This does what you think it does.
-     *        Schedules the calling coroutine to be executed once the next @ref AwaitType
-     *        event has arrived through @ref MoveNext
-     * @note  As always, needs @ref mdrHeadphonesPollEvents
-     */
-    Awaiter Await(AwaitType type);
-    /**
-     * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
-     */
-    void Awake(AwaitType type);
     /**
      * @note Queues a command payload to be sent through @ref Send. You generally don't need to call this directly.
      * @note Non-blocking. Need @ref Sent to be polled periodically.
@@ -295,7 +310,7 @@ private:
      */
     bool TaskMoveNext(int& result);
     /**
-     * @brief Handles current command, and generates a event associated with it.
+     * @brief Handles current command, and generates an event associated with it.
      * @return One of MDR_HEADPHONES_* event types
      */
     int Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
@@ -324,14 +339,3 @@ private:
         co_await Await(AWAIT_ACK); \
     }
 // NOLINTEND
-
-#pragma region Utils
-/**
- * @brief Variadic template visitor that STL somehow does not have.
- */
-template <typename... T>
-struct Visitor : T...
-{
-    using T::operator()...;
-};
-#pragma endregion
