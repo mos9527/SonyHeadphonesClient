@@ -32,6 +32,12 @@ bool ConnectGetDeviceInfo::Validate(const ConnectGetDeviceInfo& data) {
     MDR_CHECK(is_valid(data.deviceInfoType), "deviceInfoType got an invalid enum value");
     return true;
 };
+bool ConnectRetCapabilityInfo::Validate(const ConnectRetCapabilityInfo& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::CONNECT_RET_CAPABILITY_INFO, got {}",data.command);
+    MDR_CHECK(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
+    return true;
+};
 bool ConnectRetDeviceInfo::Validate(const ConnectRetDeviceInfo& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::CONNECT_RET_DEVICE_INFO, got {}",data.command);
@@ -66,7 +72,7 @@ bool CommonBase::Validate(const CommonBase& data) {
 bool CommonStatusAudioCodec::Validate(const CommonStatusAudioCodec& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::COMMON_GET_STATUS, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::COMMON_RET_STATUS Command::COMMON_NTFY_STATUS, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of CommonInquiredType::AUDIO_CODEC, got {}",data.base.type);
     MDR_CHECK(is_valid(data.audioCodec), "audioCodec got an invalid enum value");
     return true;
@@ -257,6 +263,13 @@ bool NcAsmGetParam::Validate(const NcAsmGetParam& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.command), "EnumRange check fail, must be one of Command::NCASM_GET_PARAM, got {}",data.command);
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
+bool NcAsmParamBase::Validate(const NcAsmParamBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    MDR_CHECK(is_valid(data.valueChangeStatus), "valueChangeStatus got an invalid enum value");
+    MDR_CHECK(is_valid(data.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
     return true;
 };
 bool NcAsmParamModeNcDualModeSwitchAsmSeamless::Validate(const NcAsmParamModeNcDualModeSwitchAsmSeamless& data) {

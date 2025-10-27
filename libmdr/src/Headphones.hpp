@@ -94,6 +94,17 @@ inline MDRTask MDRTask::promise_type::get_return_object()
 }
 
 // NOLINTEND
+template <typename T>
+struct MDRProperty
+{
+    T desired;
+    T current;
+
+    void overwrite(T const& value)
+    {
+        desired = current = value;
+    }
+};
 
 struct MDRHeadphones
 {
@@ -105,6 +116,7 @@ struct MDRHeadphones
         AWAIT_SUPPORT_FUNCTION = 2,
         AWAIT_NUM_TYPES = 3
     };
+
     // NOLINTBEGIN
     struct Awaiter
     {
@@ -117,12 +129,13 @@ struct MDRHeadphones
             auto& dst = self->mAwaiters[static_cast<size_t>(type)];
             if (dst) [[unlikely]]
                 std::terminate(); // This is your fault.
-                                  // How'd you get more than one task at a time running?
+            // How'd you get more than one task at a time running?
             if (handle)
                 dst = handle;
         }
 
-        static void await_resume() noexcept {
+        static void await_resume() noexcept
+        {
         }
     };
 
@@ -169,38 +182,60 @@ struct MDRHeadphones
     [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
 
 #pragma region States
-    // ConnectRetProtocolInfo
+    // @ref HandleProtocolInfoT1
     struct
     {
         int version;
         int hasTable1;
         int hasTable2;
-    } mProto{};
+    } mProtocol{};
+
+    // @ref HandleSupportFunctionT1
     // Q: Why not std::bitset?
     // A: They are not constexpr until C++23 - while std::array[] are since 14.
     //    Since there's no other C++23 feature usage anywhere else in the lib,
     //    we're sticking with C++20 as is.
     struct
     {
-        Array<UInt8, 256> table1Functions;
-        Array<UInt8, 256> table2Functions;
+        Array<bool, 256> table1Functions;
+        Array<bool, 256> table2Functions;
+
         [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table1 v) const
         {
             return table1Functions[static_cast<UInt8>(v)];
         }
+
         [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table2 v) const
         {
             return table2Functions[static_cast<UInt8>(v)];
         }
-    } mSupportFunctions{};
-    // Set by @ref RequestInit
-    bool mInitialized{};
+    } mSupport{};
+
+    std::string mUniqueId;
+    std::string mFWVersion;
+    std::string mModelName;
+    v2::t1::ModelSeriesType mModelSeries{};
+    v2::t1::ModelColor mModelColor{};
+    v2::t1::AudioCodec mAudioCodec{};
 #pragma endregion
+
+#pragma region Properties
+    MDRProperty<bool> mPropertyNcAsmEnabled;
+    MDRProperty<bool> mPropertyNcAsmFocusOnVoice;
+    MDRProperty<UInt8> mPropertyNcAsmAmbientLevel;
+    MDRProperty<v2::t1::Function> mPropertyNcAsmButtonFunction;
+    MDRProperty<v2::t1::NcAsmMode> mPropertyNcAsmMode;
+    MDRProperty<bool> mPropertyNcAsmAutoAsmEnabled; // WH-1000XM6+
+    MDRProperty<v2::t1::NoiseAdaptiveSensitivity> mPropertyNcAsmNoiseAdaptiveSensitivity; // WH-1000XM6+
+
+    MDRProperty<v2::t1::AutoPowerOffElements> mPropertyPowerAutoOff;
+    MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPropertyPowerAutoOffWearingDetection;
+#pragma endregion
+
 #pragma region Tasks
     MDRTask RequestInit();
     MDRTask RequestSync();
 #pragma endregion
-
 
 private:
     // XXX: So, very naive. We just die if anything bad happens.
@@ -221,6 +256,9 @@ private:
 
     /**
      * @brief This does what you think it does.
+     *        Schedules the calling coroutine to be executed once the next @ref AwaitType
+     *        event has arrived through @ref MoveNext
+     * @note  As always, needs @ref mdrHeadphonesPollEvents
      */
     Awaiter Await(AwaitType type);
     /**
@@ -238,7 +276,7 @@ private:
      * @note Non-blocking. Need @ref Sent to be polled periodically.
      * @note You _usually_ need to wait for an @ref AWAIT_ACK. Use the @ref MDR_SEND_COMMAND_ACK macro to send and wait for one!
      */
-    template<MDRIsSerializable T>
+    template <MDRIsSerializable T>
     void SendCommandImpl(T const& command = {})
     {
         UInt8 buf[kMDRMaxPacketSize];
@@ -246,8 +284,9 @@ private:
         MDRDataType type = MDRTraits<T>::kDataType;
         T::Validate(command); // <- Throws if something's bad
         size_t size = T::Serialize(command, buf);
-        SendCommandImpl({ buf, buf + size}, type, mSeqNumber);
+        SendCommandImpl({buf, buf + size}, type, mSeqNumber);
     }
+
     /**
      * @brief Check if the coroutine frame has been completed - and if so, frees the current @ref mTask
      *        and allow subsequent @ref Invoke calls to take effect.
@@ -268,7 +307,7 @@ private:
 // NOLINTBEGIN
 /**
  * @brief Sends command through @ref SendCommandImpl<T>, and re-schedule ourselves to
- *        await for an ACK on the coroutine.
+ *        co_await for an @ref Await(AWAIT_ACK) on the coroutine.
  * @param Type Command payload of @ref MDRIsSerializable type
  * @note  This is ONLY meaningful within a @ref MDRTask coroutine, as this schedules
  *        the current task to wait on a @ref AWAIT_ACK event.
@@ -285,3 +324,14 @@ private:
         co_await Await(AWAIT_ACK); \
     }
 // NOLINTEND
+
+#pragma region Utils
+/**
+ * @brief Variadic template visitor that STL somehow does not have.
+ */
+template <typename... T>
+struct Visitor : T...
+{
+    using T::operator()...;
+};
+#pragma endregion

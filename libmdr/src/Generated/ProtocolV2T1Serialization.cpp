@@ -2,6 +2,22 @@
 #include "../ProtocolV2T1.hpp"
 
 namespace mdr::v2::t1 {
+    size_t ConnectRetCapabilityInfo::Serialize(const ConnectRetCapabilityInfo& data, UInt8* out)
+    {
+        UInt8* ptr = out;
+        MDRPod::Write(data.command, &ptr);
+        MDRPod::Write(data.inquiredType, &ptr);
+        MDRPod::Write(data.capabilityCounter, &ptr);
+        MDRPrefixedString::Write(data.uniqueID, &ptr);
+        return ptr - out;
+    }
+    void ConnectRetCapabilityInfo::Deserialize(const UInt8* data, ConnectRetCapabilityInfo& out)
+    {
+        MDRPod::Read(&data, out.command);
+        MDRPod::Read(&data, out.inquiredType);
+        MDRPod::Read(&data, out.capabilityCounter);
+        MDRPrefixedString::Read(&data, out.uniqueID);
+    }
     size_t ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out)
     {
         UInt8* ptr = out;

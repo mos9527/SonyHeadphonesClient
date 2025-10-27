@@ -17,6 +17,9 @@ namespace mdr {
     template<> struct MDRTraits<v2::t1::ConnectGetDeviceInfo> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v2::t1::ConnectRetCapabilityInfo> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v2::t1::ConnectRetDeviceInfoModelName> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };

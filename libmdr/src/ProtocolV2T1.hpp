@@ -1189,6 +1189,18 @@ namespace mdr::v2::t1
 
     static_assert(MDRIsSerializable<ConnectGetDeviceInfo>);
 
+    struct ConnectRetCapabilityInfo
+    {
+        // CODEGEN EnumRange Command::CONNECT_RET_CAPABILITY_INFO
+        Command command{Command::CONNECT_RET_CAPABILITY_INFO}; // 0x0
+        ConnectInquiredType inquiredType{ConnectInquiredType::FIXED_VALUE}; // 0x1
+        UInt8 capabilityCounter; // 0x2
+        MDRPrefixedString uniqueID;
+
+        MDR_DEFINE_EXTERN_SERIALIZATION(ConnectRetCapabilityInfo);
+    };
+    static_assert(MDRIsSerializable<ConnectRetCapabilityInfo>);
+
     struct ConnectRetDeviceInfoModelName
     {
         MDRPrefixedString value;
@@ -1269,9 +1281,9 @@ namespace mdr::v2::t1
     // - AUDIO_CODEC
     struct CommonStatusAudioCodec
     {
-        // CODEGEN Field command EnumRange Command::COMMON_GET_STATUS
+        // CODEGEN Field command EnumRange Command::COMMON_RET_STATUS Command::COMMON_NTFY_STATUS
         // CODEGEN Field type EnumRange CommonInquiredType::AUDIO_CODEC
-        CommonBase base{Command::COMMON_GET_STATUS, CommonInquiredType::AUDIO_CODEC};
+        CommonBase base{Command::COMMON_RET_STATUS, CommonInquiredType::AUDIO_CODEC};
         AudioCodec audioCodec{AudioCodec::UNSETTLED}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonStatusAudioCodec);
@@ -1296,7 +1308,11 @@ namespace mdr::v2::t1
     {        
         Command command{Command::POWER_GET_STATUS}; // 0x0
         PowerInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PowerBase);
     };
+
+    static_assert(MDRIsSerializable<PowerBase>);
 
     struct PowerBatteryStatus
     {
@@ -1621,7 +1637,10 @@ namespace mdr::v2::t1
         NcAsmInquiredType type; // 0x1
         ValueChangeStatus valueChangeStatus; // 0x2
         NcAsmOnOffValue ncAsmTotalEffect; // 0x3
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamBase);
     };
+    static_assert(MDRIsSerializable<NcAsmParamBase>);
 
     // - MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
     struct NcAsmParamModeNcDualModeSwitchAsmSeamless

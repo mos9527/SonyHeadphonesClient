@@ -153,7 +153,7 @@ MDRTask MDRHeadphones::RequestInit()
 {
     SendCommandACK(v2::t1::ConnectGetProtocolInfo);
     co_await Await(AWAIT_PROTOCOL_INFO);
-    MDR_CHECK(mProto.hasTable1, "Device doesn't support MDR V2 Table 1");
+    MDR_CHECK(mProtocol.hasTable1, "Device doesn't support MDR V2 Table 1");
     SendCommandACK(v2::t1::ConnectGetCapabilityInfo);
 
     /* Device Info */
@@ -166,7 +166,7 @@ MDRTask MDRHeadphones::RequestInit()
         /* Support Functions */
         SendCommandACK(v2::t1::ConnectGetSupportFunction);
         co_await Await(AWAIT_SUPPORT_FUNCTION);
-        if (mProto.hasTable2)
+        if (mProtocol.hasTable2)
         {
             SendCommandACK(v2::t2::ConnectGetSupportFunction);
             co_await Await(AWAIT_SUPPORT_FUNCTION);
@@ -174,7 +174,7 @@ MDRTask MDRHeadphones::RequestInit()
 
         /* General Setting */
         v2::t1::DisplayLanguage lang = v2::t1::DisplayLanguage::ENGLISH;
-        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
         {
             SendCommandACK(v2::t1::GsGetCapability, {
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING1, .displayLanguage = lang
@@ -183,7 +183,7 @@ MDRTask MDRHeadphones::RequestInit()
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING1
                            });
         }
-        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
         {
             SendCommandACK(v2::t1::GsGetCapability, {
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING2, .displayLanguage = lang
@@ -192,7 +192,7 @@ MDRTask MDRHeadphones::RequestInit()
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING2
                            });
         }
-        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
         {
             SendCommandACK(v2::t1::GsGetCapability, {
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING3, .displayLanguage = lang
@@ -201,7 +201,7 @@ MDRTask MDRHeadphones::RequestInit()
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING3
                            });
         }
-        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
         {
             SendCommandACK(v2::t1::GsGetCapability, {
                            .type = v2::t1::GsInquiredType::GENERAL_SETTING4, .displayLanguage = lang
@@ -212,17 +212,17 @@ MDRTask MDRHeadphones::RequestInit()
         }
 
         /* DSEE */
-        if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             SendCommandACK(v2::t1::AudioGetCapability, {
                        .type = v2::t1::AudioInquiredType::UPSCALING
                        });
     }
     /* [NO ACK] Receive alerts for certain operations like toggling multipoint */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
         SendCommandImpl<v2::t1::AlertSetStatusFixedMessage>({.status = v2::MessageMdrV2EnableDisable::ENABLE});
 
     /* Codec Type */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
         SendCommandACK(v2::t1::CommonGetStatus, { .type = v2::t1::CommonInquiredType::AUDIO_CODEC });
 
     /* Playback Metadata */
@@ -233,19 +233,19 @@ MDRTask MDRHeadphones::RequestInit()
     SendCommandACK(v2::t1::GetPlayParam, { .type = v2::t1::PlayInquiredType::MUSIC_VOLUME });
 
     /* Play/Pause */
-    if (mSupportFunctions.contains(
+    if (mSupport.contains(
         v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
     {
         SendCommandACK(v2::t1::NcAsmGetParam,
                        { .type = v2::t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS});
     }
-    else if (mSupportFunctions.contains(
+    else if (mSupport.contains(
         v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
     {
         SendCommandACK(v2::t1::NcAsmGetParam,
                        { .type = v2::t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA});
     }
-    else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+    else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
     {
         SendCommandACK(v2::t1::NcAsmGetParam, { .type = v2::t1::NcAsmInquiredType::ASM_SEAMLESS});
     }
@@ -256,7 +256,7 @@ MDRTask MDRHeadphones::RequestInit()
         v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
         v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
     };
-    if (std::ranges::any_of(kPairingFunctions, [&](auto x) { return mSupportFunctions.contains(x); }))
+    if (std::ranges::any_of(kPairingFunctions, [&](auto x) { return mSupport.contains(x); }))
     {
         /* Pairing Mode */
         SendCommandACK(v2::t2::PeripheralGetStatus,
@@ -270,14 +270,14 @@ MDRTask MDRHeadphones::RequestInit()
     }
 
     /* Speak To Chat */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
     {
         SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
         SendCommandACK(v2::t1::SystemGetExtParam, {.type = v2::t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
     }
 
     /* Listening Mode */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
     {
         SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::BGM_MODE});
         SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::UPMIX_CINEMA});
@@ -287,35 +287,35 @@ MDRTask MDRHeadphones::RequestInit()
     SendCommandACK(v2::t1::EqEbbGetStatus, {.type = v2::t1::EqEbbInquiredType::PRESET_EQ});
 
     /* Connection Quality */
-    if (mSupportFunctions.contains(
+    if (mSupport.contains(
         v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
         SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::CONNECTION_MODE});
 
     /* DSEE */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
     {
         SendCommandACK(v2::t1::AudioGetStatus, {.type = v2::t1::AudioInquiredType::UPSCALING});
         SendCommandACK(v2::t1::AudioGetParam, {.type = v2::t1::AudioInquiredType::UPSCALING});
     }
 
     /* Touch Sensor */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
         SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::ASSIGNABLE_SETTINGS });
 
     /* NC/AMB Toggle */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
         SendCommandACK(v2::t1::NcAsmGetParam, {.type = v2::t1::NcAsmInquiredType::NC_AMB_TOGGLE });
 
     /* Head Gesture */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
         SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::HEAD_GESTURE_ON_OFF });
 
     /* Auto Power Off */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
     {
         SendCommandACK(v2::t1::PowerGetParam, {.type = v2::t1::PowerInquiredType::AUTO_POWER_OFF});
     }
-    else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+    else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
     {
         SendCommandACK(v2::t1::PowerGetParam, {.type = v2::t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
     }
@@ -324,7 +324,7 @@ MDRTask MDRHeadphones::RequestInit()
     SendCommandACK(v2::t1::SystemGetParam, {.type = v2::t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
 
     /* Voice Guidance */
-    if (mProto.hasTable2)
+    if (mProtocol.hasTable2)
     {
         // Enabled
         SendCommandACK(v2::t2::VoiceGuidanceGetParam,
@@ -343,50 +343,48 @@ MDRTask MDRHeadphones::RequestInit()
     };
     SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
     co_await Await(AWAIT_ACK);
-
-    mInitialized = true;
     co_return MDR_HEADPHONES_INITIALIZED;
 }
 MDRTask MDRHeadphones::RequestSync()
 {
     /* Single Battery */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
     {
         SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::BATTERY});
-    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+    } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
     {
         SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::BATTERY_WITH_THRESHOLD});
     }
 
     /* L + R Battery */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
     {
         SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::LEFT_RIGHT_BATTERY});
-    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+    } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
     {
         SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::LR_BATTERY_WITH_THRESHOLD});
     }
 
     /* Case Battery */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
     {
         SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::CRADLE_BATTERY});
-    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+    } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
     {
         SendCommandACK(v2::t1::PowerGetStatus, {.type = v2::t1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD});
     }
 
     /* Sound Pressure */
-    if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
+    if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
     {
         SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1});
-    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+    } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
     {
         SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2});
-    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+    } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
     {
         SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1});
-    } else if (mSupportFunctions.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+    } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
     {
         SendCommandACK(v2::t2::SafeListeningGetExtendedParam, {.type = v2::t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
     }
@@ -434,6 +432,10 @@ const char* mdrHeadphonesString(int err)
         return "Initialized";
     case MDR_HEADPHONES_FEATURE_UNSUPPORTED:
         return "Feature unsupported";
+    case MDR_HEADPHONES_SYNC_COMPLETED:
+        return "Sync OK";
+    case MDR_HEADPHONES_STATE_UPDATE:
+        return "State update";
     default:
         return "Unknown";
     }
