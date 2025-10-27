@@ -141,16 +141,8 @@ namespace mdr
         };
 
         // NOLINTEND
-        std::string mLastError{};
 
-        std::deque<UInt8> mRecvBuf, mSendBuf;
         MDRConnection* mConn;
-
-        MDRCommandSeqNumber mSeqNumber{0};
-
-        std::array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
-        MDRTask mTask;
-
         explicit MDRHeadphones(MDRConnection* conn) :
             mConn(conn)
         {
@@ -159,17 +151,19 @@ namespace mdr
         // Pinned.
         MDRHeadphones(MDRHeadphones const&) = delete;
         MDRHeadphones(MDRHeadphones&&) = delete;
-
-        int Receive();
-        int Send();
         /**
-         * @brief Dequeues a _complete_ command payload and spawns appropriate coroutines - and advances them _here_.
-         * @note  This is a no-op if buffer is incomplete and no complete command payload can be produced.
-         * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically.
+         * @breif Receive commands and process events. This is non-blocking, and should be
+         *        run in - for example - your UI loop.
          * @note  This is your best friend.
+         * @note  This function does not block. To not burn cycles for fun - poll on your @ref MDRConnection
+         *        with @ref mdrConnectionPoll is recommended
          * @return One of MDR_HEADPHONES_* event types
          */
-        int MoveNext();
+        int PollEvents();
+        /**
+         * @brief Check if @ref MDRHeadphones is ready to do more @ref Invoke.
+         */
+        [[nodiscard]] bool IsReady() const;
         /**
          * @brief Schedules the task to be run on the next @ref MoveNext call.
          * @return @ref MDR_RESULT_OK if task has been scheduled, @ref MDR_RESULT_INPROGRESS if _another_ task
@@ -181,7 +175,7 @@ namespace mdr
          * @brief This does what you think it does.
          *        Schedules the calling coroutine to be executed once the next @ref AwaitType
          *        event has arrived through @ref MoveNext
-         * @note  As always, needs @ref mdrHeadphonesPollEvents
+         * @note  As always, needs @ref PollEvents
          */
         Awaiter Await(AwaitType type);
         /**
@@ -195,7 +189,7 @@ namespace mdr
 
 #pragma region States
         // @ref HandleProtocolInfoT1
-        struct
+        struct ProtocolStates
         {
             int version;
             int hasTable1;
@@ -207,7 +201,7 @@ namespace mdr
         // A: They are not constexpr until C++23 - while std::array[] are since 14.
         //    Since there's no other C++23 feature usage anywhere else in the lib,
         //    we're sticking with C++20 as is.
-        struct
+        struct SupportStates
         {
             Array<bool, 256> table1Functions;
             Array<bool, 256> table2Functions;
@@ -223,16 +217,26 @@ namespace mdr
             }
         } mSupport{};
 
-        std::string mUniqueId;
-        std::string mFWVersion;
-        std::string mModelName;
+        String mUniqueId;
+        String mFWVersion;
+        String mModelName;
         v2::t1::ModelSeriesType mModelSeries{};
         v2::t1::ModelColor mModelColor{};
         v2::t1::AudioCodec mAudioCodec{};
 
         v2::t1::AlertMessageType mLastAlertMessage{};
-        std::string mLastInteractionMessage;
-        std::string mLastDeviceJSONMessage;
+        String mLastInteractionMessage;
+        String mLastDeviceJSONMessage;
+
+        struct PeripheralDevice
+        {
+            String macAddress;
+            String name;
+        };
+        Vector<PeripheralDevice> mPairedDevices;
+        UInt8 mPairedDevicesPlaybackDeviceIndex{};
+
+        int mSafeListeningSoundPressure{};
 #pragma endregion
 
 #pragma region Properties
@@ -284,14 +288,40 @@ namespace mdr
         MDRProperty<int> mEqClearBass;
         // Non-zero band count of either 5: [400,1k,2.5k,6.3k,16k] or 10: [31,63,125,250,500,1k,2k,4k,8k,16k]
         MDRProperty<Vector<int>> mEqConfig;
+
+        MDRProperty<bool> mVoiceGuidanceEnabled;
+        // Volume range [-2,2]
+        MDRProperty<int> mVoiceGuidanceVolume;
+
+        MDRProperty<bool> mPairingMode;
+
+        MDRProperty<String> mMultipointDeviceMac;
+
+        MDRProperty<bool> mSafeListeningPreviewMode;
 #pragma endregion
 
 #pragma region Tasks
+        /**
+         * @brief Send initialization payloads to the headphones.
+         *        To be used with @ref Invoke
+         **/
         MDRTask RequestInit();
+        /**
+         * @brief Send query payloads to the headphones, for values that don't automatically update.
+         *        To be used with @ref Invoke
+         **/
         MDRTask RequestSync();
 #pragma endregion
 
     private:
+        String mLastError{};
+
+        std::deque<UInt8> mRecvBuf, mSendBuf;
+        MDRCommandSeqNumber mSeqNumber{0};
+
+        MDRTask mTask;
+        Array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
+
         // XXX: So, very naive. We just die if anything bad happens.
         bool ExceptionHandler(auto&& func)
         {
@@ -307,7 +337,17 @@ namespace mdr
             }
             return false;
         }
-
+        // Friend of Poll, so friend of yours too.
+        int Receive();
+        // Friend of Poll, so friend of yours too.
+        int Send();
+        /**
+         * @brief Dequeues a _complete_ command payload and spawns appropriate coroutines - and advances them _here_.
+         * @note  This is a no-op if buffer is incomplete and no complete command payload can be produced.
+         * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically.
+         * @return One of MDR_HEADPHONES_* event types
+         */
+        int MoveNext();
         /**
          * @note Queues a command payload to be sent through @ref Send. You generally don't need to call this directly.
          * @note Non-blocking. Need @ref Sent to be polled periodically.

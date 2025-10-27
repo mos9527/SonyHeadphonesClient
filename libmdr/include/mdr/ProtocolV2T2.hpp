@@ -307,6 +307,8 @@ namespace mdr::v2::t2
     {
         Command command{Command::PERI_GET_STATUS};
         PeripheralInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralBase);
     };
 #pragma endregion PERI_GET_STATUS
 
@@ -542,6 +544,8 @@ namespace mdr::v2::t2
     {
         Command command{Command::VOICE_GUIDANCE_GET_PARAM};
         VoiceGuidanceInquiredType type; // 0x1
+
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceBase);
     };
 #pragma endregion VOICE_GUIDANCE_GET_PARAM
 

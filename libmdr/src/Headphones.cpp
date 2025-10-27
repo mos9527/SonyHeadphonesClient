@@ -19,6 +19,27 @@ namespace mdr
         }
     }
 
+    int MDRHeadphones::PollEvents()
+    {
+        if (mdrConnectionPoll(mConn, 0) == MDR_RESULT_OK)
+        {
+            // Non-blocking. INPROGRESS are expected, not so much for others.
+            // Failfast if that happens - the owner usually has to die.
+            int r = Send();
+            if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+                return MDR_HEADPHONES_ERROR;
+            r = Receive();
+            if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+                return MDR_HEADPHONES_ERROR;
+        }
+        return MoveNext();
+    }
+
+    bool MDRHeadphones::IsReady() const
+    {
+        return !mTask;
+    }
+
     int MDRHeadphones::Receive()
     {
         char buf[kMDRMaxPacketSize];
@@ -510,24 +531,13 @@ void mdrHeadphonesDestroy(MDRHeadphones* h)
 int mdrHeadphonesPollEvents(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    if (mdrConnectionPoll(h->mConn, 0) == MDR_RESULT_OK)
-    {
-        // Non-blocking. INPROGRESS are expected, not so much for others.
-        // Failfast if that happens - the owner usually has to die.
-        int r = h->Send();
-        if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-            return MDR_HEADPHONES_ERROR;
-        r = h->Receive();
-        if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-            return MDR_HEADPHONES_ERROR;
-    }
-    return h->MoveNext();
+    return h->PollEvents();
 }
 
 int mdrHeadphonesRequestIsReady(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    if (h->mTask)
+    if (!h->IsReady())
         return MDR_RESULT_INPROGRESS;
     return MDR_RESULT_OK;
 }
