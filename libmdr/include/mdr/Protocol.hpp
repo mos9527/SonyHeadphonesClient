@@ -102,8 +102,8 @@ namespace mdr
     template <typename T>
     concept MDRIsSerializable = requires(T const& a)
     {
-        { T::Serialize(a, std::declval<UInt8*>()) } -> std::same_as<size_t>;
-        { T::Deserialize(std::declval<const UInt8*>(), std::declval<T&>()) } -> std::same_as<void>;
+        { T::Serialize(a, std::declval<UInt8*>(), std::declval<size_t>()) } -> std::same_as<size_t>;
+        { T::Deserialize(std::declval<const UInt8*>(), std::declval<T&>(), std::declval<size_t>()) } -> std::same_as<void>;
         { T::Validate(a) } -> std::same_as<bool>;
     };
     template <typename T>
@@ -111,8 +111,8 @@ namespace mdr
     template <typename T>
     concept MDRIsReadWritable = requires
     {
-        { T::Read(std::declval<const UInt8**>(), std::declval<T&>(), std::declval<size_t>()) } -> std::same_as<void>;
-        { T::Write(std::declval<T const&>(), std::declval<UInt8**>()) } -> std::same_as<size_t>;
+        { T::Read(std::declval<const UInt8**>(), std::declval<T&>(), std::declval<size_t>()) } -> std::same_as<size_t>;
+        { T::Write(std::declval<T const&>(), std::declval<UInt8**>(), std::declval<size_t>()) } -> std::same_as<size_t>;
     };
 
     /**
@@ -134,20 +134,21 @@ namespace mdr
         // Read a POD type from/to a buffer, advancing the buffer pointer.
         // Throws std::runtime_error if there is not enough data to read.
         template <typename T>
-        static void Read(const UInt8** ppSrcBuffer, T& value, size_t maxSize = ~0LL)
+        static size_t Read(const UInt8** ppSrcBuffer, T& value, size_t maxSize)
         {
             static_assert(MDRIsTrivial<T>, "MDRPod::Read requires trivial type T");
-            MDR_CHECK(sizeof(T) < maxSize, "Not enough data to read");
+            MDR_CHECK(sizeof(T) <= maxSize, "Not enough data to read");
             std::memcpy(&value, *ppSrcBuffer, sizeof(T));
             *ppSrcBuffer += sizeof(T);
+            return sizeof(T);
         }
 
         // Write a POD type from/to a buffer, advancing the buffer pointer.
-        // Throws std::runtime_error if there is not enough data to read.
         template <typename T>
-        static size_t Write(T const& value, UInt8** ppDstBuffer)
+        static size_t Write(T const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             static_assert(MDRIsTrivial<T>, "MDRPod::Write requires trivial type T");
+            MDR_CHECK(sizeof(T) <= maxSize, "Destination has not enough space to write");
             std::memcpy(*ppDstBuffer, &value, sizeof(T));
             *ppDstBuffer += sizeof(T);
             return sizeof(T);
@@ -179,18 +180,21 @@ namespace mdr
     {
         String value;
 
-        static void Read(const UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize = ~0LL)
+        static size_t Read(const UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize)
         {
             const UInt8 len = *(*ppSrcBuffer)++;
+            maxSize--;
             MDR_CHECK(len < 128 && len <= maxSize, "Invalid string length");
             str.value.resize(len);
             std::memcpy(str.value.data(), *ppSrcBuffer, len);
             *ppSrcBuffer += len;
+            return len + 1;
         }
 
-        static size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer)
+        static size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer, size_t maxSize)
         {
             MDR_CHECK(str.value.length() < 128, "String too long to write");
+            MDR_CHECK(str.value.size() + 1 <= maxSize, "Destination has not enough space to write");
             *(*ppDstBuffer)++ = static_cast<UInt8>(str.value.length());
             std::memcpy(*ppDstBuffer, str.value.data(), str.value.length());
             *ppDstBuffer += str.value.length();
@@ -213,7 +217,7 @@ namespace mdr
     {
         Vector<T> value;
 
-        static void Read(const UInt8** ppSrcBuffer, MDRPodArray& value, size_t maxSize = ~0LL)
+        static size_t Read(const UInt8** ppSrcBuffer, MDRPodArray& value, size_t maxSize)
         {
             UInt8 count = *(*ppSrcBuffer)++;
             size_t size = sizeof(T) * count;
@@ -221,12 +225,14 @@ namespace mdr
             value.value.resize(count);
             std::memcpy(value.value.data(), *ppSrcBuffer, size);
             *ppSrcBuffer += size;
+            return size + 1;
         }
 
-        static size_t Write(MDRPodArray const& value, UInt8** ppDstBuffer)
+        static size_t Write(MDRPodArray const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             size_t size = sizeof(T) * value.value.size();
             MDR_CHECK(size < 256, "Array too long to write");
+            MDR_CHECK(size + 1 <= maxSize, "Destination has not enough space to write");
             *(*ppDstBuffer)++ = static_cast<UInt8>(value.value.size());
             std::memcpy(*ppDstBuffer, value.value.data(), size);
             *ppDstBuffer += size;
@@ -251,21 +257,25 @@ namespace mdr
                       "MDRArray requires T to implement Read and Write methods of consistent signatures");
         Vector<T> value;
 
-        static void Read(const UInt8** ppSrcBuffer, MDRArray& value, size_t maxSize = ~0LL)
+        static size_t Read(const UInt8** ppSrcBuffer, MDRArray& value, size_t maxSize)
         {
+            const UInt8* ptr = *ppSrcBuffer;
             UInt8 count = *(*ppSrcBuffer)++;
+            maxSize--;
             value.value.resize(count);
             for (T& elem : value.value)
-                T::Read(ppSrcBuffer, elem, maxSize);
+                maxSize -= T::Read(ppSrcBuffer, elem, maxSize);
+            return *ppSrcBuffer - ptr;
         }
 
-        static size_t Write(MDRArray const& value, UInt8** ppDstBuffer)
+        static size_t Write(MDRArray const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             UInt8* ptr = *ppDstBuffer;
             MDR_CHECK(value.value.size() < 256, "Array too long to write");
+            maxSize--;
             *(*ppDstBuffer)++ = static_cast<UInt8>(value.value.size());
             for (const T& elem : value.value)
-                T::Write(elem, ppDstBuffer);
+                maxSize -= T::Write(elem, ppDstBuffer, maxSize);
             return *ppDstBuffer - ptr;
         }
 
@@ -287,17 +297,19 @@ namespace mdr
                       "MDRFixedArray requires T to implement Read and Write methods of consistent signatures");
         Array<T, Size> value;
 
-        static void Read(const UInt8** ppSrcBuffer, MDRFixedArray& value, size_t maxSize = ~0LL)
+        static size_t Read(const UInt8** ppSrcBuffer, MDRFixedArray& value, size_t maxSize)
         {
+            const UInt8* ptr = *ppSrcBuffer;
             for (T& elem : value.value)
-                T::Read(ppSrcBuffer, elem, maxSize);
+                maxSize -= T::Read(ppSrcBuffer, elem, maxSize);
+            return *ppSrcBuffer - ptr;
         }
 
-        static size_t Write(MDRFixedArray const& value, UInt8** ppDstBuffer)
+        static size_t Write(MDRFixedArray const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             UInt8* ptr = *ppDstBuffer;
             for (const T& elem : value.value)
-                T::Write(elem, ppDstBuffer);
+                maxSize -= T::Write(elem, ppDstBuffer, maxSize);
             return *ppDstBuffer - ptr;
         }
 
@@ -315,16 +327,18 @@ namespace mdr
      *        which must be a struct.
      */
 #define MDR_DEFINE_TRIVIAL_SERIALIZATION(Type) \
-    static size_t Serialize(const Type &data, UInt8* out) { \
+    static size_t Serialize(const Type &data, UInt8* out, size_t maxSize) { \
         static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
+        MDR_CHECK(sizeof(Type) <= maxSize, "Destination has not enough space to write"); \
         const UInt8 *ptr = reinterpret_cast<const UInt8*>(&data); \
         std::memcpy(out, ptr, sizeof(Type)); \
         return sizeof(Type); \
     } \
-    static void Deserialize(const UInt8* data, Type &out) { \
+    static void Deserialize(const UInt8* data, Type &out, size_t maxSize) { \
         static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
+        MDR_CHECK(sizeof(Type) <= maxSize, "Not enough data to read"); \
         std::memcpy(&out, data, sizeof(Type)); \
     } \
     static bool Validate(const Type& data);
@@ -338,8 +352,8 @@ namespace mdr
      *       translation unit, which may or may not be generated.
      */
 #define MDR_DEFINE_EXTERN_SERIALIZATION(Type) \
-    static size_t Serialize(const Type &data, UInt8* out); \
-    static void Deserialize(const UInt8* data, Type &out); \
+    static size_t Serialize(const Type &data, UInt8* out, size_t maxSize); \
+    static void Deserialize(const UInt8* data, Type &out, size_t maxSize); \
     static bool Validate(const Type& data);
     /**
      * @brief Macro to declare external read/write methods for non-trivial types.
@@ -351,8 +365,8 @@ namespace mdr
      *       translation unit, which may or may not be generated.
      */
 #define MDR_DEFINE_EXTERN_READ_WRITE(SubType) \
-    static void Read(const UInt8** ppSrcBuffer, SubType &out, size_t maxSize = ~0LL); \
-    static size_t Write(const SubType &data, UInt8** ppDstBuffer);
+    static size_t Read(const UInt8** ppSrcBuffer, SubType &out, size_t maxSize); \
+    static size_t Write(const SubType &data, UInt8** ppDstBuffer, size_t maxSize);
     /**
      * @brief Macro to mark the struct to implement bespoke serialization logic.
      */

@@ -8,7 +8,7 @@ namespace mdr
     int HandleProtocolInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         ConnectRetProtocolInfo res;
-        ConnectRetProtocolInfo::Deserialize(cmd.data(), res);
+        ConnectRetProtocolInfo::Deserialize(cmd.data(), res, cmd.size());
         self->mProtocol = {
             .version = res.protocolVersion,
             .hasTable1 = res.supportTable1Value == v2::MessageMdrV2EnableDisable::ENABLE,
@@ -21,7 +21,7 @@ namespace mdr
     int HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         ConnectRetSupportFunction res;
-        ConnectRetSupportFunction::Deserialize(cmd.data(), res);
+        ConnectRetSupportFunction::Deserialize(cmd.data(), res, cmd.size());
         std::ranges::fill(self->mSupport.table1Functions, false);
         for (auto fun : res.supportFunctions)
             self->mSupport.table1Functions[static_cast<UInt8>(fun.table1)] = true;
@@ -32,7 +32,7 @@ namespace mdr
     int HandleCapabilityInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         ConnectRetCapabilityInfo res;
-        ConnectRetCapabilityInfo::Deserialize(cmd.data(), res);
+        ConnectRetCapabilityInfo::Deserialize(cmd.data(), res, cmd.size());
         self->mUniqueId = res.uniqueID.value;
         return MDR_HEADPHONES_EVT_OK;
     }
@@ -40,28 +40,28 @@ namespace mdr
     int HandleDeviceInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         ConnectRetDeviceInfoBase base;
-        ConnectRetDeviceInfoBase::Deserialize(cmd.data(), base);
+        ConnectRetDeviceInfoBase::Deserialize(cmd.data(), base, cmd.size());
         using enum DeviceInfoType;
         switch (base.type)
         {
         case MODEL_NAME:
         {
             ConnectRetDeviceInfoModelName res;
-            ConnectRetDeviceInfoModelName::Deserialize(cmd.data(), res);
+            ConnectRetDeviceInfoModelName::Deserialize(cmd.data(), res, cmd.size());
             self->mModelName = res.value.value;
             return MDR_HEADPHONES_EVT_DEVICE_INFO;
         }
         case FW_VERSION:
         {
             ConnectRetDeviceInfoFwVersion res;
-            ConnectRetDeviceInfoFwVersion::Deserialize(cmd.data(), res);
+            ConnectRetDeviceInfoFwVersion::Deserialize(cmd.data(), res, cmd.size());
             self->mFWVersion = res.value.value;
             return MDR_HEADPHONES_EVT_DEVICE_INFO;
         }
         case SERIES_AND_COLOR_INFO:
         {
             ConnectRetDeviceInfoSeriesAndColor res;
-            ConnectRetDeviceInfoSeriesAndColor::Deserialize(cmd.data(), res);
+            ConnectRetDeviceInfoSeriesAndColor::Deserialize(cmd.data(), res, cmd.size());
             self->mModelSeries = res.series;
             self->mModelColor = res.color;
             return MDR_HEADPHONES_EVT_DEVICE_INFO;
@@ -75,14 +75,14 @@ namespace mdr
     int HandleCommonStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         CommonBase base;
-        CommonBase::Deserialize(cmd.data(), base);
+        CommonBase::Deserialize(cmd.data(), base, cmd.size());
         using enum CommonInquiredType;
         switch (base.type)
         {
         case AUDIO_CODEC:
         {
             CommonStatusAudioCodec res;
-            CommonStatusAudioCodec::Deserialize(cmd.data(), res);
+            CommonStatusAudioCodec::Deserialize(cmd.data(), res, cmd.size());
             self->mAudioCodec = res.audioCodec;
             return MDR_HEADPHONES_EVT_CODEC;
         }
@@ -95,7 +95,7 @@ namespace mdr
     int HandleNcAsmParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         NcAsmBase base;
-        NcAsmBase::Deserialize(cmd.data(), base);
+        NcAsmBase::Deserialize(cmd.data(), base, cmd.size());
         using enum NcAsmInquiredType;
         switch (base.type)
         {
@@ -105,7 +105,7 @@ namespace mdr
                 v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 NcAsmParamModeNcDualModeSwitchAsmSeamless res;
-                NcAsmParamModeNcDualModeSwitchAsmSeamless::Deserialize(cmd.data(), res);
+                NcAsmParamModeNcDualModeSwitchAsmSeamless::Deserialize(cmd.data(), res, cmd.size());
                 self->mNcAsmEnabled.overwrite(res.base.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                 self->mNcAsmMode.overwrite(res.ncAsmMode);
                 self->mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -120,7 +120,7 @@ namespace mdr
                 v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
                 NcAsmParamModeNcDualModeSwitchAsmSeamlessNa res;
-                NcAsmParamModeNcDualModeSwitchAsmSeamlessNa::Deserialize(cmd.data(), res);
+                NcAsmParamModeNcDualModeSwitchAsmSeamlessNa::Deserialize(cmd.data(), res, cmd.size());
                 self->mNcAsmEnabled.overwrite(res.base.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                 self->mNcAsmMode.overwrite(res.ncAsmMode);
                 self->mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -136,7 +136,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 NcAsmParamAsmSeamless res;
-                NcAsmParamAsmSeamless::Deserialize(cmd.data(), res);
+                NcAsmParamAsmSeamless::Deserialize(cmd.data(), res, cmd.size());
                 self->mNcAsmEnabled.overwrite(res.base.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                 self->mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                 self->mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
@@ -149,7 +149,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
             {
                 NcAsmParamNcAmbToggle res;
-                NcAsmParamNcAmbToggle::Deserialize(cmd.data(), res);
+                NcAsmParamNcAmbToggle::Deserialize(cmd.data(), res, cmd.size());
                 self->mNcAsmButtonFunction.overwrite(res.function);
                 return MDR_HEADPHONES_EVT_NCASM_BUTTON_MODE;
             }
@@ -163,7 +163,7 @@ namespace mdr
     int HandlePowerStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PowerBase base;
-        PowerBase::Deserialize(cmd.data(), base);
+        PowerBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PowerInquiredType;
         switch (base.type)
         {
@@ -172,7 +172,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
             {
                 PowerRetStatusBattery res;
-                PowerRetStatusBattery::Deserialize(cmd.data(), res);
+                PowerRetStatusBattery::Deserialize(cmd.data(), res, cmd.size());
                 self->mBatteryL = {
                     res.batteryStatus.batteryLevel,
                     0xFF,
@@ -187,7 +187,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
             {
                 PowerRetStatusLeftRightBattery res;
-                PowerRetStatusLeftRightBattery::Deserialize(cmd.data(), res);
+                PowerRetStatusLeftRightBattery::Deserialize(cmd.data(), res, cmd.size());
                 self->mBatteryL = {
                     res.batteryStatus.leftBatteryLevel,
                     0xFF,
@@ -207,7 +207,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
             {
                 PowerRetStatusCradleBattery res;
-                PowerRetStatusCradleBattery::Deserialize(cmd.data(), res);
+                PowerRetStatusCradleBattery::Deserialize(cmd.data(), res, cmd.size());
                 self->mBatteryCase = {
                     res.batteryStatus.batteryLevel,
                     0xFF,
@@ -222,7 +222,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 PowerRetStatusBatteryThreshold res;
-                PowerRetStatusBatteryThreshold::Deserialize(cmd.data(), res);
+                PowerRetStatusBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
                 self->mBatteryL = {
                     res.batteryStatus.batteryStatus.batteryLevel,
                     res.batteryStatus.batteryThreshold,
@@ -237,7 +237,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 PowerRetStatusLeftRightBatteryThreshold res;
-                PowerRetStatusLeftRightBatteryThreshold::Deserialize(cmd.data(), res);
+                PowerRetStatusLeftRightBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
                 self->mBatteryL = {
                     res.batteryStatus.leftBatteryLevel,
                     res.leftBatteryThreshold,
@@ -257,7 +257,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 PowerRetStatusCradleBatteryThreshold res;
-                PowerRetStatusCradleBatteryThreshold::Deserialize(cmd.data(), res);
+                PowerRetStatusCradleBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
                 self->mBatteryL = {
                     res.batteryStatus.batteryStatus.batteryLevel,
                     res.batteryStatus.batteryThreshold,
@@ -275,14 +275,14 @@ namespace mdr
     int HandlePlayParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PlayParamBase base;
-        PlayParamBase::Deserialize(cmd.data(), base);
+        PlayParamBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PlayInquiredType;
         switch (base.type)
         {
         case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
         {
             PlayParamPlaybackControllerName res;
-            PlayParamPlaybackControllerName::Deserialize(cmd.data(), res);
+            PlayParamPlaybackControllerName::Deserialize(cmd.data(), res, cmd.size());
             self->mPlayTrackTitle = res.playbackNames.value[0].playbackName.value;
             self->mPlayTrackAlbum = res.playbackNames.value[1].playbackName.value;
             self->mPlayTrackArtist = res.playbackNames.value[2].playbackName.value;
@@ -291,7 +291,7 @@ namespace mdr
         case MUSIC_VOLUME:
         {
             PlayParamPlaybackControllerVolume res;
-            PlayParamPlaybackControllerVolume::Deserialize(cmd.data(), res);
+            PlayParamPlaybackControllerVolume::Deserialize(cmd.data(), res, cmd.size());
             self->mPlayVolume.overwrite(res.volumeValue);
             return MDR_HEADPHONES_EVT_PLAYBACK_VOLUME;
         }
@@ -303,7 +303,7 @@ namespace mdr
     int HandlePowerParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PowerBase base;
-        PowerBase::Deserialize(cmd.data(), base);
+        PowerBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PowerInquiredType;
         switch (base.type)
         {
@@ -312,7 +312,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
             {
                 PowerParamAutoPowerOff res;
-                PowerParamAutoPowerOff::Deserialize(cmd.data(), res);
+                PowerParamAutoPowerOff::Deserialize(cmd.data(), res, cmd.size());
                 self->mPowerAutoOff.overwrite(res.currentPowerOffElements);
                 return MDR_HEADPHONES_EVT_AUTO_POWER_OFF_PARAM;
             }
@@ -323,7 +323,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
             {
                 PowerParamAutoPowerOffWithWearingDetection res;
-                PowerParamAutoPowerOffWithWearingDetection::Deserialize(cmd.data(), res);
+                PowerParamAutoPowerOffWithWearingDetection::Deserialize(cmd.data(), res, cmd.size());
                 self->mPowerAutoOffWearingDetection.overwrite(res.currentPowerOffElements);
                 return MDR_HEADPHONES_EVT_AUTO_POWER_OFF_PARAM;
             }
@@ -338,14 +338,14 @@ namespace mdr
     int HandlePlaybackStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PlayBase base;
-        PlayBase::Deserialize(cmd.data(), base);
+        PlayBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PlayInquiredType;
         switch (base.type)
         {
         case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
         {
             PlayStatusPlaybackController res;
-            PlayStatusPlaybackController::Deserialize(cmd.data(), res);
+            PlayStatusPlaybackController::Deserialize(cmd.data(), res, cmd.size());
             self->mPlayPause.overwrite(res.playbackStatus);
             return MDR_HEADPHONES_EVT_PLAYBACK_METADATA;
         }
@@ -358,7 +358,7 @@ namespace mdr
     int HandleGsCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         GsRetCapability res;
-        GsRetCapability::Deserialize(cmd.data(), res);
+        GsRetCapability::Deserialize(cmd.data(), res, cmd.size());
         using enum GsInquiredType;
         switch (res.type)
         {
@@ -391,7 +391,7 @@ namespace mdr
     int HandleGsParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         GsParamBase base;
-        GsParamBase::Deserialize(cmd.data(), base);
+        GsParamBase::Deserialize(cmd.data(), base, cmd.size());
         using enum GsSettingType;
         using enum GsInquiredType;
         auto Write = [&](MDRProperty<bool>& dstBool) -> int
@@ -401,7 +401,7 @@ namespace mdr
             case BOOLEAN_TYPE:
             {
                 GsParamBoolean res;
-                GsParamBoolean::Deserialize(cmd.data(), res);
+                GsParamBoolean::Deserialize(cmd.data(), res, cmd.size());
                 dstBool.overwrite(res.settingValue == GsSettingValue::ON);
                 return MDR_HEADPHONES_EVT_OK;
             }
@@ -437,7 +437,7 @@ namespace mdr
     int HandleAudioCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         AudioBase base;
-        AudioBase::Deserialize(cmd.data(), base);
+        AudioBase::Deserialize(cmd.data(), base, cmd.size());
         using enum AudioInquiredType;
         switch (base.type)
         {
@@ -446,7 +446,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             {
                 AudioRetCapabilityUpscaling res;
-                AudioRetCapabilityUpscaling::Deserialize(cmd.data(), res);
+                AudioRetCapabilityUpscaling::Deserialize(cmd.data(), res, cmd.size());
                 self->mUpscalingType.overwrite(res.upscalingType);
                 return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
@@ -461,7 +461,7 @@ namespace mdr
     int HandleAudioStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         AudioBase base;
-        AudioBase::Deserialize(cmd.data(), base);
+        AudioBase::Deserialize(cmd.data(), base, cmd.size());
         using enum AudioInquiredType;
         switch (base.type)
         {
@@ -470,7 +470,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             {
                 AudioStatusCommon res;
-                AudioStatusCommon::Deserialize(cmd.data(), res);
+                AudioStatusCommon::Deserialize(cmd.data(), res, cmd.size());
                 self->mUpscalingAvailable.overwrite(res.status == v2::MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
@@ -485,7 +485,7 @@ namespace mdr
     int HandleAudioParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         AudioBase base;
-        AudioBase::Deserialize(cmd.data(), base);
+        AudioBase::Deserialize(cmd.data(), base, cmd.size());
         using enum AudioInquiredType;
         switch (base.type)
         {
@@ -495,7 +495,7 @@ namespace mdr
                 v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             {
                 AudioParamConnection res;
-                AudioParamConnection::Deserialize(cmd.data(), res);
+                AudioParamConnection::Deserialize(cmd.data(), res, cmd.size());
                 self->mAudioPriorityMode.overwrite(res.settingValue);
                 return MDR_HEADPHONES_EVT_CONNECTION_MODE;
             }
@@ -506,7 +506,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             {
                 AudioParamUpscaling res;
-                AudioParamUpscaling::Deserialize(cmd.data(), res);
+                AudioParamUpscaling::Deserialize(cmd.data(), res, cmd.size());
                 self->mUpscalingEnabled.overwrite(res.settingValue == UpscalingTypeAutoOff::AUTO);
                 return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
@@ -517,7 +517,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
             {
                 AudioParamBGMMode res;
-                AudioParamBGMMode::Deserialize(cmd.data(), res);
+                AudioParamBGMMode::Deserialize(cmd.data(), res, cmd.size());
                 self->mBGMModeEnabled.overwrite(res.onOffSettingValue == v2::MessageMdrV2EnableDisable::ENABLE);
                 self->mBGMModeRoomSize.overwrite(res.targetRoomSize);
                 return MDR_HEADPHONES_EVT_OK;
@@ -529,7 +529,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
             {
                 AudioParamUpmixCinema res;
-                AudioParamUpmixCinema::Deserialize(cmd.data(), res);
+                AudioParamUpmixCinema::Deserialize(cmd.data(), res, cmd.size());
                 self->mUpmixCinemaEnabled.overwrite(res.onOffSettingValue == v2::MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_OK;
             }
@@ -544,7 +544,7 @@ namespace mdr
     int HandleSystemParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         SystemBase base;
-        SystemBase::Deserialize(cmd.data(), base);
+        SystemBase::Deserialize(cmd.data(), base, cmd.size());
         using enum SystemInquiredType;
         switch (base.type)
         {
@@ -554,7 +554,7 @@ namespace mdr
                 v2::MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             {
                 SystemParamCommon res;
-                SystemParamCommon::Deserialize(cmd.data(), res);
+                SystemParamCommon::Deserialize(cmd.data(), res, cmd.size());
                 self->mAutoPauseEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE;
             }
@@ -565,7 +565,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
             {
                 SystemParamAssignableSettings res;
-                SystemParamAssignableSettings::Deserialize(cmd.data(), res);
+                SystemParamAssignableSettings::Deserialize(cmd.data(), res, cmd.size());
                 if (res.presets.size() == 2)
                 {
                     self->mTouchFunctionLeft.overwrite(res.presets.value[0]);
@@ -580,7 +580,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
             {
                 SystemParamSmartTalking res;
-                SystemParamSmartTalking::Deserialize(cmd.data(), res);
+                SystemParamSmartTalking::Deserialize(cmd.data(), res, cmd.size());
                 self->mSpeakToChatEnabled.overwrite(res.onOffValue == v2::MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_ENABLED;
             }
@@ -591,7 +591,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
             {
                 SystemParamCommon res;
-                SystemParamCommon::Deserialize(cmd.data(), res);
+                SystemParamCommon::Deserialize(cmd.data(), res, cmd.size());
                 self->mHeadGestureEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_HEAD_GESTURE;
             }
@@ -606,7 +606,7 @@ namespace mdr
     int HandleSystemExtParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         SystemExtBase base;
-        SystemExtBase::Deserialize(cmd.data(), base);
+        SystemExtBase::Deserialize(cmd.data(), base, cmd.size());
         using enum SystemInquiredType;
         switch (base.type)
         {
@@ -615,7 +615,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
             {
                 SystemExtParamSmartTalkingMode2 res;
-                SystemExtParamSmartTalkingMode2::Deserialize(cmd.data(), res);
+                SystemExtParamSmartTalkingMode2::Deserialize(cmd.data(), res, cmd.size());
                 self->mSpeakToChatDetectSensitivity.overwrite(res.detectSensitivity);
                 self->mSpeakToModeOutTime.overwrite(res.modeOffTime);
                 return MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_PARAM;
@@ -631,14 +631,14 @@ namespace mdr
     int HandleEqEbbStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         EqEbbBase base;
-        EqEbbBase::Deserialize(cmd.data(), base);
+        EqEbbBase::Deserialize(cmd.data(), base, cmd.size());
         using enum EqEbbInquiredType;
         switch (base.type)
         {
         case PRESET_EQ:
         {
             EqEbbStatusOnOff res;
-            EqEbbStatusOnOff::Deserialize(cmd.data(), res);
+            EqEbbStatusOnOff::Deserialize(cmd.data(), res, cmd.size());
             self->mEqAvailable.overwrite(res.status == v2::MessageMdrV2OnOffSettingValue::ON);
             return MDR_HEADPHONES_EVT_EQUALIZER_AVAILABLE;
         }
@@ -651,14 +651,14 @@ namespace mdr
     int HandleEqEbbParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         EqEbbBase base;
-        EqEbbBase::Deserialize(cmd.data(), base);
+        EqEbbBase::Deserialize(cmd.data(), base, cmd.size());
         using enum EqEbbInquiredType;
         switch (base.type)
         {
         case PRESET_EQ:
         {
             EqEbbParamEq res;
-            EqEbbParamEq::Deserialize(cmd.data(), res);
+            EqEbbParamEq::Deserialize(cmd.data(), res, cmd.size());
             switch (res.bands.size())
             {
             case 0:
@@ -701,7 +701,7 @@ namespace mdr
     int HandleAlertParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         AlertBase base;
-        AlertBase::Deserialize(cmd.data(), base);
+        AlertBase::Deserialize(cmd.data(), base, cmd.size());
         using enum AlertInquiredType;
         switch (base.type)
         {
@@ -710,7 +710,7 @@ namespace mdr
             if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
             {
                 AlertNotifyParamFixedMessage res;
-                AlertNotifyParamFixedMessage::Deserialize(cmd.data(), res);
+                AlertNotifyParamFixedMessage::Deserialize(cmd.data(), res, cmd.size());
                 using enum AlertActionType;
                 switch (res.actionType)
                 {
@@ -764,7 +764,7 @@ namespace mdr
     int MDRHeadphones::HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
     {
         CommandBase base;
-        CommandBase::Deserialize(cmd.data(), base);
+        CommandBase::Deserialize(cmd.data(), base, cmd.size());
         using enum Command;
         switch (base.command)
         {

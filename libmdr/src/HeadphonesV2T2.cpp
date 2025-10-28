@@ -8,7 +8,7 @@ namespace mdr
     int HandleSupportFunctionT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         ConnectRetSupportFunction res;
-        ConnectRetSupportFunction::Deserialize(cmd.data(), res);
+        ConnectRetSupportFunction::Deserialize(cmd.data(), res, cmd.size());
         std::ranges::fill(self->mSupport.table2Functions, false);
         for (auto fun : res.supportFunctions)
             self->mSupport.table2Functions[static_cast<UInt8>(fun.table2)] = true;
@@ -19,21 +19,21 @@ namespace mdr
     int HandleVoiceGuidanceParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         VoiceGuidanceBase base;
-        VoiceGuidanceBase::Deserialize(cmd.data(), base);
+        VoiceGuidanceBase::Deserialize(cmd.data(), base, cmd.size());
         using enum VoiceGuidanceInquiredType;
         switch (base.type)
         {
         case MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
         {
             VoiceGuidanceParamSettingMtk res;
-            VoiceGuidanceParamSettingMtk::Deserialize(cmd.data(), res);
+            VoiceGuidanceParamSettingMtk::Deserialize(cmd.data(), res, cmd.size());
             self->mVoiceGuidanceEnabled.overwrite(res.settingValue == v2::MessageMdrV2OnOffSettingValue::ON);
             return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE;
         }
         case VOLUME:
         {
             VoiceGuidanceParamVolume res;
-            VoiceGuidanceParamVolume::Deserialize(cmd.data(), res);
+            VoiceGuidanceParamVolume::Deserialize(cmd.data(), res, cmd.size());
             self->mVoiceGuidanceVolume.overwrite(res.volumeValue);
             return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_VOLUME;
         }
@@ -46,14 +46,14 @@ namespace mdr
     int HandlePeripheralStatusT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PeripheralBase base;
-        PeripheralBase::Deserialize(cmd.data(), base);
+        PeripheralBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PeripheralInquiredType;
         switch (base.type)
         {
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
             PeripheralStatusPairingDeviceManagementCommon res;
-            PeripheralStatusPairingDeviceManagementCommon::Deserialize(cmd.data(), res);
+            PeripheralStatusPairingDeviceManagementCommon::Deserialize(cmd.data(), res, cmd.size());
             self->mPairingMode.overwrite(res.enableDisableStatus == v2::MessageMdrV2EnableDisable::ENABLE &&
                 res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
             return MDR_HEADPHONES_EVT_BLUETOOTH_MODE;
@@ -67,14 +67,14 @@ namespace mdr
     int HandlePeripheralNotifyExtendedParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PeripheralBase base;
-        PeripheralBase::Deserialize(cmd.data(), base);
+        PeripheralBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PeripheralInquiredType;
         switch (base.type)
         {
         case SOURCE_SWITCH_CONTROL:
         {
             PeripheralNotifyExtendedParamSourceSwitchControl res;
-            PeripheralNotifyExtendedParamSourceSwitchControl::Deserialize(cmd.data(), res);
+            PeripheralNotifyExtendedParamSourceSwitchControl::Deserialize(cmd.data(), res, cmd.size());
             self->mMultipointDeviceMac.overwrite(String(res.targetBdAddress.begin(), res.targetBdAddress.end()));
             return MDR_HEADPHONES_EVT_MULTIPOINT_SWITCH;
         }
@@ -87,14 +87,14 @@ namespace mdr
     int HandlePeripheralParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PeripheralBase base;
-        PeripheralBase::Deserialize(cmd.data(), base);
+        PeripheralBase::Deserialize(cmd.data(), base, cmd.size());
         using enum PeripheralInquiredType;
         switch (base.type)
         {
         case PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
         {
             PeripheralParamPairingDeviceManagementClassicBt res;
-            PeripheralParamPairingDeviceManagementClassicBt::Deserialize(cmd.data(), res);
+            PeripheralParamPairingDeviceManagementClassicBt::Deserialize(cmd.data(), res, cmd.size());
             self->mPairedDevices.resize(res.deviceList.size());
             for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
             {
@@ -110,7 +110,7 @@ namespace mdr
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
             PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice res;
-            PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(cmd.data(), res);
+            PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(cmd.data(), res, cmd.size());
             self->mPairedDevices.resize(res.deviceList.size());
             for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
             {
@@ -132,7 +132,7 @@ namespace mdr
     int HandleSafeListeningParamsT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         SafeListeningNotifyParam base;
-        SafeListeningNotifyParam::Deserialize(cmd.data(), base);
+        SafeListeningNotifyParam::Deserialize(cmd.data(), base, cmd.size());
         using enum SafeListeningInquiredType;
         switch (base.type)
         {
@@ -142,7 +142,7 @@ namespace mdr
         case SAFE_LISTENING_TWS_2:
         {
             SafeListeningNotifyParamSL res;
-            SafeListeningNotifyParamSL::Deserialize(cmd.data(), res);
+            SafeListeningNotifyParamSL::Deserialize(cmd.data(), res, cmd.size());
             self->mSafeListeningPreviewMode.overwrite(res.previewMode == v2::MessageMdrV2EnableDisable::ENABLE);
             return MDR_HEADPHONES_EVT_SAFE_LISTENING_PARAM;
         }
@@ -155,7 +155,7 @@ namespace mdr
     int HandleSafeListeningExtendedParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         SafeListeningRetExtendedParam res;
-        SafeListeningRetExtendedParam::Deserialize(cmd.data(), res);
+        SafeListeningRetExtendedParam::Deserialize(cmd.data(), res, cmd.size());
         self->mSafeListeningSoundPressure = res.levelPerPeriod;
         return MDR_HEADPHONES_EVT_SOUND_PRESSURE;
     }
@@ -165,7 +165,7 @@ namespace mdr
         using namespace v2::t2;
         using enum Command;
         CommandBase base;
-        CommandBase::Deserialize(cmd.data(), base);
+        CommandBase::Deserialize(cmd.data(), base, cmd.size());
         switch (base.command)
         {
         case CONNECT_RET_SUPPORT_FUNCTION:

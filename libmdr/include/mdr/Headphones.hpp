@@ -400,7 +400,7 @@ namespace mdr
 
             MDRDataType type = MDRTraits<T>::kDataType;
             T::Validate(command); // <- Throws if something's bad
-            size_t size = T::Serialize(command, buf);
+            size_t size = T::Serialize(command, buf, kMDRMaxPacketSize);
             SendCommandImpl({buf, buf + size}, type, mSeqNumber);
         }
         /**

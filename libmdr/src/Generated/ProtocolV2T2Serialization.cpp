@@ -2,124 +2,128 @@
 #include <mdr/ProtocolV2T2.hpp>
 
 namespace mdr::v2::t2 {
-    size_t ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out)
+    size_t ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.command, &ptr);
-        MDRPod::Write(data.inquiredType, &ptr);
-        MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr);
+        maxSize -= MDRPod::Write(data.command, &ptr, maxSize);
+        maxSize -= MDRPod::Write(data.inquiredType, &ptr, maxSize);
+        maxSize -= MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr, maxSize);
         return ptr - out;
     }
-    void ConnectRetSupportFunction::Deserialize(const UInt8* data, ConnectRetSupportFunction& out)
+    void ConnectRetSupportFunction::Deserialize(const UInt8* data, ConnectRetSupportFunction& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.command);
-        MDRPod::Read(&data, out.inquiredType);
-        MDRPodArray<MessageMdrV2SupportFunction>::Read(&data, out.supportFunctions);
+        maxSize -= MDRPod::Read(&data, out.command, maxSize);
+        maxSize -= MDRPod::Read(&data, out.inquiredType, maxSize);
+        maxSize -= MDRPodArray<MessageMdrV2SupportFunction>::Read(&data, out.supportFunctions, maxSize);
     }
-    size_t PeripheralDeviceInfo::Write(const PeripheralDeviceInfo& data, UInt8** ppDstBuffer)
+    size_t PeripheralDeviceInfo::Write(const PeripheralDeviceInfo& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDRPod::Write(data.btDeviceAddress, ppDstBuffer);
-        MDRPod::Write(data.connectedStatus, ppDstBuffer);
-        MDRPrefixedString::Write(data.btFriendlyName, ppDstBuffer);
+        maxSize -= MDRPod::Write(data.btDeviceAddress, ppDstBuffer, maxSize);
+        maxSize -= MDRPod::Write(data.connectedStatus, ppDstBuffer, maxSize);
+        maxSize -= MDRPrefixedString::Write(data.btFriendlyName, ppDstBuffer, maxSize);
         return *ppDstBuffer - ptr;
     }
-    void PeripheralDeviceInfo::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfo& out, size_t maxSize)
+    size_t PeripheralDeviceInfo::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfo& out, size_t maxSize)
     {
-        MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize);
-        MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize);
-        MDRPrefixedString::Read(ppSrcBuffer, out.btFriendlyName, maxSize);
+        const UInt8* ptr = *ppSrcBuffer;
+        maxSize -= MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize);
+        maxSize -= MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize);
+        maxSize -= MDRPrefixedString::Read(ppSrcBuffer, out.btFriendlyName, maxSize);
+        return *ppSrcBuffer - ptr;
     }
-    size_t PeripheralDeviceInfoWithBluetoothClassOfDevice::Write(const PeripheralDeviceInfoWithBluetoothClassOfDevice& data, UInt8** ppDstBuffer)
+    size_t PeripheralDeviceInfoWithBluetoothClassOfDevice::Write(const PeripheralDeviceInfoWithBluetoothClassOfDevice& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDRPod::Write(data.btDeviceAddress, ppDstBuffer);
-        MDRPod::Write(data.connectedStatus, ppDstBuffer);
-        MDRPod::Write(data.bluetoothClassOfDevice, ppDstBuffer);
-        MDRPrefixedString::Write(data.btFriendlyName, ppDstBuffer);
+        maxSize -= MDRPod::Write(data.btDeviceAddress, ppDstBuffer, maxSize);
+        maxSize -= MDRPod::Write(data.connectedStatus, ppDstBuffer, maxSize);
+        maxSize -= MDRPod::Write(data.bluetoothClassOfDevice, ppDstBuffer, maxSize);
+        maxSize -= MDRPrefixedString::Write(data.btFriendlyName, ppDstBuffer, maxSize);
         return *ppDstBuffer - ptr;
     }
-    void PeripheralDeviceInfoWithBluetoothClassOfDevice::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfoWithBluetoothClassOfDevice& out, size_t maxSize)
+    size_t PeripheralDeviceInfoWithBluetoothClassOfDevice::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfoWithBluetoothClassOfDevice& out, size_t maxSize)
     {
-        MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize);
-        MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize);
-        MDRPod::Read(ppSrcBuffer, out.bluetoothClassOfDevice, maxSize);
-        MDRPrefixedString::Read(ppSrcBuffer, out.btFriendlyName, maxSize);
+        const UInt8* ptr = *ppSrcBuffer;
+        maxSize -= MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize);
+        maxSize -= MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize);
+        maxSize -= MDRPod::Read(ppSrcBuffer, out.bluetoothClassOfDevice, maxSize);
+        maxSize -= MDRPrefixedString::Read(ppSrcBuffer, out.btFriendlyName, maxSize);
+        return *ppSrcBuffer - ptr;
     }
-    size_t PeripheralParamPairingDeviceManagementClassicBt::Serialize(const PeripheralParamPairingDeviceManagementClassicBt& data, UInt8* out)
+    size_t PeripheralParamPairingDeviceManagementClassicBt::Serialize(const PeripheralParamPairingDeviceManagementClassicBt& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.base, &ptr);
-        MDRArray<PeripheralDeviceInfo>::Write(data.deviceList, &ptr);
-        MDRPod::Write(data.playbackDevice, &ptr);
+        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
+        maxSize -= MDRArray<PeripheralDeviceInfo>::Write(data.deviceList, &ptr, maxSize);
+        maxSize -= MDRPod::Write(data.playbackDevice, &ptr, maxSize);
         return ptr - out;
     }
-    void PeripheralParamPairingDeviceManagementClassicBt::Deserialize(const UInt8* data, PeripheralParamPairingDeviceManagementClassicBt& out)
+    void PeripheralParamPairingDeviceManagementClassicBt::Deserialize(const UInt8* data, PeripheralParamPairingDeviceManagementClassicBt& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.base);
-        MDRArray<PeripheralDeviceInfo>::Read(&data, out.deviceList);
-        MDRPod::Read(&data, out.playbackDevice);
+        maxSize -= MDRPod::Read(&data, out.base, maxSize);
+        maxSize -= MDRArray<PeripheralDeviceInfo>::Read(&data, out.deviceList, maxSize);
+        maxSize -= MDRPod::Read(&data, out.playbackDevice, maxSize);
     }
-    size_t PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Serialize(const PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& data, UInt8* out)
+    size_t PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Serialize(const PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.base, &ptr);
-        MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice>::Write(data.deviceList, &ptr);
-        MDRPod::Write(data.playbackDevice, &ptr);
+        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
+        maxSize -= MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice>::Write(data.deviceList, &ptr, maxSize);
+        maxSize -= MDRPod::Write(data.playbackDevice, &ptr, maxSize);
         return ptr - out;
     }
-    void PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(const UInt8* data, PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& out)
+    void PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(const UInt8* data, PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.base);
-        MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice>::Read(&data, out.deviceList);
-        MDRPod::Read(&data, out.playbackDevice);
+        maxSize -= MDRPod::Read(&data, out.base, maxSize);
+        maxSize -= MDRArray<PeripheralDeviceInfoWithBluetoothClassOfDevice>::Read(&data, out.deviceList, maxSize);
+        maxSize -= MDRPod::Read(&data, out.playbackDevice, maxSize);
     }
-    size_t SafeListeningNotifyStatusHbs1::Serialize(const SafeListeningNotifyStatusHbs1& data, UInt8* out)
+    size_t SafeListeningNotifyStatusHbs1::Serialize(const SafeListeningNotifyStatusHbs1& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.base, &ptr);
-        MDRPodArray<SafeListeningData1>::Write(data.data, &ptr);
+        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData1>::Write(data.data, &ptr, maxSize);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusHbs1::Deserialize(const UInt8* data, SafeListeningNotifyStatusHbs1& out)
+    void SafeListeningNotifyStatusHbs1::Deserialize(const UInt8* data, SafeListeningNotifyStatusHbs1& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.base);
-        MDRPodArray<SafeListeningData1>::Read(&data, out.data);
+        maxSize -= MDRPod::Read(&data, out.base, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData1>::Read(&data, out.data, maxSize);
     }
-    size_t SafeListeningNotifyStatusHbs2::Serialize(const SafeListeningNotifyStatusHbs2& data, UInt8* out)
+    size_t SafeListeningNotifyStatusHbs2::Serialize(const SafeListeningNotifyStatusHbs2& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.base, &ptr);
-        MDRPodArray<SafeListeningData2>::Write(data.data, &ptr);
+        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData2>::Write(data.data, &ptr, maxSize);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusHbs2::Deserialize(const UInt8* data, SafeListeningNotifyStatusHbs2& out)
+    void SafeListeningNotifyStatusHbs2::Deserialize(const UInt8* data, SafeListeningNotifyStatusHbs2& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.base);
-        MDRPodArray<SafeListeningData2>::Read(&data, out.data);
+        maxSize -= MDRPod::Read(&data, out.base, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData2>::Read(&data, out.data, maxSize);
     }
-    size_t SafeListeningNotifyStatusTws1::Serialize(const SafeListeningNotifyStatusTws1& data, UInt8* out)
+    size_t SafeListeningNotifyStatusTws1::Serialize(const SafeListeningNotifyStatusTws1& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.base, &ptr);
-        MDRPodArray<SafeListeningData1>::Write(data.data, &ptr);
+        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData1>::Write(data.data, &ptr, maxSize);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusTws1::Deserialize(const UInt8* data, SafeListeningNotifyStatusTws1& out)
+    void SafeListeningNotifyStatusTws1::Deserialize(const UInt8* data, SafeListeningNotifyStatusTws1& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.base);
-        MDRPodArray<SafeListeningData1>::Read(&data, out.data);
+        maxSize -= MDRPod::Read(&data, out.base, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData1>::Read(&data, out.data, maxSize);
     }
-    size_t SafeListeningNotifyStatusTws2::Serialize(const SafeListeningNotifyStatusTws2& data, UInt8* out)
+    size_t SafeListeningNotifyStatusTws2::Serialize(const SafeListeningNotifyStatusTws2& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        MDRPod::Write(data.base, &ptr);
-        MDRPodArray<SafeListeningData2>::Write(data.data, &ptr);
+        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData2>::Write(data.data, &ptr, maxSize);
         return ptr - out;
     }
-    void SafeListeningNotifyStatusTws2::Deserialize(const UInt8* data, SafeListeningNotifyStatusTws2& out)
+    void SafeListeningNotifyStatusTws2::Deserialize(const UInt8* data, SafeListeningNotifyStatusTws2& out, size_t maxSize)
     {
-        MDRPod::Read(&data, out.base);
-        MDRPodArray<SafeListeningData2>::Read(&data, out.data);
+        maxSize -= MDRPod::Read(&data, out.base, maxSize);
+        maxSize -= MDRPodArray<SafeListeningData2>::Read(&data, out.data, maxSize);
     }
 }
