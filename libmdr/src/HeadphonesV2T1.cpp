@@ -94,8 +94,8 @@ namespace mdr
 
     int HandleNcAsmParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        NcAsmParamBase base;
-        NcAsmParamBase::Deserialize(cmd.data(), base);
+        NcAsmBase base;
+        NcAsmBase::Deserialize(cmd.data(), base);
         using enum NcAsmInquiredType;
         switch (base.type)
         {

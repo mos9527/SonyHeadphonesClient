@@ -184,7 +184,7 @@ bool PowerGetParam::Validate(const PowerGetParam& data) {
 bool PowerParamAutoPowerOff::Validate(const PowerParamAutoPowerOff& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_SET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF, got {}",data.base.type);
     MDR_CHECK(is_valid(data.currentPowerOffElements), "currentPowerOffElements got an invalid enum value");
     MDR_CHECK(is_valid(data.lastSelectPowerOffElements), "lastSelectPowerOffElements got an invalid enum value");
@@ -193,7 +193,7 @@ bool PowerParamAutoPowerOff::Validate(const PowerParamAutoPowerOff& data) {
 bool PowerParamAutoPowerOffWithWearingDetection::Validate(const PowerParamAutoPowerOffWithWearingDetection& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
+    MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_SET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION, got {}",data.base.type);
     MDR_CHECK(is_valid(data.currentPowerOffElements), "currentPowerOffElements got an invalid enum value");
     MDR_CHECK(is_valid(data.lastSelectPowerOffElements), "lastSelectPowerOffElements got an invalid enum value");
@@ -302,6 +302,11 @@ bool NcAsmGetParam::Validate(const NcAsmGetParam& data) {
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
+bool NcAsmBase::Validate(const NcAsmBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
+    return true;
+};
 bool NcAsmParamBase::Validate(const NcAsmParamBase& data) {
     MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
@@ -357,8 +362,6 @@ bool NcAsmParamAsmSeamless::Validate(const NcAsmParamAsmSeamless& data) {
 bool NcAsmParamNcAmbToggle::Validate(const NcAsmParamNcAmbToggle& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.valueChangeStatus), "valueChangeStatus got an invalid enum value");
-    MDR_CHECK(is_valid(data.base.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
     MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of NcAsmInquiredType::NC_AMB_TOGGLE, got {}",data.base.type);
     MDR_CHECK(is_valid(data.function), "function got an invalid enum value");
@@ -557,6 +560,11 @@ bool PlayGetParam::Validate(const PlayGetParam& data) {
     MDR_CHECK(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
     MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::PLAY_GET_PARAM, got {}",data.base.command);
+    return true;
+};
+bool PlayParamBase::Validate(const PlayParamBase& data) {
+    MDR_CHECK(is_valid(data.command), "command got an invalid enum value");
+    MDR_CHECK(is_valid(data.type), "type got an invalid enum value");
     return true;
 };
 bool PlayParamPlaybackControllerName::Validate(const PlayParamPlaybackControllerName& data) {

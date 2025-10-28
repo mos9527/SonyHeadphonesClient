@@ -131,6 +131,9 @@ namespace mdr {
     template<> struct MDRTraits<v2::t1::NcAsmGetParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v2::t1::NcAsmBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v2::t1::NcAsmParamBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };

@@ -321,7 +321,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN Field command EnumRange Command::PERI_RET_STATUS Command::PERI_SET_STATUS Command::PERI_NTFY_STATUS
         // CODEGEN Field type EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
-        PeripheralBase base{Command::PERI_GET_STATUS};
+        PeripheralBase base{Command::PERI_SET_STATUS, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT};
         PeripheralBluetoothMode btMode; // 0x2
         MessageMdrV2EnableDisable enableDisableStatus; // 0x3
 
@@ -558,7 +558,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN Field command EnumRange Command::VOICE_GUIDANCE_GET_PARAM Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM
         // CODEGEN Field type EnumRange VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING
-        VoiceGuidanceBase base{Command::VOICE_GUIDANCE_GET_PARAM, VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING};
+        VoiceGuidanceBase base{Command::VOICE_GUIDANCE_SET_PARAM, VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING};
         MessageMdrV2OnOffSettingValue settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(VoiceGuidanceParamSettingMtk);

@@ -1,3 +1,4 @@
+// ReSharper disable CppParameterMayBeConstPtrOrRef
 #include <ranges>
 #include <fmt/base.h>
 #include <algorithm>
@@ -433,79 +434,212 @@ namespace mdr
         if (mNcAsmAmbientLevel.dirty() || mNcAsmEnabled.dirty() || mNcAsmMode.dirty() ||
             mNcAsmFocusOnVoice.dirty() || mNcAsmAutoAsmEnabled.dirty() || mNcAsmNoiseAdaptiveSensitivity.dirty())
         {
+            using namespace v2::t1;
+            if (mSupport.contains(
+                v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+            {
 
+                NcAsmParamModeNcDualModeSwitchAsmSeamlessNa res;
+                res.base.command = Command::NCASM_SET_PARAM;
+                res.base.valueChangeStatus = ValueChangeStatus::CHANGED;
+                res.base.ncAsmTotalEffect = mNcAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.ncAsmMode = mNcAsmMode.desired;
+                res.ambientSoundMode = mNcAsmFocusOnVoice.desired ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
+                res.ambientSoundLevelValue = mNcAsmAmbientLevel.desired;
+                res.noiseAdaptiveOnOffValue = mNcAsmAutoAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.noiseAdaptiveSensitivitySettings = mNcAsmNoiseAdaptiveSensitivity.desired;
+                SendCommandACK(NcAsmParamModeNcDualModeSwitchAsmSeamlessNa, res);
+            }
+            else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+            {
+                NcAsmParamAsmSeamless res;
+                res.base.command = Command::NCASM_SET_PARAM;
+                res.base.valueChangeStatus = ValueChangeStatus::CHANGED;
+                res.base.ncAsmTotalEffect = mNcAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.ambientSoundMode = mNcAsmFocusOnVoice.desired ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
+                res.ambientSoundLevelValue = mNcAsmAmbientLevel.desired;
+                SendCommandACK(NcAsmParamAsmSeamless, res);
+            }
+            else
+            {
+                NcAsmParamModeNcDualModeSwitchAsmSeamless res;
+                res.base.command = Command::NCASM_SET_PARAM;
+                res.base.valueChangeStatus = ValueChangeStatus::CHANGED;
+                res.base.ncAsmTotalEffect = mNcAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.ncAsmMode = mNcAsmMode.desired,
+                    res.ambientSoundMode = mNcAsmFocusOnVoice.desired
+                    ? AmbientSoundMode::VOICE
+                    : AmbientSoundMode::NORMAL;
+                res.ambientSoundLevelValue = mNcAsmAmbientLevel.desired;
+                SendCommandACK(NcAsmParamModeNcDualModeSwitchAsmSeamless, res);
+            }
+            mNcAsmAmbientLevel.commit(), mNcAsmEnabled.commit(), mNcAsmMode.commit();
+            mNcAsmFocusOnVoice.commit(), mNcAsmAutoAsmEnabled.commit(), mNcAsmNoiseAdaptiveSensitivity.commit();
         }
 
         /* NC/AMB Mode */
         if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
         {
-            if (mNcAsmMode.dirty())
+            using namespace v2::t1;
+            if (mNcAsmButtonFunction.dirty())
             {
-
+                NcAsmParamNcAmbToggle res;
+                res.base.command = Command::NCASM_SET_PARAM;
+                res.function = mNcAsmButtonFunction.desired;
+                SendCommandACK(NcAsmParamNcAmbToggle, res);
+                mNcAsmButtonFunction.commit();
             }
         }
-
         /* Volume */
         if (mPlayVolume.dirty())
         {
-
+            using namespace v2::t1;
+            PlayParamPlaybackControllerVolume res;
+            res.base.command = Command::PLAY_SET_PARAM;
+            res.volumeValue = mPlayVolume.desired;
+            SendCommandACK(PlayParamPlaybackControllerVolume, res);
+            mPlayVolume.commit();
         }
 
         /* Multipoint Switch */
         if (mMultipointDeviceMac.dirty())
         {
-
+            using namespace v2::t2;
+            PeripheralSetExtendedParamSourceSwitchControl res;
+            res.base.command = Command::PERI_SET_PARAM;
+            if (mMultipointDeviceMac.desired.length() != 17)
+                mMultipointDeviceMac.overwrite("");
+            else
+            {
+                std::memcpy(res.targetBdAddress.data(), mMultipointDeviceMac.desired.data(), 17);
+                SendCommandACK(PeripheralSetExtendedParamSourceSwitchControl, res);
+                // Do not commit - let corrosponding RET command resolve this.
+            }
         }
 
         /* Pairing Mode */
         if (mPairingMode.dirty())
         {
-
+            using namespace v2::t2;
+            PeripheralStatusPairingDeviceManagementCommon res;
+            res.base.command = Command::PERI_SET_STATUS;
+            res.base.type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE;
+            res.btMode = mPairingMode.desired
+                ? PeripheralBluetoothMode::INQUIRY_SCAN_MODE
+                : PeripheralBluetoothMode::NORMAL_MODE;
+            res.enableDisableStatus = v2::MessageMdrV2EnableDisable::ENABLE;
+            SendCommandACK(PeripheralStatusPairingDeviceManagementCommon, res);
+            mPairingMode.commit();
         }
 
         /* STC */
         if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
         {
+            using namespace v2::t1;
             if (mSpeakToChatEnabled.dirty())
             {
-
+                SystemParamSmartTalking res;
+                res.base.command = Command::SYSTEM_SET_PARAM;
+                res.base.type = SystemInquiredType::SMART_TALKING_MODE_TYPE2;
+                res.onOffValue = mSpeakToChatEnabled.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.previewModeOnOffValue = v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SystemParamSmartTalking, res);
+                mSpeakToChatEnabled.commit();
             }
 
             if (mSpeakToChatDetectSensitivity.dirty() || mSpeakToModeOutTime.dirty())
             {
-
+                SystemExtParamSmartTalkingMode2 res;
+                res.base.command = Command::SYSTEM_SET_EXT_PARAM;
+                res.detectSensitivity = mSpeakToChatDetectSensitivity.desired;
+                res.modeOffTime = mSpeakToModeOutTime.desired;
+                SendCommandACK(SystemExtParamSmartTalkingMode2, res);
+                mSpeakToChatDetectSensitivity.commit(), mSpeakToModeOutTime.commit();
             }
         }
 
         /* Listening Mode */
         if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
         {
-            if (mBGMModeEnabled.dirty())
+            using namespace v2::t1;
+            if (mBGMModeEnabled.dirty() || mBGMModeRoomSize.dirty())
             {
-
+                AudioParamBGMMode res;
+                res.base.command = Command::AUDIO_SET_PARAM;
+                res.base.type = AudioInquiredType::BGM_MODE;
+                res.onOffSettingValue = mBGMModeEnabled.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.targetRoomSize = mBGMModeRoomSize.desired;
+                SendCommandACK(AudioParamBGMMode, res);
+                mBGMModeEnabled.commit(), mBGMModeRoomSize.commit();
             }
             if (mUpmixCinemaEnabled.dirty())
             {
-
+                AudioParamUpmixCinema res;
+                res.base.command = Command::AUDIO_SET_PARAM;
+                res.onOffSettingValue = mUpmixCinemaEnabled.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(AudioParamUpmixCinema, res);
+                mUpmixCinemaEnabled.commit();
             }
         }
 
         /* EQ */
         if (mEqPresetId.dirty())
         {
-
+            using namespace v2::t1;
+            EqEbbParamEq res;
+            res.base.command = Command::EQEBB_SET_PARAM;
+            res.base.type = EqEbbInquiredType::PRESET_EQ;
+            res.presetId = mEqPresetId.desired;
+            SendCommandACK(EqEbbParamEq, res);
+            mEqPresetId.commit();
+            // Ask for a equalizer param update afterwards
+            SendCommandACK(EqEbbGetParam);
         }
         if (mEqConfig.dirty())
         {
-
+            using namespace v2::t1;
+            EqEbbParamEq res;
+            res.base.command = Command::EQEBB_SET_PARAM;
+            res.base.type = EqEbbInquiredType::PRESET_EQ;
+            res.presetId = mEqPresetId.current;
+            res.bands.value.resize(mEqConfig.desired.size());
+            int eqOffset = 0;
+            if (res.bands.size() == 0)
+            {
+                mEqConfig.commit();
+            }
+            else
+            {
+                if (res.bands.size() == 5)
+                    eqOffset = 10;
+                if (res.bands.size() == 10)
+                    eqOffset = 6;
+                MDR_CHECK(eqOffset, "mEqConfig size can only be 0, 5, or 10. Got {}.", mEqConfig.desired.size());
+                for (size_t i = 0; i < mEqConfig.desired.size(); i++)
+                    res.bands.value[i] = mEqConfig.desired[i] + eqOffset;
+                SendCommandACK(EqEbbParamEq, res);
+                mEqConfig.commit();
+            }
         }
 
         /* Connection Quality */
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+        if (mSupport.
+            contains(v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
         {
             if (mAudioPriorityMode.dirty())
             {
-
+                using namespace v2::t1;
+                AudioParamConnection res;
+                res.base.command = Command::AUDIO_SET_PARAM;
+                res.settingValue = mAudioPriorityMode.desired;
+                SendCommandACK(AudioParamConnection, res);
+                mAudioPriorityMode.commit();
             }
         }
 
@@ -514,7 +648,12 @@ namespace mdr
         {
             if (mUpscalingEnabled.dirty())
             {
-
+                using namespace v2::t1;
+                AudioParamUpscaling res;
+                res.base.command = Command::AUDIO_SET_PARAM;
+                res.settingValue = mUpscalingEnabled.desired ? UpscalingTypeAutoOff::AUTO : UpscalingTypeAutoOff::OFF;
+                SendCommandACK(AudioParamUpscaling, res);
+                mUpscalingEnabled.commit();
             }
         }
 
@@ -523,7 +662,12 @@ namespace mdr
         {
             if (mTouchFunctionLeft.dirty() || mTouchFunctionRight.dirty())
             {
-
+                using namespace v2::t1;
+                SystemParamAssignableSettings res;
+                res.base.command = Command::SYSTEM_SET_PARAM;
+                res.presets.value = { mTouchFunctionLeft.desired, mTouchFunctionRight.desired };
+                SendCommandACK(SystemParamAssignableSettings, res);
+                mTouchFunctionLeft.commit(), mTouchFunctionRight.commit();
             }
         }
 
@@ -532,88 +676,180 @@ namespace mdr
         {
             if (mHeadGestureEnabled.dirty())
             {
-
+                using namespace v2::t1;
+                SystemParamCommon res;
+                res.base.command = Command::SYSTEM_SET_PARAM;
+                res.base.type = SystemInquiredType::HEAD_GESTURE_ON_OFF;
+                res.settingValue = mHeadGestureEnabled.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SystemParamCommon, res);
+                mHeadGestureEnabled.commit();
             }
         }
 
         /* Auto Power Off */
         if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
         {
+            using namespace v2::t1;
             if (mPowerAutoOff.dirty())
             {
-
+                PowerParamAutoPowerOff res;
+                res.base.command = Command::SYSTEM_SET_PARAM;
+                res.currentPowerOffElements = mPowerAutoOff.desired;
+                res.lastSelectPowerOffElements = AutoPowerOffElements::POWER_OFF_IN_5_MIN;
+                SendCommandACK(PowerParamAutoPowerOff, res);
+                mPowerAutoOff.commit();
             }
-        } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        }
+        else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
+            using namespace v2::t1;
             if (mPowerAutoOffWearingDetection.dirty())
             {
-
+                PowerParamAutoPowerOffWithWearingDetection res;
+                res.base.command = Command::SYSTEM_SET_PARAM;
+                res.currentPowerOffElements = mPowerAutoOffWearingDetection.desired;
+                res.lastSelectPowerOffElements = AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN;
+                SendCommandACK(PowerParamAutoPowerOffWithWearingDetection, res);
+                mPowerAutoOffWearingDetection.commit();
             }
         }
 
         /* Pause when device is removed */
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+        if (mSupport.contains(
+            v2::MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
         {
+            using namespace v2::t1;
             if (mAutoPauseEnabled.dirty())
             {
-
+                SystemParamCommon res;
+                res.base.command = Command::SYSTEM_SET_PARAM;
+                res.base.type = SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING;
+                res.settingValue = mAutoPauseEnabled.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SystemParamCommon, res);
+                mAutoPauseEnabled.commit();
             }
         }
 
-        /* Voice Guidance */
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
+        if (mVoiceGuidanceEnabled.dirty())
         {
-            if (mVoiceGuidanceEnabled.dirty() || mVoiceGuidanceVolume.dirty())
-            {
+            using namespace v2::t2;
+            VoiceGuidanceParamSettingMtk res;
+            res.base.command = Command::VOICE_GUIDANCE_SET_PARAM;
+            res.base.type = VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH;
+            res.settingValue = mVoiceGuidanceEnabled.desired ? v2::MessageMdrV2OnOffSettingValue::ON : v2::MessageMdrV2OnOffSettingValue::OFF;
+            SendCommandACK(VoiceGuidanceParamSettingMtk, res);
+            mVoiceGuidanceVolume.commit();
+        }
 
+        /* Voice Guidance */
+        if (mSupport.contains(
+            v2::MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
+        {
+            if (mVoiceGuidanceVolume.dirty())
+            {
+                using namespace v2::t2;
+                VoiceGuidanceSetParamVolume res;
+                res.base.command = Command::VOICE_GUIDANCE_SET_PARAM;
+                res.base.type = VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH;
+                res.volumeValue = mVoiceGuidanceVolume.desired;
+                res.feedbackSound = v2::MessageMdrV2OnOffSettingValue::ON;
+                SendCommandACK(VoiceGuidanceSetParamVolume, res);
+                mVoiceGuidanceVolume.commit();
             }
         }
 
         /* General Settings */
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
         {
-            if (mGsParamBool1.dirty())
+            using namespace v2::t1;
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
             {
-
+                if (mGsParamBool1.dirty())
+                {
+                    GsParamBoolean res;
+                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.type = GsInquiredType::GENERAL_SETTING1;
+                    res.settingValue = mGsParamBool1.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    SendCommandACK(GsParamBoolean, res);
+                    mGsParamBool1.commit();
+                }
             }
-        }
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
-        {
-            if (mGsParamBool2.dirty())
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
             {
-
+                if (mGsParamBool2.dirty())
+                {
+                    GsParamBoolean res;
+                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.type = GsInquiredType::GENERAL_SETTING2;
+                    res.settingValue = mGsParamBool2.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    SendCommandACK(GsParamBoolean, res);
+                    mGsParamBool2.commit();
+                }
             }
-        }
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
-        {
-            if (mGsParamBool3.dirty())
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
             {
-
+                if (mGsParamBool3.dirty())
+                {
+                    GsParamBoolean res;
+                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.type = GsInquiredType::GENERAL_SETTING3;
+                    res.settingValue = mGsParamBool3.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    SendCommandACK(GsParamBoolean, res);
+                    mGsParamBool3.commit();
+                }
             }
-        }
-        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
-        {
-            if (mGsParamBool4.dirty())
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
             {
-
+                if (mGsParamBool4.dirty())
+                {
+                    GsParamBoolean res;
+                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.type = GsInquiredType::GENERAL_SETTING4;
+                    res.settingValue = mGsParamBool4.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    SendCommandACK(GsParamBoolean, res);
+                    mGsParamBool4.commit();
+                }
             }
         }
 
         /* Safe Listening */
         if (mSafeListeningPreviewMode.dirty())
         {
+            using namespace v2::t2;
             if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
             {
-
-            } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+                SafeListeningSetParamSL res;
+                res.base.type = SafeListeningInquiredType::SAFE_LISTENING_HBS_1;
+                res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SafeListeningSetParamSL, res);
+                mSafeListeningPreviewMode.commit();
+            }
+            else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
             {
-
-            } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+                SafeListeningSetParamSL res;
+                res.base.type = SafeListeningInquiredType::SAFE_LISTENING_HBS_2;
+                res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SafeListeningSetParamSL, res);
+                mSafeListeningPreviewMode.commit();
+            }
+            else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
             {
-
-            } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+                SafeListeningSetParamSL res;
+                res.base.type = SafeListeningInquiredType::SAFE_LISTENING_TWS_1;
+                res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SafeListeningSetParamSL, res);
+                mSafeListeningPreviewMode.commit();
+            }
+            else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
             {
-
+                SafeListeningSetParamSL res;
+                res.base.type = SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
+                res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                SendCommandACK(SafeListeningSetParamSL, res);
+                mSafeListeningPreviewMode.commit();
             }
         }
         co_return MDR_HEADPHONES_TASK_COMMIT_OK;
@@ -724,11 +960,13 @@ int mdrHeadphonesRequestSync(MDRHeadphones* p)
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
     return h->Invoke(h->RequestSync());
 }
+
 int mdrHeadphonesRequestCommit(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
     return h->Invoke(h->RequestCommit());
 }
+
 const char* mdrHeadphonesGetLastError(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);

@@ -1437,9 +1437,9 @@ namespace mdr::v2::t1
     // - AUTO_POWER_OFF
     struct PowerParamAutoPowerOff
     {
-        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_SET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
         // CODEGEN Field type EnumRange PowerInquiredType::AUTO_POWER_OFF
-        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::AUTO_POWER_OFF};
+        PowerBase base{Command::POWER_SET_PARAM, PowerInquiredType::AUTO_POWER_OFF};
         AutoPowerOffElements currentPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x2
         AutoPowerOffElements lastSelectPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x3
 
@@ -1450,9 +1450,9 @@ namespace mdr::v2::t1
     // - AUTO_POWER_OFF_WEARING_DETECTION
     struct PowerParamAutoPowerOffWithWearingDetection
     {
-        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
+        // CODEGEN Field command EnumRange Command::POWER_GET_PARAM Command::POWER_SET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM
         // CODEGEN Field type EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
-        PowerBase base{Command::POWER_GET_PARAM, PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION};
+        PowerBase base{Command::POWER_SET_PARAM, PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION};
         AutoPowerOffWearingDetectionElements currentPowerOffElements{
             AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
         AutoPowerOffWearingDetectionElements lastSelectPowerOffElements{
@@ -1541,7 +1541,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM
         // CODEGEN Field type EnumRange EqEbbInquiredType::PRESET_EQ EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE
-        EqEbbBase base{Command::EQEBB_RET_PARAM, EqEbbInquiredType::PRESET_EQ};
+        EqEbbBase base{Command::EQEBB_SET_PARAM, EqEbbInquiredType::PRESET_EQ};
         EqPresetId presetId{EqPresetId::OFF}; // 0x2
         MDRPodArray<UInt8> bands; // 0x3, 0x4-
 
@@ -1608,7 +1608,13 @@ namespace mdr::v2::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmGetParam);
     };
+    struct NcAsmBase
+    {
+        Command command;
+        NcAsmInquiredType type; // 0x1
 
+        MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmBase);
+    };
 
     // 0x1-0x3
     struct NcAsmParamBase
@@ -1626,7 +1632,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
         // CODEGEN Field type EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
-        NcAsmParamBase base;
+        NcAsmParamBase base{ .command = Command::NCASM_SET_PARAM, .type = NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS };
         NcAsmMode ncAsmMode; // 0x4
         AmbientSoundMode ambientSoundMode; // 0x5
         UInt8 ambientSoundLevelValue; // 0x6
@@ -1640,7 +1646,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
         // CODEGEN Field type EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
-        NcAsmParamBase base;
+        NcAsmParamBase base{ .command = Command::NCASM_SET_PARAM, .type = NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA };
         NcAsmMode ncAsmMode; // 0x4
         AmbientSoundMode ambientSoundMode; // 0x5
         UInt8 ambientSoundLevelValue; // 0x6
@@ -1656,7 +1662,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
         // CODEGEN Field type EnumRange NcAsmInquiredType::ASM_ON_OFF
-        NcAsmParamBase base;
+        NcAsmParamBase base{ .command = Command::NCASM_SET_PARAM, .type = NcAsmInquiredType::ASM_ON_OFF };
         AmbientSoundMode ambientSoundMode; // 0x4
         NcAsmOnOffValue ambientSoundValue; // 0x5
 
@@ -1669,7 +1675,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
         // CODEGEN Field type EnumRange NcAsmInquiredType::ASM_SEAMLESS
-        NcAsmParamBase base;
+        NcAsmParamBase base{ .command = Command::NCASM_SET_PARAM, .type = NcAsmInquiredType::ASM_SEAMLESS };
         AmbientSoundMode ambientSoundMode; // 0x4
         UInt8 ambientSoundLevelValue; // 0x5
 
@@ -1682,7 +1688,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM
         // CODEGEN Field type EnumRange NcAsmInquiredType::NC_AMB_TOGGLE
-        NcAsmParamBase base;
+        NcAsmBase base{ .command = Command::NCASM_SET_PARAM, .type = NcAsmInquiredType::NC_AMB_TOGGLE };
         Function function; // 0x2
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmParamNcAmbToggle);
     };
@@ -2012,7 +2018,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM
         // CODEGEN Field type EnumRange PlayInquiredType::MUSIC_VOLUME PlayInquiredType::CALL_VOLUME PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE
-        PlayParamBase base{Command::PLAY_RET_PARAM, PlayInquiredType::MUSIC_VOLUME};
+        PlayParamBase base{Command::PLAY_SET_PARAM, PlayInquiredType::MUSIC_VOLUME};
         UInt8 volumeValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PlayParamPlaybackControllerVolume);
@@ -2103,7 +2109,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM
         // CODEGEN Field settingType EnumRange GsSettingType::BOOLEAN_TYPE
-        GsParamBase base{Command::GENERAL_SETTING_RET_PARAM, GsInquiredType::GENERAL_SETTING1,
+        GsParamBase base{Command::GENERAL_SETTING_SET_PARAM, GsInquiredType::GENERAL_SETTING1,
                          GsSettingType::BOOLEAN_TYPE};
         GsSettingValue settingValue; // 0x3
 
@@ -2181,7 +2187,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
         // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::CONNECTION_MODE};
         PriorMode settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamConnection);
@@ -2193,7 +2199,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
         // CODEGEN Field type EnumRange AudioInquiredType::UPSCALING
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPSCALING};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::UPSCALING};
         UpscalingTypeAutoOff settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamUpscaling);
@@ -2203,7 +2209,7 @@ namespace mdr::v2::t1
     struct AudioStatusCommon
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPSCALING};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::UPSCALING};
         MessageMdrV2EnableDisable status;
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioStatusCommon);
@@ -2214,7 +2220,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
         // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS};
         PriorMode settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamConnectionWithLdacStatus);
@@ -2226,7 +2232,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM
         // CODEGEN Field type EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO};
         PriorMode settingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioRetParamConnectionModeClassicAudioLeAudio);
@@ -2238,7 +2244,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
         // CODEGEN Field type EnumRange AudioInquiredType::BGM_MODE
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::BGM_MODE};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::BGM_MODE};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
         RoomSize targetRoomSize; // 0x3
 
@@ -2251,7 +2257,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
         // CODEGEN Field type EnumRange AudioInquiredType::UPMIX_CINEMA
-        AudioBase base{Command::AUDIO_RET_PARAM, AudioInquiredType::UPMIX_CINEMA};
+        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::UPMIX_CINEMA};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioParamUpmixCinema);
@@ -2341,7 +2347,7 @@ namespace mdr::v2::t1
 
     struct SystemBase
     {
-        Command command{Command::SYSTEM_RET_PARAM};
+        Command command{Command::SYSTEM_SET_PARAM};
         SystemInquiredType type; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SystemBase);
@@ -2364,7 +2370,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
         // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE1 SystemInquiredType::SMART_TALKING_MODE_TYPE2
-        SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
+        SystemBase base{Command::SYSTEM_SET_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE1};
         MessageMdrV2EnableDisable onOffValue; // 0x2
         MessageMdrV2EnableDisable previewModeOnOffValue; // 0x3
 
@@ -2376,7 +2382,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM
         // CODEGEN Field type EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
-        SystemBase base{Command::SYSTEM_RET_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS};
+        SystemBase base{Command::SYSTEM_SET_PARAM, SystemInquiredType::ASSIGNABLE_SETTINGS};
         MDRPodArray<Preset> presets;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemParamAssignableSettings);
@@ -2594,7 +2600,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM
         // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE2
-        SystemExtBase base{Command::SYSTEM_RET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE2};
+        SystemExtBase base{Command::SYSTEM_SET_EXT_PARAM, SystemInquiredType::SMART_TALKING_MODE_TYPE2};
         DetectSensitivity detectSensitivity; // 0x2
         ModeOutTime modeOffTime; // 0x3
 

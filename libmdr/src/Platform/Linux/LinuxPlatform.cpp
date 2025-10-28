@@ -29,7 +29,7 @@ struct MDRConnectionLinux
             .freeDevicesList = FreeDevicesList,
             .getLastError = GetLastError
         }),
-        lastError(MDR_DEFAULT_ERROR_STRING), dbusConn(dbus_open_system_bus()),
+        lastError(""), dbusConn(dbus_open_system_bus()),
         fd(0)
     {
     }
