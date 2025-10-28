@@ -796,8 +796,8 @@ namespace mdr
             return HandlePlaybackStatusT1(this, cmd);
         case GENERAL_SETTING_RET_CAPABILITY:
             return HandleGsCapabilityT1(this, cmd);
-        case GENERAL_SETTING_RET_STATUS:
-        case GENERAL_SETTING_NTFY_STATUS:
+        case GENERAL_SETTING_RET_PARAM:
+        case GENERAL_SETTING_NTFY_PARAM:
             return HandleGsParamT1(this, cmd);
         case AUDIO_RET_CAPABILITY:
             return HandleAudioCapabilityT1(this, cmd);

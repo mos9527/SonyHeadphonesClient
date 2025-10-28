@@ -765,7 +765,7 @@ namespace mdr::v2::t1
         FAST_REWIND = 0x09,
     };
 
-    enum class PlaybackNameStatus
+    enum class PlaybackNameStatus : UInt8
     {
         UNSETTLED = 0,
         NOTHING = 1,
@@ -823,7 +823,7 @@ namespace mdr::v2::t1
         TURKISH = 0x10,
     };
 
-    enum class GsStringFormat
+    enum class GsStringFormat : UInt8
     {
         RAW_NAME = 0x00,
         ENUM_NAME = 0x01,

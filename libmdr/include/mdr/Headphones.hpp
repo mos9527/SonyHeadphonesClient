@@ -165,6 +165,10 @@ namespace mdr
          */
         [[nodiscard]] bool IsReady() const;
         /**
+         * @brief Check if there's any @ref MDRProperty that's dirty.
+         */
+        [[nodiscard]] bool IsDirty() const;
+        /**
          * @brief Schedules the task to be run on the next @ref MoveNext call.
          * @return @ref MDR_RESULT_OK if task has been scheduled, @ref MDR_RESULT_INPROGRESS if _another_ task
          *         is still being executed.

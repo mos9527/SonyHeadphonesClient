@@ -41,6 +41,24 @@ namespace mdr
         return !mTask;
     }
 
+    bool MDRHeadphones::IsDirty() const
+    {
+        bool dirty = mNcAsmEnabled.dirty() || mNcAsmFocusOnVoice.dirty() || mNcAsmAmbientLevel.dirty();
+        dirty |= mNcAsmButtonFunction.dirty() || mNcAsmMode.dirty() || mNcAsmAutoAsmEnabled.dirty();
+        dirty |= mNcAsmNoiseAdaptiveSensitivity.dirty() || mPowerAutoOff.dirty() || mPlayPause.dirty();
+        dirty |= mPowerAutoOffWearingDetection.dirty() || mPlayVolume.dirty() || mGsParamBool1.dirty();
+        dirty |= mGsParamBool2.dirty() || mGsParamBool3.dirty() || mGsParamBool4.dirty();
+        dirty |= mUpscalingType.dirty() || mUpscalingAvailable.dirty() || mUpscalingEnabled.dirty();
+        dirty |= mAudioPriorityMode.dirty() || mBGMModeEnabled.dirty() || mBGMModeRoomSize.dirty();
+        dirty |= mUpmixCinemaEnabled.dirty() || mAutoPauseEnabled.dirty() || mTouchFunctionLeft.dirty();
+        dirty |= mTouchFunctionRight.dirty() || mSpeakToChatEnabled.dirty() || mSpeakToChatDetectSensitivity.dirty();
+        dirty |= mSpeakToModeOutTime.dirty() || mHeadGestureEnabled.dirty() || mEqAvailable.dirty();
+        dirty |= mEqPresetId.dirty() || mEqClearBass.dirty() || mEqConfig.dirty();
+        dirty |= mVoiceGuidanceEnabled.dirty() || mVoiceGuidanceVolume.dirty() || mPairingMode.dirty();
+        dirty |= mMultipointDeviceMac.dirty() || mSafeListeningPreviewMode.dirty();
+        return dirty;
+    }
+
     int MDRHeadphones::Receive()
     {
         char buf[kMDRMaxPacketSize];
@@ -665,7 +683,7 @@ namespace mdr
                 using namespace v2::t1;
                 SystemParamAssignableSettings res;
                 res.base.command = Command::SYSTEM_SET_PARAM;
-                res.presets.value = { mTouchFunctionLeft.desired, mTouchFunctionRight.desired };
+                res.presets.value = {mTouchFunctionLeft.desired, mTouchFunctionRight.desired};
                 SendCommandACK(SystemParamAssignableSettings, res);
                 mTouchFunctionLeft.commit(), mTouchFunctionRight.commit();
             }
@@ -680,7 +698,9 @@ namespace mdr
                 SystemParamCommon res;
                 res.base.command = Command::SYSTEM_SET_PARAM;
                 res.base.type = SystemInquiredType::HEAD_GESTURE_ON_OFF;
-                res.settingValue = mHeadGestureEnabled.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.settingValue = mHeadGestureEnabled.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(SystemParamCommon, res);
                 mHeadGestureEnabled.commit();
             }
@@ -724,7 +744,9 @@ namespace mdr
                 SystemParamCommon res;
                 res.base.command = Command::SYSTEM_SET_PARAM;
                 res.base.type = SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING;
-                res.settingValue = mAutoPauseEnabled.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.settingValue = mAutoPauseEnabled.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(SystemParamCommon, res);
                 mAutoPauseEnabled.commit();
             }
@@ -736,7 +758,9 @@ namespace mdr
             VoiceGuidanceParamSettingMtk res;
             res.base.command = Command::VOICE_GUIDANCE_SET_PARAM;
             res.base.type = VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH;
-            res.settingValue = mVoiceGuidanceEnabled.desired ? v2::MessageMdrV2OnOffSettingValue::ON : v2::MessageMdrV2OnOffSettingValue::OFF;
+            res.settingValue = mVoiceGuidanceEnabled.desired
+                ? v2::MessageMdrV2OnOffSettingValue::ON
+                : v2::MessageMdrV2OnOffSettingValue::OFF;
             SendCommandACK(VoiceGuidanceParamSettingMtk, res);
             mVoiceGuidanceVolume.commit();
         }
@@ -820,7 +844,9 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.base.type = SafeListeningInquiredType::SAFE_LISTENING_HBS_1;
                 res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
@@ -829,7 +855,9 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.base.type = SafeListeningInquiredType::SAFE_LISTENING_HBS_2;
                 res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
@@ -838,7 +866,9 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.base.type = SafeListeningInquiredType::SAFE_LISTENING_TWS_1;
                 res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
@@ -847,7 +877,9 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.base.type = SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
                 res.previewMode = v2::MessageMdrV2EnableDisable::DISABLE;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired ? v2::MessageMdrV2EnableDisable::ENABLE : v2::MessageMdrV2EnableDisable::DISABLE;
+                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                    ? v2::MessageMdrV2EnableDisable::ENABLE
+                    : v2::MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
@@ -959,6 +991,16 @@ int mdrHeadphonesRequestSync(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
     return h->Invoke(h->RequestSync());
+}
+
+int mdrHeadphonesIsDirty(MDRHeadphones* p)
+{
+    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+    if (h->IsDirty())
+    {
+        return MDR_RESULT_INPROGRESS;
+    }
+    return MDR_RESULT_OK;
 }
 
 int mdrHeadphonesRequestCommit(MDRHeadphones* p)
