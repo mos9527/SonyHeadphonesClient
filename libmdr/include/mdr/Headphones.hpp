@@ -368,14 +368,14 @@ namespace mdr
             return false;
         }
 
-        // Friend of Poll, so friend of yours too.
+        // Friend of PollEvents, so friend of yours too.
         int Receive();
-        // Friend of Poll, so friend of yours too.
+        // Friend of PollEvents, so friend of yours too.
         int Send();
         /**
          * @brief Dequeues a _complete_ command payload and spawns appropriate coroutines - and advances them _here_.
          * @note  This is a no-op if buffer is incomplete and no complete command payload can be produced.
-         * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically.
+         * @note  Non-blocking. Need @ref Receive, @ref Sent to be polled periodically by @ref PollEvents
          * @return One of MDR_HEADPHONES_* event types
          */
         int MoveNext();
@@ -384,6 +384,8 @@ namespace mdr
          *        and allow subsequent @ref Invoke calls to take effect.
          * @return true if a task has been completed _here_. No tasks, or in-progress results in false.
          * @note Tasks are spawned with @ref Invoke.
+         * @note Tasks are NOT resumed here - instead, they are always started by @ref Invoke, and possibly awaken by @ref Awake
+         *       and start execution at the respective call site.
          */
         bool TaskMoveNext(int& result);
         /**
