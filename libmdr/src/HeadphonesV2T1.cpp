@@ -160,8 +160,147 @@ namespace mdr
         }
         return MDR_HEADPHONES_EVT_UNHANDLED;
     }
-
     int HandlePowerStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        PowerBase base;
+        PowerBase::Deserialize(cmd.data(), base);
+        using enum PowerInquiredType;
+        switch (base.type)
+        {
+        case BATTERY:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+            {
+                PowerRetStatusBattery res;
+                PowerRetStatusBattery::Deserialize(cmd.data(), res);
+                self->mBatteryL = {
+                    res.batteryStatus.batteryLevel,
+                    0xFF,
+                    res.batteryStatus.chargingStatus
+                };
+                return MDR_HEADPHONES_EVT_BATTERY;
+            }
+            break;
+        }
+        case LEFT_RIGHT_BATTERY:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+            {
+                PowerRetStatusLeftRightBattery res;
+                PowerRetStatusLeftRightBattery::Deserialize(cmd.data(), res);
+                self->mBatteryL = {
+                    res.batteryStatus.leftBatteryLevel,
+                    0xFF,
+                    res.batteryStatus.leftChargingStatus
+                };
+                self->mBatteryR = {
+                    res.batteryStatus.rightBatteryLevel,
+                    0xFF,
+                    res.batteryStatus.rightChargingStatus
+                };
+                return MDR_HEADPHONES_EVT_BATTERY;
+            }
+            break;
+        }
+        case CRADLE_BATTERY:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+            {
+                PowerRetStatusCradleBattery res;
+                PowerRetStatusCradleBattery::Deserialize(cmd.data(), res);
+                self->mBatteryCase = {
+                    res.batteryStatus.batteryLevel,
+                    0xFF,
+                    res.batteryStatus.chargingStatus
+                };
+                return MDR_HEADPHONES_EVT_BATTERY;
+            }
+            break;
+        }
+        case BATTERY_WITH_THRESHOLD:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+            {
+                PowerRetStatusBatteryThreshold res;
+                PowerRetStatusBatteryThreshold::Deserialize(cmd.data(), res);
+                self->mBatteryL = {
+                    res.batteryStatus.batteryStatus.batteryLevel,
+                    res.batteryStatus.batteryThreshold,
+                    res.batteryStatus.batteryStatus.chargingStatus
+                };
+                return MDR_HEADPHONES_EVT_BATTERY;
+            }
+            break;
+        }
+        case LR_BATTERY_WITH_THRESHOLD:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+            {
+                PowerRetStatusLeftRightBatteryThreshold res;
+                PowerRetStatusLeftRightBatteryThreshold::Deserialize(cmd.data(), res);
+                self->mBatteryL = {
+                    res.batteryStatus.leftBatteryLevel,
+                    res.leftBatteryThreshold,
+                    res.batteryStatus.leftChargingStatus
+                };
+                self->mBatteryR = {
+                    res.batteryStatus.rightBatteryLevel,
+                    res.rightBatteryThreshold,
+                    res.batteryStatus.rightChargingStatus
+                };
+                return MDR_HEADPHONES_EVT_BATTERY;
+            }
+            break;
+        }
+        case CRADLE_BATTERY_WITH_THRESHOLD:
+        {
+            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+            {
+                PowerRetStatusCradleBatteryThreshold res;
+                PowerRetStatusCradleBatteryThreshold::Deserialize(cmd.data(), res);
+                self->mBatteryL = {
+                    res.batteryStatus.batteryStatus.batteryLevel,
+                    res.batteryStatus.batteryThreshold,
+                    res.batteryStatus.batteryStatus.chargingStatus
+                };
+                return MDR_HEADPHONES_EVT_BATTERY;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_EVT_UNHANDLED;
+    }
+    int HandlePlayParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        PlayParamBase base;
+        PlayParamBase::Deserialize(cmd.data(), base);
+        using enum PlayInquiredType;
+        switch (base.type)
+        {
+        case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
+        {
+            PlayParamPlaybackControllerName res;
+            PlayParamPlaybackControllerName::Deserialize(cmd.data(), res);
+            self->mPlayTrackTitle = res.playbackNames.value[0].playbackName.value;
+            self->mPlayTrackAlbum = res.playbackNames.value[1].playbackName.value;
+            self->mPlayTrackArtist = res.playbackNames.value[2].playbackName.value;
+            return MDR_HEADPHONES_EVT_PLAYBACK_METADATA;
+        }
+        case MUSIC_VOLUME:
+        {
+            PlayParamPlaybackControllerVolume res;
+            PlayParamPlaybackControllerVolume::Deserialize(cmd.data(), res);
+            self->mPlayVolume.overwrite(res.volumeValue);
+            return MDR_HEADPHONES_EVT_PLAYBACK_VOLUME;
+        }
+        default:
+            break;
+        }
+        return MDR_HEADPHONES_EVT_UNHANDLED;
+    }
+    int HandlePowerParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PowerBase base;
         PowerBase::Deserialize(cmd.data(), base);
@@ -207,7 +346,7 @@ namespace mdr
         {
             PlayStatusPlaybackController res;
             PlayStatusPlaybackController::Deserialize(cmd.data(), res);
-            self->mPlaybackStatus.overwrite(res.playbackStatus);
+            self->mPlayPause.overwrite(res.playbackStatus);
             return MDR_HEADPHONES_EVT_PLAYBACK_METADATA;
         }
         default:
@@ -225,22 +364,22 @@ namespace mdr
         {
         case GENERAL_SETTING1:
         {
-            self->mGsCapability1.overwrite({res.settingType, res.settingInfo});
+            self->mGsCapability1 = {res.settingType, res.settingInfo};
             return MDR_HEADPHONES_EVT_GENERAL_SETTING_1;
         }
         case GENERAL_SETTING2:
         {
-            self->mGsCapability2.overwrite({res.settingType, res.settingInfo});
+            self->mGsCapability2 = {res.settingType, res.settingInfo};
             return MDR_HEADPHONES_EVT_GENERAL_SETTING_2;
         }
         case GENERAL_SETTING3:
         {
-            self->mGsCapability3.overwrite({res.settingType, res.settingInfo});
+            self->mGsCapability3 = {res.settingType, res.settingInfo};
             return MDR_HEADPHONES_EVT_GENERAL_SETTING_3;
         }
         case GENERAL_SETTING4:
         {
-            self->mGsCapability4.overwrite({res.settingType, res.settingInfo});
+            self->mGsCapability4 = {res.settingType, res.settingInfo};
             return MDR_HEADPHONES_EVT_GENERAL_SETTING_4;
         }
         default:
@@ -646,6 +785,12 @@ namespace mdr
         case POWER_RET_STATUS:
         case POWER_NTFY_STATUS:
             return HandlePowerStatusT1(this, cmd);
+        case PLAY_RET_PARAM:
+        case PLAY_NTFY_PARAM:
+            return HandlePlayParamT1(this, cmd);
+        case POWER_RET_PARAM:
+        case POWER_NTFY_PARAM:
+            return HandlePowerParamT1(this, cmd);
         case PLAY_RET_STATUS:
         case PLAY_NTFY_STATUS:
             return HandlePlaybackStatusT1(this, cmd);

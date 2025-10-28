@@ -238,12 +238,33 @@ namespace mdr
         UInt8 mPairedDevicesPlaybackDeviceIndex{};
 
         int mSafeListeningSoundPressure{};
+
+        struct BatteryState
+        {
+            UInt8 level{};
+            UInt8 threshold{};
+            v2::t1::BatteryChargingStatus charging{};
+        };
+        BatteryState mBatteryL, mBatteryR, mBatteryCase;
+
+        String mPlayTrackTitle;
+        String mPlayTrackAlbum;
+        String mPlayTrackArtist;
+
+        struct GsCapability
+        {
+            v2::t1::GsSettingType type;
+            v2::t1::GsSettingInfo value;
+        };
+
+        GsCapability mGsCapability1, mGsCapability2,
+                     mGsCapability3, mGsCapability4;
 #pragma endregion
 
 #pragma region Properties
         MDRProperty<bool> mNcAsmEnabled;
         MDRProperty<bool> mNcAsmFocusOnVoice;
-        MDRProperty<UInt8> mNcAsmAmbientLevel; // 0-20. 0 is not possible on the App.
+        MDRProperty<UInt8> mNcAsmAmbientLevel; // [0,20] - 0 is not possible on the App.
         MDRProperty<v2::t1::Function> mNcAsmButtonFunction;
         MDRProperty<v2::t1::NcAsmMode> mNcAsmMode;
         MDRProperty<bool> mNcAsmAutoAsmEnabled; // WH-1000XM6+
@@ -252,16 +273,10 @@ namespace mdr
         MDRProperty<v2::t1::AutoPowerOffElements> mPowerAutoOff;
         MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPowerAutoOffWearingDetection;
 
-        MDRProperty<v2::t1::PlaybackStatus> mPlaybackStatus;
+        MDRProperty<v2::t1::PlaybackStatus> mPlayPause;
+        MDRProperty<UInt8> mPlayVolume; // [0,30]
 
-        struct GsCapability
-        {
-            v2::t1::GsSettingType type;
-            v2::t1::GsSettingInfo value;
-        };
 
-        MDRProperty<GsCapability> mGsCapability1, mGsCapability2,
-                                  mGsCapability3, mGsCapability4;
         MDRProperty<bool> mGsParamBool1, mGsParamBool2,
                           mGsParamBool3, mGsParamBool4;
 
@@ -285,7 +300,9 @@ namespace mdr
 
         MDRProperty<bool> mHeadGestureEnabled;
 
+
         MDRProperty<bool> mEqAvailable;
+        MDRProperty<v2::t1::EqPresetId> mEqPresetId;
         MDRProperty<int> mEqClearBass;
         // Non-zero band count of either 5: [400,1k,2.5k,6.3k,16k] or 10: [31,63,125,250,500,1k,2k,4k,8k,16k]
         MDRProperty<Vector<int>> mEqConfig;

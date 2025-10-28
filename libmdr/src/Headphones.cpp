@@ -429,6 +429,193 @@ namespace mdr
 
     MDRTask MDRHeadphones::RequestCommit()
     {
+        /* NC/ASM */
+        if (mNcAsmAmbientLevel.dirty() || mNcAsmEnabled.dirty() || mNcAsmMode.dirty() ||
+            mNcAsmFocusOnVoice.dirty() || mNcAsmAutoAsmEnabled.dirty() || mNcAsmNoiseAdaptiveSensitivity.dirty())
+        {
+
+        }
+
+        /* NC/AMB Mode */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        {
+            if (mNcAsmMode.dirty())
+            {
+
+            }
+        }
+
+        /* Volume */
+        if (mPlayVolume.dirty())
+        {
+
+        }
+
+        /* Multipoint Switch */
+        if (mMultipointDeviceMac.dirty())
+        {
+
+        }
+
+        /* Pairing Mode */
+        if (mPairingMode.dirty())
+        {
+
+        }
+
+        /* STC */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+        {
+            if (mSpeakToChatEnabled.dirty())
+            {
+
+            }
+
+            if (mSpeakToChatDetectSensitivity.dirty() || mSpeakToModeOutTime.dirty())
+            {
+
+            }
+        }
+
+        /* Listening Mode */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
+        {
+            if (mBGMModeEnabled.dirty())
+            {
+
+            }
+            if (mUpmixCinemaEnabled.dirty())
+            {
+
+            }
+        }
+
+        /* EQ */
+        if (mEqPresetId.dirty())
+        {
+
+        }
+        if (mEqConfig.dirty())
+        {
+
+        }
+
+        /* Connection Quality */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+        {
+            if (mAudioPriorityMode.dirty())
+            {
+
+            }
+        }
+
+        /* DSEE */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            if (mUpscalingEnabled.dirty())
+            {
+
+            }
+        }
+
+        /* Touch Functions */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
+        {
+            if (mTouchFunctionLeft.dirty() || mTouchFunctionRight.dirty())
+            {
+
+            }
+        }
+
+        /* Head Gesture */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+        {
+            if (mHeadGestureEnabled.dirty())
+            {
+
+            }
+        }
+
+        /* Auto Power Off */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
+        {
+            if (mPowerAutoOff.dirty())
+            {
+
+            }
+        } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        {
+            if (mPowerAutoOffWearingDetection.dirty())
+            {
+
+            }
+        }
+
+        /* Pause when device is removed */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+        {
+            if (mAutoPauseEnabled.dirty())
+            {
+
+            }
+        }
+
+        /* Voice Guidance */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
+        {
+            if (mVoiceGuidanceEnabled.dirty() || mVoiceGuidanceVolume.dirty())
+            {
+
+            }
+        }
+
+        /* General Settings */
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_1))
+        {
+            if (mGsParamBool1.dirty())
+            {
+
+            }
+        }
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_2))
+        {
+            if (mGsParamBool2.dirty())
+            {
+
+            }
+        }
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_3))
+        {
+            if (mGsParamBool3.dirty())
+            {
+
+            }
+        }
+        if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::GENERAL_SETTING_4))
+        {
+            if (mGsParamBool4.dirty())
+            {
+
+            }
+        }
+
+        /* Safe Listening */
+        if (mSafeListeningPreviewMode.dirty())
+        {
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_1))
+            {
+
+            } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_HBS_2))
+            {
+
+            } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_1))
+            {
+
+            } else if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::SAFE_LISTENING_TWS_2))
+            {
+
+            }
+        }
         co_return MDR_HEADPHONES_TASK_COMMIT_OK;
     }
 #pragma endregion
