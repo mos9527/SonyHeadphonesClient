@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <cstring>
 
-#define MDR_DEFAULT_ERROR_STRING "Nothing to see here"
-
 /**
  * @brief Converts UUID string to byte array
  * @param szSrc Zero-terminated UUID string e.g. 956C7B26-D49A-4BA8-B03F-B17D393CB6E2
@@ -17,8 +15,7 @@ inline int serviceUUIDtoBytes(const char* szSrc, uint8_t* dst)
     if (strlen(szSrc) != 36)
         return -1;
     unsigned int buf[16];
-    int ret;
-    ret = sscanf(szSrc,
+    int ret = sscanf(szSrc,
                  "%2x%2x%2x%2x-%2x%2x-%2x%2x-%2x%2x-%2x%2x%2x%2x%2x%2x",
                  &buf[0], &buf[1], &buf[2], &buf[3],
                  &buf[4], &buf[5], &buf[6], &buf[7],
@@ -33,14 +30,13 @@ inline int serviceUUIDtoBytes(const char* szSrc, uint8_t* dst)
 }
 
 /**
-* @breif Converts a column-seperated Mac address (00:01:02:03:04:05) into a 8-byte int,
+* @breif Converts a column-seperated Mac address (00:01:02:03:04:05) into an 8-byte int,
 *        in little-endian.
 * @returns For the example, in LE: 0x0000000102030405
 */
-inline unsigned long long macAddressToULL(const char* szMacAddres) {
+inline unsigned long long macAddressToULL(const char* szMacAddress) {
     unsigned int buf[6];
-    int ret;
-    ret = sscanf(szMacAddres, "%2x:%2x:%2x:%2x:%2x:%2x", &buf[0], &buf[1], &buf[2], &buf[3], &buf[4], &buf[5]);
+    int ret = sscanf(szMacAddress, "%2x:%2x:%2x:%2x:%2x:%2x", &buf[0], &buf[1], &buf[2], &buf[3], &buf[4], &buf[5]);
     if (ret != 6)
         return ~0ULL;
     union

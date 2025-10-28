@@ -426,6 +426,11 @@ namespace mdr
         }
         co_return MDR_HEADPHONES_TASK_SYNC_OK;
     }
+
+    MDRTask MDRHeadphones::RequestCommit()
+    {
+        co_return MDR_HEADPHONES_TASK_COMMIT_OK;
+    }
 #pragma endregion
     // NOLINTEND
 }
@@ -532,7 +537,11 @@ int mdrHeadphonesRequestSync(MDRHeadphones* p)
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
     return h->Invoke(h->RequestSync());
 }
-
+int mdrHeadphonesRequestCommit(MDRHeadphones* p)
+{
+    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+    return h->Invoke(h->RequestCommit());
+}
 const char* mdrHeadphonesGetLastError(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);

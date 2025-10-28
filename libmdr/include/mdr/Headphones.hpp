@@ -101,10 +101,9 @@ namespace mdr
         T desired{};
         T current{};
 
-        void overwrite(T const& value)
-        {
-            desired = current = value;
-        }
+        void overwrite(T const& value) { desired = current = value; }
+        [[nodiscard]] constexpr bool dirty() const noexcept { return desired != current; }
+        void commit() { current = desired; }
     };
 
     struct MDRHeadphones
@@ -143,6 +142,7 @@ namespace mdr
         // NOLINTEND
 
         MDRConnection* mConn;
+
         explicit MDRHeadphones(MDRConnection* conn) :
             mConn(conn)
         {
@@ -233,6 +233,7 @@ namespace mdr
             String macAddress;
             String name;
         };
+
         Vector<PeripheralDevice> mPairedDevices;
         UInt8 mPairedDevicesPlaybackDeviceIndex{};
 
@@ -303,14 +304,22 @@ namespace mdr
 #pragma region Tasks
         /**
          * @brief Send initialization payloads to the headphones.
-         *        To be used with @ref Invoke
+         * @note  To be used with @ref Invoke.
+         * @return @ref MDR_HEADPHONES_TASK_INIT_OK on completion (returned in @ref PollEvents)
          **/
         MDRTask RequestInit();
         /**
-         * @brief Send query payloads to the headphones, for values that don't automatically update.
-         *        To be used with @ref Invoke
+         * @brief Requests states that the device won't send automatically. (e.g. Battery levels)
+         * @note  To be used with @ref Invoke.
+         * @return @ref MDR_HEADPHONES_TASK_SYNC_OK on completion (returned in @ref PollEvents)
          **/
         MDRTask RequestSync();
+        /**
+         * @brief Requests all changed @ref MDRProperty up until this point to be set on the device
+         * @note  To be used with @ref Invoke.
+        * @return @ref MDR_HEADPHONES_TASK_COMMIT_OK on completion (returned in @ref PollEvents)
+         */
+        MDRTask RequestCommit();
 #pragma endregion
 
     private:
@@ -337,6 +346,7 @@ namespace mdr
             }
             return false;
         }
+
         // Friend of Poll, so friend of yours too.
         int Receive();
         // Friend of Poll, so friend of yours too.
@@ -348,6 +358,13 @@ namespace mdr
          * @return One of MDR_HEADPHONES_* event types
          */
         int MoveNext();
+        /**
+         * @brief Check if the coroutine frame has been completed - and if so, frees the current @ref mTask
+         *        and allow subsequent @ref Invoke calls to take effect.
+         * @return true if a task has been completed _here_. No tasks, or in-progress results in false.
+         * @note Tasks are spawned with @ref Invoke.
+         */
+        bool TaskMoveNext(int& result);
         /**
          * @note Queues a command payload to be sent through @ref Send. You generally don't need to call this directly.
          * @note Non-blocking. Need @ref Sent to be polled periodically.
@@ -369,14 +386,6 @@ namespace mdr
             size_t size = T::Serialize(command, buf);
             SendCommandImpl({buf, buf + size}, type, mSeqNumber);
         }
-
-        /**
-         * @brief Check if the coroutine frame has been completed - and if so, frees the current @ref mTask
-         *        and allow subsequent @ref Invoke calls to take effect.
-         * @return true if a task has been completed _here_. No tasks, or in-progress results in false.
-         * @note Tasks are spawned with @ref Invoke.
-         */
-        bool TaskMoveNext(int& result);
         /**
          * @brief Handles current command, and generates an event associated with it.
          * @return One of MDR_HEADPHONES_* event types

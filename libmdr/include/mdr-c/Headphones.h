@@ -33,21 +33,36 @@ int mdrHeadphonesPollEvents(MDRHeadphones*);
  */
 int mdrHeadphonesRequestIsReady(MDRHeadphones*);
 /**
- * @brief Send initialization payloads to the headphones.
+ * @brief Send initialization payloads to the device.
  * @note  The official app does the same things - so you should too.
  * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
- *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_INITIALIZED can be polled
+ *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_TASK_INIT_OK can be polled
  *         upon completion.
  */
 int mdrHeadphonesRequestInit(MDRHeadphones*);
 /**
- * @brief Send query payloads to the headphones, for values that don't automatically update
+ * @brief Send query payloads to the device, for values that don't automatically update
  *        (e.g. Battery levels)
  * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
- *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_SYNC_COMPLETED can be polled
+ *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_TASK_SYNC_OK can be polled
  *         upon completion.
  */
 int mdrHeadphonesRequestSync(MDRHeadphones*);
+/**
+ * @brief Sends all changed properties up until this point for them to be set on the device.
+ * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
+ *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_TASK_COMMIT_OK can be polled
+ *         upon completion.
+ */
+int mdrHeadphonesRequestCommit(MDRHeadphones*);
+/**
+ * TODO:
+ *  Figure out how we can expose the bajillion of Headphone @ref MDRProperty to the C interface.
+ *  And basically this _sucks_. Almost all of the properties has their own bespoke structs.
+ *  Thus a monolithic export isn't an option (types!) - so codegen every single one of those
+ *  into their own exports?
+ *  Someone (my future self) planning to make FFI bindings will have to figure this out.
+ */
 /**
  * @brief Get a string describing the last error that occurred.
  * @return A null-terminated string describing the last error.
