@@ -1,5 +1,5 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl2_sdlrenderer2
-#include <stdio.h>
+#include <cstdio>
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
@@ -16,6 +16,7 @@ SDL_Renderer* gRenderer = nullptr;
 
 void mainLoop()
 {
+    ImGuiIO& io = ImGui::GetIO();
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -37,12 +38,14 @@ void mainLoop()
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
+        float scale = ImGui_ImplSDL2_GetContentScaleForWindow(gWindow);
+        ImGui::GetStyle().FontScaleMain = scale;
     }
     gShouldClose |= ShouldClientExit();
     // Rendering
     {
         ImGui::Render();
-        ImGuiIO& io = ImGui::GetIO();
+        SDL_RenderSetScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
         SDL_RenderClear(gRenderer);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), gRenderer);
@@ -54,9 +57,11 @@ void mainLoop()
 #endif
 }
 
-extern "C" int main(int, char**)
+#include "CousineRegular.cpp"
+
+int main(int, char**)
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
     {
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return 1;
@@ -98,9 +103,14 @@ extern "C" int main(int, char**)
         ImGui_ImplSDL2_InitForSDLRenderer(gWindow, gRenderer);
         ImGui_ImplSDLRenderer2_Init(gRenderer);
     }
+    // Load our default font
+    {
+        io.Fonts->Clear();
+        io.Fonts->AddFontFromMemoryCompressedBase85TTF(Cousine_Regular_compressed_data_base85, 15.0f);
+    }
     // Main loop
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainLoop, -1, 1);
 #else
     while (!gShouldClose)

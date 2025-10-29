@@ -28,7 +28,7 @@ set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
 set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
 set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
 set(SDL_POWER OFF CACHE BOOL "" FORCE)
-set(SDL_JOYSTICK ON CACHE BOOL "" FORCE)
+set(SDL_JOYSTICK OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(imgui)
 FetchContent_MakeAvailable(SDL2)
@@ -39,6 +39,7 @@ target_sources(ImGuiSDL2 PRIVATE
         ${imgui_SOURCE_DIR}/imgui_draw.cpp
         ${imgui_SOURCE_DIR}/imgui_tables.cpp
         ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
 
@@ -55,9 +56,10 @@ if (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     set_target_properties(SonyHeadphonesClient PROPERTIES SUFFIX ".js")
     add_custom_command(
             TARGET SonyHeadphonesClient POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Emscripten"
+            COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Emscripten/index.html"
             "${CMAKE_CURRENT_BINARY_DIR}"
             COMMENT "Copying Emscripten files to build directory (${CMAKE_CURRENT_BINARY_DIR})"
+            DEPENDS  "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Emscripten/index.html"
     )
 endif ()

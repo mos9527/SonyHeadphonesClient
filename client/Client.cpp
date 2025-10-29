@@ -14,7 +14,7 @@ bool DrawWindow()
 {
     auto& io = ImGui::GetIO();
     ImGui::SetNextWindowPos({0, 0});
-    ImGui::SetNextWindowSize(io.DisplaySize * io.DisplayFramebufferScale);
+    ImGui::SetNextWindowSize(io.DisplaySize);
     static bool open = true;
     ImGui::Begin("##", &open,
                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
@@ -26,6 +26,6 @@ bool DrawWindow()
 bool ShouldClientExit()
 {
     ImGui::SetCurrentContext(ImGui::GetCurrentContext());
-    DrawWindow();
+    ImGui::ShowDemoWindow();
     return false;
 }
