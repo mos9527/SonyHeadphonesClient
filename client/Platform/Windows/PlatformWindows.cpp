@@ -1,4 +1,17 @@
 #include "../Platform.hpp"
+#include <mdr-c/Platform/PlatformWindows.h>
 
-void clientPlatformInit() {}
-void clientPlatformDestroy() {}
+MDRConnectionWindows* gConn;
+
+void clientPlatformInit()
+{
+    gConn = mdrConnectionWindowsCreate();
+}
+void clientPlatformDestroy()
+{
+    mdrConnectionWindowsDestroy(gConn);
+}
+MDRConnection* clientPlatformConnectionGet()
+{
+    return mdrConnectionWindowsGet(gConn);
+}

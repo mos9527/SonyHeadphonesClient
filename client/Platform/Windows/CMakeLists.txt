@@ -7,3 +7,8 @@ target_sources(
         PUBLIC
         PlatformWindows.cpp
 )
+target_link_libraries(
+        Client_PlatformWindows
+        PUBLIC
+        mdr
+)

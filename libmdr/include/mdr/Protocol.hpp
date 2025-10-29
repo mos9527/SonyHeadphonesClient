@@ -8,11 +8,16 @@
 #include <vector>
 #include <span>
 #include <array>
+#include <source_location>
 
 #include <fmt/format.h>
 #define MDR_CHECK(expr, format_str, ...) \
     if(!(expr)) throw std::runtime_error(fmt::format(format_str __VA_OPT__(,) __VA_ARGS__));
-
+#define MDR_ASSERT(expr) \
+    { \
+    auto const& srcloc = std::source_location::current(); \
+    MDR_CHECK(expr, "Assertion failure.\nExpression:" #expr "\nFunction: {}\nSource:{}#L{}",  srcloc.function_name(), srcloc.file_name(), srcloc.line()) \
+    }
 namespace mdr
 {
     typedef uint8_t UInt8;

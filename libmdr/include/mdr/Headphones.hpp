@@ -143,6 +143,7 @@ namespace mdr
 
         MDRConnection* mConn;
 
+        MDRHeadphones() : mConn(nullptr) {};
         explicit MDRHeadphones(MDRConnection* conn) :
             mConn(conn)
         {
@@ -151,6 +152,9 @@ namespace mdr
         // Pinned.
         MDRHeadphones(MDRHeadphones const&) = delete;
         MDRHeadphones(MDRHeadphones&&) = delete;
+
+        constexpr operator bool() const noexcept { return mConn != nullptr; }
+
         /**
          * @breif Receive commands and process events. This is non-blocking, and should be
          *        run in - for example - your UI loop.
@@ -257,8 +261,8 @@ namespace mdr
 
         struct GsCapability
         {
-            v2::t1::GsSettingType type;
-            v2::t1::GsSettingInfo value;
+            v2::t1::GsSettingType type{};
+            v2::t1::GsSettingInfo value{};
         };
 
         GsCapability mGsCapability1, mGsCapability2,
@@ -359,7 +363,7 @@ namespace mdr
             {
                 return func();
             }
-            catch (std::runtime_error& exc)
+            catch (const std::runtime_error& exc)
             {
                 fmt::println("!!! Exception: {}", exc.what());
                 mLastError = exc.what();

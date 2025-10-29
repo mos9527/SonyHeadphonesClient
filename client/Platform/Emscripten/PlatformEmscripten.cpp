@@ -6,3 +6,7 @@
 
 void clientPlatformInit(){}
 void clientPlatformDestroy() {}
+MDRConnection* clientPlatformConnectionGet()
+{
+    return nullptr;
+}

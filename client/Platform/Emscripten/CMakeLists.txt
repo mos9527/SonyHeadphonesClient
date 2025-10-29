@@ -26,3 +26,8 @@ target_sources(
         Client_PlatformEmscripten PRIVATE
         PlatformEmscripten.cpp
 )
+target_link_libraries(
+        Client_PlatformEmscripten
+        PUBLIC
+        mdr
+)

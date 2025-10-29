@@ -7,3 +7,9 @@ target_sources(
         PUBLIC
         PlatformLinux.cpp
 )
+
+target_link_libraries(
+        Client_PlatformLinux
+        PUBLIC
+        mdr
+)

@@ -919,41 +919,57 @@ const char* mdrResultString(int err)
 
 int mdrConnectionConnect(MDRConnection* conn, const char* macAddress, const char* serviceUUID)
 {
+    if (!conn)
+        return MDR_RESULT_ERROR_NO_CONNECTION;
     return conn->connect(conn->user, macAddress, serviceUUID);
 }
 
 void mdrConnectionDisconnect(MDRConnection* conn)
 {
+    if (!conn)
+        return;
     return conn->disconnect(conn->user);
 }
 
 int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived)
 {
+    if (!conn)
+        return MDR_RESULT_ERROR_NO_CONNECTION;
     return conn->recv(conn->user, dst, size, pReceived);
 }
 
 int mdrConnectionSend(MDRConnection* conn, const char* src, int size, int* pSent)
 {
+    if (!conn)
+        return MDR_RESULT_ERROR_NO_CONNECTION;
     return conn->send(conn->user, src, size, pSent);
 }
 
 int mdrConnectionPoll(MDRConnection* conn, int timeout)
 {
+    if (!conn)
+        return MDR_RESULT_ERROR_NO_CONNECTION;
     return conn->poll(conn->user, timeout);
 }
 
 int mdrConnectionGetDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList, int* pCount)
 {
+    if (!conn)
+        return MDR_RESULT_ERROR_NO_CONNECTION;
     return conn->getDevicesList(conn->user, ppList, pCount);
 }
 
 int mdrConnectionFreeDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList)
 {
+    if (!conn)
+        return MDR_RESULT_ERROR_NO_CONNECTION;
     return conn->freeDevicesList(conn->user, ppList);
 }
 
 const char* mdrConnectionGetLastError(MDRConnection* conn)
 {
+    if (!conn)
+        return "FIXME: nullptr conn";
     return conn->getLastError(conn->user);
 }
 
