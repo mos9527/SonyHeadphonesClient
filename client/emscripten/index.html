@@ -1,0 +1,56 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <title>SonyHeadphonesClient</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black
+        }
+
+        .emscripten {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: block;
+            image-rendering: optimizeSpeed;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+    </style>
+</head>
+<body>
+<canvas class="emscripten" id="canvas"></canvas>
+<script type='text/javascript'>
+    var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function () {
+            return function (text) {
+                text = Array.prototype.slice.call(arguments).join(' ');
+                console.log(text);
+            };
+        })(),
+        printErr: function (text) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            console.info(text);
+        },
+        canvas: (function () {
+            return document.getElementById('canvas');
+        })(),
+        setStatus: () => {
+        },
+        monitorRunDependencies: () => {
+        }
+    };
+</script>
+<script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
+</body>

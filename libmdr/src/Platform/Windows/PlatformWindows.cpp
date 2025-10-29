@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "../Platform.hpp"
-#include <mdr/Platform/Windows/WindowsPlatform.hpp>
+#include <mdr-c/Platform/PlatformWindows.h>
 
 static bool gWSAStartup = false;
 struct MDRConnectionWindows

@@ -1,15 +1,13 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl2_sdlrenderer2
-
-#include "imgui.h"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_sdlrenderer2.h"
+#include <imgui.h>
+#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdlrenderer2.h>
 #include <SDL.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 extern bool ShouldClientExit();
 
-float gMainScale = 1.0;
 bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
@@ -34,10 +32,6 @@ void mainLoop()
     }
     // Start the Dear ImGui frame
     {
-        // Setup DPI scaling
-        gMainScale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.FontScaleDpi = gMainScale;
         // New frame
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
@@ -48,14 +42,14 @@ void mainLoop()
     {
         ImGui::Render();
         ImGuiIO& io = ImGui::GetIO();
-        SDL_RenderSetScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
         SDL_RenderClear(gRenderer);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), gRenderer);
         SDL_RenderPresent(gRenderer);
     }
 #ifdef EMSCRIPTEN
-    emscripten_cancel_main_loop();
+    if (gShouldClose)
+        emscripten_cancel_main_loop();
 #endif
 }
 
@@ -67,12 +61,11 @@ int main(int, char**)
         return 1;
     }
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
-    gMainScale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
     gWindow = SDL_CreateWindow(
         "SonyHeadphonesClient",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800 * gMainScale, 600 * gMainScale,
+        800, 600,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
         );
     if (!gWindow)
@@ -107,12 +100,11 @@ int main(int, char**)
     // Main loop
 
 #ifdef EMSCRIPTEN
-    emscripten_set_main_loop(render_func, -1, 1);
+    emscripten_set_main_loop(mainLoop, -1, 1);
 #else
     while (!gShouldClose)
         mainLoop();
 #endif
-
 
     // Cleanup
     {

@@ -8,7 +8,7 @@
 #include <bluetooth/rfcomm.h>
 
 #include "../Platform.hpp"
-#include <mdr/Platform/Linux/LinuxPlatform.hpp>
+#include <mdr-c/Platform/PlatformLinux.h>
 struct MDRConnectionLinux
 {
     MDRConnection mdrConn;

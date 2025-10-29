@@ -43,8 +43,15 @@ target_include_directories(ImGuiSDL2 PUBLIC
         .
 )
 target_link_libraries(ImGuiSDL2 PUBLIC SDL2::SDL2-static)
-
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL2)
 
-
-
+if (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+    set_target_properties(SonyHeadphonesClient PROPERTIES SUFFIX ".js")
+    add_custom_command(
+            TARGET SonyHeadphonesClient POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/emscripten"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            COMMENT "Copying Emscripten files to build directory (${CMAKE_CURRENT_BINARY_DIR})"
+    )
+endif ()
