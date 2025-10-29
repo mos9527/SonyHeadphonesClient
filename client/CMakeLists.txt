@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.26)
 option(CLIENT_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
 if (CLIENT_BUILD_WITH_ASAN)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        add_compile_options("/fsanitize=address")
-        add_link_options("/fsanitize=address")
+        add_compile_options("/fsanitize=address")        
     else ()
         add_compile_options("-fsanitize=address")
         add_link_options("-fsanitize=address")
@@ -12,12 +11,19 @@ if (CLIENT_BUILD_WITH_ASAN)
 endif ()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
-add_executable(
-        SonyHeadphonesClient
-        SDLMain.cpp
-        Client.cpp
-)
 
+if (MDR_PLATFORM_OS STREQUAL "WIN32")
+    add_executable(SonyHeadphonesClient WIN32 "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest")
+else()
+    add_executable(SonyHeadphonesClient)
+endif()
+
+target_sources(
+    SonyHeadphonesClient
+    PRIVATE
+    SDLMain.cpp
+    Client.cpp
+)
 set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
 set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
 set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
@@ -42,7 +48,7 @@ target_include_directories(ImGuiSDL2 PUBLIC
         ${imgui_SOURCE_DIR}/backends
         .
 )
-target_link_libraries(ImGuiSDL2 PUBLIC SDL2::SDL2-static)
+target_link_libraries(ImGuiSDL2 PUBLIC SDL2::SDL2-static SDL2::SDL2main)
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL2)
 
 if (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
@@ -50,7 +56,7 @@ if (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     add_custom_command(
             TARGET SonyHeadphonesClient POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/emscripten"
+            "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Emscripten"
             "${CMAKE_CURRENT_BINARY_DIR}"
             COMMENT "Copying Emscripten files to build directory (${CMAKE_CURRENT_BINARY_DIR})"
     )

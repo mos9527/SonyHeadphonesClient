@@ -21,15 +21,15 @@ struct MDRConnectionWindows
 
     SOCKET conn;
     MDRConnectionWindows() noexcept :
-        lastError(MDR_DEFAULT_ERROR_STRING), mdrConn({.user = this,
-                                                      .connect = Connect,
-                                                      .disconnect = Disconnect,
-                                                      .recv = Recv,
-                                                      .send = Send,
-                                                      .poll = Poll,
-                                                      .getDevicesList = GetDevicesList,
-                                                      .freeDevicesList = FreeDevicesList,
-                                                      .getLastError = GetLastError}),
+        lastError(""), mdrConn({.user = this,
+                                .connect = Connect,
+                                .disconnect = Disconnect,
+                                .recv = Recv,
+                                .send = Send,
+                                .poll = Poll,
+                                .getDevicesList = GetDevicesList,
+                                .freeDevicesList = FreeDevicesList,
+                                .getLastError = GetLastError}),
         conn(INVALID_SOCKET)
     {
     }

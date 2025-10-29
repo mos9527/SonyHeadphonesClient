@@ -1,4 +1,5 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl2_sdlrenderer2
+#include <stdio.h>
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
@@ -53,7 +54,7 @@ void mainLoop()
 #endif
 }
 
-int main(int, char**)
+extern "C" int main(int, char**)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
