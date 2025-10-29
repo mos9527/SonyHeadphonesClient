@@ -1,10 +1,6 @@
 SonyHeadphonesClient
 ===
 
-Building (CMake)
----
-[README TODO]
-
 Building (Regular CMake)
 ---
 This is no different from your regular CMake projects.
@@ -15,10 +11,14 @@ cd build
 cmake ..
 cmake --build . --target SonyHeadphonesClient
 ```
+
 Building (emscripten)
 ---
 - Install the SDK with `emsdk` and verify your installation - https://emscripten.org/docs/getting_started/downloads.html
-- Run `emcmake cmake ...` in place of all `cmake` commands
+- Run `emcmake cmake ...` in place of configuration.
+  - Or, setup CMake toolchain variables manually with e.g.
+  
+      ```-DCMAKE_TOOLCHAIN_FILE=/usr/lib/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_CROSSCOMPILING_EMULATOR=/usr/lib/emsdk/node/20.18.0_64bit/bin/node```
 - Example usage
 ```bash
 mkdir build

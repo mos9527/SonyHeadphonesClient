@@ -14,6 +14,7 @@ bool gShouldClose = false;
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 
+#include "Platform/Platform.hpp"
 void mainLoop()
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -61,6 +62,7 @@ void mainLoop()
 
 int main(int, char**)
 {
+    clientPlatformInit();
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
     {
         printf("SDL_Init Error: %s\n", SDL_GetError());
@@ -126,6 +128,8 @@ int main(int, char**)
         SDL_DestroyRenderer(gRenderer);
         SDL_DestroyWindow(gWindow);
         SDL_Quit();
+
+        clientPlatformDestroy();
     }
     return 0;
 }

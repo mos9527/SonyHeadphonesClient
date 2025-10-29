@@ -26,6 +26,6 @@ bool DrawWindow()
 bool ShouldClientExit()
 {
     ImGui::SetCurrentContext(ImGui::GetCurrentContext());
-    ImGui::ShowDemoWindow();
+    DrawWindow();
     return false;
 }

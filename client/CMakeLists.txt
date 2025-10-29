@@ -39,7 +39,6 @@ target_sources(ImGuiSDL2 PRIVATE
         ${imgui_SOURCE_DIR}/imgui_draw.cpp
         ${imgui_SOURCE_DIR}/imgui_tables.cpp
         ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-        ${imgui_SOURCE_DIR}/imgui_demo.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
 
@@ -49,17 +48,11 @@ target_include_directories(ImGuiSDL2 PUBLIC
         ${imgui_SOURCE_DIR}/backends
         .
 )
-target_link_libraries(ImGuiSDL2 PUBLIC SDL2::SDL2-static SDL2::SDL2main)
-target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL2)
 
-if (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
-    set_target_properties(SonyHeadphonesClient PROPERTIES SUFFIX ".js")
-    add_custom_command(
-            TARGET SonyHeadphonesClient POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Emscripten/index.html"
-            "${CMAKE_CURRENT_BINARY_DIR}"
-            COMMENT "Copying Emscripten files to build directory (${CMAKE_CURRENT_BINARY_DIR})"
-            DEPENDS  "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Emscripten/index.html"
-    )
-endif ()
+set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+add_subdirectory(Platform)
+
+target_link_libraries(ImGuiSDL2 PUBLIC SDL2::SDL2-static SDL2::SDL2main)
+target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL2 Client_Platform)
+
+
