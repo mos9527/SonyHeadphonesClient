@@ -7,6 +7,8 @@
 #include <deque>
 #include <coroutine>
 
+#include "../../../cmake-build-emscripten/_deps/fmt-src/include/fmt/chrono.h"
+
 namespace mdr
 {
     // NOLINTBEGIN
@@ -131,11 +133,11 @@ namespace mdr
             void await_suspend(std::coroutine_handle<> handle) noexcept
             {
                 auto& dst = self->mAwaiters[static_cast<size_t>(type)];
+                auto& dstTick = self->mAwaiterTimes[static_cast<size_t>(type)];
                 if (dst) [[unlikely]]
-                    std::terminate(); // This is your fault.
-                // How'd you get more than one task at a time running?
+                    std::terminate();
                 if (handle)
-                    dst = handle;
+                    dst = handle, dstTick = std::chrono::steady_clock::now();
             }
 
             static void await_resume() noexcept
@@ -268,6 +270,9 @@ namespace mdr
         String mPlayTrackArtist;
         v2::t1::PlaybackStatus mPlayPause;
 
+        v2::t1::UpscalingType mUpscalingType;
+        bool mUpscalingAvailable;
+
         struct GsCapability
         {
             v2::t1::GsSettingType type{};
@@ -298,8 +303,7 @@ namespace mdr
         MDRProperty<bool> mGsParamBool1, mGsParamBool2,
                           mGsParamBool3, mGsParamBool4;
 
-        MDRProperty<v2::t1::UpscalingType> mUpscalingType;
-        MDRProperty<bool> mUpscalingAvailable;
+
         MDRProperty<bool> mUpscalingEnabled;
 
         MDRProperty<v2::t1::PriorMode> mAudioPriorityMode;
@@ -365,6 +369,7 @@ namespace mdr
 
         MDRTask mTask;
         Array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
+        Array<std::chrono::time_point<std::chrono::steady_clock>, AWAIT_NUM_TYPES> mAwaiterTimes{};
 
         // XXX: So, very naive. We just die if anything bad happens.
         bool ExceptionHandler(auto&& func)

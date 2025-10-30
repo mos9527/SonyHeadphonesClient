@@ -9,7 +9,7 @@
 #define MDR_RESULT_ERROR_NO_CONNECTION 6
 #define MDR_RESULT_ERROR_BAD_ADDRESS 7
 // MDR_HEADPHONES...
-#define MDR_HEADPHONES_ERROR (-2)
+#define MDR_HEADPHONES_ERROR (-2) // Irrecoverable. Headphone should be cleaned up.
 #define MDR_HEADPHONES_INPROGRESS (-1) // No command received but there's a running task
 #define MDR_HEADPHONES_IDLE (0) // No command received and there's no running task
 // MDR_HEADPHONES_EVT...
@@ -50,9 +50,10 @@
 #define MDR_HEADPHONES_EVT_CONNECTED_DEVICES 34
 #define MDR_HEADPHONES_EVT_INTERACTION 36
 // MDR_HEADPHONES_TASK...
-#define MDR_HEADPHONES_TASK_INIT_OK 100
-#define MDR_HEADPHONES_TASK_SYNC_OK 101
-#define MDR_HEADPHONES_TASK_COMMIT_OK 102
+#define MDR_HEADPHONES_TASK_ERR_TIMEOUT 100 // Irrecoverable. Timed out awaiting on something. The task is already killed at this point.
+#define MDR_HEADPHONES_TASK_INIT_OK 101
+#define MDR_HEADPHONES_TASK_SYNC_OK 102
+#define MDR_HEADPHONES_TASK_COMMIT_OK 103
 // Service UUIDs
 // XM5s and newer
 #define MDR_SERVICE_UUID_XM5 "956C7B26-D49A-4BA8-B03F-B17D393CB6E2"

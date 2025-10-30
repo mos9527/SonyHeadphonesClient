@@ -53,7 +53,7 @@ namespace mdr
         dirty |= mNcAsmNoiseAdaptiveSensitivity.dirty() || mPowerAutoOff.dirty() || mPlayControl.dirty();
         dirty |= mPowerAutoOffWearingDetection.dirty() || mPlayVolume.dirty() || mGsParamBool1.dirty();
         dirty |= mGsParamBool2.dirty() || mGsParamBool3.dirty() || mGsParamBool4.dirty();
-        dirty |= mUpscalingType.dirty() || mUpscalingAvailable.dirty() || mUpscalingEnabled.dirty();
+        dirty |= mUpscalingEnabled.dirty();
         dirty |= mAudioPriorityMode.dirty() || mBGMModeEnabled.dirty() || mBGMModeRoomSize.dirty();
         dirty |= mUpmixCinemaEnabled.dirty() || mAutoPauseEnabled.dirty() || mTouchFunctionLeft.dirty();
         dirty |= mTouchFunctionRight.dirty() || mSpeakToChatEnabled.dirty() || mSpeakToChatDetectSensitivity.dirty();
@@ -121,10 +121,38 @@ namespace mdr
 
     int MDRHeadphones::MoveNext()
     {
-        int taskResult;
-        // Task done?
-        if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
-            return taskResult;
+        // Check tasks and task timeouts
+        // Ideally - await timeouts shouldn't happen. But the headphones seem to ignore some of
+        // our requests sometimes (investigate!!) - we'll cancel the tasks if that happens
+        // since waiting there would just hang everything
+        {
+            using namespace std::literals;
+            constexpr auto kTimeout = 1000ms;
+            // ^^ This is being _very_ generous
+            auto now = std::chrono::steady_clock::now();
+            bool stop = false;
+            for (int i = 0; !stop && i < AWAIT_NUM_TYPES;i++)
+            {
+                if (!mAwaiters[i]) continue;
+                auto duration = now - mAwaiterTimes[i];
+                if (duration > kTimeout)
+                    stop = true;
+            }
+            if (stop) [[unlikely]]
+            {
+                // Pretty bad. The task here needs to die prematurely.
+                // Since there's only Task one at a time - clear every awaiter
+                // and the task itself
+                fmt::println("FIXME: Task killed prematurely due to timeout");
+                std::ranges::fill(mAwaiters, nullptr);
+                mTask = {};
+                mLastError = "Timed out waiting for device response. Reconnect and try again";
+                return MDR_HEADPHONES_TASK_ERR_TIMEOUT;
+            }
+            int taskResult;
+            if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
+                return taskResult;
+        }
         int idleCode = mTask ? MDR_HEADPHONES_INPROGRESS : MDR_HEADPHONES_IDLE;
         if (mRecvBuf.empty())
             return idleCode;
@@ -336,6 +364,7 @@ namespace mdr
 
         /* Equalizer */
         SendCommandACK(v2::t1::EqEbbGetStatus, {.type = v2::t1::EqEbbInquiredType::PRESET_EQ});
+        SendCommandACK(v2::t1::EqEbbGetParam);
 
         /* Connection Quality */
         if (mSupport.contains(
@@ -651,30 +680,51 @@ namespace mdr
             // Ask for a equalizer param update afterwards
             SendCommandACK(EqEbbGetParam);
         }
-        if (mEqConfig.dirty())
+        if (mEqConfig.dirty() || mEqClearBass.dirty())
         {
             using namespace v2::t1;
             EqEbbParamEq res;
             res.base.command = Command::EQEBB_SET_PARAM;
             res.base.type = EqEbbInquiredType::PRESET_EQ;
             res.presetId = mEqPresetId.current;
-            res.bands.value.resize(mEqConfig.desired.size());
-            int eqOffset = 0;
-            if (res.bands.size() == 0)
+            int eqBands = mEqConfig.desired.size(), eqOffset = 0;
+            if (eqBands == 0)
             {
+                mEqConfig.commit(), mEqClearBass.commit();
+            } else
+            {
+                auto& bands = mEqConfig.desired;
+                if (eqBands == 5)
+                {
+                    res.bands.value = Vector<UInt8>{{
+                        static_cast<UInt8>(mEqClearBass.desired + 10),
+                        static_cast<UInt8>(bands[0] + 10),
+                        static_cast<UInt8>(bands[1] + 10),
+                        static_cast<UInt8>(bands[2] + 10),
+                        static_cast<UInt8>(bands[3] + 10),
+                        static_cast<UInt8>(bands[4] + 10),
+                    }};
+                }
+                else if (eqBands == 10)
+                    res.bands.value = Vector<UInt8>{{
+                        static_cast<UInt8>(bands[0] + 6),
+                        static_cast<UInt8>(bands[1] + 6),
+                        static_cast<UInt8>(bands[2] + 6),
+                        static_cast<UInt8>(bands[3] + 6),
+                        static_cast<UInt8>(bands[4] + 6),
+                        static_cast<UInt8>(bands[5] + 6),
+                        static_cast<UInt8>(bands[6] + 6),
+                        static_cast<UInt8>(bands[7] + 6),
+                        static_cast<UInt8>(bands[8] + 6),
+                        static_cast<UInt8>(bands[9] + 6),
+                    }};
+                else
+                    MDR_CHECK_MSG(false, "mEqConfig size can only be 0, 5, or 10. Got {}.", eqBands);
                 mEqConfig.commit();
-            }
-            else
-            {
-                if (res.bands.size() == 5)
-                    eqOffset = 10;
-                if (res.bands.size() == 10)
-                    eqOffset = 6;
-                MDR_CHECK_MSG(eqOffset, "mEqConfig size can only be 0, 5, or 10. Got {}.", mEqConfig.desired.size());
-                for (size_t i = 0; i < mEqConfig.desired.size(); i++)
-                    res.bands.value[i] = mEqConfig.desired[i] + eqOffset;
+                mEqClearBass.commit();
                 SendCommandACK(EqEbbParamEq, res);
-                mEqConfig.commit();
+                // Ask for a equalizer param update afterwards
+                SendCommandACK(EqEbbGetParam);
             }
         }
 

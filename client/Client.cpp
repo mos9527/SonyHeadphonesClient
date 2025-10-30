@@ -11,6 +11,171 @@ using namespace mdr;
 mdr::MDRHeadphones gDevice;
 String gBugcheckMessage;
 
+#pragma region Enum Names
+const char* FormatEnum(v2::t1::AudioCodec codec)
+{
+    using enum v2::t1::AudioCodec;
+    switch (codec)
+    {
+    case UNSETTLED:
+        return "<unsettled>";
+    case SBC:
+        return "SBC";
+    case AAC:
+        return "AAC";
+    case LDAC:
+        return "LDAC";
+    case APT_X:
+        return "aptX";
+    case APT_X_HD:
+        return "aptX HD";
+    case LC3:
+        return "LC3";
+    default:
+    case OTHER:
+        return "Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::UpscalingType codec)
+{
+    using enum v2::t1::UpscalingType;
+    switch (codec)
+    {
+    case DSEE_HX:
+        return "DSEE HX";
+    case DSEE:
+        return "DSEE";
+    case DSEE_HX_AI:
+        return "DSEE HX AI";
+    case DSEE_ULTIMATE:
+        return "DSEE ULTIMATE";
+    default:
+        return "DSEE Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::BatteryChargingStatus status)
+{
+    using enum v2::t1::BatteryChargingStatus;
+    switch (status)
+    {
+    case CHARGING:
+        return "Charging...";
+    case CHARGED:
+        return "Charged";
+    case NOT_CHARGING:
+        return "Discharging";
+    default:
+    case UNKNOWN:
+        return "Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::NoiseAdaptiveSensitivity status)
+{
+    using enum v2::t1::NoiseAdaptiveSensitivity;
+    switch (status)
+    {
+    case STANDARD:
+        return "Standard";
+    case HIGH:
+        return "High";
+    case LOW:
+        return "Low";
+    default:
+        return "Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::DetectSensitivity status)
+{
+    using enum v2::t1::DetectSensitivity;
+    switch (status)
+    {
+    case AUTO:
+        return "Auto";
+    case HIGH:
+        return "High";
+    case LOW:
+        return "Low";
+    default:
+        return "Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::ModeOutTime status)
+{
+    using enum v2::t1::ModeOutTime;
+    switch (status)
+    {
+    case FAST:
+        return "Short (~5s)";
+    case MID:
+        return "Standard (~15s)";
+    case SLOW:
+        return "Long (~30s)";
+    case NONE:
+        return "Don't end automatically";
+    default:
+        return "Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::EqPresetId id)
+{
+    using enum v2::t1::EqPresetId;
+    switch (id)
+    {
+    case OFF:
+        return "Off";
+    case ROCK:
+        return "Rock";
+    case POP:
+        return "Pop";
+    case JAZZ:
+        return "Jazz";
+    case DANCE:
+        return "Dance";
+    case EDM:
+        return "EDM";
+    case R_AND_B_HIP_HOP:
+        return "R&B/Hip-Hop";
+    case ACOUSTIC:
+        return "Acoustic";
+    case BRIGHT:
+        return "Bright";
+    case EXCITED:
+        return "Excited";
+    case MELLOW:
+        return "Mellow";
+    case RELAXED:
+        return "Relaxed";
+    case VOCAL:
+        return "Vocal";
+    case TREBLE:
+        return "Treble";
+    case BASS:
+        return "Bass";
+    case SPEECH:
+        return "Speech";
+    case CUSTOM:
+        return "Custom";
+    case USER_SETTING1:
+        return "User Setting 1";
+    case USER_SETTING2:
+        return "User Setting 2";
+    case USER_SETTING3:
+        return "User Setting 3";
+    case USER_SETTING4:
+        return "User Setting 4";
+    case USER_SETTING5:
+        return "User Setting 5";
+    default:
+        return "Unknown";
+    }
+}
+#pragma endregion
 #pragma region ImGui Extra
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
     ImGuiWindowFlags_NoTitleBar;
@@ -122,6 +287,63 @@ void ImTextWithBorder(const char* text, int color, float rounding = 0.0f, float 
     ImGui::Dummy({padding, 0});
 }
 
+template <typename T>
+void ImComboBoxItems(const char* label, Span<const T> items, T& selection)
+{
+    if (ImGui::BeginCombo(label, FormatEnum(selection)))
+    {
+        for (T const& i : items)
+        {
+            bool selected = i == selection;
+            if (ImGui::Selectable(FormatEnum(i), selected))
+                selection = i;
+            if (selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+}
+
+void ImEqualizer(Span<int> bands)
+{
+    constexpr const char* kBand5[] = {"400", "1k", "2.5k", "6.3k", "16k"};
+    constexpr const char* kBand10[] = {"31", "63", "125", "250", "500", "1k", "2k", "4k", "8k", "16k"};
+    const char* const* kBands = nullptr;
+    int numBands = static_cast<int>(bands.size());
+    int mn = 0, mx = 0;
+    if (numBands == 10)
+        kBands = kBand10, mn = -6, mx = 6;
+    if (numBands == 5)
+        kBands = kBand5, mn = -10, mx = 10;
+    if (!kBands)
+        return ImGui::Text("EQ Unavailable (bands=%d)", numBands);
+    auto& style = ImGui::GetStyle();
+    float padding = style.FramePadding.x;
+    auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
+    float bandWidth = region.x / numBands - padding;
+    float bandHeight = std::max(region.y, 160.0f);
+    if (numBands == 5)
+        ImGui::SeparatorText("5-Band EQ");
+    if (numBands == 10)
+        ImGui::SeparatorText("10-Band EQ");
+    for (int i = 0; i < numBands; ++i)
+    {
+        ImGui::BeginGroup();
+        ImGui::PushID(i);
+        ImGui::VSliderInt("##v", ImVec2{bandWidth, bandHeight}, &bands[i], mn, mx);
+        ImGui::PopID();
+
+        float textWidth = ImGui::CalcTextSize(kBands[i]).x;
+        float textOffset = (bandWidth - textWidth) * 0.5f;
+        if (textOffset > 0.0f)
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffset);
+        ImGui::TextUnformatted(kBands[i]);
+
+        ImGui::EndGroup();
+        if (i != numBands - 1)
+            ImGui::SameLine(0.0f, padding);
+    }
+}
 #pragma endregion
 
 #pragma region States
@@ -262,53 +484,12 @@ void DrawDeviceControlsHeader()
         /* Codec */
         if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
         {
-            constexpr auto kFormatCodecName = [&](v2::t1::AudioCodec codec)
-            {
-                using enum v2::t1::AudioCodec;
-                switch (codec)
-                {
-                case UNSETTLED:
-                    return "<unsettled>";
-                case SBC:
-                    return "SBC";
-                case AAC:
-                    return "AAC";
-                case LDAC:
-                    return "LDAC";
-                case APT_X:
-                    return "aptX";
-                case APT_X_HD:
-                    return "aptX HD";
-                case LC3:
-                    return "LC3";
-                default:
-                case OTHER:
-                    return "Unknown";
-                }
-            };
-            *(badgeLast++) = {kFormatCodecName(gDevice.mAudioCodec), ~0u, ~0u};
+            *(badgeLast++) = {FormatEnum(gDevice.mAudioCodec), ~0u, ~0u};
         }
         /* DSEE */
         if (gDevice.mUpscalingEnabled.current)
         {
-            constexpr auto kFormatUpscaling = [&](v2::t1::UpscalingType codec)
-            {
-                using enum v2::t1::UpscalingType;
-                switch (codec)
-                {
-                case DSEE_HX:
-                    return "DSEE HX";
-                case DSEE:
-                    return "DSEE";
-                case DSEE_HX_AI:
-                    return "DSEE HX AI";
-                case DSEE_ULTIMATE:
-                    return "DSEE ULTIMATE";
-                default:
-                    return "DSEE Unknown";
-                }
-            };
-            *(badgeLast++) = {kFormatUpscaling(gDevice.mUpscalingType.current), ~0u, ~0u};
+            *(badgeLast++) = {FormatEnum(gDevice.mUpscalingType), ~0u, ~0u};
         }
         Span badges{badgeFirst, badgeLast};
         // Right-align and draw them
@@ -334,22 +515,6 @@ void DrawDeviceControlsHeader()
         ImGui::TableSetColumnIndex(0);
         /* Batteries */
         {
-            constexpr auto kFormatChargingState = [&](v2::t1::BatteryChargingStatus status)
-            {
-                using enum v2::t1::BatteryChargingStatus;
-                switch (status)
-                {
-                case CHARGING:
-                    return "Charging...";
-                case CHARGED:
-                    return "Charged";
-                case NOT_CHARGING:
-                    return "Discharging";
-                default:
-                case UNKNOWN:
-                    return "Unknown";
-                }
-            };
             bool supportSingle = gDevice.mSupport.
                                          contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR);
             supportSingle |= gDevice.mSupport.contains(
@@ -366,31 +531,31 @@ void DrawDeviceControlsHeader()
             {
                 float single = gDevice.mBatteryL.level;
                 single /= gDevice.mBatteryL.threshold;
-                ImGui::Text("Battery: %.2f", single);
+                ImGui::Text("Battery: %.2f%%", single * 100);
                 ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, kFormatChargingState(gDevice.mBatteryL.charging));
+                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
             }
             if (supportLR)
             {
                 float single = gDevice.mBatteryL.level;
                 single /= gDevice.mBatteryL.threshold;
-                ImGui::Text("L: %.2f", single);
+                ImGui::Text("L: %.2f%%", single * 100);
                 ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, kFormatChargingState(gDevice.mBatteryL.charging));
+                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
                 single = gDevice.mBatteryR.level;
                 single /= gDevice.mBatteryR.threshold;
-                ImGui::Text("R: %.2f", single);
+                ImGui::Text("R: %.2f%%", single* 100);
                 ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, kFormatChargingState(gDevice.mBatteryR.charging));
+                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
             }
             if (supportCase)
             {
                 float single = gDevice.mBatteryCase.level;
                 single /= 100.0f; // gDevice.mBatteryCase.threshold <-- Wonky. Got threshold=30 and value=76 pairs
                 // Seems like 100.0f is always the case for...case
-                ImGui::Text("Case: %.2f", single);
+                ImGui::Text("Case: %.2f%%", single* 100);
                 ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, kFormatChargingState(gDevice.mBatteryCase.charging));
+                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryCase.charging));
             }
         }
         ImGui::TableSetColumnIndex(1);
@@ -417,13 +582,153 @@ void DrawDeviceControlsPlayback()
     {
         if (ImModalButton("Pause", 1, 3))
             gDevice.mPlayControl.desired = PAUSE;
-    } else
+    }
+    else
     {
         if (ImModalButton("Play", 1, 3))
             gDevice.mPlayControl.desired = PLAY;
     }
     if (ImModalButton("Next", 2, 3))
         gDevice.mPlayControl.desired = TRACK_UP;
+}
+
+void DrawDeviceControlsSound()
+{
+    using F1 = v2::MessageMdrV2FunctionType_Table1;
+    constexpr auto kSupports = [](auto x) { return gDevice.mSupport.contains(x); };
+    bool supportNC = kSupports(F1::NOISE_CANCELLING_ONOFF)
+        || kSupports(F1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF)
+        || kSupports(F1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF)
+        || kSupports(F1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
+    bool supportASM = kSupports(F1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF)
+        || kSupports(F1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF)
+        || kSupports(F1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::AMBIENT_SOUND_MODE_ONOFF)
+        || kSupports(F1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::AMBIENT_SOUND_CONTROL_MODE_SELECT)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT)
+        || kSupports(F1::MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE)
+        || kSupports(F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
+    bool supportAutoASM = kSupports(
+        F1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
+    using enum v2::t1::NcAsmMode;
+    /* NC/ASM */
+    if (supportASM || supportNC)
+    {
+        if (ImGui::TreeNodeEx("Ambient Sound", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (supportNC)
+            {
+                if (ImGui::RadioButton(
+                    "Noise Cancelling",
+                    gDevice.mNcAsmEnabled.current && (!supportASM || gDevice.mNcAsmMode.desired == NC))
+                )
+                {
+                    gDevice.mNcAsmEnabled.desired = true;
+                    gDevice.mNcAsmMode.desired = NC;
+                }
+                ImGui::SameLine();
+            }
+            if (supportASM)
+            {
+                if (ImGui::RadioButton(
+                    "Ambient Sound",
+                    gDevice.mNcAsmEnabled.current && (!supportNC || gDevice.mNcAsmMode.desired == ASM))
+                )
+                {
+                    gDevice.mNcAsmEnabled.desired = true;
+                    gDevice.mNcAsmMode.desired = ASM;
+                    if (gDevice.mNcAsmAmbientLevel.desired == 0)
+                        gDevice.mNcAsmAmbientLevel.desired = 20;
+                }
+                ImGui::SameLine();
+            }
+            if (ImGui::RadioButton("Off", !gDevice.mNcAsmEnabled.desired))
+                gDevice.mNcAsmEnabled.desired = false;
+            ImGui::SeparatorText("Ambient Strength");
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            ImGui::SliderInt("##AmbStrength", &gDevice.mNcAsmAmbientLevel.desired, 1, 20);
+            if (supportAutoASM)
+            {
+                ImGui::Checkbox("Auto Ambient Sound", &gDevice.mNcAsmAutoAsmEnabled.desired);
+                ImGui::BeginDisabled(!gDevice.mNcAsmAutoAsmEnabled.desired);
+                using enum v2::t1::NoiseAdaptiveSensitivity;
+                auto& desired = gDevice.mNcAsmNoiseAdaptiveSensitivity.desired;
+                constexpr v2::t1::NoiseAdaptiveSensitivity kSelections[] = {STANDARD, HIGH, LOW};
+                ImComboBoxItems<v2::t1::NoiseAdaptiveSensitivity>("Sensitivity", kSelections, desired);
+                ImGui::EndDisabled();
+            }
+            ImGui::Checkbox("Voice Passthrough", &gDevice.mNcAsmFocusOnVoice.desired);
+            ImGui::TreePop();
+        }
+    }
+    /* STC */
+    if (kSupports(F1::SMART_TALKING_MODE_TYPE2))
+    {
+        if (ImGui::TreeNodeEx("Speak To Chat", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Enabled", &gDevice.mSpeakToChatEnabled.desired);
+            ImGui::BeginDisabled(!gDevice.mSpeakToChatEnabled.desired);
+            {
+                using enum v2::t1::DetectSensitivity;
+                constexpr v2::t1::DetectSensitivity kSelections[] = {AUTO, HIGH, LOW};
+                ImComboBoxItems<v2::t1::DetectSensitivity>("Sensitivity", kSelections,
+                                                           gDevice.mSpeakToChatDetectSensitivity.desired);
+            }
+            {
+                using enum v2::t1::ModeOutTime;
+                constexpr v2::t1::ModeOutTime kSelections[] = {FAST, MID, SLOW, NONE};
+                ImComboBoxItems<v2::t1::ModeOutTime>("Mode Duration", kSelections,
+                                                     gDevice.mSpeakToModeOutTime.desired);
+            }
+            ImGui::EndDisabled();
+            ImGui::TreePop();
+        }
+    }
+    /* Listening Mode */
+    // TODO: NOT IMPLEMENTED. Need XM6s to test
+    if (kSupports(F1::LISTENING_OPTION))
+    {
+        if (ImGui::TreeNodeEx("Listening Mode", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::TreePop();
+        }
+    }
+    /* EQ & DSEE */
+    if (ImGui::TreeNodeEx("Equalizer & DSEE", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        using enum v2::t1::EqPresetId;
+        constexpr v2::t1::EqPresetId kSelections[] = {
+            OFF, ROCK, POP, JAZZ, DANCE, EDM, R_AND_B_HIP_HOP, ACOUSTIC, BRIGHT, EXCITED,
+            MELLOW, RELAXED, VOCAL, TREBLE, BASS, SPEECH,
+            CUSTOM, USER_SETTING1, USER_SETTING2, USER_SETTING3, USER_SETTING4, USER_SETTING5
+        };
+        ImComboBoxItems<v2::t1::EqPresetId>("Preset", kSelections, gDevice.mEqPresetId.desired);
+        ImEqualizer(gDevice.mEqConfig.desired);
+        if (gDevice.mEqConfig.desired.size() == 5)
+        {
+            ImGui::SeparatorText("Clear Bass");
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            ImGui::SliderInt("##", &gDevice.mEqClearBass.desired, -10, 10);
+        }
+        ImGui::SeparatorText("DSEE Upscaling");
+        ImGui::BeginDisabled(!gDevice.mUpscalingAvailable);
+        if (ImGui::RadioButton("Off", gDevice.mUpscalingEnabled.desired == false))
+            gDevice.mUpscalingEnabled.desired = false;
+        if (ImGui::RadioButton("On (Auto)", gDevice.mUpscalingEnabled.desired == true))
+            gDevice.mUpscalingEnabled.desired = true;
+        ImGui::EndDisabled();
+        ImGui::TreePop();
+    }
 }
 
 void DrawDeviceControlsTabs()
@@ -433,6 +738,11 @@ void DrawDeviceControlsTabs()
         if (ImGui::BeginTabItem("Playback"))
         {
             DrawDeviceControlsPlayback();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Sound"))
+        {
+            DrawDeviceControlsSound();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -460,6 +770,7 @@ void DrawDeviceControls()
             if (gDevice.IsDirty())
                 MDR_CHECK(gDevice.Invoke(gDevice.RequestCommit()) == MDR_RESULT_OK);
             return;
+        case MDR_HEADPHONES_TASK_ERR_TIMEOUT:
         case MDR_HEADPHONES_ERROR:
             // Irrecoverable. Disconnect now.
             mdrConnectionDisconnect(conn);
@@ -476,6 +787,7 @@ void DrawDeviceDisconnect()
     MDRConnection* conn = clientPlatformConnectionGet();
     ImGui::OpenPopup("Disconnected");
     ImSetNextWindowCentered();
+
     if (ImGui::BeginPopupModal("Disconnected", nullptr, kImWindowFlagsTopMost))
     {
         ImGui::NewLine();
@@ -484,8 +796,8 @@ void DrawDeviceDisconnect()
         ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 2.0f, true);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
-        ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
-        ImGui::TextWrapped("Headphones: %s", gDevice.GetLastError());
+        ImGui::Text("Connection: %s", mdrConnectionGetLastError(conn));
+        ImGui::Text("Headphones: %s", gDevice.GetLastError());
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton("OK", 1, 1))

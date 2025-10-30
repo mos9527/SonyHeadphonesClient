@@ -447,7 +447,7 @@ namespace mdr
             {
                 AudioRetCapabilityUpscaling res;
                 AudioRetCapabilityUpscaling::Deserialize(cmd.data(), res, cmd.size());
-                self->mUpscalingType.overwrite(res.upscalingType);
+                self->mUpscalingType = res.upscalingType;
                 return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
@@ -471,7 +471,7 @@ namespace mdr
             {
                 AudioStatusCommon res;
                 AudioStatusCommon::Deserialize(cmd.data(), res, cmd.size());
-                self->mUpscalingAvailable.overwrite(res.status == v2::MessageMdrV2EnableDisable::ENABLE);
+                self->mUpscalingAvailable = res.status == v2::MessageMdrV2EnableDisable::ENABLE;
                 return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
@@ -659,12 +659,13 @@ namespace mdr
         {
             EqEbbParamEq res;
             EqEbbParamEq::Deserialize(cmd.data(), res, cmd.size());
+            self->mEqPresetId.overwrite(res.presetId);
             switch (res.bands.size())
             {
             case 0:
                 return MDR_HEADPHONES_EVT_EQUALIZER_PARAM;
             case 6:
-                self->mEqClearBass.overwrite(res.bands.value[0]);
+                self->mEqClearBass.overwrite(res.bands.value[0] - 10);
                 self->mEqConfig.overwrite({
                     res.bands.value[1] - 10, // 400
                     res.bands.value[2] - 10, // 1k
