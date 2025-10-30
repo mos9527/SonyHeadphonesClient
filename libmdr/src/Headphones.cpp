@@ -50,7 +50,7 @@ namespace mdr
     {
         bool dirty = mShutdown.dirty() || mNcAsmEnabled.dirty() || mNcAsmFocusOnVoice.dirty() || mNcAsmAmbientLevel.dirty();
         dirty |= mNcAsmButtonFunction.dirty() || mNcAsmMode.dirty() || mNcAsmAutoAsmEnabled.dirty();
-        dirty |= mNcAsmNoiseAdaptiveSensitivity.dirty() || mPowerAutoOff.dirty() || mPlayPause.dirty();
+        dirty |= mNcAsmNoiseAdaptiveSensitivity.dirty() || mPowerAutoOff.dirty() || mPlayControl.dirty();
         dirty |= mPowerAutoOffWearingDetection.dirty() || mPlayVolume.dirty() || mGsParamBool1.dirty();
         dirty |= mGsParamBool2.dirty() || mGsParamBool3.dirty() || mGsParamBool4.dirty();
         dirty |= mUpscalingType.dirty() || mUpscalingAvailable.dirty() || mUpscalingEnabled.dirty();
@@ -263,9 +263,9 @@ namespace mdr
                            .type = v2::t1::AudioInquiredType::UPSCALING
                            });
         }
-        /* [NO ACK] Receive alerts for certain operations like toggling multipoint */
+        /* Receive alerts for certain operations like toggling multipoint */
         if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
-            SendCommandImpl<v2::t1::AlertSetStatusFixedMessage>({.status = v2::MessageMdrV2EnableDisable::ENABLE});
+            SendCommandACK(v2::t1::AlertSetStatusFixedMessage, { .status = v2::MessageMdrV2EnableDisable::ENABLE});
 
         /* Codec Type */
         if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
@@ -279,6 +279,9 @@ namespace mdr
         SendCommandACK(v2::t1::GetPlayParam, { .type = v2::t1::PlayInquiredType::MUSIC_VOLUME });
 
         /* Play/Pause */
+        SendCommandACK(v2::t1::GetPlayStatus, { .type = v2::t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+
+        /* NC/AMB */
         if (mSupport.contains(
             v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
         {
@@ -533,6 +536,19 @@ namespace mdr
             res.volumeValue = mPlayVolume.desired;
             SendCommandACK(PlayParamPlaybackControllerVolume, res);
             mPlayVolume.commit();
+        }
+        /* Play Control */
+        // A bit of a special case. We reset the value to something else
+        // so simply setting 'desired' repeatedly works as intended
+        if (mPlayControl.dirty())
+        {
+            using namespace v2::t1;
+            PlayStatusSetPlaybackController res;
+            res.base.command = Command::PLAY_SET_STATUS;
+            res.status = v2::MessageMdrV2EnableDisable::ENABLE;
+            res.control = mPlayControl.desired;
+            SendCommandACK(PlayStatusSetPlaybackController, res);
+            mPlayControl.overwrite(PlaybackControl::KEY_OFF);
         }
 
         /* Multipoint Switch */

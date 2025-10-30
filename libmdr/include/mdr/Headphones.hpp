@@ -266,6 +266,7 @@ namespace mdr
         String mPlayTrackTitle;
         String mPlayTrackAlbum;
         String mPlayTrackArtist;
+        v2::t1::PlaybackStatus mPlayPause;
 
         struct GsCapability
         {
@@ -282,7 +283,7 @@ namespace mdr
 
         MDRProperty<bool> mNcAsmEnabled;
         MDRProperty<bool> mNcAsmFocusOnVoice;
-        MDRProperty<UInt8> mNcAsmAmbientLevel; // [0,20] - 0 is not possible on the App.
+        MDRProperty<int> mNcAsmAmbientLevel; // [0,20] - 0 is not possible on the App.
         MDRProperty<v2::t1::Function> mNcAsmButtonFunction;
         MDRProperty<v2::t1::NcAsmMode> mNcAsmMode;
         MDRProperty<bool> mNcAsmAutoAsmEnabled; // WH-1000XM6+
@@ -291,9 +292,8 @@ namespace mdr
         MDRProperty<v2::t1::AutoPowerOffElements> mPowerAutoOff;
         MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPowerAutoOffWearingDetection;
 
-        MDRProperty<v2::t1::PlaybackStatus> mPlayPause;
-        MDRProperty<UInt8> mPlayVolume; // [0,30]
-
+        MDRProperty<int> mPlayVolume; // [0,30]
+        MDRProperty<v2::t1::PlaybackControl> mPlayControl;
 
         MDRProperty<bool> mGsParamBool1, mGsParamBool2,
                           mGsParamBool3, mGsParamBool4;

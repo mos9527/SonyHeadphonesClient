@@ -1881,7 +1881,7 @@ namespace mdr::v2::t1
 
     struct GetPlayParam
     {
-        // CODEGEN EnumRange Command::PLAY_GET_STATUS
+        // CODEGEN EnumRange Command::PLAY_GET_PARAM
         Command command{Command::PLAY_GET_PARAM};
         PlayInquiredType type; // 0x1
 
@@ -1967,7 +1967,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN Field command EnumRange Command::PLAY_SET_STATUS
         // CODEGEN Field type EnumRange PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE
-        PlayBase base{Command::PLAY_SET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE};
+        PlayBase base{Command::PLAY_SET_STATUS, PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT};
         MessageMdrV2EnableDisable status; // 0x2
         PlaybackControl control; // 0x3
 

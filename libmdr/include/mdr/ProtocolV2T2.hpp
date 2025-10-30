@@ -366,7 +366,7 @@ namespace mdr::v2::t2
     struct PeripheralGetParam
     {
         // CODEGEN EnumRange Command::PERI_GET_PARAM
-        Command command{Command::PERI_GET_STATUS};
+        Command command{Command::PERI_GET_PARAM};
         PeripheralInquiredType type; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PeripheralGetParam);

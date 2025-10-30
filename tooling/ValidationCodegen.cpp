@@ -91,14 +91,14 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
             while (true)
             {
                 diagOut << tok;
-                cout << format("{} != {}", scopeFiledName, tok);
+                cout << format("{} == {}", scopeFiledName, tok);
                 if (cin >> tok)
-                    cout << " && ", diagOut << " ";
+                    cout << " || ", diagOut << " ";
                 else
                     break;
             }
-            print("{}MDR_CHECK(", emitIndent());
-            print("is_valid({}), ", scopeFiledName);
+            print("{}MDR_CHECK_MSG(", emitIndent());
+            print("{}, ", cout.str());
             print("\"EnumRange check fail, must be one of {}, got {{}}\",", diagOut.str());
             println("{});", scopeFiledName);
             break;
@@ -107,7 +107,7 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
         {
             int mn, mx;
             cin >> mn >> mx;
-            print("{}MDR_CHECK(", emitIndent());
+            print("{}MDR_CHECK_MSG(", emitIndent());
             print("{} >= {} && {} <= {}, ", scopeFiledName, mn,  scopeFiledName, mx);
             println("\"Range check fail, must be in [{}, {}], got {{}}\", {});", mn, mx, scopeFiledName);
         }
@@ -158,7 +158,7 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
     switch (typeKind)
     {
     case CXCursor_EnumDecl:
-        println("{}MDR_CHECK(is_valid({}), \"{} got an invalid enum value\");",
+        println("{}MDR_CHECK_MSG(is_valid({}), \"{} got an invalid enum value\");",
             emitIndent(),
             newParentName,
             clang_getCString(name));
@@ -243,7 +243,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             clang_visitChildren(cursor, fieldValidateNestedVisitor, &firstParent);
             println("{}return true;", emitIndent());
             gDepth--;
-            println("{}}};", emitIndent());
+            println("{}}}", emitIndent());
         }
         clang_disposeString(name);
         return CXChildVisit_Continue;

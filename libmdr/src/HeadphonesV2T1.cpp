@@ -346,7 +346,7 @@ namespace mdr
         {
             PlayStatusPlaybackController res;
             PlayStatusPlaybackController::Deserialize(cmd.data(), res, cmd.size());
-            self->mPlayPause.overwrite(res.playbackStatus);
+            self->mPlayPause = res.playbackStatus;
             return MDR_HEADPHONES_EVT_PLAYBACK_METADATA;
         }
         default:
@@ -766,6 +766,7 @@ namespace mdr
         CommandBase base;
         CommandBase::Deserialize(cmd.data(), base, cmd.size());
         using enum Command;
+        fmt::println("<< {}", base.command);
         switch (base.command)
         {
         case CONNECT_RET_PROTOCOL_INFO:

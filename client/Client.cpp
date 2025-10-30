@@ -84,6 +84,8 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
     ImGui::Dummy({sqrt(2.0f) * size, sqrt(2.0f) * size});
 }
 
+// Fill the available horizontal region with lineTotal amount of buttons
+// This is used for modal dialogues
 bool ImModalButton(const char* label, int lineIndex = 0, int lineTotal = 1)
 {
     auto& style = ImGui::GetStyle();
@@ -110,11 +112,16 @@ void ImTextWithBorder(const char* text, int color, float rounding = 0.0f, float 
     auto& style = ImGui::GetStyle();
     float padding = style.FramePadding.x;
     ImVec2 size = ImGui::CalcTextSize(text);
-    ImVec2 pad = {padding, padding};
+    ImVec2 pad = {padding, padding / 2};
+    float cursorY = ImGui::GetCursorPosY();
+    ImGui::SetCursorPosY(cursorY + padding * 2);
     auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
     draw->AddRect(offset - pad, offset + size + pad, color, rounding, ImDrawFlags_None, thickness);
+    ImGui::SetCursorPosY(cursorY + padding);
     ImGui::Text("%s", text);
+    ImGui::Dummy({padding, 0});
 }
+
 #pragma endregion
 
 #pragma region States
@@ -231,19 +238,93 @@ void DrawDeviceControlsHeader()
     MDRConnection* conn = clientPlatformConnectionGet();
     if (ImGui::BeginMenuBar())
     {
+        /* Disconnect & Shutdown */
         if (ImGui::BeginMenu(gDevice.mModelName.c_str()))
         {
-            if (ImGui::Button("Disconnect"))
+            if (ImGui::MenuItem("Disconnect"))
             {
                 mdrConnectionDisconnect(conn);
                 connState = CONN_STATE_NO_CONNECTION;
             }
-            if (ImGui::Button("Shutdown"))
+            if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF))
             {
-                gDevice.mShutdown.desired = true;
+                if (ImGui::MenuItem("Shutdown"))
+                    gDevice.mShutdown.desired = true;
             }
             ImGui::EndMenu();
         }
+        ImGui::Dummy({0, 0});
+        /* Cool Badges */
+        // Title, Border Color, Text Color
+        using Badge = Tuple<const char*, int, int>;
+        Array<Badge, 4> badges4;
+        Badge *badgeFirst = &badges4[0], *badgeLast = &badges4[0];
+        /* Codec */
+        if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+        {
+            constexpr auto kFormatCodecName = [&](v2::t1::AudioCodec codec)
+            {
+                using enum v2::t1::AudioCodec;
+                switch (codec)
+                {
+                case UNSETTLED:
+                    return "<unsettled>";
+                case SBC:
+                    return "SBC";
+                case AAC:
+                    return "AAC";
+                case LDAC:
+                    return "LDAC";
+                case APT_X:
+                    return "aptX";
+                case APT_X_HD:
+                    return "aptX HD";
+                case LC3:
+                    return "LC3";
+                default:
+                case OTHER:
+                    return "Unknown";
+                }
+            };
+            *(badgeLast++) = {kFormatCodecName(gDevice.mAudioCodec), ~0u, ~0u};
+        }
+        /* DSEE */
+        if (gDevice.mUpscalingEnabled.current)
+        {
+            constexpr auto kFormatUpscaling = [&](v2::t1::UpscalingType codec)
+            {
+                using enum v2::t1::UpscalingType;
+                switch (codec)
+                {
+                case DSEE_HX:
+                    return "DSEE HX";
+                case DSEE:
+                    return "DSEE";
+                case DSEE_HX_AI:
+                    return "DSEE HX AI";
+                case DSEE_ULTIMATE:
+                    return "DSEE ULTIMATE";
+                default:
+                    return "DSEE Unknown";
+                }
+            };
+            *(badgeLast++) = {kFormatUpscaling(gDevice.mUpscalingType.current), ~0u, ~0u};
+        }
+        Span badges{badgeFirst, badgeLast};
+        // Right-align and draw them
+        // XXX: This is surprisingly painful to do.
+        auto& style = ImGui::GetStyle();
+        float padding = style.FramePadding.x;
+        float badgeRegionX = 0;
+        ImGui::PushFont(ImGui::GetFont(), style.FontSizeBase - padding / 2);
+        for (auto& [s, border, text] : badges)
+            badgeRegionX += ImGui::CalcTextSize(s).x + padding * 2;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - badgeRegionX - padding * 2);
+        ImGui::Dummy({0, 0});
+        float rounding = style.FrameRounding;
+        for (auto& [s, border, text] : badges)
+            ImTextWithBorder(s, border, rounding, 2.0f);
+        ImGui::PopFont();
         ImGui::EndMenuBar();
     }
     // Stats
@@ -313,33 +394,48 @@ void DrawDeviceControlsHeader()
             }
         }
         ImGui::TableSetColumnIndex(1);
-        /* Now Playing & Codec */
+        /* Now Playing */
         {
             ImGui::Text("Title:  %s", gDevice.mPlayTrackTitle.c_str());
             ImGui::Text("Album:  %s", gDevice.mPlayTrackAlbum.c_str());
             ImGui::Text("Artist: %s", gDevice.mPlayTrackArtist.c_str());
-            if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
-            {
-                constexpr auto kFormatCodecName = [&](v2::t1::AudioCodec codec)
-                {
-                    using enum v2::t1::AudioCodec;
-                    switch (codec)
-                    {
-                        case UNSETTLED: return "<unsettled>";
-                        case SBC: return "SBC";
-                        case AAC: return "AAC";
-                        case LDAC: return "LDAC";
-                        case APT_X: return "aptX";
-                        case APT_X_HD: return "aptX HD";
-                        case LC3: return "LC3";
-                        default:
-                        case OTHER: return "Unknown";
-                    }
-                };
-                ImTextWithBorder(kFormatCodecName(gDevice.mAudioCodec), IM_COL32(255,255,255,255), 1.0f, 2.0f);
-            }
         }
         ImGui::EndTable();
+    }
+}
+
+void DrawDeviceControlsPlayback()
+{
+    using enum v2::t1::PlaybackControl;
+    ImGui::SeparatorText("Volume");
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+    ImGui::SliderInt("##Volume", &gDevice.mPlayVolume.desired, 0, 30);
+    ImGui::SeparatorText("Controls");
+    if (ImModalButton("Prev", 0, 3))
+        gDevice.mPlayControl.desired = TRACK_DOWN;
+    if (gDevice.mPlayPause == v2::t1::PlaybackStatus::PLAY)
+    {
+        if (ImModalButton("Pause", 1, 3))
+            gDevice.mPlayControl.desired = PAUSE;
+    } else
+    {
+        if (ImModalButton("Play", 1, 3))
+            gDevice.mPlayControl.desired = PLAY;
+    }
+    if (ImModalButton("Next", 2, 3))
+        gDevice.mPlayControl.desired = TRACK_UP;
+}
+
+void DrawDeviceControlsTabs()
+{
+    if (ImGui::BeginTabBar("##Controls"))
+    {
+        if (ImGui::BeginTabItem("Playback"))
+        {
+            DrawDeviceControlsPlayback();
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
     }
 }
 
@@ -349,6 +445,7 @@ void DrawDeviceControls()
     int event = gDevice.PollEvents();
     DrawDeviceControlsHeader();
     ImGui::Separator();
+    DrawDeviceControlsTabs();
     ExceptionHandler([&]
     {
         switch (event)
@@ -387,8 +484,8 @@ void DrawDeviceDisconnect()
         ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 2.0f, true);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
-        ImGui::Text("Connection: %s", mdrConnectionGetLastError(conn));
-        ImGui::Text("Headphones: %s", gDevice.GetLastError());
+        ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
+        ImGui::TextWrapped("Headphones: %s", gDevice.GetLastError());
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton("OK", 1, 1))
@@ -400,6 +497,9 @@ void DrawDeviceDisconnect()
 void DrawApp()
 {
     auto& io = ImGui::GetIO();
+    auto& style = ImGui::GetStyle();
+    style.FrameRounding = 8.0f;
+    style.FramePadding = ImVec2(8.0f, 8.0f);
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::Begin("##", nullptr, kImWindowFlagsTopMost | ImGuiWindowFlags_MenuBar);
