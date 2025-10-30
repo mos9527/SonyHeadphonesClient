@@ -12,7 +12,10 @@
 
 #include <fmt/format.h>
 #define MDR_CHECK(expr, format_str, ...) \
-    if(!(expr)) throw std::runtime_error(fmt::format(format_str __VA_OPT__(,) __VA_ARGS__));
+    { \
+        auto const& srcloc = std::source_location::current(); \
+        if(!(expr)) throw std::runtime_error(fmt::format("{}.\nExpression:" #expr "\nFunction: {}\nSource:{}#L{}",fmt::format(format_str __VA_OPT__(,) __VA_ARGS__), srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
+    }
 #define MDR_ASSERT(expr) \
     { \
     auto const& srcloc = std::source_location::current(); \
@@ -42,6 +45,63 @@ namespace mdr
         SHOT_MDR_NO2 = 30,
         LARGE_DATA_COMMON = 45,
         UNKNOWN = 0xff
+    };
+#pragma pack(push,1)
+    struct Int16BE
+    {
+        int16_t value; // Big-endian
+
+        Int16BE() :
+            value(0)
+        {
+        }
+
+        Int16BE(int16_t v) :
+            value(Swap(v))
+        {
+        }
+
+        static uint16_t Swap(uint16_t v)
+        {
+            return ((v & 0x000000FF) << 8) |
+                ((v & 0x0000FF00) >> 8);
+        }
+
+        operator int16_t() const { return Swap(value); }
+
+        Int16BE& operator=(int16_t v)
+        {
+            value = Swap(v);
+            return *this;
+        }
+    };
+
+    struct Int24BE
+    {
+        uint8_t low;
+        uint8_t mid;
+        uint8_t high;
+
+        Int24BE() :
+            low(0), mid(0), high(0)
+        {
+        }
+
+
+        Int24BE(int32_t v)
+        {
+            this->operator=(v);
+        }
+
+        operator int32_t() const { return low << 16u | mid << 8u | high; }
+
+        Int24BE& operator=(int32_t v)
+        {
+            low = v & 0xFF;
+            mid = (v >> 8) & 0xFF;
+            high = v & 0xFF;
+            return *this;
+        }
     };
 
     struct Int32BE
@@ -75,34 +135,7 @@ namespace mdr
         }
     };
 
-    struct Int16BE
-    {
-        int16_t value; // Big-endian
-
-        Int16BE() :
-            value(0)
-        {
-        }
-
-        Int16BE(int16_t v) :
-            value(Swap(v))
-        {
-        }
-
-        static uint16_t Swap(uint16_t v)
-        {
-            return ((v & 0x000000FF) << 8) |
-                ((v & 0x0000FF00) >> 8);
-        }
-
-        operator int16_t() const { return Swap(value); }
-
-        Int16BE& operator=(int16_t v)
-        {
-            value = Swap(v);
-            return *this;
-        }
-    };
+#pragma pack(pop)
 
     template <typename T>
     concept MDRIsSerializable = requires(T const& a)
@@ -160,14 +193,24 @@ namespace mdr
         }
     };
     /**
-     * @breif Alias for std::string. This does not map to any specific protocol type directly.
-     */
-    using String = std::basic_string<char>;
-    /**
-     * @breif Alias for std::array. This does not map to any specific protocol type directly.
+     * @breif Alias for std::array. This MAY map to any specific protocol type directly as a POD type.
      */
     template <typename T, size_t Size>
     using Array = std::array<T, Size>;
+    /**
+     * @breif Alias for std::pair. This does not map to any specific protocol type directly.
+     */
+    template<typename A, typename B>
+    using Pair = std::pair<A, B>;
+    /**
+     * @breif Alias for std::tuple. This does not map to any specific protocol type directly.
+     */
+    template <typename... Args>
+    using Tuple = std::tuple<Args...>;
+    /**
+     * @breif Alias for std::string. This does not map to any specific protocol type directly.
+     */
+    using String = std::basic_string<char>;
     /**
      * @breif Alias for std::vector. This does not map to any specific protocol type directly.
      */

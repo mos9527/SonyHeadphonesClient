@@ -24,6 +24,7 @@ const char* kCODEGEN = "CODEGEN";
 const char* kMDRReservedIterableStructs[] = {
     "MDRPodArray",
     "MDRArray",
+    "MDRFixedArray"
 };
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";

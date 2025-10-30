@@ -9,6 +9,7 @@
 
 #include "../Platform.hpp"
 #include <mdr-c/Platform/PlatformLinux.h>
+
 struct MDRConnectionLinux
 {
     MDRConnection mdrConn;
@@ -34,6 +35,10 @@ struct MDRConnectionLinux
     {
     }
 
+    sdp_session* sdpSession{nullptr};
+    uint8_t uuid[16];
+    std::string macAddress;
+
     static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
@@ -45,29 +50,16 @@ struct MDRConnectionLinux
         }
         unsigned int linkmode = RFCOMM_LM_AUTH | RFCOMM_LM_ENCRYPT;
         setsockopt(ptr->fd, SOL_RFCOMM, RFCOMM_LM, &linkmode, sizeof(linkmode));
-        uint8_t uuid[16];
-        if (serviceUUIDtoBytes(serviceUUID, uuid) != 0)
+        if (serviceUUIDtoBytes(serviceUUID, ptr->uuid) != 0)
             return MDR_RESULT_ERROR_BAD_ADDRESS;
-        // TODO: This blocks - figure out how SDP_NON_BLOCKING works
-        uint8_t ch = sdp_getServiceChannel(macAddress, uuid);
-        if (!ch)
+        ptr->macAddress = macAddress;
+        ptr->sdpSession = sdp_connect_nb(macAddress);
+        if (!ptr->sdpSession)
         {
-            ptr->lastError = "Failed to get service channel via SDP";
+            ptr->lastError = "Failed to connect to remote SDP server";
             return MDR_RESULT_ERROR_NET;
         }
-        sockaddr_rc addr{
-            .rc_family = AF_BLUETOOTH,
-            .rc_channel = ch
-        };
-        str2ba(macAddress, &addr.rc_bdaddr);
-        int res = connect(ptr->fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
-        if (res != 0 && errno != EINPROGRESS)
-        {
-            close(ptr->fd);
-            ptr->fd = 0;
-            ptr->lastError = strerror(errno);
-            return MDR_RESULT_ERROR_NET;
-        }
+        ptr->lastError = "Connecting to remote SDP server";
         return MDR_RESULT_INPROGRESS;
     }
 
@@ -119,13 +111,55 @@ struct MDRConnectionLinux
     static int Poll(void* user, int timeout) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
+        // SDP query not done yet - poll for that
+        // before connecting our own socket
+        if (ptr->sdpSession)
+        {
+            int res = sdp_poll(ptr->sdpSession, timeout);
+            if (res == 0)
+            {
+                ptr->lastError = "Waiting for SDP connection to be ready";
+                return MDR_RESULT_INPROGRESS;
+            }
+            if (res < 0)
+            {
+                ptr->lastError = "Failed to open SDP connection to remote device";
+                return MDR_RESULT_ERROR_NET;
+            }
+            uint8_t ch = sdp_getServiceChannel(ptr->sdpSession, ptr->uuid);
+            if (ch == 0)
+            {
+                ptr->lastError = "Failed to get RFCOMM service channel";
+                return MDR_RESULT_ERROR_NET;
+            }
+            sdp_close(ptr->sdpSession);
+            ptr->sdpSession = nullptr;
+            // Try to connect now
+            sockaddr_rc addr{
+                .rc_family = AF_BLUETOOTH,
+                .rc_channel = ch
+            };
+            str2ba(ptr->macAddress.c_str(), &addr.rc_bdaddr);
+            res = connect(ptr->fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+            if (res != 0 && errno != EINPROGRESS)
+            {
+                close(ptr->fd);
+                ptr->fd = 0;
+                ptr->lastError = strerror(errno);
+                return MDR_RESULT_ERROR_NET;
+            }
+            ptr->lastError = "Connecting to remote device";
+            return MDR_RESULT_INPROGRESS;
+        }
         if (!ptr->fd)
             return MDR_RESULT_ERROR_NO_CONNECTION;
         pollfd pfd{
             .fd = ptr->fd,
-            .events = POLLIN | POLLOUT,
+            .events = POLLIN | POLLOUT | POLLHUP | POLLERR,
         };
-        int res = poll(&pfd,1,timeout);
+        int res = poll(&pfd, 1, timeout);
+        if (pfd.revents & POLLHUP || pfd.revents & POLLERR)
+            res = -1;
         if (res > 0)
             return MDR_RESULT_OK;
         if (res == 0)

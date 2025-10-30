@@ -572,6 +572,9 @@ bool PlayParamPlaybackControllerName::Validate(const PlayParamPlaybackController
     MDR_CHECK(is_valid(data.base.type), "type got an invalid enum value");
     MDR_CHECK(is_valid(data.base.command), "EnumRange check fail, must be one of Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM, got {}",data.base.command);
     MDR_CHECK(is_valid(data.base.type), "EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, got {}",data.base.type);
+    for (const auto& playbackNames_elem : data.playbackNames) {
+        MDR_CHECK(is_valid(playbackNames_elem.playbackNameStatus), "playbackNameStatus got an invalid enum value");
+    }
     return true;
 };
 bool PlayParamPlaybackControllerVolume::Validate(const PlayParamPlaybackControllerVolume& data) {

@@ -22,15 +22,20 @@ namespace mdr
 
     int MDRHeadphones::PollEvents()
     {
-        if (mdrConnectionPoll(mConn, 0) == MDR_RESULT_OK)
+        int r = mdrConnectionPoll(mConn, 0);
+        if (r == MDR_RESULT_OK)
         {
             // Non-blocking. INPROGRESS are expected, not so much for others.
             // Failfast if that happens - the owner usually has to die.
-            int r = Send();
+            r = Send();
             if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
                 return MDR_HEADPHONES_ERROR;
             r = Receive();
             if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
+                return MDR_HEADPHONES_ERROR;
+        } else
+        {
+            if (r != MDR_RESULT_ERROR_TIMEOUT)
                 return MDR_HEADPHONES_ERROR;
         }
         return MoveNext();

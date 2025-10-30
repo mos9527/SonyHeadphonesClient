@@ -100,6 +100,7 @@ struct MDRConnectionWindows
                 return MDR_RESULT_ERROR_NET;
             }
         }
+        ptr->lastError = "Connecting to WSA Bluetooth socket";
         return MDR_RESULT_INPROGRESS;
     }
 

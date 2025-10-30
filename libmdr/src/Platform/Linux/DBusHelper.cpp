@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
+#include <sys/poll.h>
 
 DBusConnection* dbus_open_system_bus(void)
 {
@@ -277,21 +278,34 @@ clean_up:
     return ret;
 }
 
-uint8_t sdp_getServiceChannel(const char* dev_addr, const uint8_t* uuid128)
+sdp_session* sdp_connect_nb(const char* dev_addr)
 {
-    int status;
     bdaddr_t target;
-    uuid_t svc_uuid;
-    sdp_list_t *response_list, *search_list, *attrid_list;
-    sdp_session_t* session = 0;
-    uint32_t range = 0x0000ffff;
-    uint8_t port = 0;
     str2ba(dev_addr, &target);
     /* connect to the SDP server running on the remote machine */
     const bdaddr_t bdaddr_any = {{0, 0, 0, 0, 0, 0}};
-    session = sdp_connect(&bdaddr_any, &target, SDP_RETRY_IF_BUSY);
-    if (!session)
-        return 0;
+    return reinterpret_cast<sdp_session*>(sdp_connect(&bdaddr_any, &target, SDP_NON_BLOCKING));
+}
+
+int sdp_poll(sdp_session* sess, int timeout)
+{
+    auto session = reinterpret_cast<sdp_session_t*>(sess);
+    int sock = sdp_get_socket(session);
+    pollfd pfd{
+        .fd = sock,
+        .events = POLLIN | POLLOUT
+    };
+    return poll(&pfd, 1, timeout);
+}
+
+uint8_t sdp_getServiceChannel(sdp_session* sess, const uint8_t* uuid128)
+{
+    auto session = reinterpret_cast<sdp_session_t*>(sess);
+    int status;
+    uuid_t svc_uuid;
+    sdp_list_t *response_list, *search_list, *attrid_list;
+    uint32_t range = 0x0000ffff;
+    uint8_t port = 0;
 
     sdp_uuid128_create(&svc_uuid, uuid128);
     search_list = sdp_list_append(0, &svc_uuid);
@@ -324,12 +338,11 @@ uint8_t sdp_getServiceChannel(const char* dev_addr, const uint8_t* uuid128)
     sdp_list_free(response_list, 0);
     sdp_list_free(search_list, 0);
     sdp_list_free(attrid_list, 0);
-    sdp_close(session);
-
-    if (port != 0)
-    {
-        printf("found service running on RFCOMM port %d\n", port);
-    }
-
     return port;
+}
+
+void sdp_close(sdp_session* sess)
+{
+    auto session = reinterpret_cast<sdp_session_t*>(sess);
+    sdp_close(session);
 }

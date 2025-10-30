@@ -152,6 +152,12 @@ namespace mdr
         // Pinned.
         MDRHeadphones(MDRHeadphones const&) = delete;
         MDRHeadphones(MDRHeadphones&&) = delete;
+        MDRHeadphones& operator= (MDRHeadphones&& other) noexcept
+        {
+            mConn = other.mConn;
+            other.mConn = nullptr;
+            return *this;
+        }
 
         constexpr operator bool() const noexcept { return mConn != nullptr; }
 

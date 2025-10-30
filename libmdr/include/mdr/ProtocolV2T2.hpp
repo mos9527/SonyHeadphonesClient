@@ -355,7 +355,7 @@ namespace mdr::v2::t2
         Array<char, kMacAddressLength> btDeviceAddress;
         // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
         UInt8 connectedStatus;
-        Int32BE bluetoothClassOfDevice;
+        Int24BE bluetoothClassOfDevice;
         MDRPrefixedString btFriendlyName;
 
         MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfoWithBluetoothClassOfDevice);
@@ -407,7 +407,7 @@ namespace mdr::v2::t2
 
     // - PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
 
-    struct PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice
+    struct  PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice
     {
         static constexpr size_t kBluetoothDeviceAddressLength = 17;
         // CODEGEN Field command EnumRange Command::PERI_RET_PARAM Command::PERI_SET_PARAM Command::PERI_NTFY_PARAM
