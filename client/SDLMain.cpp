@@ -7,14 +7,18 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+
+// Implemented by Client.cpp
 extern bool ShouldClientExit();
+// Implemented by Platform code
+extern void clientPlatformInit();
+extern void clientPlatformDestroy();
 
 bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 
-#include "Platform/Platform.hpp"
 void mainLoop()
 {
     ImGuiIO& io = ImGui::GetIO();

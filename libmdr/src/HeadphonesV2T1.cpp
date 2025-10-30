@@ -258,7 +258,7 @@ namespace mdr
             {
                 PowerRetStatusCradleBatteryThreshold res;
                 PowerRetStatusCradleBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
-                self->mBatteryL = {
+                self->mBatteryCase = {
                     res.batteryStatus.batteryStatus.batteryLevel,
                     res.batteryStatus.batteryThreshold,
                     res.batteryStatus.batteryStatus.chargingStatus

@@ -108,6 +108,10 @@ namespace mdr
 
     struct MDRHeadphones
     {
+    private:
+        MDRConnection* mConn;
+
+    public:
         enum AwaitType
         {
             // Wait for an immediate ACK from the device on the current task
@@ -140,24 +144,21 @@ namespace mdr
         };
 
         // NOLINTEND
+        MDRHeadphones() :
+            mConn(nullptr)
+        {
+        }
 
-        MDRConnection* mConn;
-
-        MDRHeadphones() : mConn(nullptr) {};
         explicit MDRHeadphones(MDRConnection* conn) :
             mConn(conn)
         {
         }
 
-        // Pinned.
+        // Move-only ctor
         MDRHeadphones(MDRHeadphones const&) = delete;
-        MDRHeadphones(MDRHeadphones&&) = delete;
-        MDRHeadphones& operator= (MDRHeadphones&& other) noexcept
-        {
-            mConn = other.mConn;
-            other.mConn = nullptr;
-            return *this;
-        }
+        MDRHeadphones(MDRHeadphones&&) noexcept = default;
+        MDRHeadphones& operator=(MDRHeadphones const&) = delete;
+        MDRHeadphones& operator=(MDRHeadphones&&) = default;
 
         constexpr operator bool() const noexcept { return mConn != nullptr; }
 
@@ -259,6 +260,7 @@ namespace mdr
             UInt8 threshold{};
             v2::t1::BatteryChargingStatus charging{};
         };
+
         BatteryState mBatteryL, mBatteryR, mBatteryCase;
 
         String mPlayTrackTitle;
@@ -276,6 +278,8 @@ namespace mdr
 #pragma endregion
 
 #pragma region Properties
+        MDRProperty<bool> mShutdown;
+
         MDRProperty<bool> mNcAsmEnabled;
         MDRProperty<bool> mNcAsmFocusOnVoice;
         MDRProperty<UInt8> mNcAsmAmbientLevel; // [0,20] - 0 is not possible on the App.
@@ -348,13 +352,13 @@ namespace mdr
         /**
          * @brief Requests all changed @ref MDRProperty up until this point to be set on the device
          * @note  To be used with @ref Invoke.
-        * @return @ref MDR_HEADPHONES_TASK_COMMIT_OK on completion (returned in @ref PollEvents)
+         * @return @ref MDR_HEADPHONES_TASK_COMMIT_OK on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommit();
 #pragma endregion
 
     private:
-        String mLastError{};
+        String mLastError = "N/A";
 
         std::deque<UInt8> mRecvBuf, mSendBuf;
         MDRCommandSeqNumber mSeqNumber{0};
@@ -419,6 +423,7 @@ namespace mdr
             size_t size = T::Serialize(command, buf, kMDRMaxPacketSize);
             SendCommandImpl({buf, buf + size}, type, mSeqNumber);
         }
+
         /**
          * @brief Handles current command, and generates an event associated with it.
          * @return One of MDR_HEADPHONES_* event types

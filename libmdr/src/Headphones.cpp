@@ -48,7 +48,7 @@ namespace mdr
 
     bool MDRHeadphones::IsDirty() const
     {
-        bool dirty = mNcAsmEnabled.dirty() || mNcAsmFocusOnVoice.dirty() || mNcAsmAmbientLevel.dirty();
+        bool dirty = mShutdown.dirty() || mNcAsmEnabled.dirty() || mNcAsmFocusOnVoice.dirty() || mNcAsmAmbientLevel.dirty();
         dirty |= mNcAsmButtonFunction.dirty() || mNcAsmMode.dirty() || mNcAsmAutoAsmEnabled.dirty();
         dirty |= mNcAsmNoiseAdaptiveSensitivity.dirty() || mPowerAutoOff.dirty() || mPlayPause.dirty();
         dirty |= mPowerAutoOffWearingDetection.dirty() || mPlayVolume.dirty() || mGsParamBool1.dirty();
@@ -125,12 +125,13 @@ namespace mdr
         // Task done?
         if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
             return taskResult;
+        int idleCode = mTask ? MDR_HEADPHONES_INPROGRESS : MDR_HEADPHONES_IDLE;
         if (mRecvBuf.empty())
-            return MDR_HEADPHONES_INPROGRESS;
+            return idleCode;
         auto commandBegin = std::ranges::find(mRecvBuf, kStartMarker);
         auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
         if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
-            return MDR_HEADPHONES_INPROGRESS; // Incomplete
+            return idleCode; // Incomplete
         MDRBuffer packedCommand{commandBegin, commandEnd + 1};
         MDRBuffer command;
         MDRDataType type;
@@ -150,7 +151,7 @@ namespace mdr
                 mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
             break;
         }
-        return MDR_HEADPHONES_INPROGRESS; // No event
+        return idleCode;
     }
 
     int MDRHeadphones::Invoke(MDRTask&& task)
@@ -198,7 +199,7 @@ namespace mdr
     {
         SendCommandACK(v2::t1::ConnectGetProtocolInfo);
         co_await Await(AWAIT_PROTOCOL_INFO);
-        MDR_CHECK(mProtocol.hasTable1, "Device doesn't support MDR V2 Table 1");
+        MDR_CHECK_MSG(mProtocol.hasTable1, "Device doesn't support MDR V2 Table 1");
         SendCommandACK(v2::t1::ConnectGetCapabilityInfo);
 
         /* Device Info */
@@ -453,6 +454,16 @@ namespace mdr
 
     MDRTask MDRHeadphones::RequestCommit()
     {
+        /* Shutdown */
+        if (mShutdown.dirty())
+        {
+            using namespace v2::t1;
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF) && mShutdown.desired)
+            {
+                SendCommandACK(PowerSetStatusPowerOff);
+            } else
+                mShutdown.overwrite(false);
+        }
         /* NC/ASM */
         if (mNcAsmAmbientLevel.dirty() || mNcAsmEnabled.dirty() || mNcAsmMode.dirty() ||
             mNcAsmFocusOnVoice.dirty() || mNcAsmAutoAsmEnabled.dirty() || mNcAsmNoiseAdaptiveSensitivity.dirty())
@@ -643,7 +654,7 @@ namespace mdr
                     eqOffset = 10;
                 if (res.bands.size() == 10)
                     eqOffset = 6;
-                MDR_CHECK(eqOffset, "mEqConfig size can only be 0, 5, or 10. Got {}.", mEqConfig.desired.size());
+                MDR_CHECK_MSG(eqOffset, "mEqConfig size can only be 0, 5, or 10. Got {}.", mEqConfig.desired.size());
                 for (size_t i = 0; i < mEqConfig.desired.size(); i++)
                     res.bands.value[i] = mEqConfig.desired[i] + eqOffset;
                 SendCommandACK(EqEbbParamEq, res);

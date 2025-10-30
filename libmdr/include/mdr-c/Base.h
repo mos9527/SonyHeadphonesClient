@@ -9,8 +9,9 @@
 #define MDR_RESULT_ERROR_NO_CONNECTION 6
 #define MDR_RESULT_ERROR_BAD_ADDRESS 7
 // MDR_HEADPHONES...
-#define MDR_HEADPHONES_ERROR (-1)
-#define MDR_HEADPHONES_INPROGRESS 0 // No command received, thus no events are generated
+#define MDR_HEADPHONES_ERROR (-2)
+#define MDR_HEADPHONES_INPROGRESS (-1) // No command received but there's a running task
+#define MDR_HEADPHONES_IDLE (0) // No command received and there's no running task
 // MDR_HEADPHONES_EVT...
 #define MDR_HEADPHONES_EVT_UNHANDLED 1 // Command received but we didn't care
 #define MDR_HEADPHONES_EVT_OK 2 // XXX: Placeholder for events I'm too lazy to label. Ideally - this should go.

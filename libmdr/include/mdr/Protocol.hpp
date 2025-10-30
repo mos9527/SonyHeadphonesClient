@@ -11,15 +11,15 @@
 #include <source_location>
 
 #include <fmt/format.h>
-#define MDR_CHECK(expr, format_str, ...) \
+#define MDR_CHECK_MSG(expr, format_str, ...) \
     { \
         auto const& srcloc = std::source_location::current(); \
         if(!(expr)) throw std::runtime_error(fmt::format("{}.\nExpression:" #expr "\nFunction: {}\nSource:{}#L{}",fmt::format(format_str __VA_OPT__(,) __VA_ARGS__), srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
     }
-#define MDR_ASSERT(expr) \
+#define MDR_CHECK(expr) \
     { \
     auto const& srcloc = std::source_location::current(); \
-    MDR_CHECK(expr, "Assertion failure.\nExpression:" #expr "\nFunction: {}\nSource:{}#L{}",  srcloc.function_name(), srcloc.file_name(), srcloc.line()) \
+    if(!(expr)) throw std::runtime_error(fmt::format("Check Failure.\nExpression:" #expr "\nFunction: {}\nSource:{}#L{}", srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
     }
 namespace mdr
 {
@@ -175,7 +175,7 @@ namespace mdr
         static size_t Read(const UInt8** ppSrcBuffer, T& value, size_t maxSize)
         {
             static_assert(MDRIsTrivial<T>, "MDRPod::Read requires trivial type T");
-            MDR_CHECK(sizeof(T) <= maxSize, "Not enough data to read");
+            MDR_CHECK_MSG(sizeof(T) <= maxSize, "Not enough data to read");
             std::memcpy(&value, *ppSrcBuffer, sizeof(T));
             *ppSrcBuffer += sizeof(T);
             return sizeof(T);
@@ -186,7 +186,7 @@ namespace mdr
         static size_t Write(T const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             static_assert(MDRIsTrivial<T>, "MDRPod::Write requires trivial type T");
-            MDR_CHECK(sizeof(T) <= maxSize, "Destination has not enough space to write");
+            MDR_CHECK_MSG(sizeof(T) <= maxSize, "Destination has not enough space to write");
             std::memcpy(*ppDstBuffer, &value, sizeof(T));
             *ppDstBuffer += sizeof(T);
             return sizeof(T);
@@ -232,7 +232,7 @@ namespace mdr
         {
             const UInt8 len = *(*ppSrcBuffer)++;
             maxSize--;
-            MDR_CHECK(len < 128 && len <= maxSize, "Invalid string length");
+            MDR_CHECK_MSG(len < 128 && len <= maxSize, "Invalid string length");
             str.value.resize(len);
             std::memcpy(str.value.data(), *ppSrcBuffer, len);
             *ppSrcBuffer += len;
@@ -241,8 +241,8 @@ namespace mdr
 
         static size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer, size_t maxSize)
         {
-            MDR_CHECK(str.value.length() < 128, "String too long to write");
-            MDR_CHECK(str.value.size() + 1 <= maxSize, "Destination has not enough space to write");
+            MDR_CHECK_MSG(str.value.length() < 128, "String too long to write");
+            MDR_CHECK_MSG(str.value.size() + 1 <= maxSize, "Destination has not enough space to write");
             *(*ppDstBuffer)++ = static_cast<UInt8>(str.value.length());
             std::memcpy(*ppDstBuffer, str.value.data(), str.value.length());
             *ppDstBuffer += str.value.length();
@@ -269,7 +269,7 @@ namespace mdr
         {
             UInt8 count = *(*ppSrcBuffer)++;
             size_t size = sizeof(T) * count;
-            MDR_CHECK(size <= maxSize, "Invalid array size");
+            MDR_CHECK_MSG(size <= maxSize, "Invalid array size");
             value.value.resize(count);
             std::memcpy(value.value.data(), *ppSrcBuffer, size);
             *ppSrcBuffer += size;
@@ -279,8 +279,8 @@ namespace mdr
         static size_t Write(MDRPodArray const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             size_t size = sizeof(T) * value.value.size();
-            MDR_CHECK(size < 256, "Array too long to write");
-            MDR_CHECK(size + 1 <= maxSize, "Destination has not enough space to write");
+            MDR_CHECK_MSG(size < 256, "Array too long to write");
+            MDR_CHECK_MSG(size + 1 <= maxSize, "Destination has not enough space to write");
             *(*ppDstBuffer)++ = static_cast<UInt8>(value.value.size());
             std::memcpy(*ppDstBuffer, value.value.data(), size);
             *ppDstBuffer += size;
@@ -319,7 +319,7 @@ namespace mdr
         static size_t Write(MDRArray const& value, UInt8** ppDstBuffer, size_t maxSize)
         {
             UInt8* ptr = *ppDstBuffer;
-            MDR_CHECK(value.value.size() < 256, "Array too long to write");
+            MDR_CHECK_MSG(value.value.size() < 256, "Array too long to write");
             maxSize--;
             *(*ppDstBuffer)++ = static_cast<UInt8>(value.value.size());
             for (const T& elem : value.value)
@@ -378,7 +378,7 @@ namespace mdr
     static size_t Serialize(const Type &data, UInt8* out, size_t maxSize) { \
         static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
-        MDR_CHECK(sizeof(Type) <= maxSize, "Destination has not enough space to write"); \
+        MDR_CHECK_MSG(sizeof(Type) <= maxSize, "Destination has not enough space to write"); \
         const UInt8 *ptr = reinterpret_cast<const UInt8*>(&data); \
         std::memcpy(out, ptr, sizeof(Type)); \
         return sizeof(Type); \
@@ -386,7 +386,7 @@ namespace mdr
     static void Deserialize(const UInt8* data, Type &out, size_t maxSize) { \
         static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
         static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
-        MDR_CHECK(sizeof(Type) <= maxSize, "Not enough data to read"); \
+        MDR_CHECK_MSG(sizeof(Type) <= maxSize, "Not enough data to read"); \
         std::memcpy(&out, data, sizeof(Type)); \
     } \
     static bool Validate(const Type& data);

@@ -68,6 +68,8 @@ struct MDRConnectionLinux
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         if (ptr->fd)
             close(ptr->fd), ptr->fd = 0;
+        if (ptr->sdpSession)
+            sdp_close(ptr->sdpSession), ptr->sdpSession = nullptr;
     }
 
     static int Recv(void* user, char* dst, int size, int* pReceived) noexcept
