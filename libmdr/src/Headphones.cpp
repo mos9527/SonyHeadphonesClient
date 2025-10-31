@@ -152,7 +152,7 @@ namespace mdr
                 std::ranges::fill(mAwaiters, nullptr);
                 mTask = {};
                 mLastError = "Timed out waiting for device response. Reconnect and try again";
-                return MDR_HEADPHONES_TASK_ERR_TIMEOUT;
+                return MDR_HEADPHONES_ERROR;
             }
             int taskResult;
             if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
@@ -635,18 +635,21 @@ namespace mdr
                 res.connectivityActionType = ConnectivityActionType::CONNECT;
                 std::memcpy(res.targetBdAddress.data(), mPairedDeviceConnectMac.desired.data(), 17);
                 mPairedDeviceConnectMac.overwrite("");
+                SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
             }
             if (mPairedDeviceDisconnectMac.dirty())
             {
                 res.connectivityActionType = ConnectivityActionType::DISCONNECT;
                 std::memcpy(res.targetBdAddress.data(), mPairedDeviceDisconnectMac.desired.data(), 17);
                 mPairedDeviceDisconnectMac.overwrite("");
+                SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
             }
             if (mPairedDeviceUnpairMac.dirty())
             {
                 res.connectivityActionType = ConnectivityActionType::UNPAIR;
                 std::memcpy(res.targetBdAddress.data(), mPairedDeviceUnpairMac.desired.data(), 17);
                 mPairedDeviceUnpairMac.overwrite("");
+                SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
             }
         }
 

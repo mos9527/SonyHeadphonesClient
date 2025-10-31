@@ -177,6 +177,76 @@ const char* FormatEnum(v2::t1::EqPresetId id)
         return "Unknown";
     }
 }
+
+const char* FormatEnum(v2::t1::Preset preset)
+{
+    using enum v2::t1::Preset;
+
+    switch (preset)
+    {
+    case AMBIENT_SOUND_CONTROL:
+        return "Ambient Sound Control";
+    case VOLUME_CONTROL:
+        return "Volume Control";
+    case PLAYBACK_CONTROL:
+        return "Playback Control";
+    case TRACK_CONTROL:
+        return "Track Control";
+    case PLAYBACK_CONTROL_VOICE_ASSISTANT_LIMITATION:
+        return "Playback Control";
+    case VOICE_RECOGNITION:
+        return "Voice Recognition";
+    case GOOGLE_ASSIST:
+        return "Google Assistant";
+    case AMAZON_ALEXA:
+        return "Amazon Alexa";
+    case TENCENT_XIAOWEI:
+        return "Tencent Xiaowei";
+    case AMBIENT_SOUND_CONTROL_QUICK_ACCESS:
+        return "Ambient Sound Control";
+    case QUICK_ACCESS:
+        return "Quick Access";
+    case NO_FUNCTION:
+        return "No Function";
+    default:
+        return "Unknown";
+    }
+}
+
+const char* FormatEnum(v2::t1::Function function)
+{
+    using enum v2::t1::Function;
+    switch (function)
+    {
+    case NO_FUNCTION:
+        return "No Function";
+    case NC_ASM_OFF:
+        return "NC-ASM-OFF";
+    case NC_ASM:
+        return "NC-ASM";
+    case NC_OFF:
+        return "NC-OFF";
+    case ASM_OFF:
+        return "ASM-OFF";
+    default:
+        return "Unknown";
+    }
+}
+const char* FormatEnum(v2::t1::AutoPowerOffElements off)
+{
+    using enum v2::t1::AutoPowerOffElements;
+    switch (off)
+    {
+    case POWER_OFF_IN_5_MIN : return "5 minutes of no Bluetooth connection";
+    case POWER_OFF_IN_15_MIN : return "15 minutes of no Bluetooth connection";
+    case POWER_OFF_IN_30_MIN : return "30 minutes of no Bluetooth connection";
+    case POWER_OFF_IN_60_MIN : return "1 hour of no Bluetooth connection";
+    case POWER_OFF_IN_180_MIN : return "3 hours of no Bluetooth connection";
+    case POWER_OFF_DISABLE : return "Do not turn off";
+    default:
+        return "Unknown";
+    }
+}
 #pragma endregion
 #pragma region ImGui Extra
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
@@ -529,7 +599,7 @@ void DrawDeviceControlsHeader()
                 v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR);
             supportCase |= gDevice.mSupport.contains(
                 v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
-            if (supportSingle && !supportLR)
+            if (supportSingle && !supportLR && gDevice.mBatteryL.threshold)
             {
                 float single = gDevice.mBatteryL.level;
                 single /= gDevice.mBatteryL.threshold;
@@ -537,7 +607,7 @@ void DrawDeviceControlsHeader()
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
             }
-            if (supportLR)
+            if (supportLR && gDevice.mBatteryL.threshold && gDevice.mBatteryR.threshold)
             {
                 float single = gDevice.mBatteryL.level;
                 single /= gDevice.mBatteryL.threshold;
@@ -550,7 +620,7 @@ void DrawDeviceControlsHeader()
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
             }
-            if (supportCase)
+            if (supportCase && gDevice.mBatteryCase.threshold)
             {
                 float single = gDevice.mBatteryCase.level;
                 single /= 100.0f; // gDevice.mBatteryCase.threshold <-- Wonky. Got threshold=30 and value=76 pairs
@@ -769,20 +839,19 @@ void DrawDeviceControlsDevices()
     auto devices = std::views::all(gDevice.mPairedDevices);
     auto connectedDevices = devices | std::views::filter([](auto const& x) { return x.connected; });
     auto unconncetedDevices = devices | std::views::filter([](auto const& x) { return !x.connected; });
+    static String connectSelectedMac;
     if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        static String connectSelectedMac;
         for (auto& device : connectedDevices)
             if (DrawDeviceElement(device, connectSelectedMac == device.macAddress))
-                connectSelectedMac = device.macAddress;
+                connectSelectedMac = connectSelectedMac == device.macAddress ? "" : device.macAddress;
         ImGui::TreePop();
     }
     if (ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        static String pairedSelectedMac;
         for (auto& device : unconncetedDevices)
-            if (DrawDeviceElement(device, pairedSelectedMac == device.macAddress))
-                pairedSelectedMac = device.macAddress;
+            if (DrawDeviceElement(device, connectSelectedMac == device.macAddress))
+                connectSelectedMac = connectSelectedMac == device.macAddress ? "" : device.macAddress;
         ImGui::TreePop();
     }
     if (gDevice.mPairingMode.desired)
@@ -800,6 +869,148 @@ void DrawDeviceControlsDevices()
             "NOTE: For TWS (Earbuds) devices, you may need to take both of your headphones out from your case.");
     }
     ImGui::EndDisabled();
+}
+
+void DrawDeviceControlsSystem()
+{
+    using F1 = v2::MessageMdrV2FunctionType_Table1;
+    constexpr auto kSupports = [](auto x) { return gDevice.mSupport.contains(x); };
+    /* General Settings */
+    {
+        // vvv Lexicographically sort these vvv
+        using StringPair = Pair<const char*, const char*>;
+        constexpr StringPair kGSSubjectStrings[] = {
+            {"MULTIPOINT_SETTING", "Connect to 2 devices simultaneously"},
+            {"SIDETONE_SETTING", "Capture Voice During a Phone Call"},
+            {"TOUCH_PANEL_SETTING", "Touch sensor control panel"}
+        };
+        constexpr StringPair kGSSummaryStrings[] = {
+            {"MULTIPOINT_SETTING_SUMMARY",
+             "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably without needing to switch connections. During simultaneous connections, playback with the LDAC codec is not possible even if Prioritize Sound Quality is selected."},
+            {"MULTIPOINT_SETTING_SUMMARY_LDAC_AVAILABLE",
+             "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably without needing to switch connections."},
+            {"SIDETONE_SETTING_SUMMARY",
+             "Your own voice will be easier to hear during calls. If your voice sounds too loud or background noise is distracting, please turn off this feature."},
+        };
+        constexpr auto kFormatGSString = [](const char* key, Span<const StringPair> strings) -> const char*
+        {
+            auto it = std::lower_bound(strings.begin(), strings.end(), key, [](const StringPair& lhs, const char* rhs)
+            {
+                return strcmp(lhs.first, rhs) < 0;
+            });
+            if (it == strings.end() || strcmp(it->first, key) != 0)
+                return "<Unknown>";
+            return it->second;
+        };
+        // ^^^
+        auto DrawGSBoolElement = [&](mdr::MDRHeadphones::GsCapability const& caps, MDRProperty<bool>& prop)
+        {
+            using namespace v2::t1;
+            if (caps.type != GsSettingType::BOOLEAN_TYPE)
+                return;
+            bool noSubject = caps.value.subject.value.empty();
+            bool noSummary = caps.value.summary.value.empty();
+            auto subject = kFormatGSString(caps.value.subject.value.c_str(), kGSSubjectStrings);
+            auto summary = kFormatGSString(caps.value.summary.value.c_str(), kGSSummaryStrings);
+            ImGui::BeginDisabled(noSubject);
+            ImGui::Checkbox(subject, &prop.desired);
+            if (!noSummary)
+            {
+                ImGui::Bullet();
+                ImGui::SameLine();
+                ImGui::TextWrapped("%s", summary);
+            }
+            ImGui::EndDisabled();
+        };
+        if (ImGui::TreeNodeEx("General Setting", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (kSupports(F1::GENERAL_SETTING_1))
+                DrawGSBoolElement(gDevice.mGsCapability1, gDevice.mGsParamBool1);
+            if (kSupports(F1::GENERAL_SETTING_2))
+                DrawGSBoolElement(gDevice.mGsCapability2, gDevice.mGsParamBool2);
+            if (kSupports(F1::GENERAL_SETTING_3))
+                DrawGSBoolElement(gDevice.mGsCapability3, gDevice.mGsParamBool3);
+            if (kSupports(F1::GENERAL_SETTING_4))
+                DrawGSBoolElement(gDevice.mGsCapability4, gDevice.mGsParamBool4);
+            ImGui::TreePop();
+        }
+    }
+    /* Assignable Settings */
+    {
+        using enum v2::t1::Preset;
+        constexpr v2::t1::Preset kSelections[] = {PLAYBACK_CONTROL, AMBIENT_SOUND_CONTROL_QUICK_ACCESS, NO_FUNCTION};
+        if (kSupports(F1::ASSIGNABLE_SETTING))
+        {
+            if (ImGui::TreeNodeEx("Touch Preset", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImComboBoxItems<v2::t1::Preset>("Left Touch", kSelections, gDevice.mTouchFunctionLeft.desired);
+                ImComboBoxItems<v2::t1::Preset>("Right Touch", kSelections, gDevice.mTouchFunctionRight.desired);
+                ImGui::TreePop();
+            }
+        }
+    }
+    /* NC/ASM Button Settings */
+    {
+        using enum v2::t1::Function;
+        constexpr v2::t1::Function kSelections[] = { NO_FUNCTION, NC_ASM_OFF, NC_ASM,NC_OFF,ASM_OFF };
+        if (kSupports(F1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        {
+            if (ImGui::TreeNodeEx("NC/AMB Button Function",ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImComboBoxItems<v2::t1::Function>("Function", kSelections, gDevice.mNcAsmButtonFunction.desired);
+                ImGui::TreePop();
+            }
+        }
+    }
+    /* Head Gesture */
+    {
+        if (kSupports(F1::HEAD_GESTURE_ON_OFF_TRAINING))
+        {
+            if (ImGui::TreeNodeEx("Head Gesture",ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("Enabled", &gDevice.mHeadGestureEnabled.desired);
+                ImGui::TreePop();
+            }
+        }
+    }
+    /* Auto Power Off */
+    {
+        using enum v2::t1::AutoPowerOffElements;
+        constexpr v2::t1::AutoPowerOffElements kSelections[] = {
+            POWER_OFF_DISABLE,POWER_OFF_IN_5_MIN, POWER_OFF_IN_15_MIN,POWER_OFF_IN_30_MIN,POWER_OFF_IN_60_MIN,POWER_OFF_IN_180_MIN
+        };
+        bool supportAutoOff = kSupports(F1::AUTO_POWER_OFF), supportAutoOffWear =kSupports(F1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
+        if (supportAutoOff || supportAutoOffWear)
+        {
+            if (ImGui::TreeNodeEx("Auto Power Off",ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImComboBoxItems<v2::t1::AutoPowerOffElements>("Time", kSelections, gDevice.mPowerAutoOff.desired);
+                ImGui::TreePop();
+            }
+        }
+    }
+    /* Auto Pause */
+    {
+        if (kSupports(F1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+        {
+            if (ImGui::TreeNodeEx("Pause when removed", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("Enabled", &gDevice.mAutoPauseEnabled.desired);
+                ImGui::TreePop();
+            }
+        }
+    }
+    /* Voice Guidance */
+    {
+        if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Enabled", &gDevice.mVoiceGuidanceEnabled.desired);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            if (kSupports(v2::MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
+                ImGui::SliderInt("Volume", &gDevice.mVoiceGuidanceVolume.desired, -2, 2);
+            ImGui::TreePop();
+        }
+    }
 }
 
 void DrawDeviceControlsTabs()
@@ -821,6 +1032,12 @@ void DrawDeviceControlsTabs()
             DrawDeviceControlsDevices();
             ImGui::EndTabItem();
         }
+        if (ImGui::BeginTabItem("System"))
+        {
+            DrawDeviceControlsSystem();
+            ImGui::EndTabItem();
+        }
+
         ImGui::EndTabBar();
     }
 }
@@ -846,7 +1063,6 @@ void DrawDeviceControls()
             if (gDevice.IsDirty())
                 MDR_CHECK(gDevice.Invoke(gDevice.RequestCommit()) == MDR_RESULT_OK);
             return;
-        case MDR_HEADPHONES_TASK_ERR_TIMEOUT:
         case MDR_HEADPHONES_ERROR:
             // Irrecoverable. Disconnect now.
             mdrConnectionDisconnect(conn);
