@@ -268,10 +268,10 @@ void ImSetNextWindowCentered()
     auto& style = ImGui::GetStyle();
     float padding = style.FramePadding.x;
     ImGui::SetNextWindowPos(
-        ImGui::GetContentRegionAvail() / 2 + ImVec2{padding, 0},
-        0, {0.5f, 0.5f}
+        {0.0f, ImGui::GetContentRegionAvail().y / 2 + padding},
+        0, {0.0f, 0.5f}
         );
-    ImGui::SetNextWindowSize({0, 0});
+    ImGui::SetNextWindowSize({ImGui::GetIO().DisplaySize.x, 0});
 }
 
 void ImTextWithBorder(const char* text, int color, float rounding = 0.0f, float thickness = 1.0f)
@@ -796,7 +796,8 @@ void DrawDeviceControlsDevices()
     {
         if (ImModalButton("Connect to New Device"))
             gDevice.mPairingMode.desired = true;
-        ImGui::TextWrapped("NOTE: For TWS (Earbuds) devices, you may need to take both of your headphones out from your case.");
+        ImGui::TextWrapped(
+            "NOTE: For TWS (Earbuds) devices, you may need to take both of your headphones out from your case.");
     }
     ImGui::EndDisabled();
 }
