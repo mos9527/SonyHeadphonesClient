@@ -1,0 +1,30 @@
+# From https://github.com/libsdl-org/SDL/blob/main/cmake/sdlplatform.cmake
+# sans some platforms that we'll NEVER support
+# Sets MDR_PLATFORM_OS to one of WIN32, MACOS, IOS, LINUX, ANDROID, EMSCRIPTEN
+# And dies on unsupported ones.
+function(MDR_DetectPlatform)
+    set(MDR_PLATFORM_OS "UNKNOWN")
+    if(WIN32)
+        set(MDR_PLATFORM_OS "WIN32")
+    elseif(APPLE)
+        if(CMAKE_SYSTEM_NAME MATCHES ".*(Darwin|MacOS).*")
+            set(MDR_PLATFORM_OS "MACOS")
+        elseif(CMAKE_SYSTEM_NAME MATCHES ".*iOS.*")
+            set(MDR_PLATFORM_OS "IOS")
+        else()
+            message(WARNING "Unsupported Apple platform: \"${CMAKE_SYSTEM_NAME}\"")
+        endif()
+    elseif(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
+        set(MDR_PLATFORM_OS "LINUX")
+    elseif(CMAKE_SYSTEM_NAME MATCHES "Android.*")
+        set(MDR_PLATFORM_OS "ANDROID")
+    elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten.*")
+        set(MDR_PLATFORM_OS "EMSCRIPTEN")
+    endif()
+
+    set(MDR_PLATFORM_OS "${MDR_PLATFORM_OS}" PARENT_SCOPE)
+    message(STATUS "Detected Platform: ${MDR_PLATFORM_OS}")
+    if (MDR_PLATFORM_OS STREQUAL "UNKNOWN")
+        message(FATAL_ERROR "Current platform is unsupported")
+    endif()
+endfunction()

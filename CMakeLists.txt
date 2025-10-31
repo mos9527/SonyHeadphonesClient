@@ -11,19 +11,18 @@ else()
     add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable")
 endif()
 
-set(MDR_PLATFORM_OS "")
-if(EMSCRIPTEN)
-    set(MDR_PLATFORM_OS "EMSCRIPTEN")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+
+include(DetectPlatform.cmake)
+MDR_DetectPlatform() # Sets MDR_PLATFORM_OS
+
+if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+    # For Emscripten: We use exceptions mainly for Validation and MDR_CHECKs
+    # Do note that the overhead from exceptions is not trivial _even if_ we don't
+    # take the slow path.
+    # TODO: Disable exceptions (and therefore _die_ on any) on exception disabled builds
     add_link_options("-fexceptions" "-sALLOW_MEMORY_GROWTH" "-sEXCEPTION_CATCHING_ALLOWED=[..]")
     add_compile_options("-fexceptions")
-elseif (UNIX AND NOT APPLE)
-    set(MDR_PLATFORM_OS "LINUX")
-elseif(WIN32)
-    set(MDR_PLATFORM_OS "WIN32")
-elseif(APPLE)
-    set(MDR_PLATFORM_OS "MACOS")
-else ()
-    message(FATAL_ERROR "Current platform is unsupported!")
 endif()
 
 add_compile_definitions("MDR_PLATFORM_${MDR_PLATFORM_OS}")
