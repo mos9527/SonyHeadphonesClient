@@ -249,6 +249,7 @@ namespace mdr
         {
             String macAddress;
             String name;
+            bool connected;
         };
 
         Vector<PeripheralDevice> mPairedDevices;
@@ -336,6 +337,7 @@ namespace mdr
         MDRProperty<bool> mPairingMode;
 
         MDRProperty<String> mMultipointDeviceMac;
+        MDRProperty<String> mPairedDeviceDisconnectMac, mPairedDeviceConnectMac, mPairedDeviceUnpairMac;
 
         MDRProperty<bool> mSafeListeningPreviewMode;
 #pragma endregion

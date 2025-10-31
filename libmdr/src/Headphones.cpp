@@ -33,7 +33,8 @@ namespace mdr
             r = Receive();
             if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
                 return MDR_HEADPHONES_ERROR;
-        } else
+        }
+        else
         {
             if (r != MDR_RESULT_ERROR_TIMEOUT)
                 return MDR_HEADPHONES_ERROR;
@@ -48,7 +49,8 @@ namespace mdr
 
     bool MDRHeadphones::IsDirty() const
     {
-        bool dirty = mShutdown.dirty() || mNcAsmEnabled.dirty() || mNcAsmFocusOnVoice.dirty() || mNcAsmAmbientLevel.dirty();
+        bool dirty = mShutdown.dirty() || mNcAsmEnabled.dirty() || mNcAsmFocusOnVoice.dirty() || mNcAsmAmbientLevel.
+            dirty();
         dirty |= mNcAsmButtonFunction.dirty() || mNcAsmMode.dirty() || mNcAsmAutoAsmEnabled.dirty();
         dirty |= mNcAsmNoiseAdaptiveSensitivity.dirty() || mPowerAutoOff.dirty() || mPlayControl.dirty();
         dirty |= mPowerAutoOffWearingDetection.dirty() || mPlayVolume.dirty() || mGsParamBool1.dirty();
@@ -61,6 +63,8 @@ namespace mdr
         dirty |= mEqPresetId.dirty() || mEqClearBass.dirty() || mEqConfig.dirty();
         dirty |= mVoiceGuidanceEnabled.dirty() || mVoiceGuidanceVolume.dirty() || mPairingMode.dirty();
         dirty |= mMultipointDeviceMac.dirty() || mSafeListeningPreviewMode.dirty();
+        dirty |= mPairedDeviceConnectMac.dirty() || mPairedDeviceDisconnectMac.dirty() || mPairedDeviceUnpairMac.
+            dirty();
         return dirty;
     }
 
@@ -127,13 +131,14 @@ namespace mdr
         // since waiting there would just hang everything
         {
             using namespace std::literals;
-            constexpr auto kTimeout = 1000ms;
+            constexpr auto kTimeout = 10000ms;
             // ^^ This is being _very_ generous
             auto now = std::chrono::steady_clock::now();
             bool stop = false;
-            for (int i = 0; !stop && i < AWAIT_NUM_TYPES;i++)
+            for (int i = 0; !stop && i < AWAIT_NUM_TYPES; i++)
             {
-                if (!mAwaiters[i]) continue;
+                if (!mAwaiters[i])
+                    continue;
                 auto duration = now - mAwaiterTimes[i];
                 if (duration > kTimeout)
                     stop = true;
@@ -307,7 +312,8 @@ namespace mdr
         SendCommandACK(v2::t1::GetPlayParam, { .type = v2::t1::PlayInquiredType::MUSIC_VOLUME });
 
         /* Play/Pause */
-        SendCommandACK(v2::t1::GetPlayStatus, { .type = v2::t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+        SendCommandACK(v2::t1::GetPlayStatus,
+                       { .type = v2::t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
 
         /* NC/AMB */
         if (mSupport.contains(
@@ -493,7 +499,8 @@ namespace mdr
             if (mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF) && mShutdown.desired)
             {
                 SendCommandACK(PowerSetStatusPowerOff);
-            } else
+            }
+            else
                 mShutdown.overwrite(false);
         }
         /* NC/ASM */
@@ -596,6 +603,53 @@ namespace mdr
             }
         }
 
+        /* Connection Ops */
+        {
+            using namespace v2::t2;
+            PeripheralInquiredType type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT;
+            if (mSupport.contains(v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+            {
+                type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT;
+            }
+            else if (
+                mSupport.contains(
+                    v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+                ||
+                mSupport.contains(
+                    v2::MessageMdrV2FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE)
+            )
+            {
+                type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE;
+            } else
+            {
+                // Unsupported. Ignore the rest.
+                mPairedDeviceConnectMac.overwrite("");
+                mPairedDeviceDisconnectMac.overwrite("");
+                mPairedDeviceUnpairMac.overwrite("");
+            }
+            PeripheralSetExtendedParamParingDeviceManagementCommon res;
+            res.base.command = Command::PERI_SET_EXTENDED_PARAM;
+            res.base.type = type;
+            if (mPairedDeviceConnectMac.dirty())
+            {
+                res.connectivityActionType = ConnectivityActionType::CONNECT;
+                std::memcpy(res.targetBdAddress.data(), mPairedDeviceConnectMac.desired.data(), 17);
+                mPairedDeviceConnectMac.overwrite("");
+            }
+            if (mPairedDeviceDisconnectMac.dirty())
+            {
+                res.connectivityActionType = ConnectivityActionType::DISCONNECT;
+                std::memcpy(res.targetBdAddress.data(), mPairedDeviceDisconnectMac.desired.data(), 17);
+                mPairedDeviceDisconnectMac.overwrite("");
+            }
+            if (mPairedDeviceUnpairMac.dirty())
+            {
+                res.connectivityActionType = ConnectivityActionType::UNPAIR;
+                std::memcpy(res.targetBdAddress.data(), mPairedDeviceUnpairMac.desired.data(), 17);
+                mPairedDeviceUnpairMac.overwrite("");
+            }
+        }
+
         /* Pairing Mode */
         if (mPairingMode.dirty())
         {
@@ -691,7 +745,8 @@ namespace mdr
             if (eqBands == 0)
             {
                 mEqConfig.commit(), mEqClearBass.commit();
-            } else
+            }
+            else
             {
                 auto& bands = mEqConfig.desired;
                 if (eqBands == 5)
@@ -834,6 +889,7 @@ namespace mdr
             }
         }
 
+        /* Voice Guidance */
         if (mVoiceGuidanceEnabled.dirty())
         {
             using namespace v2::t2;

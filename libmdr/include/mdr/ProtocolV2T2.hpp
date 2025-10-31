@@ -321,7 +321,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN Field command EnumRange Command::PERI_RET_STATUS Command::PERI_SET_STATUS Command::PERI_NTFY_STATUS
         // CODEGEN Field type EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
-        PeripheralBase base{Command::PERI_SET_STATUS, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT};
+        PeripheralBase base{Command::PERI_SET_STATUS, PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE};
         PeripheralBluetoothMode btMode; // 0x2
         MessageMdrV2EnableDisable enableDisableStatus; // 0x3
 
@@ -338,8 +338,9 @@ namespace mdr::v2::t2
     struct PeripheralDeviceInfo
     {
         static constexpr size_t kMacAddressLength = 17;
-        Array<char, kMacAddressLength> btDeviceAddress;
         // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+        Array<char, kMacAddressLength> btDeviceAddress;
+        // Non-0 if connected
         UInt8 connectedStatus;
         MDRPrefixedString btFriendlyName;
 
@@ -352,8 +353,9 @@ namespace mdr::v2::t2
         static constexpr size_t kMacAddressLength = 17;
         static constexpr uint32_t kUnknownClassOfDevice = 0xFFFFFF;
 
-        Array<char, kMacAddressLength> btDeviceAddress;
         // MAC address "XX:XX:XX:XX:XX:XX" (17 bytes, no null terminator)
+        Array<char, kMacAddressLength> btDeviceAddress;
+        // Non-0 if connected
         UInt8 connectedStatus;
         Int24BE bluetoothClassOfDevice;
         MDRPrefixedString btFriendlyName;

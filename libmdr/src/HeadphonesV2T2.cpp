@@ -54,8 +54,7 @@ namespace mdr
         {
             PeripheralStatusPairingDeviceManagementCommon res;
             PeripheralStatusPairingDeviceManagementCommon::Deserialize(cmd.data(), res, cmd.size());
-            self->mPairingMode.overwrite(res.enableDisableStatus == v2::MessageMdrV2EnableDisable::ENABLE &&
-                res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+            self->mPairingMode.overwrite(res.enableDisableStatus == v2::MessageMdrV2EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
             return MDR_HEADPHONES_EVT_BLUETOOTH_MODE;
         }
         default:
@@ -101,6 +100,7 @@ namespace mdr
                 auto& mac = res.deviceList.value[i].btDeviceAddress;
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                 self->mPairedDevices[i].name = res.deviceList.value[i].btFriendlyName.value;
+                self->mPairedDevices[i].connected = res.deviceList.value[i].connectedStatus;
             }
             self->mPairedDevicesPlaybackDeviceIndex = res.playbackDevice;
             self->mMultipointDeviceMac.overwrite(
@@ -117,6 +117,7 @@ namespace mdr
                 auto& mac = res.deviceList.value[i].btDeviceAddress;
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                 self->mPairedDevices[i].name = res.deviceList.value[i].btFriendlyName.value;
+                self->mPairedDevices[i].connected = res.deviceList.value[i].connectedStatus;
             }
             self->mPairedDevicesPlaybackDeviceIndex = res.playbackDevice;
             self->mMultipointDeviceMac.overwrite(

@@ -1,11 +1,13 @@
+#include <ranges>
+#include <algorithm>
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #include <imgui.h>
+#include <SDL2/SDL.h>
 
 #include <mdr/Headphones.hpp>
 #include "Platform/Platform.hpp"
-
-#include <SDL2/SDL.h>
 using namespace mdr;
 
 mdr::MDRHeadphones gDevice;
@@ -246,7 +248,7 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
         pp *= size, pp += offset, pp.x += size, pp.y += size;
     }
     draw->AddPolyline(points, std::size(kPoints), color, ImDrawFlags_Closed, thickness);
-    ImGui::Dummy({sqrt(2.0f) * size, sqrt(2.0f) * size});
+    ImGui::Dummy({sqrt(2.0f) * size, sqrt(2.0f) * size + ImGui::GetStyle().FramePadding.y * 2.0f});
 }
 
 // Fill the available horizontal region with lineTotal amount of buttons
@@ -266,7 +268,7 @@ void ImSetNextWindowCentered()
     auto& style = ImGui::GetStyle();
     float padding = style.FramePadding.x;
     ImGui::SetNextWindowPos(
-        ImGui::GetContentRegionAvail() / 2 + ImVec2{padding * 2, 0} /* <- I have no idea why it's 2 times */,
+        ImGui::GetContentRegionAvail() / 2 + ImVec2{padding, 0},
         0, {0.5f, 0.5f}
         );
     ImGui::SetNextWindowSize({0, 0});
@@ -544,7 +546,7 @@ void DrawDeviceControlsHeader()
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
                 single = gDevice.mBatteryR.level;
                 single /= gDevice.mBatteryR.threshold;
-                ImGui::Text("R: %.2f%%", single* 100);
+                ImGui::Text("R: %.2f%%", single * 100);
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
             }
@@ -553,7 +555,7 @@ void DrawDeviceControlsHeader()
                 float single = gDevice.mBatteryCase.level;
                 single /= 100.0f; // gDevice.mBatteryCase.threshold <-- Wonky. Got threshold=30 and value=76 pairs
                 // Seems like 100.0f is always the case for...case
-                ImGui::Text("Case: %.2f%%", single* 100);
+                ImGui::Text("Case: %.2f%%", single * 100);
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryCase.charging));
             }
@@ -731,6 +733,74 @@ void DrawDeviceControlsSound()
     }
 }
 
+void DrawDeviceControlsDevices()
+{
+    using F2 = v2::MessageMdrV2FunctionType_Table2;
+    constexpr auto kSupports = [](auto x) { return gDevice.mSupport.contains(x); };
+    bool supportDeviceMgmt = kSupports(F2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
+        || kSupports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+        || kSupports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE);
+    if (!supportDeviceMgmt)
+        ImGui::Text("Please enable \"Connect to 2 devices simultaneously\" in System settings to manage devices.");
+    ImGui::BeginDisabled(!supportDeviceMgmt);
+    auto DrawDeviceElement = [&](const mdr::MDRHeadphones::PeripheralDevice& device, bool selected) -> bool
+    {
+        ImGui::BeginGroup();
+        bool res = ImGui::Selectable(device.name.c_str(), selected);
+        if (selected)
+        {
+            ImGui::Separator();
+            if (device.connected)
+            {
+                if (ImModalButton("Disconnect", 0, 2))
+                    gDevice.mPairedDeviceDisconnectMac.desired = device.macAddress;
+            }
+            else
+            {
+                if (ImModalButton("Connect", 0, 2))
+                    gDevice.mPairedDeviceConnectMac.desired = device.macAddress;
+            }
+            if (ImModalButton("Unpair", 1, 2))
+                gDevice.mPairedDeviceUnpairMac.desired = device.macAddress;
+        }
+        ImGui::EndGroup();
+        return res;
+    };
+    auto devices = std::views::all(gDevice.mPairedDevices);
+    auto connectedDevices = devices | std::views::filter([](auto const& x) { return x.connected; });
+    auto unconncetedDevices = devices | std::views::filter([](auto const& x) { return !x.connected; });
+    if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        static String connectSelectedMac;
+        for (auto& device : connectedDevices)
+            if (DrawDeviceElement(device, connectSelectedMac == device.macAddress))
+                connectSelectedMac = device.macAddress;
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        static String pairedSelectedMac;
+        for (auto& device : unconncetedDevices)
+            if (DrawDeviceElement(device, pairedSelectedMac == device.macAddress))
+                pairedSelectedMac = device.macAddress;
+        ImGui::TreePop();
+    }
+    if (gDevice.mPairingMode.desired)
+    {
+        ImTextCentered("Pairing...");
+        ImSpinner(1000.0f, 16.0f, IM_COL32(0, 255, 0, 255), 2.0f, true, 1.0f, ImEaseInOutCubic);
+        if (ImModalButton("Stop"))
+            gDevice.mPairingMode.desired = false;
+    }
+    else
+    {
+        if (ImModalButton("Connect to New Device"))
+            gDevice.mPairingMode.desired = true;
+        ImGui::TextWrapped("NOTE: For TWS (Earbuds) devices, you may need to take both of your headphones out from your case.");
+    }
+    ImGui::EndDisabled();
+}
+
 void DrawDeviceControlsTabs()
 {
     if (ImGui::BeginTabBar("##Controls"))
@@ -743,6 +813,11 @@ void DrawDeviceControlsTabs()
         if (ImGui::BeginTabItem("Sound"))
         {
             DrawDeviceControlsSound();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Devices"))
+        {
+            DrawDeviceControlsDevices();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
