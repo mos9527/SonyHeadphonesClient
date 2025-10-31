@@ -1,6 +1,5 @@
-// File: 'Cousine-Regular.ttf' (43912 bytes)
-// Exported using binary_to_compressed_c.exe -base85 "Cousine-Regular.ttf" Cousine
-static const char Cousine_Regular_compressed_data_base85[47040+1] =
+// Generated with tooling/BinaryEmbed.cpp
+const char FontCousineRegular[47040+1] =
     "7])#######WNWrN'/###I),##bw9hLQXH##j$1S:'>pgL@Kt(9668X%QUQl;1TmEd;Q^rEN@4',:a`T9-V:;$wmZJ;V'q?-'Tx-31s(U<h2TlSQv$sAqV,-G+D1>V,nHS[J)-5J<gXG-"
     "EXd;^*1kHVn[<?6$jg0Ffc:jLH^^/1/%@W$%J%/GDhno%IU%d3-q+5(,5LsC8%JsKtc0=QFp<%9b';9C&u(rNAWC&,r1dD4AJr9.afNMB)a4&>V3dW.;h^`I8bo#e#,Ncs8cB3_o6Q<B"
     "uY3Ugi[2bj:8&9]0iR/GcI,,DID^VIeQi)3+>00Fcc<;5gfCfUW*35&S$S+HV2Z,v?to=Y-5YY#@cFVCSY)TspD/2'[G:;$gmRfL_C*j0%ow'XodPirJ[m##>hjYdswgZNHM]Cs6%_fh"

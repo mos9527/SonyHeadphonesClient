@@ -23,6 +23,7 @@ target_sources(
         PRIVATE
         SDLMain.cpp
         Client.cpp
+        Fonts/CousineRegular.c
 )
 set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
 set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
