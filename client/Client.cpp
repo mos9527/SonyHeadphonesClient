@@ -816,7 +816,12 @@ void DrawDeviceControlsDevices()
     auto DrawDeviceElement = [&](const mdr::MDRHeadphones::PeripheralDevice& device, bool selected) -> bool
     {
         ImGui::BeginGroup();
+        bool mpActive = device.macAddress == gDevice.mMultipointDeviceMac.current;
+        if (mpActive)
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,255,0,255));
         bool res = ImGui::Selectable(device.name.c_str(), selected);
+        if (mpActive)
+            ImGui::PopStyleColor();
         if (selected)
         {
             ImGui::Separator();
@@ -824,6 +829,8 @@ void DrawDeviceControlsDevices()
             {
                 if (ImModalButton("Disconnect", 0, 2))
                     gDevice.mPairedDeviceDisconnectMac.desired = device.macAddress;
+                if (res)
+                    gDevice.mMultipointDeviceMac.desired = device.macAddress;
             }
             else
             {
@@ -1012,7 +1019,84 @@ void DrawDeviceControlsSystem()
         }
     }
 }
+void DrawDeviceControlsAbout()
+{
+    if (ImGui::TreeNodeEx("Model", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::BeginTable("##ModelTable", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit))
+        {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Model:");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", gDevice.mModelName.c_str());
 
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("MAC:");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", gDevice.mUniqueId.c_str());
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Firmware Version:");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", gDevice.mFWVersion.c_str());
+
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Series:");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", format_as(gDevice.mModelSeries));
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Color:");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%s", format_as(gDevice.mModelColor));
+
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Support Functions 1", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::BeginTable("##SF1", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit))
+        {
+            for (int i = 0; i < 256;i++)
+            {
+                auto elem = static_cast<v2::MessageMdrV2FunctionType_Table1>(i);
+                if (!is_valid(elem)) continue;
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", format_as(elem));
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text(gDevice.mSupport.contains(elem) ? "YES" : "NO");
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Support Functions 2", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::BeginTable("##SF2", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit))
+        {
+            for (int i = 0; i < 256;i++)
+            {
+                auto elem = static_cast<v2::MessageMdrV2FunctionType_Table2>(i);
+                if (!is_valid(elem)) continue;
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", format_as(elem));
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text(gDevice.mSupport.contains(elem) ? "YES" : "NO");
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+}
 void DrawDeviceControlsTabs()
 {
     if (ImGui::BeginTabBar("##Controls"))
@@ -1037,7 +1121,11 @@ void DrawDeviceControlsTabs()
             DrawDeviceControlsSystem();
             ImGui::EndTabItem();
         }
-
+        if (ImGui::BeginTabItem("About"))
+        {
+            DrawDeviceControlsAbout();
+            ImGui::EndTabItem();
+        }
         ImGui::EndTabBar();
     }
 }
@@ -1088,8 +1176,8 @@ void DrawDeviceDisconnect()
         ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 2.0f, true);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
-        ImGui::Text("Connection: %s", mdrConnectionGetLastError(conn));
-        ImGui::Text("Headphones: %s", gDevice.GetLastError());
+        ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
+        ImGui::TextWrapped("Headphones: %s", gDevice.GetLastError());
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton("OK", 1, 1))

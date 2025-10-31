@@ -94,6 +94,7 @@ namespace mdr
         {
             PeripheralParamPairingDeviceManagementClassicBt res;
             PeripheralParamPairingDeviceManagementClassicBt::Deserialize(cmd.data(), res, cmd.size());
+            self->mPairedDevicesPlaybackDeviceID = res.playbackDevice;
             self->mPairedDevices.resize(res.deviceList.size());
             for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
             {
@@ -101,16 +102,16 @@ namespace mdr
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                 self->mPairedDevices[i].name = res.deviceList.value[i].btFriendlyName.value;
                 self->mPairedDevices[i].connected = res.deviceList.value[i].connectedStatus;
+                if (res.deviceList.value[i].connectedStatus == res.playbackDevice)
+                    self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
             }
-            self->mPairedDevicesPlaybackDeviceIndex = res.playbackDevice;
-            self->mMultipointDeviceMac.overwrite(
-                self->mPairedDevices[self->mPairedDevicesPlaybackDeviceIndex].macAddress);
             return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
         }
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
             PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice res;
             PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Deserialize(cmd.data(), res, cmd.size());
+            self->mPairedDevicesPlaybackDeviceID = res.playbackDevice;
             self->mPairedDevices.resize(res.deviceList.size());
             for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
             {
@@ -118,10 +119,9 @@ namespace mdr
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                 self->mPairedDevices[i].name = res.deviceList.value[i].btFriendlyName.value;
                 self->mPairedDevices[i].connected = res.deviceList.value[i].connectedStatus;
+                if (res.deviceList.value[i].connectedStatus == res.playbackDevice)
+                    self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
             }
-            self->mPairedDevicesPlaybackDeviceIndex = res.playbackDevice;
-            self->mMultipointDeviceMac.overwrite(
-                self->mPairedDevices[self->mPairedDevicesPlaybackDeviceIndex].macAddress);
             return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
         }
         default:

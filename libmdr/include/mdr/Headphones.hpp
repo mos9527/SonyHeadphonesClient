@@ -234,7 +234,7 @@ namespace mdr
             }
         } mSupport{};
 
-        String mUniqueId;
+        String mUniqueId; // MAC Address
         String mFWVersion;
         String mModelName;
         v2::t1::ModelSeriesType mModelSeries{};
@@ -253,7 +253,7 @@ namespace mdr
         };
 
         Vector<PeripheralDevice> mPairedDevices;
-        UInt8 mPairedDevicesPlaybackDeviceIndex{};
+        UInt8 mPairedDevicesPlaybackDeviceID{};
 
         int mSafeListeningSoundPressure{};
 
@@ -372,22 +372,6 @@ namespace mdr
         MDRTask mTask;
         Array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
         Array<std::chrono::time_point<std::chrono::steady_clock>, AWAIT_NUM_TYPES> mAwaiterTimes{};
-
-        // XXX: So, very naive. We just die if anything bad happens.
-        bool ExceptionHandler(auto&& func)
-        {
-            try
-            {
-                return func();
-            }
-            catch (const std::runtime_error& exc)
-            {
-                fmt::println("!!! Exception: {}", exc.what());
-                mLastError = exc.what();
-                mConn->disconnect(mConn->user);
-            }
-            return false;
-        }
 
         // Friend of PollEvents, so friend of yours too.
         int Receive();

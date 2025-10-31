@@ -148,14 +148,13 @@ namespace mdr
                 // Pretty bad. The task here needs to die prematurely.
                 // Since there's only Task one at a time - clear every awaiter
                 // and the task itself
-                fmt::println("FIXME: Task killed prematurely due to timeout");
                 std::ranges::fill(mAwaiters, nullptr);
                 mTask = {};
-                mLastError = "Timed out waiting for device response. Reconnect and try again";
+                mLastError = "FIXME-Timed out waiting for device response. Reconnect and try again";
                 return MDR_HEADPHONES_ERROR;
             }
             int taskResult;
-            if (ExceptionHandler([this, &taskResult] { return TaskMoveNext(taskResult); }))
+            if (TaskMoveNext(taskResult))
                 return taskResult;
         }
         int idleCode = mTask ? MDR_HEADPHONES_INPROGRESS : MDR_HEADPHONES_IDLE;
@@ -592,14 +591,14 @@ namespace mdr
         {
             using namespace v2::t2;
             PeripheralSetExtendedParamSourceSwitchControl res;
-            res.base.command = Command::PERI_SET_PARAM;
+            res.base.command = Command::PERI_SET_EXTENDED_PARAM;
             if (mMultipointDeviceMac.desired.length() != 17)
                 mMultipointDeviceMac.overwrite("");
             else
             {
                 std::memcpy(res.targetBdAddress.data(), mMultipointDeviceMac.desired.data(), 17);
                 SendCommandACK(PeripheralSetExtendedParamSourceSwitchControl, res);
-                // Do not commit - let corrosponding RET command resolve this.
+                mMultipointDeviceMac.commit();
             }
         }
 
