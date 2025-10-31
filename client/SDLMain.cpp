@@ -62,7 +62,7 @@ void mainLoop()
 #endif
 }
 
-#include "Fonts/CousineRegular.h"
+#include "Fonts/PlexSansIcon.h"
 int main(int, char**)
 {
     clientPlatformInit();
@@ -111,7 +111,7 @@ int main(int, char**)
     // Load our default font
     {
         io.Fonts->Clear();
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(FontCousineRegular, 15.0f);
+        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
     }
     // Main loop
 

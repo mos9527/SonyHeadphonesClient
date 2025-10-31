@@ -7,6 +7,7 @@
 #include <SDL2/SDL.h>
 
 #include <mdr/Headphones.hpp>
+#include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
 using namespace mdr;
 
@@ -459,12 +460,12 @@ void DrawDeviceDiscovery()
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
         Span devices{pDeviceInfo, pDeviceInfo + nDeviceInfo};
-
+        ImGui::SeparatorText("Available Devices");
         static int deviceIndex = -1;
         int btnIndex = 0;
         for (const auto& device : devices)
             ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
-        if (ImModalButton("Connect", 0, 2))
+        if (ImModalButton(PSI_LINK " Connect", 0, 2))
         {
             if (deviceIndex != -1)
             {
@@ -476,7 +477,7 @@ void DrawDeviceDiscovery()
                 connState = CONN_STATE_CONNECTING;
             }
         }
-        if (ImModalButton("Refresh", 1, 2) || pDeviceInfo == nullptr)
+        if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
             mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
         ImGui::EndPopup();
     }
@@ -509,7 +510,7 @@ void DrawDeviceConnecting()
             ImGui::NewLine();
             ImGui::Text("%s", mdrConnectionGetLastError(conn));
             ImGui::NewLine();
-            if (ImModalButton("Cancel", 1, 1))
+            if (ImModalButton(PSI_REMOVE " Cancel", 1, 1))
             {
                 mdrConnectionDisconnect(conn);
                 connState = CONN_STATE_NO_CONNECTION;
@@ -535,14 +536,14 @@ void DrawDeviceControlsHeader()
         /* Disconnect & Shutdown */
         if (ImGui::BeginMenu(gDevice.mModelName.c_str()))
         {
-            if (ImGui::MenuItem("Disconnect"))
+            if (ImGui::MenuItem(PSI_UNLINK " Disconnect"))
             {
                 mdrConnectionDisconnect(conn);
                 connState = CONN_STATE_NO_CONNECTION;
             }
             if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF))
             {
-                if (ImGui::MenuItem("Shutdown"))
+                if (ImGui::MenuItem(PSI_OFF " Shutdown"))
                     gDevice.mShutdown.desired = true;
             }
             ImGui::EndMenu();
@@ -648,19 +649,19 @@ void DrawDeviceControlsPlayback()
     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
     ImGui::SliderInt("##Volume", &gDevice.mPlayVolume.desired, 0, 30);
     ImGui::SeparatorText("Controls");
-    if (ImModalButton("Prev", 0, 3))
+    if (ImModalButton(PSI_STEP_BACKWARD " Prev", 0, 3))
         gDevice.mPlayControl.desired = TRACK_DOWN;
     if (gDevice.mPlayPause == v2::t1::PlaybackStatus::PLAY)
     {
-        if (ImModalButton("Pause", 1, 3))
+        if (ImModalButton(PSI_PAUSE " Pause", 1, 3))
             gDevice.mPlayControl.desired = PAUSE;
     }
     else
     {
-        if (ImModalButton("Play", 1, 3))
+        if (ImModalButton(PSI_PLAY " Play", 1, 3))
             gDevice.mPlayControl.desired = PLAY;
     }
-    if (ImModalButton("Next", 2, 3))
+    if (ImModalButton(PSI_STEP_FORWARD "Next", 2, 3))
         gDevice.mPlayControl.desired = TRACK_UP;
 }
 
@@ -818,26 +819,24 @@ void DrawDeviceControlsDevices()
         ImGui::BeginGroup();
         bool mpActive = device.macAddress == gDevice.mMultipointDeviceMac.current;
         if (mpActive)
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,255,0,255));
+            ImGui::Text(PSI_VOLUME_DOWN " "), ImGui::SameLine();
         bool res = ImGui::Selectable(device.name.c_str(), selected);
-        if (mpActive)
-            ImGui::PopStyleColor();
         if (selected)
         {
             ImGui::Separator();
             if (device.connected)
             {
-                if (ImModalButton("Disconnect", 0, 2))
+                if (ImModalButton(PSI_UNLINK " Disconnect", 0, 2))
                     gDevice.mPairedDeviceDisconnectMac.desired = device.macAddress;
                 if (res)
                     gDevice.mMultipointDeviceMac.desired = device.macAddress;
             }
             else
             {
-                if (ImModalButton("Connect", 0, 2))
+                if (ImModalButton(PSI_LINK " Connect", 0, 2))
                     gDevice.mPairedDeviceConnectMac.desired = device.macAddress;
             }
-            if (ImModalButton("Unpair", 1, 2))
+            if (ImModalButton(PSI_BLUETOOTH_ALT " Unpair", 1, 2))
                 gDevice.mPairedDeviceUnpairMac.desired = device.macAddress;
         }
         ImGui::EndGroup();
@@ -870,10 +869,10 @@ void DrawDeviceControlsDevices()
     }
     else
     {
-        if (ImModalButton("Connect to New Device"))
+        if (ImModalButton(PSI_BLUETOOTH " Enter Pairing Mode"))
             gDevice.mPairingMode.desired = true;
         ImGui::TextWrapped(
-            "NOTE: For TWS (Earbuds) devices, you may need to take both of your headphones out from your case.");
+            PSI_INFO_SIGN_ALT " For TWS (Earbuds) devices, you may need to take both of your headphones out from your case to enter Pairing Mode.");
     }
     ImGui::EndDisabled();
 }
@@ -1173,14 +1172,14 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImTextCentered("Device Disconnected");
         ImGui::NewLine();
-        ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 2.0f, true);
+        ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 4.0f, true);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
         ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
         ImGui::TextWrapped("Headphones: %s", gDevice.GetLastError());
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        if (ImModalButton("OK", 1, 1))
+        if (ImModalButton(PSI_LINK " Reconnect", 1, 1))
             connState = CONN_STATE_NO_CONNECTION;
         ImGui::EndPopup();
     }
@@ -1243,10 +1242,10 @@ void DrawBugcheck()
     ImGui::PopStyleColor();
     ImGui::SetCursorPosY(br.y + padding * 2);
     ImGui::SeparatorText("To Report");
-    ImGui::TextWrapped("* Check the Open/Closed Github Issue tickets and see if it's a duplicate.");
-    ImGui::TextWrapped("* If not, take a screenshot of this screen and submit a new one");
-    ImGui::SeparatorText("Github Issues");
-    ImGui::TextWrapped("* https://github.com/mos9527/SonyHeadphonesClient/issues");
+    ImGui::TextWrapped( PSI_INFO_SIGN_ALT " Check the Open/Closed Github Issue tickets and see if it's a duplicate.");
+    ImGui::TextWrapped(PSI_INFO_SIGN_ALT " If not, take a screenshot of this screen and submit a new one");
+    ImGui::Separator();
+    ImGui::TextWrapped(PSI_GITHUB " https://github.com/mos9527/SonyHeadphonesClient/issues");
     ImGui::PopFont();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
