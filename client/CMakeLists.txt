@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+set(CLIENT_VERSION "2.0.0")
 
 option(CLIENT_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
 if (CLIENT_BUILD_WITH_ASAN)
@@ -55,3 +55,10 @@ add_subdirectory(Platform)
 
 target_link_libraries(ImGuiSDL2 PUBLIC SDL2::SDL2-static SDL2::SDL2main)
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL2 Client_Platform)
+
+target_compile_definitions(SonyHeadphonesClient PRIVATE
+    -DCLIENT_VERSION="${CLIENT_VERSION}"
+    -DMDR_GIT_COMMIT_HASH="${MDR_GIT_COMMIT_HASH}"
+    -DMDR_GIT_BRANCH_NAME="${MDR_GIT_BRANCH_NAME}"
+    -DMDR_PLATFORM_OS="${MDR_PLATFORM_OS}"
+)

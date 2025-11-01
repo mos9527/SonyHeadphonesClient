@@ -351,9 +351,9 @@ void ImTextWithBorder(const char* text, int color, float rounding = 0.0f, float 
     auto& style = ImGui::GetStyle();
     ImVec2 size = ImGui::CalcTextSize(text);
     auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
-    ImVec2 pad = style.FramePadding;
+    ImVec2 pad = style.FramePadding / 2;
     ImGui::Text("%s", text);
-    offset.y += pad.y;
+    offset.y += style.FramePadding.y;
     draw->AddRect(offset - pad, offset + size + pad, color, rounding, ImDrawFlags_None, thickness);
     ImGui::Dummy({pad.x, 0});
 }
@@ -458,29 +458,39 @@ void DrawDeviceDiscovery()
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
         Span devices{pDeviceInfo, pDeviceInfo + nDeviceInfo};
+        ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.1f);
+        ImTextCentered("SonyHeadphonesClient");
+        ImGui::PopFont();
+        ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
         ImGui::SeparatorText("Available Devices");
-        static int deviceIndex = -1;
+        static int deviceIndex = 0;
         int btnIndex = 0;
-        for (const auto& device : devices)
-            ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
+        if (!devices.empty())
+        {
+            for (const auto& device : devices)
+                ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
+        } else
+        {
+            ImGui::TextWrapped(PSI_WARNING_SIGN " No devices available. Make sure your Bluetooth radio is turned on, and a compatible device is connected.");
+        }
+        ImGui::BeginDisabled(devices.empty());
         if (ImModalButton(PSI_LINK " Connect", 0, 2))
         {
-            if (deviceIndex != -1)
-            {
-                // XXX: Other service UUIDs?
-                int res = mdrConnectionConnect(conn, devices[deviceIndex].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
-                if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
-                    connState = CONN_STATE_DISCONNECTED;
-                else
-                    connState = CONN_STATE_CONNECTING;
-            }
+            // XXX: Other service UUIDs?
+            int res = mdrConnectionConnect(conn, devices[deviceIndex].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
+            if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
+                connState = CONN_STATE_DISCONNECTED;
+            else
+                connState = CONN_STATE_CONNECTING;
         }
+        ImGui::EndDisabled();
         if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
         {
             int res = mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
             MDR_CHECK_MSG(res == MDR_RESULT_OK, "Failed to get device list. Error: {}", mdrResultString(res));
         }
-
+        ImGui::Separator();
+        ImTextCentered(PSI_WARNING_SIGN " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
         ImGui::EndPopup();
     }
 }
@@ -1255,6 +1265,7 @@ void DrawBugcheck()
     ImGui::SetCursorPosY(offset.y + padding * 4);
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
     ImTextCentered("Guru Meditation. Please screenshot and report.");
+    ImTextCentered(fmt::format("{}@{}, {} on {}", MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, CLIENT_VERSION, MDR_PLATFORM_OS).c_str());
     ImTextCentered(gBugcheckMessage.c_str());
     ImGui::PopStyleColor();
     ImGui::SetCursorPosY(br.y + padding * 2);

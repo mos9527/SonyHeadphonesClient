@@ -15,7 +15,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 include(DetectPlatform.cmake)
 MDR_DetectPlatform() # Sets MDR_PLATFORM_OS
-
+include(DetectGitInfo.cmake)
+MDR_DetectGitInfo() # Sets MDR_GIT_COMMIT_HASH and MDR_GIT_BRANCH_NAME
 if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     add_link_options(
             # For Emscripten: We use exceptions mainly for Validation and MDR_CHECKs
