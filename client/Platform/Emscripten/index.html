@@ -25,10 +25,40 @@
             image-rendering: optimizeSpeed;
             -ms-interpolation-mode: nearest-neighbor;
         }
+
+        #preload {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            color: white;
+            font-family: sans-serif;
+
+            /* Centering */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #status-text {
+            margin-bottom: 8px;
+        }
+
+        #progress-bar {
+            width: 300px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="preload">
+        <div id="status-text"></div>
+        <progress id="progress-bar" value="0" max="100"></progress>
+    </div>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <script type='text/javascript'>
         var Module = {
@@ -47,9 +77,38 @@
             canvas: (function () {
                 return document.getElementById('canvas');
             })(),
-            setStatus: () => {
+            statusTextElement: document.getElementById('status-text'),
+            progressElement: document.getElementById('progress-bar'),
+            setStatus: (text) => {
+                if (!Module.statusTextElement) return;
+
+                if (!text) {
+                    Module.statusTextElement.innerText = "";
+                    Module.progressElement.style.display = 'none';
+                    return;
+                }
+                Module.statusTextElement.innerText = text;
+                const match = text.match(/([\d\.]*)\/([\d\.]*) MB/);
+                if (match) {
+                    const loaded = parseFloat(match[1]);
+                    const total = parseFloat(match[2]);
+                    if (total > 0) {
+                        const percent = (loaded / total) * 100;
+                        Module.progressElement.value = percent;
+                        Module.progressElement.style.display = 'block';
+                    }
+                } else {
+                    Module.progressElement.style.display = 'none';
+                }
             },
-            monitorRunDependencies: () => {
+
+            totalDependencies: 0,
+            monitorRunDependencies: (left) => {
+                Module.totalDependencies = Math.max(Module.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'All downloads complete.');
+            },
+            onRuntimeInitialized: () => {
+                document.getElementById('preload').remove();
             }
         };
 
@@ -59,6 +118,7 @@
             // browser. We don't exactly want that - and since we don't use
             // function keys, etc. anyway, let it all pass.
         }
+
     </script>
     <script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
 </body>
