@@ -80,6 +80,8 @@ EM_JS(void, em_js_connect, (const char* serviceUUID), {
         navigator.em_js_poll_result = 1; // INPROGRESS
         try
         {
+            if (!!!navigator.serial)
+                throw "Your browser does not support Web Serial API. Check README for more information.";
             navigator.em_js_port = await navigator.serial.requestPort({
                 allowedBluetoothServiceClassIds: [uuid]
             });
@@ -163,7 +165,7 @@ struct MDRConnectionEmscripten
     static int GetDevicesList(void*, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         static MDRDeviceInfo sInfo{
-            .szDeviceName = "Emscripten RFCOMM device",
+            .szDeviceName = "Web Serial API device",
             .szDeviceMacAddress = "00:00:09:05:02:07"
         };
         *ppList = &sInfo, *pCount = 1;

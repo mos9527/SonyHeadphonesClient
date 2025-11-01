@@ -52,6 +52,13 @@
             monitorRunDependencies: () => {
             }
         };
+
+        const preventDefault = Event.prototype.preventDefault;
+        Event.prototype.preventDefault = function (event) {
+            // SDL basically prevents all inputs from getting through the
+            // browser. We don't exactly want that - and since we don't use
+            // function keys, etc. anyway, let it all pass.
+        }
     </script>
     <script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
 </body>

@@ -267,7 +267,7 @@ Tuple<ImVec2, ImVec2, ImDrawList*> ImWindowDrawOffsetRegionList()
 void ImTextCentered(const char* text)
 {
     ImVec2 size = ImGui::CalcTextSize(text);
-    ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size.x / 2);
+    ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size.x / 2 + ImGui::GetStyle().FramePadding.x);
     ImGui::Text("%s", text);
 }
 
