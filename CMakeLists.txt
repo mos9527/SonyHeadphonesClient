@@ -3,6 +3,22 @@ project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
+option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
+if (MDR_BUILD_WITH_ASAN)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        message(WARNING "ASAN not enabled on MSVC by *us*. You're on your own.")
+    else ()
+        add_compile_options("-fsanitize=address")
+        add_link_options("-fsanitize=address")
+    endif ()
+endif ()
+
+option(MDR_DEBUG "Build with debug flags enabled" OFF)
+if (MDR_DEBUG)
+   add_compile_definitions(-DMDR_DEBUG)
+   add_compile_definitions(-D_DEBUG)
+endif ()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
     add_compile_options("/Zc:preprocessor")

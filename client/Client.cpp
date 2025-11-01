@@ -903,19 +903,6 @@ void DrawDeviceControlsSystem()
     {
         // vvv Lexicographically sort these vvv
         using StringPair = Pair<const char*, const char*>;
-        constexpr StringPair kGSSubjectStrings[] = {
-            {"MULTIPOINT_SETTING", "Connect to 2 devices simultaneously"},
-            {"SIDETONE_SETTING", "Capture Voice During a Phone Call"},
-            {"TOUCH_PANEL_SETTING", "Touch sensor control panel"}
-        };
-        constexpr StringPair kGSSummaryStrings[] = {
-            {"MULTIPOINT_SETTING_SUMMARY",
-             "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably without needing to switch connections. During simultaneous connections, playback with the LDAC codec is not possible even if Prioritize Sound Quality is selected."},
-            {"MULTIPOINT_SETTING_SUMMARY_LDAC_AVAILABLE",
-             "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably without needing to switch connections."},
-            {"SIDETONE_SETTING_SUMMARY",
-             "Your own voice will be easier to hear during calls. If your voice sounds too loud or background noise is distracting, please turn off this feature."},
-        };
         constexpr auto kFormatGSString = [](const char* key, Span<const StringPair> strings) -> const char*
         {
             auto it = std::lower_bound(strings.begin(), strings.end(), key, [](const StringPair& lhs, const char* rhs)
@@ -929,6 +916,22 @@ void DrawDeviceControlsSystem()
         // ^^^
         auto DrawGSBoolElement = [&](mdr::MDRHeadphones::GsCapability const& caps, MDRProperty<bool>& prop)
         {
+            constexpr StringPair kGSSubjectStrings[] = {{"MULTIPOINT_SETTING", "Connect to 2 devices simultaneously"},
+                                                        {"SIDETONE_SETTING", "Capture Voice During a Phone Call"},
+                                                        {"TOUCH_PANEL_SETTING", "Touch sensor control panel"}};
+            constexpr StringPair kGSSummaryStrings[] = {
+                {"MULTIPOINT_SETTING_SUMMARY",
+                 "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably "
+                 "without needing to switch connections. During simultaneous connections, playback with the LDAC codec "
+                 "is not possible even if Prioritize Sound Quality is selected."},
+                {"MULTIPOINT_SETTING_SUMMARY_LDAC_AVAILABLE",
+                 "For example, when using the audio device with both a PC and a smartphone, you can use it comfortably "
+                 "without needing to switch connections."},
+                {"SIDETONE_SETTING_SUMMARY",
+                 "Your own voice will be easier to hear during calls. If your voice sounds too loud or background "
+                 "noise is distracting, please turn off this feature."},
+            };
+
             using namespace v2::t1;
             if (caps.type != GsSettingType::BOOLEAN_TYPE)
                 return;

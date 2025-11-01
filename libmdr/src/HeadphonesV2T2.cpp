@@ -167,6 +167,9 @@ namespace mdr
         using enum Command;
         CommandBase base;
         CommandBase::Deserialize(cmd.data(), base, cmd.size());
+#ifdef MDR_DEBUG
+        fmt::println("<< T2::{}", base.command);
+#endif
         switch (base.command)
         {
         case CONNECT_RET_SUPPORT_FUNCTION:
@@ -187,7 +190,9 @@ namespace mdr
         case SAFE_LISTENING_RET_EXTENDED_PARAM:
             return HandleSafeListeningExtendedParamT2(this, cmd);
         default:
+#ifdef MDR_DEBUG
             fmt::println("** Unhandled {}", base.command);
+#endif
             break;
         }
         return MDR_HEADPHONES_EVT_UNHANDLED;

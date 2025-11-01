@@ -1,15 +1,5 @@
 set(CLIENT_VERSION "2.0.0")
 
-option(CLIENT_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
-if (CLIENT_BUILD_WITH_ASAN)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        add_compile_options("/fsanitize=address")
-    else ()
-        add_compile_options("-fsanitize=address")
-        add_link_options("-fsanitize=address")
-    endif ()
-endif ()
-
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
 
 if (MDR_PLATFORM_OS STREQUAL "WIN32")

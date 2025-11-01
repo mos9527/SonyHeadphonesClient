@@ -273,4 +273,12 @@
 #define PSI_BLUETOOTH_ALT "\uF294"
 
 // Generated with tooling/BinaryEmbed.cpp
-extern const char kEmbedFontPlexSansIcon[74385+1];
+#ifdef __cplusplus
+// Q: Why do we need yet another linkage declaration here?
+// A: MSVC. It's ALWAYS MSVC.
+extern "C" {
+#endif
+extern const char kEmbedFontPlexSansIcon[74385 + 1];
+#ifdef __cplusplus
+}
+#endif
