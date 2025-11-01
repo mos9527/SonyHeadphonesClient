@@ -60,7 +60,7 @@ void mdrConnectionDisconnect(MDRConnection* conn);
  * @param dst Buffer to store the received data.
  * @param size The maximum number of bytes to receive.
  * @param pReceived Pointer to an integer that will be set to the number of bytes actually received.
- * @return @ref MDR_RESULT_OK on success, or an error code on failure.
+ * @return @ref MDR_RESULT_OK on success, @ref MDR_RESULT_INPROGRESS in progress, or an error code on failure.
  */
 int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived);
 /**
@@ -69,7 +69,7 @@ int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived);
  * @param src Buffer containing the data to send.
  * @param size The number of bytes to send.
  * @param pSent Pointer to an integer that will be set to the number of bytes actually sent.
- * @return @ref MDR_RESULT_OK on success, or an error code on failure.
+ * @return @ref MDR_RESULT_OK on success, @ref MDR_RESULT_INPROGRESS in progress, or an error code on failure.
  */
 int mdrConnectionSend(MDRConnection* conn, const char* src, int size, int* pSent);
 /**

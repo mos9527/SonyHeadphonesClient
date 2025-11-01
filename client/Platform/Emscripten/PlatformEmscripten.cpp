@@ -1,12 +1,18 @@
 #include "../Platform.hpp"
+#include <mdr-c/Platform/PlatformEmscripten.h>
 
-#include <cstdio>
-#include <emscripten.h>
-#include <emscripten/html5.h>
 
-void clientPlatformInit(){}
-void clientPlatformDestroy() {}
+MDRConnectionEmscripten* gConn;
+
+void clientPlatformInit()
+{
+    gConn = mdrConnectionEmscriptenCreate();
+}
+void clientPlatformDestroy()
+{
+    mdrConnectionEmscriptenDestroy(gConn);
+}
 MDRConnection* clientPlatformConnectionGet()
 {
-    return nullptr;
+    return mdrConnectionEmscriptenGet(gConn);
 }

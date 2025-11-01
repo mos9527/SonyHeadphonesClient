@@ -326,12 +326,13 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
 // This is used for modal dialogues
 bool ImModalButton(const char* label, int lineIndex = 0, int lineTotal = 1)
 {
+    MDR_CHECK(lineIndex < lineTotal);
     auto& style = ImGui::GetStyle();
     float padding = style.FramePadding.x;
     float width = ImGui::GetContentRegionAvail().x / lineTotal;
     if (lineIndex)
         ImGui::SameLine();
-    return ImGui::Button(label, ImVec2(width - padding, 0));
+    return ImGui::Button(label, lineTotal > 1 ? ImVec2{width - padding, 0} : ImVec2{width, 0});
 }
 
 void ImSetNextWindowCentered()
@@ -348,16 +349,13 @@ void ImSetNextWindowCentered()
 void ImTextWithBorder(const char* text, int color, float rounding = 0.0f, float thickness = 1.0f)
 {
     auto& style = ImGui::GetStyle();
-    float padding = style.FramePadding.x;
     ImVec2 size = ImGui::CalcTextSize(text);
-    ImVec2 pad = {padding, padding / 2};
-    float cursorY = ImGui::GetCursorPosY();
-    ImGui::SetCursorPosY(cursorY + padding * 2);
     auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
-    draw->AddRect(offset - pad, offset + size + pad, color, rounding, ImDrawFlags_None, thickness);
-    ImGui::SetCursorPosY(cursorY + padding);
+    ImVec2 pad = style.FramePadding;
     ImGui::Text("%s", text);
-    ImGui::Dummy({padding, 0});
+    offset.y += pad.y;
+    draw->AddRect(offset - pad, offset + size + pad, color, rounding, ImDrawFlags_None, thickness);
+    ImGui::Dummy({pad.x, 0});
 }
 
 template <typename T>
@@ -472,13 +470,17 @@ void DrawDeviceDiscovery()
                 // XXX: Other service UUIDs?
                 int res = mdrConnectionConnect(conn, devices[deviceIndex].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
                 if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
-                    throw std::runtime_error(fmt::format("Connection Failure.\nError: {}",
-                                                         mdrConnectionGetLastError(conn)));
-                connState = CONN_STATE_CONNECTING;
+                    connState = CONN_STATE_DISCONNECTED;
+                else
+                    connState = CONN_STATE_CONNECTING;
             }
         }
         if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
-            mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
+        {
+            int res = mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
+            MDR_CHECK_MSG(res == MDR_RESULT_OK, "Failed to get device list. Error: {}", mdrResultString(res));
+        }
+
         ImGui::EndPopup();
     }
 }
@@ -508,9 +510,9 @@ void DrawDeviceConnecting()
             ImGui::Dummy({0, 16.0f});
             ImSpinner(1000.0f, 24.0f, IM_COL32(255, 255, 255, 255), 2.0f, true, 2.0f, ImEaseInOutCubic);
             ImGui::NewLine();
-            ImGui::Text("%s", mdrConnectionGetLastError(conn));
+            ImTextCentered(mdrConnectionGetLastError(conn));
             ImGui::NewLine();
-            if (ImModalButton(PSI_REMOVE " Cancel", 1, 1))
+            if (ImModalButton(PSI_REMOVE " Cancel"))
             {
                 mdrConnectionDisconnect(conn);
                 connState = CONN_STATE_NO_CONNECTION;
@@ -568,16 +570,22 @@ void DrawDeviceControlsHeader()
         // Right-align and draw them
         // XXX: This is surprisingly painful to do.
         auto& style = ImGui::GetStyle();
-        float padding = style.FramePadding.x;
-        float badgeRegionX = 0;
-        ImGui::PushFont(ImGui::GetFont(), style.FontSizeBase - padding / 2);
+        ImVec2 padding = style.FramePadding;
+        float badgeRegionX = 0, badgeRegionY = 0;
+        ImGui::PushFont(ImGui::GetFont(), style.FontSizeBase - padding.y / 2);
         for (auto& [s, border, text] : badges)
-            badgeRegionX += ImGui::CalcTextSize(s).x + padding * 2;
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - badgeRegionX - padding * 2);
-        ImGui::Dummy({0, 0});
+        {
+            ImVec2 size = ImGui::CalcTextSize(s);
+            badgeRegionX += size.x + padding.x * 2, badgeRegionY = std::max(badgeRegionY, size.y);
+        }
+        ImGui::SameLine(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - badgeRegionX);
         float rounding = style.FrameRounding;
+        float offsetY = padding.y / 2;
         for (auto& [s, border, text] : badges)
+        {
+            ImGui::SetCursorPosY(offsetY);
             ImTextWithBorder(s, border, rounding, 2.0f);
+        }
         ImGui::PopFont();
         ImGui::EndMenuBar();
     }
@@ -1071,7 +1079,7 @@ void DrawDeviceControlsAbout()
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", format_as(elem));
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text(gDevice.mSupport.contains(elem) ? "YES" : "NO");
+                ImGui::Text(gDevice.mSupport.contains(elem) ? PSI_OK : PSI_REMOVE);
             }
             ImGui::EndTable();
         }
@@ -1089,7 +1097,7 @@ void DrawDeviceControlsAbout()
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", format_as(elem));
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text(gDevice.mSupport.contains(elem) ? "YES" : "NO");
+                ImGui::Text(gDevice.mSupport.contains(elem) ? PSI_OK : PSI_REMOVE);
             }
             ImGui::EndTable();
         }
@@ -1179,7 +1187,7 @@ void DrawDeviceDisconnect()
         ImGui::TextWrapped("Headphones: %s", gDevice.GetLastError());
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        if (ImModalButton(PSI_LINK " Reconnect", 1, 1))
+        if (ImModalButton(PSI_LINK " Reconnect"))
             connState = CONN_STATE_NO_CONNECTION;
         ImGui::EndPopup();
     }
@@ -1193,7 +1201,16 @@ void DrawApp()
     style.FramePadding = ImVec2(8.0f, 8.0f);
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
-    ImGui::Begin("##", nullptr, kImWindowFlagsTopMost | ImGuiWindowFlags_MenuBar);
+    ImGuiWindowFlags flags = kImWindowFlagsTopMost;
+    switch (connState)
+    {
+    case CONN_STATE_CONNECTED:
+        flags |= ImGuiWindowFlags_MenuBar;
+        break;
+    default:
+        break;
+    }
+    ImGui::Begin("##", nullptr, flags);
     ExceptionHandler([&]
     {
         switch (connState)
@@ -1245,7 +1262,7 @@ void DrawBugcheck()
     ImGui::TextWrapped( PSI_INFO_SIGN_ALT " Check the Open/Closed Github Issue tickets and see if it's a duplicate.");
     ImGui::TextWrapped(PSI_INFO_SIGN_ALT " If not, take a screenshot of this screen and submit a new one");
     ImGui::Separator();
-    ImGui::TextWrapped(PSI_GITHUB " https://github.com/mos9527/SonyHeadphonesClient/issues");
+    ImGui::TextWrapped(PSI_GITHUB " Issues: https://github.com/mos9527/SonyHeadphonesClient/issues");
     ImGui::PopFont();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();

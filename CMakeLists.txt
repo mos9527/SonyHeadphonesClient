@@ -17,12 +17,17 @@ include(DetectPlatform.cmake)
 MDR_DetectPlatform() # Sets MDR_PLATFORM_OS
 
 if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
-    # For Emscripten: We use exceptions mainly for Validation and MDR_CHECKs
-    # Do note that the overhead from exceptions is not trivial _even if_ we don't
-    # take the slow path.
-    # TODO: Disable exceptions (and therefore _die_ on any) on exception disabled builds
-    add_link_options("-fexceptions" "-sALLOW_MEMORY_GROWTH" "-sEXCEPTION_CATCHING_ALLOWED=[..]")
-    add_compile_options("-fexceptions")
+    add_link_options(
+            # For Emscripten: We use exceptions mainly for Validation and MDR_CHECKs
+            # Do note that the overhead from exceptions is not trivial _even if_ we don't
+            # take the slow path.
+            # TODO: Disable exceptions (and therefore _die_ on any) on exception disabled builds
+            -fexceptions
+            -sEXCEPTION_CATCHING_ALLOWED=[..]
+            -sALLOW_MEMORY_GROWTH
+            -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap']
+    )
+    add_compile_options(-O1 -fexceptions)
 endif()
 
 add_compile_definitions("MDR_PLATFORM_${MDR_PLATFORM_OS}")

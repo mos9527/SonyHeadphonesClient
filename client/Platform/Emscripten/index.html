@@ -1,8 +1,8 @@
 <!doctype html>
+
 <head>
     <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
     <title>SonyHeadphonesClient</title>
     <style>
         body {
@@ -27,30 +27,31 @@
         }
     </style>
 </head>
+
 <body>
-<canvas class="emscripten" id="canvas"></canvas>
-<script type='text/javascript'>
-    var Module = {
-        preRun: [],
-        postRun: [],
-        print: (function () {
-            return function (text) {
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <script type='text/javascript'>
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: (function () {
+                return function (text) {
+                    text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                };
+            })(),
+            printErr: function (text) {
                 text = Array.prototype.slice.call(arguments).join(' ');
-                console.log(text);
-            };
-        })(),
-        printErr: function (text) {
-            text = Array.prototype.slice.call(arguments).join(' ');
-            console.info(text);
-        },
-        canvas: (function () {
-            return document.getElementById('canvas');
-        })(),
-        setStatus: () => {
-        },
-        monitorRunDependencies: () => {
-        }
-    };
-</script>
-<script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
+                console.info(text);
+            },
+            canvas: (function () {
+                return document.getElementById('canvas');
+            })(),
+            setStatus: () => {
+            },
+            monitorRunDependencies: () => {
+            }
+        };
+    </script>
+    <script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
 </body>
