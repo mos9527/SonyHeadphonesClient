@@ -6,8 +6,7 @@
 
 #include <deque>
 #include <coroutine>
-
-#include "../../../cmake-build-emscripten/_deps/fmt-src/include/fmt/chrono.h"
+#include <chrono>
 
 namespace mdr
 {

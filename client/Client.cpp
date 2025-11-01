@@ -458,7 +458,7 @@ void DrawDeviceDiscovery()
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
         Span devices{pDeviceInfo, pDeviceInfo + nDeviceInfo};
-        ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.1f);
+        ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
         ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
