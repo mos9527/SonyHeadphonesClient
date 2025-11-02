@@ -1,5 +1,12 @@
 # Sony Headphones Client
 
+**IMPORTANT:** All current maintenance effort happens in the [`rewrite` Branch](https://github.com/mos9527/SonyHeadphonesClient/tree/rewrite) - Issues/Pull Requests on the `master` branch will **NOT** be processed until the `rewrite` branch is merged.
+
+You may enjoy the latest additions and conformance update in the `rewrite` branch right away **[In Your Browser](https://mos9527.com/SonyHeadphonesClient/)** - support status and more information are available [here](https://github.com/mos9527/SonyHeadphonesClient/tree/rewrite?tab=readme-ov-file#notes-on-web-platform).
+
+---
+
+
 A fork of [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient), now updated with support for Sony's newer Bluetooth/TWS devices (*specifically* for the earbunds (i.e. WF-1000XM5), see [feature compatibility matrix](#features) for details.) and additional functionalities.
 
 [![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
