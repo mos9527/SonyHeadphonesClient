@@ -1,9 +1,11 @@
+#pragma clang diagnostic ignored "-Wshadow"
 #include <mdr/Headphones.hpp>
 #include <algorithm>
 
 namespace mdr
 {
-    using namespace v2::t2;
+    using namespace v2;
+    using namespace t2;
 
     int HandleSupportFunctionT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
@@ -27,7 +29,7 @@ namespace mdr
         {
             VoiceGuidanceParamSettingMtk res;
             VoiceGuidanceParamSettingMtk::Deserialize(cmd.data(), res, cmd.size());
-            self->mVoiceGuidanceEnabled.overwrite(res.settingValue == v2::MessageMdrV2OnOffSettingValue::ON);
+            self->mVoiceGuidanceEnabled.overwrite(res.settingValue == MessageMdrV2OnOffSettingValue::ON);
             return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE;
         }
         case VOLUME:
@@ -54,7 +56,7 @@ namespace mdr
         {
             PeripheralStatusPairingDeviceManagementCommon res;
             PeripheralStatusPairingDeviceManagementCommon::Deserialize(cmd.data(), res, cmd.size());
-            self->mPairingMode.overwrite(res.enableDisableStatus == v2::MessageMdrV2EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+            self->mPairingMode.overwrite(res.enableDisableStatus == MessageMdrV2EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
             return MDR_HEADPHONES_EVT_BLUETOOTH_MODE;
         }
         default:
@@ -144,7 +146,7 @@ namespace mdr
         {
             SafeListeningNotifyParamSL res;
             SafeListeningNotifyParamSL::Deserialize(cmd.data(), res, cmd.size());
-            self->mSafeListeningPreviewMode.overwrite(res.previewMode == v2::MessageMdrV2EnableDisable::ENABLE);
+            self->mSafeListeningPreviewMode.overwrite(res.previewMode == MessageMdrV2EnableDisable::ENABLE);
             return MDR_HEADPHONES_EVT_SAFE_LISTENING_PARAM;
         }
         default:
@@ -161,9 +163,8 @@ namespace mdr
         return MDR_HEADPHONES_EVT_SOUND_PRESSURE;
     }
 
-    int MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq)
+    int MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber)
     {
-        using namespace v2::t2;
         using enum Command;
         CommandBase base;
         CommandBase::Deserialize(cmd.data(), base, cmd.size());

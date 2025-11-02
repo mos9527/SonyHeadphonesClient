@@ -64,11 +64,11 @@ const char* FormatEnum(v2::t1::BatteryChargingStatus status)
     switch (status)
     {
     case CHARGING:
-        return "Charging...";
+        return "Charging";
     case CHARGED:
         return "Charged";
     case NOT_CHARGING:
-        return "Discharging";
+        return ""; // Hidden
     default:
     case UNKNOWN:
         return "Unknown";
@@ -506,7 +506,7 @@ void DrawDeviceConnecting()
         gDevice = mdr::MDRHeadphones(conn);
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
-        MDR_CHECK(gDevice.Invoke(gDevice.RequestInit()) == MDR_RESULT_OK);
+        MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
@@ -622,7 +622,7 @@ void DrawDeviceControlsHeader()
             {
                 float single = gDevice.mBatteryL.level;
                 single /= gDevice.mBatteryL.threshold;
-                ImGui::Text("Battery: %.2f%%", single * 100);
+                ImGui::Text("Battery: %.0f%%", single * 100);
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
             }
@@ -630,12 +630,12 @@ void DrawDeviceControlsHeader()
             {
                 float single = gDevice.mBatteryL.level;
                 single /= gDevice.mBatteryL.threshold;
-                ImGui::Text("L: %.2f%%", single * 100);
+                ImGui::Text("L: %.0f%%", single * 100);
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
                 single = gDevice.mBatteryR.level;
                 single /= gDevice.mBatteryR.threshold;
-                ImGui::Text("R: %.2f%%", single * 100);
+                ImGui::Text("R: %.0f%%", single * 100);
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
             }
@@ -644,7 +644,7 @@ void DrawDeviceControlsHeader()
                 float single = gDevice.mBatteryCase.level;
                 single /= 100.0f; // gDevice.mBatteryCase.threshold <-- Wonky. Got threshold=30 and value=76 pairs
                 // Seems like 100.0f is always the case for...case
-                ImGui::Text("Case: %.2f%%", single * 100);
+                ImGui::Text("Case: %.0f%%", single * 100);
                 ImGui::SameLine();
                 ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryCase.charging));
             }
@@ -811,7 +811,7 @@ void DrawDeviceControlsSound()
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             ImGui::SliderInt("##", &gDevice.mEqClearBass.desired, -10, 10);
         }
-        ImGui::SeparatorText("DSEE Upscaling");
+        ImGui::SeparatorText("DSEE");
         ImGui::BeginDisabled(!gDevice.mUpscalingAvailable);
         if (ImGui::RadioButton("Off", gDevice.mUpscalingEnabled.desired == false))
             gDevice.mUpscalingEnabled.desired = false;
@@ -1164,12 +1164,12 @@ void DrawDeviceControls()
         case MDR_HEADPHONES_TASK_INIT_OK:
             // Request for a stat update ASAP
             // User may request for this themselves - we don't do periodic checks this time
-            MDR_CHECK(gDevice.Invoke(gDevice.RequestSync()) == MDR_RESULT_OK);
+            MDR_CHECK(gDevice.Invoke(gDevice.RequestSyncV2()) == MDR_RESULT_OK);
             return;
         case MDR_HEADPHONES_IDLE:
             // Commit changes if needed to
             if (gDevice.IsDirty())
-                MDR_CHECK(gDevice.Invoke(gDevice.RequestCommit()) == MDR_RESULT_OK);
+                MDR_CHECK(gDevice.Invoke(gDevice.RequestCommitV2()) == MDR_RESULT_OK);
             return;
         case MDR_HEADPHONES_ERROR:
             // Irrecoverable. Disconnect now.

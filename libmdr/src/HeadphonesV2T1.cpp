@@ -1,9 +1,11 @@
+#pragma clang diagnostic ignored "-Wshadow"
 #include <mdr/Headphones.hpp>
 #include <algorithm>
 
 namespace mdr
 {
-    using namespace v2::t1;
+    using namespace v2;
+    using namespace t1;
 
     int HandleProtocolInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
@@ -11,8 +13,8 @@ namespace mdr
         ConnectRetProtocolInfo::Deserialize(cmd.data(), res, cmd.size());
         self->mProtocol = {
             .version = res.protocolVersion,
-            .hasTable1 = res.supportTable1Value == v2::MessageMdrV2EnableDisable::ENABLE,
-            .hasTable2 = res.supportTable1Value == v2::MessageMdrV2EnableDisable::ENABLE
+            .hasTable1 = res.supportTable1Value == MessageMdrV2EnableDisable::ENABLE,
+            .hasTable2 = res.supportTable1Value == MessageMdrV2EnableDisable::ENABLE
         };
         self->Awake(MDRHeadphones::AWAIT_PROTOCOL_INFO);
         return MDR_HEADPHONES_EVT_OK;
@@ -102,7 +104,7 @@ namespace mdr
         case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
         {
             if (self->mSupport.contains(
-                v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+                MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 NcAsmParamModeNcDualModeSwitchAsmSeamless res;
                 NcAsmParamModeNcDualModeSwitchAsmSeamless::Deserialize(cmd.data(), res, cmd.size());
@@ -117,7 +119,7 @@ namespace mdr
         case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA:
         {
             if (self->mSupport.contains(
-                v2::MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+                MessageMdrV2FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
                 NcAsmParamModeNcDualModeSwitchAsmSeamlessNa res;
                 NcAsmParamModeNcDualModeSwitchAsmSeamlessNa::Deserialize(cmd.data(), res, cmd.size());
@@ -133,7 +135,7 @@ namespace mdr
         }
         case ASM_SEAMLESS:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 NcAsmParamAsmSeamless res;
                 NcAsmParamAsmSeamless::Deserialize(cmd.data(), res, cmd.size());
@@ -146,7 +148,7 @@ namespace mdr
         }
         case NC_AMB_TOGGLE:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
             {
                 NcAsmParamNcAmbToggle res;
                 NcAsmParamNcAmbToggle::Deserialize(cmd.data(), res, cmd.size());
@@ -169,7 +171,7 @@ namespace mdr
         {
         case BATTERY:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
             {
                 PowerRetStatusBattery res;
                 PowerRetStatusBattery::Deserialize(cmd.data(), res, cmd.size());
@@ -184,7 +186,7 @@ namespace mdr
         }
         case LEFT_RIGHT_BATTERY:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
             {
                 PowerRetStatusLeftRightBattery res;
                 PowerRetStatusLeftRightBattery::Deserialize(cmd.data(), res, cmd.size());
@@ -204,7 +206,7 @@ namespace mdr
         }
         case CRADLE_BATTERY:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
             {
                 PowerRetStatusCradleBattery res;
                 PowerRetStatusCradleBattery::Deserialize(cmd.data(), res, cmd.size());
@@ -219,7 +221,7 @@ namespace mdr
         }
         case BATTERY_WITH_THRESHOLD:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 PowerRetStatusBatteryThreshold res;
                 PowerRetStatusBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
@@ -234,7 +236,7 @@ namespace mdr
         }
         case LR_BATTERY_WITH_THRESHOLD:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 PowerRetStatusLeftRightBatteryThreshold res;
                 PowerRetStatusLeftRightBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
@@ -254,7 +256,7 @@ namespace mdr
         }
         case CRADLE_BATTERY_WITH_THRESHOLD:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 PowerRetStatusCradleBatteryThreshold res;
                 PowerRetStatusCradleBatteryThreshold::Deserialize(cmd.data(), res, cmd.size());
@@ -309,7 +311,7 @@ namespace mdr
         {
         case AUTO_POWER_OFF:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF))
             {
                 PowerParamAutoPowerOff res;
                 PowerParamAutoPowerOff::Deserialize(cmd.data(), res, cmd.size());
@@ -320,7 +322,7 @@ namespace mdr
         }
         case AUTO_POWER_OFF_WEARING_DETECTION:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
             {
                 PowerParamAutoPowerOffWithWearingDetection res;
                 PowerParamAutoPowerOffWithWearingDetection::Deserialize(cmd.data(), res, cmd.size());
@@ -443,7 +445,7 @@ namespace mdr
         {
         case UPSCALING:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             {
                 AudioRetCapabilityUpscaling res;
                 AudioRetCapabilityUpscaling::Deserialize(cmd.data(), res, cmd.size());
@@ -467,11 +469,11 @@ namespace mdr
         {
         case UPSCALING:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             {
                 AudioStatusCommon res;
                 AudioStatusCommon::Deserialize(cmd.data(), res, cmd.size());
-                self->mUpscalingAvailable = res.status == v2::MessageMdrV2EnableDisable::ENABLE;
+                self->mUpscalingAvailable = res.status == MessageMdrV2EnableDisable::ENABLE;
                 return MDR_HEADPHONES_EVT_UPSCALING_MODE;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
@@ -492,7 +494,7 @@ namespace mdr
         case CONNECTION_MODE:
         {
             if (self->mSupport.contains(
-                v2::MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+                MessageMdrV2FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             {
                 AudioParamConnection res;
                 AudioParamConnection::Deserialize(cmd.data(), res, cmd.size());
@@ -503,7 +505,7 @@ namespace mdr
         }
         case UPSCALING:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::UPSCALING_AUTO_OFF))
             {
                 AudioParamUpscaling res;
                 AudioParamUpscaling::Deserialize(cmd.data(), res, cmd.size());
@@ -514,11 +516,11 @@ namespace mdr
         }
         case BGM_MODE:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
             {
                 AudioParamBGMMode res;
                 AudioParamBGMMode::Deserialize(cmd.data(), res, cmd.size());
-                self->mBGMModeEnabled.overwrite(res.onOffSettingValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                self->mBGMModeEnabled.overwrite(res.onOffSettingValue == MessageMdrV2EnableDisable::ENABLE);
                 self->mBGMModeRoomSize.overwrite(res.targetRoomSize);
                 return MDR_HEADPHONES_EVT_OK;
             }
@@ -526,11 +528,11 @@ namespace mdr
         }
         case UPMIX_CINEMA:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
             {
                 AudioParamUpmixCinema res;
                 AudioParamUpmixCinema::Deserialize(cmd.data(), res, cmd.size());
-                self->mUpmixCinemaEnabled.overwrite(res.onOffSettingValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                self->mUpmixCinemaEnabled.overwrite(res.onOffSettingValue == MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_OK;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
@@ -551,18 +553,18 @@ namespace mdr
         case PLAYBACK_CONTROL_BY_WEARING:
         {
             if (self->mSupport.contains(
-                v2::MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+                MessageMdrV2FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             {
                 SystemParamCommon res;
                 SystemParamCommon::Deserialize(cmd.data(), res, cmd.size());
-                self->mAutoPauseEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                self->mAutoPauseEnabled.overwrite(res.settingValue == MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case ASSIGNABLE_SETTINGS:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::ASSIGNABLE_SETTING))
             {
                 SystemParamAssignableSettings res;
                 SystemParamAssignableSettings::Deserialize(cmd.data(), res, cmd.size());
@@ -577,22 +579,22 @@ namespace mdr
         }
         case SMART_TALKING_MODE_TYPE2:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
             {
                 SystemParamSmartTalking res;
                 SystemParamSmartTalking::Deserialize(cmd.data(), res, cmd.size());
-                self->mSpeakToChatEnabled.overwrite(res.onOffValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                self->mSpeakToChatEnabled.overwrite(res.onOffValue == MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_ENABLED;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case HEAD_GESTURE_ON_OFF:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
             {
                 SystemParamCommon res;
                 SystemParamCommon::Deserialize(cmd.data(), res, cmd.size());
-                self->mHeadGestureEnabled.overwrite(res.settingValue == v2::MessageMdrV2EnableDisable::ENABLE);
+                self->mHeadGestureEnabled.overwrite(res.settingValue == MessageMdrV2EnableDisable::ENABLE);
                 return MDR_HEADPHONES_EVT_HEAD_GESTURE;
             }
             return MDR_HEADPHONES_EVT_UNHANDLED;
@@ -612,7 +614,7 @@ namespace mdr
         {
         case SMART_TALKING_MODE_TYPE2:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
             {
                 SystemExtParamSmartTalkingMode2 res;
                 SystemExtParamSmartTalkingMode2::Deserialize(cmd.data(), res, cmd.size());
@@ -639,7 +641,7 @@ namespace mdr
         {
             EqEbbStatusOnOff res;
             EqEbbStatusOnOff::Deserialize(cmd.data(), res, cmd.size());
-            self->mEqAvailable.overwrite(res.status == v2::MessageMdrV2OnOffSettingValue::ON);
+            self->mEqAvailable.overwrite(res.status == MessageMdrV2OnOffSettingValue::ON);
             return MDR_HEADPHONES_EVT_EQUALIZER_AVAILABLE;
         }
         default:
@@ -708,7 +710,7 @@ namespace mdr
         {
         case FIXED_MESSAGE:
         {
-            if (self->mSupport.contains(v2::MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
+            if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::FIXED_MESSAGE))
             {
                 AlertNotifyParamFixedMessage res;
                 AlertNotifyParamFixedMessage::Deserialize(cmd.data(), res, cmd.size());

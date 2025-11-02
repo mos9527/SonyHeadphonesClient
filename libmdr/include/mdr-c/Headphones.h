@@ -39,7 +39,7 @@ int mdrHeadphonesRequestIsReady(MDRHeadphones*);
  *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_TASK_INIT_OK can be polled
  *         upon completion.
  */
-int mdrHeadphonesRequestInit(MDRHeadphones*);
+int mdrHeadphonesRequestInitV2(MDRHeadphones*);
 /**
  * @brief Send query payloads to the device, for values that don't automatically update
  *        (e.g. Battery levels)
@@ -47,14 +47,14 @@ int mdrHeadphonesRequestInit(MDRHeadphones*);
  *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_TASK_SYNC_OK can be polled
  *         upon completion.
  */
-int mdrHeadphonesRequestSync(MDRHeadphones*);
+int mdrHeadphonesRequestSyncV2(MDRHeadphones*);
 /**
  * @brief Sends all changed properties up until this point for them to be set on the device.
  * @return @ref MDR_RESULT_OK if scheduled, @ref MDR_RESULT_INPROGRESS if another request is in progress.
  *         In @ref mdrHeadphonesPollEvents, @ref MDR_HEADPHONES_TASK_COMMIT_OK can be polled
  *         upon completion.
  */
-int mdrHeadphonesRequestCommit(MDRHeadphones*);
+int mdrHeadphonesRequestCommitV2(MDRHeadphones*);
 /**
  * @brief Checks if there's any property to be set.
  * @return @ref MDR_RESULT_OK if not, @ref MDR_RESULT_INPROGRESS if there's anything that

@@ -367,19 +367,19 @@ namespace mdr
          * @note  To be used with @ref Invoke.
          * @return @ref MDR_HEADPHONES_TASK_INIT_OK on completion (returned in @ref PollEvents)
          **/
-        MDRTask RequestInit();
+        MDRTask RequestInitV2();
         /**
          * @brief Requests states that the device won't send automatically. (e.g. Battery levels)
          * @note  To be used with @ref Invoke.
          * @return @ref MDR_HEADPHONES_TASK_SYNC_OK on completion (returned in @ref PollEvents)
          **/
-        MDRTask RequestSync();
+        MDRTask RequestSyncV2();
         /**
          * @brief Requests all changed @ref MDRProperty up until this point to be set on the device
          * @note  To be used with @ref Invoke.
          * @return @ref MDR_HEADPHONES_TASK_COMMIT_OK on completion (returned in @ref PollEvents)
          */
-        MDRTask RequestCommit();
+        MDRTask RequestCommitV2();
 #pragma endregion
 
     private:
@@ -460,13 +460,13 @@ namespace mdr
  */
 #define SendCommandACK(Type, ...) \
     { \
-        int retry; \
-        for (retry = 0; retry < kAwaitAckRetries; retry++) { \
+        int _retries; \
+        for (_retries = 0; _retries < kAwaitAckRetries; _retries++) { \
             SendCommandImpl<Type>( __VA_ARGS__ ); \
             int res = co_await Await(AWAIT_ACK); \
             if (res == MDR_RESULT_OK) break; \
-            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", retry , kAwaitAckRetries); \
+            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries , kAwaitAckRetries); \
         } \
-        MDR_CHECK_MSG(retry != kAwaitAckRetries, "Timeout exceeded waiting for device to respond"); \
+        MDR_CHECK_MSG(_retries != kAwaitAckRetries, "Timeout exceeded waiting for device to respond"); \
     }
 // NOLINTEND
