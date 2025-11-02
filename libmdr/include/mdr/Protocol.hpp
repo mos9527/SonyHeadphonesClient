@@ -24,7 +24,7 @@
 
 #define MDR_LOG_STREAM stderr
 #define MDR_LOG(str, ...) \
-    fprintf(MDR_LOG_STREAM, "%s", fmt::format((str) __VA_OPT__(,) __VA_ARGS__).c_str());
+    fprintf(MDR_LOG_STREAM, "%s\n", fmt::format((str) __VA_OPT__(,) __VA_ARGS__).c_str());
 #ifdef MDR_DEBUG
 #define MDR_LOG_DEBUG(...) \
     MDR_LOG(__VA_ARGS__);

@@ -72,10 +72,12 @@ namespace mdr
         const int r = mdrConnectionRecv(mConn, buf, kMDRMaxPacketSize, &recvd);
         if (r != MDR_RESULT_OK)
             return r;
-        MDR_LOG_DEBUG("<< ");
+#ifdef MDR_DEBUG
+        fprintf(MDR_LOG_STREAM, "<< ");
         for (char* p = buf; p != buf + recvd; p++)
-            MDR_LOG_DEBUG("{:02X} ", static_cast<UInt8>(*p));
-        MDR_LOG_DEBUG("");
+            fprintf(MDR_LOG_STREAM, "%X ", static_cast<UInt8>(*p));
+        fprintf(MDR_LOG_STREAM, "\n");
+#endif
         mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
         return r;
     }
@@ -90,10 +92,12 @@ namespace mdr
         const int r = mdrConnectionSend(mConn, buf, toSend, &sent);
         if (r != MDR_RESULT_OK)
             return r;
-        MDR_LOG_DEBUG(">> ");
+#ifdef MDR_DEBUG
+        fprintf(MDR_LOG_STREAM, "<< ");
         for (char* p = buf; p != buf + sent; p++)
-            MDR_LOG_DEBUG("{:02X} ", static_cast<UInt8>(*p));
-        MDR_LOG_DEBUG("");
+            fprintf(MDR_LOG_STREAM, "%X ", static_cast<UInt8>(*p));
+        fprintf(MDR_LOG_STREAM, "\n");
+#endif
         mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
         return r;
     }

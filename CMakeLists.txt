@@ -15,6 +15,7 @@ endif ()
 
 option(MDR_DEBUG "Build with debug flags enabled" OFF)
 if (MDR_DEBUG)
+    message(STATUS "Debugging features *ON*. Enjoy the logs.")
    add_compile_definitions(-DMDR_DEBUG)
    add_compile_definitions(-D_DEBUG)
 endif ()

@@ -3,7 +3,12 @@ set(CLIENT_VERSION "2.0.0")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
 
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
-    add_executable(SonyHeadphonesClient WIN32 "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest")
+    if (MDR_DEBUG)        
+        add_executable(SonyHeadphonesClient) # In MSVC this would build with CONSOLE subsystem
+    else()
+        add_executable(SonyHeadphonesClient WIN32)
+    endif()
+    target_sources(SonyHeadphonesClient PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest")
 else ()
     add_executable(SonyHeadphonesClient)
 endif ()
