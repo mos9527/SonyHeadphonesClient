@@ -17,6 +17,6 @@ add_library(mdr ${SOURCES} ${INCLUDES})
 
 add_subdirectory(Platform)
 
-target_link_libraries(mdr PRIVATE mdr_Platform fmt::fmt)
-target_link_libraries(mdr PUBLIC mdr_Includes)
+target_link_libraries(mdr PRIVATE mdr_Platform)
+target_link_libraries(mdr PUBLIC mdr_Includes fmt::fmt)
 target_include_directories(mdr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

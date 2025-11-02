@@ -6,18 +6,15 @@
 
 namespace mdr
 {
-    MDRHeadphones::Awaiter MDRHeadphones::Await(AwaitType type)
+    MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type)
     {
-        return Awaiter{this, type};
+        return mAwaiters[type];
     }
 
     void MDRHeadphones::Awake(AwaitType type)
     {
-        if (auto await = mAwaiters[type])
-        {
-            mAwaiters[type] = nullptr;
-            await.resume();
-        }
+        if (auto& await = mAwaiters[type])
+            await.resume_now(MDR_RESULT_OK);
     }
 
     int MDRHeadphones::PollEvents()
@@ -129,33 +126,17 @@ namespace mdr
 
     int MDRHeadphones::MoveNext()
     {
-        // Check tasks and task timeouts
-        // Ideally - await timeouts shouldn't happen. But the headphones seem to ignore some of
-        // our requests sometimes (investigate!!) - we'll cancel the tasks if that happens
-        // since waiting there would just hang everything
+        // Awaiter timeouts
         {
             using namespace std::literals;
-            constexpr auto kTimeout = 10000ms;
-            // ^^ This is being _very_ generous
+            constexpr auto kTimeout = std::chrono::milliseconds(kAwaitTimeoutMS);
             auto now = std::chrono::steady_clock::now();
-            bool stop = false;
-            for (int i = 0; !stop && i < AWAIT_NUM_TYPES; i++)
+            for (auto& awaiter : mAwaiters)
             {
-                if (!mAwaiters[i])
-                    continue;
-                auto duration = now - mAwaiterTimes[i];
+                if (!awaiter) continue;
+                auto duration = now - awaiter.tick;
                 if (duration > kTimeout)
-                    stop = true;
-            }
-            if (stop) [[unlikely]]
-            {
-                // Pretty bad. The task here needs to die prematurely.
-                // Since there's only Task one at a time - clear every awaiter
-                // and the task itself
-                std::ranges::fill(mAwaiters, nullptr);
-                mTask = {};
-                mLastError = "FIXME-Timed out waiting for device response. Reconnect and try again";
-                return MDR_HEADPHONES_ERROR;
+                    awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;
             if (TaskMoveNext(taskResult))

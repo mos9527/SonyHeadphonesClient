@@ -767,9 +767,7 @@ namespace mdr
         CommandBase base;
         CommandBase::Deserialize(cmd.data(), base, cmd.size());
         using enum Command;
-#ifdef MDR_DEBUG
-        fmt::println("<< T1::{}", base.command);
-#endif
+        MDR_LOG("<< {}", base.command);
         switch (base.command)
         {
         case CONNECT_RET_PROTOCOL_INFO:
@@ -828,10 +826,7 @@ namespace mdr
         case LOG_NTFY_PARAM:
             return HandleLogParamT1(this, cmd);
         default:
-#ifdef MDR_DEBUG
-            fmt::println("^^ Unhandled {}", base.command);
-#endif
-            break;
+            MDR_LOG("^^ Unhandled {}", base.command);
         }
         return MDR_HEADPHONES_EVT_UNHANDLED;
     }

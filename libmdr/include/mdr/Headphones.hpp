@@ -122,38 +122,58 @@ namespace mdr
             AWAIT_NUM_TYPES = 3
         };
 
+        static constexpr int kAwaitAckRetries = 3;
+        static constexpr int kAwaitTimeoutMS = 3000;
+
         // NOLINTBEGIN
         struct Awaiter
         {
             MDRHeadphones* self;
             AwaitType type;
+
+            std::coroutine_handle<> h = nullptr;
+            // Timepoint when Awaiter is invoked
+            std::chrono::time_point<std::chrono::steady_clock> tick;
+            // co_await Result on resumption
+            int result = MDR_RESULT_OK;
+
             static bool await_ready() noexcept { return false; }
 
             void await_suspend(std::coroutine_handle<> handle) noexcept
             {
-                auto& dst = self->mAwaiters[static_cast<size_t>(type)];
-                auto& dstTick = self->mAwaiterTimes[static_cast<size_t>(type)];
-                if (dst) [[unlikely]]
-                    std::terminate();
+                if (h) [[unlikely]]
+                    std::terminate(); // Misuse. Only _one_ task is allowed at a time
                 if (handle)
-                    dst = handle, dstTick = std::chrono::steady_clock::now();
+                    h = std::move(handle), tick = std::chrono::steady_clock::now();
             }
 
-            static void await_resume() noexcept
+            int await_resume() noexcept { return result; }
+
+            constexpr operator bool() const { return h != nullptr; }
+
+            void resume_now(int await_result)
             {
+                auto handle = h;
+                h = nullptr;
+                result = await_result;
+                handle.resume();
             }
         };
 
         // NOLINTEND
-        MDRHeadphones() :
-            mConn(nullptr)
-        {
-        }
 
         explicit MDRHeadphones(MDRConnection* conn) :
             mConn(conn)
         {
+            for (size_t i = 0; i < AWAIT_NUM_TYPES; ++i)
+                mAwaiters[i] = Awaiter{this, static_cast<AwaitType>(i)};
         }
+
+        MDRHeadphones() :
+            MDRHeadphones(nullptr)
+        {
+        }
+
 
         // Move-only ctor
         MDRHeadphones(MDRHeadphones const&) = delete;
@@ -193,7 +213,7 @@ namespace mdr
          *        event has arrived through @ref MoveNext
          * @note  As always, needs @ref PollEvents
          */
-        Awaiter Await(AwaitType type);
+        Awaiter& Await(AwaitType type);
         /**
          * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
          */
@@ -268,10 +288,10 @@ namespace mdr
         String mPlayTrackTitle;
         String mPlayTrackAlbum;
         String mPlayTrackArtist;
-        v2::t1::PlaybackStatus mPlayPause;
+        v2::t1::PlaybackStatus mPlayPause{};
 
-        v2::t1::UpscalingType mUpscalingType;
-        bool mUpscalingAvailable;
+        v2::t1::UpscalingType mUpscalingType{};
+        bool mUpscalingAvailable{};
 
         struct GsCapability
         {
@@ -369,8 +389,7 @@ namespace mdr
         MDRCommandSeqNumber mSeqNumber{0};
 
         MDRTask mTask;
-        Array<std::coroutine_handle<>, AWAIT_NUM_TYPES> mAwaiters{};
-        Array<std::chrono::time_point<std::chrono::steady_clock>, AWAIT_NUM_TYPES> mAwaiterTimes{};
+        Array<Awaiter, AWAIT_NUM_TYPES> mAwaiters{};
 
         // Friend of PollEvents, so friend of yours too.
         int Receive();
@@ -441,7 +460,13 @@ namespace mdr
  */
 #define SendCommandACK(Type, ...) \
     { \
-    SendCommandImpl<Type>( __VA_ARGS__ ); \
-    co_await Await(AWAIT_ACK); \
+        int retry; \
+        for (retry = 0; retry < kAwaitAckRetries; retry++) { \
+            SendCommandImpl<Type>( __VA_ARGS__ ); \
+            int res = co_await Await(AWAIT_ACK); \
+            if (res == MDR_RESULT_OK) break; \
+            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", retry , kAwaitAckRetries); \
+        } \
+        MDR_CHECK_MSG(retry != kAwaitAckRetries, "Timeout exceeded waiting for device to respond"); \
     }
 // NOLINTEND

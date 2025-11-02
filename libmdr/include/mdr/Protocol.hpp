@@ -21,6 +21,8 @@
     auto const& srcloc = std::source_location::current(); \
     if(!(expr)) throw std::runtime_error(fmt::format("Check Failure.\nExpression: " #expr "\nFunction: {}\nSource:{}#L{}", srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
     }
+#define MDR_LOG(str, ...) \
+    fmt::println(stderr, (str) __VA_OPT__(,) __VA_ARGS__);
 namespace mdr
 {
     typedef uint8_t UInt8;
