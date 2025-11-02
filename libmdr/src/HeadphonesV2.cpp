@@ -691,7 +691,7 @@ namespace mdr
                 using namespace t2;
                 VoiceGuidanceSetParamVolume res;
                 res.base.command = Command::VOICE_GUIDANCE_SET_PARAM;
-                res.base.type = VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH;
+                res.base.type = VoiceGuidanceInquiredType::VOLUME;
                 res.volumeValue = mVoiceGuidanceVolume.desired;
                 res.feedbackSound = MessageMdrV2OnOffSettingValue::ON;
                 SendCommandACK(VoiceGuidanceSetParamVolume, res);

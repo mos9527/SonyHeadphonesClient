@@ -9,7 +9,7 @@
 #endif
 
 // Implemented by Client.cpp
-extern bool ShouldClientExit();
+extern bool clientShouldExit();
 // Implemented by Platform code
 extern void clientPlatformInit();
 extern void clientPlatformDestroy();
@@ -46,7 +46,7 @@ void mainLoop()
         float scale = ImGui_ImplSDL2_GetContentScaleForWindow(gWindow);
         ImGui::GetStyle().FontScaleMain = scale;
     }    
-    gShouldClose |= ShouldClientExit();
+    gShouldClose |= clientShouldExit();
     // Rendering
     {
         ImGui::Render();
@@ -99,8 +99,12 @@ int main(int, char**)
         ImGui::CreateContext();
     }
     ImGuiIO& io = ImGui::GetIO();
-    // Setup Dear ImGui style
+    // Setup Default Dear ImGui styles
     ImGui::StyleColorsDark();
+    auto& style = ImGui::GetStyle();
+    style.FrameRounding = 8.0f;
+    style.CircleTessellationMaxError = 0.01f;
+    style.FramePadding = ImVec2(8.0f, 8.0f);
     // Setup Platform/Renderer backends
     {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls

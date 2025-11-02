@@ -102,7 +102,7 @@ EM_JS(int, em_js_poll, (), {
     return navigator.em_js_poll_result;
 });
 EM_JS(void, em_js_disconnect, (), {
-    if (navigator.em_js_port != null && navigator.em_js_port.connected)
+    if (navigator.em_js_port != null)
     {
         if (navigator.em_js_port_reader)
         {
@@ -117,6 +117,8 @@ EM_JS(void, em_js_disconnect, (), {
         }
         navigator.em_js_port.close();
         navigator.em_js_port = null;
+        em_js_init(navigator.em_js_user);
+        console.log('[em_js_disconnect] Disconencting');
     }
 });
 struct MDRConnectionEmscripten

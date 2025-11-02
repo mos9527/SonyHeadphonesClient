@@ -2,7 +2,6 @@
 #include <algorithm>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <SDL2/SDL.h>
@@ -254,30 +253,39 @@ const char* FormatEnum(v2::t1::AutoPowerOffElements off)
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
     ImGuiWindowFlags_NoTitleBar;
 
-// Begin https://github.com/ocornut/imgui/issues/3379#issuecomment-1678718752
-inline void ImScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
+// -- https://github.com/ocornut/imgui/issues/3379#issuecomment-2943903877
+void ImScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
 {
     using namespace ImGui;
-    ImGuiContext& g = *ImGui::GetCurrentContext();
+
+    ImGuiContext& g = *GetCurrentContext();
     ImGuiWindow* window = g.CurrentWindow;
     ImGuiID id = window->GetID("##scrolldraggingoverlay");
     KeepAliveID(id);
 
     // Passing 0 to ItemHoverable means it doesn't set HoveredId, which is what we want.
-    if (g.ActiveId == 0 && ItemHoverable(window->Rect(), 0, g.CurrentItemFlags) &&
-        IsMouseClicked(mouse_button, ImGuiInputFlags_None, id))
+    if (g.ActiveId == 0 && ItemHoverable(window->Rect(), 0, g.CurrentItemFlags) && IsMouseClicked(mouse_button, ImGuiInputFlags_None, id))
         SetActiveID(id, window);
     if (g.ActiveId == id && !g.IO.MouseDown[mouse_button])
         ClearActiveID();
 
     // Set keep underlying highlight. However, mouse not necessarily hovering same item creates a weird disconnect.
-    // if (g.ActiveId == id)
+    //if (g.ActiveId == id)
     //    g.ActiveIdAllowOverlap = true;
 
-    if (g.ActiveId == id && delta.x != 0.0f)
-        SetScrollX(window, window->Scroll.x + delta.x);
+    // if (g.ActiveId == id && delta.x != 0.0f)
+    //     SetScrollX(window, window->Scroll.x + delta.x);
     if (g.ActiveId == id && delta.y != 0.0f)
         SetScrollY(window, window->Scroll.y + delta.y);
+}
+
+void ImScrollWhenDraggingAnywhere(const ImVec2& delta, ImGuiMouseButton mouse_button)
+{
+    ImGuiContext& g = *ImGui::GetCurrentContext();
+    const bool backup_hovered_id_allow_overlap = g.HoveredIdAllowOverlap;
+    g.HoveredIdAllowOverlap = true;
+    ImScrollWhenDraggingOnVoid(delta, mouse_button);
+    g.HoveredIdAllowOverlap = backup_hovered_id_allow_overlap; // As we know ScrollWhenDraggingOnVoid() doesn't changed HoveredId we can unconditionally restore.
 }
 // --
 
@@ -336,9 +344,9 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
     auto& style = ImGui::GetStyle();
     ImVec2 points[std::size(kPoints)];
     if (centerX)
-        ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size * sqrt(2) / 2);
+        ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size / 2);
     if (centerY)
-        ImGui::SetCursorPosY((style.FontSizeBase - size) / 2 + style.FramePadding.y);
+        ImGui::SetCursorPosY((ImGui::GetTextLineHeight() + style.FramePadding.y * 2 - size) / 2 );
     auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
     float t = ImBlinkF(interval), theta = easing(t) * acos(-1) * cycles;
     for (int i = 0; auto p : kPoints)
@@ -483,7 +491,9 @@ void DrawDeviceDiscovery()
     MDRConnection* conn = clientPlatformConnectionGet();
     MDR_CHECK(conn != nullptr);
     ImSetNextWindowCentered();
-    ImGui::OpenPopup("DeviceDiscovery");
+    static bool popup = false;
+    if (!popup)
+        ImGui::OpenPopup("DeviceDiscovery"), popup = true;
     if (ImGui::BeginPopupModal("DeviceDiscovery", nullptr, kImWindowFlagsTopMost))
     {
         static MDRDeviceInfo* pDeviceInfo = nullptr;
@@ -523,7 +533,8 @@ void DrawDeviceDiscovery()
         ImGui::Separator();
         ImTextCentered(PSI_WARNING_SIGN " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
         ImGui::EndPopup();
-    }
+    } else
+        popup = false;
 }
 
 void DrawDeviceConnecting()
@@ -543,7 +554,9 @@ void DrawDeviceConnecting()
     case MDR_RESULT_INPROGRESS:
     {
         ImSetNextWindowCentered();
-        ImGui::OpenPopup("Connection");
+        static bool popup = false;
+        if (!popup)
+            ImGui::OpenPopup("Connection"), popup = true;
         if (ImGui::BeginPopupModal("Connection", nullptr, kImWindowFlagsTopMost))
         {
             ImGui::NewLine();
@@ -559,7 +572,8 @@ void DrawDeviceConnecting()
                 connState = CONN_STATE_NO_CONNECTION;
             }
             ImGui::EndPopup();
-        }
+        } else
+            popup = false;
         return;
     }
     default:
@@ -1092,9 +1106,10 @@ void DrawDeviceControlsSystem()
         if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Checkbox("Enabled", &gDevice.mVoiceGuidanceEnabled.desired);
+            ImGui::SeparatorText("Volume");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             if (kSupports(v2::MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
-                ImGui::SliderInt("Volume", &gDevice.mVoiceGuidanceVolume.desired, -2, 2);
+                ImGui::SliderInt("##Volume", &gDevice.mVoiceGuidanceVolume.desired, -2, 2);
             ImGui::TreePop();
         }
     }
@@ -1216,7 +1231,10 @@ void DrawDeviceControls()
     int event = gDevice.PollEvents();
     DrawDeviceControlsHeader();
     ImGui::Separator();
+    ImGui::BeginChild("##ControlTabs");
     DrawDeviceControlsTabs();
+    ImScrollWhenDraggingAnywhere(ImGui::GetIO().MouseDelta, ImGuiMouseButton_Left);
+    ImGui::EndChild();
     ExceptionHandler([&]
     {
         switch (event)
@@ -1245,7 +1263,9 @@ void DrawDeviceControls()
 void DrawDeviceDisconnect()
 {
     MDRConnection* conn = clientPlatformConnectionGet();
-    ImGui::OpenPopup("Disconnected");
+    static bool popup = false;
+    if (!popup)
+        ImGui::OpenPopup("Disconnected"), popup = true;
     ImSetNextWindowCentered();
 
     if (ImGui::BeginPopupModal("Disconnected", nullptr, kImWindowFlagsTopMost))
@@ -1261,17 +1281,20 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton(PSI_LINK " Reconnect"))
+        {
+            mdrConnectionDisconnect(conn);
             connState = CONN_STATE_NO_CONNECTION;
+        }
+
         ImGui::EndPopup();
-    }
+    } else
+        popup = false;
 }
 
 void DrawApp()
 {    
     auto& io = ImGui::GetIO();
-    auto& style = ImGui::GetStyle();
-    style.FrameRounding = 8.0f;
-    style.FramePadding = ImVec2(8.0f, 8.0f);
+    auto& g = *ImGui::GetCurrentContext();
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGuiWindowFlags flags = kImWindowFlagsTopMost;
@@ -1283,27 +1306,27 @@ void DrawApp()
     default:
         break;
     }
-    ImGui::Begin("##SonyHeadphonesClient", nullptr, flags);
-    ExceptionHandler([&]
+    if (ImGui::Begin("SonyHeadphonesClient", nullptr, flags))
     {
-        switch (connState)
+        ExceptionHandler([&]
         {
-        case CONN_STATE_NO_CONNECTION:
-            DrawDeviceDiscovery();
-            break;
-        case CONN_STATE_CONNECTING:
-            DrawDeviceConnecting();
-            break;
-        case CONN_STATE_CONNECTED:
-            DrawDeviceControls();
-            break;
-        case CONN_STATE_DISCONNECTED:
-            DrawDeviceDisconnect();
-            break;
-        }
-    });
-    ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
-    ImScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouseDelta.y), ImGuiMouseButton_Left);
+            switch (connState)
+            {
+            case CONN_STATE_NO_CONNECTION:
+                DrawDeviceDiscovery();
+                break;
+            case CONN_STATE_CONNECTING:
+                DrawDeviceConnecting();
+                break;
+            case CONN_STATE_CONNECTED:
+                DrawDeviceControls();
+                break;
+            case CONN_STATE_DISCONNECTED:
+                DrawDeviceDisconnect();
+                break;
+            }
+        });
+    }
     ImGui::End();
 }
 
@@ -1317,36 +1340,41 @@ void DrawBugcheck()
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 255));
-    ImGui::Begin("##", nullptr, kImWindowFlagsTopMost);
-    auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
-    float fontBase = std::max(ImGui::CalcTextSize(gBugcheckMessage.c_str()).x, region.x);
-    fontBase = (region.x - padding * 4) / (fontBase + padding * 4);
-    ImGui::PushFont(ImGui::GetFont(), ImGui::GetStyle().FontSizeBase * fontBase);
-    float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight() * 2;
-    ImVec2 tl{padding, padding}, br{region.x - padding, sizeV + padding * 8};
-    tl += offset, br += offset;
-    draw->AddRectFilled(tl, br, IM_COL32(255 * ImBlink(1000u, 2u), 0, 0, 255));
-    draw->AddRectFilled(tl + tl, br - tl, IM_COL32(0, 0, 0, 255));
-    ImGui::SetCursorPosY(offset.y + padding * 4);
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-    ImTextCentered("Guru Meditation. Please screenshot and report.");
-    ImTextCentered(fmt::format("{}@{}, {} on {}", MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, CLIENT_VERSION, MDR_PLATFORM_OS).c_str());
-    ImTextCentered(gBugcheckMessage.c_str());
-    ImGui::PopStyleColor();
-    ImGui::SetCursorPosY(br.y + padding * 2);
-    ImGui::SeparatorText("To Report");
-    ImGui::TextWrapped( PSI_INFO_SIGN_ALT " Check the Open/Closed Github Issue tickets and see if it's a duplicate.");
-    ImGui::TextWrapped(PSI_INFO_SIGN_ALT " If not, take a screenshot of this screen and submit a new one");
-    ImGui::Separator();
-    ImGui::TextWrapped(PSI_GITHUB " Issues: https://github.com/mos9527/SonyHeadphonesClient/issues");
-    ImGui::PopFont();
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
+    if (ImGui::Begin("##", nullptr, kImWindowFlagsTopMost))
+    {
+        auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
+        float fontBase = std::max(ImGui::CalcTextSize(gBugcheckMessage.c_str()).x, region.x);
+        fontBase = (region.x - padding * 4) / (fontBase + padding * 4);
+        ImGui::PushFont(ImGui::GetFont(), ImGui::GetStyle().FontSizeBase * fontBase);
+        float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight() * 2;
+        ImVec2 tl{padding, padding}, br{region.x - padding, sizeV + padding * 8};
+        tl += offset, br += offset;
+        draw->AddRectFilled(tl, br, IM_COL32(255 * ImBlink(1000u, 2u), 0, 0, 255));
+        draw->AddRectFilled(tl + tl, br - tl, IM_COL32(0, 0, 0, 255));
+        ImGui::SetCursorPosY(offset.y + padding * 4);
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+        ImTextCentered("Guru Meditation. Please screenshot and report.");
+        ImTextCentered(fmt::format("{}@{}, {} on {}", MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, CLIENT_VERSION, MDR_PLATFORM_OS).c_str());
+        ImTextCentered(gBugcheckMessage.c_str());
+        ImGui::PopStyleColor();
+        ImGui::SetCursorPosY(br.y + padding * 2);
+        ImGui::SeparatorText("To Report");
+        ImGui::TextWrapped( PSI_INFO_SIGN_ALT " Check the Open/Closed Github Issue tickets and see if it's a duplicate.");
+        ImGui::TextWrapped(PSI_INFO_SIGN_ALT " If not, take a screenshot of this screen and submit a new one");
+        ImGui::Separator();
+        ImGui::TextWrapped(PSI_GITHUB " Issues: https://github.com/mos9527/SonyHeadphonesClient/issues");
+        ImGui::PopFont();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+    }
     ImGui::End();
 }
 
-bool ShouldClientExit()
-{    
+bool clientShouldExit()
+{
+    // Defines like IMGUI_DISABLE_OBSOLETE_FUNCTIONS changes ImGui struct sizes
+    // and can lead to very, very bad results. Check them here too to ensure than this TU got the correct ones.
+    IMGUI_CHECKVERSION();
     switch (appState)
     {
     case APP_STATE_RUNNING:
