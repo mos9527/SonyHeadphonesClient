@@ -301,13 +301,16 @@ constexpr float ImEaseInOutCubic(float x)
 }
 
 // Your next favourite spinner
-void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bool center = false,
+void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bool centerX = false, bool centerY = false,
                float cycles = 1.0f, float (*easing)(float) = ImEaseLinear)
 {
     constexpr ImVec2 kPoints[] = {{-1, 1}, {-1, -1}, {1, -1}, {1, 1}};
+    auto& style = ImGui::GetStyle();
     ImVec2 points[std::size(kPoints)];
-    if (center)
+    if (centerX)
         ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size * sqrt(2) / 2);
+    if (centerY)
+        ImGui::SetCursorPosY(style.FontSizeBase - size * sqrt(2) / 2 + style.FramePadding.y);
     auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
     float t = ImBlinkF(interval), theta = easing(t) * acos(-1) * cycles;
     for (int i = 0; auto p : kPoints)
@@ -319,7 +322,7 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
         pp *= size, pp += offset, pp.x += size, pp.y += size;
     }
     draw->AddPolyline(points, std::size(kPoints), color, ImDrawFlags_Closed, thickness);
-    ImGui::Dummy({sqrt(2.0f) * size, sqrt(2.0f) * size + ImGui::GetStyle().FramePadding.y * 2.0f});
+    ImGui::Dummy({sqrt(2.0f) * size, sqrt(2.0f) * size + style.FramePadding.y * 2.0f});
 }
 
 // Fill the available horizontal region with lineTotal amount of buttons
@@ -464,9 +467,9 @@ void DrawDeviceDiscovery()
         ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
         ImGui::SeparatorText("Available Devices");
         static int deviceIndex = 0;
-        int btnIndex = 0;
         if (!devices.empty())
         {
+            int btnIndex = 0;
             for (const auto& device : devices)
                 ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
         } else
@@ -518,7 +521,7 @@ void DrawDeviceConnecting()
             ImGui::NewLine();
             ImTextCentered("Connecting...");
             ImGui::Dummy({0, 16.0f});
-            ImSpinner(1000.0f, 24.0f, IM_COL32(255, 255, 255, 255), 2.0f, true, 2.0f, ImEaseInOutCubic);
+            ImSpinner(1000.0f, 24.0f, IM_COL32(255, 255, 255, 255), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
             ImGui::NewLine();
             ImTextCentered(mdrConnectionGetLastError(conn));
             ImGui::NewLine();
@@ -545,8 +548,9 @@ void DrawDeviceControlsHeader()
     MDRConnection* conn = clientPlatformConnectionGet();
     if (ImGui::BeginMenuBar())
     {
+        auto& style = ImGui::GetStyle();
         /* Disconnect & Shutdown */
-        if (ImGui::BeginMenu(gDevice.mModelName.c_str()))
+        if (ImGui::BeginMenu(fmt::format( PSI_CHEVRON_DOWN " {}", gDevice.mModelName).c_str()))
         {
             if (ImGui::MenuItem(PSI_UNLINK " Disconnect"))
             {
@@ -560,7 +564,8 @@ void DrawDeviceControlsHeader()
             }
             ImGui::EndMenu();
         }
-        ImGui::Dummy({0, 0});
+        if (!gDevice.IsReady())
+            ImSpinner(1000, style.FontSizeBase * 0.5f, IM_COL32(255,255,255,127), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
         /* Cool Badges */
         // Title, Border Color, Text Color
         using Badge = Tuple<const char*, int, int>;
@@ -579,7 +584,6 @@ void DrawDeviceControlsHeader()
         Span badges{badgeFirst, badgeLast};
         // Right-align and draw them
         // XXX: This is surprisingly painful to do.
-        auto& style = ImGui::GetStyle();
         ImVec2 padding = style.FramePadding;
         float badgeRegionX = 0, badgeRegionY = 0;
         ImGui::PushFont(ImGui::GetFont(), style.FontSizeBase - padding.y / 2);
@@ -618,43 +622,72 @@ void DrawDeviceControlsHeader()
                 v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR);
             supportCase |= gDevice.mSupport.contains(
                 v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
-            if (supportSingle && !supportLR && gDevice.mBatteryL.threshold)
+            if (ImGui::BeginTable("##Battery", 2, ImGuiTableFlags_SizingStretchProp))
             {
-                float single = gDevice.mBatteryL.level;
-                single /= gDevice.mBatteryL.threshold;
-                ImGui::Text("Battery: %.0f%%", single * 100);
-                ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
-            }
-            if (supportLR && gDevice.mBatteryL.threshold && gDevice.mBatteryR.threshold)
-            {
-                float single = gDevice.mBatteryL.level;
-                single /= gDevice.mBatteryL.threshold;
-                ImGui::Text("L: %.0f%%", single * 100);
-                ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
-                single = gDevice.mBatteryR.level;
-                single /= gDevice.mBatteryR.threshold;
-                ImGui::Text("R: %.0f%%", single * 100);
-                ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
-            }
-            if (supportCase && gDevice.mBatteryCase.threshold)
-            {
-                float single = gDevice.mBatteryCase.level;
-                single /= 100.0f; // gDevice.mBatteryCase.threshold <-- Wonky. Got threshold=30 and value=76 pairs
-                // Seems like 100.0f is always the case for...case
-                ImGui::Text("Case: %.0f%%", single * 100);
-                ImGui::SameLine();
-                ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryCase.charging));
+                if (supportSingle && !supportLR && gDevice.mBatteryL.threshold)
+                {
+                    ImGui::TableNextRow();
+                    float single = gDevice.mBatteryL.level;
+                    single /= gDevice.mBatteryL.threshold;
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("Battery: %.0f%%", single * 100);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
+                }
+                if (supportLR && gDevice.mBatteryL.threshold && gDevice.mBatteryR.threshold)
+                {
+                    float single = gDevice.mBatteryL.level;
+                    single /= gDevice.mBatteryL.threshold;
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("L: %.0f%%", single * 100);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
+                    single = gDevice.mBatteryR.level;
+                    single /= gDevice.mBatteryR.threshold;
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("R: %.0f%%", single * 100);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
+                }
+                if (supportCase && gDevice.mBatteryCase.threshold)
+                {
+                    float single = gDevice.mBatteryCase.level;
+                    single /= 100.0f; // gDevice.mBatteryCase.threshold <-- Wonky. Got threshold=30 and value=76 pairs
+                    // Seems like 100.0f is always the case for...case
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("Case: %.0f%%", single * 100);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::ProgressBar(single, {-1, 0}, FormatEnum(gDevice.mBatteryCase.charging));
+                }
+                ImGui::EndTable();
             }
         }
         ImGui::TableSetColumnIndex(1);
         /* Now Playing */
         {
-            ImGui::Text("Title:  %s", gDevice.mPlayTrackTitle.c_str());
-            ImGui::Text("Album:  %s", gDevice.mPlayTrackAlbum.c_str());
-            ImGui::Text("Artist: %s", gDevice.mPlayTrackArtist.c_str());
+            ImGui::Text(PSI_VOLUME_UP " Now Playing");
+            if (ImGui::BeginTable("##NowPlaying", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerH))
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Title");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", gDevice.mPlayTrackTitle.c_str());
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Album");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", gDevice.mPlayTrackAlbum.c_str());
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Artist");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", gDevice.mPlayTrackArtist.c_str());
+                ImGui::EndTable();
+            }
         }
         ImGui::EndTable();
     }
@@ -835,8 +868,7 @@ void DrawDeviceControlsDevices()
     auto DrawDeviceElement = [&](const mdr::MDRHeadphones::PeripheralDevice& device, bool selected) -> bool
     {
         ImGui::BeginGroup();
-        bool mpActive = device.macAddress == gDevice.mMultipointDeviceMac.current;
-        if (mpActive)
+        if (device.macAddress == gDevice.mMultipointDeviceMac.current)
             ImGui::Text(PSI_VOLUME_DOWN " "), ImGui::SameLine();
         bool res = ImGui::Selectable(device.name.c_str(), selected);
         if (selected)
@@ -881,7 +913,7 @@ void DrawDeviceControlsDevices()
     if (gDevice.mPairingMode.desired)
     {
         ImTextCentered("Pairing...");
-        ImSpinner(1000.0f, 16.0f, IM_COL32(0, 255, 0, 255), 2.0f, true, 1.0f, ImEaseInOutCubic);
+        ImSpinner(1000.0f, 16.0f, IM_COL32(0, 255, 0, 255), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
         if (ImModalButton("Stop"))
             gDevice.mPairingMode.desired = false;
     }
@@ -1193,7 +1225,7 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImTextCentered("Device Disconnected");
         ImGui::NewLine();
-        ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 4.0f, true);
+        ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 4.0f, true, false);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
         ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
@@ -1260,7 +1292,7 @@ void DrawBugcheck()
     float fontBase = std::max(ImGui::CalcTextSize(gBugcheckMessage.c_str()).x, region.x);
     fontBase = (region.x - padding * 4) / (fontBase + padding * 4);
     ImGui::PushFont(ImGui::GetFont(), ImGui::GetStyle().FontSizeBase * fontBase);
-    float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight();
+    float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight() * 2;
     ImVec2 tl{padding, padding}, br{region.x - padding, sizeV + padding * 8};
     tl += offset, br += offset;
     draw->AddRectFilled(tl, br, IM_COL32(255 * ImBlink(1000u, 2u), 0, 0, 255));

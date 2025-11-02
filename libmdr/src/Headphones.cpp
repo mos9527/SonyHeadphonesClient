@@ -139,8 +139,15 @@ namespace mdr
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;
-            if (TaskMoveNext(taskResult))
-                return taskResult;
+            try
+            {
+                if (TaskMoveNext(taskResult))
+                    return taskResult;
+            } catch (std::runtime_error& e)
+            {
+                mLastError = e.what();
+                return MDR_HEADPHONES_ERROR;
+            }
         }
         int idleCode = mTask ? MDR_HEADPHONES_INPROGRESS : MDR_HEADPHONES_IDLE;
         if (mRecvBuf.empty())

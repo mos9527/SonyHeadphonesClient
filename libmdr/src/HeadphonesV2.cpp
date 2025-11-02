@@ -1,4 +1,5 @@
 #pragma clang diagnostic ignored "-Wshadow"
+#include <algorithm>
 #include <mdr/Headphones.hpp>
 // NOLINTBEGIN
 namespace mdr
@@ -707,7 +708,7 @@ namespace mdr
                 if (mGsParamBool1.dirty())
                 {
                     GsParamBoolean res;
-                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.base.type = GsInquiredType::GENERAL_SETTING1;
                     res.settingValue = mGsParamBool1.desired ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsParamBoolean, res);
@@ -719,7 +720,7 @@ namespace mdr
                 if (mGsParamBool2.dirty())
                 {
                     GsParamBoolean res;
-                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.base.type = GsInquiredType::GENERAL_SETTING2;
                     res.settingValue = mGsParamBool2.desired ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsParamBoolean, res);
@@ -731,7 +732,7 @@ namespace mdr
                 if (mGsParamBool3.dirty())
                 {
                     GsParamBoolean res;
-                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.base.type = GsInquiredType::GENERAL_SETTING3;
                     res.settingValue = mGsParamBool3.desired ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsParamBoolean, res);
@@ -743,7 +744,7 @@ namespace mdr
                 if (mGsParamBool4.dirty())
                 {
                     GsParamBoolean res;
-                    res.base.command = Command::SYSTEM_SET_PARAM;
+                    res.base.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.base.type = GsInquiredType::GENERAL_SETTING4;
                     res.settingValue = mGsParamBool4.desired ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsParamBoolean, res);

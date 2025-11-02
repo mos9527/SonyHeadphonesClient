@@ -14,12 +14,12 @@
 #define MDR_CHECK_MSG(expr, format_str, ...) \
     { \
         auto const& srcloc = std::source_location::current(); \
-        if(!(expr)) throw std::runtime_error(fmt::format("{}.\nExpression: " #expr "\nFunction: {}\nSource:{}#L{}",fmt::format(format_str __VA_OPT__(,) __VA_ARGS__), srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
+        if(!(expr)) throw std::runtime_error(fmt::format("{}.\nExpression: " #expr "\nFunction: {}\nSource: {}#L{}",fmt::format(format_str __VA_OPT__(,) __VA_ARGS__), srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
     }
 #define MDR_CHECK(expr) \
     { \
     auto const& srcloc = std::source_location::current(); \
-    if(!(expr)) throw std::runtime_error(fmt::format("Check Failure.\nExpression: " #expr "\nFunction: {}\nSource:{}#L{}", srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
+    if(!(expr)) throw std::runtime_error(fmt::format("Check Failure.\nExpression: " #expr "\nFunction: {}\nSource: {}#L{}", srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
     }
 
 #define MDR_LOG_STREAM stderr
