@@ -1,4 +1,3 @@
-#pragma clang diagnostic ignored "-Wshadow"
 #include <mdr/Headphones.hpp>
 #include <algorithm>
 

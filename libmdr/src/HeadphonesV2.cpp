@@ -1,4 +1,3 @@
-#pragma clang diagnostic ignored "-Wshadow"
 #include <algorithm>
 #include <mdr/Headphones.hpp>
 // NOLINTBEGIN
