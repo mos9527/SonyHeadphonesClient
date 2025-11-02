@@ -1,10 +1,10 @@
 #pragma once
 
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <string>
-#include <variant>
 #include <vector>
 #include <span>
 #include <array>
@@ -21,8 +21,16 @@
     auto const& srcloc = std::source_location::current(); \
     if(!(expr)) throw std::runtime_error(fmt::format("Check Failure.\nExpression: " #expr "\nFunction: {}\nSource:{}#L{}", srcloc.function_name(), srcloc.file_name(), srcloc.line())); \
     }
+
+#define MDR_LOG_STREAM stderr
 #define MDR_LOG(str, ...) \
-    fmt::println(stderr, (str) __VA_OPT__(,) __VA_ARGS__);
+    fprintf(MDR_LOG_STREAM, "%s", fmt::format((str) __VA_OPT__(,) __VA_ARGS__).c_str());
+#ifdef MDR_DEBUG
+#define MDR_LOG_DEBUG(...) \
+    MDR_LOG(__VA_ARGS__);
+#else
+#define MDR_LOG_DEBUG(...)
+#endif
 namespace mdr
 {
     typedef uint8_t UInt8;

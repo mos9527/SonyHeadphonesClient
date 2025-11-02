@@ -72,12 +72,10 @@ namespace mdr
         const int r = mdrConnectionRecv(mConn, buf, kMDRMaxPacketSize, &recvd);
         if (r != MDR_RESULT_OK)
             return r;
-#ifdef MDR_DEBUG
-        fmt::print("<< ");
+        MDR_LOG_DEBUG("<< ");
         for (char* p = buf; p != buf + recvd; p++)
-            fmt::print("{:02X} ", static_cast<UInt8>(*p));
-        fmt::println("");
-#endif
+            MDR_LOG_DEBUG("{:02X} ", static_cast<UInt8>(*p));
+        MDR_LOG_DEBUG("");
         mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
         return r;
     }
@@ -92,12 +90,10 @@ namespace mdr
         const int r = mdrConnectionSend(mConn, buf, toSend, &sent);
         if (r != MDR_RESULT_OK)
             return r;
-#ifdef MDR_DEBUG
-        fmt::print(">> ");
+        MDR_LOG_DEBUG(">> ");
         for (char* p = buf; p != buf + sent; p++)
-            fmt::print("{:02X} ", static_cast<UInt8>(*p));
-        fmt::println("");
-#endif
+            MDR_LOG_DEBUG("{:02X} ", static_cast<UInt8>(*p));
+        MDR_LOG_DEBUG("");
         mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
         return r;
     }

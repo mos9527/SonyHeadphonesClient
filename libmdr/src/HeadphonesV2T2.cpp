@@ -187,7 +187,7 @@ namespace mdr
         case SAFE_LISTENING_RET_EXTENDED_PARAM:
             return HandleSafeListeningExtendedParamT2(this, cmd);
         default:
-            MDR_LOG("** Unhandled {}", base.command);
+            MDR_LOG_DEBUG("** Unhandled {}", base.command);
             break;
         }
         return MDR_HEADPHONES_EVT_UNHANDLED;
