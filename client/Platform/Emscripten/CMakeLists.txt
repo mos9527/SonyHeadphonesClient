@@ -3,7 +3,9 @@ file(
         STATIC_FILES
         "${CMAKE_CURRENT_LIST_DIR}/*.html"
         "${CMAKE_CURRENT_LIST_DIR}/*.css"
+        "${CMAKE_CURRENT_LIST_DIR}/*.json"
         "${CMAKE_CURRENT_LIST_DIR}/*.js"
+        "${CMAKE_CURRENT_LIST_DIR}/*.png"
 )
 
 add_library(Client_PlatformEmscripten)
