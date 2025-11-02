@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     fprintf(fout, "#ifdef __cplusplus\n");
     fprintf(fout, "// Q: Why do we need yet another linkage declaration here?\n");
     fprintf(fout, "// A: MSVC. It's ALWAYS MSVC.\n");
-    fprintf(fout, "extern "C" {\n");
+    fprintf(fout, "extern \"C\" {\n");
     fprintf(fout, "#endif\n");
     fprintf(fout, "    extern const char %s[%d+1];\n", argv[2],array_size);
     fprintf(fout, "#ifdef __cplusplus\n");

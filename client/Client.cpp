@@ -4,6 +4,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <SDL2/SDL.h>
 
 #include <mdr/Headphones.hpp>
@@ -253,6 +254,33 @@ const char* FormatEnum(v2::t1::AutoPowerOffElements off)
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
     ImGuiWindowFlags_NoTitleBar;
 
+// Begin https://github.com/ocornut/imgui/issues/3379#issuecomment-1678718752
+inline void ImScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
+{
+    using namespace ImGui;
+    ImGuiContext& g = *ImGui::GetCurrentContext();
+    ImGuiWindow* window = g.CurrentWindow;
+    ImGuiID id = window->GetID("##scrolldraggingoverlay");
+    KeepAliveID(id);
+
+    // Passing 0 to ItemHoverable means it doesn't set HoveredId, which is what we want.
+    if (g.ActiveId == 0 && ItemHoverable(window->Rect(), 0, g.CurrentItemFlags) &&
+        IsMouseClicked(mouse_button, ImGuiInputFlags_None, id))
+        SetActiveID(id, window);
+    if (g.ActiveId == id && !g.IO.MouseDown[mouse_button])
+        ClearActiveID();
+
+    // Set keep underlying highlight. However, mouse not necessarily hovering same item creates a weird disconnect.
+    // if (g.ActiveId == id)
+    //    g.ActiveIdAllowOverlap = true;
+
+    if (g.ActiveId == id && delta.x != 0.0f)
+        SetScrollX(window, window->Scroll.x + delta.x);
+    if (g.ActiveId == id && delta.y != 0.0f)
+        SetScrollY(window, window->Scroll.y + delta.y);
+}
+// --
+
 // Only useful if you're manipulating the DrawList which has positions
 // that are _NOT_ window local
 Tuple<ImVec2, ImVec2, ImDrawList*> ImWindowDrawOffsetRegionList()
@@ -310,7 +338,7 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
     if (centerX)
         ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size * sqrt(2) / 2);
     if (centerY)
-        ImGui::SetCursorPosY(style.FontSizeBase - size * sqrt(2) / 2 + style.FramePadding.y);
+        ImGui::SetCursorPosY((style.FontSizeBase - size) / 2 + style.FramePadding.y);
     auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
     float t = ImBlinkF(interval), theta = easing(t) * acos(-1) * cycles;
     for (int i = 0; auto p : kPoints)
@@ -1150,11 +1178,11 @@ void DrawDeviceControlsAbout()
     }
 }
 void DrawDeviceControlsTabs()
-{
+{    
     if (ImGui::BeginTabBar("##Controls"))
     {
         if (ImGui::BeginTabItem("Playback"))
-        {
+        {            
             DrawDeviceControlsPlayback();
             ImGui::EndTabItem();
         }
@@ -1239,7 +1267,7 @@ void DrawDeviceDisconnect()
 }
 
 void DrawApp()
-{
+{    
     auto& io = ImGui::GetIO();
     auto& style = ImGui::GetStyle();
     style.FrameRounding = 8.0f;
@@ -1255,7 +1283,7 @@ void DrawApp()
     default:
         break;
     }
-    ImGui::Begin("##", nullptr, flags);
+    ImGui::Begin("##SonyHeadphonesClient", nullptr, flags);
     ExceptionHandler([&]
     {
         switch (connState)
@@ -1274,6 +1302,8 @@ void DrawApp()
             break;
         }
     });
+    ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
+    ImScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouseDelta.y), ImGuiMouseButton_Left);
     ImGui::End();
 }
 
@@ -1316,7 +1346,7 @@ void DrawBugcheck()
 }
 
 bool ShouldClientExit()
-{
+{    
     switch (appState)
     {
     case APP_STATE_RUNNING:

@@ -45,7 +45,7 @@ void mainLoop()
         ImGui::NewFrame();
         float scale = ImGui_ImplSDL2_GetContentScaleForWindow(gWindow);
         ImGui::GetStyle().FontScaleMain = scale;
-    }
+    }    
     gShouldClose |= ShouldClientExit();
     // Rendering
     {
@@ -105,7 +105,7 @@ int main(int, char**)
     {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-        io.ConfigErrorRecoveryEnableAssert = false; // Don't assert on errors
+        io.ConfigErrorRecoveryEnableAssert = true; // Don't assert on errors
         ImGui_ImplSDL2_InitForSDLRenderer(gWindow, gRenderer);
         ImGui_ImplSDLRenderer2_Init(gRenderer);
     }
