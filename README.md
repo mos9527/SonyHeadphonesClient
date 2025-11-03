@@ -3,6 +3,16 @@ SonyHeadphonesClient
 
 A spiritual successor to  [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
 
+There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview), or use the [Web Version](#notes-on-web-platform).
+
+[![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
+[![Nightly Builds](https://img.shields.io/badge/rewrite-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview)
+
+## Roadmap
+This brach is expected to be merged once the following features have been implemented.
+- [ ] Support for legacy (`v1` protocol) devices, e.g. WH-1000XM4, WH-1000XM3
+- [ ] Native macOS platform support
+
 ## Compatiblity
 
 The following platforms (applies to `libmdr`, `client`) are *natively* supported with first-party effort.
@@ -28,6 +38,8 @@ As always, status reports are welcome - please do submit an Issue if your browse
 ## For Developers
 
 We have extensive documentations available in the source files. Moreover, refer to the respective README files in each source folder to understand what they do!
+
+A C++20 compliant compiler is required. GCC 14, Clang 21 and MSVC 19 has been used for development and are guanrateed to be supported.
 
 ### Building (Regular CMake)
 This is no different from your regular CMake projects.
