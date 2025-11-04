@@ -3,7 +3,7 @@ project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" ON)
+option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         message(WARNING "ASAN not enabled on MSVC by *us*. You're on your own.")
