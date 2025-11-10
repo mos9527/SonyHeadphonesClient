@@ -1,9 +1,11 @@
-// SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl2_sdlrenderer2
+// SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
 #include <cstdio>
 #include <imgui.h>
-#include <imgui_impl_sdl2.h>
-#include <imgui_impl_sdlrenderer2.h>
-#include <SDL.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_main.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -25,11 +27,10 @@ void mainLoop()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        ImGui_ImplSDL2_ProcessEvent(&event);
-        if (event.type == SDL_QUIT)
+        ImGui_ImplSDL3_ProcessEvent(&event);
+        if (event.type == SDL_EVENT_QUIT)
             gShouldClose = true;
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID ==
-            SDL_GetWindowID(gWindow))
+        if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(gWindow))
             gShouldClose = true;
     }
     if (SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED)
@@ -40,20 +41,18 @@ void mainLoop()
     // Start the Dear ImGui frame
     {
         // New frame
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
-        float scale = ImGui_ImplSDL2_GetContentScaleForWindow(gWindow);
-        ImGui::GetStyle().FontScaleMain = scale;
     }    
     gShouldClose |= clientShouldExit();
     // Rendering
     {
         ImGui::Render();
-        SDL_RenderSetScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+        SDL_SetRenderScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
         SDL_RenderClear(gRenderer);
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), gRenderer);
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
         SDL_RenderPresent(gRenderer);
     }
 #ifdef EMSCRIPTEN
@@ -66,33 +65,27 @@ void mainLoop()
 int main(int, char**)
 {
     clientPlatformInit();
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return 1;
     }
-    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
     gWindow = SDL_CreateWindow(
         "SonyHeadphonesClient",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
         800, 600,
-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
-        );
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
+    );
     if (!gWindow)
     {
         SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return 1;
     }
-    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    gRenderer = SDL_CreateRenderer(gWindow, nullptr);
     if (!gRenderer)
     {
         SDL_Log("Error: SDL_CreateRenderer()\n");
         return 1;
     }
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(gRenderer, &info);
-    SDL_Log("Using SDL_Renderer: %s", info.name);
     // Setup Dear ImGui context
     {
         IMGUI_CHECKVERSION();
@@ -110,8 +103,8 @@ int main(int, char**)
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
         io.ConfigErrorRecoveryEnableAssert = true; // Don't assert on errors
-        ImGui_ImplSDL2_InitForSDLRenderer(gWindow, gRenderer);
-        ImGui_ImplSDLRenderer2_Init(gRenderer);
+        ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
+        ImGui_ImplSDLRenderer3_Init(gRenderer);
     }
     // Load our default font
     {
@@ -121,7 +114,7 @@ int main(int, char**)
     // Main loop
 
 #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(mainLoop, -1, 1);
+    emscripten_set_main_loop(mainLoop, 0, 1);
 #else
     while (!gShouldClose)
         mainLoop();
@@ -129,8 +122,8 @@ int main(int, char**)
 
     // Cleanup
     {
-        ImGui_ImplSDLRenderer2_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
+        ImGui_ImplSDLRenderer3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
 
         SDL_DestroyRenderer(gRenderer);

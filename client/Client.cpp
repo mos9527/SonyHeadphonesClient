@@ -4,7 +4,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include <mdr/Headphones.hpp>
 #include "Fonts/PlexSansIcon.h"

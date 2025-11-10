@@ -10,9 +10,9 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-        SDL2
+        SDL3
         GIT_REPOSITORY https://github.com/libsdl-org/SDL
-        GIT_TAG release-2.32.10
+        GIT_TAG release-3.2.26
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
