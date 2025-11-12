@@ -19,3 +19,7 @@ The custom font `PlexSansIcon` is created with the following source fonts.
 ...with the help of FontForge.
 
 - https://fontforge.org/
+
+The font `NeoXiHei-Code` is graciously provided by @lxgw
+
+- https://github.com/lxgw/NeoXiHei-Code

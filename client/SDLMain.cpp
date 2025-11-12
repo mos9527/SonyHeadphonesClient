@@ -6,15 +6,15 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_main.h>
+
+#include "Platform/Platform.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
+#include "Fonts/PlexSansIcon.h"
 // Implemented by Client.cpp
 extern bool clientShouldExit();
-// Implemented by Platform code
-extern void clientPlatformInit();
-extern void clientPlatformDestroy();
 
 bool gShouldClose = false;
 
@@ -40,6 +40,23 @@ void mainLoop()
     }
     // Start the Dear ImGui frame
     {
+        // Platform font loading - if available
+        // This is only done once per session. See @ref clientPlatformLocateFontBinary for more info.
+        static int platformFontSize = 0;
+        if (!platformFontSize)
+        {
+            const char* fontData = nullptr;
+            platformFontSize = clientPlatformLocateFontBinary(&fontData);
+            if (platformFontSize)
+            {
+                SDL_Log("Loading platform font of size %d bytes", platformFontSize);
+                ImFontConfig merge_config{};
+                merge_config.MergeMode = true;
+                // XXX: PlexSansIcon covered latin-1 pages. New ones won't overwrite them.
+                // External fonts are meant to cover missing glyphs e.g. CJK ones anyway - so this is fine.
+                io.Fonts->AddFontFromMemoryTTF((void*)fontData, platformFontSize, 15.0f, &merge_config);
+            }
+        }
         // New frame
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -61,7 +78,6 @@ void mainLoop()
 #endif
 }
 
-#include "Fonts/PlexSansIcon.h"
 int main(int, char**)
 {
     clientPlatformInit();

@@ -6,6 +6,7 @@ file(
         "${CMAKE_CURRENT_LIST_DIR}/*.json"
         "${CMAKE_CURRENT_LIST_DIR}/*.js"
         "${CMAKE_CURRENT_LIST_DIR}/*.png"
+        "${CMAKE_CURRENT_LIST_DIR}/*.ttf"
 )
 
 add_library(Client_PlatformEmscripten)
