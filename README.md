@@ -18,7 +18,7 @@ This brach is expected to be merged once the following features have been implem
 The following platforms (applies to `libmdr`, `client`) are *natively* supported with first-party effort.
 
 | Platform         | Support Status | Maintainers          |
-| ---------------- | -------------- | -------------------- |
+|------------------|----------------|----------------------|
 | Windows          | Full Support   | @mos9527, @Amrsatrio |
 | Linux            | Full Support   | @mos9527             |
 | Web (Emscripten) | Full Support   | @mos9527             |
@@ -89,36 +89,3 @@ while your device having proper AVRCP support (e.g. works on other platforms).
 - See also
   - https://wiki.archlinux.org/title/MPRIS
   - https://github.com/bluez/bluez/issues/868 
-- Example [systemd file](https://github.com/bluez/bluez/commit/daa86e06c376d6e92bb0d1e2f1edb649974bfcbd) for `mpris-proxy`
-```ini
-[Unit]
-Description=Bluetooth mpris proxy
-Documentation=man:mpris-proxy(1)
-
-Wants=dbus.socket
-After=dbus.socket
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/mpris-proxy
-
-[Install]
-WantedBy=default.target
-```
-You can then enable it as a systemd user service (change username as necessary).
-```bash
-sudo systemctl --machine mos9527@ --user enable mpris-proxy.service
-sudo systemctl --machine mos9527@ --user start mpris-proxy.service
-sudo systemctl --machine mos9527@ --user status mpris-proxy.service
-● mpris-proxy.service - Bluetooth mpris proxy
-     Loaded: loaded (/etc/systemd/user/mpris-proxy.service; enabled; preset: enabled)
-     Active: active (running) since Wed 2025-11-12 22:49:07 CST; 3s ago
- Invocation: 2cca0507c0ca4a20ac650fc4b2c22a25
-       Docs: man:mpris-proxy(1)
-   Main PID: 123829
-      Tasks: 1 (limit: 33257)
-     Memory: 432K (peak: 1.7M)
-        CPU: 5ms
-     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/mpris-proxy.service
-             └─123829 /usr/bin/mpris-proxy
-```

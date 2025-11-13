@@ -20,6 +20,6 @@ The custom font `PlexSansIcon` is created with the following source fonts.
 
 - https://fontforge.org/
 
-The font `NeoXiHei-Code` is graciously provided by @lxgw
+The font `NeoXiHei-Code` is graciously provided by @lxgw, and is the default font for non Latin-1 or icon characters in the Web client.
 
 - https://github.com/lxgw/NeoXiHei-Code
