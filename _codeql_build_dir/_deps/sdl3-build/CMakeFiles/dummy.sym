@@ -1,0 +1,5 @@
+n_0 {
+ global:
+  func;
+ local: *;
+};

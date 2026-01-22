@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/CMakeFiles/fmt-populate"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/CMakeFiles/fmt-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/CMakeFiles/fmt-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/fmt-subbuild/fmt-populate-prefix/src/fmt-populate-stamp/fmt-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"fmt-populate"
+		],
+		"name" : "fmt-populate"
+	}
+}

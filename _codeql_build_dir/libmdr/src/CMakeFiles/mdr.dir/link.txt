@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmdr.a CMakeFiles/mdr.dir/Command.cpp.o CMakeFiles/mdr.dir/Generated/ProtocolV2T1Serialization.cpp.o CMakeFiles/mdr.dir/Generated/ProtocolV2T1Validation.cpp.o CMakeFiles/mdr.dir/Generated/ProtocolV2T2Serialization.cpp.o CMakeFiles/mdr.dir/Generated/ProtocolV2T2Validation.cpp.o CMakeFiles/mdr.dir/Headphones.cpp.o CMakeFiles/mdr.dir/HeadphonesV2.cpp.o CMakeFiles/mdr.dir/HeadphonesV2T1.cpp.o CMakeFiles/mdr.dir/HeadphonesV2T2.cpp.o
+/usr/bin/ranlib libmdr.a

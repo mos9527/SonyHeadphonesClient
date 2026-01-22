@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmdr_PlatformLinux.a CMakeFiles/mdr_PlatformLinux.dir/DBusHelper.cpp.o CMakeFiles/mdr_PlatformLinux.dir/PlatformLinux.cpp.o
+/usr/bin/ranlib libmdr_PlatformLinux.a
