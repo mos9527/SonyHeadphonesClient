@@ -112,11 +112,11 @@ namespace mdr
         command = command.subspan(2);
         // Big-endian in
         Int32BE outSize = command[0] << 24u | command[1] << 16u | command[2] << 8u | command[3];
-        Span data = command.subspan(4);
+        auto data = command.subspan(4);
         // Data...,checksum
         UInt8 checksum = data.back();
         // Checksum incl. type,seq,data
-        Span checkData = Span(unescaped).subspan(0, unescaped.size() - 1);
+        auto checkData = Span<const UInt8>(unescaped).subspan(0, unescaped.size() - 1);
         UInt8 curChecksum = Checksum(checkData);
         if (checksum != curChecksum)
             return MDRUnpackResult::BAD_CHECKSUM;
