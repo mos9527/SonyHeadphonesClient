@@ -1,5 +1,6 @@
 #include <ranges>
 #include <algorithm>
+#include <iterator>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
@@ -498,7 +499,8 @@ void DrawDeviceDiscovery()
     {
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
-        Span<MDRDeviceInfo> devices{pDeviceInfo, static_cast<size_t>(nDeviceInfo)};
+        size_t deviceCount = nDeviceInfo > 0 ? static_cast<size_t>(nDeviceInfo) : 0;
+        Span<MDRDeviceInfo> devices{pDeviceInfo, deviceCount};
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
@@ -623,7 +625,8 @@ void DrawDeviceControlsHeader()
         {
             *(badgeLast++) = {FormatEnum(gDevice.mUpscalingType), ~0u, ~0u};
         }
-        Span<Badge> badges{badgeFirst, static_cast<size_t>(badgeLast - badgeFirst)};
+        size_t badgeCount = static_cast<size_t>(std::distance(badgeFirst, badgeLast));
+        Span<Badge> badges{badgeFirst, badgeCount};
         // Right-align and draw them
         // XXX: This is surprisingly painful to do.
         ImVec2 padding = style.FramePadding;
