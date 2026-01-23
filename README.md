@@ -11,17 +11,18 @@ There's no release build yet - but you can always grab the latest [nightly build
 ## Roadmap
 This brach is expected to be merged once the following features have been implemented.
 - [ ] Support for legacy (`v1` protocol) devices, e.g. WH-1000XM4, WH-1000XM3
-- [ ] Native macOS platform support
+- [x] Native macOS UI (AppKit shell)
 
 ## Compatiblity
 
 The following platforms (applies to `libmdr`, `client`) are *natively* supported with first-party effort.
 
-| Platform         | Support Status | Maintainers          |
-|------------------|----------------|----------------------|
-| Windows          | Full Support   | @mos9527, @Amrsatrio |
-| Linux            | Full Support   | @mos9527             |
-| Web (Emscripten) | Full Support   | @mos9527             |
+| Platform         | Support Status              | Maintainers          |
+|------------------|-----------------------------|----------------------|
+| Windows          | Full Support                | @mos9527, @Amrsatrio |
+| Linux            | Full Support                | @mos9527             |
+| macOS            | Native UI Preview (AppKit)  |                      |
+| Web (Emscripten) | Full Support                | @mos9527             |
 
 For device support, refer to `docs/device-support` to check. If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
