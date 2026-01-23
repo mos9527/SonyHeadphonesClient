@@ -1,8 +1,60 @@
 #import <AppKit/AppKit.h>
 #include "../Platform.hpp"
 
+@interface SidebarDataSource : NSObject <NSTableViewDataSource, NSTableViewDelegate>
+@property(nonatomic, strong) NSArray<NSString*>* items;
+@end
+
+@implementation SidebarDataSource
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+        _items = @[@"Overview", @"Playback", @"Sound", @"Devices", @"System", @"About"];
+    return self;
+}
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
+{
+    (void)tableView;
+    return static_cast<NSInteger>(self.items.count);
+}
+
+- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
+{
+    (void)tableView;
+    (void)tableColumn;
+    NSTableCellView* cell = [tableView makeViewWithIdentifier:@"SidebarCell" owner:self];
+    if (!cell)
+    {
+        cell = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+        cell.identifier = @"SidebarCell";
+        NSTextField* textField = [NSTextField labelWithString:@""];
+        textField.translatesAutoresizingMaskIntoConstraints = NO;
+        textField.font = [NSFont systemFontOfSize:13.0 weight:NSFontWeightRegular];
+        textField.textColor = [NSColor labelColor];
+        cell.textField = textField;
+        [cell addSubview:textField];
+        [NSLayoutConstraint activateConstraints:@[
+            [textField.leadingAnchor constraintEqualToAnchor:cell.leadingAnchor constant:8.0],
+            [textField.centerYAnchor constraintEqualToAnchor:cell.centerYAnchor]
+        ]];
+    }
+    cell.textField.stringValue = self.items[static_cast<NSUInteger>(row)];
+    return cell;
+}
+
+- (CGFloat)tableView:(NSTableView*)tableView heightOfRow:(NSInteger)row
+{
+    (void)tableView;
+    (void)row;
+    return 28.0;
+}
+@end
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property(strong, nonatomic) NSWindow* window;
+@property(strong, nonatomic) SidebarDataSource* sidebarDataSource;
 @end
 
 @implementation AppDelegate
@@ -39,13 +91,19 @@
     tabsAccessory.layoutAttribute = NSLayoutAttributeCenterY;
     [self.window addTitlebarAccessoryViewController:tabsAccessory];
 
-    NSView* contentView = [[NSView alloc] initWithFrame:frame];
-    contentView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    NSSearchField* searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0, 0, 220, 24)];
+    searchField.placeholderString = @"Search";
+    searchField.controlSize = NSControlSizeSmall;
+    searchField.font = [NSFont systemFontOfSize:12.0];
+    searchField.translatesAutoresizingMaskIntoConstraints = NO;
+    NSTitlebarAccessoryViewController* searchAccessory = [[NSTitlebarAccessoryViewController alloc] init];
+    searchAccessory.view = searchField;
+    searchAccessory.layoutAttribute = NSLayoutAttributeRight;
+    [self.window addTitlebarAccessoryViewController:searchAccessory];
 
-    NSSplitView* splitView = [[NSSplitView alloc] initWithFrame:contentView.bounds];
-    splitView.vertical = YES;
-    splitView.dividerStyle = NSSplitViewDividerStyleThin;
-    splitView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    NSSplitViewController* splitController = [[NSSplitViewController alloc] init];
+    splitController.splitView.vertical = YES;
+    splitController.splitView.dividerStyle = NSSplitViewDividerStyleThin;
 
     NSVisualEffectView* sidebar = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0, 0, 260, frame.size.height)];
     sidebar.material = NSVisualEffectMaterialSidebar;
@@ -59,21 +117,50 @@
     mainBackground.blendingMode = NSVisualEffectBlendingModeWithinWindow;
     mainBackground.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
-    [splitView addSubview:sidebar];
-    [splitView addSubview:mainBackground];
-    [splitView setPosition:260 ofDividerAtIndex:0];
-    [contentView addSubview:splitView];
+    NSViewController* sidebarController = [[NSViewController alloc] init];
+    sidebarController.view = sidebar;
+    NSViewController* contentController = [[NSViewController alloc] init];
+    contentController.view = mainBackground;
+    NSSplitViewItem* sidebarItem = [NSSplitViewItem sidebarWithViewController:sidebarController];
+    NSSplitViewItem* contentItem = [NSSplitViewItem viewController:contentController];
+    sidebarItem.minimumThickness = 220.0;
+    sidebarItem.maximumThickness = 320.0;
+    [splitController addSplitViewItem:sidebarItem];
+    [splitController addSplitViewItem:contentItem];
 
     NSStackView* sidebarStack = [[NSStackView alloc] initWithFrame:sidebar.bounds];
     sidebarStack.orientation = NSUserInterfaceLayoutOrientationVertical;
     sidebarStack.alignment = NSLayoutAttributeLeading;
     sidebarStack.spacing = 12.0;
-    sidebarStack.edgeInsets = NSEdgeInsetsMake(20.0, 16.0, 20.0, 16.0);
+    sidebarStack.edgeInsets = NSEdgeInsetsMake(16.0, 14.0, 16.0, 14.0);
     sidebarStack.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
-    NSTextField* sidebarTitle = [NSTextField labelWithString:@"Devices"];
-    sidebarTitle.font = [NSFont systemFontOfSize:13.0 weight:NSFontWeightSemibold];
+    NSTextField* sidebarTitle = [NSTextField labelWithString:@"Navigation"];
+    sidebarTitle.font = [NSFont systemFontOfSize:12.0 weight:NSFontWeightSemibold];
     sidebarTitle.textColor = [NSColor secondaryLabelColor];
+
+    NSTableView* sidebarTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0, 0, 240, 200)];
+    sidebarTable.headerView = nil;
+    sidebarTable.usesAlternatingRowBackgroundColors = NO;
+    sidebarTable.selectionHighlightStyle = NSTableViewSelectionHighlightStyleSourceList;
+    sidebarTable.rowSizeStyle = NSTableViewRowSizeStyleDefault;
+    if (@available(macOS 11.0, *))
+        sidebarTable.style = NSTableViewStyleSidebar;
+
+    NSTableColumn* sidebarColumn = [[NSTableColumn alloc] initWithIdentifier:@"Title"];
+    sidebarColumn.width = 220.0;
+    [sidebarTable addTableColumn:sidebarColumn];
+    self.sidebarDataSource = [[SidebarDataSource alloc] init];
+    sidebarTable.dataSource = self.sidebarDataSource;
+    sidebarTable.delegate = self.sidebarDataSource;
+    [sidebarTable reloadData];
+    [sidebarTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+
+    NSScrollView* sidebarScroll = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 240, 200)];
+    sidebarScroll.hasVerticalScroller = YES;
+    sidebarScroll.borderType = NSNoBorder;
+    sidebarScroll.drawsBackground = NO;
+    sidebarScroll.documentView = sidebarTable;
 
     NSBox* deviceBox = [NSBox box];
     deviceBox.title = @"Available";
@@ -103,6 +190,7 @@
     buttonRow.spacing = 8.0;
 
     [sidebarStack addArrangedSubview:sidebarTitle];
+    [sidebarStack addArrangedSubview:sidebarScroll];
     [sidebarStack addArrangedSubview:deviceBox];
     [sidebarStack addArrangedSubview:buttonRow];
     [sidebar addSubview:sidebarStack];
@@ -139,6 +227,24 @@
     statusPlaceholder.textColor = [NSColor secondaryLabelColor];
     [statusBox setContentView:statusPlaceholder];
 
+    NSBox* quickActionsBox = [NSBox box];
+    quickActionsBox.title = @"Quick Actions";
+    quickActionsBox.boxType = NSBoxCustom;
+    quickActionsBox.borderColor = [NSColor separatorColor];
+    quickActionsBox.borderWidth = 1.0;
+    quickActionsBox.cornerRadius = 10.0;
+    quickActionsBox.contentViewMargins = NSEdgeInsetsMake(12.0, 12.0, 12.0, 12.0);
+
+    NSButton* playPauseButton = [NSButton buttonWithTitle:@"Play / Pause" target:nil action:nil];
+    playPauseButton.bezelStyle = NSBezelStyleTexturedRounded;
+    NSButton* locateButton = [NSButton buttonWithTitle:@"Find Headphones" target:nil action:nil];
+    locateButton.bezelStyle = NSBezelStyleTexturedRounded;
+    NSStackView* quickActionsStack = [NSStackView stackViewWithViews:@[playPauseButton, locateButton]];
+    quickActionsStack.orientation = NSUserInterfaceLayoutOrientationVertical;
+    quickActionsStack.alignment = NSLayoutAttributeLeading;
+    quickActionsStack.spacing = 8.0;
+    [quickActionsBox setContentView:quickActionsStack];
+
     NSBox* nowPlayingBox = [NSBox box];
     nowPlayingBox.title = @"Now Playing";
     nowPlayingBox.boxType = NSBoxCustom;
@@ -153,10 +259,11 @@
 
     [contentStack addArrangedSubview:titleStack];
     [contentStack addArrangedSubview:statusBox];
+    [contentStack addArrangedSubview:quickActionsBox];
     [contentStack addArrangedSubview:nowPlayingBox];
     [mainBackground addSubview:contentStack];
 
-    [self.window setContentView:contentView];
+    self.window.contentViewController = splitController;
     [self.window makeKeyAndOrderFront:nil];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [NSApp activateIgnoringOtherApps:YES];
