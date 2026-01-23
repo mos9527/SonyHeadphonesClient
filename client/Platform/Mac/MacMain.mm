@@ -6,6 +6,7 @@
 @end
 
 @implementation SidebarDataSource
+static constexpr CGFloat kSidebarRowHeight = 28.0;
 - (instancetype)init
 {
     self = [super init];
@@ -24,6 +25,8 @@
 {
     NS_UNUSED(tableView);
     NS_UNUSED(tableColumn);
+    if (row < 0 || static_cast<NSUInteger>(row) >= self.items.count)
+        return nil;
     NSTableCellView* cell = [tableView makeViewWithIdentifier:@"SidebarCell" owner:self];
     if (!cell)
     {
@@ -48,7 +51,7 @@
 {
     NS_UNUSED(tableView);
     NS_UNUSED(row);
-    return 28.0;
+    return kSidebarRowHeight;
 }
 @end
 
@@ -58,6 +61,8 @@
 @end
 
 @implementation AppDelegate
+static constexpr CGFloat kSidebarMinWidth = 220.0;
+static constexpr CGFloat kSidebarMaxWidth = 320.0;
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
     NS_UNUSED(notification);
@@ -94,7 +99,7 @@
     NSSearchField* searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0, 0, 220, 24)];
     searchField.placeholderString = @"Search";
     searchField.controlSize = NSControlSizeSmall;
-    searchField.font = [NSFont systemFontOfSize:12.0];
+    searchField.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
     searchField.translatesAutoresizingMaskIntoConstraints = NO;
     NSTitlebarAccessoryViewController* searchAccessory = [[NSTitlebarAccessoryViewController alloc] init];
     searchAccessory.view = searchField;
@@ -123,8 +128,8 @@
     contentController.view = mainBackground;
     NSSplitViewItem* sidebarItem = [NSSplitViewItem sidebarWithViewController:sidebarController];
     NSSplitViewItem* contentItem = [NSSplitViewItem viewController:contentController];
-    sidebarItem.minimumThickness = 220.0;
-    sidebarItem.maximumThickness = 320.0;
+    sidebarItem.minimumThickness = kSidebarMinWidth;
+    sidebarItem.maximumThickness = kSidebarMaxWidth;
     [splitController addSplitViewItem:sidebarItem];
     [splitController addSplitViewItem:contentItem];
 
