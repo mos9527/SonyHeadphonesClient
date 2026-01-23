@@ -13,7 +13,7 @@ static constexpr CGFloat kSidebarStackMargin = 16.0;
 static constexpr CGFloat kSidebarStackMarginTrailing = 14.0;
 static constexpr CGFloat kBoxCornerRadius = 10.0;
 static constexpr CGFloat kBoxContentMargin = 12.0;
-static NSString* const kSidebarTitleText = @"Navigation";
+static NSString* const kSidebarTitleText = @"Devices";
 static NSArray<NSString*>* const kSidebarItems = @[@"Overview", @"Playback", @"Sound", @"Devices", @"System", @"About"];
 
 @interface SidebarDataSource : NSObject <NSTableViewDataSource, NSTableViewDelegate>
@@ -149,7 +149,7 @@ static NSArray<NSString*>* const kSidebarItems = @[@"Overview", @"Playback", @"S
     sidebarStack.orientation = NSUserInterfaceLayoutOrientationVertical;
     sidebarStack.alignment = NSLayoutAttributeLeading;
     sidebarStack.spacing = kSidebarStackSpacing;
-    sidebarStack.edgeInsets = NSEdgeInsetsMake(kSidebarStackMargin, kSidebarStackMarginTrailing,
+    sidebarStack.edgeInsets = NSEdgeInsetsMake(kSidebarStackMargin, kSidebarStackMargin,
                                                kSidebarStackMargin, kSidebarStackMarginTrailing);
     sidebarStack.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
