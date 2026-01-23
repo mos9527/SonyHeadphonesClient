@@ -7,6 +7,9 @@
 
 @implementation SidebarDataSource
 static constexpr CGFloat kSidebarRowHeight = 28.0;
+static constexpr CGFloat kSidebarCellWidth = 200.0;
+static constexpr CGFloat kSidebarCellPadding = 8.0;
+static constexpr CGFloat kSidebarFontSize = 13.0;
 - (instancetype)init
 {
     self = [super init];
@@ -25,21 +28,21 @@ static constexpr CGFloat kSidebarRowHeight = 28.0;
 {
     NS_UNUSED(tableView);
     NS_UNUSED(tableColumn);
-    if (row < 0 || static_cast<NSUInteger>(row) >= self.items.count)
+    if (row == NSNotFound || static_cast<NSUInteger>(row) >= self.items.count)
         return nil;
     NSTableCellView* cell = [tableView makeViewWithIdentifier:@"SidebarCell" owner:self];
     if (!cell)
     {
-        cell = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+        cell = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0, 0, kSidebarCellWidth, kSidebarRowHeight)];
         cell.identifier = @"SidebarCell";
         NSTextField* textField = [NSTextField labelWithString:@""];
         textField.translatesAutoresizingMaskIntoConstraints = NO;
-        textField.font = [NSFont systemFontOfSize:13.0 weight:NSFontWeightRegular];
+        textField.font = [NSFont systemFontOfSize:kSidebarFontSize weight:NSFontWeightRegular];
         textField.textColor = [NSColor labelColor];
         cell.textField = textField;
         [cell addSubview:textField];
         [NSLayoutConstraint activateConstraints:@[
-            [textField.leadingAnchor constraintEqualToAnchor:cell.leadingAnchor constant:8.0],
+            [textField.leadingAnchor constraintEqualToAnchor:cell.leadingAnchor constant:kSidebarCellPadding],
             [textField.centerYAnchor constraintEqualToAnchor:cell.centerYAnchor]
         ]];
     }
@@ -153,7 +156,7 @@ static constexpr CGFloat kSidebarMaxWidth = 320.0;
         sidebarTable.style = NSTableViewStyleSidebar;
 
     NSTableColumn* sidebarColumn = [[NSTableColumn alloc] initWithIdentifier:@"Title"];
-    sidebarColumn.width = 220.0;
+    sidebarColumn.width = kSidebarMinWidth;
     [sidebarTable addTableColumn:sidebarColumn];
     self.sidebarDataSource = [[SidebarDataSource alloc] init];
     sidebarTable.dataSource = self.sidebarDataSource;
