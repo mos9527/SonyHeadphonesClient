@@ -9,6 +9,8 @@ if (MDR_PLATFORM_OS STREQUAL "WIN32")
         add_executable(SonyHeadphonesClient WIN32)
     endif()
     target_sources(SonyHeadphonesClient PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest")
+elseif (MDR_PLATFORM_OS STREQUAL "MACOS")
+    add_executable(SonyHeadphonesClient MACOSX_BUNDLE)
 else ()
     add_executable(SonyHeadphonesClient)
 endif ()
@@ -61,6 +63,16 @@ if (NOT MDR_PLATFORM_OS STREQUAL "MACOS")
     target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform)
 else ()
     target_link_libraries(SonyHeadphonesClient PRIVATE mdr Client_Platform)
+endif ()
+
+if (MDR_PLATFORM_OS STREQUAL "MACOS")
+    set_target_properties(SonyHeadphonesClient PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Mac/Info.plist.in"
+        MACOSX_BUNDLE_BUNDLE_NAME "SonyHeadphonesClient"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.sony.SonyHeadphonesClient"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${CLIENT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${CLIENT_VERSION}"
+    )
 endif ()
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE
