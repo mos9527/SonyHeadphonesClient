@@ -1,15 +1,18 @@
 #import <AppKit/AppKit.h>
 #include "../Platform.hpp"
 
+static constexpr CGFloat kSidebarRowHeight = 28.0;
+static constexpr CGFloat kSidebarCellWidth = 220.0;
+static constexpr CGFloat kSidebarCellPadding = 8.0;
+static constexpr CGFloat kSidebarFontSize = 13.0;
+static constexpr CGFloat kSidebarMinWidth = 220.0;
+static constexpr CGFloat kSidebarMaxWidth = 320.0;
+
 @interface SidebarDataSource : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 @property(nonatomic, strong) NSArray<NSString*>* items;
 @end
 
 @implementation SidebarDataSource
-static constexpr CGFloat kSidebarRowHeight = 28.0;
-static constexpr CGFloat kSidebarCellWidth = 200.0;
-static constexpr CGFloat kSidebarCellPadding = 8.0;
-static constexpr CGFloat kSidebarFontSize = 13.0;
 - (instancetype)init
 {
     self = [super init];
@@ -64,8 +67,6 @@ static constexpr CGFloat kSidebarFontSize = 13.0;
 @end
 
 @implementation AppDelegate
-static constexpr CGFloat kSidebarMinWidth = 220.0;
-static constexpr CGFloat kSidebarMaxWidth = 320.0;
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
     NS_UNUSED(notification);
