@@ -2,7 +2,7 @@
 #include "../Platform.hpp"
 #include <mdr-c/Platform/PlatformMac.h>
 
-MDRConnectionMac* gConn;
+MDRConnectionMac* gConn = nullptr;
 extern "C" {
     void clientPlatformInit()
     {
@@ -10,11 +10,15 @@ extern "C" {
     }
     void clientPlatformDestroy()
     {
-        mdrConnectionMacDestroy(gConn);
+        if (gConn)
+        {
+            mdrConnectionMacDestroy(gConn);
+            gConn = nullptr;
+        }
     }
     MDRConnection* clientPlatformConnectionGet()
     {
-        return mdrConnectionMacGet(gConn);
+        return gConn ? mdrConnectionMacGet(gConn) : nullptr;
     }
     int clientPlatformLocateFontBinary(const char** outData)
     {
