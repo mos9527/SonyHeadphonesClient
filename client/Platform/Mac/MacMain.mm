@@ -1,6 +1,14 @@
 #import <AppKit/AppKit.h>
 #include "../Platform.hpp"
 
+#ifndef NS_UNUSED
+#define NS_UNUSED(x) ((void)(x))
+#endif
+
+#ifndef NSTableViewStyleSidebar
+#define NSTableViewStyleSidebar NSTableViewStyleInset
+#endif
+
 static constexpr CGFloat kSidebarRowHeight = 28.0;
 static constexpr CGFloat kSidebarCellWidth = 220.0;
 static constexpr CGFloat kSidebarCellPadding = 8.0;
@@ -180,14 +188,13 @@ static NSArray<NSString*>* const kSidebarItems = @[@"Overview", @"Playback", @"S
     sidebarScroll.drawsBackground = NO;
     sidebarScroll.documentView = sidebarTable;
 
-    NSBox* deviceBox = [NSBox box];
+    NSBox* deviceBox = [[NSBox alloc] init];
     deviceBox.title = @"Available";
     deviceBox.boxType = NSBoxCustom;
     deviceBox.borderColor = [NSColor separatorColor];
     deviceBox.borderWidth = 1.0;
     deviceBox.cornerRadius = kBoxCornerRadius;
-    deviceBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
-                                                    kBoxContentMargin, kBoxContentMargin);
+    deviceBox.contentViewMargins = NSMakeSize(kBoxContentMargin, kBoxContentMargin);
 
     NSTextField* devicePlaceholder = [NSTextField labelWithString:@"No devices connected yet."];
     devicePlaceholder.textColor = [NSColor secondaryLabelColor];
@@ -234,27 +241,25 @@ static NSArray<NSString*>* const kSidebarItems = @[@"Overview", @"Playback", @"S
     titleStack.alignment = NSLayoutAttributeLeading;
     titleStack.spacing = 4.0;
 
-    NSBox* statusBox = [NSBox box];
+    NSBox* statusBox = [[NSBox alloc] init];
     statusBox.title = @"Status";
     statusBox.boxType = NSBoxCustom;
     statusBox.borderColor = [NSColor separatorColor];
     statusBox.borderWidth = 1.0;
     statusBox.cornerRadius = kBoxCornerRadius;
-    statusBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
-                                                    kBoxContentMargin, kBoxContentMargin);
+    statusBox.contentViewMargins = NSMakeSize(kBoxContentMargin, kBoxContentMargin);
 
     NSTextField* statusPlaceholder = [NSTextField labelWithString:@"Waiting for a connected headset."];
     statusPlaceholder.textColor = [NSColor secondaryLabelColor];
     [statusBox setContentView:statusPlaceholder];
 
-    NSBox* quickActionsBox = [NSBox box];
+    NSBox* quickActionsBox = [[NSBox alloc] init];
     quickActionsBox.title = @"Quick Actions";
     quickActionsBox.boxType = NSBoxCustom;
     quickActionsBox.borderColor = [NSColor separatorColor];
     quickActionsBox.borderWidth = 1.0;
     quickActionsBox.cornerRadius = kBoxCornerRadius;
-    quickActionsBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
-                                                          kBoxContentMargin, kBoxContentMargin);
+    quickActionsBox.contentViewMargins = NSMakeSize(kBoxContentMargin, kBoxContentMargin);
 
     NSButton* playPauseButton = [NSButton buttonWithTitle:@"Play / Pause" target:nil action:nil];
     playPauseButton.bezelStyle = NSBezelStyleTexturedRounded;
@@ -266,14 +271,13 @@ static NSArray<NSString*>* const kSidebarItems = @[@"Overview", @"Playback", @"S
     quickActionsStack.spacing = 8.0;
     [quickActionsBox setContentView:quickActionsStack];
 
-    NSBox* nowPlayingBox = [NSBox box];
+    NSBox* nowPlayingBox = [[NSBox alloc] init];
     nowPlayingBox.title = @"Now Playing";
     nowPlayingBox.boxType = NSBoxCustom;
     nowPlayingBox.borderColor = [NSColor separatorColor];
     nowPlayingBox.borderWidth = 1.0;
     nowPlayingBox.cornerRadius = kBoxCornerRadius;
-    nowPlayingBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
-                                                        kBoxContentMargin, kBoxContentMargin);
+    nowPlayingBox.contentViewMargins = NSMakeSize(kBoxContentMargin, kBoxContentMargin);
 
     NSTextField* nowPlayingPlaceholder = [NSTextField labelWithString:@"Nothing is playing yet."];
     nowPlayingPlaceholder.textColor = [NSColor secondaryLabelColor];
