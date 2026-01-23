@@ -1,2 +1,0 @@
-/usr/bin/ar qc libClient_PlatformLinux.a CMakeFiles/Client_PlatformLinux.dir/PlatformLinux.cpp.o
-/usr/bin/ranlib libClient_PlatformLinux.a

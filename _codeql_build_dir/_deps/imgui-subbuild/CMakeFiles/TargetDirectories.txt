@@ -1,3 +1,0 @@
-/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/imgui-subbuild/CMakeFiles/imgui-populate.dir
-/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/imgui-subbuild/CMakeFiles/edit_cache.dir
-/home/runner/work/SonyHeadphonesClient/SonyHeadphonesClient/_codeql_build_dir/_deps/imgui-subbuild/CMakeFiles/rebuild_cache.dir

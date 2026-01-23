@@ -1,2 +1,0 @@
-/usr/bin/ar qc libImGuiSDL3.a "CMakeFiles/ImGuiSDL3.dir/__/_deps/imgui-src/imgui.cpp.o" "CMakeFiles/ImGuiSDL3.dir/__/_deps/imgui-src/imgui_draw.cpp.o" "CMakeFiles/ImGuiSDL3.dir/__/_deps/imgui-src/imgui_tables.cpp.o" "CMakeFiles/ImGuiSDL3.dir/__/_deps/imgui-src/imgui_widgets.cpp.o" "CMakeFiles/ImGuiSDL3.dir/__/_deps/imgui-src/backends/imgui_impl_sdl3.cpp.o" "CMakeFiles/ImGuiSDL3.dir/__/_deps/imgui-src/backends/imgui_impl_sdlrenderer3.cpp.o"
-/usr/bin/ranlib libImGuiSDL3.a
