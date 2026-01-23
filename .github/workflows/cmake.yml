@@ -97,7 +97,22 @@ jobs:
       # Strip symbols from the binary to reduce size
       run: strip --strip-unneeded ${{matrix.binary_path}}
 
-    - name: Upload a Build Artifact
+    - name: Package macOS App Bundle
+      if: runner.os == 'macOS'
+      working-directory: ${{github.workspace}}/build/client
+      run: |
+        # Create a zip that preserves the .app bundle structure
+        zip -r SonyHeadphonesClient.zip SonyHeadphonesClient.app
+
+    - name: Upload a Build Artifact (macOS)
+      if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: ${{github.workspace}}/build/client/SonyHeadphonesClient.zip
+
+    - name: Upload a Build Artifact (non-macOS)
+      if: runner.os != 'macOS'
       uses: actions/upload-artifact@v4
       with:
         # Artifact name
