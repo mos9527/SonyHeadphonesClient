@@ -501,10 +501,12 @@ void DrawDeviceDiscovery()
         static int nDeviceInfo = 0;
         size_t deviceCount = nDeviceInfo > 0 ? static_cast<size_t>(nDeviceInfo) : 0;
         Span<MDRDeviceInfo> devices{pDeviceInfo, deviceCount};
-        ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
-        ImTextCentered("SonyHeadphonesClient");
+        ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 1.6f);
+        ImTextCentered("Sony Headphones Client");
         ImGui::PopFont();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
         ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
+        ImGui::PopStyleColor();
         ImGui::SeparatorText("Available Devices");
         static int deviceIndex = 0;
         if (!devices.empty())
@@ -533,7 +535,9 @@ void DrawDeviceDiscovery()
             MDR_CHECK_MSG(res == MDR_RESULT_OK, "Failed to get device list. Error: {}", mdrResultString(res));
         }
         ImGui::Separator();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
         ImTextCentered(PSI_WARNING_SIGN " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
+        ImGui::PopStyleColor();
         ImGui::EndPopup();
     } else
         popup = false;
@@ -593,6 +597,10 @@ void DrawDeviceControlsHeader()
     if (ImGui::BeginMenuBar())
     {
         auto& style = ImGui::GetStyle();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+        ImGui::TextUnformatted("Sony Headphones Client");
+        ImGui::PopStyleColor();
+        ImGui::SameLine(0.0f, style.ItemSpacing.x);
         /* Disconnect & Shutdown */
         if (ImGui::BeginMenu(fmt::format( PSI_CHEVRON_DOWN " {}", gDevice.mModelName).c_str()))
         {
