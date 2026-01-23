@@ -16,14 +16,14 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
-    (void)tableView;
+    NS_UNUSED(tableView);
     return static_cast<NSInteger>(self.items.count);
 }
 
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
 {
-    (void)tableView;
-    (void)tableColumn;
+    NS_UNUSED(tableView);
+    NS_UNUSED(tableColumn);
     NSTableCellView* cell = [tableView makeViewWithIdentifier:@"SidebarCell" owner:self];
     if (!cell)
     {
@@ -46,8 +46,8 @@
 
 - (CGFloat)tableView:(NSTableView*)tableView heightOfRow:(NSInteger)row
 {
-    (void)tableView;
-    (void)row;
+    NS_UNUSED(tableView);
+    NS_UNUSED(row);
     return 28.0;
 }
 @end
