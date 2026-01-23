@@ -24,6 +24,11 @@ jobs:
             artifact_name: "SonyHeadphonesClient-linux-x64"
             script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev llvm-18-dev libclang-18-dev libcurl4-openssl-dev"
             gcc: 14
+          - os: macos-latest
+            arch: arm64
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-macos-arm64"
+            script: "brew update && brew install llvm"
           # ARM Linux runners currently has availablity issues.
           # TODO: Enable these once these are fixed.
           #   https://github.com/actions/partner-runner-images/issues/132
@@ -72,6 +77,13 @@ jobs:
       working-directory: ${{github.workspace}}/build    
       if: runner.os == 'Linux'
       run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+    - name: Configure CMake (macOS)
+      working-directory: ${{github.workspace}}/build
+      if: runner.os == 'macOS'
+      run: |
+        LLVM_PREFIX=$(brew --prefix llvm)
+        cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DClang_DIR="${LLVM_PREFIX}/lib/cmake/clang"
     
     - name: Build
       working-directory: ${{github.workspace}}/build

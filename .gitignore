@@ -11,6 +11,7 @@
 *.lo
 *.o
 *.obj
+imgui.ini
 
 # Precompiled Headers
 *.gch

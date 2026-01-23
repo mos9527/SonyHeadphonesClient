@@ -87,8 +87,8 @@ int main(int, char**)
         return 1;
     }
     gWindow = SDL_CreateWindow(
-        "SonyHeadphonesClient",
-        800, 600,
+        "Sony Headphones Client",
+        1100, 720,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
     );
     if (!gWindow)
@@ -108,12 +108,30 @@ int main(int, char**)
         ImGui::CreateContext();
     }
     ImGuiIO& io = ImGui::GetIO();
+    SDL_SetWindowMinimumSize(gWindow, 900, 600);
     // Setup Default Dear ImGui styles
-    ImGui::StyleColorsDark();
+    ImGui::StyleColorsLight();
     auto& style = ImGui::GetStyle();
+    style.WindowRounding = 10.0f;
+    style.ChildRounding = 10.0f;
+    style.PopupRounding = 10.0f;
     style.FrameRounding = 8.0f;
+    style.ScrollbarRounding = 10.0f;
+    style.GrabRounding = 8.0f;
+    style.TabRounding = 8.0f;
+    style.WindowPadding = ImVec2(14.0f, 12.0f);
+    style.FramePadding = ImVec2(8.0f, 6.0f);
+    style.ItemSpacing = ImVec2(10.0f, 8.0f);
+    style.ItemInnerSpacing = ImVec2(6.0f, 4.0f);
+    style.ScrollbarSize = 12.0f;
+    style.WindowBorderSize = 0.0f;
+    style.ChildBorderSize = 1.0f;
+    style.FrameBorderSize = 1.0f;
+    style.TabBorderSize = 0.0f;
+    style.PopupBorderSize = 0.0f;
+    style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+    style.DisabledAlpha = 0.6f;
     style.CircleTessellationMaxError = 0.01f;
-    style.FramePadding = ImVec2(8.0f, 8.0f);
     // Setup Platform/Renderer backends
     {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -125,7 +143,7 @@ int main(int, char**)
     // Load our default font
     {
         io.Fonts->Clear();
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 16.0f);
     }
     // Main loop
 
