@@ -9,11 +9,11 @@ There's no release build yet - but you can always grab the latest [nightly build
 [![Nightly Builds](https://img.shields.io/badge/rewrite-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview)
 
 ## Roadmap
-This brach is expected to be merged once the following features have been implemented.
+This branch is expected to be merged once the following features have been implemented.
 - [ ] Support for legacy (`v1` protocol) devices, e.g. WH-1000XM4, WH-1000XM3
 - [x] Native macOS UI (AppKit shell)
 
-## Compatiblity
+## Compatibility
 
 The following platforms (applies to `libmdr`, `client`) are *natively* supported with first-party effort.
 
