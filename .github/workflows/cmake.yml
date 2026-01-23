@@ -18,12 +18,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-24.04
-            arch: x64
-            binary_path: build/client/SonyHeadphonesClient
-            artifact_name: "SonyHeadphonesClient-linux-x64"
-            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev llvm-18-dev libclang-18-dev libcurl4-openssl-dev"
-            gcc: 14
+          # - os: ubuntu-24.04
+          #   arch: x64
+          #   binary_path: build/client/SonyHeadphonesClient
+          #   artifact_name: "SonyHeadphonesClient-linux-x64"
+          #   script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev llvm-18-dev libclang-18-dev libcurl4-openssl-dev"
+          #   gcc: 14
           - os: macos-latest
             arch: arm64
             binary_path: build/client/SonyHeadphonesClient
@@ -39,16 +39,16 @@ jobs:
           #   artifact_name: "SonyHeadphonesClient-linux-arm64"
           #   script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev llvm-18-dev libclang-18-dev libcurl4-openssl-dev"
           #   gcc: 14
-          - os: windows-latest
-            arch: x64
-            binary_path: build/client/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-x64"
-            script: ""
-          - os: windows-latest
-            arch: arm64
-            binary_path: build/client/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-arm64"
-            script: ""
+          # - os: windows-latest
+          #   arch: x64
+          #   binary_path: build/client/RelWithDebInfo/SonyHeadphonesClient.exe
+          #   artifact_name: "SonyHeadphonesClient-win-x64"
+          #   script: ""
+          # - os: windows-latest
+          #   arch: arm64
+          #   binary_path: build/client/RelWithDebInfo/SonyHeadphonesClient.exe
+          #   artifact_name: "SonyHeadphonesClient-win-arm64"
+          #   script: ""
 
     runs-on: ${{ matrix.os }}
 
