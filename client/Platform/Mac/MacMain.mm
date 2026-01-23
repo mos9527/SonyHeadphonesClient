@@ -5,8 +5,14 @@ static constexpr CGFloat kSidebarRowHeight = 28.0;
 static constexpr CGFloat kSidebarCellWidth = 220.0;
 static constexpr CGFloat kSidebarCellPadding = 8.0;
 static constexpr CGFloat kSidebarFontSize = 13.0;
+static constexpr CGFloat kSidebarTitleFontSize = 12.0;
 static constexpr CGFloat kSidebarMinWidth = 220.0;
 static constexpr CGFloat kSidebarMaxWidth = 320.0;
+static constexpr CGFloat kSidebarStackSpacing = 12.0;
+static constexpr CGFloat kSidebarStackMargin = 16.0;
+static constexpr CGFloat kSidebarStackMarginTrailing = 14.0;
+static constexpr CGFloat kBoxCornerRadius = 10.0;
+static constexpr CGFloat kBoxContentMargin = 12.0;
 
 @interface SidebarDataSource : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 @property(nonatomic, strong) NSArray<NSString*>* items;
@@ -140,12 +146,13 @@ static constexpr CGFloat kSidebarMaxWidth = 320.0;
     NSStackView* sidebarStack = [[NSStackView alloc] initWithFrame:sidebar.bounds];
     sidebarStack.orientation = NSUserInterfaceLayoutOrientationVertical;
     sidebarStack.alignment = NSLayoutAttributeLeading;
-    sidebarStack.spacing = 12.0;
-    sidebarStack.edgeInsets = NSEdgeInsetsMake(16.0, 14.0, 16.0, 14.0);
+    sidebarStack.spacing = kSidebarStackSpacing;
+    sidebarStack.edgeInsets = NSEdgeInsetsMake(kSidebarStackMargin, kSidebarStackMarginTrailing,
+                                               kSidebarStackMargin, kSidebarStackMarginTrailing);
     sidebarStack.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
     NSTextField* sidebarTitle = [NSTextField labelWithString:@"Navigation"];
-    sidebarTitle.font = [NSFont systemFontOfSize:12.0 weight:NSFontWeightSemibold];
+    sidebarTitle.font = [NSFont systemFontOfSize:kSidebarTitleFontSize weight:NSFontWeightSemibold];
     sidebarTitle.textColor = [NSColor secondaryLabelColor];
 
     NSTableView* sidebarTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0, 0, 240, 200)];
@@ -176,8 +183,9 @@ static constexpr CGFloat kSidebarMaxWidth = 320.0;
     deviceBox.boxType = NSBoxCustom;
     deviceBox.borderColor = [NSColor separatorColor];
     deviceBox.borderWidth = 1.0;
-    deviceBox.cornerRadius = 10.0;
-    deviceBox.contentViewMargins = NSEdgeInsetsMake(12.0, 12.0, 12.0, 12.0);
+    deviceBox.cornerRadius = kBoxCornerRadius;
+    deviceBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
+                                                    kBoxContentMargin, kBoxContentMargin);
 
     NSTextField* devicePlaceholder = [NSTextField labelWithString:@"No devices connected yet."];
     devicePlaceholder.textColor = [NSColor secondaryLabelColor];
@@ -229,8 +237,9 @@ static constexpr CGFloat kSidebarMaxWidth = 320.0;
     statusBox.boxType = NSBoxCustom;
     statusBox.borderColor = [NSColor separatorColor];
     statusBox.borderWidth = 1.0;
-    statusBox.cornerRadius = 10.0;
-    statusBox.contentViewMargins = NSEdgeInsetsMake(12.0, 12.0, 12.0, 12.0);
+    statusBox.cornerRadius = kBoxCornerRadius;
+    statusBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
+                                                    kBoxContentMargin, kBoxContentMargin);
 
     NSTextField* statusPlaceholder = [NSTextField labelWithString:@"Waiting for a connected headset."];
     statusPlaceholder.textColor = [NSColor secondaryLabelColor];
@@ -241,8 +250,9 @@ static constexpr CGFloat kSidebarMaxWidth = 320.0;
     quickActionsBox.boxType = NSBoxCustom;
     quickActionsBox.borderColor = [NSColor separatorColor];
     quickActionsBox.borderWidth = 1.0;
-    quickActionsBox.cornerRadius = 10.0;
-    quickActionsBox.contentViewMargins = NSEdgeInsetsMake(12.0, 12.0, 12.0, 12.0);
+    quickActionsBox.cornerRadius = kBoxCornerRadius;
+    quickActionsBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
+                                                          kBoxContentMargin, kBoxContentMargin);
 
     NSButton* playPauseButton = [NSButton buttonWithTitle:@"Play / Pause" target:nil action:nil];
     playPauseButton.bezelStyle = NSBezelStyleTexturedRounded;
@@ -259,8 +269,9 @@ static constexpr CGFloat kSidebarMaxWidth = 320.0;
     nowPlayingBox.boxType = NSBoxCustom;
     nowPlayingBox.borderColor = [NSColor separatorColor];
     nowPlayingBox.borderWidth = 1.0;
-    nowPlayingBox.cornerRadius = 10.0;
-    nowPlayingBox.contentViewMargins = NSEdgeInsetsMake(12.0, 12.0, 12.0, 12.0);
+    nowPlayingBox.cornerRadius = kBoxCornerRadius;
+    nowPlayingBox.contentViewMargins = NSEdgeInsetsMake(kBoxContentMargin, kBoxContentMargin,
+                                                        kBoxContentMargin, kBoxContentMargin);
 
     NSTextField* nowPlayingPlaceholder = [NSTextField labelWithString:@"Nothing is playing yet."];
     nowPlayingPlaceholder.textColor = [NSColor secondaryLabelColor];
