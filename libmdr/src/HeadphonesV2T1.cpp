@@ -514,6 +514,7 @@ namespace mdr
             return MDR_HEADPHONES_EVT_UNHANDLED;
         }
         case BGM_MODE:
+        case BGM_MODE_AND_ERRORCODE:
         {
             if (self->mSupport.contains(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
             {

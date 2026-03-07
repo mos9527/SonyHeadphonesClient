@@ -154,7 +154,7 @@ namespace mdr
         /* Listening Mode */
         if (mSupport.contains(MessageMdrV2FunctionType_Table1::LISTENING_OPTION))
         {
-            SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::BGM_MODE});
+            SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::BGM_MODE_AND_ERRORCODE});
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPMIX_CINEMA});
         }
 
