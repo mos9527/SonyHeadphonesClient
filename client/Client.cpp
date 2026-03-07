@@ -856,11 +856,60 @@ void DrawDeviceControlsSound()
         }
     }
     /* Listening Mode */
-    // TODO: NOT IMPLEMENTED. Need XM6s to test
     if (kSupports(F1::LISTENING_OPTION))
     {
         if (ImGui::TreeNodeEx("Listening Mode", ImGuiTreeNodeFlags_DefaultOpen))
         {
+            // Derive effective mode from current state
+            bool bgmActive    = gDevice.mBGMModeEnabled.current;
+            bool cinemaActive = gDevice.mUpmixCinemaEnabled.current;
+
+            // 0 = Standard, 1 = BGM, 2 = Cinema
+            int effectiveMode = bgmActive ? 1 : (cinemaActive ? 2 : 0);
+
+            bool radioChanged = false;
+            if (ImGui::RadioButton("Standard", effectiveMode == 0))
+                radioChanged = true, effectiveMode = 0;
+            if (ImGui::RadioButton("BGM", effectiveMode == 1))
+                radioChanged = true, effectiveMode = 1;
+
+            ImGui::Indent();
+            ImGui::BeginDisabled(!bgmActive);
+            // Distance combo box
+            using namespace v2::t1;
+            static const std::pair<RoomSize, const char*> kBGMDistanceModes[] = {
+                { RoomSize::SMALL,  "My Room"     },
+                { RoomSize::MIDDLE, "Living Room" },
+                { RoomSize::LARGE,  "Cafe"        },
+            };
+            const char* currentDistStr = "Unknown";
+            for (auto const& [k, v] : kBGMDistanceModes)
+                if (k == gDevice.mBGMModeRoomSize.current)
+                    currentDistStr = v;
+            if (ImGui::BeginCombo("Distance", currentDistStr))
+            {
+                for (auto const& [k, v] : kBGMDistanceModes)
+                {
+                    bool is_selected = k == gDevice.mBGMModeRoomSize.desired;
+                    if (ImGui::Selectable(v, is_selected))
+                        gDevice.mBGMModeRoomSize.desired = k;
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::EndDisabled();
+            ImGui::Unindent();
+
+            if (ImGui::RadioButton("Cinema", effectiveMode == 2))
+                radioChanged = true, effectiveMode = 2;
+
+            if (radioChanged)
+            {
+                gDevice.mBGMModeEnabled.desired     = (effectiveMode == 1);
+                gDevice.mUpmixCinemaEnabled.desired = (effectiveMode == 2);
+            }
+
             ImGui::TreePop();
         }
     }

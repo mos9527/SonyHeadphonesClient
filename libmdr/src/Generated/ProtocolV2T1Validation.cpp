@@ -718,7 +718,7 @@ bool AudioParamBGMMode::Validate(const AudioParamBGMMode& data) {
     MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
     MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
     MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::BGM_MODE, "EnumRange check fail, must be one of AudioInquiredType::BGM_MODE, got {}",data.base.type);
+    MDR_CHECK_MSG(data.base.type == AudioInquiredType::BGM_MODE || data.base.type == AudioInquiredType::BGM_MODE_AND_ERRORCODE, "EnumRange check fail, must be one of AudioInquiredType::BGM_MODE AudioInquiredType::BGM_MODE_AND_ERRORCODE, got {}",data.base.type);
     MDR_CHECK_MSG(is_valid(data.onOffSettingValue), "onOffSettingValue got an invalid enum value");
     MDR_CHECK_MSG(is_valid(data.targetRoomSize), "targetRoomSize got an invalid enum value");
     return true;

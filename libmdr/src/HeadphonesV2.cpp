@@ -496,13 +496,14 @@ namespace mdr
             {
                 AudioParamBGMMode res;
                 res.base.command = Command::AUDIO_SET_PARAM;
-                res.base.type = AudioInquiredType::BGM_MODE;
+                res.base.type = AudioInquiredType::BGM_MODE_AND_ERRORCODE;
                 res.onOffSettingValue = mBGMModeEnabled.desired
                     ? MessageMdrV2EnableDisable::ENABLE
                     : MessageMdrV2EnableDisable::DISABLE;
                 res.targetRoomSize = mBGMModeRoomSize.desired;
                 SendCommandACK(AudioParamBGMMode, res);
                 mBGMModeEnabled.commit(), mBGMModeRoomSize.commit();
+                MDR_LOG("S/W BGM BGM {} ROOM {} UPMIX {}", mBGMModeEnabled.desired, mBGMModeRoomSize.desired, mUpmixCinemaEnabled.desired);
             }
             if (mUpmixCinemaEnabled.dirty())
             {
@@ -513,6 +514,7 @@ namespace mdr
                     : MessageMdrV2EnableDisable::DISABLE;
                 SendCommandACK(AudioParamUpmixCinema, res);
                 mUpmixCinemaEnabled.commit();
+                MDR_LOG("S/W CNE BGM {} ROOM {} UPMIX {}", mBGMModeEnabled.desired, mBGMModeRoomSize.desired, mUpmixCinemaEnabled.desired);
             }
         }
 

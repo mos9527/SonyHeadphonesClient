@@ -2243,7 +2243,7 @@ namespace mdr::v2::t1
     struct AudioParamBGMMode
     {
         // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
-        // CODEGEN Field type EnumRange AudioInquiredType::BGM_MODE
+        // CODEGEN Field type EnumRange AudioInquiredType::BGM_MODE AudioInquiredType::BGM_MODE_AND_ERRORCODE
         AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::BGM_MODE};
         MessageMdrV2EnableDisable onOffSettingValue; // 0x2
         RoomSize targetRoomSize; // 0x3
