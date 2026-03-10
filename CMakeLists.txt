@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.31 FATAL_ERROR)
 project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -49,10 +49,14 @@ endif()
 
 add_compile_definitions("MDR_PLATFORM_${MDR_PLATFORM_OS}")
 
+cmake_policy(SET CMP0171 NEW) # CODEGEN keyword for add_custom_command
+
 add_subdirectory(contrib)
+# tooling comes before libmdr so codegen targets exist when libmdr declares its generated files.
+# mdr_add_codegen() is only defined when LLVM was detected and codegen is not disabled;
+# libmdr guards on (COMMAND mdr_add_codegen).
+option(MDR_ENABLE_CODEGEN "Enable codegen targets (requires LLVM)" ON)
+add_subdirectory(tooling)
+include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
 add_subdirectory(client)
-
-# NOTE: Codegen is NOT automatically run when building the project itself.
-# Should you make changes to the sources, see 'tooling/README.md' for instructions on how to run the codegen.
-add_subdirectory(tooling)

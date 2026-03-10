@@ -2,19 +2,30 @@ Tooling
 ===
 AST walker and codegen for `libmdr` - with extra helper utilities.
 
+## Running codegen
+
+Codegen is a proper CMake dependency. Modify a source header and re-run:
+
+```sh
+cmake --build <build-dir> --target codegen
+```
+
+This rebuilds only the stale tools and regenerates only the affected files.
+A full `cmake --build` will also regenerate before compiling `mdr`.
+
 ## Setting up LLVM
-The `[...]Codegen` executables requires LLVM to be built.
+The `[...]Codegen` executables require LLVM.
 
 ### Windows
 Get the latest release from https://github.com/llvm/llvm-project/releases.
 
-Setup CMAKE_PREFIX_PATH, and include `C:\Program Files\LLVM` or wherever you'd installed it.
+Set `CMAKE_PREFIX_PATH` to include `C:\Program Files\LLVM` (or wherever installed).
 
 ### Linux
-You are on your own. Your `clang` package probably includes the requisite libs already - if not, try `llvm-dev`
+Your `clang` package likely includes the requisite libs already — if not, try `llvm-17-dev libclang-17-dev`.
 
 ### macOS
-Get `llvm` from Homebrew. That should be enough.
+Install `llvm` from Homebrew — CMake will locate it automatically.
 
 ## Credits
 
