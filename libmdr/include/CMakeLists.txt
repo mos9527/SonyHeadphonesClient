@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.31)
 file(
         GLOB_RECURSE INCLUDES_C
         "${CMAKE_CURRENT_SOURCE_DIR}/mdr-c/*.h"
