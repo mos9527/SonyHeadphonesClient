@@ -498,7 +498,7 @@ void DrawDeviceDiscovery()
     {
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
-        Span devices{pDeviceInfo, pDeviceInfo + nDeviceInfo};
+        Span<MDRDeviceInfo> devices{pDeviceInfo, static_cast<size_t>(nDeviceInfo)};
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
@@ -623,7 +623,7 @@ void DrawDeviceControlsHeader()
         {
             *(badgeLast++) = {FormatEnum(gDevice.mUpscalingType), ~0u, ~0u};
         }
-        Span badges{badgeFirst, badgeLast};
+        Span<Badge> badges{badgeFirst, static_cast<size_t>(badgeLast - badgeFirst)};
         // Right-align and draw them
         // XXX: This is surprisingly painful to do.
         ImVec2 padding = style.FramePadding;
