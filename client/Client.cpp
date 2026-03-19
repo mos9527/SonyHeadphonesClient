@@ -276,7 +276,7 @@ void ImScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_butt
     // if (g.ActiveId == id && delta.x != 0.0f)
     //     SetScrollX(window, window->Scroll.x + delta.x);
     if (g.ActiveId == id && delta.y != 0.0f)
-        SetScrollY(window, window->Scroll.y + delta.y);
+        SetScrollY(window, window->Scroll.y - delta.y);
 }
 
 void ImScrollWhenDraggingAnywhere(const ImVec2& delta, ImGuiMouseButton mouse_button)
