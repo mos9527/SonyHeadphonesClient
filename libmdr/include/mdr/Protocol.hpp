@@ -232,7 +232,7 @@ namespace mdr
     template <typename T>
     using Span = std::span<T>;
     /**
-     * @brief String prefixed with a length byte. Max len=128
+     * @brief String prefixed with a length byte. Max len=256
      */
     struct MDRPrefixedString
     {
@@ -242,7 +242,7 @@ namespace mdr
         {
             const UInt8 len = *(*ppSrcBuffer)++;
             maxSize--;
-            MDR_CHECK_MSG(len < 128 && len <= maxSize, "Invalid string length");
+            MDR_CHECK_MSG(len < 256 && len <= maxSize, "Invalid string length");
             str.value.resize(len);
             std::memcpy(str.value.data(), *ppSrcBuffer, len);
             *ppSrcBuffer += len;
@@ -251,7 +251,7 @@ namespace mdr
 
         static size_t Write(MDRPrefixedString const& str, UInt8** ppDstBuffer, size_t maxSize)
         {
-            MDR_CHECK_MSG(str.value.length() < 128, "String too long to write");
+            MDR_CHECK_MSG(str.value.length() < 256, "String too long to write");
             MDR_CHECK_MSG(str.value.size() + 1 <= maxSize, "Destination has not enough space to write");
             *(*ppDstBuffer)++ = static_cast<UInt8>(str.value.length());
             std::memcpy(*ppDstBuffer, str.value.data(), str.value.length());
