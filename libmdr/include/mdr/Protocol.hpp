@@ -242,7 +242,7 @@ namespace mdr
         {
             const UInt8 len = *(*ppSrcBuffer)++;
             maxSize--;
-            MDR_CHECK_MSG(len < 256 && len <= maxSize, "Invalid string length");
+            MDR_CHECK_MSG(len <= maxSize, "Invalid string length");
             str.value.resize(len);
             std::memcpy(str.value.data(), *ppSrcBuffer, len);
             *ppSrcBuffer += len;
