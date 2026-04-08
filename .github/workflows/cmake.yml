@@ -22,9 +22,9 @@ jobs:
             arch: x64
             binary_path: build/client/SonyHeadphonesClient
             artifact_name: "SonyHeadphonesClient-linux-x64"
-            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev llvm-17-dev libclang-17-dev libcurl4-openssl-dev"
+            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
             gcc: 14
-          # ARM Linux runners currently has availablity issues.
+          # ARM Linux runners currently has availability issues.
           # TODO: Enable these once these are fixed.
           #   https://github.com/actions/partner-runner-images/issues/132
           #   https://github.com/actions/partner-runner-images/issues/65
@@ -32,7 +32,7 @@ jobs:
           #   arch: arm64
           #   binary_path: build/client/SonyHeadphonesClient
           #   artifact_name: "SonyHeadphonesClient-linux-arm64"
-          #   script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev llvm-17-dev libclang-17-dev libcurl4-openssl-dev"
+          #   script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
           #   gcc: 14
           - os: macos-latest
             arch: universal
@@ -68,20 +68,20 @@ jobs:
     - name: Configure CMake (Windows)
       working-directory: ${{github.workspace}}/build    
       if: runner.os == 'Windows'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A ${{ matrix.arch }}
-    
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -A ${{ matrix.arch }}
+
     - name: Configure CMake (Linux)
       env:
         CC: gcc-${{ matrix.gcc }}
         CXX: g++-${{ matrix.gcc }}
-      working-directory: ${{github.workspace}}/build    
+      working-directory: ${{github.workspace}}/build
       if: runner.os == 'Linux'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF
 
     - name: Configure CMake (macOS)
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'macOS'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
     
     - name: Build
       working-directory: ${{github.workspace}}/build

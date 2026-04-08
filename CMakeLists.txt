@@ -56,7 +56,10 @@ add_subdirectory(contrib)
 # mdr_add_codegen() is only defined when LLVM was detected and codegen is not disabled;
 # libmdr guards on (COMMAND mdr_add_codegen).
 option(MDR_ENABLE_CODEGEN "Enable codegen targets (requires LLVM)" ON)
-add_subdirectory(tooling)
+if (MDR_ENABLE_CODEGEN)
+    add_subdirectory(tooling)
+endif()
+
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
 add_subdirectory(client)
