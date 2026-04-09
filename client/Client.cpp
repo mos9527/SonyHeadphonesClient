@@ -1325,7 +1325,7 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImTextCentered("Device Disconnected");
         ImGui::NewLine();
-        ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 4.0f, true, false);
+        ImSpinner(5000.0f, 24.0f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::error)), 4.0f, true, false);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
         ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
@@ -1401,10 +1401,12 @@ void DrawBugcheck()
         float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight() * 2;
         ImVec2 tl{padding, padding}, br{region.x - padding, sizeV + padding * 8};
         tl += offset, br += offset;
-        draw->AddRectFilled(tl, br, IM_COL32(255 * ImBlink(1000u, 2u), 0, 0, 255));
+        auto errorCol = ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::error));
+        auto errorContCol = ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::errorContainer));
+        draw->AddRectFilled(tl, br, ImBlink(1000u, 2u) ? errorCol : errorContCol);
         draw->AddRectFilled(tl + tl, br - tl, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPosY(offset.y + padding * 4);
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, errorCol);
         ImTextCentered("Guru Meditation. Please screenshot and report.");
         ImTextCentered(fmt::format("{}@{}, {} on {}", MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, CLIENT_VERSION, MDR_PLATFORM_OS).c_str());
         ImTextCentered(gBugcheckMessage.c_str());
