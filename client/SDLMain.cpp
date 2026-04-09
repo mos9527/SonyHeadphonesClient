@@ -13,6 +13,7 @@
 #endif
 
 #include "Fonts/PlexSansIcon.h"
+#include "MaterialYouTheme.hpp"
 // Implemented by Client.cpp
 extern bool clientShouldExit();
 
@@ -108,8 +109,9 @@ int main(int, char**)
         ImGui::CreateContext();
     }
     ImGuiIO& io = ImGui::GetIO();
-    // Setup Default Dear ImGui styles
-    ImGui::StyleColorsDark();
+    // Setup Material You theme (Sony Sound Connect style)
+    ImGui::StyleColorsDark(); // Base fallback
+    MaterialYouTheme::ApplyDefault();
     auto& style = ImGui::GetStyle();
     style.FrameRounding = 8.0f;
     style.CircleTessellationMaxError = 0.01f;
@@ -122,10 +124,12 @@ int main(int, char**)
         ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
         ImGui_ImplSDLRenderer3_Init(gRenderer);
     }
-    // Load our default font
+    // Load our default font (DPI-aware)
     {
+        float dpiScale = SDL_GetWindowDisplayScale(gWindow);
+        if (dpiScale < 1.0f) dpiScale = 1.0f;
         io.Fonts->Clear();
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f * dpiScale);
     }
     // Main loop
 

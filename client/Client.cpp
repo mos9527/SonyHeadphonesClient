@@ -9,6 +9,7 @@
 #include <mdr/Headphones.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
+#include "MaterialYouTheme.hpp"
 using namespace mdr;
 
 mdr::MDRHeadphones gDevice;
@@ -549,6 +550,12 @@ void DrawDeviceConnecting()
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
+        // Apply Material You theme based on device color
+        {
+            auto sourceArgb = MaterialYouTheme::SourceColorFromModelColor(
+                static_cast<uint8_t>(gDevice.mModelColor));
+            MaterialYouTheme::ApplyFromSourceColor(sourceArgb);
+        }
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
@@ -580,6 +587,7 @@ void DrawDeviceConnecting()
     {
         connState = CONN_STATE_DISCONNECTED;
         mdrConnectionDisconnect(conn);
+        MaterialYouTheme::ApplyDefault();
         break;
     }
     }

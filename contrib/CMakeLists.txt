@@ -24,3 +24,11 @@ FetchContent_Declare(
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
+
+FetchContent_Declare(
+        material_color_utilities
+        GIT_REPOSITORY https://github.com/material-foundation/material-color-utilities.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
