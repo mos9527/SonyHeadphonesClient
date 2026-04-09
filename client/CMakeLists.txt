@@ -37,24 +37,12 @@ FetchContent_MakeAvailable(SDL3)
 FetchContent_MakeAvailable(material_color_utilities)
 # Patch material-color-utilities for MSVC compatibility
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    file(READ "${material_color_utilities_SOURCE_DIR}/cpp/cam/hct_solver.cc" _hct_solver)
-    # Replace C-style functional casts: int(expr) -> static_cast<int>(expr)
-    string(REGEX REPLACE "([^a-zA-Z_])int\\(" "\\1static_cast<int>(" _hct_solver "${_hct_solver}")
-    file(WRITE "${material_color_utilities_SOURCE_DIR}/cpp/cam/hct_solver.cc" "${_hct_solver}")
-
+    # Patch C99 compound literals and functional casts for MSVC compatibility
     file(READ "${material_color_utilities_SOURCE_DIR}/cpp/cam/viewing_conditions.h" _vc)
-    string(REGEX REPLACE "([^a-zA-Z_])int\\(" "\\1static_cast<int>(" _vc "${_vc}")
-    # Replace C99 compound literal (Type){...} with C++ brace init Type{...}
     string(REPLACE "(ViewingConditions){" "ViewingConditions{" _vc "${_vc}")
     file(WRITE "${material_color_utilities_SOURCE_DIR}/cpp/cam/viewing_conditions.h" "${_vc}")
 
-    file(READ "${material_color_utilities_SOURCE_DIR}/cpp/cam/cam.cc" _cam)
-    string(REGEX REPLACE "([^a-zA-Z_])int\\(" "\\1static_cast<int>(" _cam "${_cam}")
-    string(REPLACE "(Vec3){" "Vec3{" _cam "${_cam}")
-    file(WRITE "${material_color_utilities_SOURCE_DIR}/cpp/cam/cam.cc" "${_cam}")
-
-    # Patch all C99 compound literals (Type){...} -> Type{...}
-    foreach(_f hct_solver.cc hct.cc)
+    foreach(_f hct_solver.cc hct.cc cam.cc)
         file(READ "${material_color_utilities_SOURCE_DIR}/cpp/cam/${_f}" _src)
         string(REGEX REPLACE "([^a-zA-Z_])int\\(" "\\1static_cast<int>(" _src "${_src}")
         string(REPLACE "(Vec3){" "Vec3{" _src "${_src}")
