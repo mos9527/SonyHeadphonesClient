@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "theme-generator",
+  "description": "Generate precomputed Material You theme table for MaterialYouTheme.hpp",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "0.3.0"
+  }
+}

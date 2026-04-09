@@ -25,10 +25,3 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
 )
 
-FetchContent_Declare(
-        material_color_utilities
-        GIT_REPOSITORY https://github.com/material-foundation/material-color-utilities.git
-        GIT_TAG 1a34bd2d696a5dd669beca679546ad72209d0937
-        GIT_PROGRESS TRUE
-        PATCH_COMMAND ${CMAKE_COMMAND} -E touch <SOURCE_DIR>/CMakeLists.txt
-)

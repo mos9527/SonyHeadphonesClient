@@ -2,29 +2,24 @@
 #include <imgui.h>
 #include <cstdint>
 
-#include "cpp/cam/hct.h"
-#include "cpp/dynamiccolor/material_dynamic_colors.h"
-#include "cpp/scheme/scheme_tonal_spot.h"
-#include "cpp/utils/utils.h"
-
 namespace MaterialYouTheme {
 
-using namespace material_color_utilities;
+using Argb = uint32_t;
 
 inline ImVec4 ArgbToImVec4(Argb argb) {
     return ImVec4(
-        static_cast<float>(RedFromInt(argb)) / 255.0f,
-        static_cast<float>(GreenFromInt(argb)) / 255.0f,
-        static_cast<float>(BlueFromInt(argb)) / 255.0f,
-        static_cast<float>(AlphaFromInt(argb)) / 255.0f
+        static_cast<float>((argb >> 16) & 0xFF) / 255.0f,
+        static_cast<float>((argb >> 8) & 0xFF) / 255.0f,
+        static_cast<float>(argb & 0xFF) / 255.0f,
+        static_cast<float>((argb >> 24) & 0xFF) / 255.0f
     );
 }
 
 inline ImVec4 ArgbToImVec4(Argb argb, float alpha) {
     return ImVec4(
-        static_cast<float>(RedFromInt(argb)) / 255.0f,
-        static_cast<float>(GreenFromInt(argb)) / 255.0f,
-        static_cast<float>(BlueFromInt(argb)) / 255.0f,
+        static_cast<float>((argb >> 16) & 0xFF) / 255.0f,
+        static_cast<float>((argb >> 8) & 0xFF) / 255.0f,
+        static_cast<float>(argb & 0xFF) / 255.0f,
         alpha
     );
 }
@@ -45,9 +40,6 @@ struct FixedSurfaceColors {
     static constexpr Argb errorContainer      = 0xFF8C1D18;
 };
 
-// Sony fallback: when device reports a neutral color, use this fixed blue scheme
-static constexpr Argb kDefaultSourceColor = 0xFF364FA8; // sca_primary
-
 struct Theme {
     Argb primary;
     Argb onPrimary;
@@ -55,16 +47,13 @@ struct Theme {
     Argb onPrimaryContainer;
 };
 
-inline Theme Generate(Argb sourceArgb) {
-    Hct sourceHct(sourceArgb);
-    SchemeTonalSpot scheme(sourceHct, /*isDark=*/true);
+// Precomputed Material You dark theme palettes per ModelColor.
+// Regenerate: cd tooling/theme-generator && npm install && npm run generate
+#include "MaterialYouThemeTable.inc"
 
-    Theme t{};
-    t.primary             = MaterialDynamicColors::Primary().GetArgb(scheme);
-    t.onPrimary           = MaterialDynamicColors::OnPrimary().GetArgb(scheme);
-    t.primaryContainer    = MaterialDynamicColors::PrimaryContainer().GetArgb(scheme);
-    t.onPrimaryContainer  = MaterialDynamicColors::OnPrimaryContainer().GetArgb(scheme);
-    return t;
+inline const Theme& ThemeForModelColor(uint8_t modelColor) {
+    if (modelColor < 15) return kThemeTable[modelColor];
+    return kThemeTable[0]; // DEFAULT
 }
 
 inline void Apply(const Theme& theme) {
@@ -124,15 +113,11 @@ inline void Apply(const Theme& theme) {
     c[ImGuiCol_HeaderHovered]    = ArgbToImVec4(theme.primary, 0.50f);
     c[ImGuiCol_HeaderActive]     = ArgbToImVec4(theme.primary, 0.75f);
 
-    // Tabs: elevation-based hover
-    // Unselected: dark base
+    // Tabs
     c[ImGuiCol_Tab]                    = ArgbToImVec4(FixedSurfaceColors::surfaceContainerLow);
-    // Selected: primaryContainer (dark accent)
     c[ImGuiCol_TabSelected]            = ArgbToImVec4(theme.primaryContainer);
     c[ImGuiCol_TabSelectedOverline]    = ArgbToImVec4(theme.primary);
-    // Hovered: primary (bright) — works for both selected and unselected hover
     c[ImGuiCol_TabHovered]             = ArgbToImVec4(theme.primary);
-    // Dimmed (unfocused tab bar)
     c[ImGuiCol_TabDimmed]              = ArgbToImVec4(FixedSurfaceColors::surface);
     c[ImGuiCol_TabDimmedSelected]      = ArgbToImVec4(FixedSurfaceColors::surfaceContainerHigh);
     c[ImGuiCol_TabDimmedSelectedOverline] = ArgbToImVec4(FixedSurfaceColors::outline);
@@ -148,7 +133,7 @@ inline void Apply(const Theme& theme) {
     c[ImGuiCol_ResizeGripHovered] = ArgbToImVec4(theme.primary, 0.67f);
     c[ImGuiCol_ResizeGripActive]  = ArgbToImVec4(theme.primary, 0.95f);
 
-    // Plot — Sound Connect uses primary only for accent
+    // Plot
     c[ImGuiCol_PlotLines]         = ArgbToImVec4(theme.primary);
     c[ImGuiCol_PlotLinesHovered]  = ArgbToImVec4(theme.primary);
     c[ImGuiCol_PlotHistogram]     = ArgbToImVec4(theme.primary);
@@ -164,29 +149,11 @@ inline void Apply(const Theme& theme) {
 }
 
 inline void ApplyDefault() {
-    Apply(Generate(kDefaultSourceColor));
+    Apply(kThemeTable[0]);
 }
 
-inline void ApplyFromSourceColor(Argb sourceArgb) {
-    Apply(Generate(sourceArgb));
-}
-
-// Map MDR ModelColor enum to a source color for theme generation.
-// Neutral colors fall back to kDefaultSourceColor (Sony's fixed blue scheme).
-// Non-neutral values from Sony's cloud API (sca_source_color field).
-inline Argb SourceColorFromModelColor(uint8_t modelColor) {
-    switch (modelColor) {
-    case 4:  return 0xFFF7594E; // RED
-    case 5:  return 0xFF52688D; // BLUE
-    case 6:  return 0xFFD4B4B8; // PINK
-    case 7:  return 0xFFF7F799; // YELLOW
-    case 8:  return 0xFFB9DBCE; // GREEN
-    case 11: return 0xFFECE2C6; // CREAM
-    case 12: return 0xFFFCA48E; // ORANGE
-    case 13: return 0xFF504434; // BROWN
-    case 14: return 0xFFA9A0D1; // VIOLET
-    default: return kDefaultSourceColor; // DEFAULT/BLACK/WHITE/SILVER/GRAY/GOLD
-    }
+inline void ApplyForModelColor(uint8_t modelColor) {
+    Apply(ThemeForModelColor(modelColor));
 }
 
 } // namespace MaterialYouTheme

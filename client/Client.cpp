@@ -550,12 +550,7 @@ void DrawDeviceConnecting()
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
-        // Apply Material You theme based on device color
-        {
-            auto sourceArgb = MaterialYouTheme::SourceColorFromModelColor(
-                static_cast<uint8_t>(gDevice.mModelColor));
-            MaterialYouTheme::ApplyFromSourceColor(sourceArgb);
-        }
+        MaterialYouTheme::ApplyForModelColor(static_cast<uint8_t>(gDevice.mModelColor));
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
