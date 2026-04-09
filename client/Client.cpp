@@ -564,7 +564,7 @@ void DrawDeviceConnecting()
             ImGui::NewLine();
             ImTextCentered("Connecting...");
             ImGui::Dummy({0, 16.0f});
-            ImSpinner(1000.0f, 24.0f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::onSurface)), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
+            ImSpinner(1000.0f, 24.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
             ImGui::NewLine();
             ImTextCentered(mdrConnectionGetLastError(conn));
             ImGui::NewLine();
@@ -610,7 +610,7 @@ void DrawDeviceControlsHeader()
             ImGui::EndMenu();
         }
         if (!gDevice.IsReady())
-            ImSpinner(1000, style.FontSizeBase * 0.5f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f)), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
+            ImSpinner(1000, style.FontSizeBase * 0.5f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
         /* Cool Badges */
         // Title, Border Color, Text Color
         using Badge = Tuple<const char*, int, int>;
@@ -1002,7 +1002,7 @@ void DrawDeviceControlsDevices()
     if (gDevice.mPairingMode.desired)
     {
         ImTextCentered("Pairing...");
-        ImSpinner(1000.0f, 16.0f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::ThemeForModelColor(static_cast<uint8_t>(gDevice.mModelColor)).primary)), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
+        ImSpinner(1000.0f, 16.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::ThemeForModelColor(static_cast<uint8_t>(gDevice.mModelColor)).primary), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
         if (ImModalButton("Stop"))
             gDevice.mPairingMode.desired = false;
     }
@@ -1320,7 +1320,7 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImTextCentered("Device Disconnected");
         ImGui::NewLine();
-        ImSpinner(5000.0f, 24.0f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::error)), 4.0f, true, false);
+        ImSpinner(5000.0f, 24.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::error), 4.0f, true, false);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
         ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
@@ -1386,7 +1386,7 @@ void DrawBugcheck()
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::surface)));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::surface));
     if (ImGui::Begin("##", nullptr, kImWindowFlagsTopMost))
     {
         auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
@@ -1396,10 +1396,10 @@ void DrawBugcheck()
         float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight() * 2;
         ImVec2 tl{padding, padding}, br{region.x - padding, sizeV + padding * 8};
         tl += offset, br += offset;
-        auto errorCol = ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::error));
-        auto errorContCol = ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::errorContainer));
+        auto errorCol = MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::error);
+        auto errorContCol = MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::errorContainer);
         draw->AddRectFilled(tl, br, ImBlink(1000u, 2u) ? errorCol : errorContCol);
-        draw->AddRectFilled(tl + tl, br - tl, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::surface)));
+        draw->AddRectFilled(tl + tl, br - tl, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::surface));
         ImGui::SetCursorPosY(offset.y + padding * 4);
         ImGui::PushStyleColor(ImGuiCol_Text, errorCol);
         ImTextCentered("Guru Meditation. Please screenshot and report.");

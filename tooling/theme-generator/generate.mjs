@@ -48,7 +48,7 @@ for (let i = 0; i < names.length; i++) {
   const theme = themeFromSourceColor(argbFromHex(source));
   const d = theme.schemes.dark;
   const slots = ["primary", "onPrimary", "primaryContainer", "onPrimaryContainer"];
-  const argbs = slots.map(s => "0x" + d[s].toString(16).toUpperCase().padStart(8, '0'));
+  const argbs = slots.map(s => "0x" + (d[s] >>> 0).toString(16).toUpperCase().padStart(8, '0'));
   lines.push(`    /* ${names[i].padEnd(7)} (${source}) */ {${argbs.join(", ")}},`);
 }
 

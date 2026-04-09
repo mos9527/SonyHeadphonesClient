@@ -1,6 +1,7 @@
 #pragma once
 #include <imgui.h>
 #include <cstdint>
+#include <iterator>
 
 namespace MaterialYouTheme {
 
@@ -22,6 +23,14 @@ inline ImVec4 ArgbToImVec4(Argb argb, float alpha) {
         static_cast<float>(argb & 0xFF) / 255.0f,
         alpha
     );
+}
+
+inline ImU32 ArgbToImU32(Argb argb) {
+    return ImGui::ColorConvertFloat4ToU32(ArgbToImVec4(argb));
+}
+
+inline ImU32 ArgbToImU32(Argb argb, float alpha) {
+    return ImGui::ColorConvertFloat4ToU32(ArgbToImVec4(argb, alpha));
 }
 
 // Sony's fixed dark surface values (from Sound Connect APK ir/b.smali)
@@ -52,7 +61,7 @@ struct Theme {
 #include "MaterialYouThemeTable.inc"
 
 inline const Theme& ThemeForModelColor(uint8_t modelColor) {
-    if (modelColor < 15) return kThemeTable[modelColor];
+    if (modelColor < std::size(kThemeTable)) return kThemeTable[modelColor];
     return kThemeTable[0]; // DEFAULT
 }
 
