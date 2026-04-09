@@ -124,12 +124,10 @@ int main(int, char**)
         ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
         ImGui_ImplSDLRenderer3_Init(gRenderer);
     }
-    // Load our default font (DPI-aware)
+    // Load our default font
     {
-        float dpiScale = SDL_GetWindowDisplayScale(gWindow);
-        if (dpiScale < 1.0f) dpiScale = 1.0f;
         io.Fonts->Clear();
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f * dpiScale);
+        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
     }
     // Main loop
 
