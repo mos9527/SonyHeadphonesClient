@@ -564,7 +564,7 @@ void DrawDeviceConnecting()
             ImGui::NewLine();
             ImTextCentered("Connecting...");
             ImGui::Dummy({0, 16.0f});
-            ImSpinner(1000.0f, 24.0f, IM_COL32(255, 255, 255, 255), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
+            ImSpinner(1000.0f, 24.0f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::onSurface)), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
             ImGui::NewLine();
             ImTextCentered(mdrConnectionGetLastError(conn));
             ImGui::NewLine();
@@ -610,7 +610,7 @@ void DrawDeviceControlsHeader()
             ImGui::EndMenu();
         }
         if (!gDevice.IsReady())
-            ImSpinner(1000, style.FontSizeBase * 0.5f, IM_COL32(255,255,255,127), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
+            ImSpinner(1000, style.FontSizeBase * 0.5f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f)), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
         /* Cool Badges */
         // Title, Border Color, Text Color
         using Badge = Tuple<const char*, int, int>;
@@ -1002,7 +1002,7 @@ void DrawDeviceControlsDevices()
     if (gDevice.mPairingMode.desired)
     {
         ImTextCentered("Pairing...");
-        ImSpinner(1000.0f, 16.0f, IM_COL32(0, 255, 0, 255), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
+        ImSpinner(1000.0f, 16.0f, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::ThemeForModelColor(static_cast<uint8_t>(gDevice.mModelColor)).primary)), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
         if (ImModalButton("Stop"))
             gDevice.mPairingMode.desired = false;
     }
@@ -1386,7 +1386,7 @@ void DrawBugcheck()
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 255));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::surface)));
     if (ImGui::Begin("##", nullptr, kImWindowFlagsTopMost))
     {
         auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
@@ -1399,7 +1399,7 @@ void DrawBugcheck()
         auto errorCol = ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::error));
         auto errorContCol = ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::errorContainer));
         draw->AddRectFilled(tl, br, ImBlink(1000u, 2u) ? errorCol : errorContCol);
-        draw->AddRectFilled(tl + tl, br - tl, IM_COL32(0, 0, 0, 255));
+        draw->AddRectFilled(tl + tl, br - tl, ImGui::ColorConvertFloat4ToU32(MaterialYouTheme::ArgbToImVec4(MaterialYouTheme::FixedSurfaceColors::surface)));
         ImGui::SetCursorPosY(offset.y + padding * 4);
         ImGui::PushStyleColor(ImGuiCol_Text, errorCol);
         ImTextCentered("Guru Meditation. Please screenshot and report.");
