@@ -29,7 +29,7 @@ set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
 set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
 set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
 set(SDL_POWER OFF CACHE BOOL "" FORCE)
-set(SDL_JOYSTICK OFF CACHE BOOL "" FORCE)
+set(SDL_JOYSTICK ON CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(imgui)
@@ -45,6 +45,13 @@ target_sources(ImGuiSDL3 PRIVATE
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
 
 )
+add_executable(ImGuiSDL3Example)
+target_sources(ImGuiSDL3Example PRIVATE
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/examples/example_sdl3_sdlrenderer3/main.cpp
+)
+target_link_libraries(ImGuiSDL3Example PUBLIC ImGuiSDL3)
+
 target_include_directories(ImGuiSDL3 PUBLIC
         ${imgui_SOURCE_DIR}
         ${imgui_SOURCE_DIR}/backends

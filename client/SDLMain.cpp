@@ -79,6 +79,8 @@ void mainLoop()
 #endif
 }
 
+#define CLIENT_WINDOW_WIDTH 800
+#define CLIENT_WINDOW_HEIGHT 600
 int main(int, char**)
 {
     clientPlatformInit();
@@ -87,9 +89,12 @@ int main(int, char**)
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return 1;
     }
+    // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md#numeric-example
+    // This should only be effective (!=1.0f) on Windows and X11 platforms
+    float displayScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     gWindow = SDL_CreateWindow(
         "SonyHeadphonesClient",
-        800, 600,
+        CLIENT_WINDOW_WIDTH * displayScale, CLIENT_WINDOW_HEIGHT * displayScale,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
     );
     if (!gWindow)
@@ -113,6 +118,8 @@ int main(int, char**)
     ImGui::StyleColorsDark(); // Base fallback
     MaterialYouTheme::ApplyDefault();
     auto& style = ImGui::GetStyle();
+    style.ScaleAllSizes(displayScale);
+    style.FontScaleDpi = displayScale;
     style.FrameRounding = 8.0f;
     style.CircleTessellationMaxError = 0.01f;
     style.FramePadding = ImVec2(8.0f, 8.0f);
