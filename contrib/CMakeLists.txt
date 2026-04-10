@@ -24,3 +24,4 @@ FetchContent_Declare(
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
+

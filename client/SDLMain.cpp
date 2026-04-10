@@ -13,6 +13,7 @@
 #endif
 
 #include "Fonts/PlexSansIcon.h"
+#include "MaterialYouTheme.hpp"
 // Implemented by Client.cpp
 extern bool clientShouldExit();
 
@@ -108,8 +109,9 @@ int main(int, char**)
         ImGui::CreateContext();
     }
     ImGuiIO& io = ImGui::GetIO();
-    // Setup Default Dear ImGui styles
-    ImGui::StyleColorsDark();
+    // Setup Material You theme (Sony Sound Connect style)
+    ImGui::StyleColorsDark(); // Base fallback
+    MaterialYouTheme::ApplyDefault();
     auto& style = ImGui::GetStyle();
     style.FrameRounding = 8.0f;
     style.CircleTessellationMaxError = 0.01f;

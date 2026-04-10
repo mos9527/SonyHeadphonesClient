@@ -9,6 +9,7 @@
 #include <mdr/Headphones.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
+#include "MaterialYouTheme.hpp"
 using namespace mdr;
 
 mdr::MDRHeadphones gDevice;
@@ -549,6 +550,7 @@ void DrawDeviceConnecting()
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
+        MaterialYouTheme::ApplyForModelColor(static_cast<uint8_t>(gDevice.mModelColor));
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
@@ -562,7 +564,7 @@ void DrawDeviceConnecting()
             ImGui::NewLine();
             ImTextCentered("Connecting...");
             ImGui::Dummy({0, 16.0f});
-            ImSpinner(1000.0f, 24.0f, IM_COL32(255, 255, 255, 255), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
+            ImSpinner(1000.0f, 24.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface), 2.0f, true, false, 2.0f, ImEaseInOutCubic);
             ImGui::NewLine();
             ImTextCentered(mdrConnectionGetLastError(conn));
             ImGui::NewLine();
@@ -580,6 +582,7 @@ void DrawDeviceConnecting()
     {
         connState = CONN_STATE_DISCONNECTED;
         mdrConnectionDisconnect(conn);
+        MaterialYouTheme::ApplyDefault();
         break;
     }
     }
@@ -607,7 +610,7 @@ void DrawDeviceControlsHeader()
             ImGui::EndMenu();
         }
         if (!gDevice.IsReady())
-            ImSpinner(1000, style.FontSizeBase * 0.5f, IM_COL32(255,255,255,127), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
+            ImSpinner(1000, style.FontSizeBase * 0.5f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
         /* Cool Badges */
         // Title, Border Color, Text Color
         using Badge = Tuple<const char*, int, int>;
@@ -999,7 +1002,7 @@ void DrawDeviceControlsDevices()
     if (gDevice.mPairingMode.desired)
     {
         ImTextCentered("Pairing...");
-        ImSpinner(1000.0f, 16.0f, IM_COL32(0, 255, 0, 255), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
+        ImSpinner(1000.0f, 16.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::ThemeForModelColor(static_cast<uint8_t>(gDevice.mModelColor)).primary), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
         if (ImModalButton("Stop"))
             gDevice.mPairingMode.desired = false;
     }
@@ -1317,7 +1320,7 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImTextCentered("Device Disconnected");
         ImGui::NewLine();
-        ImSpinner(5000.0f, 24.0f, IM_COL32(255, 0, 0, 255), 4.0f, true, false);
+        ImSpinner(5000.0f, 24.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::error), 4.0f, true, false);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
         ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
@@ -1383,7 +1386,7 @@ void DrawBugcheck()
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 255));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::surface));
     if (ImGui::Begin("##", nullptr, kImWindowFlagsTopMost))
     {
         auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
@@ -1393,10 +1396,12 @@ void DrawBugcheck()
         float sizeV = ImGui::CalcTextSize(gBugcheckMessage.c_str()).y + ImGui::GetTextLineHeight() * 2;
         ImVec2 tl{padding, padding}, br{region.x - padding, sizeV + padding * 8};
         tl += offset, br += offset;
-        draw->AddRectFilled(tl, br, IM_COL32(255 * ImBlink(1000u, 2u), 0, 0, 255));
-        draw->AddRectFilled(tl + tl, br - tl, IM_COL32(0, 0, 0, 255));
+        auto errorCol = MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::error);
+        auto errorContCol = MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::errorContainer);
+        draw->AddRectFilled(tl, br, ImBlink(1000u, 2u) ? errorCol : errorContCol);
+        draw->AddRectFilled(tl + tl, br - tl, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::surface));
         ImGui::SetCursorPosY(offset.y + padding * 4);
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, errorCol);
         ImTextCentered("Guru Meditation. Please screenshot and report.");
         ImTextCentered(fmt::format("{}@{}, {} on {}", MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, CLIENT_VERSION, MDR_PLATFORM_OS).c_str());
         ImTextCentered(gBugcheckMessage.c_str());
