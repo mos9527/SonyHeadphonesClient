@@ -122,8 +122,8 @@ namespace mdr
             AWAIT_NUM_TYPES = 3
         };
 
-        static constexpr int kAwaitAckRetries = 5;
-        static constexpr int kAwaitTimeoutMS = 1000;
+        static constexpr int kAwaitAckRetries = 10;
+        static constexpr int kAwaitTimeoutMS = 3000;
 
         // NOLINTBEGIN
         struct Awaiter
