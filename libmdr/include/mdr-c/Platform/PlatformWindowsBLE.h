@@ -5,7 +5,7 @@ typedef struct MDRConnectionWindowsBLE MDRConnectionWindowsBLE;
 
 // Callback for GATT service/characteristic enumeration.
 // Called once per characteristic found on the device.
-// properties is a bitmask: 1=Read, 2=Write, 4=WriteWithoutResponse, 8=Notify, 16=Indicate
+// properties is a bitmask of GattPropertyBit values (see PlatformWindowsBLE.cpp)
 typedef void (*MDRBLEGattEnumCallback)(
     void* ctx,
     const char* serviceUUID,

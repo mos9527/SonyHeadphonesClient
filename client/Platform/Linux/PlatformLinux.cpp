@@ -21,4 +21,7 @@ extern "C" {
         *outData = nullptr;
         return 0;
     }
+    void clientPlatformSetUseBLE(bool) {}
+    bool clientPlatformGetUseBLE() { return false; }
+    int clientPlatformBLEEnumerateGatt(const char*) { return -1; }
 }

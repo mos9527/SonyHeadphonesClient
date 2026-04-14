@@ -129,7 +129,7 @@ namespace mdr
         // Awaiter timeouts
         {
             using namespace std::literals;
-            constexpr auto kTimeout = std::chrono::milliseconds(kAwaitTimeoutMS);
+            const auto kTimeout = std::chrono::milliseconds(getAwaitTimeoutMS());
             auto now = std::chrono::steady_clock::now();
             for (auto& awaiter : mAwaiters)
             {

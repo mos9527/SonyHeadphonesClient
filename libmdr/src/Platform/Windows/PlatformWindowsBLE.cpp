@@ -11,6 +11,7 @@
 #include <winrt/Windows.Storage.Streams.h>
 
 #include <fmt/format.h>
+#include <mdr/Protocol.hpp>
 #include <string>
 #include <vector>
 #include <mutex>
@@ -27,7 +28,18 @@ using namespace Windows::Devices::Bluetooth::GenericAttributeProfile;
 using namespace Windows::Devices::Enumeration;
 using namespace Windows::Storage::Streams;
 
+// GATT characteristic property bitmask values
+enum GattPropertyBit
+{
+    GATT_PROP_READ             = 1,
+    GATT_PROP_WRITE            = 2,
+    GATT_PROP_WRITE_NO_RESP    = 4,
+    GATT_PROP_NOTIFY           = 8,
+    GATT_PROP_INDICATE         = 16,
+};
+
 // Helper: convert winrt::guid to string "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+// Used both for logging and for service UUID matching in Connect().
 static std::string GuidToString(const winrt::guid& g)
 {
     return fmt::format("{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}",
@@ -40,11 +52,11 @@ static std::string GuidToString(const winrt::guid& g)
 static int PropertiesToBitmask(GattCharacteristicProperties props)
 {
     int mask = 0;
-    if ((props & GattCharacteristicProperties::Read) != GattCharacteristicProperties::None) mask |= 1;
-    if ((props & GattCharacteristicProperties::Write) != GattCharacteristicProperties::None) mask |= 2;
-    if ((props & GattCharacteristicProperties::WriteWithoutResponse) != GattCharacteristicProperties::None) mask |= 4;
-    if ((props & GattCharacteristicProperties::Notify) != GattCharacteristicProperties::None) mask |= 8;
-    if ((props & GattCharacteristicProperties::Indicate) != GattCharacteristicProperties::None) mask |= 16;
+    if ((props & GattCharacteristicProperties::Read) != GattCharacteristicProperties::None) mask |= GATT_PROP_READ;
+    if ((props & GattCharacteristicProperties::Write) != GattCharacteristicProperties::None) mask |= GATT_PROP_WRITE;
+    if ((props & GattCharacteristicProperties::WriteWithoutResponse) != GattCharacteristicProperties::None) mask |= GATT_PROP_WRITE_NO_RESP;
+    if ((props & GattCharacteristicProperties::Notify) != GattCharacteristicProperties::None) mask |= GATT_PROP_NOTIFY;
+    if ((props & GattCharacteristicProperties::Indicate) != GattCharacteristicProperties::None) mask |= GATT_PROP_INDICATE;
     return mask;
 }
 
@@ -52,11 +64,11 @@ static int PropertiesToBitmask(GattCharacteristicProperties props)
 static std::string PropertiesToString(int mask)
 {
     std::string result;
-    if (mask & 1) result += "Read ";
-    if (mask & 2) result += "Write ";
-    if (mask & 4) result += "WriteNoResp ";
-    if (mask & 8) result += "Notify ";
-    if (mask & 16) result += "Indicate ";
+    if (mask & GATT_PROP_READ) result += "Read ";
+    if (mask & GATT_PROP_WRITE) result += "Write ";
+    if (mask & GATT_PROP_WRITE_NO_RESP) result += "WriteNoResp ";
+    if (mask & GATT_PROP_NOTIFY) result += "Notify ";
+    if (mask & GATT_PROP_INDICATE) result += "Indicate ";
     if (result.empty()) result = "None";
     return result;
 }
@@ -87,6 +99,11 @@ struct MDRConnectionWindowsBLE
     std::atomic<int> connectResult{MDR_RESULT_INPROGRESS};
     std::jthread connectThread;
 
+    // GATT enumeration async state
+    std::atomic<int> enumResult{MDR_RESULT_INPROGRESS};
+    std::jthread enumThread;
+    HANDLE enumEvent;
+
     MDRConnectionWindowsBLE() noexcept :
         lastError(""),
         mdrConn({.user = this,
@@ -101,20 +118,26 @@ struct MDRConnectionWindowsBLE
     {
         rxEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
         connectEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
-        fprintf(stderr, "[BLE-DEBUG] MDRConnectionWindowsBLE created\n");
+        enumEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
+        MDR_LOG("[BLE] MDRConnectionWindowsBLE created");
     }
 
     ~MDRConnectionWindowsBLE()
     {
         if (connectThread.joinable())
             connectThread.request_stop();
+        if (enumThread.joinable())
+            enumThread.request_stop();
         CloseHandle(rxEvent);
         CloseHandle(connectEvent);
-        fprintf(stderr, "[BLE-DEBUG] MDRConnectionWindowsBLE destroyed\n");
+        CloseHandle(enumEvent);
+        MDR_LOG("[BLE] MDRConnectionWindowsBLE destroyed");
     }
 
     // Run a callable on an MTA thread to avoid STA assertion failures.
     // The UI thread (SDL/ImGui) is STA, but WinRT BLE APIs require MTA.
+    // See: https://learn.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/concurrency#programming-with-thread-affinity-in-mind
+    // See: https://learn.microsoft.com/en-us/windows/win32/com/multithreaded-apartments
     template<typename F>
     static auto RunOnMTA(F&& func) -> decltype(func())
     {
@@ -170,7 +193,7 @@ struct MDRConnectionWindowsBLE
     static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         auto* ptr = static_cast<MDRConnectionWindowsBLE*>(user);
-        fprintf(stderr, "[BLE-DEBUG] GetDevicesList called\n");
+        MDR_LOG("[BLE] GetDevicesList called");
 
         try
         {
@@ -178,11 +201,11 @@ struct MDRConnectionWindowsBLE
             {
             // Get AQS selector for paired BLE devices
             auto selector = BluetoothLEDevice::GetDeviceSelectorFromPairingState(true);
-            fprintf(stderr, "[BLE-DEBUG] Using BLE device selector for paired devices\n");
+            MDR_LOG("[BLE] Using BLE device selector for paired devices");
 
             // Find all matching devices
             auto deviceInfos = DeviceInformation::FindAllAsync(selector).get();
-            fprintf(stderr, "[BLE-DEBUG] FindAllAsync returned %u device(s)\n", deviceInfos.Size());
+            MDR_LOG("[BLE] FindAllAsync returned {} device(s)", deviceInfos.Size());
 
             std::vector<MDRDeviceInfo> devices;
 
@@ -190,8 +213,8 @@ struct MDRConnectionWindowsBLE
             {
                 auto devInfo = deviceInfos.GetAt(i);
                 std::string name = winrt::to_string(devInfo.Name());
-                fprintf(stderr, "[BLE-DEBUG] Device #%u: name=\"%s\" id=\"%s\"\n",
-                    i, name.c_str(), winrt::to_string(devInfo.Id()).c_str());
+                MDR_LOG("[BLE] Device #{}: name=\"{}\" id=\"{}\"",
+                    i, name, winrt::to_string(devInfo.Id()));
 
                 // Open the BLE device to get its Bluetooth address
                 try
@@ -199,7 +222,7 @@ struct MDRConnectionWindowsBLE
                     auto bleDevice = BluetoothLEDevice::FromIdAsync(devInfo.Id()).get();
                     if (!bleDevice)
                     {
-                        fprintf(stderr, "[BLE-DEBUG]   Skipping device #%u: FromIdAsync returned null\n", i);
+                        MDR_LOG("[BLE]   Skipping device #{}: FromIdAsync returned null", i);
                         continue;
                     }
 
@@ -208,7 +231,7 @@ struct MDRConnectionWindowsBLE
                         (addr >> 40) & 0xFF, (addr >> 32) & 0xFF, (addr >> 24) & 0xFF,
                         (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF);
 
-                    fprintf(stderr, "[BLE-DEBUG]   BLE address: %s\n", macAddress.c_str());
+                    MDR_LOG("[BLE]   BLE address: {}", macAddress);
 
                     devices.emplace_back();
                     auto& back = devices.back();
@@ -221,7 +244,7 @@ struct MDRConnectionWindowsBLE
                 }
                 catch (const winrt::hresult_error& ex)
                 {
-                    fprintf(stderr, "[BLE-DEBUG]   Error opening device #%u: %ls\n", i, ex.message().c_str());
+                    MDR_LOG("[BLE]   Error opening device #{}: {}", i, winrt::to_string(ex.message()));
                 }
             }
 
@@ -237,20 +260,20 @@ struct MDRConnectionWindowsBLE
                 *pCount = static_cast<int>(devices.size());
             }
 
-            fprintf(stderr, "[BLE-DEBUG] GetDevicesList returning %d BLE device(s)\n", *pCount);
+            MDR_LOG("[BLE] GetDevicesList returning {} BLE device(s)", *pCount);
             return MDR_RESULT_OK;
             }); // end RunOnMTA
         }
         catch (const winrt::hresult_error& ex)
         {
             ptr->lastError = winrt::to_string(ex.message());
-            fprintf(stderr, "[BLE-DEBUG] GetDevicesList error: %s\n", ptr->lastError.c_str());
+            MDR_LOG("[BLE] GetDevicesList error: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
         catch (const std::exception& ex)
         {
             ptr->lastError = ex.what();
-            fprintf(stderr, "[BLE-DEBUG] GetDevicesList exception: %s\n", ptr->lastError.c_str());
+            MDR_LOG("[BLE] GetDevicesList exception: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
     }
@@ -258,7 +281,7 @@ struct MDRConnectionWindowsBLE
     static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
         auto* ptr = static_cast<MDRConnectionWindowsBLE*>(user);
-        fprintf(stderr, "[BLE-DEBUG] Connect called: mac=%s serviceUUID=%s\n", macAddress, serviceUUID);
+        MDR_LOG("[BLE] Connect called: mac={} serviceUUID={}", macAddress, serviceUUID);
 
         // Reset state
         ptr->connected = false;
@@ -274,7 +297,7 @@ struct MDRConnectionWindowsBLE
         if (btAddr == ~0ULL)
         {
             ptr->lastError = "Invalid MAC address format";
-            fprintf(stderr, "[BLE-DEBUG] Connect failed: invalid MAC address\n");
+            MDR_LOG("[BLE] Connect failed: invalid MAC address");
             return MDR_RESULT_ERROR_BAD_ADDRESS;
         }
 
@@ -284,7 +307,7 @@ struct MDRConnectionWindowsBLE
         ptr->connectThread = std::jthread([ptr, btAddr, svcUUID](std::stop_token stop)
         {
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
-            fprintf(stderr, "[BLE-DEBUG] Connect thread started (MTA), addr=0x%llX\n", (unsigned long long)btAddr);
+            MDR_LOG("[BLE] Connect thread started (MTA), addr=0x{:X}", (unsigned long long)btAddr);
             try
             {
                 // Open BLE device by address
@@ -292,13 +315,13 @@ struct MDRConnectionWindowsBLE
                 if (!ptr->device)
                 {
                     ptr->lastError = "BLE device not found or not reachable";
-                    fprintf(stderr, "[BLE-DEBUG] FromBluetoothAddressAsync returned null\n");
+                    MDR_LOG("[BLE] FromBluetoothAddressAsync returned null");
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
                 }
-                fprintf(stderr, "[BLE-DEBUG] BLE device opened: %s\n",
-                    winrt::to_string(ptr->device.Name()).c_str());
+                MDR_LOG("[BLE] BLE device opened: {}",
+                    winrt::to_string(ptr->device.Name()));
 
                 if (stop.stop_requested()) return;
 
@@ -309,27 +332,25 @@ struct MDRConnectionWindowsBLE
                     if (serviceUUIDtoBytes(svcUUID.c_str(), uuidBytes) != 0)
                     {
                         ptr->lastError = "Invalid service UUID format";
-                        fprintf(stderr, "[BLE-DEBUG] Invalid service UUID: %s\n", svcUUID.c_str());
+                        MDR_LOG("[BLE] Invalid service UUID: {}", svcUUID);
                         ptr->connectResult = MDR_RESULT_ERROR_BAD_ADDRESS;
                         SetEvent(ptr->connectEvent);
                         return;
                     }
                     std::memcpy(&svcGuid, uuidBytes, 16);
-                    // Fix byte order: winrt::guid uses native endianness for Data1-3
-                    // but we need to handle the conversion properly
                 }
 
-                fprintf(stderr, "[BLE-DEBUG] Looking for GATT service: %s\n", svcUUID.c_str());
+                MDR_LOG("[BLE] Looking for GATT service: {}", svcUUID);
 
                 auto servicesResult = ptr->device.GetGattServicesAsync(BluetoothCacheMode::Uncached).get();
-                fprintf(stderr, "[BLE-DEBUG] GetGattServicesAsync status: %d, count: %u\n",
+                MDR_LOG("[BLE] GetGattServicesAsync status: {}, count: {}",
                     (int)servicesResult.Status(), servicesResult.Services().Size());
 
                 if (servicesResult.Status() != GattCommunicationStatus::Success)
                 {
                     ptr->lastError = fmt::format("GATT service discovery failed (status={})",
                         (int)servicesResult.Status());
-                    fprintf(stderr, "[BLE-DEBUG] %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BLE] {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -342,11 +363,11 @@ struct MDRConnectionWindowsBLE
                 for (auto const& svc : servicesResult.Services())
                 {
                     std::string foundUUID = GuidToString(svc.Uuid());
-                    fprintf(stderr, "[BLE-DEBUG]   Found service: %s\n", foundUUID.c_str());
+                    MDR_LOG("[BLE]   Found service: {}", foundUUID);
                     if (_stricmp(foundUUID.c_str(), svcUUID.c_str()) == 0)
                     {
                         targetService = svc;
-                        fprintf(stderr, "[BLE-DEBUG]   -> Matched target service!\n");
+                        MDR_LOG("[BLE]   -> Matched target service!");
                         break;
                     }
                 }
@@ -354,7 +375,7 @@ struct MDRConnectionWindowsBLE
                 if (!targetService)
                 {
                     ptr->lastError = fmt::format("GATT service {} not found on device", svcUUID);
-                    fprintf(stderr, "[BLE-DEBUG] %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BLE] {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -367,14 +388,14 @@ struct MDRConnectionWindowsBLE
                 if (charsResult.Status() != GattCommunicationStatus::Success)
                 {
                     ptr->lastError = "Failed to enumerate GATT characteristics";
-                    fprintf(stderr, "[BLE-DEBUG] GetCharacteristicsAsync failed: status=%d\n",
+                    MDR_LOG("[BLE] GetCharacteristicsAsync failed: status={}",
                         (int)charsResult.Status());
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                     SetEvent(ptr->connectEvent);
                     return;
                 }
 
-                fprintf(stderr, "[BLE-DEBUG] Found %u characteristic(s) in service\n",
+                MDR_LOG("[BLE] Found {} characteristic(s) in service",
                     charsResult.Characteristics().Size());
 
                 for (auto const& ch : charsResult.Characteristics())
@@ -382,8 +403,8 @@ struct MDRConnectionWindowsBLE
                     auto props = ch.CharacteristicProperties();
                     int mask = PropertiesToBitmask(props);
                     std::string charUUID = GuidToString(ch.Uuid());
-                    fprintf(stderr, "[BLE-DEBUG]   Characteristic: %s [%s]\n",
-                        charUUID.c_str(), PropertiesToString(mask).c_str());
+                    MDR_LOG("[BLE]   Characteristic: {} [{}]",
+                        charUUID, PropertiesToString(mask));
 
                     // Pick the first writable characteristic (prefer WriteWithoutResponse for lower latency)
                     if (!ptr->writeChar &&
@@ -393,7 +414,7 @@ struct MDRConnectionWindowsBLE
                         ptr->writeChar = ch;
                         ptr->useWriteWithoutResponse =
                             (props & GattCharacteristicProperties::WriteWithoutResponse) != GattCharacteristicProperties::None;
-                        fprintf(stderr, "[BLE-DEBUG]   -> Selected as WRITE characteristic (writeNoResp=%d)\n",
+                        MDR_LOG("[BLE]   -> Selected as WRITE characteristic (writeNoResp={})",
                             (int)ptr->useWriteWithoutResponse);
                     }
 
@@ -403,14 +424,14 @@ struct MDRConnectionWindowsBLE
                          (props & GattCharacteristicProperties::Indicate) != GattCharacteristicProperties::None))
                     {
                         ptr->notifyChar = ch;
-                        fprintf(stderr, "[BLE-DEBUG]   -> Selected as NOTIFY characteristic\n");
+                        MDR_LOG("[BLE]   -> Selected as NOTIFY characteristic");
                     }
                 }
 
                 if (!ptr->writeChar)
                 {
                     ptr->lastError = "No writable GATT characteristic found in service";
-                    fprintf(stderr, "[BLE-DEBUG] %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BLE] {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -419,7 +440,7 @@ struct MDRConnectionWindowsBLE
                 if (!ptr->notifyChar)
                 {
                     ptr->lastError = "No notifiable GATT characteristic found in service";
-                    fprintf(stderr, "[BLE-DEBUG] %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BLE] {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -434,7 +455,7 @@ struct MDRConnectionWindowsBLE
                 if (cccdResult != GattCommunicationStatus::Success)
                 {
                     // Try Indicate if Notify fails
-                    fprintf(stderr, "[BLE-DEBUG] Notify subscription failed (status=%d), trying Indicate\n",
+                    MDR_LOG("[BLE] Notify subscription failed (status={}), trying Indicate",
                         (int)cccdResult);
                     cccdResult = ptr->notifyChar.WriteClientCharacteristicConfigurationDescriptorAsync(
                         GattClientCharacteristicConfigurationDescriptorValue::Indicate).get();
@@ -444,13 +465,13 @@ struct MDRConnectionWindowsBLE
                 {
                     ptr->lastError = fmt::format("Failed to subscribe to notifications (status={})",
                         (int)cccdResult);
-                    fprintf(stderr, "[BLE-DEBUG] %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BLE] {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                     SetEvent(ptr->connectEvent);
                     return;
                 }
 
-                fprintf(stderr, "[BLE-DEBUG] Notification subscription OK\n");
+                MDR_LOG("[BLE] Notification subscription OK");
 
                 // Register ValueChanged handler
                 ptr->notifyToken = ptr->notifyChar.ValueChanged(
@@ -466,7 +487,7 @@ struct MDRConnectionWindowsBLE
                         reader.ReadBytes(
                             winrt::array_view<uint8_t>(ptr->rxBuffer.data() + oldSize, ptr->rxBuffer.data() + oldSize + len));
 
-                        fprintf(stderr, "[BLE-DEBUG] Notification received: %u bytes (buffer now %zu bytes)\n",
+                        MDR_LOG("[BLE] Notification received: {} bytes (buffer now {} bytes)",
                             len, ptr->rxBuffer.size());
                         SetEvent(ptr->rxEvent);
                     });
@@ -474,21 +495,21 @@ struct MDRConnectionWindowsBLE
                 ptr->connected = true;
                 ptr->connectResult = MDR_RESULT_OK;
                 ptr->lastError = "Connected via BLE GATT";
-                fprintf(stderr, "[BLE-DEBUG] BLE GATT connection established!\n");
+                MDR_LOG("[BLE] BLE GATT connection established!");
                 SetEvent(ptr->connectEvent);
             }
             catch (const winrt::hresult_error& ex)
             {
                 ptr->lastError = winrt::to_string(ex.message());
-                fprintf(stderr, "[BLE-DEBUG] Connect thread exception: %s (HRESULT=0x%08X)\n",
-                    ptr->lastError.c_str(), (unsigned)ex.code());
+                MDR_LOG("[BLE] Connect thread exception: {} (HRESULT=0x{:08X})",
+                    ptr->lastError, (unsigned)ex.code());
                 ptr->connectResult = MDR_RESULT_ERROR_NET;
                 SetEvent(ptr->connectEvent);
             }
             catch (const std::exception& ex)
             {
                 ptr->lastError = ex.what();
-                fprintf(stderr, "[BLE-DEBUG] Connect thread std::exception: %s\n", ptr->lastError.c_str());
+                MDR_LOG("[BLE] Connect thread std::exception: {}", ptr->lastError);
                 ptr->connectResult = MDR_RESULT_ERROR_NET;
                 SetEvent(ptr->connectEvent);
             }
@@ -501,7 +522,7 @@ struct MDRConnectionWindowsBLE
     static void Disconnect(void* user) noexcept
     {
         auto* ptr = static_cast<MDRConnectionWindowsBLE*>(user);
-        fprintf(stderr, "[BLE-DEBUG] Disconnect called\n");
+        MDR_LOG("[BLE] Disconnect called");
 
         // Stop connect thread if still running
         if (ptr->connectThread.joinable())
@@ -545,7 +566,7 @@ struct MDRConnectionWindowsBLE
         }
         catch (...)
         {
-            fprintf(stderr, "[BLE-DEBUG] Disconnect: exception during WinRT cleanup (ignored)\n");
+            MDR_LOG("[BLE] Disconnect: exception during WinRT cleanup (ignored)");
             ptr->notifyChar = nullptr;
             ptr->writeChar = nullptr;
             ptr->service = nullptr;
@@ -560,7 +581,7 @@ struct MDRConnectionWindowsBLE
             ptr->rxBuffer.clear();
         }
 
-        fprintf(stderr, "[BLE-DEBUG] Disconnected\n");
+        MDR_LOG("[BLE] Disconnected");
     }
 
     static int Recv(void* user, char* dst, int size, int* pReceived) noexcept
@@ -569,10 +590,16 @@ struct MDRConnectionWindowsBLE
         if (!ptr->connected)
             return MDR_RESULT_ERROR_NO_CONNECTION;
 
-        std::lock_guard lock(ptr->rxMutex);
+        // Use try_lock to avoid blocking the UI thread if the notification
+        // handler currently holds the mutex.
+        std::unique_lock lock(ptr->rxMutex, std::try_to_lock);
+        if (!lock.owns_lock())
+            return MDR_RESULT_INPROGRESS;
+
         if (ptr->rxBuffer.empty())
             return MDR_RESULT_INPROGRESS;
 
+        // Parentheses around std::min prevent Windows min/max macro interference
         int toCopy = (std::min)(size, static_cast<int>(ptr->rxBuffer.size()));
         std::memcpy(dst, ptr->rxBuffer.data(), toCopy);
         ptr->rxBuffer.erase(ptr->rxBuffer.begin(), ptr->rxBuffer.begin() + toCopy);
@@ -590,7 +617,7 @@ struct MDRConnectionWindowsBLE
         if (!ptr->connected || !ptr->writeChar)
             return MDR_RESULT_ERROR_NO_CONNECTION;
 
-        fprintf(stderr, "[BLE-DEBUG] Send: %d bytes\n", size);
+        MDR_LOG("[BLE] Send: {} bytes", size);
 
         try
         {
@@ -612,12 +639,12 @@ struct MDRConnectionWindowsBLE
                 if (status != GattCommunicationStatus::Success)
                 {
                     ptr->lastError = fmt::format("GATT write failed (status={})", (int)status);
-                    fprintf(stderr, "[BLE-DEBUG] %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BLE] {}", ptr->lastError);
                     return MDR_RESULT_ERROR_NET;
                 }
 
                 *pSent = size;
-                fprintf(stderr, "[BLE-DEBUG] Send OK: %d bytes written\n", size);
+                MDR_LOG("[BLE] Send OK: {} bytes written", size);
                 return MDR_RESULT_OK;
             });
             return result;
@@ -625,13 +652,13 @@ struct MDRConnectionWindowsBLE
         catch (const winrt::hresult_error& ex)
         {
             ptr->lastError = winrt::to_string(ex.message());
-            fprintf(stderr, "[BLE-DEBUG] Send exception: %s\n", ptr->lastError.c_str());
+            MDR_LOG("[BLE] Send exception: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
         catch (const std::exception& ex)
         {
             ptr->lastError = ex.what();
-            fprintf(stderr, "[BLE-DEBUG] Send std::exception: %s\n", ptr->lastError.c_str());
+            MDR_LOG("[BLE] Send std::exception: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
     }
@@ -640,24 +667,23 @@ struct MDRConnectionWindowsBLE
     {
         auto* ptr = static_cast<MDRConnectionWindowsBLE*>(user);
 
-        // If not yet connected, wait for connection completion
+        // If not yet connected, non-blocking check for connection completion
         if (!ptr->connected)
         {
             if (ptr->connectResult != MDR_RESULT_INPROGRESS)
                 return ptr->connectResult.load();
 
-            DWORD waitMs = (timeout < 0) ? INFINITE : static_cast<DWORD>(timeout);
-            DWORD waitResult = WaitForSingleObject(ptr->connectEvent, waitMs);
-
+            // Non-blocking check: only poll with timeout 0 to avoid blocking the UI thread
+            DWORD waitResult = WaitForSingleObject(ptr->connectEvent, 0);
             if (waitResult == WAIT_OBJECT_0)
                 return ptr->connectResult.load();
-            return MDR_RESULT_ERROR_TIMEOUT;
+            return MDR_RESULT_INPROGRESS;
         }
 
-        // Check if data is already available in the buffer (no need to wait)
+        // Non-blocking check if data is already available in the buffer
         {
-            std::lock_guard lock(ptr->rxMutex);
-            if (!ptr->rxBuffer.empty())
+            std::unique_lock lock(ptr->rxMutex, std::try_to_lock);
+            if (lock.owns_lock() && !ptr->rxBuffer.empty())
                 return MDR_RESULT_OK;
         }
 
@@ -700,7 +726,7 @@ extern "C" {
 
 MDRConnectionWindowsBLE* mdrConnectionWindowsBLECreate()
 {
-    fprintf(stderr, "[BLE-DEBUG] mdrConnectionWindowsBLECreate\n");
+    MDR_LOG("[BLE] mdrConnectionWindowsBLECreate");
     return new MDRConnectionWindowsBLE();
 }
 
@@ -711,7 +737,7 @@ MDRConnection* mdrConnectionWindowsBLEGet(MDRConnectionWindowsBLE* pConn)
 
 void mdrConnectionWindowsBLEDestroy(MDRConnectionWindowsBLE* pConn)
 {
-    fprintf(stderr, "[BLE-DEBUG] mdrConnectionWindowsBLEDestroy\n");
+    MDR_LOG("[BLE] mdrConnectionWindowsBLEDestroy");
     if (pConn)
     {
         MDRConnectionWindowsBLE::Disconnect(pConn);
@@ -725,94 +751,119 @@ int mdrConnectionBLEEnumerateGatt(
     MDRBLEGattEnumCallback callback,
     void* ctx)
 {
-    fprintf(stderr, "[BLE-DEBUG] EnumerateGatt called: mac=%s\n", macAddress);
+    MDR_LOG("[BLE] EnumerateGatt called: mac={}", macAddress);
 
     uint64_t btAddr = macAddressToULL(macAddress);
     if (btAddr == ~0ULL)
     {
         pConn->lastError = "Invalid MAC address format";
-        fprintf(stderr, "[BLE-DEBUG] EnumerateGatt: invalid MAC\n");
+        MDR_LOG("[BLE] EnumerateGatt: invalid MAC");
         return MDR_RESULT_ERROR_BAD_ADDRESS;
     }
 
-    try
+    // Stop any previous enumeration thread
+    if (pConn->enumThread.joinable())
     {
-        return MDRConnectionWindowsBLE::RunOnMTA([&]() -> int
+        pConn->enumThread.request_stop();
+        pConn->enumThread.join();
+    }
+
+    pConn->enumResult = MDR_RESULT_INPROGRESS;
+    ResetEvent(pConn->enumEvent);
+
+    // Launch enumeration on background thread to avoid blocking the UI
+    pConn->enumThread = std::jthread([pConn, btAddr, callback, ctx](std::stop_token stop)
+    {
+        winrt::init_apartment(winrt::apartment_type::multi_threaded);
+        try
         {
-        auto device = BluetoothLEDevice::FromBluetoothAddressAsync(btAddr).get();
-        if (!device)
-        {
-            pConn->lastError = "BLE device not found or not reachable";
-            fprintf(stderr, "[BLE-DEBUG] EnumerateGatt: device not found\n");
-            return MDR_RESULT_ERROR_NOT_FOUND;
-        }
-
-        fprintf(stderr, "[BLE-DEBUG] EnumerateGatt: opened device \"%s\"\n",
-            winrt::to_string(device.Name()).c_str());
-
-        auto servicesResult = device.GetGattServicesAsync(BluetoothCacheMode::Uncached).get();
-        if (servicesResult.Status() != GattCommunicationStatus::Success)
-        {
-            pConn->lastError = fmt::format("GATT service discovery failed (status={})",
-                (int)servicesResult.Status());
-            fprintf(stderr, "[BLE-DEBUG] EnumerateGatt: %s\n", pConn->lastError.c_str());
-            device.Close();
-            return MDR_RESULT_ERROR_NET;
-        }
-
-        fprintf(stderr, "[BLE-DEBUG] === GATT Service Enumeration ===\n");
-        fprintf(stderr, "[BLE-DEBUG] Found %u service(s)\n", servicesResult.Services().Size());
-
-        int serviceIndex = 0;
-        for (auto const& svc : servicesResult.Services())
-        {
-            std::string svcUUID = GuidToString(svc.Uuid());
-            fprintf(stderr, "[BLE-DEBUG] Service #%d: %s\n", serviceIndex, svcUUID.c_str());
-
-            auto charsResult = svc.GetCharacteristicsAsync(BluetoothCacheMode::Uncached).get();
-            if (charsResult.Status() != GattCommunicationStatus::Success)
+            auto device = BluetoothLEDevice::FromBluetoothAddressAsync(btAddr).get();
+            if (!device)
             {
-                fprintf(stderr, "[BLE-DEBUG]   (failed to enumerate characteristics, status=%d)\n",
-                    (int)charsResult.Status());
+                pConn->lastError = "BLE device not found or not reachable";
+                MDR_LOG("[BLE] EnumerateGatt: device not found");
+                pConn->enumResult = MDR_RESULT_ERROR_NOT_FOUND;
+                SetEvent(pConn->enumEvent);
+                return;
+            }
+
+            MDR_LOG("[BLE] EnumerateGatt: opened device \"{}\"",
+                winrt::to_string(device.Name()));
+
+            if (stop.stop_requested()) { device.Close(); return; }
+
+            auto servicesResult = device.GetGattServicesAsync(BluetoothCacheMode::Uncached).get();
+            if (servicesResult.Status() != GattCommunicationStatus::Success)
+            {
+                pConn->lastError = fmt::format("GATT service discovery failed (status={})",
+                    (int)servicesResult.Status());
+                MDR_LOG("[BLE] EnumerateGatt: {}", pConn->lastError);
+                device.Close();
+                pConn->enumResult = MDR_RESULT_ERROR_NET;
+                SetEvent(pConn->enumEvent);
+                return;
+            }
+
+            MDR_LOG("[BLE] === GATT Service Enumeration ===");
+            MDR_LOG("[BLE] Found {} service(s)", servicesResult.Services().Size());
+
+            int serviceIndex = 0;
+            for (auto const& svc : servicesResult.Services())
+            {
+                if (stop.stop_requested()) break;
+
+                std::string svcUUID = GuidToString(svc.Uuid());
+                MDR_LOG("[BLE] Service #{}: {}", serviceIndex, svcUUID);
+
+                auto charsResult = svc.GetCharacteristicsAsync(BluetoothCacheMode::Uncached).get();
+                if (charsResult.Status() != GattCommunicationStatus::Success)
+                {
+                    MDR_LOG("[BLE]   (failed to enumerate characteristics, status={})",
+                        (int)charsResult.Status());
+                    serviceIndex++;
+                    continue;
+                }
+
+                int charIndex = 0;
+                for (auto const& ch : charsResult.Characteristics())
+                {
+                    std::string charUUID = GuidToString(ch.Uuid());
+                    int props = PropertiesToBitmask(ch.CharacteristicProperties());
+                    MDR_LOG("[BLE]   Char #{}: {} [{}]",
+                        charIndex, charUUID, PropertiesToString(props));
+
+                    if (callback)
+                        callback(ctx, svcUUID.c_str(), charUUID.c_str(), props);
+
+                    charIndex++;
+                }
+
                 serviceIndex++;
-                continue;
             }
 
-            int charIndex = 0;
-            for (auto const& ch : charsResult.Characteristics())
-            {
-                std::string charUUID = GuidToString(ch.Uuid());
-                int props = PropertiesToBitmask(ch.CharacteristicProperties());
-                fprintf(stderr, "[BLE-DEBUG]   Char #%d: %s [%s]\n",
-                    charIndex, charUUID.c_str(), PropertiesToString(props).c_str());
-
-                if (callback)
-                    callback(ctx, svcUUID.c_str(), charUUID.c_str(), props);
-
-                charIndex++;
-            }
-
-            serviceIndex++;
+            MDR_LOG("[BLE] === End GATT Enumeration ===");
+            device.Close();
+            pConn->enumResult = MDR_RESULT_OK;
+            SetEvent(pConn->enumEvent);
         }
+        catch (const winrt::hresult_error& ex)
+        {
+            pConn->lastError = winrt::to_string(ex.message());
+            MDR_LOG("[BLE] EnumerateGatt exception: {} (HRESULT=0x{:08X})",
+                pConn->lastError, (unsigned)ex.code());
+            pConn->enumResult = MDR_RESULT_ERROR_NET;
+            SetEvent(pConn->enumEvent);
+        }
+        catch (const std::exception& ex)
+        {
+            pConn->lastError = ex.what();
+            MDR_LOG("[BLE] EnumerateGatt std::exception: {}", pConn->lastError);
+            pConn->enumResult = MDR_RESULT_ERROR_NET;
+            SetEvent(pConn->enumEvent);
+        }
+    });
 
-        fprintf(stderr, "[BLE-DEBUG] === End GATT Enumeration ===\n");
-        device.Close();
-        return MDR_RESULT_OK;
-        }); // end RunOnMTA
-    }
-    catch (const winrt::hresult_error& ex)
-    {
-        pConn->lastError = winrt::to_string(ex.message());
-        fprintf(stderr, "[BLE-DEBUG] EnumerateGatt exception: %s (HRESULT=0x%08X)\n",
-            pConn->lastError.c_str(), (unsigned)ex.code());
-        return MDR_RESULT_ERROR_NET;
-    }
-    catch (const std::exception& ex)
-    {
-        pConn->lastError = ex.what();
-        fprintf(stderr, "[BLE-DEBUG] EnumerateGatt std::exception: %s\n", pConn->lastError.c_str());
-        return MDR_RESULT_ERROR_NET;
-    }
+    return MDR_RESULT_INPROGRESS;
 }
 
 } // extern "C"

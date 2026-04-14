@@ -1,28 +1,18 @@
 #include "../Platform.hpp"
+#include <mdr/Protocol.hpp>
 #include <mdr-c/Platform/PlatformWindows.h>
 #include <mdr-c/Platform/PlatformWindowsBLE.h>
-#include <cstdio>
 
 static MDRConnectionWindows* gConnClassic = nullptr;
 static MDRConnectionWindowsBLE* gConnBLE = nullptr;
 static bool gUseBLE = false;
-
-// Callback that logs GATT enumeration results to stderr
-static void gattEnumCallback(void* ctx, const char* serviceUUID, const char* charUUID, int properties)
-{
-    (void)ctx;
-    (void)serviceUUID;
-    (void)charUUID;
-    (void)properties;
-    // Logging is already handled inside PlatformWindowsBLE.cpp
-}
 
 extern "C" {
     void clientPlatformInit()
     {
         gConnClassic = mdrConnectionWindowsCreate();
         gConnBLE = mdrConnectionWindowsBLECreate();
-        fprintf(stderr, "[CLIENT] Platform initialized (Classic + BLE backends)\n");
+        MDR_LOG("[CLIENT] Platform initialized (Classic + BLE backends)");
     }
 
     void clientPlatformDestroy()
@@ -31,7 +21,7 @@ extern "C" {
         mdrConnectionWindowsBLEDestroy(gConnBLE);
         gConnClassic = nullptr;
         gConnBLE = nullptr;
-        fprintf(stderr, "[CLIENT] Platform destroyed\n");
+        MDR_LOG("[CLIENT] Platform destroyed");
     }
 
     MDRConnection* clientPlatformConnectionGet()
@@ -45,7 +35,7 @@ extern "C" {
     {
         if (gUseBLE != useBLE)
         {
-            fprintf(stderr, "[CLIENT] Switching to %s backend\n", useBLE ? "BLE" : "Classic");
+            MDR_LOG("[CLIENT] Switching to {} backend", useBLE ? "BLE" : "Classic");
             gUseBLE = useBLE;
         }
     }
@@ -57,8 +47,8 @@ extern "C" {
 
     int clientPlatformBLEEnumerateGatt(const char* macAddress)
     {
-        fprintf(stderr, "[CLIENT] BLE GATT enumeration requested for %s\n", macAddress);
-        return mdrConnectionBLEEnumerateGatt(gConnBLE, macAddress, gattEnumCallback, nullptr);
+        MDR_LOG("[CLIENT] BLE GATT enumeration requested for {}", macAddress);
+        return mdrConnectionBLEEnumerateGatt(gConnBLE, macAddress, nullptr, nullptr);
     }
 
     int clientPlatformLocateFontBinary(const char** outData)

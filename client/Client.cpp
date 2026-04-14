@@ -548,7 +548,7 @@ void DrawDeviceDiscovery()
         if (ImModalButton(PSI_LINK " Connect", 0, 2))
         {
 #ifdef MDR_PLATFORM_WIN32
-            const char* serviceUUID = clientPlatformGetUseBLE() ? MDR_BLE_SERVICE_UUID_XM6 : MDR_SERVICE_UUID_XM5;
+            const char* serviceUUID = clientPlatformGetUseBLE() ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
 #else
             const char* serviceUUID = MDR_SERVICE_UUID_XM5;
 #endif
@@ -598,6 +598,7 @@ void DrawDeviceConnecting()
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
         gDevice = mdr::MDRHeadphones(conn);
+        gDevice.setUseBLE(clientPlatformGetUseBLE());
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
