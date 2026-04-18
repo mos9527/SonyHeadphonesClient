@@ -13,7 +13,9 @@ extern "C" {
     extern int clientPlatformLocateFontBinary(const char** outData);
     extern void clientPlatformDestroy();
     // Switch between Bluetooth Classic (RFCOMM) and Bluetooth LE (GATT) backends
+    // Consecutive Sets with same values shall be no-ops.
     extern void clientPlatformSetUseBLE(bool useBLE);
+    // Reports true if current backend is using BLE, otherwise RFCOMM.
     extern bool clientPlatformGetUseBLE();
     // Enumerate GATT services/characteristics on a BLE device (for discovery)
     extern int clientPlatformBLEEnumerateGatt(const char* macAddress);

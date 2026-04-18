@@ -489,8 +489,6 @@ void ExceptionHandler(auto&& func)
 void DrawDeviceDiscovery()
 {
     MDR_CHECK(connState == CONN_STATE_NO_CONNECTION);
-    MDRConnection* conn = clientPlatformConnectionGet();
-    MDR_CHECK(conn != nullptr);
     ImSetNextWindowCentered();
     static bool popup = false;
     if (!popup)
@@ -505,84 +503,72 @@ void DrawDeviceDiscovery()
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
         ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
-
-#ifdef MDR_PLATFORM_WIN32
-        // BLE / Classic toggle
-        ImGui::SeparatorText("Transport");
+        auto RefreshDeviceList = [&]()
         {
-            bool useBLE = clientPlatformGetUseBLE();
-            if (ImGui::Checkbox("Use Bluetooth LE (GATT)", &useBLE))
-            {
-                clientPlatformSetUseBLE(useBLE);
-                // Force refresh when switching backend
-                if (pDeviceInfo)
-                {
-                    mdrConnectionFreeDevicesList(conn, &pDeviceInfo);
-                    pDeviceInfo = nullptr;
-                    nDeviceInfo = 0;
-                }
-                // Update conn pointer to the new backend
-                conn = clientPlatformConnectionGet();
-            }
-            // Detect backend switch from outside
-            if (lastUseBLE != useBLE)
-            {
-                lastUseBLE = useBLE;
-                conn = clientPlatformConnectionGet();
-            }
-        }
-#endif
-
-        ImGui::SeparatorText("Available Devices");
-        static int deviceIndex = 0;
-        if (!devices.empty())
-        {
-            int btnIndex = 0;
-            for (const auto& device : devices)
-                ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
-        } else
-        {
-            ImGui::TextWrapped(PSI_WARNING_SIGN " No devices available. Make sure your Bluetooth radio is turned on, and a compatible device is connected.");
-        }
-        ImGui::BeginDisabled(devices.empty());
-        if (ImModalButton(PSI_LINK " Connect", 0, 2))
-        {
-#ifdef MDR_PLATFORM_WIN32
-            const char* serviceUUID = clientPlatformGetUseBLE() ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
-#else
-            const char* serviceUUID = MDR_SERVICE_UUID_XM5;
-#endif
-            int res = mdrConnectionConnect(conn, devices[deviceIndex].szDeviceMacAddress, serviceUUID);
-            if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
-                connState = CONN_STATE_DISCONNECTED;
-            else
-                connState = CONN_STATE_CONNECTING;
-        }
-        ImGui::EndDisabled();
-        if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
-        {
-            conn = clientPlatformConnectionGet();
+            MDRConnection* conn = clientPlatformConnectionGet();
             int res = mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
             MDR_CHECK_MSG(res == MDR_RESULT_OK, "Failed to get device list. Error: {}", mdrResultString(res));
-        }
-
-#ifdef MDR_PLATFORM_WIN32
-        // GATT enumeration button (BLE mode only)
-        if (clientPlatformGetUseBLE() && !devices.empty())
+        };
+        auto DrawDeviceList = [&]()
         {
-            ImGui::Separator();
-            if (ImGui::Button(PSI_BLUETOOTH " Enumerate GATT Services"))
+            ImGui::SeparatorText("Available Devices");
+            static int deviceIndex = 0;
+            if (!devices.empty())
             {
-                int res = clientPlatformBLEEnumerateGatt(devices[deviceIndex].szDeviceMacAddress);
-                if (res != MDR_RESULT_OK)
-                    fprintf(stderr, "[CLIENT] GATT enumeration failed: %s\n", mdrResultString(res));
+                int btnIndex = 0;
+                for (const auto& device : devices)
+                    ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
+            } else
+            {
+                ImGui::TextWrapped(PSI_WARNING_SIGN " No devices available. Make sure your Bluetooth radio is turned on, and a compatible device is connected.");
             }
-            ImGui::SameLine();
-            ImGui::TextWrapped("(check terminal for results)");
+            ImGui::BeginDisabled(devices.empty());
+            if (ImModalButton(PSI_LINK " Connect", 0, 2))
+            {
+                const char* serviceUUID = clientPlatformGetUseBLE() ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
+                int res = mdrConnectionConnect(clientPlatformConnectionGet(), devices[deviceIndex].szDeviceMacAddress, serviceUUID);
+                if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
+                    connState = CONN_STATE_DISCONNECTED;
+                else
+                    connState = CONN_STATE_CONNECTING;
+            }
+            ImGui::EndDisabled();
+            if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
+                RefreshDeviceList();
+        };
+        // BLE / Classic toggle
+        constexpr int kProtocolClassic = 0, kProtocolBLE = 1;
+        static int lastProtocol = 0;
+        if (ImGui::BeginTabBar("##Device", ImGuiTabBarFlags_None))
+        {
+            // Protocols
+            if (ImGui::BeginTabItem("Classic"))
+            {
+                clientPlatformSetUseBLE(false);
+                if (lastProtocol != kProtocolClassic)
+                    RefreshDeviceList();
+                DrawDeviceList();
+                ImGui::EndTabItem();
+                lastProtocol = kProtocolClassic;
+            }
+            if (ImGui::BeginTabItem("BLE (GATT)"))
+            {
+                clientPlatformSetUseBLE(true);
+                if (!clientPlatformGetUseBLE())
+                {
+                    ImGui::Text("Platform does not offer support for Bluetooth Low Energy (BLE) devices.");
+                } else
+                {
+                    if (lastProtocol != kProtocolBLE)
+                        RefreshDeviceList();
+                }
+                DrawDeviceList();
+                ImGui::EndTabItem();
+                lastProtocol = kProtocolBLE;
+            }
+            ImGui::EndTabBar();
         }
-#endif
-
-        ImGui::Separator();
+        ImGui::SeparatorText(PSI_INFO_SIGN_ALT " Select BLE (GATT) if your device is connected via LE Audio, and Classic if you don't know what that means or otherwise.");
         ImTextCentered(PSI_WARNING_SIGN " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
         ImGui::EndPopup();
     } else
