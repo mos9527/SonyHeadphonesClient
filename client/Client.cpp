@@ -499,11 +499,40 @@ void DrawDeviceDiscovery()
     {
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
+        static bool lastUseBLE = false;
         Span<MDRDeviceInfo> devices{pDeviceInfo, static_cast<size_t>(nDeviceInfo)};
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
         ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
+
+#ifdef MDR_PLATFORM_WIN32
+        // BLE / Classic toggle
+        ImGui::SeparatorText("Transport");
+        {
+            bool useBLE = clientPlatformGetUseBLE();
+            if (ImGui::Checkbox("Use Bluetooth LE (GATT)", &useBLE))
+            {
+                clientPlatformSetUseBLE(useBLE);
+                // Force refresh when switching backend
+                if (pDeviceInfo)
+                {
+                    mdrConnectionFreeDevicesList(conn, &pDeviceInfo);
+                    pDeviceInfo = nullptr;
+                    nDeviceInfo = 0;
+                }
+                // Update conn pointer to the new backend
+                conn = clientPlatformConnectionGet();
+            }
+            // Detect backend switch from outside
+            if (lastUseBLE != useBLE)
+            {
+                lastUseBLE = useBLE;
+                conn = clientPlatformConnectionGet();
+            }
+        }
+#endif
+
         ImGui::SeparatorText("Available Devices");
         static int deviceIndex = 0;
         if (!devices.empty())
@@ -518,8 +547,12 @@ void DrawDeviceDiscovery()
         ImGui::BeginDisabled(devices.empty());
         if (ImModalButton(PSI_LINK " Connect", 0, 2))
         {
-            // XXX: Other service UUIDs?
-            int res = mdrConnectionConnect(conn, devices[deviceIndex].szDeviceMacAddress, MDR_SERVICE_UUID_XM5);
+#ifdef MDR_PLATFORM_WIN32
+            const char* serviceUUID = clientPlatformGetUseBLE() ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
+#else
+            const char* serviceUUID = MDR_SERVICE_UUID_XM5;
+#endif
+            int res = mdrConnectionConnect(conn, devices[deviceIndex].szDeviceMacAddress, serviceUUID);
             if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
                 connState = CONN_STATE_DISCONNECTED;
             else
@@ -528,9 +561,27 @@ void DrawDeviceDiscovery()
         ImGui::EndDisabled();
         if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
         {
+            conn = clientPlatformConnectionGet();
             int res = mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
             MDR_CHECK_MSG(res == MDR_RESULT_OK, "Failed to get device list. Error: {}", mdrResultString(res));
         }
+
+#ifdef MDR_PLATFORM_WIN32
+        // GATT enumeration button (BLE mode only)
+        if (clientPlatformGetUseBLE() && !devices.empty())
+        {
+            ImGui::Separator();
+            if (ImGui::Button(PSI_BLUETOOTH " Enumerate GATT Services"))
+            {
+                int res = clientPlatformBLEEnumerateGatt(devices[deviceIndex].szDeviceMacAddress);
+                if (res != MDR_RESULT_OK)
+                    fprintf(stderr, "[CLIENT] GATT enumeration failed: %s\n", mdrResultString(res));
+            }
+            ImGui::SameLine();
+            ImGui::TextWrapped("(check terminal for results)");
+        }
+#endif
+
         ImGui::Separator();
         ImTextCentered(PSI_WARNING_SIGN " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
         ImGui::EndPopup();
@@ -547,6 +598,7 @@ void DrawDeviceConnecting()
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
         gDevice = mdr::MDRHeadphones(conn);
+        gDevice.setUseBLE(clientPlatformGetUseBLE());
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);

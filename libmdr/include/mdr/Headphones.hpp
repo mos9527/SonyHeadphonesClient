@@ -111,6 +111,7 @@ namespace mdr
     {
     private:
         MDRConnection* mConn;
+        bool mUseBLE{false};
 
     public:
         enum AwaitType
@@ -122,8 +123,12 @@ namespace mdr
             AWAIT_NUM_TYPES = 3
         };
 
+        // Classic Bluetooth (RFCOMM) retry/timeout defaults
         static constexpr int kAwaitAckRetries = 5;
         static constexpr int kAwaitTimeoutMS = 1000;
+        // BLE GATT has higher latency due to connection setup and service discovery
+        static constexpr int kAwaitAckRetriesBLE = 10;
+        static constexpr int kAwaitTimeoutMSBLE = 3000;
 
         // NOLINTBEGIN
         struct Awaiter
@@ -180,6 +185,10 @@ namespace mdr
         MDRHeadphones(MDRHeadphones&&) noexcept = default;
         MDRHeadphones& operator=(MDRHeadphones const&) = delete;
         MDRHeadphones& operator=(MDRHeadphones&&) = default;
+
+        void setUseBLE(bool useBLE) { mUseBLE = useBLE; }
+        int getAwaitAckRetries() const { return mUseBLE ? kAwaitAckRetriesBLE : kAwaitAckRetries; }
+        int getAwaitTimeoutMS() const { return mUseBLE ? kAwaitTimeoutMSBLE : kAwaitTimeoutMS; }
 
         constexpr operator bool() const noexcept { return mConn != nullptr; }
 
@@ -461,12 +470,13 @@ namespace mdr
 #define SendCommandACK(Type, ...) \
     { \
         int _retries; \
-        for (_retries = 0; _retries < kAwaitAckRetries; _retries++) { \
+        const int _maxRetries = getAwaitAckRetries(); \
+        for (_retries = 0; _retries < _maxRetries; _retries++) { \
             SendCommandImpl<Type>( __VA_ARGS__ ); \
             int res = co_await Await(AWAIT_ACK); \
             if (res == MDR_RESULT_OK) break; \
-            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries , kAwaitAckRetries); \
+            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries , _maxRetries); \
         } \
-        MDR_CHECK_MSG(_retries != kAwaitAckRetries, "Timeout exceeded waiting for device to respond"); \
+        MDR_CHECK_MSG(_retries != _maxRetries, "Timeout exceeded waiting for device to respond"); \
     }
 // NOLINTEND
