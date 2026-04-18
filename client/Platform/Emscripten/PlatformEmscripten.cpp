@@ -16,6 +16,11 @@ extern "C" {
     {
         return mdrConnectionEmscriptenGet(gConn);
     }
+    // vvv TODO: These should be pretty easy.
+    void clientPlatformSetUseBLE(bool) {}
+    bool clientPlatformGetUseBLE() { return false; }
+    int clientPlatformBLEEnumerateGatt(const char*) { return -1; }
+    // ^^^ TODO
     EM_JS(int, clientPlatformLocateFontBinary, (const char** outData), {
         if (navigator.externalFontSize > 0){
             setValue(outData, navigator.externalFontPtr, '*');
