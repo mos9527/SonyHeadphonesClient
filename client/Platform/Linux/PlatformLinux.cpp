@@ -6,7 +6,10 @@ extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
         if (flags & MDR_INIT_BT_BLE)
+        {
+            gConn = nullptr;
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
+        }
         gConn = mdrConnectionLinuxCreate();
         return MDR_RESULT_OK;
     }

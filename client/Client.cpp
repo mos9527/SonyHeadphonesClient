@@ -591,7 +591,7 @@ void DrawDeviceDiscovery()
         };
         if (connInitResult != MDR_RESULT_OK && connInitResult != MDR_RESULT_INPROGRESS)
         {
-            ImTextCentered(fmt::format(PSI_ACUTE " Failed to initialize connection: {}", mdrResultString(connInitResult)).c_str());
+            ImTextCentered(fmt::format(PSI_EXCLAMATION_SIGN " Failed to initialize connection: {}", mdrResultString(connInitResult)).c_str());
         }
         DrawDeviceList();
         ImGui::SeparatorText(PSI_INFO_SIGN_ALT " Select BLE (GATT) if your device is connected via LE Audio, and Classic if you don't know what that means or otherwise.");
