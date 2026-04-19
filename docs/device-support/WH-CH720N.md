@@ -20,4 +20,3 @@ Reported by:
 | Touch Sensor Gesture                     | ❌                            |
 | Power Off                                | ✅                            |
 | Capture Voice During a Phone Call        | **?**                        |
-| Map Headphone Gestures to Shell Commands | ❌                            |

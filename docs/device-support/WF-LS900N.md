@@ -19,4 +19,3 @@ Reported by:
 | Touch Sensor Gesture                         | ? |
 | Power Off                                    | ? |
 | Capture Voice During a Phone Call            | ❌ ([#1](https://github.com/mos9527/SonyHeadphonesClient/pull/1)) |
-| Mapping headphone gestures to Shell Commands | ? |
