@@ -3,17 +3,23 @@
 
 MDRConnectionLinux* gConn;
 extern "C" {
-    void clientPlatformInit()
+    int clientPlatformConnectionInit(int flags)
     {
+        if (flags & MDR_INIT_BT_BLE)
+            return MDR_RESULT_ERROR_NOT_SUPPORTED;
         gConn = mdrConnectionLinuxCreate();
+        return MDR_RESULT_OK;
     }
-    void clientPlatformDestroy()
+    void clientPlatformConnectionDestroy()
     {
-        mdrConnectionLinuxDestroy(gConn);
+        if (gConn)
+            mdrConnectionLinuxDestroy(gConn);
     }
     MDRConnection* clientPlatformConnectionGet()
     {
-        return mdrConnectionLinuxGet(gConn);
+        if (gConn)
+            return mdrConnectionLinuxGet(gConn);
+        [[unlikely]] return nullptr;
     }
     int clientPlatformLocateFontBinary(const char** outData)
     {
@@ -21,7 +27,9 @@ extern "C" {
         *outData = nullptr;
         return 0;
     }
-    void clientPlatformSetUseBLE(bool) {}
-    bool clientPlatformGetUseBLE() { return false; }
-    int clientPlatformBLEEnumerateGatt(const char*) { return -1; }
+    void clientPlatformDestroy()
+    {
+        clientPlatformConnectionDestroy();
+        // TODO
+    }
 }

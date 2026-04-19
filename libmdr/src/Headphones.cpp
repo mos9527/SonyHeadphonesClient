@@ -129,7 +129,7 @@ namespace mdr
         // Awaiter timeouts
         {
             using namespace std::literals;
-            const auto kTimeout = std::chrono::milliseconds(getAwaitTimeoutMS());
+            const auto kTimeout = std::chrono::milliseconds(kAwaitTimeoutMS);
             auto now = std::chrono::steady_clock::now();
             for (auto& awaiter : mAwaiters)
             {
@@ -238,6 +238,8 @@ const char* mdrResultString(int err)
         return "No connection has been established";
     case MDR_RESULT_ERROR_BAD_ADDRESS:
         return "Invalid address information";
+    case MDR_RESULT_ERROR_NOT_SUPPORTED:
+        return "Not supported";
     default:
         return "Unknown";
     }

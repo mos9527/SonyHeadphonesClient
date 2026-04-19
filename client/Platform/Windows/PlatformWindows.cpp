@@ -5,50 +5,32 @@
 
 static MDRConnectionWindows* gConnClassic = nullptr;
 static MDRConnectionWindowsBLE* gConnBLE = nullptr;
-static bool gUseBLE = false;
-
 extern "C" {
-    void clientPlatformInit()
+    int clientPlatformConnectionInit(int flags)
     {
-        gConnClassic = mdrConnectionWindowsCreate();
-        gConnBLE = mdrConnectionWindowsBLECreate();
-        MDR_LOG("[CLIENT] Platform initialized (Classic + BLE backends)");
+        MDR_CHECK_MSG(gConnBLE == nullptr && gConnClassic == nullptr, "Platform already initialized. You MUST call clientPlatformDestroy() before initializing again.");
+        if (flags & MDR_INIT_BT_BLE)
+            gConnBLE = mdrConnectionWindowsBLECreate(), gConnClassic = nullptr;
+        else
+            gConnClassic = mdrConnectionWindowsCreate(), gConnBLE = nullptr;
+        return MDR_RESULT_OK;
     }
 
-    void clientPlatformDestroy()
+    void clientPlatformConnectionDestroy()
     {
-        mdrConnectionWindowsDestroy(gConnClassic);
-        mdrConnectionWindowsBLEDestroy(gConnBLE);
-        gConnClassic = nullptr;
-        gConnBLE = nullptr;
-        MDR_LOG("[CLIENT] Platform destroyed");
+        if (gConnClassic)
+            mdrConnectionWindowsDestroy(gConnClassic), gConnClassic = nullptr;
+        if (gConnBLE)
+            mdrConnectionWindowsBLEDestroy(gConnBLE), gConnBLE = nullptr;
     }
 
     MDRConnection* clientPlatformConnectionGet()
     {
-        if (gUseBLE)
+        if (gConnClassic)
+            return mdrConnectionWindowsGet(gConnClassic);
+        if (gConnBLE)
             return mdrConnectionWindowsBLEGet(gConnBLE);
-        return mdrConnectionWindowsGet(gConnClassic);
-    }
-
-    void clientPlatformSetUseBLE(bool useBLE)
-    {
-        if (gUseBLE != useBLE)
-        {
-            MDR_LOG("[CLIENT] Switching to {} backend", useBLE ? "BLE" : "Classic");
-            gUseBLE = useBLE;
-        }
-    }
-
-    bool clientPlatformGetUseBLE()
-    {
-        return gUseBLE;
-    }
-
-    int clientPlatformBLEEnumerateGatt(const char* macAddress)
-    {
-        MDR_LOG("[CLIENT] BLE GATT enumeration requested for {}", macAddress);
-        return mdrConnectionBLEEnumerateGatt(gConnBLE, macAddress, nullptr, nullptr);
+        [[unlikely]] return nullptr;
     }
 
     int clientPlatformLocateFontBinary(const char** outData)
@@ -56,5 +38,10 @@ extern "C" {
         // TODO
         *outData = nullptr;
         return 0;
+    }
+    void clientPlatformDestroy()
+    {
+        clientPlatformConnectionDestroy();
+        // TODO
     }
 }

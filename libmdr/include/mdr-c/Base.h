@@ -1,4 +1,6 @@
 #pragma once
+// MDR_INIT...
+#define MDR_INIT_BT_BLE (1u << 0u) // Use BLE profile instead of Classic bluetooth
 // MDR_RESULT...
 #define MDR_RESULT_OK 0
 #define MDR_RESULT_INPROGRESS 1
@@ -8,6 +10,7 @@
 #define MDR_RESULT_ERROR_NET 5
 #define MDR_RESULT_ERROR_NO_CONNECTION 6
 #define MDR_RESULT_ERROR_BAD_ADDRESS 7
+#define MDR_RESULT_ERROR_NOT_SUPPORTED 8
 // MDR_HEADPHONES...
 #define MDR_HEADPHONES_ERROR (-2) // Irrecoverable. Headphone should be cleaned up.
 #define MDR_HEADPHONES_INPROGRESS (-1) // No command received but there's a running task

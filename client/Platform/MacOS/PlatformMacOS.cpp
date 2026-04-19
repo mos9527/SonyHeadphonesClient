@@ -1,26 +1,34 @@
 #include "../Platform.hpp"
 #include <mdr-c/Platform/PlatformMacOS.h>
 
-MDRConnectionMacOS* gConn;
+MDRConnectionMacOS* gConn = nullptr;
 extern "C" {
-    void clientPlatformInit()
+    int clientPlatformConnectionInit(int flags)
     {
+        if (flags & MDR_INIT_BT_BLE)
+            return MDR_RESULT_ERROR_NOT_SUPPORTED;
         gConn = mdrConnectionMacOSCreate();
+        return MDR_RESULT_OK;
     }
-    void clientPlatformDestroy()
+    void clientPlatformConnectionDestroy()
     {
-        mdrConnectionMacOSDestroy(gConn);
+        if (gConn)
+            mdrConnectionMacOSDestroy(gConn);
     }
     MDRConnection* clientPlatformConnectionGet()
     {
-        return mdrConnectionMacOSGet(gConn);
+        if (gConn)
+            mdrConnectionMacOSGet(gConn);
+        [[unlikely]] return nullptr;
     }
     int clientPlatformLocateFontBinary(const char** outData)
     {
         *outData = nullptr;
         return 0;
     }
-    void clientPlatformSetUseBLE(bool) {}
-    bool clientPlatformGetUseBLE() { return false; }
-    int clientPlatformBLEEnumerateGatt(const char*) { return -1; }
+    void clientPlatformDestroy()
+    {
+        clientPlatformConnectionDestroy();
+        // TODO
+    }
 }

@@ -7,6 +7,7 @@
 #include <SDL3/SDL.h>
 
 #include <mdr/Headphones.hpp>
+#include <Platform/Platform.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
 #include "MaterialYouTheme.hpp"
@@ -455,6 +456,23 @@ void ImEqualizer(Span<int> bands)
             ImGui::SameLine(0.0f, padding);
     }
 }
+struct ImStylesRAII
+{
+    size_t numVars = 0, numColors = 0, numFonts = 0;
+    template <typename... Args>
+    void PushVar(ImGuiStyleVar idx, Args&&... args) { ImGui::PushStyleVar(idx, args...), numVars++; }
+    template <typename... Args>
+    void PushCol(ImGuiCol idx, Args&&... args) { ImGui::PushStyleColor(idx, args...), numColors++; }
+    template <typename... Args>
+    void PushFont(ImFont* font, Args&&... args) { ImGui::PushFont(font, args...), numFonts++; }
+    ~ImStylesRAII()
+    {
+        ImGui::PopStyleVar(numVars);
+        ImGui::PopStyleColor(numColors);
+        while (numFonts--)
+            ImGui::PopFont();
+    }
+};
 #pragma endregion
 
 #pragma region States
@@ -497,22 +515,57 @@ void DrawDeviceDiscovery()
     {
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
-        static bool lastUseBLE = false;
-        Span<MDRDeviceInfo> devices{pDeviceInfo, static_cast<size_t>(nDeviceInfo)};
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
         ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS).c_str());
+        // Chose, and have the GATT backend active
+        static bool usingBLE = false;
+        static int connInitResult = MDR_RESULT_INPROGRESS;
+        // BLE / Classic toggle
+        bool needSwitchClientPlatform = clientPlatformConnectionGet() == nullptr;
+        {
+            ImStylesRAII styles;
+            styles.PushFont(nullptr, 12.0f);
+            styles.PushVar(ImGuiStyleVar_FramePadding,ImVec2{});
+            styles.PushVar(ImGuiStyleVar_FrameRounding, 0.0f);
+            {
+                ImStylesRAII styles;
+                if (usingBLE)
+                    styles.PushCol(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+                if (ImModalButton(PSI_BLUETOOTH " Classic", 0, 2))
+                    usingBLE = false, needSwitchClientPlatform = true;
+            }
+            {
+                ImStylesRAII styles;
+                if (!usingBLE)
+                    styles.PushCol(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+                if (ImModalButton(PSI_BLUETOOTH_ALT " BLE (GATT)",1, 2))
+                    usingBLE = true, needSwitchClientPlatform = true;
+            }
+        }
         auto RefreshDeviceList = [&]()
         {
             MDRConnection* conn = clientPlatformConnectionGet();
-            int res = mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
-            MDR_CHECK_MSG(res == MDR_RESULT_OK, "Failed to get device list. Error: {}", mdrResultString(res));
+            if (conn) // TODO: Error modals
+                mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
         };
+        if (needSwitchClientPlatform)
+        {
+            int flags = 0;
+            if (usingBLE) flags |= MDR_INIT_BT_BLE;
+            MDRConnection* conn = clientPlatformConnectionGet();
+            if (conn && pDeviceInfo)
+                mdrConnectionFreeDevicesList(conn, &pDeviceInfo), pDeviceInfo = nullptr, nDeviceInfo = 0;
+            clientPlatformConnectionDestroy();
+            connInitResult = clientPlatformConnectionInit(flags);
+            RefreshDeviceList();
+        }
         auto DrawDeviceList = [&]()
         {
             ImGui::SeparatorText("Available Devices");
             static int deviceIndex = 0;
+            Span<MDRDeviceInfo> devices{pDeviceInfo, static_cast<size_t>(nDeviceInfo)};
             if (!devices.empty())
             {
                 int btnIndex = 0;
@@ -525,7 +578,7 @@ void DrawDeviceDiscovery()
             ImGui::BeginDisabled(devices.empty());
             if (ImModalButton(PSI_LINK " Connect", 0, 2))
             {
-                const char* serviceUUID = clientPlatformGetUseBLE() ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
+                const char* serviceUUID = usingBLE ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
                 int res = mdrConnectionConnect(clientPlatformConnectionGet(), devices[deviceIndex].szDeviceMacAddress, serviceUUID);
                 if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
                     connState = CONN_STATE_DISCONNECTED;
@@ -536,38 +589,11 @@ void DrawDeviceDiscovery()
             if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
                 RefreshDeviceList();
         };
-        // BLE / Classic toggle
-        constexpr int kProtocolClassic = 0, kProtocolBLE = 1;
-        static int lastProtocol = 0;
-        if (ImGui::BeginTabBar("##Device", ImGuiTabBarFlags_None))
+        if (connInitResult != MDR_RESULT_OK && connInitResult != MDR_RESULT_INPROGRESS)
         {
-            // Protocols
-            if (ImGui::BeginTabItem("Classic"))
-            {
-                clientPlatformSetUseBLE(false);
-                if (lastProtocol != kProtocolClassic)
-                    RefreshDeviceList();
-                DrawDeviceList();
-                ImGui::EndTabItem();
-                lastProtocol = kProtocolClassic;
-            }
-            if (ImGui::BeginTabItem("BLE (GATT)"))
-            {
-                clientPlatformSetUseBLE(true);
-                if (!clientPlatformGetUseBLE())
-                {
-                    ImGui::Text("Platform does not offer support for Bluetooth Low Energy (BLE) devices.");
-                } else
-                {
-                    if (lastProtocol != kProtocolBLE)
-                        RefreshDeviceList();
-                }
-                DrawDeviceList();
-                ImGui::EndTabItem();
-                lastProtocol = kProtocolBLE;
-            }
-            ImGui::EndTabBar();
+            ImTextCentered(fmt::format(PSI_ACUTE " Failed to initialize connection: {}", mdrResultString(connInitResult)).c_str());
         }
+        DrawDeviceList();
         ImGui::SeparatorText(PSI_INFO_SIGN_ALT " Select BLE (GATT) if your device is connected via LE Audio, and Classic if you don't know what that means or otherwise.");
         ImTextCentered(PSI_WARNING_SIGN " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
         ImGui::EndPopup();
@@ -584,11 +610,9 @@ void DrawDeviceConnecting()
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
         gDevice = mdr::MDRHeadphones(conn);
-        gDevice.setUseBLE(clientPlatformGetUseBLE());
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
-        MaterialYouTheme::ApplyForModelColor(static_cast<uint8_t>(gDevice.mModelColor));
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
@@ -1338,6 +1362,10 @@ void DrawDeviceControls()
             // Irrecoverable. Disconnect now.
             mdrConnectionDisconnect(conn);
             connState = CONN_STATE_DISCONNECTED;
+        case MDR_HEADPHONES_EVT_DEVICE_INFO:
+            // Dynamic theme for the headphone's own colors
+            // Contributed by @salmon-21 in https://github.com/mos9527/SonyHeadphonesClient/pull/41
+            MaterialYouTheme::ApplyForModelColor(static_cast<uint8_t>(gDevice.mModelColor));
         case MDR_HEADPHONES_INPROGRESS:
         default:
             break;

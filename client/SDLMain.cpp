@@ -83,7 +83,6 @@ void mainLoop()
 #define CLIENT_WINDOW_HEIGHT 600
 int main(int, char**)
 {
-    clientPlatformInit();
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         printf("SDL_Init Error: %s\n", SDL_GetError());

@@ -111,7 +111,6 @@ namespace mdr
     {
     private:
         MDRConnection* mConn;
-        bool mUseBLE{false};
 
     public:
         enum AwaitType
@@ -123,12 +122,8 @@ namespace mdr
             AWAIT_NUM_TYPES = 3
         };
 
-        // Classic Bluetooth (RFCOMM) retry/timeout defaults
-        static constexpr int kAwaitAckRetries = 5;
-        static constexpr int kAwaitTimeoutMS = 1000;
-        // BLE GATT has higher latency due to connection setup and service discovery
-        static constexpr int kAwaitAckRetriesBLE = 10;
-        static constexpr int kAwaitTimeoutMSBLE = 3000;
+        static constexpr int kAwaitAckRetries = 10;
+        static constexpr int kAwaitTimeoutMS = 3000;
 
         // NOLINTBEGIN
         struct Awaiter
@@ -185,10 +180,6 @@ namespace mdr
         MDRHeadphones(MDRHeadphones&&) noexcept = default;
         MDRHeadphones& operator=(MDRHeadphones const&) = delete;
         MDRHeadphones& operator=(MDRHeadphones&&) = default;
-
-        void setUseBLE(bool useBLE) { mUseBLE = useBLE; }
-        int getAwaitAckRetries() const { return mUseBLE ? kAwaitAckRetriesBLE : kAwaitAckRetries; }
-        int getAwaitTimeoutMS() const { return mUseBLE ? kAwaitTimeoutMSBLE : kAwaitTimeoutMS; }
 
         constexpr operator bool() const noexcept { return mConn != nullptr; }
 
@@ -470,7 +461,7 @@ namespace mdr
 #define SendCommandACK(Type, ...) \
     { \
         int _retries; \
-        const int _maxRetries = getAwaitAckRetries(); \
+        const int _maxRetries = kAwaitAckRetries; \
         for (_retries = 0; _retries < _maxRetries; _retries++) { \
             SendCommandImpl<Type>( __VA_ARGS__ ); \
             int res = co_await Await(AWAIT_ACK); \

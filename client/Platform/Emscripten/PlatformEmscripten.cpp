@@ -4,23 +4,29 @@
 
 MDRConnectionEmscripten* gConn;
 extern "C" {
-    void clientPlatformInit()
+    int clientPlatformConnectionInit(int flags)
     {
+        if (flags & MDR_INIT_BT_BLE)
+            return MDR_RESULT_ERROR_NOT_SUPPORTED;
         gConn = mdrConnectionEmscriptenCreate();
+        return MDR_RESULT_OK;
     }
-    void clientPlatformDestroy()
+    void clientPlatformConnectionDestroy()
     {
-        mdrConnectionEmscriptenDestroy(gConn);
+        if (gConn)
+            mdrConnectionEmscriptenDestroy(gConn);
     }
     MDRConnection* clientPlatformConnectionGet()
     {
-        return mdrConnectionEmscriptenGet(gConn);
+        if (gConn)
+            return mdrConnectionEmscriptenGet(gConn);
+        [[unlikely]] return nullptr;
     }
-    // vvv TODO: These should be pretty easy.
-    void clientPlatformSetUseBLE(bool) {}
-    bool clientPlatformGetUseBLE() { return false; }
-    int clientPlatformBLEEnumerateGatt(const char*) { return -1; }
-    // ^^^ TODO
+    void clientPlatformDestroy()
+    {
+        clientPlatformConnectionDestroy();
+        // TODO
+    }
     EM_JS(int, clientPlatformLocateFontBinary, (const char** outData), {
         if (navigator.externalFontSize > 0){
             setValue(outData, navigator.externalFontPtr, '*');
