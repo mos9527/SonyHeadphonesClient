@@ -586,7 +586,7 @@ void DrawDeviceDiscovery()
                     connState = CONN_STATE_CONNECTING;
             }
             ImGui::EndDisabled();
-            if (ImModalButton(PSI_REFRESH " Refresh", 1, 2) || pDeviceInfo == nullptr)
+            if (ImModalButton(PSI_REFRESH " Refresh", 1, 2))
                 RefreshDeviceList();
         };
         if (connInitResult != MDR_RESULT_OK && connInitResult != MDR_RESULT_INPROGRESS)
