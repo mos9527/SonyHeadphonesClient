@@ -570,7 +570,11 @@ void DrawDeviceDiscovery()
             {
                 int btnIndex = 0;
                 for (const auto& device : devices)
+                {
+                    ImGui::PushID(device.szDeviceMacAddress);
                     ImGui::RadioButton(device.szDeviceName, &deviceIndex, btnIndex++);
+                    ImGui::PopID();
+                }
             } else
             {
                 ImGui::TextWrapped(PSI_WARNING_SIGN " No devices available. Make sure your Bluetooth radio is turned on, and a compatible device is connected.");
