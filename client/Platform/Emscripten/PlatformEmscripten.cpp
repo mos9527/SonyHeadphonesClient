@@ -1,28 +1,35 @@
 #include "../Platform.hpp"
+#include <mdr/Protocol.hpp>
 #include <mdr-c/Platform/PlatformEmscripten.h>
+#include <mdr-c/Platform/PlatformEmscriptenBLE.h>
 #include <emscripten.h>
 
-MDRConnectionEmscripten* gConn;
+static MDRConnectionEmscripten* gConnClassic = nullptr;
+static MDRConnectionEmscriptenBLE* gConnBLE = nullptr;
 extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
+        MDR_CHECK_MSG(gConnBLE == nullptr && gConnClassic == nullptr,
+            "Platform already initialized. You MUST call clientPlatformDestroy() before initializing again.");
         if (flags & MDR_INIT_BT_BLE)
-        {
-            gConn = nullptr;
-            return MDR_RESULT_ERROR_NOT_SUPPORTED;
-        }
-        gConn = mdrConnectionEmscriptenCreate();
+            gConnBLE = mdrConnectionEmscriptenBLECreate(), gConnClassic = nullptr;
+        else
+            gConnClassic = mdrConnectionEmscriptenCreate(), gConnBLE = nullptr;
         return MDR_RESULT_OK;
     }
     void clientPlatformConnectionDestroy()
     {
-        if (gConn)
-            mdrConnectionEmscriptenDestroy(gConn);
+        if (gConnClassic)
+            mdrConnectionEmscriptenDestroy(gConnClassic), gConnClassic = nullptr;
+        if (gConnBLE)
+            mdrConnectionEmscriptenBLEDestroy(gConnBLE), gConnBLE = nullptr;
     }
     MDRConnection* clientPlatformConnectionGet()
     {
-        if (gConn)
-            return mdrConnectionEmscriptenGet(gConn);
+        if (gConnClassic)
+            return mdrConnectionEmscriptenGet(gConnClassic);
+        if (gConnBLE)
+            return mdrConnectionEmscriptenBLEGet(gConnBLE);
         [[unlikely]] return nullptr;
     }
     void clientPlatformDestroy()
