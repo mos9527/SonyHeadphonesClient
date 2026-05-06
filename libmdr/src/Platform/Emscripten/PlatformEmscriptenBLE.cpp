@@ -43,7 +43,8 @@ EM_JS(void, em_js_ble_connect, (const char* serviceUUID), {
             // Must be called synchronously from a user-gesture callstack (we are).
             console.log(`Requesting device ${uuid}`);
             const device = await navigator.bluetooth.requestDevice({
-                filters: [{ services: [uuid] }]
+                acceptAllDevices: true,
+                optionalServices: [uuid]
             });
             navigator.em_js_ble_device = device;
             navigator.ble_set_last_error(`Connecting GATT on "${device.name || device.id}"`);
