@@ -164,6 +164,22 @@ const char* FormatEnum(v2::t1::EqPresetId id)
         return "Bass";
     case SPEECH:
         return "Speech";
+    case HEAVY:
+        return "Heavy";
+    case CLEAR:
+        return "Clear";
+    case HARD:
+        return "Hard";
+    case SOFT:
+        return "Soft";
+    case GAMING_EQ:
+        return "Gaming";
+    case FPS_1:
+        return "FPS 1";
+    case FPS_2:
+        return "FPS 2";
+    case FPS_3:
+        return "FPS 3";
     case CUSTOM:
         return "Custom";
     case USER_SETTING1:
@@ -989,6 +1005,7 @@ void DrawDeviceControlsSound()
         constexpr v2::t1::EqPresetId kSelections[] = {
             OFF, ROCK, POP, JAZZ, DANCE, EDM, R_AND_B_HIP_HOP, ACOUSTIC, BRIGHT, EXCITED,
             MELLOW, RELAXED, VOCAL, TREBLE, BASS, SPEECH,
+            HEAVY, CLEAR, HARD, SOFT, GAMING_EQ, FPS_1, FPS_2, FPS_3,
             CUSTOM, USER_SETTING1, USER_SETTING2, USER_SETTING3, USER_SETTING4, USER_SETTING5
         };
         ImComboBoxItems<v2::t1::EqPresetId>("Preset", kSelections, gDevice.mEqPresetId.desired);
