@@ -353,6 +353,14 @@ int mdrHeadphonesIsDirty(MDRHeadphones* p)
     return MDR_RESULT_OK;
 }
 
+int mdrHeadphonesIsReady(MDRHeadphones* p)
+{
+    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
+    return MDR_RESULT_OK;
+}
+
 const char* mdrHeadphonesGetLastError(MDRHeadphones* p)
 {
     auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);

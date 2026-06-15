@@ -62,6 +62,12 @@ int mdrHeadphonesRequestCommitV2(MDRHeadphones*);
  */
 int mdrHeadphonesIsDirty(MDRHeadphones*);
 /**
+ * @brief Checks if the headphones connection is idle and ready to send new requests.
+ * @return @ref MDR_RESULT_OK if not, @ref MDR_RESULT_INPROGRESS if there's anything that
+ *         should be committed with @ref mdrHeadphonesRequestCommit
+ */
+int mdrHeadphonesIsReady(MDRHeadphones*);
+/**
  * TODO:
  *  Figure out how we can expose the bajillion of Headphone @ref MDRProperty to the C interface.
  *  And basically this _sucks_. Almost all of the properties has their own bespoke structs.

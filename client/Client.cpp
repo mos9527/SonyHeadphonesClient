@@ -7,14 +7,19 @@
 #include <SDL3/SDL.h>
 
 #include <mdr/Headphones.hpp>
+#include <mdr-c/Headphones.h>
 #include <Platform/Platform.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
 #include "MaterialYouTheme.hpp"
 using namespace mdr;
 
-mdr::MDRHeadphones gDevice;
+::MDRHeadphones* gDevice;
 String gBugcheckMessage;
+
+// TODO: Remove this. And (somehow) transfer the massive property API surface to C ABIs
+//       I'm thinking about string keys. Anyone?
+inline mdr::MDRHeadphones& GetDevice() { return *reinterpret_cast<mdr::MDRHeadphones*>(gDevice); }
 
 #pragma region Enum Names
 const char* FormatEnum(v2::t1::AudioCodec codec)
@@ -629,10 +634,10 @@ void DrawDeviceConnecting()
     {
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
-        gDevice = mdr::MDRHeadphones(conn);
+        gDevice = mdrHeadphonesCreate(conn);
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
-        MDR_CHECK(gDevice.Invoke(gDevice.RequestInitV2()) == MDR_RESULT_OK);
+        MDR_CHECK(mdrHeadphonesRequestInitV2(gDevice) == MDR_RESULT_OK);
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
@@ -677,21 +682,21 @@ void DrawDeviceControlsHeader()
     {
         auto& style = ImGui::GetStyle();
         /* Disconnect & Shutdown */
-        if (ImGui::BeginMenu(fmt::format( PSI_CHEVRON_DOWN " {}", gDevice.mModelName).c_str()))
+        if (ImGui::BeginMenu(fmt::format(PSI_CHEVRON_DOWN " {}", GetDevice().mModelName).c_str()))
         {
             if (ImGui::MenuItem(PSI_UNLINK " Disconnect"))
             {
                 mdrConnectionDisconnect(conn);
                 connState = CONN_STATE_NO_CONNECTION;
             }
-            if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF))
+            if (GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF))
             {
                 if (ImGui::MenuItem(PSI_OFF " Shutdown"))
-                    gDevice.mShutdown.desired = true;
+                    GetDevice().mShutdown.desired = true;
             }
             ImGui::EndMenu();
         }
-        if (!gDevice.IsReady())
+        if (!mdrHeadphonesIsReady(gDevice))
             ImSpinner(1000, style.FontSizeBase * 0.5f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f), 2.0f, false, true, 1.0f, ImEaseInOutCubic);
         /* Cool Badges */
         // Title, Border Color, Text Color
@@ -699,14 +704,14 @@ void DrawDeviceControlsHeader()
         Array<Badge, 4> badges4;
         Badge *badgeFirst = &badges4[0], *badgeLast = &badges4[0];
         /* Codec */
-        if (gDevice.mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+        if (GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
         {
-            *(badgeLast++) = {FormatEnum(gDevice.mAudioCodec), ~0u, ~0u};
+            *(badgeLast++) = {FormatEnum(GetDevice().mAudioCodec), ~0u, ~0u};
         }
         /* DSEE */
-        if (gDevice.mUpscalingEnabled.current)
+        if (GetDevice().mUpscalingEnabled.current)
         {
-            *(badgeLast++) = {FormatEnum(gDevice.mUpscalingType), ~0u, ~0u};
+            *(badgeLast++) = {FormatEnum(GetDevice().mUpscalingType), ~0u, ~0u};
         }
         Span<Badge> badges{badgeFirst, static_cast<size_t>(badgeLast - badgeFirst)};
         // Right-align and draw them
@@ -737,52 +742,52 @@ void DrawDeviceControlsHeader()
         ImGui::TableSetColumnIndex(0);
         /* Batteries */
         {
-            bool supportSingle = gDevice.mSupport.
+            bool supportSingle = GetDevice().mSupport.
                                          contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR);
-            supportSingle |= gDevice.mSupport.contains(
+            supportSingle |= GetDevice().mSupport.contains(
                 v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD);
-            bool supportLR = gDevice.mSupport.contains(
+            bool supportLR = GetDevice().mSupport.contains(
                 v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR);
-            supportLR |= gDevice.mSupport.
+            supportLR |= GetDevice().mSupport.
                                  contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
-            bool supportCase = gDevice.mSupport.contains(
+            bool supportCase = GetDevice().mSupport.contains(
                 v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR);
-            supportCase |= gDevice.mSupport.contains(
+            supportCase |= GetDevice().mSupport.contains(
                 v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
             if (ImGui::BeginTable("##Battery", 2, ImGuiTableFlags_SizingStretchProp))
             {
-                if (supportSingle && !supportLR && gDevice.mBatteryL.threshold)
+                if (supportSingle && !supportLR && GetDevice().mBatteryL.threshold)
                 {
                     ImGui::TableNextRow();
-                    Uint32 single = gDevice.mBatteryL.level;
+                    Uint32 single = GetDevice().mBatteryL.level;
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("Battery: %.0d%%", single);
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
+                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(GetDevice().mBatteryL.charging));
                 }
-                if (supportLR && gDevice.mBatteryL.threshold && gDevice.mBatteryR.threshold)
+                if (supportLR && GetDevice().mBatteryL.threshold && GetDevice().mBatteryR.threshold)
                 {
-                    Uint32 single = gDevice.mBatteryL.level;
+                    Uint32 single = GetDevice().mBatteryL.level;
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("L: %.0d%%", single);
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(gDevice.mBatteryL.charging));
-                    single = gDevice.mBatteryR.level;
+                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(GetDevice().mBatteryL.charging));
+                    single = GetDevice().mBatteryR.level;
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("R: %.0d%%", single);
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(gDevice.mBatteryR.charging));
+                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(GetDevice().mBatteryR.charging));
                 }
-                if (supportCase && gDevice.mBatteryCase.threshold)
+                if (supportCase && GetDevice().mBatteryCase.threshold)
                 {
-                    Uint32 single = gDevice.mBatteryCase.level;
+                    Uint32 single = GetDevice().mBatteryCase.level;
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("Case: %.0d%%", single);
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(gDevice.mBatteryCase.charging));
+                    ImGui::ProgressBar(single / 100.0f, {-1, 0}, FormatEnum(GetDevice().mBatteryCase.charging));
                 }
                 ImGui::EndTable();
             }
@@ -797,17 +802,17 @@ void DrawDeviceControlsHeader()
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Title");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", gDevice.mPlayTrackTitle.c_str());
+                ImGui::Text("%s", GetDevice().mPlayTrackTitle.c_str());
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Album");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", gDevice.mPlayTrackAlbum.c_str());
+                ImGui::Text("%s", GetDevice().mPlayTrackAlbum.c_str());
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Artist");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", gDevice.mPlayTrackArtist.c_str());
+                ImGui::Text("%s", GetDevice().mPlayTrackArtist.c_str());
                 ImGui::EndTable();
             }
         }
@@ -820,28 +825,28 @@ void DrawDeviceControlsPlayback()
     using enum v2::t1::PlaybackControl;
     ImGui::SeparatorText("Volume");
     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-    ImGui::SliderInt("##Volume", &gDevice.mPlayVolume.desired, 0, 30);
+    ImGui::SliderInt("##Volume", &GetDevice().mPlayVolume.desired, 0, 30);
     ImGui::SeparatorText("Controls");
     if (ImModalButton(PSI_STEP_BACKWARD " Prev", 0, 3))
-        gDevice.mPlayControl.desired = TRACK_DOWN;
-    if (gDevice.mPlayPause == v2::t1::PlaybackStatus::PLAY)
+        GetDevice().mPlayControl.desired = TRACK_DOWN;
+    if (GetDevice().mPlayPause == v2::t1::PlaybackStatus::PLAY)
     {
         if (ImModalButton(PSI_PAUSE " Pause", 1, 3))
-            gDevice.mPlayControl.desired = PAUSE;
+            GetDevice().mPlayControl.desired = PAUSE;
     }
     else
     {
         if (ImModalButton(PSI_PLAY " Play", 1, 3))
-            gDevice.mPlayControl.desired = PLAY;
+            GetDevice().mPlayControl.desired = PLAY;
     }
     if (ImModalButton(PSI_STEP_FORWARD "Next", 2, 3))
-        gDevice.mPlayControl.desired = TRACK_UP;
+        GetDevice().mPlayControl.desired = TRACK_UP;
 }
 
 void DrawDeviceControlsSound()
 {
     using F1 = v2::MessageMdrV2FunctionType_Table1;
-    constexpr auto kSupports = [](auto x) { return gDevice.mSupport.contains(x); };
+    constexpr auto kSupports = [](auto x) { return GetDevice().mSupport.contains(x); };
     bool supportNC = kSupports(F1::NOISE_CANCELLING_ONOFF)
         || kSupports(F1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF)
         || kSupports(F1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF)
@@ -876,11 +881,11 @@ void DrawDeviceControlsSound()
             {
                 if (ImGui::RadioButton(
                     "Noise Cancelling",
-                    gDevice.mNcAsmEnabled.current && (!supportASM || gDevice.mNcAsmMode.desired == NC))
+                    GetDevice().mNcAsmEnabled.current && (!supportASM || GetDevice().mNcAsmMode.desired == NC))
                 )
                 {
-                    gDevice.mNcAsmEnabled.desired = true;
-                    gDevice.mNcAsmMode.desired = NC;
+                    GetDevice().mNcAsmEnabled.desired = true;
+                    GetDevice().mNcAsmMode.desired = NC;
                 }
                 ImGui::SameLine();
             }
@@ -888,32 +893,32 @@ void DrawDeviceControlsSound()
             {
                 if (ImGui::RadioButton(
                     "Ambient Sound",
-                    gDevice.mNcAsmEnabled.current && (!supportNC || gDevice.mNcAsmMode.desired == ASM))
+                    GetDevice().mNcAsmEnabled.current && (!supportNC || GetDevice().mNcAsmMode.desired == ASM))
                 )
                 {
-                    gDevice.mNcAsmEnabled.desired = true;
-                    gDevice.mNcAsmMode.desired = ASM;
-                    if (gDevice.mNcAsmAmbientLevel.desired == 0)
-                        gDevice.mNcAsmAmbientLevel.desired = 20;
+                    GetDevice().mNcAsmEnabled.desired = true;
+                    GetDevice().mNcAsmMode.desired = ASM;
+                    if (GetDevice().mNcAsmAmbientLevel.desired == 0)
+                        GetDevice().mNcAsmAmbientLevel.desired = 20;
                 }
                 ImGui::SameLine();
             }
-            if (ImGui::RadioButton("Off", !gDevice.mNcAsmEnabled.desired))
-                gDevice.mNcAsmEnabled.desired = false;
+            if (ImGui::RadioButton("Off", !GetDevice().mNcAsmEnabled.desired))
+                GetDevice().mNcAsmEnabled.desired = false;
             ImGui::SeparatorText("Ambient Strength");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::SliderInt("##AmbStrength", &gDevice.mNcAsmAmbientLevel.desired, 1, 20);
+            ImGui::SliderInt("##AmbStrength", &GetDevice().mNcAsmAmbientLevel.desired, 1, 20);
             if (supportAutoASM)
             {
-                ImGui::Checkbox("Auto Ambient Sound", &gDevice.mNcAsmAutoAsmEnabled.desired);
-                ImGui::BeginDisabled(!gDevice.mNcAsmAutoAsmEnabled.desired);
+                ImGui::Checkbox("Auto Ambient Sound", &GetDevice().mNcAsmAutoAsmEnabled.desired);
+                ImGui::BeginDisabled(!GetDevice().mNcAsmAutoAsmEnabled.desired);
                 using enum v2::t1::NoiseAdaptiveSensitivity;
-                auto& desired = gDevice.mNcAsmNoiseAdaptiveSensitivity.desired;
+                auto& desired = GetDevice().mNcAsmNoiseAdaptiveSensitivity.desired;
                 constexpr v2::t1::NoiseAdaptiveSensitivity kSelections[] = {STANDARD, HIGH, LOW};
                 ImComboBoxItems<v2::t1::NoiseAdaptiveSensitivity>("Sensitivity", kSelections, desired);
                 ImGui::EndDisabled();
             }
-            ImGui::Checkbox("Voice Passthrough", &gDevice.mNcAsmFocusOnVoice.desired);
+            ImGui::Checkbox("Voice Passthrough", &GetDevice().mNcAsmFocusOnVoice.desired);
             ImGui::TreePop();
         }
     }
@@ -922,19 +927,19 @@ void DrawDeviceControlsSound()
     {
         if (ImGui::TreeNodeEx("Speak To Chat", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            ImGui::Checkbox("Enabled", &gDevice.mSpeakToChatEnabled.desired);
-            ImGui::BeginDisabled(!gDevice.mSpeakToChatEnabled.desired);
+            ImGui::Checkbox("Enabled", &GetDevice().mSpeakToChatEnabled.desired);
+            ImGui::BeginDisabled(!GetDevice().mSpeakToChatEnabled.desired);
             {
                 using enum v2::t1::DetectSensitivity;
                 constexpr v2::t1::DetectSensitivity kSelections[] = {AUTO, HIGH, LOW};
                 ImComboBoxItems<v2::t1::DetectSensitivity>("Sensitivity", kSelections,
-                                                           gDevice.mSpeakToChatDetectSensitivity.desired);
+                                                           GetDevice().mSpeakToChatDetectSensitivity.desired);
             }
             {
                 using enum v2::t1::ModeOutTime;
                 constexpr v2::t1::ModeOutTime kSelections[] = {FAST, MID, SLOW, NONE};
                 ImComboBoxItems<v2::t1::ModeOutTime>("Mode Duration", kSelections,
-                                                     gDevice.mSpeakToModeOutTime.desired);
+                                                     GetDevice().mSpeakToModeOutTime.desired);
             }
             ImGui::EndDisabled();
             ImGui::TreePop();
@@ -946,8 +951,8 @@ void DrawDeviceControlsSound()
         if (ImGui::TreeNodeEx("Listening Mode", ImGuiTreeNodeFlags_DefaultOpen))
         {
             // Derive effective mode from current state
-            bool bgmActive    = gDevice.mBGMModeEnabled.current;
-            bool cinemaActive = gDevice.mUpmixCinemaEnabled.current;
+            bool bgmActive    = GetDevice().mBGMModeEnabled.current;
+            bool cinemaActive = GetDevice().mUpmixCinemaEnabled.current;
 
             // 0 = Standard, 1 = BGM, 2 = Cinema
             int effectiveMode = bgmActive ? 1 : (cinemaActive ? 2 : 0);
@@ -969,15 +974,15 @@ void DrawDeviceControlsSound()
             };
             const char* currentDistStr = "Unknown";
             for (auto const& [k, v] : kBGMDistanceModes)
-                if (k == gDevice.mBGMModeRoomSize.current)
+                if (k == GetDevice().mBGMModeRoomSize.current)
                     currentDistStr = v;
             if (ImGui::BeginCombo("Distance", currentDistStr))
             {
                 for (auto const& [k, v] : kBGMDistanceModes)
                 {
-                    bool is_selected = k == gDevice.mBGMModeRoomSize.desired;
+                    bool is_selected = k == GetDevice().mBGMModeRoomSize.desired;
                     if (ImGui::Selectable(v, is_selected))
-                        gDevice.mBGMModeRoomSize.desired = k;
+                        GetDevice().mBGMModeRoomSize.desired = k;
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
                 }
@@ -991,8 +996,8 @@ void DrawDeviceControlsSound()
 
             if (radioChanged)
             {
-                gDevice.mBGMModeEnabled.desired     = (effectiveMode == 1);
-                gDevice.mUpmixCinemaEnabled.desired = (effectiveMode == 2);
+                GetDevice().mBGMModeEnabled.desired     = (effectiveMode == 1);
+                GetDevice().mUpmixCinemaEnabled.desired = (effectiveMode == 2);
             }
 
             ImGui::TreePop();
@@ -1008,20 +1013,20 @@ void DrawDeviceControlsSound()
             HEAVY, CLEAR, HARD, SOFT, GAMING_EQ, FPS_1, FPS_2, FPS_3,
             CUSTOM, USER_SETTING1, USER_SETTING2, USER_SETTING3, USER_SETTING4, USER_SETTING5
         };
-        ImComboBoxItems<v2::t1::EqPresetId>("Preset", kSelections, gDevice.mEqPresetId.desired);
-        ImEqualizer(gDevice.mEqConfig.desired);
-        if (gDevice.mEqConfig.desired.size() == 5)
+        ImComboBoxItems<v2::t1::EqPresetId>("Preset", kSelections, GetDevice().mEqPresetId.desired);
+        ImEqualizer(GetDevice().mEqConfig.desired);
+        if (GetDevice().mEqConfig.desired.size() == 5)
         {
             ImGui::SeparatorText("Clear Bass");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::SliderInt("##", &gDevice.mEqClearBass.desired, -10, 10);
+            ImGui::SliderInt("##", &GetDevice().mEqClearBass.desired, -10, 10);
         }
         ImGui::SeparatorText("DSEE");
-        ImGui::BeginDisabled(!gDevice.mUpscalingAvailable);
-        if (ImGui::RadioButton("Off", gDevice.mUpscalingEnabled.desired == false))
-            gDevice.mUpscalingEnabled.desired = false;
-        if (ImGui::RadioButton("On (Auto)", gDevice.mUpscalingEnabled.desired == true))
-            gDevice.mUpscalingEnabled.desired = true;
+        ImGui::BeginDisabled(!GetDevice().mUpscalingAvailable);
+        if (ImGui::RadioButton("Off", GetDevice().mUpscalingEnabled.desired == false))
+            GetDevice().mUpscalingEnabled.desired = false;
+        if (ImGui::RadioButton("On (Auto)", GetDevice().mUpscalingEnabled.desired == true))
+            GetDevice().mUpscalingEnabled.desired = true;
         ImGui::EndDisabled();
         ImGui::TreePop();
     }
@@ -1030,7 +1035,7 @@ void DrawDeviceControlsSound()
 void DrawDeviceControlsDevices()
 {
     using F2 = v2::MessageMdrV2FunctionType_Table2;
-    constexpr auto kSupports = [](auto x) { return gDevice.mSupport.contains(x); };
+    constexpr auto kSupports = [](auto x) { return GetDevice().mSupport.contains(x); };
     bool supportDeviceMgmt = kSupports(F2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
         || kSupports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
         || kSupports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE);
@@ -1040,7 +1045,7 @@ void DrawDeviceControlsDevices()
     auto DrawDeviceElement = [&](const mdr::MDRHeadphones::PeripheralDevice& device, bool selected) -> bool
     {
         ImGui::BeginGroup();
-        if (device.macAddress == gDevice.mMultipointDeviceMac.current)
+        if (device.macAddress == GetDevice().mMultipointDeviceMac.current)
             ImGui::Text(PSI_VOLUME_DOWN " "), ImGui::SameLine();
         bool res = ImGui::Selectable(device.name.c_str(), selected);
         if (selected)
@@ -1049,22 +1054,22 @@ void DrawDeviceControlsDevices()
             if (device.connected)
             {
                 if (ImModalButton(PSI_UNLINK " Disconnect", 0, 2))
-                    gDevice.mPairedDeviceDisconnectMac.desired = device.macAddress;
+                    GetDevice().mPairedDeviceDisconnectMac.desired = device.macAddress;
                 if (res)
-                    gDevice.mMultipointDeviceMac.desired = device.macAddress;
+                    GetDevice().mMultipointDeviceMac.desired = device.macAddress;
             }
             else
             {
                 if (ImModalButton(PSI_LINK " Connect", 0, 2))
-                    gDevice.mPairedDeviceConnectMac.desired = device.macAddress;
+                    GetDevice().mPairedDeviceConnectMac.desired = device.macAddress;
             }
             if (ImModalButton(PSI_BLUETOOTH_ALT " Unpair", 1, 2))
-                gDevice.mPairedDeviceUnpairMac.desired = device.macAddress;
+                GetDevice().mPairedDeviceUnpairMac.desired = device.macAddress;
         }
         ImGui::EndGroup();
         return res;
     };
-    auto devices = std::views::all(gDevice.mPairedDevices);
+    auto devices = std::views::all(GetDevice().mPairedDevices);
     auto connectedDevices = devices | std::views::filter([](auto const& x) { return x.connected; });
     auto unconncetedDevices = devices | std::views::filter([](auto const& x) { return !x.connected; });
     static String connectSelectedMac;
@@ -1082,17 +1087,17 @@ void DrawDeviceControlsDevices()
                 connectSelectedMac = connectSelectedMac == device.macAddress ? "" : device.macAddress;
         ImGui::TreePop();
     }
-    if (gDevice.mPairingMode.desired)
+    if (GetDevice().mPairingMode.desired)
     {
         ImTextCentered("Pairing...");
-        ImSpinner(1000.0f, 16.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::ThemeForModelColor(static_cast<uint8_t>(gDevice.mModelColor)).primary), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
+        ImSpinner(1000.0f, 16.0f, MaterialYouTheme::ArgbToImU32(MaterialYouTheme::ThemeForModelColor(static_cast<uint8_t>(GetDevice().mModelColor)).primary), 2.0f, true, false, 1.0f, ImEaseInOutCubic);
         if (ImModalButton("Stop"))
-            gDevice.mPairingMode.desired = false;
+            GetDevice().mPairingMode.desired = false;
     }
     else
     {
         if (ImModalButton(PSI_BLUETOOTH " Enter Pairing Mode"))
-            gDevice.mPairingMode.desired = true;
+            GetDevice().mPairingMode.desired = true;
         ImGui::TextWrapped(
             PSI_INFO_SIGN_ALT " For TWS (Earbuds) devices, you may need to take both of your headphones out from your case to enter Pairing Mode.");
     }
@@ -1102,7 +1107,7 @@ void DrawDeviceControlsDevices()
 void DrawDeviceControlsSystem()
 {
     using F1 = v2::MessageMdrV2FunctionType_Table1;
-    constexpr auto kSupports = [](auto x) { return gDevice.mSupport.contains(x); };
+    constexpr auto kSupports = [](auto x) { return GetDevice().mSupport.contains(x); };
     /* General Settings */
     {
         // vvv Lexicographically sort these vvv
@@ -1156,13 +1161,13 @@ void DrawDeviceControlsSystem()
         if (ImGui::TreeNodeEx("General Setting", ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (kSupports(F1::GENERAL_SETTING_1))
-                DrawGSBoolElement(gDevice.mGsCapability1, gDevice.mGsParamBool1);
+                DrawGSBoolElement(GetDevice().mGsCapability1, GetDevice().mGsParamBool1);
             if (kSupports(F1::GENERAL_SETTING_2))
-                DrawGSBoolElement(gDevice.mGsCapability2, gDevice.mGsParamBool2);
+                DrawGSBoolElement(GetDevice().mGsCapability2, GetDevice().mGsParamBool2);
             if (kSupports(F1::GENERAL_SETTING_3))
-                DrawGSBoolElement(gDevice.mGsCapability3, gDevice.mGsParamBool3);
+                DrawGSBoolElement(GetDevice().mGsCapability3, GetDevice().mGsParamBool3);
             if (kSupports(F1::GENERAL_SETTING_4))
-                DrawGSBoolElement(gDevice.mGsCapability4, gDevice.mGsParamBool4);
+                DrawGSBoolElement(GetDevice().mGsCapability4, GetDevice().mGsParamBool4);
             ImGui::TreePop();
         }
     }
@@ -1174,8 +1179,8 @@ void DrawDeviceControlsSystem()
         {
             if (ImGui::TreeNodeEx("Touch Preset", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImComboBoxItems<v2::t1::Preset>("Left Touch", kSelections, gDevice.mTouchFunctionLeft.desired);
-                ImComboBoxItems<v2::t1::Preset>("Right Touch", kSelections, gDevice.mTouchFunctionRight.desired);
+                ImComboBoxItems<v2::t1::Preset>("Left Touch", kSelections, GetDevice().mTouchFunctionLeft.desired);
+                ImComboBoxItems<v2::t1::Preset>("Right Touch", kSelections, GetDevice().mTouchFunctionRight.desired);
                 ImGui::TreePop();
             }
         }
@@ -1188,7 +1193,7 @@ void DrawDeviceControlsSystem()
         {
             if (ImGui::TreeNodeEx("NC/AMB Button Function",ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImComboBoxItems<v2::t1::Function>("Function", kSelections, gDevice.mNcAsmButtonFunction.desired);
+                ImComboBoxItems<v2::t1::Function>("Function", kSelections, GetDevice().mNcAsmButtonFunction.desired);
                 ImGui::TreePop();
             }
         }
@@ -1199,7 +1204,7 @@ void DrawDeviceControlsSystem()
         {
             if (ImGui::TreeNodeEx("Head Gesture",ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::Checkbox("Enabled", &gDevice.mHeadGestureEnabled.desired);
+                ImGui::Checkbox("Enabled", &GetDevice().mHeadGestureEnabled.desired);
                 ImGui::TreePop();
             }
         }
@@ -1215,7 +1220,7 @@ void DrawDeviceControlsSystem()
         {
             if (ImGui::TreeNodeEx("Auto Power Off",ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImComboBoxItems<v2::t1::AutoPowerOffElements>("Time", kSelections, gDevice.mPowerAutoOff.desired);
+                ImComboBoxItems<v2::t1::AutoPowerOffElements>("Time", kSelections, GetDevice().mPowerAutoOff.desired);
                 ImGui::TreePop();
             }
         }
@@ -1226,7 +1231,7 @@ void DrawDeviceControlsSystem()
         {
             if (ImGui::TreeNodeEx("Pause when removed", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::Checkbox("Enabled", &gDevice.mAutoPauseEnabled.desired);
+                ImGui::Checkbox("Enabled", &GetDevice().mAutoPauseEnabled.desired);
                 ImGui::TreePop();
             }
         }
@@ -1235,11 +1240,11 @@ void DrawDeviceControlsSystem()
     {
         if (ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            ImGui::Checkbox("Enabled", &gDevice.mVoiceGuidanceEnabled.desired);
+            ImGui::Checkbox("Enabled", &GetDevice().mVoiceGuidanceEnabled.desired);
             ImGui::SeparatorText("Volume");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             if (kSupports(v2::MessageMdrV2FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
-                ImGui::SliderInt("##Volume", &gDevice.mVoiceGuidanceVolume.desired, -2, 2);
+                ImGui::SliderInt("##Volume", &GetDevice().mVoiceGuidanceVolume.desired, -2, 2);
             ImGui::TreePop();
         }
     }
@@ -1254,32 +1259,32 @@ void DrawDeviceControlsAbout()
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("Model:");
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text("%s", gDevice.mModelName.c_str());
+            ImGui::Text("%s", GetDevice().mModelName.c_str());
 
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("MAC:");
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text("%s", gDevice.mUniqueId.c_str());
+            ImGui::Text("%s", GetDevice().mUniqueId.c_str());
 
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("Firmware Version:");
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text("%s", gDevice.mFWVersion.c_str());
+            ImGui::Text("%s", GetDevice().mFWVersion.c_str());
 
 
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("Series:");
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text("%s", format_as(gDevice.mModelSeries));
+            ImGui::Text("%s", format_as(GetDevice().mModelSeries));
 
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("Color:");
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text("%s", format_as(gDevice.mModelColor));
+            ImGui::Text("%s", format_as(GetDevice().mModelColor));
 
             ImGui::EndTable();
         }
@@ -1297,7 +1302,7 @@ void DrawDeviceControlsAbout()
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", format_as(elem));
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text(gDevice.mSupport.contains(elem) ? PSI_OK : PSI_REMOVE);
+                ImGui::Text(GetDevice().mSupport.contains(elem) ? PSI_OK : PSI_REMOVE);
             }
             ImGui::EndTable();
         }
@@ -1315,7 +1320,7 @@ void DrawDeviceControlsAbout()
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", format_as(elem));
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text(gDevice.mSupport.contains(elem) ? PSI_OK : PSI_REMOVE);
+                ImGui::Text(GetDevice().mSupport.contains(elem) ? PSI_OK : PSI_REMOVE);
             }
             ImGui::EndTable();
         }
@@ -1358,7 +1363,7 @@ void DrawDeviceControlsTabs()
 void DrawDeviceControls()
 {
     MDRConnection* conn = clientPlatformConnectionGet();
-    int event = gDevice.PollEvents();
+    int event = mdrHeadphonesPollEvents(gDevice);
     DrawDeviceControlsHeader();
     ImGui::Separator();
     ImGui::BeginChild("##ControlTabs");
@@ -1372,12 +1377,12 @@ void DrawDeviceControls()
         case MDR_HEADPHONES_TASK_INIT_OK:
             // Request for a stat update ASAP
             // User may request for this themselves - we don't do periodic checks this time
-            MDR_CHECK(gDevice.Invoke(gDevice.RequestSyncV2()) == MDR_RESULT_OK);
+            MDR_CHECK(mdrHeadphonesRequestSyncV2(gDevice) == MDR_RESULT_OK);
             return;
         case MDR_HEADPHONES_IDLE:
             // Commit changes if needed to
-            if (gDevice.IsDirty())
-                MDR_CHECK(gDevice.Invoke(gDevice.RequestCommitV2()) == MDR_RESULT_OK);
+            if (mdrHeadphonesIsDirty(gDevice))
+                MDR_CHECK(mdrHeadphonesRequestCommitV2(gDevice) == MDR_RESULT_OK);
             return;
         case MDR_HEADPHONES_ERROR:
             // Irrecoverable. Disconnect now.
@@ -1386,7 +1391,7 @@ void DrawDeviceControls()
         case MDR_HEADPHONES_EVT_DEVICE_INFO:
             // Dynamic theme for the headphone's own colors
             // Contributed by @salmon-21 in https://github.com/mos9527/SonyHeadphonesClient/pull/41
-            MaterialYouTheme::ApplyForModelColor(static_cast<uint8_t>(gDevice.mModelColor));
+            MaterialYouTheme::ApplyForModelColor(static_cast<uint8_t>(GetDevice().mModelColor));
         case MDR_HEADPHONES_INPROGRESS:
         default:
             break;
@@ -1411,7 +1416,7 @@ void DrawDeviceDisconnect()
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
         ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
-        ImGui::TextWrapped("Headphones: %s", gDevice.GetLastError());
+        ImGui::TextWrapped("Headphones: %s", mdrHeadphonesGetLastError(gDevice));
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton(PSI_LINK " Reconnect"))
