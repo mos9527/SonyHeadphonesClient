@@ -240,6 +240,7 @@ namespace mdr
 
         static size_t Read(const UInt8** ppSrcBuffer, MDRPrefixedString& str, size_t maxSize)
         {
+            MDR_CHECK_MSG(maxSize >= 1, "Not enough data to read string length");
             const UInt8 len = *(*ppSrcBuffer)++;
             maxSize--;
             MDR_CHECK_MSG(len <= maxSize, "Invalid string length");
@@ -277,9 +278,10 @@ namespace mdr
 
         static size_t Read(const UInt8** ppSrcBuffer, MDRPodArray& value, size_t maxSize)
         {
+            MDR_CHECK_MSG(maxSize >= 1, "Not enough data to read array count");
             UInt8 count = *(*ppSrcBuffer)++;
             size_t size = sizeof(T) * count;
-            MDR_CHECK_MSG(size <= maxSize, "Invalid array size");
+            MDR_CHECK_MSG(size + 1 <= maxSize, "Invalid array size");
             value.value.resize(count);
             std::memcpy(value.value.data(), *ppSrcBuffer, size);
             *ppSrcBuffer += size;
@@ -318,11 +320,15 @@ namespace mdr
         static size_t Read(const UInt8** ppSrcBuffer, MDRArray& value, size_t maxSize)
         {
             const UInt8* ptr = *ppSrcBuffer;
+            MDR_CHECK_MSG(maxSize >= 1, "Not enough data to read array count");
             UInt8 count = *(*ppSrcBuffer)++;
             maxSize--;
             value.value.resize(count);
-            for (T& elem : value.value)
-                maxSize -= T::Read(ppSrcBuffer, elem, maxSize);
+            for (T& elem : value.value) {
+                size_t bytesRead = T::Read(ppSrcBuffer, elem, maxSize);
+                MDR_CHECK_MSG(bytesRead <= maxSize, "Element read exceeded remaining buffer size");
+                maxSize -= bytesRead;
+            }
             return *ppSrcBuffer - ptr;
         }
 
