@@ -223,6 +223,11 @@ namespace mdr
          */
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
 
+        /**
+         * @brief Set the last error message.
+         */
+        void SetLastError(const String& err) { mLastError = err; }
+
 #pragma region States
         // @ref HandleProtocolInfoT1
         struct ProtocolStates

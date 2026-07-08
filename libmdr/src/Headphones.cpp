@@ -160,20 +160,35 @@ namespace mdr
         MDRBuffer command;
         MDRDataType type;
         MDRCommandSeqNumber seqNum;
-        switch (MDRUnpackCommand(packedCommand, command, type, seqNum))
+        bool erased = false;
+        try
         {
-        case MDRUnpackResult::OK:
-            mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
-            return Handle(command, type, seqNum);
-        case MDRUnpackResult::INCOMPLETE:
-            // Incomplete. Nop.
-            break;
-        case MDRUnpackResult::BAD_MARKER: [[unlikely]]
-        case MDRUnpackResult::BAD_CHECKSUM:
-            [[unlikely]]
-                // Unlikely. What we have now makes no sense yet markers are intact.
+            switch (MDRUnpackCommand(packedCommand, command, type, seqNum))
+            {
+            case MDRUnpackResult::OK:
                 mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
-            break;
+                erased = true;
+                return Handle(command, type, seqNum);
+            case MDRUnpackResult::INCOMPLETE:
+                // Incomplete. Nop.
+                break;
+            case MDRUnpackResult::BAD_MARKER: [[unlikely]]
+            case MDRUnpackResult::BAD_CHECKSUM:
+                [[unlikely]]
+                    // Unlikely. What we have now makes no sense yet markers are intact.
+                    mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
+                    erased = true;
+                break;
+            }
+        }
+        catch (const std::exception& e)
+        {
+            mLastError = e.what();
+            if (!erased)
+            {
+                mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
+            }
+            return MDR_HEADPHONES_ERROR;
         }
         return idleCode;
     }
@@ -303,60 +318,161 @@ const char* mdrConnectionGetLastError(MDRConnection* conn)
 
 MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
 {
-    return reinterpret_cast<MDRHeadphones*>(new mdr::MDRHeadphones(conn));
+    try
+    {
+        return reinterpret_cast<MDRHeadphones*>(new mdr::MDRHeadphones(conn));
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
 }
 
 void mdrHeadphonesDestroy(MDRHeadphones* h)
 {
-    delete reinterpret_cast<mdr::MDRHeadphones*>(h);
+    try
+    {
+        delete reinterpret_cast<mdr::MDRHeadphones*>(h);
+    }
+    catch (...)
+    {
+    }
 }
 
 int mdrHeadphonesPollEvents(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    return h->PollEvents();
+    try
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return MDR_HEADPHONES_ERROR;
+        return h->PollEvents();
+    }
+    catch (const std::exception& e)
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (h)
+        {
+            h->SetLastError(e.what());
+        }
+        return MDR_HEADPHONES_ERROR;
+    }
+    catch (...)
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (h)
+        {
+            h->SetLastError("Unknown exception");
+        }
+        return MDR_HEADPHONES_ERROR;
+    }
 }
 
 int mdrHeadphonesRequestIsReady(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    if (!h->IsReady())
-        return MDR_RESULT_INPROGRESS;
-    return MDR_RESULT_OK;
+    try
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return MDR_RESULT_ERROR_NO_CONNECTION;
+        if (!h->IsReady())
+            return MDR_RESULT_INPROGRESS;
+        return MDR_RESULT_OK;
+    }
+    catch (...)
+    {
+        return MDR_RESULT_ERROR_GENERAL;
+    }
 }
 
 int mdrHeadphonesRequestInitV2(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    return h->Invoke(h->RequestInitV2());
+    try
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return MDR_RESULT_ERROR_NO_CONNECTION;
+        return h->Invoke(h->RequestInitV2());
+    }
+    catch (const std::exception& e)
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (h) h->SetLastError(e.what());
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    catch (...)
+    {
+        return MDR_RESULT_ERROR_GENERAL;
+    }
 }
 
 int mdrHeadphonesRequestSyncV2(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    return h->Invoke(h->RequestSyncV2());
+    try
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return MDR_RESULT_ERROR_NO_CONNECTION;
+        return h->Invoke(h->RequestSyncV2());
+    }
+    catch (const std::exception& e)
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (h) h->SetLastError(e.what());
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    catch (...)
+    {
+        return MDR_RESULT_ERROR_GENERAL;
+    }
 }
 
 int mdrHeadphonesRequestCommitV2(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    return h->Invoke(h->RequestCommitV2());
+    try
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return MDR_RESULT_ERROR_NO_CONNECTION;
+        return h->Invoke(h->RequestCommitV2());
+    }
+    catch (const std::exception& e)
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (h) h->SetLastError(e.what());
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    catch (...)
+    {
+        return MDR_RESULT_ERROR_GENERAL;
+    }
 }
 
 int mdrHeadphonesIsDirty(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    if (h->IsDirty())
+    try
     {
-        return MDR_RESULT_INPROGRESS;
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return MDR_RESULT_ERROR_NO_CONNECTION;
+        if (h->IsDirty())
+        {
+            return MDR_RESULT_INPROGRESS;
+        }
+        return MDR_RESULT_OK;
     }
-    return MDR_RESULT_OK;
+    catch (...)
+    {
+        return MDR_RESULT_ERROR_GENERAL;
+    }
 }
 
 const char* mdrHeadphonesGetLastError(MDRHeadphones* p)
 {
-    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
-    return h->GetLastError();
+    try
+    {
+        auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+        if (!h) return "nullptr";
+        return h->GetLastError();
+    }
+    catch (...)
+    {
+        return "Unknown error";
+    }
 }
 }
 #pragma endregion
