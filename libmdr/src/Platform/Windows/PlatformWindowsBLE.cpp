@@ -77,6 +77,20 @@ struct MDRConnectionWindowsBLE
 {
     MDRConnection mdrConn;
     std::string lastError;
+    std::string lastErrorSnapshot;
+    std::mutex lastErrorMutex;
+
+    void SetLastError(const std::string& err)
+    {
+        std::lock_guard<std::mutex> lock(lastErrorMutex);
+        lastError = err;
+    }
+
+    std::string GetLastErrorString()
+    {
+        std::lock_guard<std::mutex> lock(lastErrorMutex);
+        return lastError;
+    }
 
     // WinRT device handles
     BluetoothLEDevice device{nullptr};
@@ -266,14 +280,14 @@ struct MDRConnectionWindowsBLE
         }
         catch (const winrt::hresult_error& ex)
         {
-            ptr->lastError = winrt::to_string(ex.message());
-            MDR_LOG("[BLE] GetDevicesList error: {}", ptr->lastError);
+            ptr->SetLastError(winrt::to_string(ex.message()));
+            MDR_LOG("[BLE] GetDevicesList error: {}", ptr->GetLastErrorString());
             return MDR_RESULT_ERROR_NET;
         }
         catch (const std::exception& ex)
         {
-            ptr->lastError = ex.what();
-            MDR_LOG("[BLE] GetDevicesList exception: {}", ptr->lastError);
+            ptr->SetLastError(ex.what());
+            MDR_LOG("[BLE] GetDevicesList exception: {}", ptr->GetLastErrorString());
             return MDR_RESULT_ERROR_NET;
         }
     }
@@ -282,6 +296,9 @@ struct MDRConnectionWindowsBLE
     {
         auto* ptr = static_cast<MDRConnectionWindowsBLE*>(user);
         MDR_LOG("[BLE] Connect called: mac={} serviceUUID={}", macAddress, serviceUUID);
+
+        // Explicitly stop/join and clear state before starting a new connect
+        Disconnect(ptr);
 
         // Reset state
         ptr->connected = false;
@@ -296,7 +313,7 @@ struct MDRConnectionWindowsBLE
         uint64_t btAddr = macAddressToULL(macAddress);
         if (btAddr == ~0ULL)
         {
-            ptr->lastError = "Invalid MAC address format";
+            ptr->SetLastError("Invalid MAC address format");
             MDR_LOG("[BLE] Connect failed: invalid MAC address");
             return MDR_RESULT_ERROR_BAD_ADDRESS;
         }
@@ -314,7 +331,7 @@ struct MDRConnectionWindowsBLE
                 ptr->device = BluetoothLEDevice::FromBluetoothAddressAsync(btAddr).get();
                 if (!ptr->device)
                 {
-                    ptr->lastError = "BLE device not found or not reachable";
+                    ptr->SetLastError("BLE device not found or not reachable");
                     MDR_LOG("[BLE] FromBluetoothAddressAsync returned null");
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
@@ -331,7 +348,7 @@ struct MDRConnectionWindowsBLE
                     uint8_t uuidBytes[16];
                     if (serviceUUIDtoBytes(svcUUID.c_str(), uuidBytes) != 0)
                     {
-                        ptr->lastError = "Invalid service UUID format";
+                        ptr->SetLastError("Invalid service UUID format");
                         MDR_LOG("[BLE] Invalid service UUID: {}", svcUUID);
                         ptr->connectResult = MDR_RESULT_ERROR_BAD_ADDRESS;
                         SetEvent(ptr->connectEvent);
@@ -348,9 +365,9 @@ struct MDRConnectionWindowsBLE
 
                 if (servicesResult.Status() != GattCommunicationStatus::Success)
                 {
-                    ptr->lastError = fmt::format("GATT service discovery failed (status={})",
-                        (int)servicesResult.Status());
-                    MDR_LOG("[BLE] {}", ptr->lastError);
+                    ptr->SetLastError(fmt::format("GATT service discovery failed (status={})",
+                        (int)servicesResult.Status()));
+                    MDR_LOG("[BLE] {}", ptr->GetLastErrorString());
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -374,8 +391,8 @@ struct MDRConnectionWindowsBLE
 
                 if (!targetService)
                 {
-                    ptr->lastError = fmt::format("GATT service {} not found on device", svcUUID);
-                    MDR_LOG("[BLE] {}", ptr->lastError);
+                    ptr->SetLastError(fmt::format("GATT service {} not found on device", svcUUID));
+                    MDR_LOG("[BLE] {}", ptr->GetLastErrorString());
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -387,7 +404,7 @@ struct MDRConnectionWindowsBLE
                 auto charsResult = targetService.GetCharacteristicsAsync(BluetoothCacheMode::Uncached).get();
                 if (charsResult.Status() != GattCommunicationStatus::Success)
                 {
-                    ptr->lastError = "Failed to enumerate GATT characteristics";
+                    ptr->SetLastError("Failed to enumerate GATT characteristics");
                     MDR_LOG("[BLE] GetCharacteristicsAsync failed: status={}",
                         (int)charsResult.Status());
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
@@ -430,8 +447,8 @@ struct MDRConnectionWindowsBLE
 
                 if (!ptr->writeChar)
                 {
-                    ptr->lastError = "No writable GATT characteristic found in service";
-                    MDR_LOG("[BLE] {}", ptr->lastError);
+                    ptr->SetLastError("No writable GATT characteristic found in service");
+                    MDR_LOG("[BLE] {}", ptr->GetLastErrorString());
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -439,8 +456,8 @@ struct MDRConnectionWindowsBLE
 
                 if (!ptr->notifyChar)
                 {
-                    ptr->lastError = "No notifiable GATT characteristic found in service";
-                    MDR_LOG("[BLE] {}", ptr->lastError);
+                    ptr->SetLastError("No notifiable GATT characteristic found in service");
+                    MDR_LOG("[BLE] {}", ptr->GetLastErrorString());
                     ptr->connectResult = MDR_RESULT_ERROR_NOT_FOUND;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -463,9 +480,9 @@ struct MDRConnectionWindowsBLE
 
                 if (cccdResult != GattCommunicationStatus::Success)
                 {
-                    ptr->lastError = fmt::format("Failed to subscribe to notifications (status={})",
-                        (int)cccdResult);
-                    MDR_LOG("[BLE] {}", ptr->lastError);
+                    ptr->SetLastError(fmt::format("Failed to subscribe to notifications (status={})",
+                        (int)cccdResult));
+                    MDR_LOG("[BLE] {}", ptr->GetLastErrorString());
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                     SetEvent(ptr->connectEvent);
                     return;
@@ -494,28 +511,28 @@ struct MDRConnectionWindowsBLE
 
                 ptr->connected = true;
                 ptr->connectResult = MDR_RESULT_OK;
-                ptr->lastError = "Connected via BLE GATT";
+                ptr->SetLastError("Connected via BLE GATT");
                 MDR_LOG("[BLE] BLE GATT connection established!");
                 SetEvent(ptr->connectEvent);
             }
             catch (const winrt::hresult_error& ex)
             {
-                ptr->lastError = winrt::to_string(ex.message());
+                ptr->SetLastError(winrt::to_string(ex.message()));
                 MDR_LOG("[BLE] Connect thread exception: {} (HRESULT=0x{:08X})",
-                    ptr->lastError, (unsigned)ex.code());
+                    ptr->GetLastErrorString(), (unsigned)ex.code());
                 ptr->connectResult = MDR_RESULT_ERROR_NET;
                 SetEvent(ptr->connectEvent);
             }
             catch (const std::exception& ex)
             {
-                ptr->lastError = ex.what();
-                MDR_LOG("[BLE] Connect thread std::exception: {}", ptr->lastError);
+                ptr->SetLastError(ex.what());
+                MDR_LOG("[BLE] Connect thread std::exception: {}", ptr->GetLastErrorString());
                 ptr->connectResult = MDR_RESULT_ERROR_NET;
                 SetEvent(ptr->connectEvent);
             }
         });
 
-        ptr->lastError = "Connecting via BLE GATT...";
+        ptr->SetLastError("Connecting via BLE GATT...");
         return MDR_RESULT_INPROGRESS;
     }
 
@@ -638,8 +655,8 @@ struct MDRConnectionWindowsBLE
 
                 if (status != GattCommunicationStatus::Success)
                 {
-                    ptr->lastError = fmt::format("GATT write failed (status={})", (int)status);
-                    MDR_LOG("[BLE] {}", ptr->lastError);
+                    ptr->SetLastError(fmt::format("GATT write failed (status={})", (int)status));
+                    MDR_LOG("[BLE] {}", ptr->GetLastErrorString());
                     return MDR_RESULT_ERROR_NET;
                 }
 
@@ -651,14 +668,14 @@ struct MDRConnectionWindowsBLE
         }
         catch (const winrt::hresult_error& ex)
         {
-            ptr->lastError = winrt::to_string(ex.message());
-            MDR_LOG("[BLE] Send exception: {}", ptr->lastError);
+            ptr->SetLastError(winrt::to_string(ex.message()));
+            MDR_LOG("[BLE] Send exception: {}", ptr->GetLastErrorString());
             return MDR_RESULT_ERROR_NET;
         }
         catch (const std::exception& ex)
         {
-            ptr->lastError = ex.what();
-            MDR_LOG("[BLE] Send std::exception: {}", ptr->lastError);
+            ptr->SetLastError(ex.what());
+            MDR_LOG("[BLE] Send std::exception: {}", ptr->GetLastErrorString());
             return MDR_RESULT_ERROR_NET;
         }
     }
@@ -700,7 +717,7 @@ struct MDRConnectionWindowsBLE
         if (waitResult == WAIT_TIMEOUT)
             return MDR_RESULT_ERROR_TIMEOUT;
 
-        ptr->lastError = "Poll wait failed";
+        ptr->SetLastError("Poll wait failed");
         return MDR_RESULT_ERROR_NET;
     }
 
@@ -716,7 +733,10 @@ struct MDRConnectionWindowsBLE
 
     static const char* GetLastError(void* user) noexcept
     {
-        return static_cast<MDRConnectionWindowsBLE*>(user)->lastError.c_str();
+        auto* self = static_cast<MDRConnectionWindowsBLE*>(user);
+        std::lock_guard<std::mutex> lock(self->lastErrorMutex);
+        self->lastErrorSnapshot = self->lastError;
+        return self->lastErrorSnapshot.c_str();
     }
 };
 
