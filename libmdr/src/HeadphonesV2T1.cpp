@@ -739,22 +739,38 @@ namespace mdr
         // XXX: Don't have the corresponding struct in the official app yet, and
         //      these don't get serialized in a way that's consistent with the rest.
         //      So excuse the rawdogged parsing - FIXME.
+        if (cmd.size() < 2)
+            return MDR_HEADPHONES_EVT_UNHANDLED;
+
         const UInt8* begin = nullptr;
+        size_t remaining = 0;
         switch (cmd[1])
         {
         case 0x00:
         {
             MDRPrefixedString res;
-            if (cmd[2])
+            if (cmd.size() > 2 && cmd[2])
+            {
                 begin = &cmd[2]; // key...
-            else
+                remaining = cmd.size() - 2;
+            }
+            else if (cmd.size() > 3)
+            {
                 begin = &cmd[3]; // op...
-            MDRPrefixedString::Read(&begin, res, cmd.size());
+                remaining = cmd.size() - 3;
+            }
+            else
+            {
+                return MDR_HEADPHONES_EVT_UNHANDLED;
+            }
+            MDRPrefixedString::Read(&begin, res, remaining);
             self->mLastDeviceJSONMessage = res.value;
             return MDR_HEADPHONES_EVT_OK;
         }
         case 0x01:
         {
+            if (cmd.size() < 4)
+                return MDR_HEADPHONES_EVT_UNHANDLED;
             self->mLastInteractionMessage = std::string(cmd.begin() + 4, cmd.end());
             return MDR_HEADPHONES_EVT_OK;
         }
