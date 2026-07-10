@@ -43,6 +43,7 @@ if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
             -sEXCEPTION_CATCHING_ALLOWED=[..]
             -sALLOW_MEMORY_GROWTH
             -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAPU8']
+            -sGROWABLE_ARRAYBUFFERS=0
     )
     add_compile_options(-O1 -fexceptions)
 endif()
