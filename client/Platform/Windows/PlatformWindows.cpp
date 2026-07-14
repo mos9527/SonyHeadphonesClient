@@ -8,7 +8,8 @@ static MDRConnectionWindowsBLE* gConnBLE = nullptr;
 extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
-        MDR_CHECK_MSG(gConnBLE == nullptr && gConnClassic == nullptr, "Platform already initialized. You MUST call clientPlatformDestroy() before initializing again.");
+        if (gConnBLE != nullptr || gConnClassic != nullptr)
+            return MDR_RESULT_ERROR_GENERAL;
         if (flags & MDR_INIT_BT_BLE)
             gConnBLE = mdrConnectionWindowsBLECreate(), gConnClassic = nullptr;
         else

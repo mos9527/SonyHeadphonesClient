@@ -82,7 +82,8 @@ namespace mdr
             Int32BE dataSize{static_cast<int32_t>(serializedData.size())};
             unescaped.insert(unescaped.end(), 4u, 0u);
             UInt8* pData = &unescaped.back() - 3;
-            MDRPod::Write(dataSize, &pData, 4);
+            if (!MDRPod::Write(dataSize, &pData, 4))
+                return {};
         }
         unescaped.insert(unescaped.end(), serializedData.begin(), serializedData.end());
         unescaped.emplace_back(Checksum(unescaped));

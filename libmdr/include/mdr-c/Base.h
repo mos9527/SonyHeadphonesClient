@@ -11,6 +11,9 @@
 #define MDR_RESULT_ERROR_NO_CONNECTION 6
 #define MDR_RESULT_ERROR_BAD_ADDRESS 7
 #define MDR_RESULT_ERROR_NOT_SUPPORTED 8
+#define MDR_RESULT_ERROR_BUFFER_TOO_SMALL 9
+#define MDR_RESULT_ERROR_MALFORMED_PAYLOAD 10
+#define MDR_RESULT_ERROR_INVALID_ARGUMENT 11
 // MDR_HEADPHONES...
 #define MDR_HEADPHONES_ERROR (-2) // Irrecoverable. Headphone should be cleaned up.
 #define MDR_HEADPHONES_INPROGRESS (-1) // No command received but there's a running task

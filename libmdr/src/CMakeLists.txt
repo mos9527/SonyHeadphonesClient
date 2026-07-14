@@ -21,6 +21,12 @@ set(GENERATED_SRCS
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
 add_library(mdr ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
+if (MSVC)
+    target_compile_options(mdr PRIVATE /EHs-c-)
+else()
+    target_compile_options(mdr PRIVATE -fno-exceptions)
+endif()
+target_compile_definitions(mdr PRIVATE FMT_EXCEPTIONS=0)
 
 add_subdirectory(Platform)
 

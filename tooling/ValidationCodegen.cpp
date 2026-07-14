@@ -86,30 +86,25 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
         {
         case ValidationVerb::EnumRange:
         {
-            std::ostringstream cout, diagOut;
+            std::ostringstream cout;
             cin >> tok;
             while (true)
             {
-                diagOut << tok;
                 cout << format("{} == {}", scopeFiledName, tok);
                 if (cin >> tok)
-                    cout << " || ", diagOut << " ";
+                    cout << " || ";
                 else
                     break;
             }
-            print("{}MDR_CHECK_MSG(", emitIndent());
-            print("{}, ", cout.str());
-            print("\"EnumRange check fail, must be one of {}, got {{}}\",", diagOut.str());
-            println("{});", scopeFiledName);
+            println("{}MDR_VALIDATE({});", emitIndent(), cout.str());
             break;
         }
         case ValidationVerb::Range:
         {
             int mn, mx;
             cin >> mn >> mx;
-            print("{}MDR_CHECK_MSG(", emitIndent());
-            print("{} >= {} && {} <= {}, ", scopeFiledName, mn,  scopeFiledName, mx);
-            println("\"Range check fail, must be in [{}, {}], got {{}}\", {});", mn, mx, scopeFiledName);
+            println("{}MDR_VALIDATE({} >= {} && {} <= {});", emitIndent(), scopeFiledName, mn, scopeFiledName, mx);
+            break;
         }
         case ValidationVerb::Field:
         {
@@ -158,10 +153,7 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
     switch (typeKind)
     {
     case CXCursor_EnumDecl:
-        println("{}MDR_CHECK_MSG(is_valid({}), \"{} got an invalid enum value\");",
-            emitIndent(),
-            newParentName,
-            clang_getCString(name));
+        println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
         break;
     case CXCursor_StructDecl:
     {
@@ -237,11 +229,11 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             gCodegenComments.clear();
             // Collect comments
             clang_visitChildren(cursor, fieldValidateVisitor, nullptr);
-            println("{}bool {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
+            println("{}MDRResult<void> {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
             gDepth++;
             std::string firstParent = "data";
             clang_visitChildren(cursor, fieldValidateNestedVisitor, &firstParent);
-            println("{}return true;", emitIndent());
+            println("{}return MDRResult<void>::Success();", emitIndent());
             gDepth--;
             println("{}}}", emitIndent());
         }

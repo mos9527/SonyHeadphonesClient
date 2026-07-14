@@ -1,5 +1,6 @@
 #include <ranges>
 #include <algorithm>
+#include <stdexcept>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
@@ -13,6 +14,12 @@
 #include "Platform/Platform.hpp"
 #include "MaterialYouTheme.hpp"
 using namespace mdr;
+
+#define CLIENT_CHECK(expression) \
+    do { \
+        if (!(expression)) \
+            throw std::runtime_error("Client check failed: " #expression); \
+    } while (false)
 
 ::MDRHeadphones* gDevice;
 String gBugcheckMessage;
@@ -388,7 +395,7 @@ void ImSpinner(float interval, float size, int color, float thickness = 1.0f, bo
 // This is used for modal dialogues
 bool ImModalButton(const char* label, int lineIndex = 0, int lineTotal = 1)
 {
-    MDR_CHECK(lineIndex < lineTotal);
+    CLIENT_CHECK(lineIndex < lineTotal);
     auto& style = ImGui::GetStyle();
     float padding = style.FramePadding.x;
     float width = ImGui::GetContentRegionAvail().x / lineTotal;
@@ -527,7 +534,7 @@ void ExceptionHandler(auto&& func)
 
 void DrawDeviceDiscovery()
 {
-    MDR_CHECK(connState == CONN_STATE_NO_CONNECTION);
+    CLIENT_CHECK(connState == CONN_STATE_NO_CONNECTION);
     ImSetNextWindowCentered();
     static bool popup = false;
     if (!popup)
@@ -628,7 +635,7 @@ void DrawDeviceDiscovery()
 
 void DrawDeviceConnecting()
 {
-    MDR_CHECK(connState == CONN_STATE_CONNECTING);
+    CLIENT_CHECK(connState == CONN_STATE_CONNECTING);
     MDRConnection* conn = clientPlatformConnectionGet();
     switch (mdrConnectionPoll(conn, 0))
     {
@@ -637,7 +644,7 @@ void DrawDeviceConnecting()
         gDevice = mdrHeadphonesCreate(conn);
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
-        MDR_CHECK(mdrHeadphonesRequestInitV2(gDevice) == MDR_RESULT_OK);
+        CLIENT_CHECK(mdrHeadphonesRequestInitV2(gDevice) == MDR_RESULT_OK);
         return;
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
@@ -1377,12 +1384,12 @@ void DrawDeviceControls()
         case MDR_HEADPHONES_TASK_INIT_OK:
             // Request for a stat update ASAP
             // User may request for this themselves - we don't do periodic checks this time
-            MDR_CHECK(mdrHeadphonesRequestSyncV2(gDevice) == MDR_RESULT_OK);
+            CLIENT_CHECK(mdrHeadphonesRequestSyncV2(gDevice) == MDR_RESULT_OK);
             return;
         case MDR_HEADPHONES_IDLE:
             // Commit changes if needed to
             if (mdrHeadphonesIsDirty(gDevice))
-                MDR_CHECK(mdrHeadphonesRequestCommitV2(gDevice) == MDR_RESULT_OK);
+                CLIENT_CHECK(mdrHeadphonesRequestCommitV2(gDevice) == MDR_RESULT_OK);
             return;
         case MDR_HEADPHONES_ERROR:
             // Irrecoverable. Disconnect now.

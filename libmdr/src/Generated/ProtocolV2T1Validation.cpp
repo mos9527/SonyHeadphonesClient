@@ -2,996 +2,996 @@
 #include <mdr/ProtocolV2T1.hpp>
 
 namespace mdr::v2::t1 {
-bool CommandBase::Validate(const CommandBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    return true;
+MDRResult<void> CommandBase::Validate(const CommandBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    return MDRResult<void>::Success();
 }
-bool ConnectGetProtocolInfo::Validate(const ConnectGetProtocolInfo& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_GET_PROTOCOL_INFO, "EnumRange check fail, must be one of Command::CONNECT_GET_PROTOCOL_INFO, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
-    return true;
+MDRResult<void> ConnectGetProtocolInfo::Validate(const ConnectGetProtocolInfo& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_GET_PROTOCOL_INFO);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
 }
-bool ConnectRetProtocolInfo::Validate(const ConnectRetProtocolInfo& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_RET_PROTOCOL_INFO, "EnumRange check fail, must be one of Command::CONNECT_RET_PROTOCOL_INFO, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.supportTable1Value), "supportTable1Value got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.supportTable2Value), "supportTable2Value got an invalid enum value");
-    return true;
+MDRResult<void> ConnectRetProtocolInfo::Validate(const ConnectRetProtocolInfo& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_RET_PROTOCOL_INFO);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.supportTable1Value));
+    MDR_VALIDATE(is_valid(data.supportTable2Value));
+    return MDRResult<void>::Success();
 }
-bool ConnectGetCapabilityInfo::Validate(const ConnectGetCapabilityInfo& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_GET_CAPABILITY_INFO, "EnumRange check fail, must be one of Command::CONNECT_GET_CAPABILITY_INFO, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
-    return true;
+MDRResult<void> ConnectGetCapabilityInfo::Validate(const ConnectGetCapabilityInfo& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_GET_CAPABILITY_INFO);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
 }
-bool ConnectGetDeviceInfo::Validate(const ConnectGetDeviceInfo& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_GET_DEVICE_INFO, "EnumRange check fail, must be one of Command::CONNECT_GET_DEVICE_INFO, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.deviceInfoType), "deviceInfoType got an invalid enum value");
-    return true;
+MDRResult<void> ConnectGetDeviceInfo::Validate(const ConnectGetDeviceInfo& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_GET_DEVICE_INFO);
+    MDR_VALIDATE(is_valid(data.deviceInfoType));
+    return MDRResult<void>::Success();
 }
-bool ConnectRetCapabilityInfo::Validate(const ConnectRetCapabilityInfo& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_RET_CAPABILITY_INFO, "EnumRange check fail, must be one of Command::CONNECT_RET_CAPABILITY_INFO, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
-    return true;
+MDRResult<void> ConnectRetCapabilityInfo::Validate(const ConnectRetCapabilityInfo& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_RET_CAPABILITY_INFO);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
 }
-bool ConnectRetDeviceInfoBase::Validate(const ConnectRetDeviceInfoBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_RET_DEVICE_INFO, "EnumRange check fail, must be one of Command::CONNECT_RET_DEVICE_INFO, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> ConnectRetDeviceInfoBase::Validate(const ConnectRetDeviceInfoBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_RET_DEVICE_INFO);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool ConnectRetDeviceInfoModelName::Validate(const ConnectRetDeviceInfoModelName& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::CONNECT_RET_DEVICE_INFO, "EnumRange check fail, must be one of Command::CONNECT_RET_DEVICE_INFO, got {}",data.base.command);
-    return true;
+MDRResult<void> ConnectRetDeviceInfoModelName::Validate(const ConnectRetDeviceInfoModelName& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::CONNECT_RET_DEVICE_INFO);
+    return MDRResult<void>::Success();
 }
-bool ConnectRetDeviceInfoFwVersion::Validate(const ConnectRetDeviceInfoFwVersion& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::CONNECT_RET_DEVICE_INFO, "EnumRange check fail, must be one of Command::CONNECT_RET_DEVICE_INFO, got {}",data.base.command);
-    return true;
+MDRResult<void> ConnectRetDeviceInfoFwVersion::Validate(const ConnectRetDeviceInfoFwVersion& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::CONNECT_RET_DEVICE_INFO);
+    return MDRResult<void>::Success();
 }
-bool ConnectRetDeviceInfoSeriesAndColor::Validate(const ConnectRetDeviceInfoSeriesAndColor& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::CONNECT_RET_DEVICE_INFO, "EnumRange check fail, must be one of Command::CONNECT_RET_DEVICE_INFO, got {}",data.base.command);
-    MDR_CHECK_MSG(is_valid(data.series), "series got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.color), "color got an invalid enum value");
-    return true;
+MDRResult<void> ConnectRetDeviceInfoSeriesAndColor::Validate(const ConnectRetDeviceInfoSeriesAndColor& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::CONNECT_RET_DEVICE_INFO);
+    MDR_VALIDATE(is_valid(data.series));
+    MDR_VALIDATE(is_valid(data.color));
+    return MDRResult<void>::Success();
 }
-bool ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_GET_SUPPORT_FUNCTION, "EnumRange check fail, must be one of Command::CONNECT_GET_SUPPORT_FUNCTION, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
-    return true;
+MDRResult<void> ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_GET_SUPPORT_FUNCTION);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
 }
-bool ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::CONNECT_RET_SUPPORT_FUNCTION, "EnumRange check fail, must be one of Command::CONNECT_RET_SUPPORT_FUNCTION, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.inquiredType), "inquiredType got an invalid enum value");
+MDRResult<void> ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::CONNECT_RET_SUPPORT_FUNCTION);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     for (const auto& supportFunctions_elem : data.supportFunctions) {
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool CommonGetStatus::Validate(const CommonGetStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::COMMON_GET_STATUS, "EnumRange check fail, must be one of Command::COMMON_GET_STATUS, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> CommonGetStatus::Validate(const CommonGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::COMMON_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool CommonBase::Validate(const CommonBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> CommonBase::Validate(const CommonBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool CommonStatusAudioCodec::Validate(const CommonStatusAudioCodec& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::COMMON_RET_STATUS || data.base.command == Command::COMMON_NTFY_STATUS, "EnumRange check fail, must be one of Command::COMMON_RET_STATUS Command::COMMON_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == CommonInquiredType::AUDIO_CODEC, "EnumRange check fail, must be one of CommonInquiredType::AUDIO_CODEC, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.audioCodec), "audioCodec got an invalid enum value");
-    return true;
+MDRResult<void> CommonStatusAudioCodec::Validate(const CommonStatusAudioCodec& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::COMMON_RET_STATUS || data.base.command == Command::COMMON_NTFY_STATUS);
+    MDR_VALIDATE(data.base.type == CommonInquiredType::AUDIO_CODEC);
+    MDR_VALIDATE(is_valid(data.audioCodec));
+    return MDRResult<void>::Success();
 }
-bool PowerGetStatus::Validate(const PowerGetStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::POWER_GET_STATUS, "EnumRange check fail, must be one of Command::POWER_GET_STATUS, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> PowerGetStatus::Validate(const PowerGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool PowerBase::Validate(const PowerBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> PowerBase::Validate(const PowerBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool PowerRetStatusBattery::Validate(const PowerRetStatusBattery& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.chargingStatus), "chargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(data.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.batteryLevel);
-    return true;
+MDRResult<void> PowerRetStatusBattery::Validate(const PowerRetStatusBattery& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.batteryStatus.chargingStatus));
+    MDR_VALIDATE(data.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryLevel <= 100);
+    return MDRResult<void>::Success();
 }
-bool PowerRetStatusLeftRightBattery::Validate(const PowerRetStatusLeftRightBattery& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_RET_STATUS, "EnumRange check fail, must be one of Command::POWER_RET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::LEFT_RIGHT_BATTERY, "EnumRange check fail, must be one of PowerInquiredType::LEFT_RIGHT_BATTERY, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.leftChargingStatus), "leftChargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.rightChargingStatus), "rightChargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.leftBatteryLevel);
-    MDR_CHECK_MSG(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.rightBatteryLevel);
-    return true;
+MDRResult<void> PowerRetStatusLeftRightBattery::Validate(const PowerRetStatusLeftRightBattery& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::LEFT_RIGHT_BATTERY);
+    MDR_VALIDATE(is_valid(data.batteryStatus.leftChargingStatus));
+    MDR_VALIDATE(is_valid(data.batteryStatus.rightChargingStatus));
+    MDR_VALIDATE(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100);
+    return MDRResult<void>::Success();
 }
-bool PowerRetStatusCradleBattery::Validate(const PowerRetStatusCradleBattery& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_RET_STATUS, "EnumRange check fail, must be one of Command::POWER_RET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::CRADLE_BATTERY, "EnumRange check fail, must be one of PowerInquiredType::CRADLE_BATTERY, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.chargingStatus), "chargingStatus got an invalid enum value");
-    return true;
+MDRResult<void> PowerRetStatusCradleBattery::Validate(const PowerRetStatusCradleBattery& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::CRADLE_BATTERY);
+    MDR_VALIDATE(is_valid(data.batteryStatus.chargingStatus));
+    return MDRResult<void>::Success();
 }
-bool PowerRetStatusBatteryThreshold::Validate(const PowerRetStatusBatteryThreshold& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_RET_STATUS, "EnumRange check fail, must be one of Command::POWER_RET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::BATTERY_WITH_THRESHOLD, "EnumRange check fail, must be one of PowerInquiredType::BATTERY_WITH_THRESHOLD, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.batteryStatus.chargingStatus), "chargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.batteryStatus.batteryLevel);
-    MDR_CHECK_MSG(data.batteryStatus.batteryThreshold >= 0 && data.batteryStatus.batteryThreshold <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.batteryThreshold);
-    return true;
+MDRResult<void> PowerRetStatusBatteryThreshold::Validate(const PowerRetStatusBatteryThreshold& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::BATTERY_WITH_THRESHOLD);
+    MDR_VALIDATE(is_valid(data.batteryStatus.batteryStatus.chargingStatus));
+    MDR_VALIDATE(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.batteryThreshold >= 0 && data.batteryStatus.batteryThreshold <= 100);
+    return MDRResult<void>::Success();
 }
-bool PowerRetStatusLeftRightBatteryThreshold::Validate(const PowerRetStatusLeftRightBatteryThreshold& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_RET_STATUS, "EnumRange check fail, must be one of Command::POWER_RET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::LR_BATTERY_WITH_THRESHOLD, "EnumRange check fail, must be one of PowerInquiredType::LR_BATTERY_WITH_THRESHOLD, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.leftChargingStatus), "leftChargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.rightChargingStatus), "rightChargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.leftBatteryLevel);
-    MDR_CHECK_MSG(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.rightBatteryLevel);
-    MDR_CHECK_MSG(data.leftBatteryThreshold >= 0 && data.leftBatteryThreshold <= 100, "Range check fail, must be in [0, 100], got {}", data.leftBatteryThreshold);
-    MDR_CHECK_MSG(data.rightBatteryThreshold >= 0 && data.rightBatteryThreshold <= 100, "Range check fail, must be in [0, 100], got {}", data.rightBatteryThreshold);
-    return true;
+MDRResult<void> PowerRetStatusLeftRightBatteryThreshold::Validate(const PowerRetStatusLeftRightBatteryThreshold& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::LR_BATTERY_WITH_THRESHOLD);
+    MDR_VALIDATE(is_valid(data.batteryStatus.leftChargingStatus));
+    MDR_VALIDATE(is_valid(data.batteryStatus.rightChargingStatus));
+    MDR_VALIDATE(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100);
+    MDR_VALIDATE(data.leftBatteryThreshold >= 0 && data.leftBatteryThreshold <= 100);
+    MDR_VALIDATE(data.rightBatteryThreshold >= 0 && data.rightBatteryThreshold <= 100);
+    return MDRResult<void>::Success();
 }
-bool PowerRetStatusCradleBatteryThreshold::Validate(const PowerRetStatusCradleBatteryThreshold& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_RET_STATUS, "EnumRange check fail, must be one of Command::POWER_RET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD, "EnumRange check fail, must be one of PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.batteryStatus.batteryStatus.chargingStatus), "chargingStatus got an invalid enum value");
-    MDR_CHECK_MSG(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100, "Range check fail, must be in [0, 100], got {}", data.batteryStatus.batteryStatus.batteryLevel);
-    return true;
+MDRResult<void> PowerRetStatusCradleBatteryThreshold::Validate(const PowerRetStatusCradleBatteryThreshold& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD);
+    MDR_VALIDATE(is_valid(data.batteryStatus.batteryStatus.chargingStatus));
+    MDR_VALIDATE(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100);
+    return MDRResult<void>::Success();
 }
-bool PowerSetStatusPowerOff::Validate(const PowerSetStatusPowerOff& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_SET_STATUS, "EnumRange check fail, must be one of Command::POWER_SET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::POWER_OFF, "EnumRange check fail, must be one of PowerInquiredType::POWER_OFF, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.powerOffSettingValue), "powerOffSettingValue got an invalid enum value");
-    return true;
+MDRResult<void> PowerSetStatusPowerOff::Validate(const PowerSetStatusPowerOff& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_SET_STATUS);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::POWER_OFF);
+    MDR_VALIDATE(is_valid(data.powerOffSettingValue));
+    return MDRResult<void>::Success();
 }
-bool PowerGetParam::Validate(const PowerGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::POWER_GET_PARAM, "EnumRange check fail, must be one of Command::POWER_GET_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.type == PowerInquiredType::AUTO_POWER_OFF || data.type == PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION || data.type == PowerInquiredType::POWER_SAVE_MODE || data.type == PowerInquiredType::BATTERY_SAFE_MODE || data.type == PowerInquiredType::CARING_CHARGE || data.type == PowerInquiredType::BT_STANDBY || data.type == PowerInquiredType::STAMINA || data.type == PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF, "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::BATTERY_SAFE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF, got {}",data.type);
-    return true;
+MDRResult<void> PowerGetParam::Validate(const PowerGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == PowerInquiredType::AUTO_POWER_OFF || data.type == PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION || data.type == PowerInquiredType::POWER_SAVE_MODE || data.type == PowerInquiredType::BATTERY_SAFE_MODE || data.type == PowerInquiredType::CARING_CHARGE || data.type == PowerInquiredType::BT_STANDBY || data.type == PowerInquiredType::STAMINA || data.type == PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF);
+    return MDRResult<void>::Success();
 }
-bool PowerParamAutoPowerOff::Validate(const PowerParamAutoPowerOff& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_SET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM, "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_SET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::AUTO_POWER_OFF, "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.currentPowerOffElements), "currentPowerOffElements got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.lastSelectPowerOffElements), "lastSelectPowerOffElements got an invalid enum value");
-    return true;
+MDRResult<void> PowerParamAutoPowerOff::Validate(const PowerParamAutoPowerOff& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_SET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::AUTO_POWER_OFF);
+    MDR_VALIDATE(is_valid(data.currentPowerOffElements));
+    MDR_VALIDATE(is_valid(data.lastSelectPowerOffElements));
+    return MDRResult<void>::Success();
 }
-bool PowerParamAutoPowerOffWithWearingDetection::Validate(const PowerParamAutoPowerOffWithWearingDetection& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_SET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM, "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_SET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION, "EnumRange check fail, must be one of PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.currentPowerOffElements), "currentPowerOffElements got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.lastSelectPowerOffElements), "lastSelectPowerOffElements got an invalid enum value");
-    return true;
+MDRResult<void> PowerParamAutoPowerOffWithWearingDetection::Validate(const PowerParamAutoPowerOffWithWearingDetection& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_SET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION);
+    MDR_VALIDATE(is_valid(data.currentPowerOffElements));
+    MDR_VALIDATE(is_valid(data.lastSelectPowerOffElements));
+    return MDRResult<void>::Success();
 }
-bool PowerParamSettingOnOff::Validate(const PowerParamSettingOnOff& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM, "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::POWER_SAVE_MODE || data.base.type == PowerInquiredType::CARING_CHARGE || data.base.type == PowerInquiredType::BT_STANDBY || data.base.type == PowerInquiredType::STAMINA || data.base.type == PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF, "EnumRange check fail, must be one of PowerInquiredType::POWER_SAVE_MODE PowerInquiredType::CARING_CHARGE PowerInquiredType::BT_STANDBY PowerInquiredType::STAMINA PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffSetting), "onOffSetting got an invalid enum value");
-    return true;
+MDRResult<void> PowerParamSettingOnOff::Validate(const PowerParamSettingOnOff& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::POWER_SAVE_MODE || data.base.type == PowerInquiredType::CARING_CHARGE || data.base.type == PowerInquiredType::BT_STANDBY || data.base.type == PowerInquiredType::STAMINA || data.base.type == PowerInquiredType::AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF);
+    MDR_VALIDATE(is_valid(data.onOffSetting));
+    return MDRResult<void>::Success();
 }
-bool PowerParamBatterySafeMode::Validate(const PowerParamBatterySafeMode& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM, "EnumRange check fail, must be one of Command::POWER_GET_PARAM Command::POWER_RET_PARAM Command::POWER_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PowerInquiredType::BATTERY_SAFE_MODE, "EnumRange check fail, must be one of PowerInquiredType::BATTERY_SAFE_MODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffSettingValue), "onOffSettingValue got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.effectStatus), "effectStatus got an invalid enum value");
-    return true;
+MDRResult<void> PowerParamBatterySafeMode::Validate(const PowerParamBatterySafeMode& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::POWER_GET_PARAM || data.base.command == Command::POWER_RET_PARAM || data.base.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PowerInquiredType::BATTERY_SAFE_MODE);
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    MDR_VALIDATE(is_valid(data.effectStatus));
+    return MDRResult<void>::Success();
 }
-bool EqEbbBase::Validate(const EqEbbBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> EqEbbBase::Validate(const EqEbbBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool EqEbbGetStatus::Validate(const EqEbbGetStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::EQEBB_GET_STATUS, "EnumRange check fail, must be one of Command::EQEBB_GET_STATUS, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> EqEbbGetStatus::Validate(const EqEbbGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::EQEBB_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool EqEbbStatusOnOff::Validate(const EqEbbStatusOnOff& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_STATUS || data.base.command == Command::EQEBB_NTFY_STATUS, "EnumRange check fail, must be one of Command::EQEBB_RET_STATUS Command::EQEBB_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    return true;
+MDRResult<void> EqEbbStatusOnOff::Validate(const EqEbbStatusOnOff& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_STATUS || data.base.command == Command::EQEBB_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
 }
-bool EqEbbStatusErrorCode::Validate(const EqEbbStatusErrorCode& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_STATUS || data.base.command == Command::EQEBB_NTFY_STATUS, "EnumRange check fail, must be one of Command::EQEBB_RET_STATUS Command::EQEBB_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE, "EnumRange check fail, must be one of EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.value), "value got an invalid enum value");
+MDRResult<void> EqEbbStatusErrorCode::Validate(const EqEbbStatusErrorCode& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_STATUS || data.base.command == Command::EQEBB_NTFY_STATUS);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE);
+    MDR_VALIDATE(is_valid(data.value));
     for (const auto& errors_elem : data.errors) {
-        MDR_CHECK_MSG(is_valid(errors_elem), "errors got an invalid enum value");
+        MDR_VALIDATE(is_valid(errors_elem));
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool EqEbbGetParam::Validate(const EqEbbGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_GET_PARAM, "EnumRange check fail, must be one of Command::EQEBB_GET_PARAM, got {}",data.base.command);
-    return true;
+MDRResult<void> EqEbbGetParam::Validate(const EqEbbGetParam& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_GET_PARAM);
+    return MDRResult<void>::Success();
 }
-bool EqEbbParamEq::Validate(const EqEbbParamEq& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM, "EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == EqEbbInquiredType::PRESET_EQ || data.base.type == EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE || data.base.type == EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE, "EnumRange check fail, must be one of EqEbbInquiredType::PRESET_EQ EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.presetId), "presetId got an invalid enum value");
+MDRResult<void> EqEbbParamEq::Validate(const EqEbbParamEq& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::PRESET_EQ || data.base.type == EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE || data.base.type == EqEbbInquiredType::PRESET_EQ_AND_ERRORCODE);
+    MDR_VALIDATE(is_valid(data.presetId));
     for (const auto& bands_elem : data.bands) {
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool EqEbbParamEbb::Validate(const EqEbbParamEbb& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM, "EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == EqEbbInquiredType::EBB, "EnumRange check fail, must be one of EqEbbInquiredType::EBB, got {}",data.base.type);
-    return true;
+MDRResult<void> EqEbbParamEbb::Validate(const EqEbbParamEbb& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::EBB);
+    return MDRResult<void>::Success();
 }
-bool EqEbbParamEqAndUltMode::Validate(const EqEbbParamEqAndUltMode& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM, "EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE, "EnumRange check fail, must be one of EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.presetId), "presetId got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.eqUltModeStatus), "eqUltModeStatus got an invalid enum value");
+MDRResult<void> EqEbbParamEqAndUltMode::Validate(const EqEbbParamEqAndUltMode& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::PRESET_EQ_AND_ULT_MODE);
+    MDR_VALIDATE(is_valid(data.presetId));
+    MDR_VALIDATE(is_valid(data.eqUltModeStatus));
     for (const auto& bandSteps_elem : data.bandSteps) {
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool EqEbbParamSoundEffect::Validate(const EqEbbParamSoundEffect& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM, "EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == EqEbbInquiredType::SOUND_EFFECT, "EnumRange check fail, must be one of EqEbbInquiredType::SOUND_EFFECT, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.soundEffectValue), "soundEffectValue got an invalid enum value");
-    return true;
+MDRResult<void> EqEbbParamSoundEffect::Validate(const EqEbbParamSoundEffect& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::SOUND_EFFECT);
+    MDR_VALIDATE(is_valid(data.soundEffectValue));
+    return MDRResult<void>::Success();
 }
-bool EqEbbParamCustomEq::Validate(const EqEbbParamCustomEq& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM, "EnumRange check fail, must be one of Command::EQEBB_RET_PARAM Command::EQEBB_SET_PARAM Command::EQEBB_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == EqEbbInquiredType::CUSTOM_EQ, "EnumRange check fail, must be one of EqEbbInquiredType::CUSTOM_EQ, got {}",data.base.type);
+MDRResult<void> EqEbbParamCustomEq::Validate(const EqEbbParamCustomEq& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::EQEBB_RET_PARAM || data.base.command == Command::EQEBB_SET_PARAM || data.base.command == Command::EQEBB_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::CUSTOM_EQ);
     for (const auto& bandSteps_elem : data.bandSteps) {
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool NcAsmGetParam::Validate(const NcAsmGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::NCASM_GET_PARAM, "EnumRange check fail, must be one of Command::NCASM_GET_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmGetParam::Validate(const NcAsmGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::NCASM_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool NcAsmBase::Validate(const NcAsmBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmBase::Validate(const NcAsmBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool NcAsmParamBase::Validate(const NcAsmParamBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.valueChangeStatus), "valueChangeStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmParamBase::Validate(const NcAsmParamBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.valueChangeStatus));
+    MDR_VALIDATE(is_valid(data.ncAsmTotalEffect));
+    return MDRResult<void>::Success();
 }
-bool NcAsmParamModeNcDualModeSwitchAsmSeamless::Validate(const NcAsmParamModeNcDualModeSwitchAsmSeamless& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.valueChangeStatus), "valueChangeStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM, "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS, "EnumRange check fail, must be one of NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.ncAsmMode), "ncAsmMode got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.ambientSoundMode), "ambientSoundMode got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmParamModeNcDualModeSwitchAsmSeamless::Validate(const NcAsmParamModeNcDualModeSwitchAsmSeamless& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.base.valueChangeStatus));
+    MDR_VALIDATE(is_valid(data.base.ncAsmTotalEffect));
+    MDR_VALIDATE(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS);
+    MDR_VALIDATE(is_valid(data.ncAsmMode));
+    MDR_VALIDATE(is_valid(data.ambientSoundMode));
+    return MDRResult<void>::Success();
 }
-bool NcAsmParamModeNcDualModeSwitchAsmSeamlessNa::Validate(const NcAsmParamModeNcDualModeSwitchAsmSeamlessNa& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.valueChangeStatus), "valueChangeStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM, "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA, "EnumRange check fail, must be one of NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.ncAsmMode), "ncAsmMode got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.ambientSoundMode), "ambientSoundMode got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.noiseAdaptiveOnOffValue), "noiseAdaptiveOnOffValue got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.noiseAdaptiveSensitivitySettings), "noiseAdaptiveSensitivitySettings got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmParamModeNcDualModeSwitchAsmSeamlessNa::Validate(const NcAsmParamModeNcDualModeSwitchAsmSeamlessNa& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.base.valueChangeStatus));
+    MDR_VALIDATE(is_valid(data.base.ncAsmTotalEffect));
+    MDR_VALIDATE(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA);
+    MDR_VALIDATE(is_valid(data.ncAsmMode));
+    MDR_VALIDATE(is_valid(data.ambientSoundMode));
+    MDR_VALIDATE(is_valid(data.noiseAdaptiveOnOffValue));
+    MDR_VALIDATE(is_valid(data.noiseAdaptiveSensitivitySettings));
+    return MDRResult<void>::Success();
 }
-bool NcAsmParamAsmOnOff::Validate(const NcAsmParamAsmOnOff& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.valueChangeStatus), "valueChangeStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM, "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == NcAsmInquiredType::ASM_ON_OFF, "EnumRange check fail, must be one of NcAsmInquiredType::ASM_ON_OFF, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.ambientSoundMode), "ambientSoundMode got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.ambientSoundValue), "ambientSoundValue got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmParamAsmOnOff::Validate(const NcAsmParamAsmOnOff& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.base.valueChangeStatus));
+    MDR_VALIDATE(is_valid(data.base.ncAsmTotalEffect));
+    MDR_VALIDATE(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == NcAsmInquiredType::ASM_ON_OFF);
+    MDR_VALIDATE(is_valid(data.ambientSoundMode));
+    MDR_VALIDATE(is_valid(data.ambientSoundValue));
+    return MDRResult<void>::Success();
 }
-bool NcAsmParamAsmSeamless::Validate(const NcAsmParamAsmSeamless& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.valueChangeStatus), "valueChangeStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.ncAsmTotalEffect), "ncAsmTotalEffect got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM, "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == NcAsmInquiredType::ASM_SEAMLESS, "EnumRange check fail, must be one of NcAsmInquiredType::ASM_SEAMLESS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.ambientSoundMode), "ambientSoundMode got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmParamAsmSeamless::Validate(const NcAsmParamAsmSeamless& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.base.valueChangeStatus));
+    MDR_VALIDATE(is_valid(data.base.ncAsmTotalEffect));
+    MDR_VALIDATE(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == NcAsmInquiredType::ASM_SEAMLESS);
+    MDR_VALIDATE(is_valid(data.ambientSoundMode));
+    return MDRResult<void>::Success();
 }
-bool NcAsmParamNcAmbToggle::Validate(const NcAsmParamNcAmbToggle& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM, "EnumRange check fail, must be one of Command::NCASM_RET_PARAM Command::NCASM_SET_PARAM Command::NCASM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == NcAsmInquiredType::NC_AMB_TOGGLE, "EnumRange check fail, must be one of NcAsmInquiredType::NC_AMB_TOGGLE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.function), "function got an invalid enum value");
-    return true;
+MDRResult<void> NcAsmParamNcAmbToggle::Validate(const NcAsmParamNcAmbToggle& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::NCASM_RET_PARAM || data.base.command == Command::NCASM_SET_PARAM || data.base.command == Command::NCASM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == NcAsmInquiredType::NC_AMB_TOGGLE);
+    MDR_VALIDATE(is_valid(data.function));
+    return MDRResult<void>::Success();
 }
-bool AlertBase::Validate(const AlertBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> AlertBase::Validate(const AlertBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool AlertGetStatus::Validate(const AlertGetStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::ALERT_GET_STATUS, "EnumRange check fail, must be one of Command::ALERT_GET_STATUS, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> AlertGetStatus::Validate(const AlertGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::ALERT_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool AlertStatusLEAudioAlertNotification::Validate(const AlertStatusLEAudioAlertNotification& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_RET_STATUS || data.base.command == Command::ALERT_NTFY_STATUS, "EnumRange check fail, must be one of Command::ALERT_RET_STATUS Command::ALERT_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION, "EnumRange check fail, must be one of AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.leAudioAlertStatus), "leAudioAlertStatus got an invalid enum value");
-    return true;
+MDRResult<void> AlertStatusLEAudioAlertNotification::Validate(const AlertStatusLEAudioAlertNotification& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_RET_STATUS || data.base.command == Command::ALERT_NTFY_STATUS);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION);
+    MDR_VALIDATE(is_valid(data.leAudioAlertStatus));
+    return MDRResult<void>::Success();
 }
-bool AlertRetStatusVoiceAssistant::Validate(const AlertRetStatusVoiceAssistant& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_RET_STATUS, "EnumRange check fail, must be one of Command::ALERT_RET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION, "EnumRange check fail, must be one of AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION, got {}",data.base.type);
+MDRResult<void> AlertRetStatusVoiceAssistant::Validate(const AlertRetStatusVoiceAssistant& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_RET_STATUS);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION);
     for (const auto& voiceAssistants_elem : data.voiceAssistants) {
-        MDR_CHECK_MSG(is_valid(voiceAssistants_elem), "voiceAssistants got an invalid enum value");
+        MDR_VALIDATE(is_valid(voiceAssistants_elem));
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool AlertSetStatusFixedMessage::Validate(const AlertSetStatusFixedMessage& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_STATUS, "EnumRange check fail, must be one of Command::ALERT_SET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::FIXED_MESSAGE, "EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetStatusFixedMessage::Validate(const AlertSetStatusFixedMessage& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_STATUS);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::FIXED_MESSAGE);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
 }
-bool AlertSetStatusAppBecomesForeground::Validate(const AlertSetStatusAppBecomesForeground& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_STATUS, "EnumRange check fail, must be one of Command::ALERT_SET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::APP_BECOMES_FOREGROUND, "EnumRange check fail, must be one of AlertInquiredType::APP_BECOMES_FOREGROUND, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetStatusAppBecomesForeground::Validate(const AlertSetStatusAppBecomesForeground& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_STATUS);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::APP_BECOMES_FOREGROUND);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
 }
-bool AlertSetStatusLEAudioAlertNotification::Validate(const AlertSetStatusLEAudioAlertNotification& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_STATUS, "EnumRange check fail, must be one of Command::ALERT_SET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION, "EnumRange check fail, must be one of AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.leAudioAlertStatus), "leAudioAlertStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.confirmationType), "confirmationType got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetStatusLEAudioAlertNotification::Validate(const AlertSetStatusLEAudioAlertNotification& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_STATUS);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION);
+    MDR_VALIDATE(is_valid(data.leAudioAlertStatus));
+    MDR_VALIDATE(is_valid(data.confirmationType));
+    return MDRResult<void>::Success();
 }
-bool AlertSetParamFixedMessage::Validate(const AlertSetParamFixedMessage& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_PARAM, "EnumRange check fail, must be one of Command::ALERT_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::FIXED_MESSAGE, "EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.actionType), "actionType got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetParamFixedMessage::Validate(const AlertSetParamFixedMessage& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::FIXED_MESSAGE);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.actionType));
+    return MDRResult<void>::Success();
 }
-bool AlertSetParamVibrator::Validate(const AlertSetParamVibrator& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_PARAM, "EnumRange check fail, must be one of Command::ALERT_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION, "EnumRange check fail, must be one of AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.vibrationType), "vibrationType got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetParamVibrator::Validate(const AlertSetParamVibrator& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION);
+    MDR_VALIDATE(is_valid(data.vibrationType));
+    return MDRResult<void>::Success();
 }
-bool AlertSetParamFixedMessageWithLeftRightSelection::Validate(const AlertSetParamFixedMessageWithLeftRightSelection& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_PARAM, "EnumRange check fail, must be one of Command::ALERT_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION, "EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.actionType), "actionType got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetParamFixedMessageWithLeftRightSelection::Validate(const AlertSetParamFixedMessageWithLeftRightSelection& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.actionType));
+    return MDRResult<void>::Success();
 }
-bool AlertSetParamAppBecomesForeground::Validate(const AlertSetParamAppBecomesForeground& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_PARAM, "EnumRange check fail, must be one of Command::ALERT_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::APP_BECOMES_FOREGROUND, "EnumRange check fail, must be one of AlertInquiredType::APP_BECOMES_FOREGROUND, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.actionType), "actionType got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetParamAppBecomesForeground::Validate(const AlertSetParamAppBecomesForeground& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::APP_BECOMES_FOREGROUND);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.actionType));
+    return MDRResult<void>::Success();
 }
-bool AlertSetParamFlexibleMessage::Validate(const AlertSetParamFlexibleMessage& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_SET_PARAM, "EnumRange check fail, must be one of Command::ALERT_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::FLEXIBLE_MESSAGE, "EnumRange check fail, must be one of AlertInquiredType::FLEXIBLE_MESSAGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.actionType), "actionType got an invalid enum value");
-    return true;
+MDRResult<void> AlertSetParamFlexibleMessage::Validate(const AlertSetParamFlexibleMessage& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_SET_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::FLEXIBLE_MESSAGE);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.actionType));
+    return MDRResult<void>::Success();
 }
-bool AlertNotifyParamFixedMessage::Validate(const AlertNotifyParamFixedMessage& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_NTFY_PARAM, "EnumRange check fail, must be one of Command::ALERT_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::FIXED_MESSAGE, "EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.actionType), "actionType got an invalid enum value");
-    return true;
+MDRResult<void> AlertNotifyParamFixedMessage::Validate(const AlertNotifyParamFixedMessage& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::FIXED_MESSAGE);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.actionType));
+    return MDRResult<void>::Success();
 }
-bool AlertNotifyParamFixedMessageWithLeftRightSelection::Validate(const AlertNotifyParamFixedMessageWithLeftRightSelection& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_NTFY_PARAM, "EnumRange check fail, must be one of Command::ALERT_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION, "EnumRange check fail, must be one of AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.defaultSelectedValue), "defaultSelectedValue got an invalid enum value");
-    return true;
+MDRResult<void> AlertNotifyParamFixedMessageWithLeftRightSelection::Validate(const AlertNotifyParamFixedMessageWithLeftRightSelection& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.defaultSelectedValue));
+    return MDRResult<void>::Success();
 }
-bool AlertNotifyParamAppBecomesForeground::Validate(const AlertNotifyParamAppBecomesForeground& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::ALERT_NTFY_PARAM, "EnumRange check fail, must be one of Command::ALERT_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AlertInquiredType::APP_BECOMES_FOREGROUND, "EnumRange check fail, must be one of AlertInquiredType::APP_BECOMES_FOREGROUND, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.messageType), "messageType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.actionType), "actionType got an invalid enum value");
-    return true;
+MDRResult<void> AlertNotifyParamAppBecomesForeground::Validate(const AlertNotifyParamAppBecomesForeground& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::ALERT_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AlertInquiredType::APP_BECOMES_FOREGROUND);
+    MDR_VALIDATE(is_valid(data.messageType));
+    MDR_VALIDATE(is_valid(data.actionType));
+    return MDRResult<void>::Success();
 }
-bool GetPlayParam::Validate(const GetPlayParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::PLAY_GET_PARAM, "EnumRange check fail, must be one of Command::PLAY_GET_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> GetPlayParam::Validate(const GetPlayParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PLAY_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool GetPlayStatus::Validate(const GetPlayStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::PLAY_GET_STATUS, "EnumRange check fail, must be one of Command::PLAY_GET_STATUS, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> GetPlayStatus::Validate(const GetPlayStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PLAY_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool PlayBase::Validate(const PlayBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> PlayBase::Validate(const PlayBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool PlayStatusPlaybackController::Validate(const PlayStatusPlaybackController& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS, "EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, "EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.playbackStatus), "playbackStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.musicCallStatus), "musicCallStatus got an invalid enum value");
-    return true;
+MDRResult<void> PlayStatusPlaybackController::Validate(const PlayStatusPlaybackController& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.playbackStatus));
+    MDR_VALIDATE(is_valid(data.musicCallStatus));
+    return MDRResult<void>::Success();
 }
-bool PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange::Validate(const PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS, "EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, "EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.playbackStatus), "playbackStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.musicCallStatus), "musicCallStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.playbackControlStatus), "playbackControlStatus got an invalid enum value");
-    return true;
+MDRResult<void> PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange::Validate(const PlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.playbackStatus));
+    MDR_VALIDATE(is_valid(data.musicCallStatus));
+    MDR_VALIDATE(is_valid(data.playbackControlStatus));
+    return MDRResult<void>::Success();
 }
-bool PlayStatusPlaybackControlWithFunctionChange::Validate(const PlayStatusPlaybackControlWithFunctionChange& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS, "EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, "EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.playbackStatus), "playbackStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.playbackControlStatus), "playbackControlStatus got an invalid enum value");
-    return true;
+MDRResult<void> PlayStatusPlaybackControlWithFunctionChange::Validate(const PlayStatusPlaybackControlWithFunctionChange& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.playbackStatus));
+    MDR_VALIDATE(is_valid(data.playbackControlStatus));
+    return MDRResult<void>::Success();
 }
-bool PlayStatusCommon::Validate(const PlayStatusCommon& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS, "EnumRange check fail, must be one of Command::PLAY_RET_STATUS Command::PLAY_NTFY_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    return true;
+MDRResult<void> PlayStatusCommon::Validate(const PlayStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_RET_STATUS || data.base.command == Command::PLAY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
 }
-bool PlayStatusSetPlaybackController::Validate(const PlayStatusSetPlaybackController& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_SET_STATUS, "EnumRange check fail, must be one of Command::PLAY_SET_STATUS, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, "EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.control), "control got an invalid enum value");
-    return true;
+MDRResult<void> PlayStatusSetPlaybackController::Validate(const PlayStatusSetPlaybackController& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_SET_STATUS);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.control));
+    return MDRResult<void>::Success();
 }
-bool PlayGetParam::Validate(const PlayGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_GET_PARAM, "EnumRange check fail, must be one of Command::PLAY_GET_PARAM, got {}",data.base.command);
-    return true;
+MDRResult<void> PlayGetParam::Validate(const PlayGetParam& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_GET_PARAM);
+    return MDRResult<void>::Success();
 }
-bool PlayParamBase::Validate(const PlayParamBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> PlayParamBase::Validate(const PlayParamBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool PlayParamPlaybackControllerName::Validate(const PlayParamPlaybackControllerName& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM, "EnumRange check fail, must be one of Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, "EnumRange check fail, must be one of PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE, got {}",data.base.type);
+MDRResult<void> PlayParamPlaybackControllerName::Validate(const PlayParamPlaybackControllerName& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE || data.base.type == PlayInquiredType::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE);
     for (const auto& playbackNames_elem : data.playbackNames) {
-        MDR_CHECK_MSG(is_valid(playbackNames_elem.playbackNameStatus), "playbackNameStatus got an invalid enum value");
+        MDR_VALIDATE(is_valid(playbackNames_elem.playbackNameStatus));
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool PlayParamPlaybackControllerVolume::Validate(const PlayParamPlaybackControllerVolume& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_SET_PARAM || data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM, "EnumRange check fail, must be one of Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::MUSIC_VOLUME || data.base.type == PlayInquiredType::CALL_VOLUME || data.base.type == PlayInquiredType::MUSIC_VOLUME_WITH_MUTE || data.base.type == PlayInquiredType::CALL_VOLUME_WITH_MUTE, "EnumRange check fail, must be one of PlayInquiredType::MUSIC_VOLUME PlayInquiredType::CALL_VOLUME PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE, got {}",data.base.type);
-    return true;
+MDRResult<void> PlayParamPlaybackControllerVolume::Validate(const PlayParamPlaybackControllerVolume& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_SET_PARAM || data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::MUSIC_VOLUME || data.base.type == PlayInquiredType::CALL_VOLUME || data.base.type == PlayInquiredType::MUSIC_VOLUME_WITH_MUTE || data.base.type == PlayInquiredType::CALL_VOLUME_WITH_MUTE);
+    return MDRResult<void>::Success();
 }
-bool PlayParamPlaybackControllerVolumeWithMute::Validate(const PlayParamPlaybackControllerVolumeWithMute& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM, "EnumRange check fail, must be one of Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::MUSIC_VOLUME_WITH_MUTE || data.base.type == PlayInquiredType::CALL_VOLUME_WITH_MUTE, "EnumRange check fail, must be one of PlayInquiredType::MUSIC_VOLUME_WITH_MUTE PlayInquiredType::CALL_VOLUME_WITH_MUTE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.muteSetting), "muteSetting got an invalid enum value");
-    return true;
+MDRResult<void> PlayParamPlaybackControllerVolumeWithMute::Validate(const PlayParamPlaybackControllerVolumeWithMute& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::MUSIC_VOLUME_WITH_MUTE || data.base.type == PlayInquiredType::CALL_VOLUME_WITH_MUTE);
+    MDR_VALIDATE(is_valid(data.muteSetting));
+    return MDRResult<void>::Success();
 }
-bool PlayParamPlayMode::Validate(const PlayParamPlayMode& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::PLAY_SET_PARAM || data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM, "EnumRange check fail, must be one of Command::PLAY_SET_PARAM Command::PLAY_RET_PARAM Command::PLAY_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == PlayInquiredType::PLAY_MODE, "EnumRange check fail, must be one of PlayInquiredType::PLAY_MODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.playMode), "playMode got an invalid enum value");
-    return true;
+MDRResult<void> PlayParamPlayMode::Validate(const PlayParamPlayMode& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::PLAY_SET_PARAM || data.base.command == Command::PLAY_RET_PARAM || data.base.command == Command::PLAY_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == PlayInquiredType::PLAY_MODE);
+    MDR_VALIDATE(is_valid(data.playMode));
+    return MDRResult<void>::Success();
 }
-bool GsGetCapability::Validate(const GsGetCapability& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::GENERAL_SETTING_GET_CAPABILITY, "EnumRange check fail, must be one of Command::GENERAL_SETTING_GET_CAPABILITY, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.displayLanguage), "displayLanguage got an invalid enum value");
-    return true;
+MDRResult<void> GsGetCapability::Validate(const GsGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::GENERAL_SETTING_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.displayLanguage));
+    return MDRResult<void>::Success();
 }
-bool GsRetCapability::Validate(const GsRetCapability& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::GENERAL_SETTING_RET_CAPABILITY, "EnumRange check fail, must be one of Command::GENERAL_SETTING_RET_CAPABILITY, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.settingType), "settingType got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.settingInfo.stringFormat), "stringFormat got an invalid enum value");
-    return true;
+MDRResult<void> GsRetCapability::Validate(const GsRetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.settingType));
+    MDR_VALIDATE(is_valid(data.settingInfo.stringFormat));
+    return MDRResult<void>::Success();
 }
-bool GsGetParam::Validate(const GsGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::GENERAL_SETTING_GET_PARAM, "EnumRange check fail, must be one of Command::GENERAL_SETTING_GET_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> GsGetParam::Validate(const GsGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::GENERAL_SETTING_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool GsParamBase::Validate(const GsParamBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.settingType), "settingType got an invalid enum value");
-    return true;
+MDRResult<void> GsParamBase::Validate(const GsParamBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.settingType));
+    return MDRResult<void>::Success();
 }
-bool GsParamBoolean::Validate(const GsParamBoolean& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.settingType), "settingType got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::GENERAL_SETTING_RET_PARAM || data.base.command == Command::GENERAL_SETTING_SET_PARAM || data.base.command == Command::GENERAL_SETTING_NTFY_PARAM, "EnumRange check fail, must be one of Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.settingType == GsSettingType::BOOLEAN_TYPE, "EnumRange check fail, must be one of GsSettingType::BOOLEAN_TYPE, got {}",data.base.settingType);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    return true;
+MDRResult<void> GsParamBoolean::Validate(const GsParamBoolean& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.base.settingType));
+    MDR_VALIDATE(data.base.command == Command::GENERAL_SETTING_RET_PARAM || data.base.command == Command::GENERAL_SETTING_SET_PARAM || data.base.command == Command::GENERAL_SETTING_NTFY_PARAM);
+    MDR_VALIDATE(data.base.settingType == GsSettingType::BOOLEAN_TYPE);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
 }
-bool GsParamList::Validate(const GsParamList& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.settingType), "settingType got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::GENERAL_SETTING_RET_PARAM || data.base.command == Command::GENERAL_SETTING_SET_PARAM || data.base.command == Command::GENERAL_SETTING_NTFY_PARAM, "EnumRange check fail, must be one of Command::GENERAL_SETTING_RET_PARAM Command::GENERAL_SETTING_SET_PARAM Command::GENERAL_SETTING_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.settingType == GsSettingType::LIST_TYPE, "EnumRange check fail, must be one of GsSettingType::LIST_TYPE, got {}",data.base.settingType);
-    return true;
+MDRResult<void> GsParamList::Validate(const GsParamList& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.base.settingType));
+    MDR_VALIDATE(data.base.command == Command::GENERAL_SETTING_RET_PARAM || data.base.command == Command::GENERAL_SETTING_SET_PARAM || data.base.command == Command::GENERAL_SETTING_NTFY_PARAM);
+    MDR_VALIDATE(data.base.settingType == GsSettingType::LIST_TYPE);
+    return MDRResult<void>::Success();
 }
-bool AudioGetCapability::Validate(const AudioGetCapability& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::AUDIO_GET_CAPABILITY, "EnumRange check fail, must be one of Command::AUDIO_GET_CAPABILITY, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> AudioGetCapability::Validate(const AudioGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::AUDIO_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool AudioBase::Validate(const AudioBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> AudioBase::Validate(const AudioBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool AudioRetCapabilityUpscaling::Validate(const AudioRetCapabilityUpscaling& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_CAPABILITY, "EnumRange check fail, must be one of Command::AUDIO_RET_CAPABILITY, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::UPSCALING, "EnumRange check fail, must be one of AudioInquiredType::UPSCALING, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.upscalingType), "upscalingType got an invalid enum value");
-    return true;
+MDRResult<void> AudioRetCapabilityUpscaling::Validate(const AudioRetCapabilityUpscaling& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_CAPABILITY);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::UPSCALING);
+    MDR_VALIDATE(is_valid(data.upscalingType));
+    return MDRResult<void>::Success();
 }
-bool AudioGetStatus::Validate(const AudioGetStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::AUDIO_GET_STATUS, "EnumRange check fail, must be one of Command::AUDIO_GET_STATUS, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> AudioGetStatus::Validate(const AudioGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::AUDIO_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool AudioGetParam::Validate(const AudioGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::AUDIO_GET_PARAM, "EnumRange check fail, must be one of Command::AUDIO_GET_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> AudioGetParam::Validate(const AudioGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::AUDIO_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool AudioParamConnection::Validate(const AudioParamConnection& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::CONNECTION_MODE, "EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamConnection::Validate(const AudioParamConnection& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::CONNECTION_MODE);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioParamUpscaling::Validate(const AudioParamUpscaling& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::UPSCALING, "EnumRange check fail, must be one of AudioInquiredType::UPSCALING, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamUpscaling::Validate(const AudioParamUpscaling& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::UPSCALING);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioStatusCommon::Validate(const AudioStatusCommon& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(is_valid(data.status), "status got an invalid enum value");
-    return true;
+MDRResult<void> AudioStatusCommon::Validate(const AudioStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
 }
-bool AudioParamConnectionWithLdacStatus::Validate(const AudioParamConnectionWithLdacStatus& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS, "EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamConnectionWithLdacStatus::Validate(const AudioParamConnectionWithLdacStatus& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioRetParamConnectionModeClassicAudioLeAudio::Validate(const AudioRetParamConnectionModeClassicAudioLeAudio& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO, "EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioRetParamConnectionModeClassicAudioLeAudio::Validate(const AudioRetParamConnectionModeClassicAudioLeAudio& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioParamBGMMode::Validate(const AudioParamBGMMode& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::BGM_MODE || data.base.type == AudioInquiredType::BGM_MODE_AND_ERRORCODE, "EnumRange check fail, must be one of AudioInquiredType::BGM_MODE AudioInquiredType::BGM_MODE_AND_ERRORCODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffSettingValue), "onOffSettingValue got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.targetRoomSize), "targetRoomSize got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamBGMMode::Validate(const AudioParamBGMMode& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::BGM_MODE || data.base.type == AudioInquiredType::BGM_MODE_AND_ERRORCODE);
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    MDR_VALIDATE(is_valid(data.targetRoomSize));
+    return MDRResult<void>::Success();
 }
-bool AudioParamUpmixCinema::Validate(const AudioParamUpmixCinema& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::UPMIX_CINEMA, "EnumRange check fail, must be one of AudioInquiredType::UPMIX_CINEMA, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffSettingValue), "onOffSettingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamUpmixCinema::Validate(const AudioParamUpmixCinema& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::UPMIX_CINEMA);
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioParamVoiceContents::Validate(const AudioParamVoiceContents& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::VOICE_CONTENTS, "EnumRange check fail, must be one of AudioInquiredType::VOICE_CONTENTS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffSettingValue), "onOffSettingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamVoiceContents::Validate(const AudioParamVoiceContents& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::VOICE_CONTENTS);
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioParamSoundLeakageReduction::Validate(const AudioParamSoundLeakageReduction& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::SOUND_LEAKAGE_REDUCTION, "EnumRange check fail, must be one of AudioInquiredType::SOUND_LEAKAGE_REDUCTION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffSettingValue), "onOffSettingValue got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamSoundLeakageReduction::Validate(const AudioParamSoundLeakageReduction& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::SOUND_LEAKAGE_REDUCTION);
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    return MDRResult<void>::Success();
 }
-bool AudioParamListeningOptionAssignCustomizableItem::Validate(const AudioParamListeningOptionAssignCustomizableItem& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE, "EnumRange check fail, must be one of AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE, got {}",data.base.type);
+MDRResult<void> AudioParamListeningOptionAssignCustomizableItem::Validate(const AudioParamListeningOptionAssignCustomizableItem& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE);
     for (const auto& items_elem : data.items) {
-        MDR_CHECK_MSG(is_valid(items_elem), "items got an invalid enum value");
+        MDR_VALIDATE(is_valid(items_elem));
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool AudioParamUpmixSeries::Validate(const AudioParamUpmixSeries& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM, "EnumRange check fail, must be one of Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::UPMIX_SERIES, "EnumRange check fail, must be one of AudioInquiredType::UPMIX_SERIES, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.upmixItemId), "upmixItemId got an invalid enum value");
-    return true;
+MDRResult<void> AudioParamUpmixSeries::Validate(const AudioParamUpmixSeries& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::UPMIX_SERIES);
+    MDR_VALIDATE(is_valid(data.upmixItemId));
+    return MDRResult<void>::Success();
 }
-bool AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const AudioSetParamConnectionModeClassicAudioLeAudio& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::AUDIO_SET_PARAM, "EnumRange check fail, must be one of Command::AUDIO_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO, "EnumRange check fail, must be one of AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.alertConfirmation), "alertConfirmation got an invalid enum value");
-    return true;
+MDRResult<void> AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const AudioSetParamConnectionModeClassicAudioLeAudio& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::AUDIO_SET_PARAM);
+    MDR_VALIDATE(data.base.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    MDR_VALIDATE(is_valid(data.alertConfirmation));
+    return MDRResult<void>::Success();
 }
-bool AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const AudioNtfyParamConnectionModeClassicAudioLeAudio& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.switchingStream), "switchingStream got an invalid enum value");
-    return true;
+MDRResult<void> AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const AudioNtfyParamConnectionModeClassicAudioLeAudio& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    MDR_VALIDATE(is_valid(data.switchingStream));
+    return MDRResult<void>::Success();
 }
-bool SystemGetParam::Validate(const SystemGetParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::SYSTEM_GET_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_GET_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> SystemGetParam::Validate(const SystemGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool SystemBase::Validate(const SystemBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> SystemBase::Validate(const SystemBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool SystemParamCommon::Validate(const SystemParamCommon& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::VIBRATOR || data.base.type == SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING || data.base.type == SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD || data.base.type == SystemInquiredType::AUTO_VOLUME || data.base.type == SystemInquiredType::HEAD_GESTURE_ON_OFF, "EnumRange check fail, must be one of SystemInquiredType::VIBRATOR SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD SystemInquiredType::AUTO_VOLUME SystemInquiredType::HEAD_GESTURE_ON_OFF, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.settingValue), "settingValue got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamCommon::Validate(const SystemParamCommon& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::VIBRATOR || data.base.type == SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING || data.base.type == SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD || data.base.type == SystemInquiredType::AUTO_VOLUME || data.base.type == SystemInquiredType::HEAD_GESTURE_ON_OFF);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
 }
-bool SystemParamSmartTalking::Validate(const SystemParamSmartTalking& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE1 || data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE2, "EnumRange check fail, must be one of SystemInquiredType::SMART_TALKING_MODE_TYPE1 SystemInquiredType::SMART_TALKING_MODE_TYPE2, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.onOffValue), "onOffValue got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.previewModeOnOffValue), "previewModeOnOffValue got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamSmartTalking::Validate(const SystemParamSmartTalking& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE1 || data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE2);
+    MDR_VALIDATE(is_valid(data.onOffValue));
+    MDR_VALIDATE(is_valid(data.previewModeOnOffValue));
+    return MDRResult<void>::Success();
 }
-bool SystemParamAssignableSettings::Validate(const SystemParamAssignableSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS, got {}",data.base.type);
+MDRResult<void> SystemParamAssignableSettings::Validate(const SystemParamAssignableSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS);
     for (const auto& presets_elem : data.presets) {
-        MDR_CHECK_MSG(is_valid(presets_elem), "presets got an invalid enum value");
+        MDR_VALIDATE(is_valid(presets_elem));
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool SystemParamVoiceAssistantSettings::Validate(const SystemParamVoiceAssistantSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::VOICE_ASSISTANT_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::VOICE_ASSISTANT_SETTINGS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.voiceAssistant), "voiceAssistant got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamVoiceAssistantSettings::Validate(const SystemParamVoiceAssistantSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::VOICE_ASSISTANT_SETTINGS);
+    MDR_VALIDATE(is_valid(data.voiceAssistant));
+    return MDRResult<void>::Success();
 }
-bool SystemParamWearingStatusDetector::Validate(const SystemParamWearingStatusDetector& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::WEARING_STATUS_DETECTOR, "EnumRange check fail, must be one of SystemInquiredType::WEARING_STATUS_DETECTOR, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.operationStatus), "operationStatus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.errorCode), "errorCode got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.currentDetectingSeries), "currentDetectingSeries got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.earpieceSize), "earpieceSize got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamWearingStatusDetector::Validate(const SystemParamWearingStatusDetector& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::WEARING_STATUS_DETECTOR);
+    MDR_VALIDATE(is_valid(data.operationStatus));
+    MDR_VALIDATE(is_valid(data.errorCode));
+    MDR_VALIDATE(is_valid(data.currentDetectingSeries));
+    MDR_VALIDATE(is_valid(data.earpieceSize));
+    return MDRResult<void>::Success();
 }
-bool SystemParamEarpieceSelection::Validate(const SystemParamEarpieceSelection& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::EARPIECE_SELECTION, "EnumRange check fail, must be one of SystemInquiredType::EARPIECE_SELECTION, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.series), "series got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamEarpieceSelection::Validate(const SystemParamEarpieceSelection& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::EARPIECE_SELECTION);
+    MDR_VALIDATE(is_valid(data.series));
+    return MDRResult<void>::Success();
 }
-bool SystemParamCallSettings::Validate(const SystemParamCallSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::CALL_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::CALL_SETTINGS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.selfVoiceOnOff), "selfVoiceOnOff got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamCallSettings::Validate(const SystemParamCallSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::CALL_SETTINGS);
+    MDR_VALIDATE(is_valid(data.selfVoiceOnOff));
+    return MDRResult<void>::Success();
 }
-bool SystemParamAssignableSettingsWithLimit::Validate(const SystemParamAssignableSettingsWithLimit& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION, "EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION, got {}",data.base.type);
+MDRResult<void> SystemParamAssignableSettingsWithLimit::Validate(const SystemParamAssignableSettingsWithLimit& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION);
     for (const auto& presets_elem : data.presets) {
-        MDR_CHECK_MSG(is_valid(presets_elem), "presets got an invalid enum value");
+        MDR_VALIDATE(is_valid(presets_elem));
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool SystemParamHeadGestureTraining::Validate(const SystemParamHeadGestureTraining& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_PARAM Command::SYSTEM_SET_PARAM Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::HEAD_GESTURE_TRAINING, "EnumRange check fail, must be one of SystemInquiredType::HEAD_GESTURE_TRAINING, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.headGestureAction), "headGestureAction got an invalid enum value");
-    return true;
+MDRResult<void> SystemParamHeadGestureTraining::Validate(const SystemParamHeadGestureTraining& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_PARAM || data.base.command == Command::SYSTEM_SET_PARAM || data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::HEAD_GESTURE_TRAINING);
+    MDR_VALIDATE(is_valid(data.headGestureAction));
+    return MDRResult<void>::Success();
 }
-bool SystemSetParamWearingStatusDetector::Validate(const SystemSetParamWearingStatusDetector& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_SET_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::WEARING_STATUS_DETECTOR, "EnumRange check fail, must be one of SystemInquiredType::WEARING_STATUS_DETECTOR, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.operation), "operation got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.currentDetectionSeries), "currentDetectionSeries got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.currentDetectionSize), "currentDetectionSize got an invalid enum value");
-    return true;
+MDRResult<void> SystemSetParamWearingStatusDetector::Validate(const SystemSetParamWearingStatusDetector& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::WEARING_STATUS_DETECTOR);
+    MDR_VALIDATE(is_valid(data.operation));
+    MDR_VALIDATE(is_valid(data.currentDetectionSeries));
+    MDR_VALIDATE(is_valid(data.currentDetectionSize));
+    return MDRResult<void>::Success();
 }
-bool SystemSetParamResetSettings::Validate(const SystemSetParamResetSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_SET_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_SET_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::RESET_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::RESET_SETTINGS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.resetType), "resetType got an invalid enum value");
-    return true;
+MDRResult<void> SystemSetParamResetSettings::Validate(const SystemSetParamResetSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::RESET_SETTINGS);
+    MDR_VALIDATE(is_valid(data.resetType));
+    return MDRResult<void>::Success();
 }
-bool SystemNotifyParamResetSettings::Validate(const SystemNotifyParamResetSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::RESET_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::RESET_SETTINGS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.resetResult), "resetResult got an invalid enum value");
-    return true;
+MDRResult<void> SystemNotifyParamResetSettings::Validate(const SystemNotifyParamResetSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::RESET_SETTINGS);
+    MDR_VALIDATE(is_valid(data.resetResult));
+    return MDRResult<void>::Success();
 }
-bool SystemNotifyParamFaceTapTestMode::Validate(const SystemNotifyParamFaceTapTestMode& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_NTFY_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_NTFY_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::FACE_TAP_TEST_MODE, "EnumRange check fail, must be one of SystemInquiredType::FACE_TAP_TEST_MODE, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.key), "key got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.action), "action got an invalid enum value");
-    return true;
+MDRResult<void> SystemNotifyParamFaceTapTestMode::Validate(const SystemNotifyParamFaceTapTestMode& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::FACE_TAP_TEST_MODE);
+    MDR_VALIDATE(is_valid(data.key));
+    MDR_VALIDATE(is_valid(data.action));
+    return MDRResult<void>::Success();
 }
-bool SystemGetExtParam::Validate(const SystemGetExtParam& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(data.command == Command::SYSTEM_GET_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_GET_EXT_PARAM, got {}",data.command);
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> SystemGetExtParam::Validate(const SystemGetExtParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXT_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool SystemExtBase::Validate(const SystemExtBase& data) {
-    MDR_CHECK_MSG(is_valid(data.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.type), "type got an invalid enum value");
-    return true;
+MDRResult<void> SystemExtBase::Validate(const SystemExtBase& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
 }
-bool SystemExtParamSmartTalkingMode1::Validate(const SystemExtParamSmartTalkingMode1& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE1, "EnumRange check fail, must be one of SystemInquiredType::SMART_TALKING_MODE_TYPE1, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.detectSensitivity), "detectSensitivity got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.voiceFocus), "voiceFocus got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.modeOffTime), "modeOffTime got an invalid enum value");
-    return true;
+MDRResult<void> SystemExtParamSmartTalkingMode1::Validate(const SystemExtParamSmartTalkingMode1& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE1);
+    MDR_VALIDATE(is_valid(data.detectSensitivity));
+    MDR_VALIDATE(is_valid(data.voiceFocus));
+    MDR_VALIDATE(is_valid(data.modeOffTime));
+    return MDRResult<void>::Success();
 }
-bool SystemExtParamAssignableSettings::Validate(const SystemExtParamAssignableSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS, got {}",data.base.type);
+MDRResult<void> SystemExtParamAssignableSettings::Validate(const SystemExtParamAssignableSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS);
     for (const auto& presets_elem : data.presets) {
-        MDR_CHECK_MSG(is_valid(presets_elem.preset), "preset got an invalid enum value");
+        MDR_VALIDATE(is_valid(presets_elem.preset));
         for (const auto& actions_elem : presets_elem.actions) {
-            MDR_CHECK_MSG(is_valid(actions_elem.action), "action got an invalid enum value");
-            MDR_CHECK_MSG(is_valid(actions_elem.function), "function got an invalid enum value");
+            MDR_VALIDATE(is_valid(actions_elem.action));
+            MDR_VALIDATE(is_valid(actions_elem.function));
         }
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool SystemExtParamWearingStatusDetector::Validate(const SystemExtParamWearingStatusDetector& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::WEARING_STATUS_DETECTOR, "EnumRange check fail, must be one of SystemInquiredType::WEARING_STATUS_DETECTOR, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.fittingResultLeft), "fittingResultLeft got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.fittingResultRight), "fittingResultRight got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.bestEarpieceSeriesLeft), "bestEarpieceSeriesLeft got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.bestEarpieceSeriesRight), "bestEarpieceSeriesRight got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.bestEarpieceSizeLeft), "bestEarpieceSizeLeft got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.bestEarpieceSizeRight), "bestEarpieceSizeRight got an invalid enum value");
-    return true;
+MDRResult<void> SystemExtParamWearingStatusDetector::Validate(const SystemExtParamWearingStatusDetector& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::WEARING_STATUS_DETECTOR);
+    MDR_VALIDATE(is_valid(data.fittingResultLeft));
+    MDR_VALIDATE(is_valid(data.fittingResultRight));
+    MDR_VALIDATE(is_valid(data.bestEarpieceSeriesLeft));
+    MDR_VALIDATE(is_valid(data.bestEarpieceSeriesRight));
+    MDR_VALIDATE(is_valid(data.bestEarpieceSizeLeft));
+    MDR_VALIDATE(is_valid(data.bestEarpieceSizeRight));
+    return MDRResult<void>::Success();
 }
-bool SystemExtParamSmartTalkingMode2::Validate(const SystemExtParamSmartTalkingMode2& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE2, "EnumRange check fail, must be one of SystemInquiredType::SMART_TALKING_MODE_TYPE2, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.detectSensitivity), "detectSensitivity got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.modeOffTime), "modeOffTime got an invalid enum value");
-    return true;
+MDRResult<void> SystemExtParamSmartTalkingMode2::Validate(const SystemExtParamSmartTalkingMode2& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::SMART_TALKING_MODE_TYPE2);
+    MDR_VALIDATE(is_valid(data.detectSensitivity));
+    MDR_VALIDATE(is_valid(data.modeOffTime));
+    return MDRResult<void>::Success();
 }
-bool SystemExtParamAssignableSettingsWithLimit::Validate(const SystemExtParamAssignableSettingsWithLimit& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_RET_EXT_PARAM Command::SYSTEM_SET_EXT_PARAM Command::SYSTEM_NTFY_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION, "EnumRange check fail, must be one of SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION, got {}",data.base.type);
+MDRResult<void> SystemExtParamAssignableSettingsWithLimit::Validate(const SystemExtParamAssignableSettingsWithLimit& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_RET_EXT_PARAM || data.base.command == Command::SYSTEM_SET_EXT_PARAM || data.base.command == Command::SYSTEM_NTFY_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION);
     for (const auto& presets_elem : data.presets) {
-        MDR_CHECK_MSG(is_valid(presets_elem.preset), "preset got an invalid enum value");
+        MDR_VALIDATE(is_valid(presets_elem.preset));
         for (const auto& actions_elem : presets_elem.actions) {
-            MDR_CHECK_MSG(is_valid(actions_elem.action), "action got an invalid enum value");
-            MDR_CHECK_MSG(is_valid(actions_elem.function), "function got an invalid enum value");
+            MDR_VALIDATE(is_valid(actions_elem.action));
+            MDR_VALIDATE(is_valid(actions_elem.function));
         }
     }
-    return true;
+    return MDRResult<void>::Success();
 }
-bool SystemSetExtParamCallSettings::Validate(const SystemSetExtParamCallSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_SET_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_SET_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::CALL_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::CALL_SETTINGS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.testSoundControl), "testSoundControl got an invalid enum value");
-    return true;
+MDRResult<void> SystemSetExtParamCallSettings::Validate(const SystemSetExtParamCallSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_SET_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::CALL_SETTINGS);
+    MDR_VALIDATE(is_valid(data.testSoundControl));
+    return MDRResult<void>::Success();
 }
-bool SystemNotifyExtParamCallSettings::Validate(const SystemNotifyExtParamCallSettings& data) {
-    MDR_CHECK_MSG(is_valid(data.base.command), "command got an invalid enum value");
-    MDR_CHECK_MSG(is_valid(data.base.type), "type got an invalid enum value");
-    MDR_CHECK_MSG(data.base.command == Command::SYSTEM_NTFY_EXT_PARAM, "EnumRange check fail, must be one of Command::SYSTEM_NTFY_EXT_PARAM, got {}",data.base.command);
-    MDR_CHECK_MSG(data.base.type == SystemInquiredType::CALL_SETTINGS, "EnumRange check fail, must be one of SystemInquiredType::CALL_SETTINGS, got {}",data.base.type);
-    MDR_CHECK_MSG(is_valid(data.testSoundControlAck), "testSoundControlAck got an invalid enum value");
-    return true;
+MDRResult<void> SystemNotifyExtParamCallSettings::Validate(const SystemNotifyExtParamCallSettings& data) {
+    MDR_VALIDATE(is_valid(data.base.command));
+    MDR_VALIDATE(is_valid(data.base.type));
+    MDR_VALIDATE(data.base.command == Command::SYSTEM_NTFY_EXT_PARAM);
+    MDR_VALIDATE(data.base.type == SystemInquiredType::CALL_SETTINGS);
+    MDR_VALIDATE(is_valid(data.testSoundControlAck));
+    return MDRResult<void>::Success();
 }
 }

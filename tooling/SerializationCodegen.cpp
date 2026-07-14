@@ -63,6 +63,7 @@ struct FieldSerializeVisitorParams
     bool isDeserialize = false;
     bool isRead = false;
     bool isWrite = false;
+    std::string resultType;
 };
 CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClientData pParams)
 {
@@ -85,24 +86,24 @@ CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClie
         if (result.hasWrite && result.hasRead)
         {
             if (params->isSerialize)
-                println("        maxSize -= {}::Write(data.{}, &ptr, maxSize);", clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, {}::Write(data.{}, &ptr, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
             if (params->isWrite)
-                println("        maxSize -= {}::Write(data.{}, ppDstBuffer, maxSize);", clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, {}::Write(data.{}, ppDstBuffer, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
             if (params->isDeserialize)
-                println("        maxSize -= {}::Read(&data, out.{}, maxSize);", clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, {}::Read(&data, out.{}, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
             if (params->isRead)
-                println("        maxSize -= {}::Read(ppSrcBuffer, out.{}, maxSize);", clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, {}::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
         }
         else
         {
             if (params->isSerialize)
-                println("        maxSize -= MDRPod::Write(data.{}, &ptr, maxSize);", clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, &ptr, maxSize));", params->resultType, clang_getCString(name));
             if (params->isWrite)
-                println("        maxSize -= MDRPod::Write(data.{}, ppDstBuffer, maxSize);", clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, ppDstBuffer, maxSize));", params->resultType, clang_getCString(name));
             if (params->isDeserialize)
-                println("        maxSize -= MDRPod::Read(&data, out.{}, maxSize);", clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(&data, out.{}, maxSize));", params->resultType, clang_getCString(name));
             if (params->isRead)
-                println("        maxSize -= MDRPod::Read(ppSrcBuffer, out.{}, maxSize);", clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType, clang_getCString(name));
         }
         clang_disposeString(name);
         clang_disposeString(typeName);
@@ -141,22 +142,21 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             if (!isIgnored)
             {
                 // Write
-                // static size_t Write(const Type &data, UInt8** ppDstBuffer);
-                println("    size_t {}::Write(const {}& data, UInt8** ppDstBuffer, size_t maxSize)", structName,structName);
+                println("    MDRResult<size_t> {}::Write(const {}& data, UInt8** ppDstBuffer, size_t maxSize)", structName,structName);
                 println("    {{");
                 println("        UInt8* ptr = *ppDstBuffer;");
+                params.resultType = "size_t";
                 params.isRead = false, params.isWrite = true;
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
-                println("        return *ppDstBuffer - ptr;");
+                println("        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);");
                 println("    }}");
-                // Read
-                // static void Read(UInt8** ppSrcBuffer, Type &out, size_t maxSize = ~0LL);
-                println("    size_t {}::Read(const UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
+                println("    MDRResult<size_t> {}::Read(const UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
                 println("    {{");
                 println("        const UInt8* ptr = *ppSrcBuffer;");
+                params.resultType = "size_t";
                 params.isRead = true, params.isWrite = false;
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
-                println("        return *ppSrcBuffer - ptr;");
+                println("        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);");
                 println("    }}");
             }
         } else
@@ -164,19 +164,23 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             // Emit serialization bodies
             if (isExtern && !isIgnored)
             {
-                // Serialize
-                println("    size_t {}::Serialize(const {}& data, UInt8* out, size_t maxSize)", structName,structName);
+                println("    MDRResult<size_t> {}::Serialize(const {}& data, UInt8* out, size_t maxSize)", structName,structName);
                 println("    {{");
                 println("        UInt8* ptr = out;");
+                println("        MDR_TRY(size_t, Validate(data));");
+                params.resultType = "size_t";
                 params.isSerialize = true, params.isDeserialize = false;
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
-                println("        return ptr - out;");
+                println("        return MDRResult<size_t>::Success(ptr - out);");
                 println("    }}");
-                // Deserialize
-                println("    void {}::Deserialize(const UInt8* data, {}& out, size_t maxSize)", structName,structName);
+                println("    MDRResult<{}> {}::Deserialize(const UInt8* data, size_t maxSize)", structName,structName);
                 println("    {{");
+                println("        {} out{{}};", structName);
+                params.resultType = structName;
                 params.isSerialize = false, params.isDeserialize = true;
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
+                println("        MDR_TRY({}, Validate(out));", structName);
+                println("        return MDRResult<{}>::Success(std::move(out));", structName);
                 println("    }}");
             }
             clang_disposeString(name);

@@ -139,15 +139,8 @@ namespace mdr
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;
-            try
-            {
-                if (TaskMoveNext(taskResult))
-                    return taskResult;
-            } catch (std::runtime_error& e)
-            {
-                mLastError = e.what();
-                return MDR_HEADPHONES_ERROR;
-            }
+            if (TaskMoveNext(taskResult))
+                return taskResult;
         }
         int idleCode = mTask ? MDR_HEADPHONES_INPROGRESS : MDR_HEADPHONES_IDLE;
         if (mRecvBuf.empty())
@@ -191,10 +184,7 @@ namespace mdr
     {
         if (!mTask || !mTask.coroutine.done())
             return false;
-        auto& [exec, next, value] = mTask.coroutine.promise();
-        result = value;
-        if (exec)
-            std::rethrow_exception(exec);
+        result = mTask.coroutine.promise().result;
         mTask = {};
         return true;
     }
@@ -240,6 +230,12 @@ const char* mdrResultString(int err)
         return "Invalid address information";
     case MDR_RESULT_ERROR_NOT_SUPPORTED:
         return "Not supported";
+    case MDR_RESULT_ERROR_BUFFER_TOO_SMALL:
+        return "Buffer too small";
+    case MDR_RESULT_ERROR_MALFORMED_PAYLOAD:
+        return "Malformed payload";
+    case MDR_RESULT_ERROR_INVALID_ARGUMENT:
+        return "Invalid argument";
     default:
         return "Unknown";
     }

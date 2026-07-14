@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <mdr/Headphones.hpp>
+#include "Macros.hpp"
 // NOLINTBEGIN
 namespace mdr
 {
@@ -8,7 +9,11 @@ namespace mdr
     {
         SendCommandACK(t1::ConnectGetProtocolInfo);
         co_await Await(AWAIT_PROTOCOL_INFO);
-        MDR_CHECK_MSG(mProtocol.hasTable1, "Device doesn't support MDR V2 Table 1");
+        if (!mProtocol.hasTable1)
+        {
+            SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
+            co_return MDR_HEADPHONES_ERROR;
+        }
         SendCommandACK(t1::ConnectGetCapabilityInfo);
 
         /* Device Info */
@@ -571,7 +576,10 @@ namespace mdr
                         static_cast<UInt8>(bands[9] + 6),
                     }};
                 else
-                    MDR_CHECK_MSG(false, "mEqConfig size can only be 0, 5, or 10. Got {}.", eqBands);
+                {
+                    SetLastError(MDR_RESULT_ERROR_INVALID_ARGUMENT, "mEqConfig size must be 0, 5, or 10");
+                    co_return MDR_HEADPHONES_ERROR;
+                }
                 mEqConfig.commit();
                 mEqClearBass.commit();
                 SendCommandACK(EqEbbParamEq, res);
