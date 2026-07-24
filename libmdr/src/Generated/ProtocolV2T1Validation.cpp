@@ -113,6 +113,7 @@ MDRResult<void> PowerRetStatusBattery::Validate(const PowerRetStatusBattery& dat
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(is_valid(data.batteryStatus.chargingStatus));
     MDR_VALIDATE(data.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryLevel <= 100);
     return MDRResult<void>::Success();
 }
 MDRResult<void> PowerRetStatusLeftRightBattery::Validate(const PowerRetStatusLeftRightBattery& data) {
@@ -123,6 +124,8 @@ MDRResult<void> PowerRetStatusLeftRightBattery::Validate(const PowerRetStatusLef
     MDR_VALIDATE(is_valid(data.batteryStatus.leftChargingStatus));
     MDR_VALIDATE(is_valid(data.batteryStatus.rightChargingStatus));
     MDR_VALIDATE(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100);
     MDR_VALIDATE(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100);
     return MDRResult<void>::Success();
 }
@@ -141,6 +144,8 @@ MDRResult<void> PowerRetStatusBatteryThreshold::Validate(const PowerRetStatusBat
     MDR_VALIDATE(data.base.type == PowerInquiredType::BATTERY_WITH_THRESHOLD);
     MDR_VALIDATE(is_valid(data.batteryStatus.batteryStatus.chargingStatus));
     MDR_VALIDATE(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.batteryThreshold >= 0 && data.batteryStatus.batteryThreshold <= 100);
     MDR_VALIDATE(data.batteryStatus.batteryThreshold >= 0 && data.batteryStatus.batteryThreshold <= 100);
     return MDRResult<void>::Success();
 }
@@ -152,8 +157,12 @@ MDRResult<void> PowerRetStatusLeftRightBatteryThreshold::Validate(const PowerRet
     MDR_VALIDATE(is_valid(data.batteryStatus.leftChargingStatus));
     MDR_VALIDATE(is_valid(data.batteryStatus.rightChargingStatus));
     MDR_VALIDATE(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.leftBatteryLevel >= 0 && data.batteryStatus.leftBatteryLevel <= 100);
+    MDR_VALIDATE(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100);
     MDR_VALIDATE(data.batteryStatus.rightBatteryLevel >= 0 && data.batteryStatus.rightBatteryLevel <= 100);
     MDR_VALIDATE(data.leftBatteryThreshold >= 0 && data.leftBatteryThreshold <= 100);
+    MDR_VALIDATE(data.leftBatteryThreshold >= 0 && data.leftBatteryThreshold <= 100);
+    MDR_VALIDATE(data.rightBatteryThreshold >= 0 && data.rightBatteryThreshold <= 100);
     MDR_VALIDATE(data.rightBatteryThreshold >= 0 && data.rightBatteryThreshold <= 100);
     return MDRResult<void>::Success();
 }
@@ -163,6 +172,7 @@ MDRResult<void> PowerRetStatusCradleBatteryThreshold::Validate(const PowerRetSta
     MDR_VALIDATE(data.base.command == Command::POWER_RET_STATUS);
     MDR_VALIDATE(data.base.type == PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD);
     MDR_VALIDATE(is_valid(data.batteryStatus.batteryStatus.chargingStatus));
+    MDR_VALIDATE(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100);
     MDR_VALIDATE(data.batteryStatus.batteryStatus.batteryLevel >= 0 && data.batteryStatus.batteryStatus.batteryLevel <= 100);
     return MDRResult<void>::Success();
 }
@@ -694,7 +704,7 @@ MDRResult<void> AudioParamUpscaling::Validate(const AudioParamUpscaling& data) {
 MDRResult<void> AudioStatusCommon::Validate(const AudioStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.base.command));
     MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::AUDIO_RET_PARAM || data.base.command == Command::AUDIO_SET_PARAM || data.base.command == Command::AUDIO_NTFY_PARAM);
+    MDR_VALIDATE(data.base.command == Command::AUDIO_GET_STATUS || data.base.command == Command::AUDIO_RET_STATUS || data.base.command == Command::AUDIO_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.status));
     return MDRResult<void>::Success();
 }

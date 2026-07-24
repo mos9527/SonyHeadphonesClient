@@ -53,6 +53,7 @@ MDRResult<void> PeripheralParamPairingDeviceManagementClassicBt::Validate(const 
     MDR_VALIDATE(data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT);
     for (const auto& deviceList_elem : data.deviceList) {
         MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
+        MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
     }
     return MDRResult<void>::Success();
 }
@@ -70,6 +71,7 @@ MDRResult<void> PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice
     MDR_VALIDATE(data.base.command == Command::PERI_RET_PARAM || data.base.command == Command::PERI_SET_PARAM || data.base.command == Command::PERI_NTFY_PARAM);
     MDR_VALIDATE(data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
     for (const auto& deviceList_elem : data.deviceList) {
+        MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
         MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
     }
     return MDRResult<void>::Success();
@@ -127,7 +129,7 @@ MDRResult<void> VoiceGuidanceBase::Validate(const VoiceGuidanceBase& data) {
 MDRResult<void> VoiceGuidanceParamSettingMtk::Validate(const VoiceGuidanceParamSettingMtk& data) {
     MDR_VALIDATE(is_valid(data.base.command));
     MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_GET_PARAM || data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
+    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_GET_PARAM || data.base.command == Command::VOICE_GUIDANCE_RET_PARAM || data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
     MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH || data.base.type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH || data.base.type == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
     MDR_VALIDATE(is_valid(data.settingValue));
     return MDRResult<void>::Success();
@@ -144,8 +146,9 @@ MDRResult<void> VoiceGuidanceParamSettingSupportLangSwitch::Validate(const Voice
 MDRResult<void> VoiceGuidanceParamVolume::Validate(const VoiceGuidanceParamVolume& data) {
     MDR_VALIDATE(is_valid(data.base.command));
     MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
+    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_RET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
     MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::VOLUME || data.base.type == VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS);
+    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     return MDRResult<void>::Success();
 }
@@ -162,6 +165,7 @@ MDRResult<void> VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetPara
     MDR_VALIDATE(is_valid(data.base.type));
     MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_SET_PARAM);
     MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::VOLUME || data.base.type == VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS);
+    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     MDR_VALIDATE(is_valid(data.feedbackSound));
     return MDRResult<void>::Success();

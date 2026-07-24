@@ -713,7 +713,7 @@ void DrawDeviceControlsHeader()
             }
             ImGui::EndMenu();
         }
-        if (!mdrHeadphonesIsReady(gDevice))
+        if (mdrHeadphonesIsReady(gDevice) != MDR_RESULT_OK)
             ImSpinner(1000, style.FontSizeBase * 0.5f,
                       MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f), 2.0f, false,
                       true, 1.0f, ImEaseInOutCubic);

@@ -17,7 +17,7 @@ A full `cmake --build` will also regenerate before compiling `mdr`.
 The `[...]Codegen` executables require LLVM.
 
 ### Windows
-Get the latest release from https://github.com/llvm/llvm-project/releases.
+Get the latest release (e.g. LLVM-22.1.8-win64.exe) and install it, from https://github.com/llvm/llvm-project/releases.
 
 Set `CMAKE_PREFIX_PATH` to include `C:\Program Files\LLVM` (or wherever installed).
 

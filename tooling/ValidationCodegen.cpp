@@ -40,8 +40,10 @@ std::vector<std::string> gSource; // Source lines
 
 void trimCommentString(std::string& s)
 {
-    s.erase(s.begin(), s.begin() + s.find_last_of("/") + 1);
-    s.erase(s.begin(), s.begin() + s.find_first_of(" ") + 1);
+    if (s.find_last_of("/") != std::string::npos)
+        s.erase(s.begin(), s.begin() + s.find_last_of("/") + 1);
+    if (s.find_first_of(" ") != std::string::npos)
+        s.erase(s.begin(), s.begin() + s.find_first_of(" ") + 1);
     while (!s.empty() && (s.back() == ' ' || s.back() == '\r' || s.back() == '\n')) s.pop_back();
 }
 

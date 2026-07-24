@@ -2208,8 +2208,8 @@ namespace mdr::v2::t1
 
     struct AudioStatusCommon
     {
-        // CODEGEN Field command EnumRange Command::AUDIO_RET_PARAM Command::AUDIO_SET_PARAM Command::AUDIO_NTFY_PARAM
-        AudioBase base{Command::AUDIO_SET_PARAM, AudioInquiredType::UPSCALING};
+        // CODEGEN Field command EnumRange Command::AUDIO_GET_STATUS Command::AUDIO_RET_STATUS Command::AUDIO_NTFY_STATUS
+        AudioBase base{Command::AUDIO_GET_STATUS, AudioInquiredType::UPSCALING};
         MessageMdrV2EnableDisable status;
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioStatusCommon);

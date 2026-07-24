@@ -23,7 +23,17 @@ find_package(Clang)
 if (NOT Clang_FOUND)
     # Windows LLVM installer doesn't come with FindClang.cmake.
     # As per tooling README, fall back to finding the include dir manually.
-    find_path(LLVM_DIR clang-c)
+    # The official installer defaults to C:\Program Files\LLVM, which is not on
+    # CMake's default search path on Windows, so probe it explicitly.
+    if (WIN32)
+        find_path(LLVM_DIR clang-c
+            HINTS
+                "C:/Program Files/LLVM/include"
+                "C:/Program Files (x86)/LLVM/include"
+        )
+    else ()
+        find_path(LLVM_DIR clang-c)
+    endif ()
     message(STATUS "LLVM_DIR=${LLVM_DIR}")
     if (NOT LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND")
         link_directories("${LLVM_DIR}/../lib")
