@@ -129,13 +129,12 @@ namespace mdr
         // Awaiter timeouts
         {
             using namespace std::literals;
-            const auto kTimeout = std::chrono::milliseconds(kAwaitTimeoutMS);
-            auto now = std::chrono::steady_clock::now();
+            time_t now = time(nullptr);
             for (auto& awaiter : mAwaiters)
             {
                 if (!awaiter) continue;
                 auto duration = now - awaiter.tick;
-                if (duration > kTimeout)
+                if (duration > kAwaitTimeout)
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;

@@ -3,6 +3,41 @@ project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_compile_definitions(FMT_EXCEPTIONS=0)
+# No-except (!!)
+# See also libmdr/CMakeLists.txt
+if (MSVC)
+    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    
+    add_compile_options(/EHs-c-)
+    add_compile_definitions(_HAS_EXCEPTIONS=0)
+else()
+    add_compile_options(-fno-exceptions)
+endif()
+
+# Dead-code strip and no RTTI
+if (MSVC)
+    add_compile_options(/GR- /Gy /Gw)
+    add_link_options(/OPT:REF /OPT:ICF)
+else()
+    add_compile_options(-fno-rtti -ffunction-sections -fdata-sections)
+    if (APPLE)
+        add_link_options(-Wl,-dead_strip)
+    else()
+        add_link_options(-Wl,--gc-sections -s)
+    endif()
+endif()
+
+# LTO
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
+if (ipo_ok)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+else()
+    message(STATUS "LTO not supported: ${ipo_msg}")
+endif()
+
 option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -36,15 +71,10 @@ include(DetectGitInfo.cmake)
 MDR_DetectGitInfo() # Sets MDR_GIT_COMMIT_HASH and MDR_GIT_BRANCH_NAME
 if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     add_link_options(
-            # For Emscripten: We use exceptions mainly for Validation and MDR_CHECKs
-            # Do note that the overhead from exceptions is not trivial _even if_ we don't
-            # take the slow path.
-            -fexceptions
-            -sEXCEPTION_CATCHING_ALLOWED=[..]
             -sALLOW_MEMORY_GROWTH
             -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAPU8']
     )
-    add_compile_options(-O1 -fexceptions)
+    add_compile_options(-O1)
 endif()
 
 add_compile_definitions("MDR_PLATFORM_${MDR_PLATFORM_OS}")

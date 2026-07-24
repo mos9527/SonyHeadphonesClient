@@ -6,7 +6,6 @@
 
 #include <deque>
 #include <coroutine>
-#include <chrono>
 
 namespace mdr
 {
@@ -117,7 +116,7 @@ namespace mdr
         };
 
         static constexpr int kAwaitAckRetries = 10;
-        static constexpr int kAwaitTimeoutMS = 3000;
+        static constexpr int kAwaitTimeout = 3; // Seconds
 
         // NOLINTBEGIN
         struct Awaiter
@@ -126,8 +125,8 @@ namespace mdr
             AwaitType type;
 
             std::coroutine_handle<> h = nullptr;
-            // Timepoint when Awaiter is invoked
-            std::chrono::time_point<std::chrono::steady_clock> tick;
+            // Timepoint when Awaiter is invoked in NS
+            time_t tick;
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
 
@@ -138,7 +137,7 @@ namespace mdr
                 if (h) [[unlikely]]
                     std::terminate(); // Misuse. Only _one_ task is allowed at a time
                 if (handle)
-                    h = std::move(handle), tick = std::chrono::steady_clock::now();
+                    h = std::move(handle), tick = time(nullptr);
             }
 
             int await_resume() noexcept { return result; }
