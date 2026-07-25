@@ -52,8 +52,17 @@ extern "C" {
                     navigator.externalFontSize = size;
                 });
             }
-        if (!navigator.externalFontFetch) 
+        if (!navigator.externalFontFetch)
             navigator.externalFontFetch = fetch_font();
         return 0;
     });
+}
+
+// LTO and MinSizeRel causes this function referenced below to get deleted with GCC
+// See also https://stackoverflow.com/questions/38389702/prevent-gcc-lto-from-deleting-function
+// TODO: Figure out the actual why. Shouldn't have happened by any means...
+void __dont_touch_my_garbage_exclamation_marks__() __attribute__((used));
+void __dont_touch_my_garbage_exclamation_marks__()
+{
+    clientPlatformLocateFontBinary(nullptr);
 }
