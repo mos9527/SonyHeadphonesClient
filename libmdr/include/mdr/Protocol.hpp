@@ -97,9 +97,9 @@ namespace mdr
 
         Int24BE& operator=(int32_t v)
         {
-            low = v & 0xFF;
-            mid = (v >> 8) & 0xFF;
             high = v & 0xFF;
+            mid  = (v >> 8) & 0xFF;
+            low  = (v >> 16) & 0xFF;
             return *this;
         }
     };
