@@ -233,9 +233,9 @@ namespace mdr
             return p;
         }
         void deallocate(pointer p, size_type n) noexcept {
-            std::free(p);
+            deallocate(p);
         }
-        void deallocate(pointer p) noexcept { deallocate(p); }
+        void deallocate(pointer p) noexcept { std::free(p); }
         friend bool operator==(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept {
             return true;
         }
