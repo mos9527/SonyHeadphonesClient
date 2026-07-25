@@ -2,15 +2,11 @@ name: Build
 
 on:
   push:
-    branches:
-    - rewrite
   pull_request:
-    branches:
-    - rewrite
   workflow_dispatch:
 
 env:  
-  BUILD_TYPE: RelWithDebInfo
+  BUILD_TYPE: MinSizeRel
 
 jobs:
   build:
