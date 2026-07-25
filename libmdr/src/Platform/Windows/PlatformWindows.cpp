@@ -326,7 +326,7 @@ static int Poll(void* user, int timeout) noexcept
             ptr->lastError = FormatErrorString(::GetLastError());
             return MDR_RESULT_ERROR_NET;
         }
-        *ppList = new MDRDeviceInfo[devices.size()];
+        *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(devices.size());
         std::memcpy(*ppList, devices.data(), devices.size() * sizeof(MDRDeviceInfo));
         *pCount = devices.size();
         fprintf(stderr, "[BT-DEBUG] GetDevicesList returning %d device(s)\n", *pCount);
@@ -337,7 +337,7 @@ static int Poll(void* user, int timeout) noexcept
     {
         if (*ppList)
         {
-            delete[] *ppList;
+            mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);
             *ppList = nullptr;
         }
         return MDR_RESULT_OK;
@@ -351,7 +351,7 @@ static int Poll(void* user, int timeout) noexcept
 };
 
 extern "C" {
-MDRConnectionWindows* mdrConnectionWindowsCreate() { return new MDRConnectionWindows(); }
-void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { delete instance; }
+MDRConnectionWindows* mdrConnectionWindowsCreate() { return mdr::Construct<MDRConnectionWindows>(); }
+void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { mdr::Destruct(instance); }
 MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* instance) { return &instance->mdrConn; }
 }

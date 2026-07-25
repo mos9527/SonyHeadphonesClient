@@ -289,7 +289,7 @@ struct MDRConnectionMacOS
                 return MDR_RESULT_OK;
             }
             
-            *ppList = new MDRDeviceInfo[devices.count];
+            *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(devices.count);
             *pCount = (int)devices.count;
             
             for (NSUInteger i = 0; i < devices.count; i++) {
@@ -314,7 +314,7 @@ struct MDRConnectionMacOS
     static int FreeDevicesList(void* user, MDRDeviceInfo** ppList) {
         if (*ppList)
         {
-            delete[] *ppList;
+            mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);
             *ppList = nullptr;
         }
         return MDR_RESULT_OK;
@@ -334,6 +334,6 @@ struct MDRConnectionMacOS
     }
 };
 
-MDRConnectionMacOS* mdrConnectionMacOSCreate() { return new MDRConnectionMacOS(); }
+MDRConnectionMacOS* mdrConnectionMacOSCreate() { return mdr::Construct<MDRConnectionMacOS>(); }
 MDRConnection* mdrConnectionMacOSGet(MDRConnectionMacOS* self) { return &self->mdrConn; }
-void mdrConnectionMacOSDestroy(MDRConnectionMacOS* self) { delete self; }
+void mdrConnectionMacOSDestroy(MDRConnectionMacOS* self) { mdr::Destruct(self); }

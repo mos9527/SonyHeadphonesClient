@@ -356,7 +356,7 @@ struct MDRConnectionWindowsBLE
             }
             else
             {
-                *ppList = new(std::nothrow) MDRDeviceInfo[devices.size()];
+                *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(devices.size());
                 RETURN_IF_NULL_ALLOC(*ppList);
                 std::memcpy(*ppList, devices.data(), devices.size() * sizeof(MDRDeviceInfo));
                 *pCount = static_cast<int>(devices.size());
@@ -775,7 +775,7 @@ struct MDRConnectionWindowsBLE
         MDR_LOG("[BLE] Send: {} bytes", size);
 
         // Copy data for the MTA thread
-        uint8_t* data = new(std::nothrow) uint8_t[size];
+        uint8_t* data = mdr::MDRAllocator<uint8_t>().allocate(size);
         if (data == nullptr)
         {
             ptr->lastError = "Out of memory for send buffer";
@@ -816,7 +816,7 @@ struct MDRConnectionWindowsBLE
             return S_OK;
         });
 
-        delete[] data;
+        mdr::MDRAllocator<uint8_t>().deallocate(data);
 
         if (FAILED(hr))
         {
@@ -880,7 +880,7 @@ struct MDRConnectionWindowsBLE
     {
         if (*ppList)
         {
-            delete[] *ppList;
+            mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);
             *ppList = nullptr;
         }
         return MDR_RESULT_OK;
@@ -899,7 +899,7 @@ extern "C" {
 MDRConnectionWindowsBLE* mdrConnectionWindowsBLECreate()
 {
     MDR_LOG("[BLE] mdrConnectionWindowsBLECreate");
-    return new MDRConnectionWindowsBLE();
+    return mdr::Construct<MDRConnectionWindowsBLE>();
 }
 
 MDRConnection* mdrConnectionWindowsBLEGet(MDRConnectionWindowsBLE* pConn)
@@ -913,7 +913,7 @@ void mdrConnectionWindowsBLEDestroy(MDRConnectionWindowsBLE* pConn)
     if (pConn)
     {
         MDRConnectionWindowsBLE::Disconnect(pConn);
-        delete pConn;
+        mdr::Destruct(pConn);
     }
 }
 } // extern "C"
