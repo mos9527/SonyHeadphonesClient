@@ -8,7 +8,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options("/Zc:preprocessor")
     add_compile_options("/utf-8")
 else()
-    add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable")
+    add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable" "-Wno-unused-but-set-global")
 endif()
 
 # No exceptions!!!
@@ -99,6 +99,7 @@ if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     add_link_options(
             -sALLOW_MEMORY_GROWTH
             -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAPU8']
+            -sGROWABLE_ARRAYBUFFERS=0
     )
     add_compile_options(-O1)
 endif()
