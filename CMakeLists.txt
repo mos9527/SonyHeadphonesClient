@@ -12,12 +12,27 @@ else()
 endif()
 
 # No exceptions!!!
+# Needed since MSVC STL containers use this all the time.
+# Running with scissors here... though quite actively maintained by STL
+# - https://github.com/microsoft/STL/pull/5406
+# - https://github.com/microsoft/STL/issues/2216
+if (MSVC) # True for both MSVC and Clang-CL
+    # Begone. /EHsc is everywhere even with Clang-CL configurations.
+    set(target_vars
+            CMAKE_CXX_FLAGS
+            CMAKE_CXX_FLAGS_DEBUG
+            CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_MINSIZEREL
+            CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    )
+    foreach(var IN LISTS target_vars)
+        if(${var} MATCHES "/EHsc")
+            string(REPLACE "/EHsc" "" ${var} "${${var}}")
+        endif()
+    endforeach()
+endif()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # Needed since MSVC STL containers use this all the time.
-    # Running with scissors here... though quite actively maintained by STL
-    # https://github.com/microsoft/STL/pull/5406
-    # https://github.com/microsoft/STL/issues/2216
-    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     add_compile_options(/EHs-c-)
     add_compile_definitions(_HAS_EXCEPTIONS=0)
     # You might be surprised that even with enabling these flags, the final PE
