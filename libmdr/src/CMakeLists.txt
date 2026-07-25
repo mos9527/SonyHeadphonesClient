@@ -19,20 +19,6 @@ set(GENERATED_SRCS
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
 add_library(mdr ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
-
-if (MSVC)
-    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    target_compile_options(mdr PRIVATE /EHs-c-)
-    # Needed since MSVC STL containers use this all the time.
-    # Running with scissors here... though quite actively maintained by STL
-    # https://github.com/microsoft/STL/pull/5406
-    # https://github.com/microsoft/STL/issues/2216   
-    target_compile_definitions(mdr PRIVATE _HAS_EXCEPTIONS=0)
-else()
-    target_compile_options(mdr PRIVATE -fno-exceptions)
-endif()
-target_compile_definitions(mdr PRIVATE FMT_EXCEPTIONS=0)
-
 add_subdirectory(Platform)
 
 target_link_libraries(mdr PRIVATE mdr_Platform)

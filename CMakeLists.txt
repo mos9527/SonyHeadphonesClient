@@ -3,20 +3,39 @@ project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_compile_definitions(FMT_EXCEPTIONS=0)
-# No-except (!!)
-# See also libmdr/CMakeLists.txt
-if (MSVC)
-    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    
-    add_compile_options(/EHs-c-)
-    add_compile_definitions(_HAS_EXCEPTIONS=0)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
+    add_compile_options("/Zc:preprocessor")
+    add_compile_options("/utf-8")
 else()
-    add_compile_options(-fno-exceptions)
+    add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable")
 endif()
 
+# No exceptions!!!
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Needed since MSVC STL containers use this all the time.
+    # Running with scissors here... though quite actively maintained by STL
+    # https://github.com/microsoft/STL/pull/5406
+    # https://github.com/microsoft/STL/issues/2216
+    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    add_compile_options(/EHs-c-)
+    add_compile_definitions(_HAS_EXCEPTIONS=0)
+    # You might be surprised that even with enabling these flags, the final PE
+    # would *still* contain Exception Unwind tables. And no - there's no way to remove them
+    # from MSVC by itself.
+    # Of course, you can always...
+else()
+    # ...Use Clang/LLVM instead. Or Cl-Clang if you must stick with MS toolchains.
+    add_compile_options(
+        -fno-exceptions
+        -fno-unwind-tables
+        -fno-asynchronous-unwind-tables
+    )
+endif()
+add_compile_definitions(FMT_EXCEPTIONS=0)
+
 # Dead-code strip and no RTTI
-if (MSVC)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(/GR- /Gy /Gw)
     add_link_options(/OPT:REF /OPT:ICF)
 else()
@@ -54,14 +73,6 @@ if (MDR_DEBUG)
    add_compile_definitions(-DMDR_DEBUG)
    add_compile_definitions(-D_DEBUG)
 endif ()
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
-    add_compile_options("/Zc:preprocessor")
-    add_compile_options("/utf-8")
-else()
-    add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable")
-endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
