@@ -73,7 +73,7 @@ void mainLoop()
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
         SDL_RenderPresent(gRenderer);
     }
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     if (gShouldClose)
         emscripten_cancel_main_loop();
 #endif
