@@ -2,13 +2,12 @@
 
 #include "Result.hpp"
 
-#include <cstdio>
+#include <array>
 #include <cstdint>
-#include <cstring>
+#include <deque>
+#include <span>
 #include <string>
 #include <vector>
-#include <span>
-#include <array>
 
 #include <fmt/format.h>
 
@@ -21,6 +20,22 @@
 #else
 #define MDR_LOG_DEBUG(...)
 #endif
+
+#if defined(_MSC_VER)
+#define MDR_TRAP() __debugbreak()
+#elif defined(__clang__) && __has_builtin(__builtin_debugtrap)
+#define MDR_TRAP() __builtin_debugtrap()
+#else
+#define MDR_TRAP() __builtin_trap()
+#endif
+
+#define MDR_CHECK(expr) do { \
+if (!(expr)) [[unlikely]] { \
+MDR_TRAP(); \
+std::abort(); \
+} \
+} while (false);
+
 namespace mdr
 {
     typedef uint8_t UInt8;
@@ -193,6 +208,69 @@ namespace mdr
             return MDRResult<size_t>::Success(sizeof(T));
         }
     };
+
+    /**
+     * @breif `noexcept` Allocator for STL containers, simply wraps @ref malloc and @ref free.
+     * @note  Terminates on OOM, etc., instead of throwing an exception.
+     */
+    template <typename T = void>
+    struct MDRAllocator {
+        using value_type = T;
+        using size_type = std::size_t;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using const_pointer = const T*;
+        using reference = T&;
+        using const_reference = const T&;
+
+        MDRAllocator() = default;
+        template <typename U>
+            constexpr MDRAllocator(const MDRAllocator<U>&) noexcept {}
+
+        pointer allocate(size_type n) noexcept {
+            pointer p = static_cast<pointer>(std::malloc(n * sizeof(T)));
+            MDR_CHECK(p != nullptr && "OOM");
+            return p;
+        }
+        void deallocate(pointer p, size_type n) noexcept {
+            std::free(p);
+        }
+        void deallocate(pointer p) noexcept { deallocate(p); }
+        friend bool operator==(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept {
+            return true;
+        }
+        friend bool operator!=(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept {
+            return false;
+        }
+        struct Deleter
+        {
+            void operator()(T* ptr) noexcept {
+                MDRAllocator<T> alloc;
+                MDR_CHECK(ptr != nullptr);
+                std::destroy_at(ptr);
+                alloc.deallocate(ptr);
+            }
+        };
+    };
+    /**
+     * @brief Convenience placement new with object of type T
+     * @note Using `delete`, `delete[]` on the returned pointer is undefined behaviour. @ref Destruct should ALWAYS
+     *       be used for such purposes.
+     */
+    template <typename T, typename ...Args>
+    T* Construct(Args&& ...args) {
+        MDRAllocator<T> alloc;
+        auto raw = alloc.allocate(1);
+        return std::construct_at(raw, std::forward<Args>(args)...);
+    }
+    /**
+     * @brief Convenience destructor for objects allocated with @ref Construct
+     */
+    template <typename T>
+    void Destruct(T* obj) {
+        typename MDRAllocator<T>::Deleter deleter;
+        deleter(obj);
+    }
     /**
      * @breif Alias for std::array. This MAY map to any specific protocol type directly as a POD type.
      */
@@ -211,12 +289,17 @@ namespace mdr
     /**
      * @breif Alias for std::string. This does not map to any specific protocol type directly.
      */
-    using String = std::basic_string<char>;
+    using String = std::basic_string<char, std::char_traits<char>, MDRAllocator<char>>;
     /**
      * @breif Alias for std::vector. This does not map to any specific protocol type directly.
      */
     template <typename T>
-    using Vector = std::vector<T>;
+    using Vector = std::vector<T, MDRAllocator<T>>;
+    /**
+     * @breif Alias for std::deque. This does not map to any specific protocol type directly.
+     */
+    template <typename T>
+    using Deque = std::deque<T, MDRAllocator<T>>;
     /**
      * @brief Alias for std::span w/o extents. This does not map to any specific protocol type directly.
      */

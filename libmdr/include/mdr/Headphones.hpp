@@ -4,8 +4,8 @@
 #include "ProtocolV2T2.hpp"
 #include <mdr-c/Headphones.h>
 
-#include <deque>
 #include <coroutine>
+#include <time.h>
 
 namespace mdr
 {
@@ -383,7 +383,7 @@ namespace mdr
     private:
         String mLastError = "N/A";
 
-        std::deque<UInt8> mRecvBuf, mSendBuf;
+        Deque<UInt8> mRecvBuf, mSendBuf;
         MDRCommandSeqNumber mSeqNumber{0};
 
         MDRTask mTask;

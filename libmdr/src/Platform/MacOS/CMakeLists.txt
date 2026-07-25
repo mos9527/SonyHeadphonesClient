@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 
-file(
-    GLOB SOURCES
-    "${CMAKE_CURRENT_LIST_DIR}/*.mm"
-)
-
-add_library(mdr_PlatformMacOS ${SOURCES})
+add_library(mdr_PlatformMacOS PlatformMacOS.mm)
 
 find_library(IOBLUETOOTH_FRAMEWORK IOBluetooth REQUIRED)
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)

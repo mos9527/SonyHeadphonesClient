@@ -298,12 +298,14 @@ const char* mdrConnectionGetLastError(MDRConnection* conn)
 
 MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
 {
-    return reinterpret_cast<MDRHeadphones*>(new mdr::MDRHeadphones(conn));
+    auto* ptr = mdr::Construct<mdr::MDRHeadphones>(conn);
+    return reinterpret_cast<MDRHeadphones*>(ptr);
 }
 
 void mdrHeadphonesDestroy(MDRHeadphones* h)
 {
-    delete reinterpret_cast<mdr::MDRHeadphones*>(h);
+    auto* ptr = reinterpret_cast<mdr::MDRHeadphones*>(h);
+    mdr::Destruct(ptr);
 }
 
 int mdrHeadphonesPollEvents(MDRHeadphones* p)

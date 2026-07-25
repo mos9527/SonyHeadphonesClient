@@ -19,7 +19,9 @@ The `[...]Codegen` executables require LLVM.
 ### Windows
 Get the latest release (e.g. LLVM-22.1.8-win64.exe) and install it, from https://github.com/llvm/llvm-project/releases.
 
-Set `CMAKE_PREFIX_PATH` to include `C:\Program Files\LLVM` (or wherever installed).
+`LLVM/bin` needs to be added to your `PATH` environment variable.
+
+Hopefully CMake can find it in your Program Files. Otherwise set `CMAKE_PREFIX_PATH` to include `C:\Program Files\LLVM` (or wherever installed)
 
 ### Linux
 Your `clang` package likely includes the requisite libs already — if not, try `llvm-17-dev libclang-17-dev`.

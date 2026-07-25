@@ -1,13 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
 
-file(
-    GLOB SOURCES
-    "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
-)
-file(
-    GLOB INCLUDES
-    "${CMAKE_CURRENT_LIST_DIR}/*.hpp"
-)
-
-add_library(mdr_PlatformWindows ${SOURCES} ${INCLUDES})
+add_library(mdr_PlatformWindows PlatformWindows.cpp)
 target_link_libraries(mdr_PlatformWindows PRIVATE mdr-c fmt::fmt ws2_32.lib rpcrt4.lib Bthprops.lib windowsapp.lib)
+
+add_library(mdr_PlatformWindowsBLE PlatformWindowsBLE.cpp)
+target_link_libraries(mdr_PlatformWindowsBLE PRIVATE mdr-c fmt::fmt ws2_32.lib rpcrt4.lib Bthprops.lib windowsapp.lib)
