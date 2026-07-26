@@ -4,8 +4,10 @@ project(SonyHeadphonesClient C CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
-    # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
-    add_compile_options("/Zc:preprocessor")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
+        add_compile_options("/Zc:preprocessor")
+    endif ()
     add_compile_options("/utf-8")
 else()
     add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable" "-Wno-unused-but-set-global")
