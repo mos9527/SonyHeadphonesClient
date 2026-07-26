@@ -21,21 +21,6 @@
 #define MDR_LOG_DEBUG(...)
 #endif
 
-#if defined(_MSC_VER)
-#define MDR_TRAP() __debugbreak()
-#elif defined(__clang__) && __has_builtin(__builtin_debugtrap)
-#define MDR_TRAP() __builtin_debugtrap()
-#else
-#define MDR_TRAP() __builtin_trap()
-#endif
-
-#define MDR_CHECK(expr) do { \
-if (!(expr)) [[unlikely]] { \
-MDR_TRAP(); \
-std::abort(); \
-} \
-} while (false);
-
 namespace mdr
 {
     typedef uint8_t UInt8;
