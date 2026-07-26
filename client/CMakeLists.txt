@@ -26,6 +26,7 @@ target_sources(
         Fonts/PlexSansIcon.c
 )
 
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_CAMERA OFF CACHE BOOL "" FORCE)
 set(SDL_GPU OFF CACHE BOOL "" FORCE)
 set(SDL_RENDER_GPU OFF CACHE BOOL "" FORCE)
