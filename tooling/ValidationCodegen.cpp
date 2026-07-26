@@ -10,14 +10,24 @@ enum class ValidationVerb
     CODEGEN,
     EnumRange,
     Range,
-    Field
+    Field,
+    Ignore,
+    Bitmask
 };
 
+constexpr uint32_t kValidationFlagNONE = 0;
+constexpr uint32_t kValidationFlagIGNORE = 1u << 0;
+constexpr uint32_t kValidationFlagBITMASK = 1u << 1;
+
 std::map<std::string, ValidationVerb> kCodegenTokens = {
+    // emitCodegenCheck
     {"CODEGEN", ValidationVerb::CODEGEN},
     {"EnumRange", ValidationVerb::EnumRange},
     {"Range", ValidationVerb::Range},
     {"Field", ValidationVerb::Field},
+    // collectCodegenFlags
+    {"Ignore", ValidationVerb::Ignore},
+    {"Bitmask", ValidationVerb::Bitmask},
 };
 
 const char* kCODEGEN = "CODEGEN";
@@ -70,11 +80,36 @@ CXChildVisitResult methodVisitor(CXCursor cursor, CXCursor parent, CXClientData 
     }
     return CXChildVisit_Continue;
 }
-
-void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string const& check)
+uint32_t collectCodegenFlags(CXCursor cursor, std::string const& check)
 {
-    CXString name = clang_getCursorSpelling(cursor);
-    clang_disposeString(name);
+    std::stringstream cin(check);
+    std::string tok;
+    cin >> tok; // CODEGEN
+    CHECK(kCodegenTokens[tok] == ValidationVerb::CODEGEN, "Expected CODEGEN token");
+    uint32_t flags = kValidationFlagNONE;
+    while (cin)
+    {
+        cin >> tok; // Verb
+        ValidationVerb verb = kCodegenTokens[tok];
+        switch (verb)
+        {
+        case ValidationVerb::Ignore:
+        {
+            flags |= kValidationFlagIGNORE;
+            break;
+        }
+        case ValidationVerb::Bitmask:
+        {
+            flags |= kValidationFlagBITMASK;
+            break;
+        }
+        default:break;
+        }
+    }
+    return flags;
+}
+void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string const& check, uint32_t flags)
+{
     std::string scopeFiledName = fieldName;
     std::stringstream cin(check);
     std::string tok;
@@ -114,16 +149,21 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
             scopeFiledName = format("{}.{}", scopeFiledName, tok);
             break;
         }
-        default:
-            CHECK(false, format("Unexpected token {}", tok));
+        default:break;
         }
     }
 }
 std::map<std::string, std::vector<std::string>> gCodegenComments;
 int gVisitDepth = 0;
+struct ValidateVisitorCD
+{
+    std::string* pParentName;
+    uint32_t flags;
+};
 CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClientData pData)
 {
-    auto* pParentName = static_cast<std::string*>(pData);
+    auto* pCD = static_cast<ValidateVisitorCD*>(pData);
+    auto [pParentName, flags] = *pCD;
     if (clang_Cursor_getStorageClass(cursor) == CX_SC_Static)
         return CXChildVisit_Continue; // Ignore static members
     CXString name = clang_getCursorSpelling(cursor);
@@ -152,26 +192,39 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         gDepth++;
         newParentName = forClauseName;
     }
-    switch (typeKind)
+    uint32_t fieldValidationFlags = kValidationFlagNONE;
+    for (auto& check : gCodegenComments[clang_getCString(name)])
+        fieldValidationFlags |= collectCodegenFlags(cursor, check);
+    ValidateVisitorCD CD{&newParentName, fieldValidationFlags};
+    if (!(fieldValidationFlags & kValidationFlagIGNORE))
     {
-    case CXCursor_EnumDecl:
-        println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
-        break;
-    case CXCursor_StructDecl:
+        switch (typeKind)
+        {
+        case CXCursor_EnumDecl:
+            if ((fieldValidationFlags & kValidationFlagBITMASK))
+                println("{}MDR_VALIDATE(is_valid({}, true /* bitmask */));", emitIndent(), newParentName);
+            else
+                println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
+            break;
+        case CXCursor_StructDecl:
+        {
+            gVisitDepth++;
+            clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &CD);
+            gVisitDepth--;
+            break;
+        }
+        default:
+            break;
+        }
+        // Emit CODEGEN specific checks
+        // We only do this at the top level to avoid duplicate field names
+        if (gVisitDepth == 0)
+            for (auto& check : gCodegenComments[clang_getCString(name)])
+                emitCodegenCheck(cursor, newParentName, check, fieldValidationFlags);
+    } else
     {
-        gVisitDepth++;
-        clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &newParentName);
-        gVisitDepth--;
-        break;
+        println("{} /* FIXME: {} Validation explicitly removed!!! */", emitIndent(), newParentName);
     }
-    default:
-        break;
-    }
-    // Emit CODEGEN specific checks
-    // We only do this at the top level to avoid duplicate field names
-    if (gVisitDepth == 0)
-        for (auto& check : gCodegenComments[clang_getCString(name)])
-            emitCodegenCheck(cursor, newParentName, check);
     clang_disposeString(name);
     clang_disposeString(typeName);
     if (isIterable)
@@ -234,7 +287,8 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             println("{}MDRResult<void> {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
             gDepth++;
             std::string firstParent = "data";
-            clang_visitChildren(cursor, fieldValidateNestedVisitor, &firstParent);
+            ValidateVisitorCD CD{&firstParent, kValidationFlagNONE};
+            clang_visitChildren(cursor, fieldValidateNestedVisitor, &CD);
             println("{}return MDRResult<void>::Success();", emitIndent());
             gDepth--;
             println("{}}}", emitIndent());

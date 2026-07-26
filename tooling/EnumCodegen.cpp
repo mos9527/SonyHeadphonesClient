@@ -65,26 +65,30 @@ CXChildVisitResult enumNameOut(CXCursor, CXCursor, CXClientData)
     println("    }}");
     return CXChildVisit_Continue;
 }
+uint8_t gEnumRangeBitmask = 0u;
 CXChildVisitResult enumRangeIn(CXCursor c, CXCursor, CXClientData)
 {
     CXString name = clang_getCursorSpelling(c);
-    println("    static bool is_valid({} value) {{", clang_getCString(name));
+    println("    static bool is_valid({} value, bool isBitmask = false) {{", clang_getCString(name));
     println("        using enum {};", clang_getCString(name));
     println("        switch (value) {{");
+    gEnumRangeBitmask = 0u;
     clang_disposeString(name);
     return CXChildVisit_Continue;
 }
 CXChildVisitResult enumRangeVisit(CXCursor c, CXCursor, CXClientData)
 {
     CXString enumName = clang_getCursorDisplayName(c);
+    uint8_t enumVal = static_cast<uint8_t>(clang_getEnumConstantDeclUnsignedValue(c));
     println("            case {}:", clang_getCString(enumName), clang_getCString(enumName));
+    gEnumRangeBitmask |= enumVal;
     clang_disposeString(enumName);
     return CXChildVisit_Continue;
 }
 CXChildVisitResult enumRangeOut(CXCursor, CXCursor, CXClientData)
 {
     println("            return true;");
-    println("        default: return false;");
+    println("        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x{:02x}) : false;", gEnumRangeBitmask);
     println("        }}");
     println("    }}");
     return CXChildVisit_Continue;

@@ -1145,7 +1145,8 @@ namespace mdr::v2::t2
         Command command{Command::SAFE_LISTENING_RET_EXTENDED_PARAM};
         SafeListeningInquiredType inquiredType; // 0x1
         UInt8 levelPerPeriod; // 0x2
-        SafeListeningErrorCause errorCause; // 0x3
+        // CODEGEN Bitmask
+        SafeListeningErrorCause errorCause; // 0x3 - why is this a bitmask??
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetExtendedParam);
     };
