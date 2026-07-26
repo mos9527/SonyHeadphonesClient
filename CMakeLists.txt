@@ -3,7 +3,7 @@ project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (MSVC)
     # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
     add_compile_options("/Zc:preprocessor")
     add_compile_options("/utf-8")
@@ -32,7 +32,7 @@ if (MSVC) # True for both MSVC and Clang-CL
     endforeach()
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (MSVC)
     add_compile_options(/EHs-c-)
     add_compile_definitions(_HAS_EXCEPTIONS=0)
     # You might be surprised that even with enabling these flags, the final PE
@@ -50,7 +50,7 @@ endif()
 add_compile_definitions(FMT_EXCEPTIONS=0)
 
 # Dead-code strip and no RTTI
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (MSVC)
     add_compile_options(/GR- /Gy /Gw)
     add_link_options(/OPT:REF /OPT:ICF)
 else()
@@ -74,7 +74,7 @@ endif()
 
 option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if (MSVC)
         message(WARNING "ASAN not enabled on MSVC by *us*. You're on your own.")
     else ()
         add_compile_options("-fsanitize=address")
