@@ -5,45 +5,44 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:  
+env:
   BUILD_TYPE: MinSizeRel
 
+# NOTE NOTE NOTE MANUALLY KEEP WINDOWS BUILD TYPE IN SYNC
+#                           vvvvvvvvvvvvvvvvvvvvv since this apparently does NOT work
+# binary_path: build/client/${{ env.build_type }}/SonyHeadphonesClient.exe
 jobs:
   build:
     name: Build ${{ matrix.os }} ${{ matrix.arch }}
     strategy:
       matrix:
         include:
+          - os: windows-latest
+            arch: x64
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x64"
+            script: ""
+          - os: windows-latest
+            arch: arm64
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-arm64"
+            script: ""
           - os: ubuntu-latest
             arch: x64
             binary_path: build/client/SonyHeadphonesClient
             artifact_name: "SonyHeadphonesClient-linux-x64"
             script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
             gcc: 14
-          # ARM Linux runners currently has availability issues.
-          # TODO: Enable these once these are fixed.
-          #   https://github.com/actions/partner-runner-images/issues/132
-          #   https://github.com/actions/partner-runner-images/issues/65
-          # - os: ubuntu-24.04-arm64
-          #   arch: arm64
-          #   binary_path: build/client/SonyHeadphonesClient
-          #   artifact_name: "SonyHeadphonesClient-linux-arm64"
-          #   script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
-          #   gcc: 14
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-arm64"
+            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
+            gcc: 14
           - os: macos-latest
             arch: universal
             binary_path: build/client/SonyHeadphonesClient.zip
             artifact_name: "SonyHeadphonesClient-macos-universal"
-            script: ""
-          - os: windows-latest
-            arch: x64
-            binary_path: build/client/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-x64"
-            script: ""
-          - os: windows-latest
-            arch: arm64
-            binary_path: build/client/RelWithDebInfo/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-arm64"
             script: ""
 
     runs-on: ${{ matrix.os }}
