@@ -283,9 +283,9 @@ namespace mdr
     template <typename... Args>
     [[nodiscard]] constexpr String Format(fmt::format_string<Args...> format, Args&&... args)
     {
-        String mdrString;
-        fmt::format_to(std::back_inserter(mdrString), format, std::forward<Args>(args)...);
-        return mdrString;
+        fmt::basic_memory_buffer<char, fmt::inline_buffer_size, MDRAllocator<char>> buffer;
+        fmt::format_to(std::back_inserter(buffer), format, std::forward<Args>(args)...);
+        return String(buffer.data(), buffer.size());
     }
     /**
      * @breif Alias for std::vector. This does not map to any specific protocol type directly.
