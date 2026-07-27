@@ -1167,7 +1167,7 @@ namespace mdr::v2::t1 {
             default: return "Unknown";
         }
     }
-    static bool is_valid(Command value, bool isBitmask = false) {
+    static bool is_valid(Command value) {
         using enum Command;
         switch (value) {
             case CONNECT_GET_PROTOCOL_INFO:
@@ -1315,18 +1315,20 @@ namespace mdr::v2::t1 {
             case SYSTEM_NTFY_EXT_PARAM:
             case UNKNOWN:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ConnectInquiredType value, bool isBitmask = false) {
+    static bool is_valid(ConnectInquiredType value) {
         using enum ConnectInquiredType;
         switch (value) {
             case FIXED_VALUE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x00) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(DeviceInfoType value, bool isBitmask = false) {
+    static bool is_valid(DeviceInfoType value) {
         using enum DeviceInfoType;
         switch (value) {
             case MODEL_NAME:
@@ -1334,10 +1336,11 @@ namespace mdr::v2::t1 {
             case SERIES_AND_COLOR_INFO:
             case INSTRUCTION_GUIDE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x07) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ModelColor value, bool isBitmask = false) {
+    static bool is_valid(ModelColor value) {
         using enum ModelColor;
         switch (value) {
             case DEFAULT:
@@ -1356,10 +1359,11 @@ namespace mdr::v2::t1 {
             case BROWN:
             case VIOLET:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x0f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ModelSeriesType value, bool isBitmask = false) {
+    static bool is_valid(ModelSeriesType value) {
         using enum ModelSeriesType;
         switch (value) {
             case NO_SERIES:
@@ -1374,10 +1378,11 @@ namespace mdr::v2::t1 {
             case LINKPOD:
             case GAMING:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xf1) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(CommonInquiredType value, bool isBitmask = false) {
+    static bool is_valid(CommonInquiredType value) {
         using enum CommonInquiredType;
         switch (value) {
             case CONCIERGE:
@@ -1391,10 +1396,11 @@ namespace mdr::v2::t1 {
             case TANDEM_RECONNECTION_REQUEST:
             case DISPLAY_FW_VERSION:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x0f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AudioCodec value, bool isBitmask = false) {
+    static bool is_valid(AudioCodec value) {
         using enum AudioCodec;
         switch (value) {
             case UNSETTLED:
@@ -1406,10 +1412,11 @@ namespace mdr::v2::t1 {
             case LC3:
             case OTHER:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PowerInquiredType value, bool isBitmask = false) {
+    static bool is_valid(PowerInquiredType value) {
         using enum PowerInquiredType;
         switch (value) {
             case BATTERY:
@@ -1429,10 +1436,11 @@ namespace mdr::v2::t1 {
             case STAMINA:
             case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x0f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(BatteryChargingStatus value, bool isBitmask = false) {
+    static bool is_valid(BatteryChargingStatus value) {
         using enum BatteryChargingStatus;
         switch (value) {
             case NOT_CHARGING:
@@ -1440,19 +1448,21 @@ namespace mdr::v2::t1 {
             case UNKNOWN:
             case CHARGED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PowerOffSettingValue value, bool isBitmask = false) {
+    static bool is_valid(PowerOffSettingValue value) {
         using enum PowerOffSettingValue;
         switch (value) {
             case USER_POWER_OFF:
             case FACTORY_POWER_OFF:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AutoPowerOffElements value, bool isBitmask = false) {
+    static bool is_valid(AutoPowerOffElements value) {
         using enum AutoPowerOffElements;
         switch (value) {
             case POWER_OFF_IN_5_MIN:
@@ -1462,10 +1472,11 @@ namespace mdr::v2::t1 {
             case POWER_OFF_IN_15_MIN:
             case POWER_OFF_DISABLE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x17) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AutoPowerOffWearingDetectionElements value, bool isBitmask = false) {
+    static bool is_valid(AutoPowerOffWearingDetectionElements value) {
         using enum AutoPowerOffWearingDetectionElements;
         switch (value) {
             case POWER_OFF_IN_5_MIN:
@@ -1476,10 +1487,11 @@ namespace mdr::v2::t1 {
             case POWER_OFF_WHEN_REMOVED_FROM_EARS:
             case POWER_OFF_DISABLE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x17) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EqEbbInquiredType value, bool isBitmask = false) {
+    static bool is_valid(EqEbbInquiredType value) {
         using enum EqEbbInquiredType;
         switch (value) {
             case PRESET_EQ:
@@ -1491,10 +1503,11 @@ namespace mdr::v2::t1 {
             case CUSTOM_EQ:
             case TURN_KEY_EQ:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x37) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EqPresetId value, bool isBitmask = false) {
+    static bool is_valid(EqPresetId value) {
         using enum EqPresetId;
         switch (value) {
             case OFF:
@@ -1557,20 +1570,25 @@ namespace mdr::v2::t1 {
             case ARTIST_COLLAB12:
             case UNSPECIFIED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EqUltMode value, bool isBitmask = false) {
+    static bool is_valid(EqUltMode value) {
         using enum EqUltMode;
         switch (value) {
             case OFF:
             case ULT_1:
             case ULT_2:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(SoundEffectType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(EqUltMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(SoundEffectType value) {
         using enum SoundEffectType;
         switch (value) {
             case SOUND_EFFECT_OFF:
@@ -1580,10 +1598,11 @@ namespace mdr::v2::t1 {
             case SOUND_EFFECT_CUSTOM:
             case SOUND_EFFECT_NONE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PresetEqErrorCodeType value, bool isBitmask = false) {
+    static bool is_valid(PresetEqErrorCodeType value) {
         using enum PresetEqErrorCodeType;
         switch (value) {
             case CALLING:
@@ -1591,10 +1610,11 @@ namespace mdr::v2::t1 {
             case LISTENING_MODE:
             case OTHER:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(NcAsmInquiredType value, bool isBitmask = false) {
+    static bool is_valid(NcAsmInquiredType value) {
         using enum NcAsmInquiredType;
         switch (value) {
             case NC_ON_OFF:
@@ -1612,56 +1632,77 @@ namespace mdr::v2::t1 {
             case NC_AMB_TOGGLE:
             case NC_TEST_MODE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x7f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ValueChangeStatus value, bool isBitmask = false) {
+    static bool is_valid(ValueChangeStatus value) {
         using enum ValueChangeStatus;
         switch (value) {
             case UNDER_CHANGING:
             case CHANGED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(NcAsmOnOffValue value, bool isBitmask = false) {
+    static bool is_valid_bitmask(ValueChangeStatus value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(NcAsmOnOffValue value) {
         using enum NcAsmOnOffValue;
         switch (value) {
             case OFF:
             case ON:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(NcAsmMode value, bool isBitmask = false) {
+    static bool is_valid_bitmask(NcAsmOnOffValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(NcAsmMode value) {
         using enum NcAsmMode;
         switch (value) {
             case NC:
             case ASM:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AmbientSoundMode value, bool isBitmask = false) {
+    static bool is_valid_bitmask(NcAsmMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(AmbientSoundMode value) {
         using enum AmbientSoundMode;
         switch (value) {
             case NORMAL:
             case VOICE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(NoiseAdaptiveSensitivity value, bool isBitmask = false) {
+    static bool is_valid_bitmask(AmbientSoundMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(NoiseAdaptiveSensitivity value) {
         using enum NoiseAdaptiveSensitivity;
         switch (value) {
             case STANDARD:
             case HIGH:
             case LOW:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(Function value, bool isBitmask = false) {
+    static bool is_valid_bitmask(NoiseAdaptiveSensitivity value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(Function value) {
         using enum Function;
         switch (value) {
             case NO_FUNCTION:
@@ -1708,10 +1749,11 @@ namespace mdr::v2::t1 {
             case GAME_UP:
             case CHAT_UP:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x7f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertInquiredType value, bool isBitmask = false) {
+    static bool is_valid(AlertInquiredType value) {
         using enum AlertInquiredType;
         switch (value) {
             case FIXED_MESSAGE:
@@ -1722,10 +1764,11 @@ namespace mdr::v2::t1 {
             case LE_AUDIO_ALERT_NOTIFICATION:
             case FLEXIBLE_MESSAGE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x07) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertMessageType value, bool isBitmask = false) {
+    static bool is_valid(AlertMessageType value) {
         using enum AlertMessageType;
         switch (value) {
             case DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE:
@@ -1832,10 +1875,11 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN:
             case TURN_KEY_EQ_SUCCESS:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertFlexibleMessageType value, bool isBitmask = false) {
+    static bool is_valid(AlertFlexibleMessageType value) {
         using enum AlertFlexibleMessageType;
         switch (value) {
             case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS:
@@ -1857,46 +1901,60 @@ namespace mdr::v2::t1 {
             case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE:
             case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x1f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(VoiceAssistantType value, bool isBitmask = false) {
+    static bool is_valid(VoiceAssistantType value) {
         using enum VoiceAssistantType;
         switch (value) {
             case GOOGLE_ASSISTANT:
             case AMAZON_ALEXA:
             case TENCENT_XIAOWEI:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ConfirmationType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(VoiceAssistantType value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(ConfirmationType value) {
         using enum ConfirmationType;
         switch (value) {
             case CONFIRMED:
             case CONFIRMED_DONT_SHOW_AGAIN:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertAction value, bool isBitmask = false) {
+    static bool is_valid_bitmask(ConfirmationType value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(AlertAction value) {
         using enum AlertAction;
         switch (value) {
             case NEGATIVE:
             case POSITIVE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(VibrationType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(AlertAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(VibrationType value) {
         using enum VibrationType;
         switch (value) {
             case NO_PATTERN_SPECIFIED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x00) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertMessageTypeWithLeftRightSelection value, bool isBitmask = false) {
+    static bool is_valid(AlertMessageTypeWithLeftRightSelection value) {
         using enum AlertMessageTypeWithLeftRightSelection;
         switch (value) {
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON:
@@ -1906,39 +1964,52 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON:
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x07) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertLeftRightAction value, bool isBitmask = false) {
+    static bool is_valid(AlertLeftRightAction value) {
         using enum AlertLeftRightAction;
         switch (value) {
             case NEGATIVE:
             case LEFT:
             case RIGHT:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AlertActionType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(AlertLeftRightAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(AlertActionType value) {
         using enum AlertActionType;
         switch (value) {
             case CONFIRMATION_ONLY:
             case POSITIVE_NEGATIVE:
             case POSITIVE_CONFIRMATION_WITH_REPLY:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(DefaultSelectedLeftRightValue value, bool isBitmask = false) {
+    static bool is_valid_bitmask(AlertActionType value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(DefaultSelectedLeftRightValue value) {
         using enum DefaultSelectedLeftRightValue;
         switch (value) {
             case LEFT:
             case RIGHT:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PlayInquiredType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(DefaultSelectedLeftRightValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(PlayInquiredType value) {
         using enum PlayInquiredType;
         switch (value) {
             case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
@@ -1950,10 +2021,11 @@ namespace mdr::v2::t1 {
             case CALL_VOLUME_WITH_MUTE:
             case PLAY_MODE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x73) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PlaybackStatus value, bool isBitmask = false) {
+    static bool is_valid(PlaybackStatus value) {
         using enum PlaybackStatus;
         switch (value) {
             case UNSETTLED:
@@ -1961,19 +2033,24 @@ namespace mdr::v2::t1 {
             case PAUSE:
             case STOP:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(MusicCallStatus value, bool isBitmask = false) {
+    static bool is_valid(MusicCallStatus value) {
         using enum MusicCallStatus;
         switch (value) {
             case MUSIC:
             case CALL:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PlaybackControl value, bool isBitmask = false) {
+    static bool is_valid_bitmask(MusicCallStatus value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(PlaybackControl value) {
         using enum PlaybackControl;
         switch (value) {
             case KEY_OFF:
@@ -1987,20 +2064,25 @@ namespace mdr::v2::t1 {
             case FAST_FORWARD:
             case FAST_REWIND:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x0f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PlaybackNameStatus value, bool isBitmask = false) {
+    static bool is_valid(PlaybackNameStatus value) {
         using enum PlaybackNameStatus;
         switch (value) {
             case UNSETTLED:
             case NOTHING:
             case SETTLED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PlayMode value, bool isBitmask = false) {
+    static bool is_valid_bitmask(PlaybackNameStatus value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(PlayMode value) {
         using enum PlayMode;
         switch (value) {
             case PLAY_MODE_OFF:
@@ -2010,10 +2092,11 @@ namespace mdr::v2::t1 {
             case REPEAT_TRACK:
             case SHUFFLE_ALL:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x07) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(GsInquiredType value, bool isBitmask = false) {
+    static bool is_valid(GsInquiredType value) {
         using enum GsInquiredType;
         switch (value) {
             case GENERAL_SETTING1:
@@ -2021,28 +2104,37 @@ namespace mdr::v2::t1 {
             case GENERAL_SETTING3:
             case GENERAL_SETTING4:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xd7) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(GsSettingType value, bool isBitmask = false) {
+    static bool is_valid(GsSettingType value) {
         using enum GsSettingType;
         switch (value) {
             case BOOLEAN_TYPE:
             case LIST_TYPE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(GsSettingValue value, bool isBitmask = false) {
+    static bool is_valid_bitmask(GsSettingType value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(GsSettingValue value) {
         using enum GsSettingValue;
         switch (value) {
             case ON:
             case OFF:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(DisplayLanguage value, bool isBitmask = false) {
+    static bool is_valid_bitmask(GsSettingValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(DisplayLanguage value) {
         using enum DisplayLanguage;
         switch (value) {
             case UNDEFINED_LANGUAGE:
@@ -2063,19 +2155,24 @@ namespace mdr::v2::t1 {
             case KOREAN:
             case TURKISH:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x1f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(GsStringFormat value, bool isBitmask = false) {
+    static bool is_valid(GsStringFormat value) {
         using enum GsStringFormat;
         switch (value) {
             case RAW_NAME:
             case ENUM_NAME:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(AudioInquiredType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(GsStringFormat value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(AudioInquiredType value) {
         using enum AudioInquiredType;
         switch (value) {
             case CONNECTION_MODE:
@@ -2090,39 +2187,52 @@ namespace mdr::v2::t1 {
             case BGM_MODE_AND_ERRORCODE:
             case UPMIX_SERIES:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x0f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(PriorMode value, bool isBitmask = false) {
+    static bool is_valid(PriorMode value) {
         using enum PriorMode;
         switch (value) {
             case SOUND_QUALITY_PRIOR:
             case CONNECTION_QUALITY_PRIOR:
             case LOW_LATENCY_PRIOR_BETA:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(UpscalingTypeAutoOff value, bool isBitmask = false) {
+    static bool is_valid_bitmask(PriorMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(UpscalingTypeAutoOff value) {
         using enum UpscalingTypeAutoOff;
         switch (value) {
             case OFF:
             case AUTO:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(RoomSize value, bool isBitmask = false) {
+    static bool is_valid_bitmask(UpscalingTypeAutoOff value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(RoomSize value) {
         using enum RoomSize;
         switch (value) {
             case SMALL:
             case MIDDLE:
             case LARGE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ListeningOptionAssignCustomizableItem value, bool isBitmask = false) {
+    static bool is_valid_bitmask(RoomSize value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(ListeningOptionAssignCustomizableItem value) {
         using enum ListeningOptionAssignCustomizableItem;
         switch (value) {
             case STANDARD:
@@ -2131,10 +2241,11 @@ namespace mdr::v2::t1 {
             case UPMIX_GAME:
             case UPMIX_MUSIC:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x07) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(UpmixItemId value, bool isBitmask = false) {
+    static bool is_valid(UpmixItemId value) {
         using enum UpmixItemId;
         switch (value) {
             case NONE:
@@ -2142,20 +2253,25 @@ namespace mdr::v2::t1 {
             case GAME:
             case MUSIC:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(SwitchingStream value, bool isBitmask = false) {
+    static bool is_valid(SwitchingStream value) {
         using enum SwitchingStream;
         switch (value) {
             case NONE:
             case LE_AUDIO:
             case CLASSIC_AUDIO:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(UpscalingType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(SwitchingStream value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(UpscalingType value) {
         using enum UpscalingType;
         switch (value) {
             case DSEE_HX:
@@ -2163,10 +2279,11 @@ namespace mdr::v2::t1 {
             case DSEE_HX_AI:
             case DSEE_ULTIMATE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(SystemInquiredType value, bool isBitmask = false) {
+    static bool is_valid(SystemInquiredType value) {
         using enum SystemInquiredType;
         switch (value) {
             case VIBRATOR:
@@ -2187,10 +2304,11 @@ namespace mdr::v2::t1 {
             case HEAD_GESTURE_ON_OFF:
             case HEAD_GESTURE_TRAINING:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x1f) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(Preset value, bool isBitmask = false) {
+    static bool is_valid(Preset value) {
         using enum Preset;
         switch (value) {
             case AMBIENT_SOUND_CONTROL:
@@ -2220,10 +2338,11 @@ namespace mdr::v2::t1 {
             case CUSTOM2:
             case NO_FUNCTION:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(VoiceAssistant value, bool isBitmask = false) {
+    static bool is_valid(VoiceAssistant value) {
         using enum VoiceAssistant;
         switch (value) {
             case VOICE_RECOGNITION:
@@ -2234,10 +2353,11 @@ namespace mdr::v2::t1 {
             case VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE:
             case NO_FUNCTION:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EarpieceFittingDetectionOperationStatus value, bool isBitmask = false) {
+    static bool is_valid(EarpieceFittingDetectionOperationStatus value) {
         using enum EarpieceFittingDetectionOperationStatus;
         switch (value) {
             case DETECTION_IS_NOT_STARTED:
@@ -2245,10 +2365,11 @@ namespace mdr::v2::t1 {
             case DETECTION_COMPLETED_SUCCESSFULLY:
             case DETECTION_COMPLETED_UNSUCCESSFULLY:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EarpieceFittingDetectionOperationErrorCode value, bool isBitmask = false) {
+    static bool is_valid(EarpieceFittingDetectionOperationErrorCode value) {
         using enum EarpieceFittingDetectionOperationErrorCode;
         switch (value) {
             case NO_ERROR:
@@ -2260,10 +2381,11 @@ namespace mdr::v2::t1 {
             case BOTH_FITTING_ERROR:
             case MEASURING_ERROR:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x07) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EarpieceSeries value, bool isBitmask = false) {
+    static bool is_valid(EarpieceSeries value) {
         using enum EarpieceSeries;
         switch (value) {
             case OTHER:
@@ -2272,10 +2394,11 @@ namespace mdr::v2::t1 {
             case SOFT_FITTING_FOR_LINKBUDS_FIT:
             case NOT_DETERMINED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EarpieceSize value, bool isBitmask = false) {
+    static bool is_valid(EarpieceSize value) {
         using enum EarpieceSize;
         switch (value) {
             case SS:
@@ -2285,76 +2408,105 @@ namespace mdr::v2::t1 {
             case LL:
             case NOT_DETERMINED:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EarpieceFittingDetectionOperation value, bool isBitmask = false) {
+    static bool is_valid(EarpieceFittingDetectionOperation value) {
         using enum EarpieceFittingDetectionOperation;
         switch (value) {
             case DETECTION_START:
             case DETECTION_CANCEL:
             case DETECTION_START_FORCEFUL:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ResetType value, bool isBitmask = false) {
+    static bool is_valid_bitmask(EarpieceFittingDetectionOperation value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(ResetType value) {
         using enum ResetType;
         switch (value) {
             case SETTINGS_ONLY:
             case FACTORY_RESET:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ResetResult value, bool isBitmask = false) {
+    static bool is_valid_bitmask(ResetType value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(ResetResult value) {
         using enum ResetResult;
         switch (value) {
             case SUCCESS:
             case ERROR_CONNECTION_LEFT:
             case ERROR_CONNECTION_RIGHT:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(FaceTapKey value, bool isBitmask = false) {
+    static bool is_valid_bitmask(ResetResult value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(FaceTapKey value) {
         using enum FaceTapKey;
         switch (value) {
             case LEFT_SIDE_KEY:
             case RIGHT_SIDE_KEY:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(FaceTapAction value, bool isBitmask = false) {
+    static bool is_valid_bitmask(FaceTapKey value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(FaceTapAction value) {
         using enum FaceTapAction;
         switch (value) {
             case DOUBLE_TAP:
             case TRIPLE_TAP:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(HeadGestureAction value, bool isBitmask = false) {
+    static bool is_valid_bitmask(FaceTapAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(HeadGestureAction value) {
         using enum HeadGestureAction;
         switch (value) {
             case NOD:
             case SWING:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(DetectSensitivity value, bool isBitmask = false) {
+    static bool is_valid_bitmask(HeadGestureAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(DetectSensitivity value) {
         using enum DetectSensitivity;
         switch (value) {
             case AUTO:
             case HIGH:
             case LOW:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(ModeOutTime value, bool isBitmask = false) {
+    static bool is_valid_bitmask(DetectSensitivity value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
+    }
+    static bool is_valid(ModeOutTime value) {
         using enum ModeOutTime;
         switch (value) {
             case FAST:
@@ -2362,10 +2514,11 @@ namespace mdr::v2::t1 {
             case SLOW:
             case NONE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(Action value, bool isBitmask = false) {
+    static bool is_valid(Action value) {
         using enum Action;
         switch (value) {
             case SINGLE_TAP:
@@ -2377,32 +2530,39 @@ namespace mdr::v2::t1 {
             case LONG_PRESS_THEN_ACTIVATE:
             case LONG_PRESS_DURING_ACTIVATE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x33) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(EarpieceFittingDetectionResult value, bool isBitmask = false) {
+    static bool is_valid(EarpieceFittingDetectionResult value) {
         using enum EarpieceFittingDetectionResult;
         switch (value) {
             case GOOD:
             case POOR:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(CallSettingsTestSoundControl value, bool isBitmask = false) {
+    static bool is_valid_bitmask(EarpieceFittingDetectionResult value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(CallSettingsTestSoundControl value) {
         using enum CallSettingsTestSoundControl;
         switch (value) {
             case START:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x00) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(CallSettingsTestSoundControlAck value, bool isBitmask = false) {
+    static bool is_valid(CallSettingsTestSoundControlAck value) {
         using enum CallSettingsTestSoundControlAck;
         switch (value) {
             case ACK:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x00) : false;
+        default:
+           return false;
         }
     }
 }

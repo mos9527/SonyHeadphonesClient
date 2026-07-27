@@ -204,25 +204,33 @@ namespace mdr::v2 {
             default: return "Unknown";
         }
     }
-    static bool is_valid(MessageMdrV2EnableDisable value, bool isBitmask = false) {
+    static bool is_valid(MessageMdrV2EnableDisable value) {
         using enum MessageMdrV2EnableDisable;
         switch (value) {
             case ENABLE:
             case DISABLE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(MessageMdrV2OnOffSettingValue value, bool isBitmask = false) {
+    static bool is_valid_bitmask(MessageMdrV2EnableDisable value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(MessageMdrV2OnOffSettingValue value) {
         using enum MessageMdrV2OnOffSettingValue;
         switch (value) {
             case ON:
             case OFF:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x01) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(MessageMdrV2FunctionType_Table1 value, bool isBitmask = false) {
+    static bool is_valid_bitmask(MessageMdrV2OnOffSettingValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
+    }
+    static bool is_valid(MessageMdrV2FunctionType_Table1 value) {
         using enum MessageMdrV2FunctionType_Table1;
         switch (value) {
             case CONCIERGE_DATA:
@@ -356,10 +364,11 @@ namespace mdr::v2 {
             case ASSIGNABLE_SETTING_WITH_LIMITATION:
             case HEAD_GESTURE_ON_OFF_TRAINING:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(MessageMdrV2FunctionType_Table2 value, bool isBitmask = false) {
+    static bool is_valid(MessageMdrV2FunctionType_Table2 value) {
         using enum MessageMdrV2FunctionType_Table2;
         switch (value) {
             case AUTO_STANDBY:
@@ -407,7 +416,8 @@ namespace mdr::v2 {
             case USB_BROWSER:
             case LIGHTING_MODE:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
 }

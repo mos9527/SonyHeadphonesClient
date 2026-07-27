@@ -202,7 +202,7 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         {
         case CXCursor_EnumDecl:
             if ((fieldValidationFlags & kValidationFlagBITMASK))
-                println("{}MDR_VALIDATE(is_valid({}, true /* bitmask */));", emitIndent(), newParentName);
+                println("{}MDR_VALIDATE(is_valid_bitmask({}));", emitIndent(), newParentName);
             else
                 println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
             break;

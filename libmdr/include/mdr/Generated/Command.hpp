@@ -35,7 +35,7 @@ namespace mdr {
             default: return "Unknown";
         }
     }
-    static bool is_valid(MDRDataType value, bool isBitmask = false) {
+    static bool is_valid(MDRDataType value) {
         using enum MDRDataType;
         switch (value) {
             case DATA:
@@ -56,10 +56,11 @@ namespace mdr {
             case LARGE_DATA_COMMON:
             case UNKNOWN:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0xff) : false;
+        default:
+           return false;
         }
     }
-    static bool is_valid(MDRUnpackResult value, bool isBitmask = false) {
+    static bool is_valid(MDRUnpackResult value) {
         using enum MDRUnpackResult;
         switch (value) {
             case OK:
@@ -67,7 +68,8 @@ namespace mdr {
             case BAD_MARKER:
             case BAD_CHECKSUM:
             return true;
-        default: return isBitmask ? (static_cast<uint8_t>(value) & 0x03) : false;
+        default:
+           return false;
         }
     }
 }
