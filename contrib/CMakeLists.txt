@@ -7,6 +7,7 @@ FetchContent_Declare(
         GIT_TAG 12.1.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
+        PATCH_COMMAND  git apply ${CMAKE_CURRENT_LIST_DIR}/fmt.patch
 )
 
 FetchContent_Declare(
