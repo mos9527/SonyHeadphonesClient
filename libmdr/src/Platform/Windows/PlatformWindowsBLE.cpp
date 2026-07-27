@@ -358,7 +358,7 @@ struct MDRConnectionWindowsBLE
         }); // end RunOnMTA
         if (FAILED(hr))
         {
-            ptr->lastError = mdr::Format("GetDevicesList failed with HRESULT 0x{:08X}", (uint32_t)hr);
+            // ptr->lastError= mdr::Format("GetDevicesList failed with HRESULT 0x{:08X}", (uint32_t)hr);
             MDR_LOG("[BLE] GetDevicesList error: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
@@ -384,7 +384,7 @@ struct MDRConnectionWindowsBLE
         uint64_t btAddr = macAddressToULL(macAddress);
         if (btAddr == ~0ULL)
         {
-            ptr->lastError = "Invalid MAC address format";
+            // ptr->lastError= "Invalid MAC address format";
             MDR_LOG("[BLE] Connect failed: invalid MAC address");
             return MDR_RESULT_ERROR_BAD_ADDRESS;
         }
@@ -410,7 +410,7 @@ struct MDRConnectionWindowsBLE
                 RETURN_IF_FAILED(WaitForCompletionAndGetResults(spBleDeviceOp.Get(), &ptr->device));
                 if (ptr->device == nullptr)
                 {
-                    ptr->lastError = "BLE device not found or not reachable";
+                    // ptr->lastError= "BLE device not found or not reachable";
                     MDR_LOG("[BLE] FromBluetoothAddressAsync returned null");
                     return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
                 }
@@ -427,7 +427,7 @@ struct MDRConnectionWindowsBLE
                     uint8_t uuidBytes[16];
                     if (serviceUUIDtoBytes(svcUUID.c_str(), uuidBytes) != 0)
                     {
-                        ptr->lastError = "Invalid service UUID format";
+                        // ptr->lastError= "Invalid service UUID format";
                         MDR_LOG("[BLE] Invalid service UUID: {}", svcUUID);
                         return HResultFromMdr(MDR_RESULT_ERROR_BAD_ADDRESS);
                     }
@@ -458,7 +458,7 @@ struct MDRConnectionWindowsBLE
 
                 if (status != GattCommunicationStatus_Success)
                 {
-                    ptr->lastError = mdr::Format("GATT service discovery failed (status={})", (int)status);
+                    // ptr->lastError= mdr::Format("GATT service discovery failed (status={})", (int)status);
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NET);
                 }
@@ -487,7 +487,7 @@ struct MDRConnectionWindowsBLE
 
                 if (spTargetService == nullptr)
                 {
-                    ptr->lastError = mdr::Format("GATT service {} not found on device", svcUUID);
+                    // ptr->lastError= mdr::Format("GATT service {} not found on device", svcUUID);
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
                 }
@@ -509,7 +509,7 @@ struct MDRConnectionWindowsBLE
 
                 if (charsStatus != GattCommunicationStatus_Success)
                 {
-                    ptr->lastError = "Failed to enumerate GATT characteristics";
+                    // ptr->lastError= "Failed to enumerate GATT characteristics";
                     MDR_LOG("[BLE] GetCharacteristicsAsync failed: status={}", (int)charsStatus);
                     return HResultFromMdr(MDR_RESULT_ERROR_NET);
                 }
@@ -559,14 +559,14 @@ struct MDRConnectionWindowsBLE
 
                 if (ptr->writeChar == nullptr)
                 {
-                    ptr->lastError = "No writable GATT characteristic found in service";
+                    // ptr->lastError= "No writable GATT characteristic found in service";
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
                 }
 
                 if (ptr->notifyChar == nullptr)
                 {
-                    ptr->lastError = "No notifiable GATT characteristic found in service";
+                    // ptr->lastError= "No notifiable GATT characteristic found in service";
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
                 }
@@ -592,7 +592,7 @@ struct MDRConnectionWindowsBLE
 
                 if (cccdResult != GattCommunicationStatus_Success)
                 {
-                    ptr->lastError = mdr::Format("Failed to subscribe to notifications (status={})", (int)cccdResult);
+                    // ptr->lastError= mdr::Format("Failed to subscribe to notifications (status={})", (int)cccdResult);
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NET);
                 }
@@ -639,7 +639,7 @@ struct MDRConnectionWindowsBLE
             {
                 ptr->connected = true;
                 ptr->connectResult = MDR_RESULT_OK;
-                ptr->lastError = "Connected via BLE GATT";
+                // ptr->lastError= "Connected via BLE GATT";
                 MDR_LOG("[BLE] BLE GATT connection established!");
                 SetEvent(ptr->connectEvent);
             }
@@ -651,7 +651,7 @@ struct MDRConnectionWindowsBLE
                 }
                 else
                 {
-                    ptr->lastError = mdr::Format("Connect thread failed with HRESULT 0x{:08X}", (uint32_t)hr);
+                    // ptr->lastError= mdr::Format("Connect thread failed with HRESULT 0x{:08X}", (uint32_t)hr);
                     MDR_LOG("[BLE] Connect thread error: {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                 }
@@ -659,7 +659,7 @@ struct MDRConnectionWindowsBLE
             }
         });
 
-        ptr->lastError = "Connecting via BLE GATT...";
+        // ptr->lastError= "Connecting via BLE GATT...";
         return MDR_RESULT_INPROGRESS;
     }
 
@@ -769,7 +769,7 @@ struct MDRConnectionWindowsBLE
         uint8_t* data = mdr::MDRAllocator<uint8_t>().allocate(size);
         if (data == nullptr)
         {
-            ptr->lastError = "Out of memory for send buffer";
+            // ptr->lastError= "Out of memory for send buffer";
             MDR_LOG("[BLE] Send error: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
@@ -797,7 +797,7 @@ struct MDRConnectionWindowsBLE
 
             if (status != GattCommunicationStatus_Success)
             {
-                ptr->lastError = mdr::Format("GATT write failed (status={})", (int)status);
+                // ptr->lastError= mdr::Format("GATT write failed (status={})", (int)status);
                 MDR_LOG("[BLE] {}", ptr->lastError);
                 return HResultFromMdr(MDR_RESULT_ERROR_NET);
             }
@@ -817,7 +817,7 @@ struct MDRConnectionWindowsBLE
             }
             else
             {
-                ptr->lastError = mdr::Format("Send failed with HRESULT 0x{:08X}", (uint32_t)hr);
+                // ptr->lastError= mdr::Format("Send failed with HRESULT 0x{:08X}", (uint32_t)hr);
                 MDR_LOG("[BLE] Send error: {}", ptr->lastError);
                 return MDR_RESULT_ERROR_NET;
             }
@@ -863,7 +863,7 @@ struct MDRConnectionWindowsBLE
         if (waitResult == WAIT_TIMEOUT)
             return MDR_RESULT_ERROR_TIMEOUT;
 
-        ptr->lastError = "Poll wait failed";
+        // ptr->lastError= "Poll wait failed";
         return MDR_RESULT_ERROR_NET;
     }
 

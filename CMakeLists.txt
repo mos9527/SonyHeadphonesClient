@@ -93,6 +93,11 @@ if (MDR_DEBUG)
    add_compile_definitions(-D_DEBUG)
 endif ()
 
+option(MDR_BLE "Build with BLE Backend support" ON)
+if (MDR_BLE)
+    add_compile_definitions(-DMDR_BLE)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 include(DetectPlatform.cmake)

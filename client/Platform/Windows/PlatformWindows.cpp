@@ -1,48 +1,55 @@
-#include "../Platform.hpp"
-#include <mdr/Protocol.hpp>
 #include <mdr-c/Platform/PlatformWindows.h>
 #include <mdr-c/Platform/PlatformWindowsBLE.h>
+#include <mdr/Protocol.hpp>
+#include "../Platform.hpp"
 
 static MDRConnectionWindows* gConnClassic = nullptr;
 static MDRConnectionWindowsBLE* gConnBLE = nullptr;
 extern "C" {
-    int clientPlatformConnectionInit(int flags)
+int clientPlatformConnectionInit(int flags)
+{
+    if (gConnBLE != nullptr || gConnClassic != nullptr)
+        return MDR_RESULT_ERROR_GENERAL;
+    if (flags & MDR_INIT_BT_BLE)
     {
-        if (gConnBLE != nullptr || gConnClassic != nullptr)
-            return MDR_RESULT_ERROR_GENERAL;
-        if (flags & MDR_INIT_BT_BLE)
-            gConnBLE = mdrConnectionWindowsBLECreate(), gConnClassic = nullptr;
-        else
-            gConnClassic = mdrConnectionWindowsCreate(), gConnBLE = nullptr;
-        return MDR_RESULT_OK;
+#ifdef MDR_BLE
+        gConnBLE = mdrConnectionWindowsBLECreate(), gConnClassic = nullptr;
+#else
+        gConnBLE = nullptr, gConnClassic = nullptr;
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+#endif
     }
+    else
+        gConnClassic = mdrConnectionWindowsCreate(), gConnBLE = nullptr;
+    return MDR_RESULT_OK;
+}
 
-    void clientPlatformConnectionDestroy()
-    {
-        if (gConnClassic)
-            mdrConnectionWindowsDestroy(gConnClassic), gConnClassic = nullptr;
-        if (gConnBLE)
-            mdrConnectionWindowsBLEDestroy(gConnBLE), gConnBLE = nullptr;
-    }
+void clientPlatformConnectionDestroy()
+{
+    if (gConnClassic)
+        mdrConnectionWindowsDestroy(gConnClassic), gConnClassic = nullptr;
+    if (gConnBLE)
+        mdrConnectionWindowsBLEDestroy(gConnBLE), gConnBLE = nullptr;
+}
 
-    MDRConnection* clientPlatformConnectionGet()
-    {
-        if (gConnClassic)
-            return mdrConnectionWindowsGet(gConnClassic);
-        if (gConnBLE)
-            return mdrConnectionWindowsBLEGet(gConnBLE);
-        [[unlikely]] return nullptr;
-    }
+MDRConnection* clientPlatformConnectionGet()
+{
+    if (gConnClassic)
+        return mdrConnectionWindowsGet(gConnClassic);
+    if (gConnBLE)
+        return mdrConnectionWindowsBLEGet(gConnBLE);
+    [[unlikely]] return nullptr;
+}
 
-    int clientPlatformLocateFontBinary(const char** outData)
-    {
-        // TODO
-        *outData = nullptr;
-        return 0;
-    }
-    void clientPlatformDestroy()
-    {
-        clientPlatformConnectionDestroy();
-        // TODO
-    }
+int clientPlatformLocateFontBinary(const char** outData)
+{
+    // TODO
+    *outData = nullptr;
+    return 0;
+}
+void clientPlatformDestroy()
+{
+    clientPlatformConnectionDestroy();
+    // TODO
+}
 }
