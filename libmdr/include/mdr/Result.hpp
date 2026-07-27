@@ -21,21 +21,22 @@ std::abort(); \
 } while (false);
 
 namespace mdr
-{
+{    
     template <typename T>
     struct [[nodiscard]] MDRResult
     {
         T value{};
         int error{MDR_RESULT_OK};
+        const char* errMessage{nullptr};
 
         [[nodiscard]] static MDRResult Success(T value)
         {
             return {std::move(value), MDR_RESULT_OK};
         }
 
-        [[nodiscard]] static MDRResult Failure(int error)
+        [[nodiscard]] static MDRResult Failure(int error, const char* errMessage = nullptr)
         {
-            return {T{}, error};
+            return {T{}, error, errMessage};
         }
 
         [[nodiscard]] constexpr bool HasValue() const noexcept
@@ -53,15 +54,16 @@ namespace mdr
     struct [[nodiscard]] MDRResult<void>
     {
         int error{MDR_RESULT_OK};
+        const char* errMessage{nullptr};
 
         [[nodiscard]] static constexpr MDRResult Success() noexcept
         {
             return {};
         }
 
-        [[nodiscard]] static constexpr MDRResult Failure(int error) noexcept
+        [[nodiscard]] static constexpr MDRResult Failure(int error, const char* errMessage = nullptr) noexcept
         {
-            return {error};
+            return {error, errMessage};
         }
 
         [[nodiscard]] constexpr bool HasValue() const noexcept
@@ -82,9 +84,11 @@ namespace mdr
         if (!mdrResult) \
         { \
             MDR_TRAP(); \
-            return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error); \
+            return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
+                                                         mdrResult.errMessage ? mdrResult.errMessage : #__VA_ARGS__); \
         } \
     } while (false)
+
 
 #define MDR_TRY_SIZE(ResultType, ...) \
     do { \
@@ -92,7 +96,8 @@ namespace mdr
         if (!mdrResult) \
         { \
             MDR_TRAP(); \
-            return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error); \
+            return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
+                                                         mdrResult.errMessage ? mdrResult.errMessage : #__VA_ARGS__); \
         } \
         maxSize -= mdrResult.value; \
     } while (false)
@@ -102,6 +107,6 @@ namespace mdr
         if (!(__VA_ARGS__)) \
         { \
             MDR_TRAP(); \
-            return ::mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD); \
+            return ::mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Validation failed: " #__VA_ARGS__); \
         } \
     } while (false)

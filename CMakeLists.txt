@@ -49,7 +49,9 @@ else()
         -fno-asynchronous-unwind-tables
     )
 endif()
-add_compile_definitions(FMT_EXCEPTIONS=0)
+# On FMT_USE_LOCALE - these usually allocates with operator new(), which we do not use.
+# We don't even use chrono either, hence the disablement.
+add_compile_definitions(FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0)
 
 # Dead-code strip and no RTTI
 if (MSVC)
