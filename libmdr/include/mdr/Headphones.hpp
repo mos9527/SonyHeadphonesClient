@@ -43,6 +43,14 @@ namespace mdr
             MDRTask get_return_object();
 
             void return_value(int v) { result = v; }
+
+            // https://en.cppreference.com/cpp/language/coroutines#:~:text=the%20caller/resumer.-,Dynamic%20allocation,-Coroutine%20state
+            void* operator new(std::size_t n) noexcept { return mdr::MDRAllocator<char>().allocate(n); }
+            void operator delete(void* p, std::size_t n) noexcept { mdr::MDRAllocator<char>().deallocate(static_cast<char*>(p), n); }
+            static MDRTask get_return_object_on_allocation_failure() noexcept { 
+                MDR_CHECK(false && "MDRTask allocation failure");
+                return {};
+            }
         };
 
         using value_type = void;
