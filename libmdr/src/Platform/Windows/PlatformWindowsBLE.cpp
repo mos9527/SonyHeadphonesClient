@@ -34,27 +34,7 @@ using namespace ABI::Windows::Storage::Streams;
 #define RETURN_IF_FAILED(expr) do { HRESULT hr = (expr); if (FAILED(hr)) { /*MDR_LOG("[BLE] HRESULT 0x{:08X} at {}:{}", hr, __FILE__, __LINE__);*/ return hr; } } while (0)
 #define RETURN_IF_NULL_ALLOC(ptr) do { if ((ptr) == nullptr) { /*MDR_LOG("[BLE] Out of memory at {}:{}", __FILE__, __LINE__);*/ return E_OUTOFMEMORY; } } while (0)
 
-template <>
-struct fmt::formatter<Wrappers::HString, char> : formatter<std::string_view>
-{
-    template <typename FormatContext>
-    auto format(const Wrappers::HString& hstr, FormatContext& ctx) const
-    {
-        UINT32 len;
-        const wchar_t* wstr = hstr.GetRawBuffer(&len);
-
-        // Convert UTF-16 -> UTF-8
-        int bytes = WideCharToMultiByte(CP_UTF8, 0, wstr, static_cast<int>(len), nullptr, 0, nullptr, nullptr);
-
-        mdr::String utf8(bytes, '\0');
-
-        WideCharToMultiByte(CP_UTF8, 0, wstr, static_cast<int>(len), utf8.data(), bytes, nullptr, nullptr);
-
-        return formatter<std::string_view>::format(utf8, ctx);
-    }
-};
-
-inline mdr::String to_string(std::wstring_view value)
+mdr::String format_as(std::wstring_view value)
 {
     int const size = WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), nullptr, 0, nullptr, nullptr);
 
@@ -66,6 +46,16 @@ inline mdr::String to_string(std::wstring_view value)
     mdr::String result(size, '?');
     WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), result.data(), size, nullptr, nullptr);
     return result;
+}
+
+namespace Microsoft::WRL::Wrappers
+{
+    mdr::String format_as(HString const& hstr)
+    {
+        UINT32 len;
+        const wchar_t* wstr = hstr.GetRawBuffer(&len);
+        return ::format_as(std::wstring_view(wstr, len));
+    }
 }
 
 HRESULT IInspectable_Close(IInspectable* pInspectable)
@@ -306,7 +296,7 @@ struct MDRConnectionWindowsBLE
 
                 uint32_t cchName;
                 LPCWSTR pszName = hstrName.GetRawBuffer(&cchName);
-                mdr::String name = to_string(std::wstring_view(pszName, cchName));
+                mdr::String name = format_as(std::wstring_view(pszName, cchName));
 
                 MDR_LOG("[BLE] Device #{}: id=\"{}\" name=\"{}\"", i, hstrId, hstrName);
 
