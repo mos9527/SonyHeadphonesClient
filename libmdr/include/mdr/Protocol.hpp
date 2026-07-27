@@ -8,12 +8,13 @@
 #include <span>
 #include <string>
 #include <vector>
+#include <iterator>
 
 #include <fmt/format.h>
 
 #define MDR_LOG_STREAM stderr
 #define MDR_LOG(str, ...) \
-    fprintf(MDR_LOG_STREAM, "%s\n", fmt::format((str) __VA_OPT__(,) __VA_ARGS__).c_str());
+    fprintf(MDR_LOG_STREAM, "%s\n", mdr::Format((str) __VA_OPT__(,) __VA_ARGS__).c_str());
 #ifdef MDR_DEBUG
 #define MDR_LOG_DEBUG(...) \
     MDR_LOG(__VA_ARGS__);
@@ -275,6 +276,17 @@ namespace mdr
      * @breif Alias for std::string. This does not map to any specific protocol type directly.
      */
     using String = std::basic_string<char, std::char_traits<char>, MDRAllocator<char>>;
+    /**
+     * @brief @ref mdr::String wrapper for fmt::format().
+     * @note  Use this, over @ref fmt::format at all times since mdr::String is non-throwing.
+     */
+    template <typename... Args>
+    [[nodiscard]] constexpr String Format(fmt::format_string<Args...> format, Args&&... args)
+    {
+        String mdrString;
+        fmt::format_to(std::back_inserter(mdrString), format, std::forward<Args>(args)...);
+        return mdrString;
+    }
     /**
      * @breif Alias for std::vector. This does not map to any specific protocol type directly.
      */

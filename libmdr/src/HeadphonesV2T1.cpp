@@ -719,7 +719,7 @@ namespace mdr
         {
             if (cmd.size() < 4)
                 return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Malformed interaction parameter");
-            self->mLastInteractionMessage = std::string(cmd.begin() + 4, cmd.end());
+            self->mLastInteractionMessage = mdr::String(cmd.begin() + 4, cmd.end());
             return MDR_HEADPHONES_EVT_OK;
         }
         default:

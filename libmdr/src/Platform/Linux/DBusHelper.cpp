@@ -5,6 +5,7 @@
 #include <bluetooth/sdp_lib.h>
 #include <sys/poll.h>
 
+#include <mdr/Protocol.hpp>
 DBusConnection* dbus_open_system_bus(void)
 {
     DBusError error;
@@ -117,10 +118,10 @@ error:
     return FALSE;
 }
 
-std::vector<std::string> dbus_list_adapters(DBusConnection* const connection)
+mdr::Vector<mdr::String> dbus_list_adapters(DBusConnection* const connection)
 {
 
-    std::vector<std::string> ret;
+    mdr::Vector<mdr::String> ret;
 
     DBusError error;
     DBusMessage* msg = NULL;
@@ -201,10 +202,10 @@ clean_up:
     return ret;
 }
 
-std::string dbus_get_property(DBusConnection* const connection, const char* device_path, const char* property)
+mdr::String dbus_get_property(DBusConnection* const connection, const char* device_path, const char* property)
 {
 
-    std::string ret;
+    mdr::String ret;
 
     DBusError error;
     DBusMessage* msg = NULL;
@@ -262,7 +263,7 @@ std::string dbus_get_property(DBusConnection* const connection, const char* devi
     dbus_message_iter_recurse(&args, &subargs);
 
     dbus_message_iter_get_basic(&subargs, &interface);
-    ret = std::string(interface);
+    ret = mdr::String(interface);
 
 clean_up:
     if (NULL != rsp)

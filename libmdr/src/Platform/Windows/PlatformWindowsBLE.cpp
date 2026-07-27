@@ -46,7 +46,7 @@ struct fmt::formatter<Wrappers::HString, char> : formatter<std::string_view>
         // Convert UTF-16 -> UTF-8
         int bytes = WideCharToMultiByte(CP_UTF8, 0, wstr, static_cast<int>(len), nullptr, 0, nullptr, nullptr);
 
-        std::string utf8(bytes, '\0');
+        mdr::String utf8(bytes, '\0');
 
         WideCharToMultiByte(CP_UTF8, 0, wstr, static_cast<int>(len), utf8.data(), bytes, nullptr, nullptr);
 
@@ -54,7 +54,7 @@ struct fmt::formatter<Wrappers::HString, char> : formatter<std::string_view>
     }
 };
 
-inline std::string to_string(std::wstring_view value)
+inline mdr::String to_string(std::wstring_view value)
 {
     int const size = WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), nullptr, 0, nullptr, nullptr);
 
@@ -63,7 +63,7 @@ inline std::string to_string(std::wstring_view value)
         return{};
     }
 
-    std::string result(size, '?');
+    mdr::String result(size, '?');
     WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), result.data(), size, nullptr, nullptr);
     return result;
 }
@@ -110,12 +110,13 @@ enum GattPropertyBit
 
 // Helper: convert winrt::guid to string "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 // Used both for logging and for service UUID matching in Connect().
-static std::string GuidToString(const GUID& g)
+static mdr::String GuidToString(const GUID& g)
 {
-    return fmt::format("{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}",
+    mdr::String res = mdr::Format("{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}",
         g.Data1, g.Data2, g.Data3,
         g.Data4[0], g.Data4[1], g.Data4[2], g.Data4[3],
         g.Data4[4], g.Data4[5], g.Data4[6], g.Data4[7]);
+    return res;
 }
 
 // Helper: convert GattCharacteristicProperties to our bitmask
@@ -131,9 +132,9 @@ static int PropertiesToBitmask(GattCharacteristicProperties props)
 }
 
 // Helper: convert properties bitmask to human-readable string
-static std::string PropertiesToString(int mask)
+static mdr::String PropertiesToString(int mask)
 {
-    std::string result;
+    mdr::String result;
     if (mask & GATT_PROP_READ) result += "Read ";
     if (mask & GATT_PROP_WRITE) result += "Write ";
     if (mask & GATT_PROP_WRITE_NO_RESP) result += "WriteNoResp ";
@@ -146,7 +147,7 @@ static std::string PropertiesToString(int mask)
 struct MDRConnectionWindowsBLE
 {
     MDRConnection mdrConn;
-    std::string lastError;
+    mdr::String lastError;
 
     // WinRT device handles
     ComPtr<IBluetoothLEDevice> device;
@@ -157,7 +158,7 @@ struct MDRConnectionWindowsBLE
 
     // Receive buffer (filled by GATT notifications)
     std::mutex rxMutex;
-    std::vector<uint8_t> rxBuffer;
+    mdr::Vector<uint8_t> rxBuffer;
     HANDLE rxEvent;
 
     // Write mode (cached at connect time to avoid STA WinRT access)
@@ -290,7 +291,7 @@ struct MDRConnectionWindowsBLE
             RETURN_IF_FAILED(spDeviceInfos->get_Size(&cDeviceInfos));
             MDR_LOG("[BLE] FindAllAsync returned {} device(s)", cDeviceInfos);
 
-            std::vector<MDRDeviceInfo> devices;
+            mdr::Vector<MDRDeviceInfo> devices;
 
             for (uint32_t i = 0; i < cDeviceInfos; i++)
             {
@@ -305,7 +306,7 @@ struct MDRConnectionWindowsBLE
 
                 uint32_t cchName;
                 LPCWSTR pszName = hstrName.GetRawBuffer(&cchName);
-                std::string name = to_string(std::wstring_view(pszName, cchName));
+                mdr::String name = to_string(std::wstring_view(pszName, cchName));
 
                 MDR_LOG("[BLE] Device #{}: id=\"{}\" name=\"{}\"", i, hstrId, hstrName);
 
@@ -325,7 +326,7 @@ struct MDRConnectionWindowsBLE
 
                     uint64_t addr;
                     RETURN_IF_FAILED(bleDevice->get_BluetoothAddress(&addr));
-                    std::string macAddress = fmt::format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
+                    mdr::String macAddress = mdr::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
                         (addr >> 40) & 0xFF, (addr >> 32) & 0xFF, (addr >> 24) & 0xFF,
                         (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF);
 
@@ -367,7 +368,7 @@ struct MDRConnectionWindowsBLE
         }); // end RunOnMTA
         if (FAILED(hr))
         {
-            ptr->lastError = fmt::format("GetDevicesList failed with HRESULT 0x{:08X}", (uint32_t)hr);
+            ptr->lastError = mdr::Format("GetDevicesList failed with HRESULT 0x{:08X}", (uint32_t)hr);
             MDR_LOG("[BLE] GetDevicesList error: {}", ptr->lastError);
             return MDR_RESULT_ERROR_NET;
         }
@@ -398,7 +399,7 @@ struct MDRConnectionWindowsBLE
             return MDR_RESULT_ERROR_BAD_ADDRESS;
         }
 
-        std::string svcUUID(serviceUUID);
+        mdr::String svcUUID(serviceUUID);
 
         // Launch connection on background thread
         ptr->connectThread = std::jthread([ptr, btAddr, svcUUID](std::stop_token stop)
@@ -467,7 +468,7 @@ struct MDRConnectionWindowsBLE
 
                 if (status != GattCommunicationStatus_Success)
                 {
-                    ptr->lastError = fmt::format("GATT service discovery failed (status={})", (int)status);
+                    ptr->lastError = mdr::Format("GATT service discovery failed (status={})", (int)status);
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NET);
                 }
@@ -484,7 +485,7 @@ struct MDRConnectionWindowsBLE
                     GUID uuid;
                     RETURN_IF_FAILED(spSvc->get_Uuid(&uuid));
 
-                    std::string foundUUID = GuidToString(uuid);
+                    mdr::String foundUUID = GuidToString(uuid);
                     MDR_LOG("[BLE]   Found service: {}", foundUUID);
                     if (_stricmp(foundUUID.c_str(), svcUUID.c_str()) == 0)
                     {
@@ -496,7 +497,7 @@ struct MDRConnectionWindowsBLE
 
                 if (spTargetService == nullptr)
                 {
-                    ptr->lastError = fmt::format("GATT service {} not found on device", svcUUID);
+                    ptr->lastError = mdr::Format("GATT service {} not found on device", svcUUID);
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
                 }
@@ -601,7 +602,7 @@ struct MDRConnectionWindowsBLE
 
                 if (cccdResult != GattCommunicationStatus_Success)
                 {
-                    ptr->lastError = fmt::format("Failed to subscribe to notifications (status={})", (int)cccdResult);
+                    ptr->lastError = mdr::Format("Failed to subscribe to notifications (status={})", (int)cccdResult);
                     MDR_LOG("[BLE] {}", ptr->lastError);
                     return HResultFromMdr(MDR_RESULT_ERROR_NET);
                 }
@@ -660,7 +661,7 @@ struct MDRConnectionWindowsBLE
                 }
                 else
                 {
-                    ptr->lastError = fmt::format("Connect thread failed with HRESULT 0x{:08X}", (uint32_t)hr);
+                    ptr->lastError = mdr::Format("Connect thread failed with HRESULT 0x{:08X}", (uint32_t)hr);
                     MDR_LOG("[BLE] Connect thread error: {}", ptr->lastError);
                     ptr->connectResult = MDR_RESULT_ERROR_NET;
                 }
@@ -806,7 +807,7 @@ struct MDRConnectionWindowsBLE
 
             if (status != GattCommunicationStatus_Success)
             {
-                ptr->lastError = fmt::format("GATT write failed (status={})", (int)status);
+                ptr->lastError = mdr::Format("GATT write failed (status={})", (int)status);
                 MDR_LOG("[BLE] {}", ptr->lastError);
                 return HResultFromMdr(MDR_RESULT_ERROR_NET);
             }
@@ -826,7 +827,7 @@ struct MDRConnectionWindowsBLE
             }
             else
             {
-                ptr->lastError = fmt::format("Send failed with HRESULT 0x{:08X}", (uint32_t)hr);
+                ptr->lastError = mdr::Format("Send failed with HRESULT 0x{:08X}", (uint32_t)hr);
                 MDR_LOG("[BLE] Send error: {}", ptr->lastError);
                 return MDR_RESULT_ERROR_NET;
             }

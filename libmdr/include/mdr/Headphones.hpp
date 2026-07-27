@@ -217,7 +217,7 @@ namespace mdr
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
         int SetLastError(int error, const char* context)
         {
-            mLastError = fmt::format("{}: {}", context, mdrResultString(error));
+            mLastError = mdr::Format("{}: {}", context, mdrResultString(error));
             return MDR_HEADPHONES_ERROR;
         }
 

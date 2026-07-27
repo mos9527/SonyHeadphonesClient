@@ -119,7 +119,7 @@ EM_JS(void, em_js_disconnect, (), {
 struct MDRConnectionEmscripten
 {
     MDRConnection mdrConn;
-    std::string lastError;
+    mdr::String lastError;
     MDRConnectionEmscripten() : mdrConn({.user = this,
                                 .connect = Connect,
                                 .disconnect = Disconnect,

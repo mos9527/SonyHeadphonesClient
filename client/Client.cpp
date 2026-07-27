@@ -532,7 +532,7 @@ void DrawDeviceDiscovery()
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
-        ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME,
+        ImTextCentered(mdr::Format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME,
                                    MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS)
                            .c_str());
         // Chose, and have the GATT backend active
@@ -615,7 +615,7 @@ void DrawDeviceDiscovery()
         };
         if (connInitResult != MDR_RESULT_OK && connInitResult != MDR_RESULT_INPROGRESS)
         {
-            ImTextCentered(fmt::format(PSI_EXCLAMATION_SIGN " Failed to initialize connection: {}",
+            ImTextCentered(mdr::Format(PSI_EXCLAMATION_SIGN " Failed to initialize connection: {}",
                                        mdrResultString(connInitResult))
                                .c_str());
         }
@@ -699,7 +699,7 @@ void DrawDeviceControlsHeader()
     {
         auto& style = ImGui::GetStyle();
         /* Disconnect & Shutdown */
-        if (ImGui::BeginMenu(fmt::format(PSI_CHEVRON_DOWN " {}", GetDevice().mModelName).c_str()))
+        if (ImGui::BeginMenu(mdr::Format(PSI_CHEVRON_DOWN " {}", GetDevice().mModelName).c_str()))
         {
             if (ImGui::MenuItem(PSI_UNLINK " Disconnect"))
             {

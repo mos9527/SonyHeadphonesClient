@@ -39,7 +39,7 @@ struct MDRConnectionLinux
 
     sdp_session* sdpSession{nullptr};
     uint8_t uuid[16];
-    std::string macAddress;
+    mdr::String macAddress;
 
     static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
@@ -180,9 +180,9 @@ struct MDRConnectionLinux
         *pCount = static_cast<int>(paths.size());
         for (size_t i = 0; i < paths.size(); ++i)
         {
-            std::string name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
-            std::string address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
-            // std::string is always null-terminated
+            mdr::String name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
+            mdr::String address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
+            // mdr::String is always null-terminated
             strncpy((*ppList)[i].szDeviceName, name.c_str(), name.size() + 1);
             strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(), address.size() + 1);
         }
