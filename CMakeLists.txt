@@ -95,6 +95,7 @@ endif ()
 
 option(MDR_BLE "Build with BLE Backend support" ON)
 if (MDR_BLE)
+	message(STATUS "BLE Backend support is ON.")
     add_compile_definitions(-DMDR_BLE)
 endif()
 
