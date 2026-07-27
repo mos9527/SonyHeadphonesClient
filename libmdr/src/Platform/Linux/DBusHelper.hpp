@@ -5,6 +5,8 @@
 #include <string>
 #include <cstdint>
 
+#include <mdr/Protocol.hpp>
+
 DBusConnection* dbus_open_system_bus();
 dbus_bool_t open_dict_read(DBusMessageIter * const iter, DBusMessageIter * const iter_dict);
 dbus_bool_t read_next_object_path_entry(DBusMessageIter * const iter_object_paths, char **const object_path,

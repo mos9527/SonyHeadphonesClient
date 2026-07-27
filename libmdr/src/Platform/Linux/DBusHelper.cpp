@@ -5,7 +5,6 @@
 #include <bluetooth/sdp_lib.h>
 #include <sys/poll.h>
 
-#include <mdr/Protocol.hpp>
 DBusConnection* dbus_open_system_bus(void)
 {
     DBusError error;
