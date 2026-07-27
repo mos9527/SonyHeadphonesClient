@@ -102,6 +102,7 @@ int main(int, char**)
         return 1;
     }
     gRenderer = SDL_CreateRenderer(gWindow, nullptr);
+    SDL_SetRenderVSync(gRenderer, 1);
     if (!gRenderer)
     {
         SDL_Log("Error: SDL_CreateRenderer()\n");
