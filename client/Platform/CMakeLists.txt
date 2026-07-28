@@ -4,8 +4,7 @@ add_library(Client_Platform INTERFACE)
 target_link_libraries(
         Client_Platform
         INTERFACE
-        mdr
-        fmt::fmt
+        mdr        
 )
 if (MDR_PLATFORM_OS STREQUAL "LINUX")
     message(STATUS "Configuring for Linux platform")

@@ -1,7 +1,8 @@
 # Codegen.cmake
 # Provides mdr_add_codegen() when LLVM is available.
-# If LLVM was not found at configure time, a warning is issued and the function
-# is not defined — callers guard on (COMMAND mdr_add_codegen).
+# If codegen is explicitly enabled (MDR_ENABLE_CODEGEN=ON) but LLVM was not
+# found at configure time, a fatal error is raised. If codegen is disabled,
+# the function is simply not defined — callers guard on (COMMAND mdr_add_codegen).
 #
 # Usage:
 #   mdr_add_codegen(
@@ -20,11 +21,11 @@ if (NOT MDR_ENABLE_CODEGEN)
 endif ()
 
 if (NOT MDR_LLVM_FOUND)
-    message(WARNING
-        "LLVM/libclang not found — codegen targets are unavailable. "
-        "Generated files will not be updated. "
+    message(FATAL_ERROR
+        "LLVM/libclang not found — codegen was explicitly enabled "
+        "(MDR_ENABLE_CODEGEN=ON) but required dependencies are missing. "
+        "Install LLVM/libclang or set MDR_ENABLE_CODEGEN=OFF. "
         "See tooling/README.md for setup instructions.")
-    return()
 endif ()
 
 function(mdr_add_codegen)
@@ -48,7 +49,7 @@ function(mdr_add_codegen)
         OUTPUT  "${ARG_OUTPUT}"
         COMMAND "${CMAKE_COMMAND}" ${_cmake_args} -P "${MDR_CODEGEN_RUNNER}"
         DEPENDS "${ARG_TOOL}" "${ARG_INPUT}"
-        COMMENT "Codegen: ${ARG_TOOL} -> ${ARG_OUTPUT}"
+        COMMENT "Codegen: ${ARG_TOOL} -> ${ARG_OUTPUT} (${_cmake_args})"
         CODEGEN
         VERBATIM
     )

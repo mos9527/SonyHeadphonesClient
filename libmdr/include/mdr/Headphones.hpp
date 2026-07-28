@@ -4,9 +4,8 @@
 #include "ProtocolV2T2.hpp"
 #include <mdr-c/Headphones.h>
 
-#include <deque>
 #include <coroutine>
-#include <chrono>
+#include <time.h>
 
 namespace mdr
 {
@@ -19,11 +18,10 @@ namespace mdr
     {
         struct promise_type
         {
-            std::exception_ptr exception;
             std::coroutine_handle<> next;
             int result;
             static std::suspend_always initial_suspend() noexcept { return {}; }
-            void unhandled_exception() noexcept { exception = std::current_exception(); }
+            [[noreturn]] static void unhandled_exception() noexcept { std::terminate(); }
 
             struct final_awaiter
             {
@@ -45,6 +43,14 @@ namespace mdr
             MDRTask get_return_object();
 
             void return_value(int v) { result = v; }
+
+            // https://en.cppreference.com/cpp/language/coroutines#:~:text=the%20caller/resumer.-,Dynamic%20allocation,-Coroutine%20state
+            void* operator new(std::size_t n) noexcept { return mdr::MDRAllocator<char>().allocate(n); }
+            void operator delete(void* p, std::size_t n) noexcept { mdr::MDRAllocator<char>().deallocate(static_cast<char*>(p), n); }
+            static MDRTask get_return_object_on_allocation_failure() noexcept { 
+                MDR_CHECK(false && "MDRTask allocation failure");
+                return {};
+            }
         };
 
         using value_type = void;
@@ -82,12 +88,7 @@ namespace mdr
             return coroutine;
         }
 
-        void await_resume()
-        {
-            auto& p = coroutine.promise();
-            if (p.exception)
-                std::rethrow_exception(p.exception);
-        }
+        void await_resume() const noexcept {}
     };
 
     inline MDRTask MDRTask::promise_type::get_return_object()
@@ -123,7 +124,7 @@ namespace mdr
         };
 
         static constexpr int kAwaitAckRetries = 10;
-        static constexpr int kAwaitTimeoutMS = 3000;
+        static constexpr int kAwaitTimeout = 3; // Seconds
 
         // NOLINTBEGIN
         struct Awaiter
@@ -132,8 +133,8 @@ namespace mdr
             AwaitType type;
 
             std::coroutine_handle<> h = nullptr;
-            // Timepoint when Awaiter is invoked
-            std::chrono::time_point<std::chrono::steady_clock> tick;
+            // Timepoint when Awaiter is invoked in NS
+            time_t tick;
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
 
@@ -144,7 +145,7 @@ namespace mdr
                 if (h) [[unlikely]]
                     std::terminate(); // Misuse. Only _one_ task is allowed at a time
                 if (handle)
-                    h = std::move(handle), tick = std::chrono::steady_clock::now();
+                    h = std::move(handle), tick = time(nullptr);
             }
 
             int await_resume() noexcept { return result; }
@@ -222,6 +223,11 @@ namespace mdr
          * @brief This does what you think it does.
          */
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
+        int SetLastError(int error, const char* context)
+        {
+            mLastError = mdr::Format("{} ({})", context, mdrResultString(error));
+            return MDR_HEADPHONES_ERROR;
+        }
 
 #pragma region States
         // @ref HandleProtocolInfoT1
@@ -385,7 +391,7 @@ namespace mdr
     private:
         String mLastError = "N/A";
 
-        std::deque<UInt8> mRecvBuf, mSendBuf;
+        Deque<UInt8> mRecvBuf, mSendBuf;
         MDRCommandSeqNumber mSeqNumber{0};
 
         MDRTask mTask;
@@ -423,14 +429,16 @@ namespace mdr
          * @note You _usually_ need to wait for an @ref AWAIT_ACK. Use the @ref MDR_SEND_COMMAND_ACK macro to send and wait for one!
          */
         template <MDRIsSerializable T>
-        void SendCommandImpl(T const& command = {})
+        int SendCommandImpl(T const& command = {})
         {
             UInt8 buf[kMDRMaxPacketSize];
 
             MDRDataType type = MDRTraits<T>::kDataType;
-            T::Validate(command); // <- Throws if something's bad
-            size_t size = T::Serialize(command, buf, kMDRMaxPacketSize);
-            SendCommandImpl({buf, buf + size}, type, mSeqNumber);
+            const auto serialized = T::Serialize(command, buf, kMDRMaxPacketSize);
+            if (!serialized)
+                return serialized.error;
+            SendCommandImpl({buf, buf + serialized.value}, type, mSeqNumber);
+            return MDR_RESULT_OK;
         }
 
         /**
@@ -443,31 +451,3 @@ namespace mdr
         void HandleAck(MDRCommandSeqNumber seq);
     };
 }
-
-// NOLINTBEGIN
-/**
- * @brief Sends command through @ref SendCommandImpl<T>, and re-schedule ourselves to
- *        co_await for an @ref Await(AWAIT_ACK) on the coroutine.
- * @param Type Command payload of @ref MDRIsSerializable type
- * @note  This is ONLY meaningful within a @ref MDRTask coroutine, as this schedules
- *        the current task to wait on a @ref AWAIT_ACK event.
- *
- * As to _why_ this is here instead of a templated member function - instantiated
- * templates would create their own @ref MDRTask and generate code for EACH of them,
- * while all we need is merely a `co_await`...
- *
- * TL;DR, this helps with compiler bloats. Use it well.
- */
-#define SendCommandACK(Type, ...) \
-    { \
-        int _retries; \
-        const int _maxRetries = kAwaitAckRetries; \
-        for (_retries = 0; _retries < _maxRetries; _retries++) { \
-            SendCommandImpl<Type>( __VA_ARGS__ ); \
-            int res = co_await Await(AWAIT_ACK); \
-            if (res == MDR_RESULT_OK) break; \
-            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries , _maxRetries); \
-        } \
-        MDR_CHECK_MSG(_retries != _maxRetries, "Timeout exceeded waiting for device to respond"); \
-    }
-// NOLINTEND

@@ -2,17 +2,12 @@
 #include <mdr-c/Platform/PlatformEmscripten.h>
 
 #include <emscripten.h>
+
+#include "mdr/Protocol.hpp"
 EM_JS(void, em_js_init, (void* user), {
     navigator.em_js_user = user;
-    navigator.em_js_set_last_error = Module.cwrap(
-      'em_js_set_last_error',
-      null,
-      ['number', 'string']
-    );
-    navigator.set_last_error = function (err)
-    {
-        navigator.em_js_set_last_error(navigator.em_js_user, err);
-    };
+    navigator.em_js_set_last_error = Module.cwrap('em_js_set_last_error', null, [ 'number', 'string' ]);
+    navigator.set_last_error = function(err) { navigator.em_js_set_last_error(navigator.em_js_user, err); };
     navigator.em_js_poll_result = 0; // OK
     navigator.em_js_port_send_promise = null;
     navigator.em_js_port_recv_promise = null;
@@ -124,7 +119,7 @@ EM_JS(void, em_js_disconnect, (), {
 struct MDRConnectionEmscripten
 {
     MDRConnection mdrConn;
-    std::string lastError;
+    mdr::String lastError;
     MDRConnectionEmscripten() : mdrConn({.user = this,
                                 .connect = Connect,
                                 .disconnect = Disconnect,
@@ -191,7 +186,7 @@ extern "C"{
         auto* ptr = static_cast<MDRConnectionEmscripten*>(user);
         ptr->lastError = error;
     }
-    MDRConnectionEmscripten* mdrConnectionEmscriptenCreate() { return new MDRConnectionEmscripten(); }
+    MDRConnectionEmscripten* mdrConnectionEmscriptenCreate() { return mdr::Construct<MDRConnectionEmscripten>(); }
     MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* p) { return &p->mdrConn; }
-    void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p) { delete p; }
+    void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p) { mdr::Destruct(p); }
 }

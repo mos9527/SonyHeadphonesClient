@@ -31,43 +31,6 @@ please do so.
 @implementation MDRBluetoothDelegate
 {
     std::mutex _bufferMutex;
-    BOOL _isConnected;
-    BOOL _isConnecting;
-    NSString *_lastError;
-}
-
-@synthesize isConnected = _isConnected;
-@synthesize isConnecting = _isConnecting;
-@synthesize lastError = _lastError;
-
-- (BOOL)isConnected {
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    return _isConnected;
-}
-
-- (void)setIsConnected:(BOOL)isConnected {
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    _isConnected = isConnected;
-}
-
-- (BOOL)isConnecting {
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    return _isConnecting;
-}
-
-- (void)setIsConnecting:(BOOL)isConnecting {
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    _isConnecting = isConnecting;
-}
-
-- (NSString *)lastError {
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    return _lastError;
-}
-
-- (void)setLastError:(NSString *)lastError {
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    _lastError = lastError;
 }
 
 - (instancetype)init {
@@ -167,24 +130,11 @@ please do so.
 - (void)sendData:(NSData *)data {
     if (self.rfcommChannel && self.isConnected) {
         // writeAsync is best effort and non-blocking
-        // Retain the NSData by bridging it to a void* refcon for the write's lifetime.
-        void *refcon = (__bridge_retained void *)data;
-        IOReturn result = [self.rfcommChannel writeAsync:(void *)data.bytes length:data.length refcon:refcon];
-        if (result != kIOReturnSuccess) {
-            // If the write fails immediately, release the retained pointer
-            CFRelease(refcon);
-        }
+        [self.rfcommChannel writeAsync:(void *)data.bytes length:data.length refcon:NULL];
     }
 }
 
 // IOBluetoothRFCOMMChannelDelegate methods
-
-- (void)rfcommChannelWriteComplete:(IOBluetoothRFCOMMChannel *)rfcommChannel status:(IOReturn)error refcon:(void *)refcon {
-    if (refcon) {
-        // Balance the bridge retain to release the NSData
-        CFRelease(refcon);
-    }
-}
 
 - (void)rfcommChannelOpenComplete:(IOBluetoothRFCOMMChannel *)rfcommChannel status:(IOReturn)error {
     if (error != kIOReturnSuccess) {
@@ -218,7 +168,6 @@ struct MDRConnectionMacOS
 {
     MDRConnection mdrConn;
     MDRBluetoothDelegate *delegate;
-    std::string lastErrorCache;
     
     MDRConnectionMacOS() {
         delegate = [[MDRBluetoothDelegate alloc] init];
@@ -340,7 +289,7 @@ struct MDRConnectionMacOS
                 return MDR_RESULT_OK;
             }
             
-            *ppList = new MDRDeviceInfo[devices.count];
+            *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(devices.count);
             *pCount = (int)devices.count;
             
             for (NSUInteger i = 0; i < devices.count; i++) {
@@ -365,7 +314,7 @@ struct MDRConnectionMacOS
     static int FreeDevicesList(void* user, MDRDeviceInfo** ppList) {
         if (*ppList)
         {
-            delete[] *ppList;
+            mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);
             *ppList = nullptr;
         }
         return MDR_RESULT_OK;
@@ -373,17 +322,18 @@ struct MDRConnectionMacOS
     
     static const char* GetLastError(void* user) {
         auto* self = static_cast<MDRConnectionMacOS*>(user);
-        @autoreleasepool {
-            if (self->delegate.lastError) {
-                self->lastErrorCache = [self->delegate.lastError UTF8String];
-            } else {
-                self->lastErrorCache = "";
-            }
+        if (self->delegate.lastError) {
+             // Returning a temporary pointer is risky if ARC deallocates the string/autorelease pool drains?
+             // But UTF8String returns inner pointer of const char.
+             // We can duplicate it, or rely on caller copying it implicitly?
+             // MDRConnection contract says "get last error".
+             // We should better copy it to a buffer in the struct.
+             return [self->delegate.lastError UTF8String];
         }
-        return self->lastErrorCache.c_str();
+        return "";
     }
 };
 
-MDRConnectionMacOS* mdrConnectionMacOSCreate() { return new MDRConnectionMacOS(); }
+MDRConnectionMacOS* mdrConnectionMacOSCreate() { return mdr::Construct<MDRConnectionMacOS>(); }
 MDRConnection* mdrConnectionMacOSGet(MDRConnectionMacOS* self) { return &self->mdrConn; }
-void mdrConnectionMacOSDestroy(MDRConnectionMacOS* self) { delete self; }
+void mdrConnectionMacOSDestroy(MDRConnectionMacOS* self) { mdr::Destruct(self); }

@@ -129,25 +129,17 @@ namespace mdr
         // Awaiter timeouts
         {
             using namespace std::literals;
-            const auto kTimeout = std::chrono::milliseconds(kAwaitTimeoutMS);
-            auto now = std::chrono::steady_clock::now();
+            time_t now = time(nullptr);
             for (auto& awaiter : mAwaiters)
             {
                 if (!awaiter) continue;
                 auto duration = now - awaiter.tick;
-                if (duration > kTimeout)
+                if (duration > kAwaitTimeout)
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;
-            try
-            {
-                if (TaskMoveNext(taskResult))
-                    return taskResult;
-            } catch (std::runtime_error& e)
-            {
-                mLastError = e.what();
-                return MDR_HEADPHONES_ERROR;
-            }
+            if (TaskMoveNext(taskResult))
+                return taskResult;
         }
         int idleCode = mTask ? MDR_HEADPHONES_INPROGRESS : MDR_HEADPHONES_IDLE;
         if (mRecvBuf.empty())
@@ -191,10 +183,7 @@ namespace mdr
     {
         if (!mTask || !mTask.coroutine.done())
             return false;
-        auto& [exec, next, value] = mTask.coroutine.promise();
-        result = value;
-        if (exec)
-            std::rethrow_exception(exec);
+        result = mTask.coroutine.promise().result;
         mTask = {};
         return true;
     }
@@ -240,6 +229,12 @@ const char* mdrResultString(int err)
         return "Invalid address information";
     case MDR_RESULT_ERROR_NOT_SUPPORTED:
         return "Not supported";
+    case MDR_RESULT_ERROR_BUFFER_TOO_SMALL:
+        return "Buffer too small";
+    case MDR_RESULT_ERROR_MALFORMED_PAYLOAD:
+        return "Malformed payload";
+    case MDR_RESULT_ERROR_INVALID_ARGUMENT:
+        return "Invalid argument";
     default:
         return "Unknown";
     }
@@ -303,12 +298,14 @@ const char* mdrConnectionGetLastError(MDRConnection* conn)
 
 MDRHeadphones* mdrHeadphonesCreate(MDRConnection* conn)
 {
-    return reinterpret_cast<MDRHeadphones*>(new mdr::MDRHeadphones(conn));
+    auto* ptr = mdr::Construct<mdr::MDRHeadphones>(conn);
+    return reinterpret_cast<MDRHeadphones*>(ptr);
 }
 
 void mdrHeadphonesDestroy(MDRHeadphones* h)
 {
-    delete reinterpret_cast<mdr::MDRHeadphones*>(h);
+    auto* ptr = reinterpret_cast<mdr::MDRHeadphones*>(h);
+    mdr::Destruct(ptr);
 }
 
 int mdrHeadphonesPollEvents(MDRHeadphones* p)
@@ -350,6 +347,14 @@ int mdrHeadphonesIsDirty(MDRHeadphones* p)
     {
         return MDR_RESULT_INPROGRESS;
     }
+    return MDR_RESULT_OK;
+}
+
+int mdrHeadphonesIsReady(MDRHeadphones* p)
+{
+    auto h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     return MDR_RESULT_OK;
 }
 

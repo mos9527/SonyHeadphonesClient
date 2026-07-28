@@ -1,13 +1,11 @@
 #include "../Platform.hpp"
-#include <mdr/Protocol.hpp>
 #include <mdr-c/Platform/PlatformEmscripten.h>
 #include <emscripten.h>
 
-MDRConnectionEmscripten* gConn = nullptr;
+MDRConnectionEmscripten* gConn;
 extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
-        MDR_CHECK_MSG(gConn == nullptr, "Platform already initialized. You MUST call clientPlatformDestroy() before initializing again.");
         if (flags & MDR_INIT_BT_BLE)
         {
             gConn = nullptr;
@@ -19,10 +17,7 @@ extern "C" {
     void clientPlatformConnectionDestroy()
     {
         if (gConn)
-        {
             mdrConnectionEmscriptenDestroy(gConn);
-            gConn = nullptr;
-        }
     }
     MDRConnection* clientPlatformConnectionGet()
     {
@@ -57,8 +52,17 @@ extern "C" {
                     navigator.externalFontSize = size;
                 });
             }
-        if (!navigator.externalFontFetch) 
+        if (!navigator.externalFontFetch)
             navigator.externalFontFetch = fetch_font();
         return 0;
     });
+}
+
+// LTO and MinSizeRel causes this function referenced below to get deleted with GCC
+// See also https://stackoverflow.com/questions/38389702/prevent-gcc-lto-from-deleting-function
+// TODO: Figure out the actual why. Shouldn't have happened by any means...
+void __dont_touch_my_garbage_exclamation_marks__() __attribute__((used));
+void __dont_touch_my_garbage_exclamation_marks__()
+{
+    clientPlatformLocateFontBinary(nullptr);
 }

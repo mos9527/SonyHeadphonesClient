@@ -25,12 +25,25 @@ target_sources(
         Client.cpp
         Fonts/PlexSansIcon.c
 )
-set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
-set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
-set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
-set(SDL_POWER OFF CACHE BOOL "" FORCE)
-set(SDL_JOYSTICK ON CACHE BOOL "" FORCE)
+
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_CAMERA OFF CACHE BOOL "" FORCE)
+set(SDL_GPU OFF CACHE BOOL "" FORCE)
+set(SDL_RENDER_GPU OFF CACHE BOOL "" FORCE)
+set(SDL_RENDER_VULKAN OFF CACHE BOOL "" FORCE)
+set(SDL_VULKAN OFF CACHE BOOL "" FORCE)
+set(SDL_DIALOG OFF CACHE BOOL "" FORCE)
+set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(SDL_JOYSTICK OFF CACHE BOOL "" FORCE)
+set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
+set(SDL_GAMEPAD OFF CACHE BOOL "" FORCE)
+set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
+set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
+set(SDL_POWER OFF CACHE BOOL "" FORCE)
+set(SDL_HIDAPI OFF CACHE BOOL "" FORCE)
+set(SDL_LOCALE OFF CACHE BOOL "" FORCE)
+set(SDL_MISC OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(imgui)
 FetchContent_MakeAvailable(SDL3)
@@ -45,6 +58,12 @@ target_sources(ImGuiSDL3 PRIVATE
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
 
 )
+target_compile_definitions(ImGuiSDL3 PUBLIC
+    IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+    $<$<NOT:$<CONFIG:Debug>>:IMGUI_DISABLE_DEMO_WINDOWS>
+    $<$<NOT:$<CONFIG:Debug>>:IMGUI_DISABLE_DEBUG_TOOLS>
+)
+
 add_executable(ImGuiSDL3Example)
 target_sources(ImGuiSDL3Example PRIVATE
         ${imgui_SOURCE_DIR}/imgui_demo.cpp
@@ -61,7 +80,7 @@ target_include_directories(ImGuiSDL3 PUBLIC
 set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory(Platform)
 
-target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3-static)
+target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3)
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform)
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE

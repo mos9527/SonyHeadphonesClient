@@ -73,7 +73,7 @@ void mainLoop()
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
         SDL_RenderPresent(gRenderer);
     }
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     if (gShouldClose)
         emscripten_cancel_main_loop();
 #endif
@@ -102,6 +102,7 @@ int main(int, char**)
         return 1;
     }
     gRenderer = SDL_CreateRenderer(gWindow, nullptr);
+    SDL_SetRenderVSync(gRenderer, 1);
     if (!gRenderer)
     {
         SDL_Log("Error: SDL_CreateRenderer()\n");

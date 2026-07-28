@@ -558,7 +558,7 @@ namespace mdr::v2::t2
 
     struct VoiceGuidanceParamSettingMtk
     {
-        // CODEGEN Field command EnumRange Command::VOICE_GUIDANCE_GET_PARAM Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM
+        // CODEGEN Field command EnumRange Command::VOICE_GUIDANCE_GET_PARAM Command::VOICE_GUIDANCE_RET_PARAM Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM
         // CODEGEN Field type EnumRange VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING
         VoiceGuidanceBase base{Command::VOICE_GUIDANCE_SET_PARAM, VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING};
         MessageMdrV2OnOffSettingValue settingValue; // 0x2
@@ -583,7 +583,7 @@ namespace mdr::v2::t2
 
     struct VoiceGuidanceParamVolume
     {
-        // CODEGEN Field command EnumRange Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM
+        // CODEGEN Field command EnumRange Command::VOICE_GUIDANCE_SET_PARAM Command::VOICE_GUIDANCE_RET_PARAM Command::VOICE_GUIDANCE_NTFY_PARAM
         // CODEGEN Field type EnumRange VoiceGuidanceInquiredType::VOLUME VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS
         VoiceGuidanceBase base{Command::VOICE_GUIDANCE_RET_PARAM, VoiceGuidanceInquiredType::VOLUME};
         // CODEGEN Range -2 2
@@ -1145,7 +1145,8 @@ namespace mdr::v2::t2
         Command command{Command::SAFE_LISTENING_RET_EXTENDED_PARAM};
         SafeListeningInquiredType inquiredType; // 0x1
         UInt8 levelPerPeriod; // 0x2
-        SafeListeningErrorCause errorCause; // 0x3
+        // CODEGEN Bitmask
+        SafeListeningErrorCause errorCause; // 0x3 - why is this a bitmask??
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetExtendedParam);
     };

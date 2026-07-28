@@ -10,6 +10,8 @@
 #include "../Platform.hpp"
 #include <mdr-c/Platform/PlatformLinux.h>
 
+#include "mdr/Protocol.hpp"
+
 struct MDRConnectionLinux
 {
     MDRConnection mdrConn;
@@ -37,7 +39,7 @@ struct MDRConnectionLinux
 
     sdp_session* sdpSession{nullptr};
     uint8_t uuid[16];
-    std::string macAddress;
+    mdr::String macAddress;
 
     static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
@@ -174,13 +176,13 @@ struct MDRConnectionLinux
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         auto paths = dbus_list_adapters(ptr->dbusConn);
-        *ppList = new MDRDeviceInfo[paths.size()];
+        *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(paths.size());
         *pCount = static_cast<int>(paths.size());
         for (size_t i = 0; i < paths.size(); ++i)
         {
-            std::string name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
-            std::string address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
-            // std::string is always null-terminated
+            mdr::String name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
+            mdr::String address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
+            // mdr::String is always null-terminated
             strncpy((*ppList)[i].szDeviceName, name.c_str(), name.size() + 1);
             strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(), address.size() + 1);
         }
@@ -191,7 +193,7 @@ struct MDRConnectionLinux
     {
         if (*ppList)
         {
-            delete[] *ppList;
+            mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);
             *ppList = nullptr;
         }
         return MDR_RESULT_OK;
@@ -205,7 +207,7 @@ struct MDRConnectionLinux
 };
 
 extern "C" {
-MDRConnectionLinux* mdrConnectionLinuxCreate() { return new MDRConnectionLinux(); }
-void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance) { delete instance; }
+MDRConnectionLinux* mdrConnectionLinuxCreate() { return mdr::Construct<MDRConnectionLinux>(); }
+void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance) { mdr::Destruct(instance); }
 MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux* instance) { return &instance->mdrConn; }
 }

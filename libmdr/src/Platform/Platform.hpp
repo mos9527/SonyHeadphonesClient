@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <mdr/Protocol.hpp>
 
 /**
  * @brief Converts UUID string to byte array

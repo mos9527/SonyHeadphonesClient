@@ -1315,7 +1315,8 @@ namespace mdr::v2::t1 {
             case SYSTEM_NTFY_EXT_PARAM:
             case UNKNOWN:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(ConnectInquiredType value) {
@@ -1323,7 +1324,8 @@ namespace mdr::v2::t1 {
         switch (value) {
             case FIXED_VALUE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(DeviceInfoType value) {
@@ -1334,7 +1336,8 @@ namespace mdr::v2::t1 {
             case SERIES_AND_COLOR_INFO:
             case INSTRUCTION_GUIDE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(ModelColor value) {
@@ -1356,7 +1359,8 @@ namespace mdr::v2::t1 {
             case BROWN:
             case VIOLET:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(ModelSeriesType value) {
@@ -1374,7 +1378,8 @@ namespace mdr::v2::t1 {
             case LINKPOD:
             case GAMING:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(CommonInquiredType value) {
@@ -1391,7 +1396,8 @@ namespace mdr::v2::t1 {
             case TANDEM_RECONNECTION_REQUEST:
             case DISPLAY_FW_VERSION:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AudioCodec value) {
@@ -1406,7 +1412,8 @@ namespace mdr::v2::t1 {
             case LC3:
             case OTHER:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PowerInquiredType value) {
@@ -1429,7 +1436,8 @@ namespace mdr::v2::t1 {
             case STAMINA:
             case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(BatteryChargingStatus value) {
@@ -1440,7 +1448,8 @@ namespace mdr::v2::t1 {
             case UNKNOWN:
             case CHARGED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PowerOffSettingValue value) {
@@ -1449,7 +1458,8 @@ namespace mdr::v2::t1 {
             case USER_POWER_OFF:
             case FACTORY_POWER_OFF:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AutoPowerOffElements value) {
@@ -1462,7 +1472,8 @@ namespace mdr::v2::t1 {
             case POWER_OFF_IN_15_MIN:
             case POWER_OFF_DISABLE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AutoPowerOffWearingDetectionElements value) {
@@ -1476,7 +1487,8 @@ namespace mdr::v2::t1 {
             case POWER_OFF_WHEN_REMOVED_FROM_EARS:
             case POWER_OFF_DISABLE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EqEbbInquiredType value) {
@@ -1491,7 +1503,8 @@ namespace mdr::v2::t1 {
             case CUSTOM_EQ:
             case TURN_KEY_EQ:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EqPresetId value) {
@@ -1557,7 +1570,8 @@ namespace mdr::v2::t1 {
             case ARTIST_COLLAB12:
             case UNSPECIFIED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EqUltMode value) {
@@ -1567,8 +1581,12 @@ namespace mdr::v2::t1 {
             case ULT_1:
             case ULT_2:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(EqUltMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(SoundEffectType value) {
         using enum SoundEffectType;
@@ -1580,7 +1598,8 @@ namespace mdr::v2::t1 {
             case SOUND_EFFECT_CUSTOM:
             case SOUND_EFFECT_NONE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PresetEqErrorCodeType value) {
@@ -1591,7 +1610,8 @@ namespace mdr::v2::t1 {
             case LISTENING_MODE:
             case OTHER:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(NcAsmInquiredType value) {
@@ -1612,7 +1632,8 @@ namespace mdr::v2::t1 {
             case NC_AMB_TOGGLE:
             case NC_TEST_MODE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(ValueChangeStatus value) {
@@ -1621,8 +1642,12 @@ namespace mdr::v2::t1 {
             case UNDER_CHANGING:
             case CHANGED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(ValueChangeStatus value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(NcAsmOnOffValue value) {
         using enum NcAsmOnOffValue;
@@ -1630,8 +1655,12 @@ namespace mdr::v2::t1 {
             case OFF:
             case ON:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(NcAsmOnOffValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(NcAsmMode value) {
         using enum NcAsmMode;
@@ -1639,8 +1668,12 @@ namespace mdr::v2::t1 {
             case NC:
             case ASM:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(NcAsmMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(AmbientSoundMode value) {
         using enum AmbientSoundMode;
@@ -1648,8 +1681,12 @@ namespace mdr::v2::t1 {
             case NORMAL:
             case VOICE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(AmbientSoundMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(NoiseAdaptiveSensitivity value) {
         using enum NoiseAdaptiveSensitivity;
@@ -1658,8 +1695,12 @@ namespace mdr::v2::t1 {
             case HIGH:
             case LOW:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(NoiseAdaptiveSensitivity value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(Function value) {
         using enum Function;
@@ -1708,7 +1749,8 @@ namespace mdr::v2::t1 {
             case GAME_UP:
             case CHAT_UP:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AlertInquiredType value) {
@@ -1722,7 +1764,8 @@ namespace mdr::v2::t1 {
             case LE_AUDIO_ALERT_NOTIFICATION:
             case FLEXIBLE_MESSAGE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AlertMessageType value) {
@@ -1832,7 +1875,8 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN:
             case TURN_KEY_EQ_SUCCESS:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AlertFlexibleMessageType value) {
@@ -1857,7 +1901,8 @@ namespace mdr::v2::t1 {
             case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE:
             case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(VoiceAssistantType value) {
@@ -1867,8 +1912,12 @@ namespace mdr::v2::t1 {
             case AMAZON_ALEXA:
             case TENCENT_XIAOWEI:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(VoiceAssistantType value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(ConfirmationType value) {
         using enum ConfirmationType;
@@ -1876,8 +1925,12 @@ namespace mdr::v2::t1 {
             case CONFIRMED:
             case CONFIRMED_DONT_SHOW_AGAIN:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(ConfirmationType value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(AlertAction value) {
         using enum AlertAction;
@@ -1885,15 +1938,20 @@ namespace mdr::v2::t1 {
             case NEGATIVE:
             case POSITIVE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(AlertAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(VibrationType value) {
         using enum VibrationType;
         switch (value) {
             case NO_PATTERN_SPECIFIED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AlertMessageTypeWithLeftRightSelection value) {
@@ -1906,7 +1964,8 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON:
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(AlertLeftRightAction value) {
@@ -1916,8 +1975,12 @@ namespace mdr::v2::t1 {
             case LEFT:
             case RIGHT:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(AlertLeftRightAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(AlertActionType value) {
         using enum AlertActionType;
@@ -1926,8 +1989,12 @@ namespace mdr::v2::t1 {
             case POSITIVE_NEGATIVE:
             case POSITIVE_CONFIRMATION_WITH_REPLY:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(AlertActionType value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(DefaultSelectedLeftRightValue value) {
         using enum DefaultSelectedLeftRightValue;
@@ -1935,8 +2002,12 @@ namespace mdr::v2::t1 {
             case LEFT:
             case RIGHT:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(DefaultSelectedLeftRightValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(PlayInquiredType value) {
         using enum PlayInquiredType;
@@ -1950,7 +2021,8 @@ namespace mdr::v2::t1 {
             case CALL_VOLUME_WITH_MUTE:
             case PLAY_MODE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PlaybackStatus value) {
@@ -1961,7 +2033,8 @@ namespace mdr::v2::t1 {
             case PAUSE:
             case STOP:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(MusicCallStatus value) {
@@ -1970,8 +2043,12 @@ namespace mdr::v2::t1 {
             case MUSIC:
             case CALL:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(MusicCallStatus value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(PlaybackControl value) {
         using enum PlaybackControl;
@@ -1987,7 +2064,8 @@ namespace mdr::v2::t1 {
             case FAST_FORWARD:
             case FAST_REWIND:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PlaybackNameStatus value) {
@@ -1997,8 +2075,12 @@ namespace mdr::v2::t1 {
             case NOTHING:
             case SETTLED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(PlaybackNameStatus value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(PlayMode value) {
         using enum PlayMode;
@@ -2010,7 +2092,8 @@ namespace mdr::v2::t1 {
             case REPEAT_TRACK:
             case SHUFFLE_ALL:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(GsInquiredType value) {
@@ -2021,7 +2104,8 @@ namespace mdr::v2::t1 {
             case GENERAL_SETTING3:
             case GENERAL_SETTING4:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(GsSettingType value) {
@@ -2030,8 +2114,12 @@ namespace mdr::v2::t1 {
             case BOOLEAN_TYPE:
             case LIST_TYPE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(GsSettingType value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(GsSettingValue value) {
         using enum GsSettingValue;
@@ -2039,8 +2127,12 @@ namespace mdr::v2::t1 {
             case ON:
             case OFF:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(GsSettingValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(DisplayLanguage value) {
         using enum DisplayLanguage;
@@ -2063,7 +2155,8 @@ namespace mdr::v2::t1 {
             case KOREAN:
             case TURKISH:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(GsStringFormat value) {
@@ -2072,8 +2165,12 @@ namespace mdr::v2::t1 {
             case RAW_NAME:
             case ENUM_NAME:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(GsStringFormat value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(AudioInquiredType value) {
         using enum AudioInquiredType;
@@ -2090,7 +2187,8 @@ namespace mdr::v2::t1 {
             case BGM_MODE_AND_ERRORCODE:
             case UPMIX_SERIES:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PriorMode value) {
@@ -2100,8 +2198,12 @@ namespace mdr::v2::t1 {
             case CONNECTION_QUALITY_PRIOR:
             case LOW_LATENCY_PRIOR_BETA:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(PriorMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(UpscalingTypeAutoOff value) {
         using enum UpscalingTypeAutoOff;
@@ -2109,8 +2211,12 @@ namespace mdr::v2::t1 {
             case OFF:
             case AUTO:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(UpscalingTypeAutoOff value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(RoomSize value) {
         using enum RoomSize;
@@ -2119,8 +2225,12 @@ namespace mdr::v2::t1 {
             case MIDDLE:
             case LARGE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(RoomSize value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(ListeningOptionAssignCustomizableItem value) {
         using enum ListeningOptionAssignCustomizableItem;
@@ -2131,7 +2241,8 @@ namespace mdr::v2::t1 {
             case UPMIX_GAME:
             case UPMIX_MUSIC:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(UpmixItemId value) {
@@ -2142,7 +2253,8 @@ namespace mdr::v2::t1 {
             case GAME:
             case MUSIC:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(SwitchingStream value) {
@@ -2152,8 +2264,12 @@ namespace mdr::v2::t1 {
             case LE_AUDIO:
             case CLASSIC_AUDIO:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(SwitchingStream value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(UpscalingType value) {
         using enum UpscalingType;
@@ -2163,7 +2279,8 @@ namespace mdr::v2::t1 {
             case DSEE_HX_AI:
             case DSEE_ULTIMATE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(SystemInquiredType value) {
@@ -2187,7 +2304,8 @@ namespace mdr::v2::t1 {
             case HEAD_GESTURE_ON_OFF:
             case HEAD_GESTURE_TRAINING:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(Preset value) {
@@ -2220,7 +2338,8 @@ namespace mdr::v2::t1 {
             case CUSTOM2:
             case NO_FUNCTION:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(VoiceAssistant value) {
@@ -2234,7 +2353,8 @@ namespace mdr::v2::t1 {
             case VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE:
             case NO_FUNCTION:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EarpieceFittingDetectionOperationStatus value) {
@@ -2245,7 +2365,8 @@ namespace mdr::v2::t1 {
             case DETECTION_COMPLETED_SUCCESSFULLY:
             case DETECTION_COMPLETED_UNSUCCESSFULLY:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EarpieceFittingDetectionOperationErrorCode value) {
@@ -2260,7 +2381,8 @@ namespace mdr::v2::t1 {
             case BOTH_FITTING_ERROR:
             case MEASURING_ERROR:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EarpieceSeries value) {
@@ -2272,7 +2394,8 @@ namespace mdr::v2::t1 {
             case SOFT_FITTING_FOR_LINKBUDS_FIT:
             case NOT_DETERMINED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EarpieceSize value) {
@@ -2285,7 +2408,8 @@ namespace mdr::v2::t1 {
             case LL:
             case NOT_DETERMINED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EarpieceFittingDetectionOperation value) {
@@ -2295,8 +2419,12 @@ namespace mdr::v2::t1 {
             case DETECTION_CANCEL:
             case DETECTION_START_FORCEFUL:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(EarpieceFittingDetectionOperation value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(ResetType value) {
         using enum ResetType;
@@ -2304,8 +2432,12 @@ namespace mdr::v2::t1 {
             case SETTINGS_ONLY:
             case FACTORY_RESET:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(ResetType value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(ResetResult value) {
         using enum ResetResult;
@@ -2314,8 +2446,12 @@ namespace mdr::v2::t1 {
             case ERROR_CONNECTION_LEFT:
             case ERROR_CONNECTION_RIGHT:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(ResetResult value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(FaceTapKey value) {
         using enum FaceTapKey;
@@ -2323,8 +2459,12 @@ namespace mdr::v2::t1 {
             case LEFT_SIDE_KEY:
             case RIGHT_SIDE_KEY:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(FaceTapKey value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(FaceTapAction value) {
         using enum FaceTapAction;
@@ -2332,8 +2472,12 @@ namespace mdr::v2::t1 {
             case DOUBLE_TAP:
             case TRIPLE_TAP:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(FaceTapAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(HeadGestureAction value) {
         using enum HeadGestureAction;
@@ -2341,8 +2485,12 @@ namespace mdr::v2::t1 {
             case NOD:
             case SWING:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(HeadGestureAction value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(DetectSensitivity value) {
         using enum DetectSensitivity;
@@ -2351,8 +2499,12 @@ namespace mdr::v2::t1 {
             case HIGH:
             case LOW:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(DetectSensitivity value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(ModeOutTime value) {
         using enum ModeOutTime;
@@ -2362,7 +2514,8 @@ namespace mdr::v2::t1 {
             case SLOW:
             case NONE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(Action value) {
@@ -2377,7 +2530,8 @@ namespace mdr::v2::t1 {
             case LONG_PRESS_THEN_ACTIVATE:
             case LONG_PRESS_DURING_ACTIVATE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(EarpieceFittingDetectionResult value) {
@@ -2386,15 +2540,20 @@ namespace mdr::v2::t1 {
             case GOOD:
             case POOR:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(EarpieceFittingDetectionResult value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(CallSettingsTestSoundControl value) {
         using enum CallSettingsTestSoundControl;
         switch (value) {
             case START:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(CallSettingsTestSoundControlAck value) {
@@ -2402,7 +2561,8 @@ namespace mdr::v2::t1 {
         switch (value) {
             case ACK:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
 }

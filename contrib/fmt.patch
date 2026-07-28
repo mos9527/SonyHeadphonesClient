@@ -1,0 +1,16 @@
+ include/fmt/format.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/fmt/format.h b/include/fmt/format.h
+index 4a65300..2932bb1 100644
+--- a/include/fmt/format.h
++++ b/include/fmt/format.h
+@@ -2608,7 +2608,7 @@ FMT_CONSTEXPR20 auto write_float(OutputIt out, const DecimalFP& f,
+     return do_write_float<Char, fallback_digit_grouping<Char>>(out, f, specs, s,
+                                                                exp_upper, loc);
+   } else {
+-    return do_write_float<Char, digit_grouping<Char>>(out, f, specs, s,
++    return do_write_float<Char, fallback_digit_grouping<Char>>(out, f, specs, s,
+                                                       exp_upper, loc);
+   }
+ }

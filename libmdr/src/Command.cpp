@@ -82,7 +82,8 @@ namespace mdr
             Int32BE dataSize{static_cast<int32_t>(serializedData.size())};
             unescaped.insert(unescaped.end(), 4u, 0u);
             UInt8* pData = &unescaped.back() - 3;
-            MDRPod::Write(dataSize, &pData, 4);
+            if (!MDRPod::Write(dataSize, &pData, 4))
+                return {};
         }
         unescaped.insert(unescaped.end(), serializedData.begin(), serializedData.end());
         unescaped.emplace_back(Checksum(unescaped));
@@ -106,22 +107,14 @@ namespace mdr
         command = command.subspan(1, command.size() - 2);
         MDRBuffer unescaped = Unescape(command);
         command = unescaped;
-        if (command.size() < 7)
-            return MDRUnpackResult::INCOMPLETE;
         // Type,seq
         outType = static_cast<MDRDataType>(command[0]);
         outSeq = command[1];
         command = command.subspan(2);
         // Big-endian in
-        uint32_t sizeVal = (static_cast<uint32_t>(command[0]) << 24u) |
-                           (static_cast<uint32_t>(command[1]) << 16u) |
-                           (static_cast<uint32_t>(command[2]) << 8u) |
-                           static_cast<uint32_t>(command[3]);
-        int32_t outSize = static_cast<int32_t>(sizeVal);
+        Int32BE outSize = command[0] << 24u | command[1] << 16u | command[2] << 8u | command[3];
         Span<const UInt8> data = command.subspan(4);
         // Data...,checksum
-        if (data.empty())
-            return MDRUnpackResult::INCOMPLETE;
         UInt8 checksum = data.back();
         // Checksum incl. type,seq,data
         Span<const UInt8> checkData{unescaped.data(), unescaped.size()};
@@ -131,7 +124,7 @@ namespace mdr
             return MDRUnpackResult::BAD_CHECKSUM;
         // Data...
         data = data.subspan(0, data.size() - 1);
-        if (outSize < 0 || data.size() != static_cast<size_t>(outSize)) [[unlikely]]
+        if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
             return MDRUnpackResult::INCOMPLETE;
         outData.resize(data.size());
         std::ranges::copy(data, outData.begin());

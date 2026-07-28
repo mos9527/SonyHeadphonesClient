@@ -17,7 +17,7 @@ static bool gWSAStartup = false;
 struct MDRConnectionWindows
 {
     MDRConnection mdrConn;
-    std::string lastError;
+    mdr::String lastError;
 
     SOCKET conn;
     MDRConnectionWindows() noexcept :
@@ -33,19 +33,19 @@ struct MDRConnectionWindows
         conn(INVALID_SOCKET)
     {
     }
-    static std::string ToU8String(WCHAR* szMessage)
+    static mdr::String ToU8String(WCHAR* szMessage)
     {
         char szMessageU8[1024];
         WideCharToMultiByte(CP_UTF8, 0, szMessage, -1, szMessageU8, sizeof(szMessageU8), NULL, NULL);
         return szMessageU8;
     }
-    static std::string FormatErrorString(DWORD err)
+    static mdr::String FormatErrorString(DWORD err)
     {
         WCHAR szMessage[1024];
         if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), szMessage,
                            sizeof(szMessage), NULL) == 0)
             return "Unknown Error";
-        std::string res = ToU8String(szMessage);
+        mdr::String res = ToU8String(szMessage);
         res.pop_back(); // \n
         res.pop_back(); // \r
         return res;
@@ -274,7 +274,7 @@ static int Poll(void* user, int timeout) noexcept
         {
             fprintf(stderr, "[BT-DEBUG] BluetoothFindFirstRadio OK, radio handle=%p\n", radio);
         }
-        std::vector<MDRDeviceInfo> devices;
+        mdr::Vector<MDRDeviceInfo> devices;
         int radioIndex = 0;
         do
         {
@@ -301,9 +301,9 @@ static int Poll(void* user, int timeout) noexcept
             do
             {
                 auto const& pBytes = deviceInfo.Address.rgBytes;
-                std::string szName = ToU8String(deviceInfo.szName);
-                std::string szMacAddress = fmt::format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[5], pBytes[4],
-                                                 pBytes[3], pBytes[2], pBytes[1], pBytes[0]);
+                mdr::String szName = ToU8String(deviceInfo.szName);
+                mdr::String szMacAddress = mdr::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[5], pBytes[4],
+                               pBytes[3], pBytes[2], pBytes[1], pBytes[0]);
                 fprintf(stderr, "[BT-DEBUG] Found device: name=\"%s\" mac=%s connected=%d authenticated=%d remembered=%d\n",
                         szName.c_str(), szMacAddress.c_str(),
                         (int)deviceInfo.fConnected, (int)deviceInfo.fAuthenticated, (int)deviceInfo.fRemembered);
@@ -326,7 +326,7 @@ static int Poll(void* user, int timeout) noexcept
             ptr->lastError = FormatErrorString(::GetLastError());
             return MDR_RESULT_ERROR_NET;
         }
-        *ppList = new MDRDeviceInfo[devices.size()];
+        *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(devices.size());
         std::memcpy(*ppList, devices.data(), devices.size() * sizeof(MDRDeviceInfo));
         *pCount = devices.size();
         fprintf(stderr, "[BT-DEBUG] GetDevicesList returning %d device(s)\n", *pCount);
@@ -337,7 +337,7 @@ static int Poll(void* user, int timeout) noexcept
     {
         if (*ppList)
         {
-            delete[] *ppList;
+            mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);
             *ppList = nullptr;
         }
         return MDR_RESULT_OK;
@@ -351,7 +351,7 @@ static int Poll(void* user, int timeout) noexcept
 };
 
 extern "C" {
-MDRConnectionWindows* mdrConnectionWindowsCreate() { return new MDRConnectionWindows(); }
-void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { delete instance; }
+MDRConnectionWindows* mdrConnectionWindowsCreate() { return mdr::Construct<MDRConnectionWindows>(); }
+void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { mdr::Destruct(instance); }
 MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* instance) { return &instance->mdrConn; }
 }

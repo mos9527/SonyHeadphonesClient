@@ -210,8 +210,12 @@ namespace mdr::v2 {
             case ENABLE:
             case DISABLE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(MessageMdrV2EnableDisable value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(MessageMdrV2OnOffSettingValue value) {
         using enum MessageMdrV2OnOffSettingValue;
@@ -219,8 +223,12 @@ namespace mdr::v2 {
             case ON:
             case OFF:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(MessageMdrV2OnOffSettingValue value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(MessageMdrV2FunctionType_Table1 value) {
         using enum MessageMdrV2FunctionType_Table1;
@@ -356,7 +364,8 @@ namespace mdr::v2 {
             case ASSIGNABLE_SETTING_WITH_LIMITATION:
             case HEAD_GESTURE_ON_OFF_TRAINING:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(MessageMdrV2FunctionType_Table2 value) {
@@ -407,7 +416,8 @@ namespace mdr::v2 {
             case USB_BROWSER:
             case LIGHTING_MODE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
 }

@@ -330,7 +330,8 @@ namespace mdr::v2::t2 {
             case SYSTEM_NTFY_EXTENDED_PARAM:
             case UNKNOWN:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(ConnectInquiredType value) {
@@ -338,7 +339,8 @@ namespace mdr::v2::t2 {
         switch (value) {
             case FIXED_VALUE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PeripheralInquiredType value) {
@@ -349,7 +351,8 @@ namespace mdr::v2::t2 {
             case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
             case MUSIC_HAND_OVER_SETTING:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(PeripheralBluetoothMode value) {
@@ -358,8 +361,12 @@ namespace mdr::v2::t2 {
             case NORMAL_MODE:
             case INQUIRY_SCAN_MODE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(PeripheralBluetoothMode value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(ConnectivityActionType value) {
         using enum ConnectivityActionType;
@@ -368,8 +375,12 @@ namespace mdr::v2::t2 {
             case CONNECT:
             case UNPAIR:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(ConnectivityActionType value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(PeripheralResult value) {
         using enum PeripheralResult;
@@ -391,7 +402,8 @@ namespace mdr::v2::t2 {
             case PAIRING_IN_PROGRESS:
             case PAIRING_BUSY:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(SourceSwitchControlResult value) {
@@ -403,7 +415,8 @@ namespace mdr::v2::t2 {
             case FAIL_A2DP_NOT_CONNECT:
             case FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(VoiceGuidanceInquiredType value) {
@@ -419,7 +432,8 @@ namespace mdr::v2::t2 {
             case POWER_ONOFF_SOUND:
             case SOUNDEFFECT_ULT_BEEP_ONOFF:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(VoiceGuidanceLanguage value) {
@@ -442,7 +456,8 @@ namespace mdr::v2::t2 {
             case TURKISH:
             case CHINESE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(SafeListeningInquiredType value) {
@@ -454,7 +469,8 @@ namespace mdr::v2::t2 {
             case SAFE_LISTENING_TWS_2:
             case SAFE_VOLUME_CONTROL:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(SafeListeningErrorCause value) {
@@ -464,8 +480,12 @@ namespace mdr::v2::t2 {
             case IN_CALL:
             case DETACHED:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(SafeListeningErrorCause value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(SafeListeningTargetType value) {
         using enum SafeListeningTargetType;
@@ -474,8 +494,12 @@ namespace mdr::v2::t2 {
             case TWS_L:
             case TWS_R:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(SafeListeningTargetType value) {
+           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(SafeListeningLogDataStatus value) {
         using enum SafeListeningLogDataStatus;
@@ -486,7 +510,8 @@ namespace mdr::v2::t2 {
             case NOT_SENDING:
             case ERROR:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(SafeListeningWHOStandardLevel value) {
@@ -495,7 +520,11 @@ namespace mdr::v2::t2 {
             case NORMAL:
             case SENSITIVE:
             return true;
-        default: return false;
+        default:
+           return false;
         }
+    }
+    static bool is_valid_bitmask(SafeListeningWHOStandardLevel value) {
+           return !(static_cast<uint8_t>(value) & 0xfe);
     }
 }

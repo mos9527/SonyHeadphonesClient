@@ -56,7 +56,8 @@ namespace mdr {
             case LARGE_DATA_COMMON:
             case UNKNOWN:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
     static bool is_valid(MDRUnpackResult value) {
@@ -67,7 +68,8 @@ namespace mdr {
             case BAD_MARKER:
             case BAD_CHECKSUM:
             return true;
-        default: return false;
+        default:
+           return false;
         }
     }
 }

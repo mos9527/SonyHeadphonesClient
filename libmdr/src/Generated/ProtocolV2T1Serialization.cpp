@@ -2,272 +2,340 @@
 #include <mdr/ProtocolV2T1.hpp>
 
 namespace mdr::v2::t1 {
-    size_t ConnectRetCapabilityInfo::Serialize(const ConnectRetCapabilityInfo& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> ConnectRetCapabilityInfo::Serialize(const ConnectRetCapabilityInfo& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.command, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.inquiredType, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.capabilityCounter, &ptr, maxSize);
-        maxSize -= MDRPrefixedString::Write(data.uniqueID, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.capabilityCounter, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Write(data.uniqueID, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void ConnectRetCapabilityInfo::Deserialize(const UInt8* data, ConnectRetCapabilityInfo& out, size_t maxSize)
+    MDRResult<ConnectRetCapabilityInfo> ConnectRetCapabilityInfo::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.command, maxSize);
-        maxSize -= MDRPod::Read(&data, out.inquiredType, maxSize);
-        maxSize -= MDRPod::Read(&data, out.capabilityCounter, maxSize);
-        maxSize -= MDRPrefixedString::Read(&data, out.uniqueID, maxSize);
+        ConnectRetCapabilityInfo out{};
+        MDR_TRY_SIZE(ConnectRetCapabilityInfo, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(ConnectRetCapabilityInfo, MDRPod::Read(&data, out.inquiredType, maxSize));
+        MDR_TRY_SIZE(ConnectRetCapabilityInfo, MDRPod::Read(&data, out.capabilityCounter, maxSize));
+        MDR_TRY_SIZE(ConnectRetCapabilityInfo, MDRPrefixedString::Read(&data, out.uniqueID, maxSize));
+        MDR_TRY(ConnectRetCapabilityInfo, Validate(out));
+        return MDRResult<ConnectRetCapabilityInfo>::Success(std::move(out));
     }
-    size_t ConnectRetDeviceInfoModelName::Serialize(const ConnectRetDeviceInfoModelName& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPrefixedString::Write(data.value, &ptr, maxSize);
-        return ptr - out;
-    }
-    void ConnectRetDeviceInfoModelName::Deserialize(const UInt8* data, ConnectRetDeviceInfoModelName& out, size_t maxSize)
-    {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPrefixedString::Read(&data, out.value, maxSize);
-    }
-    size_t ConnectRetDeviceInfoFwVersion::Serialize(const ConnectRetDeviceInfoFwVersion& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> ConnectRetDeviceInfoModelName::Serialize(const ConnectRetDeviceInfoModelName& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPrefixedString::Write(data.value, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Write(data.value, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void ConnectRetDeviceInfoFwVersion::Deserialize(const UInt8* data, ConnectRetDeviceInfoFwVersion& out, size_t maxSize)
+    MDRResult<ConnectRetDeviceInfoModelName> ConnectRetDeviceInfoModelName::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPrefixedString::Read(&data, out.value, maxSize);
+        ConnectRetDeviceInfoModelName out{};
+        MDR_TRY_SIZE(ConnectRetDeviceInfoModelName, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(ConnectRetDeviceInfoModelName, MDRPrefixedString::Read(&data, out.value, maxSize));
+        MDR_TRY(ConnectRetDeviceInfoModelName, Validate(out));
+        return MDRResult<ConnectRetDeviceInfoModelName>::Success(std::move(out));
     }
-    size_t ConnectRetDeviceInfoSeriesAndColor::Serialize(const ConnectRetDeviceInfoSeriesAndColor& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.series, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.color, &ptr, maxSize);
-        return ptr - out;
-    }
-    void ConnectRetDeviceInfoSeriesAndColor::Deserialize(const UInt8* data, ConnectRetDeviceInfoSeriesAndColor& out, size_t maxSize)
-    {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPod::Read(&data, out.series, maxSize);
-        maxSize -= MDRPod::Read(&data, out.color, maxSize);
-    }
-    size_t ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> ConnectRetDeviceInfoFwVersion::Serialize(const ConnectRetDeviceInfoFwVersion& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.command, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.inquiredType, &ptr, maxSize);
-        maxSize -= MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Write(data.value, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void ConnectRetSupportFunction::Deserialize(const UInt8* data, ConnectRetSupportFunction& out, size_t maxSize)
+    MDRResult<ConnectRetDeviceInfoFwVersion> ConnectRetDeviceInfoFwVersion::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.command, maxSize);
-        maxSize -= MDRPod::Read(&data, out.inquiredType, maxSize);
-        maxSize -= MDRPodArray<MessageMdrV2SupportFunction>::Read(&data, out.supportFunctions, maxSize);
+        ConnectRetDeviceInfoFwVersion out{};
+        MDR_TRY_SIZE(ConnectRetDeviceInfoFwVersion, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(ConnectRetDeviceInfoFwVersion, MDRPrefixedString::Read(&data, out.value, maxSize));
+        MDR_TRY(ConnectRetDeviceInfoFwVersion, Validate(out));
+        return MDRResult<ConnectRetDeviceInfoFwVersion>::Success(std::move(out));
     }
-    size_t EqEbbStatusErrorCode::Serialize(const EqEbbStatusErrorCode& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.value, &ptr, maxSize);
-        maxSize -= MDRPodArray<PresetEqErrorCodeType>::Write(data.errors, &ptr, maxSize);
-        return ptr - out;
-    }
-    void EqEbbStatusErrorCode::Deserialize(const UInt8* data, EqEbbStatusErrorCode& out, size_t maxSize)
-    {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPod::Read(&data, out.value, maxSize);
-        maxSize -= MDRPodArray<PresetEqErrorCodeType>::Read(&data, out.errors, maxSize);
-    }
-    size_t EqEbbParamEq::Serialize(const EqEbbParamEq& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> ConnectRetDeviceInfoSeriesAndColor::Serialize(const ConnectRetDeviceInfoSeriesAndColor& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.presetId, &ptr, maxSize);
-        maxSize -= MDRPodArray<UInt8>::Write(data.bands, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.series, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.color, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void EqEbbParamEq::Deserialize(const UInt8* data, EqEbbParamEq& out, size_t maxSize)
+    MDRResult<ConnectRetDeviceInfoSeriesAndColor> ConnectRetDeviceInfoSeriesAndColor::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPod::Read(&data, out.presetId, maxSize);
-        maxSize -= MDRPodArray<UInt8>::Read(&data, out.bands, maxSize);
+        ConnectRetDeviceInfoSeriesAndColor out{};
+        MDR_TRY_SIZE(ConnectRetDeviceInfoSeriesAndColor, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(ConnectRetDeviceInfoSeriesAndColor, MDRPod::Read(&data, out.series, maxSize));
+        MDR_TRY_SIZE(ConnectRetDeviceInfoSeriesAndColor, MDRPod::Read(&data, out.color, maxSize));
+        MDR_TRY(ConnectRetDeviceInfoSeriesAndColor, Validate(out));
+        return MDRResult<ConnectRetDeviceInfoSeriesAndColor>::Success(std::move(out));
     }
-    size_t EqEbbParamEqAndUltMode::Serialize(const EqEbbParamEqAndUltMode& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.presetId, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.eqUltModeStatus, &ptr, maxSize);
-        maxSize -= MDRPodArray<UInt8>::Write(data.bandSteps, &ptr, maxSize);
-        return ptr - out;
-    }
-    void EqEbbParamEqAndUltMode::Deserialize(const UInt8* data, EqEbbParamEqAndUltMode& out, size_t maxSize)
-    {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPod::Read(&data, out.presetId, maxSize);
-        maxSize -= MDRPod::Read(&data, out.eqUltModeStatus, maxSize);
-        maxSize -= MDRPodArray<UInt8>::Read(&data, out.bandSteps, maxSize);
-    }
-    size_t EqEbbParamCustomEq::Serialize(const EqEbbParamCustomEq& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> ConnectRetSupportFunction::Serialize(const ConnectRetSupportFunction& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPodArray<UInt8>::Write(data.bandSteps, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<MessageMdrV2SupportFunction>::Write(data.supportFunctions, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void EqEbbParamCustomEq::Deserialize(const UInt8* data, EqEbbParamCustomEq& out, size_t maxSize)
+    MDRResult<ConnectRetSupportFunction> ConnectRetSupportFunction::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPodArray<UInt8>::Read(&data, out.bandSteps, maxSize);
+        ConnectRetSupportFunction out{};
+        MDR_TRY_SIZE(ConnectRetSupportFunction, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(ConnectRetSupportFunction, MDRPod::Read(&data, out.inquiredType, maxSize));
+        MDR_TRY_SIZE(ConnectRetSupportFunction, MDRPodArray<MessageMdrV2SupportFunction>::Read(&data, out.supportFunctions, maxSize));
+        MDR_TRY(ConnectRetSupportFunction, Validate(out));
+        return MDRResult<ConnectRetSupportFunction>::Success(std::move(out));
     }
-    size_t AlertRetStatusVoiceAssistant::Serialize(const AlertRetStatusVoiceAssistant& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> EqEbbStatusErrorCode::Serialize(const EqEbbStatusErrorCode& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPodArray<VoiceAssistantType>::Write(data.voiceAssistants, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.value, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<PresetEqErrorCodeType>::Write(data.errors, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void AlertRetStatusVoiceAssistant::Deserialize(const UInt8* data, AlertRetStatusVoiceAssistant& out, size_t maxSize)
+    MDRResult<EqEbbStatusErrorCode> EqEbbStatusErrorCode::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPodArray<VoiceAssistantType>::Read(&data, out.voiceAssistants, maxSize);
+        EqEbbStatusErrorCode out{};
+        MDR_TRY_SIZE(EqEbbStatusErrorCode, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(EqEbbStatusErrorCode, MDRPod::Read(&data, out.value, maxSize));
+        MDR_TRY_SIZE(EqEbbStatusErrorCode, MDRPodArray<PresetEqErrorCodeType>::Read(&data, out.errors, maxSize));
+        MDR_TRY(EqEbbStatusErrorCode, Validate(out));
+        return MDRResult<EqEbbStatusErrorCode>::Success(std::move(out));
     }
-    size_t PlaybackName::Write(const PlaybackName& data, UInt8** ppDstBuffer, size_t maxSize)
+    MDRResult<size_t> EqEbbParamEq::Serialize(const EqEbbParamEq& data, UInt8* out, size_t maxSize)
+    {
+        UInt8* ptr = out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.presetId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<UInt8>::Write(data.bands, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
+    }
+    MDRResult<EqEbbParamEq> EqEbbParamEq::Deserialize(const UInt8* data, size_t maxSize)
+    {
+        EqEbbParamEq out{};
+        MDR_TRY_SIZE(EqEbbParamEq, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(EqEbbParamEq, MDRPod::Read(&data, out.presetId, maxSize));
+        MDR_TRY_SIZE(EqEbbParamEq, MDRPodArray<UInt8>::Read(&data, out.bands, maxSize));
+        MDR_TRY(EqEbbParamEq, Validate(out));
+        return MDRResult<EqEbbParamEq>::Success(std::move(out));
+    }
+    MDRResult<size_t> EqEbbParamEqAndUltMode::Serialize(const EqEbbParamEqAndUltMode& data, UInt8* out, size_t maxSize)
+    {
+        UInt8* ptr = out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.presetId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.eqUltModeStatus, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<UInt8>::Write(data.bandSteps, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
+    }
+    MDRResult<EqEbbParamEqAndUltMode> EqEbbParamEqAndUltMode::Deserialize(const UInt8* data, size_t maxSize)
+    {
+        EqEbbParamEqAndUltMode out{};
+        MDR_TRY_SIZE(EqEbbParamEqAndUltMode, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(EqEbbParamEqAndUltMode, MDRPod::Read(&data, out.presetId, maxSize));
+        MDR_TRY_SIZE(EqEbbParamEqAndUltMode, MDRPod::Read(&data, out.eqUltModeStatus, maxSize));
+        MDR_TRY_SIZE(EqEbbParamEqAndUltMode, MDRPodArray<UInt8>::Read(&data, out.bandSteps, maxSize));
+        MDR_TRY(EqEbbParamEqAndUltMode, Validate(out));
+        return MDRResult<EqEbbParamEqAndUltMode>::Success(std::move(out));
+    }
+    MDRResult<size_t> EqEbbParamCustomEq::Serialize(const EqEbbParamCustomEq& data, UInt8* out, size_t maxSize)
+    {
+        UInt8* ptr = out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<UInt8>::Write(data.bandSteps, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
+    }
+    MDRResult<EqEbbParamCustomEq> EqEbbParamCustomEq::Deserialize(const UInt8* data, size_t maxSize)
+    {
+        EqEbbParamCustomEq out{};
+        MDR_TRY_SIZE(EqEbbParamCustomEq, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(EqEbbParamCustomEq, MDRPodArray<UInt8>::Read(&data, out.bandSteps, maxSize));
+        MDR_TRY(EqEbbParamCustomEq, Validate(out));
+        return MDRResult<EqEbbParamCustomEq>::Success(std::move(out));
+    }
+    MDRResult<size_t> AlertRetStatusVoiceAssistant::Serialize(const AlertRetStatusVoiceAssistant& data, UInt8* out, size_t maxSize)
+    {
+        UInt8* ptr = out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<VoiceAssistantType>::Write(data.voiceAssistants, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
+    }
+    MDRResult<AlertRetStatusVoiceAssistant> AlertRetStatusVoiceAssistant::Deserialize(const UInt8* data, size_t maxSize)
+    {
+        AlertRetStatusVoiceAssistant out{};
+        MDR_TRY_SIZE(AlertRetStatusVoiceAssistant, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(AlertRetStatusVoiceAssistant, MDRPodArray<VoiceAssistantType>::Read(&data, out.voiceAssistants, maxSize));
+        MDR_TRY(AlertRetStatusVoiceAssistant, Validate(out));
+        return MDRResult<AlertRetStatusVoiceAssistant>::Success(std::move(out));
+    }
+    MDRResult<size_t> PlaybackName::Write(const PlaybackName& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        maxSize -= MDRPod::Write(data.playbackNameStatus, ppDstBuffer, maxSize);
-        maxSize -= MDRPrefixedString::Write(data.playbackName, ppDstBuffer, maxSize);
-        return *ppDstBuffer - ptr;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.playbackNameStatus, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Write(data.playbackName, ppDstBuffer, maxSize));
+        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
-    size_t PlaybackName::Read(const UInt8** ppSrcBuffer, PlaybackName& out, size_t maxSize)
+    MDRResult<size_t> PlaybackName::Read(const UInt8** ppSrcBuffer, PlaybackName& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        maxSize -= MDRPod::Read(ppSrcBuffer, out.playbackNameStatus, maxSize);
-        maxSize -= MDRPrefixedString::Read(ppSrcBuffer, out.playbackName, maxSize);
-        return *ppSrcBuffer - ptr;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.playbackNameStatus, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Read(ppSrcBuffer, out.playbackName, maxSize));
+        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    size_t PlayParamPlaybackControllerName::Serialize(const PlayParamPlaybackControllerName& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> PlayParamPlaybackControllerName::Serialize(const PlayParamPlaybackControllerName& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRFixedArray<PlaybackName, 4>::Write(data.playbackNames, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRFixedArray<PlaybackName, 4>::Write(data.playbackNames, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void PlayParamPlaybackControllerName::Deserialize(const UInt8* data, PlayParamPlaybackControllerName& out, size_t maxSize)
+    MDRResult<PlayParamPlaybackControllerName> PlayParamPlaybackControllerName::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRFixedArray<PlaybackName, 4>::Read(&data, out.playbackNames, maxSize);
+        PlayParamPlaybackControllerName out{};
+        MDR_TRY_SIZE(PlayParamPlaybackControllerName, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(PlayParamPlaybackControllerName, MDRFixedArray<PlaybackName, 4>::Read(&data, out.playbackNames, maxSize));
+        MDR_TRY(PlayParamPlaybackControllerName, Validate(out));
+        return MDRResult<PlayParamPlaybackControllerName>::Success(std::move(out));
     }
-    size_t GsSettingInfo::Write(const GsSettingInfo& data, UInt8** ppDstBuffer, size_t maxSize)
+    MDRResult<size_t> GsSettingInfo::Write(const GsSettingInfo& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        maxSize -= MDRPod::Write(data.stringFormat, ppDstBuffer, maxSize);
-        maxSize -= MDRPrefixedString::Write(data.subject, ppDstBuffer, maxSize);
-        maxSize -= MDRPrefixedString::Write(data.summary, ppDstBuffer, maxSize);
-        return *ppDstBuffer - ptr;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.stringFormat, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Write(data.subject, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Write(data.summary, ppDstBuffer, maxSize));
+        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
-    size_t GsSettingInfo::Read(const UInt8** ppSrcBuffer, GsSettingInfo& out, size_t maxSize)
+    MDRResult<size_t> GsSettingInfo::Read(const UInt8** ppSrcBuffer, GsSettingInfo& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        maxSize -= MDRPod::Read(ppSrcBuffer, out.stringFormat, maxSize);
-        maxSize -= MDRPrefixedString::Read(ppSrcBuffer, out.subject, maxSize);
-        maxSize -= MDRPrefixedString::Read(ppSrcBuffer, out.summary, maxSize);
-        return *ppSrcBuffer - ptr;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.stringFormat, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Read(ppSrcBuffer, out.subject, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPrefixedString::Read(ppSrcBuffer, out.summary, maxSize));
+        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    size_t GsRetCapability::Serialize(const GsRetCapability& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> GsRetCapability::Serialize(const GsRetCapability& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.command, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.type, &ptr, maxSize);
-        maxSize -= MDRPod::Write(data.settingType, &ptr, maxSize);
-        maxSize -= GsSettingInfo::Write(data.settingInfo, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, GsSettingInfo::Write(data.settingInfo, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void GsRetCapability::Deserialize(const UInt8* data, GsRetCapability& out, size_t maxSize)
+    MDRResult<GsRetCapability> GsRetCapability::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.command, maxSize);
-        maxSize -= MDRPod::Read(&data, out.type, maxSize);
-        maxSize -= MDRPod::Read(&data, out.settingType, maxSize);
-        maxSize -= GsSettingInfo::Read(&data, out.settingInfo, maxSize);
+        GsRetCapability out{};
+        MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.type, maxSize));
+        MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(GsRetCapability, GsSettingInfo::Read(&data, out.settingInfo, maxSize));
+        MDR_TRY(GsRetCapability, Validate(out));
+        return MDRResult<GsRetCapability>::Success(std::move(out));
     }
-    size_t AudioParamListeningOptionAssignCustomizableItem::Serialize(const AudioParamListeningOptionAssignCustomizableItem& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPodArray<ListeningOptionAssignCustomizableItem>::Write(data.items, &ptr, maxSize);
-        return ptr - out;
-    }
-    void AudioParamListeningOptionAssignCustomizableItem::Deserialize(const UInt8* data, AudioParamListeningOptionAssignCustomizableItem& out, size_t maxSize)
-    {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPodArray<ListeningOptionAssignCustomizableItem>::Read(&data, out.items, maxSize);
-    }
-    size_t SystemParamAssignableSettings::Serialize(const SystemParamAssignableSettings& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> AudioParamListeningOptionAssignCustomizableItem::Serialize(const AudioParamListeningOptionAssignCustomizableItem& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPodArray<Preset>::Write(data.presets, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<ListeningOptionAssignCustomizableItem>::Write(data.items, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void SystemParamAssignableSettings::Deserialize(const UInt8* data, SystemParamAssignableSettings& out, size_t maxSize)
+    MDRResult<AudioParamListeningOptionAssignCustomizableItem> AudioParamListeningOptionAssignCustomizableItem::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPodArray<Preset>::Read(&data, out.presets, maxSize);
+        AudioParamListeningOptionAssignCustomizableItem out{};
+        MDR_TRY_SIZE(AudioParamListeningOptionAssignCustomizableItem, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(AudioParamListeningOptionAssignCustomizableItem, MDRPodArray<ListeningOptionAssignCustomizableItem>::Read(&data, out.items, maxSize));
+        MDR_TRY(AudioParamListeningOptionAssignCustomizableItem, Validate(out));
+        return MDRResult<AudioParamListeningOptionAssignCustomizableItem>::Success(std::move(out));
     }
-    size_t SystemParamAssignableSettingsWithLimit::Serialize(const SystemParamAssignableSettingsWithLimit& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> SystemParamAssignableSettings::Serialize(const SystemParamAssignableSettings& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRPodArray<Preset>::Write(data.presets, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<Preset>::Write(data.presets, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void SystemParamAssignableSettingsWithLimit::Deserialize(const UInt8* data, SystemParamAssignableSettingsWithLimit& out, size_t maxSize)
+    MDRResult<SystemParamAssignableSettings> SystemParamAssignableSettings::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRPodArray<Preset>::Read(&data, out.presets, maxSize);
+        SystemParamAssignableSettings out{};
+        MDR_TRY_SIZE(SystemParamAssignableSettings, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(SystemParamAssignableSettings, MDRPodArray<Preset>::Read(&data, out.presets, maxSize));
+        MDR_TRY(SystemParamAssignableSettings, Validate(out));
+        return MDRResult<SystemParamAssignableSettings>::Success(std::move(out));
     }
-    size_t AssignableSettingsPreset::Write(const AssignableSettingsPreset& data, UInt8** ppDstBuffer, size_t maxSize)
+    MDRResult<size_t> SystemParamAssignableSettingsWithLimit::Serialize(const SystemParamAssignableSettingsWithLimit& data, UInt8* out, size_t maxSize)
+    {
+        UInt8* ptr = out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<Preset>::Write(data.presets, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
+    }
+    MDRResult<SystemParamAssignableSettingsWithLimit> SystemParamAssignableSettingsWithLimit::Deserialize(const UInt8* data, size_t maxSize)
+    {
+        SystemParamAssignableSettingsWithLimit out{};
+        MDR_TRY_SIZE(SystemParamAssignableSettingsWithLimit, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(SystemParamAssignableSettingsWithLimit, MDRPodArray<Preset>::Read(&data, out.presets, maxSize));
+        MDR_TRY(SystemParamAssignableSettingsWithLimit, Validate(out));
+        return MDRResult<SystemParamAssignableSettingsWithLimit>::Success(std::move(out));
+    }
+    MDRResult<size_t> AssignableSettingsPreset::Write(const AssignableSettingsPreset& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        maxSize -= MDRPod::Write(data.preset, ppDstBuffer, maxSize);
-        maxSize -= MDRPodArray<AssignableSettingsAction>::Write(data.actions, ppDstBuffer, maxSize);
-        return *ppDstBuffer - ptr;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.preset, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<AssignableSettingsAction>::Write(data.actions, ppDstBuffer, maxSize));
+        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
-    size_t AssignableSettingsPreset::Read(const UInt8** ppSrcBuffer, AssignableSettingsPreset& out, size_t maxSize)
+    MDRResult<size_t> AssignableSettingsPreset::Read(const UInt8** ppSrcBuffer, AssignableSettingsPreset& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        maxSize -= MDRPod::Read(ppSrcBuffer, out.preset, maxSize);
-        maxSize -= MDRPodArray<AssignableSettingsAction>::Read(ppSrcBuffer, out.actions, maxSize);
-        return *ppSrcBuffer - ptr;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.preset, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPodArray<AssignableSettingsAction>::Read(ppSrcBuffer, out.actions, maxSize));
+        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    size_t SystemExtParamAssignableSettings::Serialize(const SystemExtParamAssignableSettings& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> SystemExtParamAssignableSettings::Serialize(const SystemExtParamAssignableSettings& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void SystemExtParamAssignableSettings::Deserialize(const UInt8* data, SystemExtParamAssignableSettings& out, size_t maxSize)
+    MDRResult<SystemExtParamAssignableSettings> SystemExtParamAssignableSettings::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRArray<AssignableSettingsPreset>::Read(&data, out.presets, maxSize);
+        SystemExtParamAssignableSettings out{};
+        MDR_TRY_SIZE(SystemExtParamAssignableSettings, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(SystemExtParamAssignableSettings, MDRArray<AssignableSettingsPreset>::Read(&data, out.presets, maxSize));
+        MDR_TRY(SystemExtParamAssignableSettings, Validate(out));
+        return MDRResult<SystemExtParamAssignableSettings>::Success(std::move(out));
     }
-    size_t SystemExtParamAssignableSettingsWithLimit::Serialize(const SystemExtParamAssignableSettingsWithLimit& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> SystemExtParamAssignableSettingsWithLimit::Serialize(const SystemExtParamAssignableSettingsWithLimit& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
-        maxSize -= MDRPod::Write(data.base, &ptr, maxSize);
-        maxSize -= MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr, maxSize);
-        return ptr - out;
+        MDR_TRY(size_t, Validate(data));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.base, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRArray<AssignableSettingsPreset>::Write(data.presets, &ptr, maxSize));
+        return MDRResult<size_t>::Success(ptr - out);
     }
-    void SystemExtParamAssignableSettingsWithLimit::Deserialize(const UInt8* data, SystemExtParamAssignableSettingsWithLimit& out, size_t maxSize)
+    MDRResult<SystemExtParamAssignableSettingsWithLimit> SystemExtParamAssignableSettingsWithLimit::Deserialize(const UInt8* data, size_t maxSize)
     {
-        maxSize -= MDRPod::Read(&data, out.base, maxSize);
-        maxSize -= MDRArray<AssignableSettingsPreset>::Read(&data, out.presets, maxSize);
+        SystemExtParamAssignableSettingsWithLimit out{};
+        MDR_TRY_SIZE(SystemExtParamAssignableSettingsWithLimit, MDRPod::Read(&data, out.base, maxSize));
+        MDR_TRY_SIZE(SystemExtParamAssignableSettingsWithLimit, MDRArray<AssignableSettingsPreset>::Read(&data, out.presets, maxSize));
+        MDR_TRY(SystemExtParamAssignableSettingsWithLimit, Validate(out));
+        return MDRResult<SystemExtParamAssignableSettingsWithLimit>::Success(std::move(out));
     }
 }

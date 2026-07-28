@@ -4,16 +4,22 @@ Licensing & Credits
 
 As we're MIT Licensed - should you take code from e.g. [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge/) (AGPLv3) this wouldn't be acceptable. Natrually this extends to private sources as well - double check your their licensing to make sure they are compatible with MIT.
 
+Protocol Changes
+---
+Backing from offical implementation/decompilation is **required** for `Protocol` related changes.
+
+Should you change any of the `Protocol` headers, **make sure** you have the source built with **code-generation enabled**.
+
+If you don't know what that means, check out `tooling/`, `AGENTS.md` for more info.
 
 On LLM Coding Agents
 ---
-LLM assisted/generated PRs **MUST** be marked as such. Either through PR description or with `Co-Authored-By` trailers, or it will be **REJECTED**
+Either through PR description or with `Co-Authored-By` trailers - **mark your PRs** appropriately, or it will be **REJECTED**
 
-Device-specific 'hacks' are generally **NOT** accepted, unless there's backing from offical implementation/decompilation.
-
-**Purely LLM generated PRs are *not* welcome** - unless its solution is trivial (short in LoC) enough to reproduce, these will **ALWAYS** be **REJECTED**. 
+**You** will be responsible for any changes made by the AI.
 
 AI line-completion usage is fine, and is not required to be disclosed.
+
 
 Human in the Loop
 ---
