@@ -1,13 +1,11 @@
 #include "../Platform.hpp"
-#include <mdr/Protocol.hpp>
 #include <mdr-c/Platform/PlatformEmscripten.h>
 #include <emscripten.h>
 
-MDRConnectionEmscripten* gConn = nullptr;
+MDRConnectionEmscripten* gConn;
 extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
-        MDR_CHECK_MSG(gConn == nullptr, "Platform already initialized. You MUST call clientPlatformDestroy() before initializing again.");
         if (flags & MDR_INIT_BT_BLE)
         {
             gConn = nullptr;
@@ -19,10 +17,7 @@ extern "C" {
     void clientPlatformConnectionDestroy()
     {
         if (gConn)
-        {
             mdrConnectionEmscriptenDestroy(gConn);
-            gConn = nullptr;
-        }
     }
     MDRConnection* clientPlatformConnectionGet()
     {

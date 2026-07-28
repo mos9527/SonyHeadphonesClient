@@ -395,9 +395,6 @@ struct MDRConnectionWindowsBLE
         auto* ptr = static_cast<MDRConnectionWindowsBLE*>(user);
         MDR_LOG("[BLE] Connect called: mac={} serviceUUID={}", macAddress, serviceUUID);
 
-        // Explicitly stop/join and clear state before starting a new connect
-        Disconnect(ptr);
-
         // Reset state
         ptr->connected = false;
         ptr->connectResult = MDR_RESULT_INPROGRESS;
@@ -411,7 +408,7 @@ struct MDRConnectionWindowsBLE
         uint64_t btAddr = macAddressToULL(macAddress);
         if (btAddr == ~0ULL)
         {
-            ptr->SetLastError("Invalid MAC address format");
+            ptr->lastError = "Invalid MAC address format";
             MDR_LOG("[BLE] Connect failed: invalid MAC address");
             return MDR_RESULT_ERROR_BAD_ADDRESS;
         }
@@ -695,7 +692,7 @@ struct MDRConnectionWindowsBLE
                 }
             });
 
-        ptr->SetLastError("Connecting via BLE GATT...");
+        ptr->lastError = "Connecting via BLE GATT...";
         return MDR_RESULT_INPROGRESS;
     }
 
@@ -900,7 +897,7 @@ struct MDRConnectionWindowsBLE
         if (waitResult == WAIT_TIMEOUT)
             return MDR_RESULT_ERROR_TIMEOUT;
 
-        ptr->SetLastError("Poll wait failed");
+        ptr->lastError = "Poll wait failed";
         return MDR_RESULT_ERROR_NET;
     }
 
@@ -916,10 +913,7 @@ struct MDRConnectionWindowsBLE
 
     static const char* GetLastError(void* user) noexcept
     {
-        auto* self = static_cast<MDRConnectionWindowsBLE*>(user);
-        std::lock_guard<std::mutex> lock(self->lastErrorMutex);
-        self->lastErrorSnapshot = self->lastError;
-        return self->lastErrorSnapshot.c_str();
+        return static_cast<MDRConnectionWindowsBLE*>(user)->lastError.c_str();
     }
 };
 
