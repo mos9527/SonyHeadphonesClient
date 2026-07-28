@@ -236,6 +236,7 @@ namespace mdr::v2::t2
         NOT_PLAYING = 0x0,
         IN_CALL = 0x1,
         DETACHED = 0x2,
+        OUT_OF_RANGE = 0x3,
     };
 
     enum class SafeListeningTargetType : UInt8
@@ -1145,8 +1146,7 @@ namespace mdr::v2::t2
         Command command{Command::SAFE_LISTENING_RET_EXTENDED_PARAM};
         SafeListeningInquiredType inquiredType; // 0x1
         UInt8 levelPerPeriod; // 0x2
-        // CODEGEN Bitmask
-        SafeListeningErrorCause errorCause; // 0x3 - why is this a bitmask??
+        SafeListeningErrorCause errorCause;
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SafeListeningRetExtendedParam);
     };

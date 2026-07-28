@@ -50,6 +50,7 @@ endif ()
 include(FetchContent)
 FetchContent_MakeAvailable(fmt)
 
+option(CODEGEN_ENUM_BITMASK "Enable codegen for enum bitmask types" OFF)
 # Codegen tools — only built when LLVM is available.
 if (MDR_LLVM_FOUND)
     add_library(tooling_CodegenCommon INTERFACE)
@@ -60,6 +61,9 @@ if (MDR_LLVM_FOUND)
         target_include_directories(tooling_CodegenCommon INTERFACE ${LLVM_DIR})
     endif ()
 
+    if (CODEGEN_ENUM_BITMASK)
+        add_compile_definitions(CODEGEN_ENUM_BITMASK)
+    endif()
     add_executable(tooling_EnumCodegen EnumCodegen.cpp)
     target_link_libraries(tooling_EnumCodegen PRIVATE tooling_CodegenCommon)
 

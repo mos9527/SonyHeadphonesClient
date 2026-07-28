@@ -451,7 +451,7 @@ MDRResult<void> SafeListeningRetExtendedParam::Validate(const SafeListeningRetEx
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_EXTENDED_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(is_valid_bitmask(data.errorCause));
+    MDR_VALIDATE(is_valid(data.errorCause));
     return MDRResult<void>::Success();
 }
 }

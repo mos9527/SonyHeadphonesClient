@@ -1,8 +1,8 @@
-#include <vector>
 #include <algorithm>
 #include <fstream>
-#include <sstream>
 #include <map>
+#include <sstream>
+#include <vector>
 #include "Codegen.hpp"
 
 enum class ValidationVerb
@@ -12,12 +12,16 @@ enum class ValidationVerb
     Range,
     Field,
     Ignore,
+#ifdef CODEGEN_ENUM_BITMASK
     Bitmask
+#endif
 };
 
 constexpr uint32_t kValidationFlagNONE = 0;
 constexpr uint32_t kValidationFlagIGNORE = 1u << 0;
+#ifdef CODEGEN_ENUM_BITMASK
 constexpr uint32_t kValidationFlagBITMASK = 1u << 1;
+#endif
 
 std::map<std::string, ValidationVerb> kCodegenTokens = {
     // emitCodegenCheck
@@ -27,26 +31,27 @@ std::map<std::string, ValidationVerb> kCodegenTokens = {
     {"Field", ValidationVerb::Field},
     // collectCodegenFlags
     {"Ignore", ValidationVerb::Ignore},
+#ifdef CODEGEN_ENUM_BITMASK
     {"Bitmask", ValidationVerb::Bitmask},
+#endif
 };
 
 const char* kCODEGEN = "CODEGEN";
-const char* kMDRReservedIterableStructs[] = {
-    "MDRPodArray",
-    "MDRArray",
-    "MDRFixedArray"
-};
+const char* kMDRReservedIterableStructs[] = {"MDRPodArray", "MDRArray", "MDRFixedArray"};
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 std::vector<std::string> gSource; // Source lines
 
-#define CHECK(EXPR, MSG) \
-    do { \
-        if (!(EXPR)) { \
-            fmt::print(stderr, "Error: {} at {}:{}\n", MSG, __FILE__, __LINE__); \
-            std::exit(1); \
-        } \
-    } while (0)
+#define CHECK(EXPR, MSG)                                                                                               \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (!(EXPR))                                                                                                   \
+        {                                                                                                              \
+            fmt::print(stderr, "Error: {} at {}:{}\n", MSG, __FILE__, __LINE__);                                       \
+            std::exit(1);                                                                                              \
+        }                                                                                                              \
+    }                                                                                                                  \
+    while (0)
 
 void trimCommentString(std::string& s)
 {
@@ -54,11 +59,12 @@ void trimCommentString(std::string& s)
         s.erase(s.begin(), s.begin() + s.find_last_of("/") + 1);
     if (s.find_first_of(" ") != std::string::npos)
         s.erase(s.begin(), s.begin() + s.find_first_of(" ") + 1);
-    while (!s.empty() && (s.back() == ' ' || s.back() == '\r' || s.back() == '\n')) s.pop_back();
+    while (!s.empty() && (s.back() == ' ' || s.back() == '\r' || s.back() == '\n'))
+        s.pop_back();
 }
 
 int gDepth = 0;
-std::string emitIndent(){ return std::basic_string(gDepth * 4, ' '); }
+std::string emitIndent() { return std::basic_string(gDepth * 4, ' '); }
 struct MethodVisitorResult
 {
     bool hasValidate = false;
@@ -94,16 +100,19 @@ uint32_t collectCodegenFlags(CXCursor cursor, std::string const& check)
         switch (verb)
         {
         case ValidationVerb::Ignore:
-        {
-            flags |= kValidationFlagIGNORE;
-            break;
-        }
+            {
+                flags |= kValidationFlagIGNORE;
+                break;
+            }
+#ifdef CODEGEN_ENUM_BITMASK
         case ValidationVerb::Bitmask:
-        {
-            flags |= kValidationFlagBITMASK;
+            {
+                flags |= kValidationFlagBITMASK;
+                break;
+            }
+#endif
+        default:
             break;
-        }
-        default:break;
         }
     }
     return flags;
@@ -122,34 +131,35 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
         switch (verb)
         {
         case ValidationVerb::EnumRange:
-        {
-            std::ostringstream cout;
-            cin >> tok;
-            while (true)
             {
-                cout << format("{} == {}", scopeFiledName, tok);
-                if (cin >> tok)
-                    cout << " || ";
-                else
-                    break;
+                std::ostringstream cout;
+                cin >> tok;
+                while (true)
+                {
+                    cout << format("{} == {}", scopeFiledName, tok);
+                    if (cin >> tok)
+                        cout << " || ";
+                    else
+                        break;
+                }
+                println("{}MDR_VALIDATE({});", emitIndent(), cout.str());
+                break;
             }
-            println("{}MDR_VALIDATE({});", emitIndent(), cout.str());
-            break;
-        }
         case ValidationVerb::Range:
-        {
-            int mn, mx;
-            cin >> mn >> mx;
-            println("{}MDR_VALIDATE({} >= {} && {} <= {});", emitIndent(), scopeFiledName, mn, scopeFiledName, mx);
-            break;
-        }
+            {
+                int mn, mx;
+                cin >> mn >> mx;
+                println("{}MDR_VALIDATE({} >= {} && {} <= {});", emitIndent(), scopeFiledName, mn, scopeFiledName, mx);
+                break;
+            }
         case ValidationVerb::Field:
-        {
-            cin >> tok;
-            scopeFiledName = format("{}.{}", scopeFiledName, tok);
+            {
+                cin >> tok;
+                scopeFiledName = format("{}.{}", scopeFiledName, tok);
+                break;
+            }
+        default:
             break;
-        }
-        default:break;
         }
     }
 }
@@ -201,18 +211,22 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         switch (typeKind)
         {
         case CXCursor_EnumDecl:
+        {
+#ifdef CODEGEN_ENUM_BITMASK
             if ((fieldValidationFlags & kValidationFlagBITMASK))
                 println("{}MDR_VALIDATE(is_valid_bitmask({}));", emitIndent(), newParentName);
             else
+#endif
                 println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
             break;
-        case CXCursor_StructDecl:
-        {
-            gVisitDepth++;
-            clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &CD);
-            gVisitDepth--;
-            break;
         }
+        case CXCursor_StructDecl:
+            {
+                gVisitDepth++;
+                clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &CD);
+                gVisitDepth--;
+                break;
+            }
         default:
             break;
         }
@@ -221,7 +235,8 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         if (gVisitDepth == 0)
             for (auto& check : gCodegenComments[clang_getCString(name)])
                 emitCodegenCheck(cursor, newParentName, check, fieldValidationFlags);
-    } else
+    }
+    else
     {
         println("{} /* FIXME: {} Validation explicitly removed!!! */", emitIndent(), newParentName);
     }
@@ -270,32 +285,32 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
     case CXCursor_Namespace:
         return CXChildVisit_Recurse;
     case CXCursor_StructDecl:
-    {
-        std::string parentStr = getFullParentName(parent);
-        if (parentStr != gNamespaceName)
-            return CXChildVisit_Continue;
-        CXString name = clang_getCursorSpelling(cursor);
-        std::string structName = clang_getCString(name);
-        MethodVisitorResult methods;
-        clang_visitChildren(cursor, methodVisitor, &methods);
-        // Emit Validate bodies
-        if (methods.hasValidate)
         {
-            gCodegenComments.clear();
-            // Collect comments
-            clang_visitChildren(cursor, fieldValidateVisitor, nullptr);
-            println("{}MDRResult<void> {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
-            gDepth++;
-            std::string firstParent = "data";
-            ValidateVisitorCD CD{&firstParent, kValidationFlagNONE};
-            clang_visitChildren(cursor, fieldValidateNestedVisitor, &CD);
-            println("{}return MDRResult<void>::Success();", emitIndent());
-            gDepth--;
-            println("{}}}", emitIndent());
+            std::string parentStr = getFullParentName(parent);
+            if (parentStr != gNamespaceName)
+                return CXChildVisit_Continue;
+            CXString name = clang_getCursorSpelling(cursor);
+            std::string structName = clang_getCString(name);
+            MethodVisitorResult methods;
+            clang_visitChildren(cursor, methodVisitor, &methods);
+            // Emit Validate bodies
+            if (methods.hasValidate)
+            {
+                gCodegenComments.clear();
+                // Collect comments
+                clang_visitChildren(cursor, fieldValidateVisitor, nullptr);
+                println("{}MDRResult<void> {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
+                gDepth++;
+                std::string firstParent = "data";
+                ValidateVisitorCD CD{&firstParent, kValidationFlagNONE};
+                clang_visitChildren(cursor, fieldValidateNestedVisitor, &CD);
+                println("{}return MDRResult<void>::Success();", emitIndent());
+                gDepth--;
+                println("{}}}", emitIndent());
+            }
+            clang_disposeString(name);
+            return CXChildVisit_Continue;
         }
-        clang_disposeString(name);
-        return CXChildVisit_Continue;
-    }
     default:
         return CXChildVisit_Continue;
     }
@@ -313,12 +328,8 @@ int main(int argc, char** argv)
     gSrc = argv[1];
     gNamespaceName = argv[2];
     CXIndex index = clang_createIndex(0, 0);
-    CXTranslationUnit unit = clang_parseTranslationUnit(
-        index,
-        gSrc.c_str(),
-        nullptr, 0,
-        nullptr, 0,
-        CXTranslationUnit_IncludeBriefCommentsInCodeCompletion);
+    CXTranslationUnit unit = clang_parseTranslationUnit(index, gSrc.c_str(), nullptr, 0, nullptr, 0,
+                                                        CXTranslationUnit_IncludeBriefCommentsInCodeCompletion);
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     // Read into gSource
     {

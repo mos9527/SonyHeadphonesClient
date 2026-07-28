@@ -214,9 +214,6 @@ namespace mdr::v2 {
            return false;
         }
     }
-    static bool is_valid_bitmask(MessageMdrV2EnableDisable value) {
-           return !(static_cast<uint8_t>(value) & 0xfe);
-    }
     static bool is_valid(MessageMdrV2OnOffSettingValue value) {
         using enum MessageMdrV2OnOffSettingValue;
         switch (value) {
@@ -226,9 +223,6 @@ namespace mdr::v2 {
         default:
            return false;
         }
-    }
-    static bool is_valid_bitmask(MessageMdrV2OnOffSettingValue value) {
-           return !(static_cast<uint8_t>(value) & 0xfe);
     }
     static bool is_valid(MessageMdrV2FunctionType_Table1 value) {
         using enum MessageMdrV2FunctionType_Table1;

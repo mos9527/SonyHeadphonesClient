@@ -212,6 +212,7 @@ namespace mdr::v2::t2 {
             case NOT_PLAYING: return "NOT_PLAYING";
             case IN_CALL: return "IN_CALL";
             case DETACHED: return "DETACHED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -365,9 +366,6 @@ namespace mdr::v2::t2 {
            return false;
         }
     }
-    static bool is_valid_bitmask(PeripheralBluetoothMode value) {
-           return !(static_cast<uint8_t>(value) & 0xfe);
-    }
     static bool is_valid(ConnectivityActionType value) {
         using enum ConnectivityActionType;
         switch (value) {
@@ -378,9 +376,6 @@ namespace mdr::v2::t2 {
         default:
            return false;
         }
-    }
-    static bool is_valid_bitmask(ConnectivityActionType value) {
-           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(PeripheralResult value) {
         using enum PeripheralResult;
@@ -479,13 +474,11 @@ namespace mdr::v2::t2 {
             case NOT_PLAYING:
             case IN_CALL:
             case DETACHED:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
-    }
-    static bool is_valid_bitmask(SafeListeningErrorCause value) {
-           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(SafeListeningTargetType value) {
         using enum SafeListeningTargetType;
@@ -497,9 +490,6 @@ namespace mdr::v2::t2 {
         default:
            return false;
         }
-    }
-    static bool is_valid_bitmask(SafeListeningTargetType value) {
-           return !(static_cast<uint8_t>(value) & 0xfc);
     }
     static bool is_valid(SafeListeningLogDataStatus value) {
         using enum SafeListeningLogDataStatus;
@@ -523,8 +513,5 @@ namespace mdr::v2::t2 {
         default:
            return false;
         }
-    }
-    static bool is_valid_bitmask(SafeListeningWHOStandardLevel value) {
-           return !(static_cast<uint8_t>(value) & 0xfe);
     }
 }
