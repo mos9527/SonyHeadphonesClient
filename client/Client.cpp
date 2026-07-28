@@ -642,6 +642,11 @@ void DrawDeviceConnecting()
 {
     assert(connState == CONN_STATE_CONNECTING);
     MDRConnection* conn = clientPlatformConnectionGet();
+    if (!conn)
+    {
+        connState = CONN_STATE_DISCONNECTED;
+        return;
+    }
     switch (mdrConnectionPoll(conn, 0))
     {
     case MDR_RESULT_OK:
