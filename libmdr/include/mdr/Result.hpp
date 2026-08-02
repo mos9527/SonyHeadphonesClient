@@ -5,12 +5,16 @@
 #include <type_traits>
 #include <utility>
 
+#if defined(MDR_DEBUG)
 #if defined(_MSC_VER)
 #define MDR_TRAP() __debugbreak()
 #elif defined(__clang__) && __has_builtin(__builtin_debugtrap)
 #define MDR_TRAP() __builtin_debugtrap()
 #else
 #define MDR_TRAP() __builtin_trap()
+#endif
+#else
+#define MDR_TRAP() ((void)0)
 #endif
 
 #define MDR_CHECK(expr) do { \
