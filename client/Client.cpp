@@ -13,6 +13,7 @@
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
 #include "Platform/Platform.hpp"
+#include "PayloadRecorder.hpp"
 using namespace mdr;
 
 ::MDRHeadphones* gDevice;
@@ -647,6 +648,7 @@ void DrawDeviceConnecting()
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
         gDevice = mdrHeadphonesCreate(conn);
+        clientPayloadRecorderAttach(gDevice);
         // Do an init - this should always be possible when @ref MDRHeadphones
         // is first created.
         if (mdrHeadphonesRequestInitV2(gDevice) != MDR_RESULT_OK)
@@ -706,7 +708,7 @@ void DrawDeviceControlsHeader()
                 mdrConnectionDisconnect(conn);
                 connState = CONN_STATE_NO_CONNECTION;
             }
-            if (GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::POWER_OFF))
+            if (GetDevice().mSupport.contains(v2::FunctionType_Table1::POWER_OFF))
             {
                 if (ImGui::MenuItem(PSI_OFF " Shutdown"))
                     GetDevice().mShutdown.desired = true;
@@ -723,7 +725,7 @@ void DrawDeviceControlsHeader()
         Array<Badge, 4> badges4;
         Badge *badgeFirst = &badges4[0], *badgeLast = &badges4[0];
         /* Codec */
-        if (GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CODEC_INDICATOR))
+        if (GetDevice().mSupport.contains(v2::FunctionType_Table1::CODEC_INDICATOR))
         {
             *(badgeLast++) = {FormatEnum(GetDevice().mAudioCodec), ~0u, ~0u};
         }
@@ -762,17 +764,17 @@ void DrawDeviceControlsHeader()
         /* Batteries */
         {
             bool supportSingle =
-                GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_INDICATOR);
+                GetDevice().mSupport.contains(v2::FunctionType_Table1::BATTERY_LEVEL_INDICATOR);
             supportSingle |=
-                GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD);
+                GetDevice().mSupport.contains(v2::FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD);
             bool supportLR =
-                GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR);
+                GetDevice().mSupport.contains(v2::FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR);
             supportLR |=
-                GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
+                GetDevice().mSupport.contains(v2::FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
             bool supportCase =
-                GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR);
+                GetDevice().mSupport.contains(v2::FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR);
             supportCase |=
-                GetDevice().mSupport.contains(v2::MessageMdrV2FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
+                GetDevice().mSupport.contains(v2::FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
             if (ImGui::BeginTable("##Battery", 2, ImGuiTableFlags_SizingStretchProp))
             {
                 if (supportSingle && !supportLR && GetDevice().mBatteryL.threshold)
@@ -864,7 +866,7 @@ void DrawDeviceControlsPlayback()
 
 void DrawDeviceControlsSound()
 {
-    using F1 = v2::MessageMdrV2FunctionType_Table1;
+    using F1 = v2::FunctionType_Table1;
     constexpr auto kSupports = [](auto x) { return GetDevice().mSupport.contains(x); };
     bool supportNC = kSupports(F1::NOISE_CANCELLING_ONOFF) ||
         kSupports(F1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
@@ -1050,7 +1052,7 @@ void DrawDeviceControlsSound()
 
 void DrawDeviceControlsDevices()
 {
-    using F2 = v2::MessageMdrV2FunctionType_Table2;
+    using F2 = v2::FunctionType_Table2;
     constexpr auto kSupports = [](auto x) { return GetDevice().mSupport.contains(x); };
     bool supportDeviceMgmt = kSupports(F2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
         kSupports(F2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT) ||
@@ -1125,7 +1127,7 @@ void DrawDeviceControlsDevices()
 
 void DrawDeviceControlsSystem()
 {
-    using F1 = v2::MessageMdrV2FunctionType_Table1;
+    using F1 = v2::FunctionType_Table1;
     constexpr auto kSupports = [](auto x) { return GetDevice().mSupport.contains(x); };
     /* General Settings */
     {
@@ -1262,7 +1264,7 @@ void DrawDeviceControlsSystem()
             ImGui::SeparatorText("Volume");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             if (kSupports(
-                    v2::MessageMdrV2FunctionType_Table2::
+                    v2::FunctionType_Table2::
                         VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
                 ImGui::SliderInt("##Volume", &GetDevice().mVoiceGuidanceVolume.desired, -2, 2);
             ImGui::TreePop();
@@ -1316,7 +1318,7 @@ void DrawDeviceControlsAbout()
         {
             for (int i = 0; i < 256; i++)
             {
-                auto elem = static_cast<v2::MessageMdrV2FunctionType_Table1>(i);
+                auto elem = static_cast<v2::FunctionType_Table1>(i);
                 if (!is_valid(elem))
                     continue;
                 ImGui::TableNextRow();
@@ -1335,7 +1337,7 @@ void DrawDeviceControlsAbout()
         {
             for (int i = 0; i < 256; i++)
             {
-                auto elem = static_cast<v2::MessageMdrV2FunctionType_Table2>(i);
+                auto elem = static_cast<v2::FunctionType_Table2>(i);
                 if (!is_valid(elem))
                     continue;
                 ImGui::TableNextRow();
@@ -1437,8 +1439,10 @@ void DrawDeviceDisconnect()
                   true, false);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
-        ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
-        ImGui::TextWrapped("Headphones: %s", mdrHeadphonesGetLastError(gDevice));
+        if (conn)
+            ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
+        if (gDevice)
+            ImGui::TextWrapped("Headphones: %s", mdrHeadphonesGetLastError(gDevice));
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton(PSI_LINK " Reconnect"))

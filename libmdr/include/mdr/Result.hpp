@@ -17,6 +17,11 @@
 #define MDR_TRAP() ((void)0)
 #endif
 
+#define MDR_STRINGIFY_IMPL(value) #value
+#define MDR_STRINGIFY(value) MDR_STRINGIFY_IMPL(value)
+#define MDR_SOURCE_LOCATION(message) \
+    message " [" __FILE__ ":" MDR_STRINGIFY(__LINE__) "]"
+
 #define MDR_CHECK(expr) do { \
 if (!(expr)) [[unlikely]] { \
 MDR_TRAP(); \
@@ -89,7 +94,8 @@ namespace mdr
         { \
             MDR_TRAP(); \
             return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
-                                                         mdrResult.errMessage ? mdrResult.errMessage : #__VA_ARGS__); \
+                                                         mdrResult.errMessage ? mdrResult.errMessage :                 \
+                                                         MDR_SOURCE_LOCATION(#__VA_ARGS__));                           \
         } \
     } while (false)
 
@@ -101,7 +107,8 @@ namespace mdr
         { \
             MDR_TRAP(); \
             return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
-                                                         mdrResult.errMessage ? mdrResult.errMessage : #__VA_ARGS__); \
+                                                         mdrResult.errMessage ? mdrResult.errMessage :                 \
+                                                         MDR_SOURCE_LOCATION(#__VA_ARGS__));                           \
         } \
         maxSize -= mdrResult.value; \
     } while (false)
@@ -111,6 +118,9 @@ namespace mdr
         if (!(__VA_ARGS__)) \
         { \
             MDR_TRAP(); \
-            return ::mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Validation failed: " #__VA_ARGS__); \
+            return ::mdr::MDRResult<void>::Failure(                                                                    \
+                MDR_RESULT_ERROR_MALFORMED_PAYLOAD,                                                                    \
+                MDR_SOURCE_LOCATION("Validation failed: " #__VA_ARGS__)                                               \
+            ); \
         } \
     } while (false)

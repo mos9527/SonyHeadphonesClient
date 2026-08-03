@@ -36,7 +36,7 @@ endif()
 
 if (MSVC)
     add_compile_options(/EHs-c-)
-    add_compile_definitions(_HAS_EXCEPTIONS=0)
+    add_compile_definitions(_HAS_EXCEPTIONS=0 _CRT_SECURE_NO_WARNINGS)
     # You might be surprised that even with enabling these flags, the final PE
     # would *still* contain Exception Unwind tables. And no - there's no way to remove them
     # from MSVC by itself.
@@ -86,11 +86,18 @@ if (MDR_BUILD_WITH_ASAN)
     endif ()
 endif ()
 
-option(MDR_DEBUG "Build with debug flags enabled" OFF)
+option(MDR_DEBUG "Build with debug flags enabled (also always on for Debug builds)" OFF)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(MDR_DEBUG ON)
+endif ()
+add_compile_definitions(
+    $<$<OR:$<BOOL:${MDR_DEBUG}>,$<CONFIG:Debug>>:MDR_DEBUG>
+    $<$<OR:$<BOOL:${MDR_DEBUG}>,$<CONFIG:Debug>>:_DEBUG>
+)
 if (MDR_DEBUG)
     message(STATUS "Debugging features *ON*. Enjoy the logs.")
-   add_compile_definitions(MDR_DEBUG)
-   add_compile_definitions(_DEBUG)
+elseif (CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Debugging features enabled for Debug configuration.")
 endif ()
 
 option(MDR_BLE "Build with BLE Backend support" ON)
@@ -130,3 +137,8 @@ endif()
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
 add_subdirectory(client)
+
+include(CTest)
+if (BUILD_TESTING)
+    add_subdirectory(libmdr/tests)
+endif()

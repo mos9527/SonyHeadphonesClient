@@ -84,6 +84,16 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE --target SonyHeadphonesClient
 
+    - name: Build tests
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE --target mdr_tests
+
+    - name: Run tests
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ctest --build-config $BUILD_TYPE --output-on-failure
+
     - name: Strip Symbols (Linux)
       if: runner.os == 'Linux'
       working-directory: ${{github.workspace}}

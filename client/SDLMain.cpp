@@ -8,6 +8,7 @@
 #include <SDL3/SDL_main.h>
 
 #include "Platform/Platform.hpp"
+#include "PayloadRecorder.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -81,8 +82,37 @@ void mainLoop()
 
 #define CLIENT_WINDOW_WIDTH 800
 #define CLIENT_WINDOW_HEIGHT 600
-int main(int, char**)
+int main(int argc, char** argv)
 {
+    if (argc > 2)
+    {
+        std::fprintf(
+            stderr,
+            "Usage: SonyHeadphonesClient [capture-folder]\n"
+        );
+        return 2;
+    }
+    if (argc == 2)
+    {
+        if (!clientPayloadRecorderConfigure(argv[1]))
+        {
+            std::fprintf(
+                stderr,
+                "Unable to prepare capture folder %s: %s\n",
+                argv[1],
+                SDL_GetError()
+            );
+            return 1;
+        }
+        std::fprintf(
+            stderr,
+            "Recording MDR packets to %s. Existing mdr-packet-*.bin "
+            "files were cleared. Captures may contain "
+            "device addresses, names, and playback metadata.\n",
+            argv[1]
+        );
+    }
+
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         printf("SDL_Init Error: %s\n", SDL_GetError());
@@ -114,6 +144,7 @@ int main(int, char**)
         ImGui::CreateContext();
     }
     ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
     // Setup Material You theme (Sony Sound Connect style)
     ImGui::StyleColorsDark(); // Base fallback
     MaterialYouTheme::ApplyDefault();

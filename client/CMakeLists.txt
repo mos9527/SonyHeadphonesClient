@@ -3,11 +3,11 @@ set(CLIENT_VERSION "2.0.0")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
 
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
-    if (MDR_DEBUG)
-        add_executable(SonyHeadphonesClient) # In MSVC this would build with CONSOLE subsystem
-    else()
-        add_executable(SonyHeadphonesClient WIN32)
-    endif()
+    add_executable(SonyHeadphonesClient)
+    # Console for Debug / MDR_DEBUG; WIN32 (GUI) otherwise — works with multi-config generators
+    set_target_properties(SonyHeadphonesClient PROPERTIES
+        WIN32_EXECUTABLE $<AND:$<NOT:$<BOOL:${MDR_DEBUG}>>,$<NOT:$<CONFIG:Debug>>>
+    )
     target_sources(SonyHeadphonesClient PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest")
 elseif (MDR_PLATFORM_OS STREQUAL "MACOS")
     add_executable(SonyHeadphonesClient MACOSX_BUNDLE)
@@ -23,6 +23,7 @@ target_sources(
         PRIVATE
         SDLMain.cpp
         Client.cpp
+        PayloadRecorder.cpp
         Fonts/PlexSansIcon.c
 )
 

@@ -6,6 +6,24 @@
  */
 typedef struct MDRHeadphones MDRHeadphones;
 
+typedef enum MDRPacketDirection
+{
+    MDR_PACKET_DIRECTION_RX = 0,
+    MDR_PACKET_DIRECTION_TX = 1,
+} MDRPacketDirection;
+
+/**
+ * @brief Synchronous callback for complete packed MDR wire frames.
+ * @note The frame pointer is valid only for the duration of the callback.
+ *       Copy it before returning if it must be retained.
+ */
+typedef void (*MDRPacketCallback)(
+    void* userData,
+    MDRPacketDirection direction,
+    const unsigned char* frame,
+    int frameSize
+);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,6 +36,16 @@ MDRHeadphones* mdrHeadphonesCreate(MDRConnection*);
  * @brief Destroy an MDRHeadphones instance and free its resources.
  */
 void mdrHeadphonesDestroy(MDRHeadphones*);
+/**
+ * @brief Observe every complete RX and TX MDR wire frame for this instance.
+ * @param callback Synchronous callback, or NULL to disable observation.
+ * @param userData Opaque pointer passed to callback.
+ */
+void mdrHeadphonesSetPacketCallback(
+    MDRHeadphones*,
+    MDRPacketCallback callback,
+    void* userData
+);
 /**
  * @breif Receive commands and process events. This is non-blocking, and should be
  *        run in - for example - your UI loop.

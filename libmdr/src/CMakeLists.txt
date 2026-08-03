@@ -11,6 +11,10 @@ include(FetchContent)
 FetchContent_MakeAvailable(fmt)
 
 set(GENERATED_SRCS
+    "${_GEN_SRC}/ProtocolV1T1Serialization.cpp"
+    "${_GEN_SRC}/ProtocolV1T1Validation.cpp"
+    "${_GEN_SRC}/ProtocolV1T2Serialization.cpp"
+    "${_GEN_SRC}/ProtocolV1T2Validation.cpp"
     "${_GEN_SRC}/ProtocolV2T1Serialization.cpp"
     "${_GEN_SRC}/ProtocolV2T1Validation.cpp"
     "${_GEN_SRC}/ProtocolV2T2Serialization.cpp"
@@ -36,6 +40,21 @@ if (COMMAND mdr_add_codegen)
         INPUT     "${_INC}/ProtocolV2.hpp"
         NAMESPACE "mdr::v2")
 
+    mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV1Enum.hpp"
+        TOOL      tooling_EnumCodegen
+        INPUT     "${_INC}/ProtocolV1.hpp"
+        NAMESPACE "mdr::v1")
+
+    mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV1T1Enum.hpp"
+        TOOL      tooling_EnumCodegen
+        INPUT     "${_INC}/ProtocolV1T1.hpp"
+        NAMESPACE "mdr::v1::t1")
+
+    mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV1T2Enum.hpp"
+        TOOL      tooling_EnumCodegen
+        INPUT     "${_INC}/ProtocolV1T2.hpp"
+        NAMESPACE "mdr::v1::t2")
+
     mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV2T1Enum.hpp"
         TOOL      tooling_EnumCodegen
         INPUT     "${_INC}/ProtocolV2T1.hpp"
@@ -51,6 +70,16 @@ if (COMMAND mdr_add_codegen)
         INPUT     "${_INC}/ProtocolV2T1.hpp"
         NAMESPACE "mdr::v2::t1")
 
+    mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV1T1Traits.hpp"
+        TOOL      tooling_TraitsCodegen
+        INPUT     "${_INC}/ProtocolV1T1.hpp"
+        NAMESPACE "mdr::v1::t1")
+
+    mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV1T2Traits.hpp"
+        TOOL      tooling_TraitsCodegen
+        INPUT     "${_INC}/ProtocolV1T2.hpp"
+        NAMESPACE "mdr::v1::t2")
+
     mdr_add_codegen(OUTPUT "${_GEN_INC}/ProtocolV2T2Traits.hpp"
         TOOL      tooling_TraitsCodegen
         INPUT     "${_INC}/ProtocolV2T2.hpp"
@@ -58,6 +87,11 @@ if (COMMAND mdr_add_codegen)
     
     add_custom_target(mdr_codegen_headers DEPENDS
         "${_GEN_INC}/Command.hpp"
+        "${_GEN_INC}/ProtocolV1Enum.hpp"
+        "${_GEN_INC}/ProtocolV1T1Enum.hpp"
+        "${_GEN_INC}/ProtocolV1T2Enum.hpp"
+        "${_GEN_INC}/ProtocolV1T1Traits.hpp"
+        "${_GEN_INC}/ProtocolV1T2Traits.hpp"
         "${_GEN_INC}/ProtocolV2Enum.hpp"
         "${_GEN_INC}/ProtocolV2T1Enum.hpp"
         "${_GEN_INC}/ProtocolV2T2Enum.hpp"
@@ -65,6 +99,18 @@ if (COMMAND mdr_add_codegen)
         "${_GEN_INC}/ProtocolV2T2Traits.hpp"
     )
     add_dependencies(mdr mdr_codegen_headers)
+
+    mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV1T1Serialization.cpp"
+        TOOL      tooling_SerializationCodegen
+        INPUT     "${_INC}/ProtocolV1T1.hpp"
+        NAMESPACE "mdr::v1::t1"
+        INCLUDE   "mdr/ProtocolV1T1.hpp")
+
+    mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV1T2Serialization.cpp"
+        TOOL      tooling_SerializationCodegen
+        INPUT     "${_INC}/ProtocolV1T2.hpp"
+        NAMESPACE "mdr::v1::t2"
+        INCLUDE   "mdr/ProtocolV1T2.hpp")
 
     mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV2T1Serialization.cpp"
         TOOL      tooling_SerializationCodegen
@@ -83,6 +129,18 @@ if (COMMAND mdr_add_codegen)
         INPUT     "${_INC}/ProtocolV2T1.hpp"
         NAMESPACE "mdr::v2::t1"
         INCLUDE   "mdr/ProtocolV2T1.hpp")
+
+    mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV1T1Validation.cpp"
+        TOOL      tooling_ValidationCodegen
+        INPUT     "${_INC}/ProtocolV1T1.hpp"
+        NAMESPACE "mdr::v1::t1"
+        INCLUDE   "mdr/ProtocolV1T1.hpp")
+
+    mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV1T2Validation.cpp"
+        TOOL      tooling_ValidationCodegen
+        INPUT     "${_INC}/ProtocolV1T2.hpp"
+        NAMESPACE "mdr::v1::t2"
+        INCLUDE   "mdr/ProtocolV1T2.hpp")
 
     mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV2T2Validation.cpp"
         TOOL      tooling_ValidationCodegen

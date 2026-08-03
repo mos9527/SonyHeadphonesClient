@@ -2,382 +2,850 @@
 #include <mdr/ProtocolV2T2.hpp>
 
 namespace mdr::v2::t2 {
-MDRResult<void> CommandBase::Validate(const CommandBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_GET_SUPPORT_FUNCTION);
-    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == ConnectInquiredType::FIXED_VALUE);
     return MDRResult<void>::Success();
 }
 MDRResult<void> ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_RET_SUPPORT_FUNCTION);
-    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == ConnectInquiredType::FIXED_VALUE);
     for (const auto& supportFunctions_elem : data.supportFunctions) {
     }
     return MDRResult<void>::Success();
 }
-MDRResult<void> PeripheralGetStatus::Validate(const PeripheralGetStatus& data) {
+MDRResult<void> LEAGetCapability::Validate(const LEAGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::PERI_GET_STATUS);
+    MDR_VALIDATE(data.command == Command::LEA_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEAGetParam::Validate(const LEAGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_GET_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> PeripheralBase::Validate(const PeripheralBase& data) {
+MDRResult<void> LEAGetStatus::Validate(const LEAGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_GET_STATUS);
     MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> PeripheralStatusPairingDeviceManagementCommon::Validate(const PeripheralStatusPairingDeviceManagementCommon& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_RET_STATUS || data.base.command == Command::PERI_SET_STATUS || data.base.command == Command::PERI_NTFY_STATUS);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT || data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
-    MDR_VALIDATE(is_valid(data.btMode));
-    MDR_VALIDATE(is_valid(data.enableDisableStatus));
+MDRResult<void> LEANotifyParam::Validate(const LEANotifyParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEANotifyParamLEAudioConnectionModeWithBTReconnection::Validate(const LEANotifyParamLEAudioConnectionModeWithBTReconnection& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.connectionMode));
+    MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
+    MDR_VALIDATE(is_valid(data.connectionResult));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEANotifyStatus::Validate(const LEANotifyStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEANotifyStatusCommon::Validate(const LEANotifyStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION);
+    MDR_VALIDATE(is_valid(data.enableDisable));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEANotifyStatusCommonUnavailableReason::Validate(const LEANotifyStatusCommonUnavailableReason& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.unavailableReason));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.streamingStatus));
+    MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetCapability::Validate(const LEARetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetCapabilityLEAudioConnectionModeWithBTReconnection::Validate(const LEARetCapabilityLEAudioConnectionModeWithBTReconnection& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& connectionModes_elem : data.connectionModes) {
+        MDR_VALIDATE(is_valid(connectionModes_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetCapabilityLEAudioSwitchSupportedCompatibility::Validate(const LEARetCapabilityLEAudioSwitchSupportedCompatibility& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetParam::Validate(const LEARetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetParamGetIdentityResolvingKey::Validate(const LEARetParamGetIdentityResolvingKey& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == LEAInquiredType::GET_IDENTITY_RESOLVING_KEY);
+    for (const auto& iRK_elem : data.iRK) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetParamLEAudioConnectionModeWithBTReconnection::Validate(const LEARetParamLEAudioConnectionModeWithBTReconnection& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.connectionMode));
+    MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetParamPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetParamPasSupportsA2dpLeaUniLeaBroad& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    MDR_VALIDATE(is_valid(data.pairedHistory));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetStatus::Validate(const LEARetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetStatusCommonUnavailableReason::Validate(const LEARetStatusCommonUnavailableReason& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.unavailableReason));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetStatusLEAudioConnectionModeWithBTReconnection::Validate(const LEARetStatusLEAudioConnectionModeWithBTReconnection& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == LEAInquiredType::LE_AUDIO_CONNECTION_MODE_WITH_BT_RECONNECTION);
+    MDR_VALIDATE(is_valid(data.enableDisable));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEARetStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetStatusPasSupportsA2dpLeaUniLeaBroad& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.streamingStatus));
+    MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEASetParam::Validate(const LEASetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEASetParamLEAudioConnectionModeWithBTReconnection::Validate(const LEASetParamLEAudioConnectionModeWithBTReconnection& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.connectionMode));
+    MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> LEASetParamLeAudioConnectionStateNotification::Validate(const LEASetParamLeAudioConnectionStateNotification& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::LEA_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.connectionState));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyGetCapability::Validate(const PartyGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyGetParam::Validate(const PartyGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyGetStatus::Validate(const PartyGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyParam::Validate(const PartyNotifyParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyParamDjControl::Validate(const PartyNotifyParamDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.effectItem));
+    for (const auto& customEQBandStepLevel_elem : data.customEQBandStepLevel) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyParamIllumination::Validate(const PartyNotifyParamIllumination& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    MDR_VALIDATE(is_valid(data.illuminationItem));
+    MDR_VALIDATE(data.illuminationItem == IlluminationItem::PARTY_FLASH);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyParamKaraoke::Validate(const PartyNotifyParamKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    for (const auto& settings_elem : data.settings) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyParamLiveKaraoke::Validate(const PartyNotifyParamLiveKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::LIVE_KARAOKE);
+    MDR_VALIDATE(is_valid(data.modeStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyStatus::Validate(const PartyNotifyStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyStatusCommon::Validate(const PartyNotifyStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.value2));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyStatusDjControl::Validate(const PartyNotifyStatusDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyStatusDjControlWithStatusDisableReason::Validate(const PartyNotifyStatusDjControlWithStatusDisableReason& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& disableReasonList_elem : data.disableReasonList) {
+        MDR_VALIDATE(is_valid(disableReasonList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyStatusKaraoke::Validate(const PartyNotifyStatusKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.pluggedStatus));
+    MDR_VALIDATE(is_valid(data.scoringStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyNotifyStatusKaraokeWithStatusDisableReason::Validate(const PartyNotifyStatusKaraokeWithStatusDisableReason& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(data.status == KaraokeItemsSamplersStatus::DISABLE);
+    MDR_VALIDATE(is_valid(data.pluggedStatus));
+    MDR_VALIDATE(is_valid(data.scoringStatus));
+    for (const auto& disableReasonList_elem : data.disableReasonList) {
+        MDR_VALIDATE(is_valid(disableReasonList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetCapability::Validate(const PartyRetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetCapabilityDjControl::Validate(const PartyRetCapabilityDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& effectItemList_elem : data.effectItemList) {
+        MDR_VALIDATE(is_valid(effectItemList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetCapabilityKaraoke::Validate(const PartyRetCapabilityKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    for (const auto& karaokeItemList_elem : data.karaokeItemList) {
+        MDR_VALIDATE(is_valid(karaokeItemList_elem));
+    }
+    for (const auto& samplerItemList_elem : data.samplerItemList) {
+        MDR_VALIDATE(is_valid(samplerItemList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetParam::Validate(const PartyRetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetParamDjControl::Validate(const PartyRetParamDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.effectItem));
+    for (const auto& customEQBandStepLevel_elem : data.customEQBandStepLevel) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetParamIllumination::Validate(const PartyRetParamIllumination& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    MDR_VALIDATE(is_valid(data.illuminationItem));
+    MDR_VALIDATE(data.illuminationItem == IlluminationItem::PARTY_FLASH);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetParamKaraoke::Validate(const PartyRetParamKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    for (const auto& settings_elem : data.settings) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetParamLiveKaraoke::Validate(const PartyRetParamLiveKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::LIVE_KARAOKE);
+    MDR_VALIDATE(is_valid(data.modeStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetStatus::Validate(const PartyRetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetStatusCommon::Validate(const PartyRetStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.value2));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetStatusDjControl::Validate(const PartyRetStatusDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetStatusDjControlWithStatusDisableReason::Validate(const PartyRetStatusDjControlWithStatusDisableReason& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& disableReasonList_elem : data.disableReasonList) {
+        MDR_VALIDATE(is_valid(disableReasonList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetStatusKaraoke::Validate(const PartyRetStatusKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.pluggedStatus));
+    MDR_VALIDATE(is_valid(data.scoringStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetStatusKaraokeWithStatusDisableReason::Validate(const PartyRetStatusKaraokeWithStatusDisableReason& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(data.status == KaraokeItemsSamplersStatus::DISABLE);
+    MDR_VALIDATE(is_valid(data.pluggedStatus));
+    MDR_VALIDATE(is_valid(data.scoringStatus));
+    for (const auto& disableReasonList_elem : data.disableReasonList) {
+        MDR_VALIDATE(is_valid(disableReasonList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetExtParam::Validate(const PartySetExtParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetExtParamDjControl::Validate(const PartySetExtParamDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.touchPadOperation));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetExtParamIllumination::Validate(const PartySetExtParamIllumination& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    MDR_VALIDATE(is_valid(data.touchPadOperation));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetExtParamKaraoke::Validate(const PartySetExtParamKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    MDR_VALIDATE(is_valid(data.samplerItem));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetParam::Validate(const PartySetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetParamDjControl::Validate(const PartySetParamDjControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.effectItem));
+    for (const auto& customEQBandStepLevel_elem : data.customEQBandStepLevel) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetParamIllumination::Validate(const PartySetParamIllumination& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    MDR_VALIDATE(is_valid(data.illumination));
+    MDR_VALIDATE(data.illumination == IlluminationItem::PARTY_FLASH);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetParamKaraoke::Validate(const PartySetParamKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    for (const auto& settings_elem : data.settings) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetParamLiveKaraoke::Validate(const PartySetParamLiveKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::LIVE_KARAOKE);
+    MDR_VALIDATE(is_valid(data.modeStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetStatus::Validate(const PartySetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartySetStatusKaraoke::Validate(const PartySetStatusKaraoke& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    MDR_VALIDATE(is_valid(data.scoringStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralGetCapability::Validate(const PeripheralGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralGetParam::Validate(const PeripheralGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_GET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-MDRResult<void> PeripheralParamPairingDeviceManagementClassicBt::Validate(const PeripheralParamPairingDeviceManagementClassicBt& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_RET_PARAM || data.base.command == Command::PERI_SET_PARAM || data.base.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT);
-    for (const auto& deviceList_elem : data.deviceList) {
-        MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
-        MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
-    }
+MDRResult<void> PeripheralGetStatus::Validate(const PeripheralGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-MDRResult<void> PeripheralParamSourceSwitchControl::Validate(const PeripheralParamSourceSwitchControl& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_RET_PARAM || data.base.command == Command::PERI_SET_PARAM || data.base.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
-    MDR_VALIDATE(is_valid(data.sourceKeeping));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_RET_PARAM || data.base.command == Command::PERI_SET_PARAM || data.base.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
-    for (const auto& deviceList_elem : data.deviceList) {
-        MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
-        MDR_VALIDATE(deviceList_elem.btFriendlyName.value.length() >= 0 && deviceList_elem.btFriendlyName.value.length() <= 128);
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> PeripheralParamMusicHandOverSetting::Validate(const PeripheralParamMusicHandOverSetting& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_RET_PARAM || data.base.command == Command::PERI_SET_PARAM || data.base.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
-    MDR_VALIDATE(is_valid(data.isOn));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> PeripheralSetExtendedParamParingDeviceManagementCommon::Validate(const PeripheralSetExtendedParamParingDeviceManagementCommon& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_SET_EXTENDED_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT || data.base.type == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
-    MDR_VALIDATE(is_valid(data.connectivityActionType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> PeripheralSetExtendedParamSourceSwitchControl::Validate(const PeripheralSetExtendedParamSourceSwitchControl& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_SET_EXTENDED_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+MDRResult<void> PeripheralNotifyExtendedParam::Validate(const PeripheralNotifyExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralNotifyExtendedParamParingDeviceManagementCommon::Validate(const PeripheralNotifyExtendedParamParingDeviceManagementCommon& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(is_valid(data.connectivityActionType));
     MDR_VALIDATE(is_valid(data.peripheralResult));
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const PeripheralNotifyExtendedParamSourceSwitchControl& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::PERI_NTFY_EXTENDED_PARAM);
-    MDR_VALIDATE(data.base.type == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
     MDR_VALIDATE(is_valid(data.result));
     return MDRResult<void>::Success();
 }
-MDRResult<void> VoiceGuidanceGetParam::Validate(const VoiceGuidanceGetParam& data) {
+MDRResult<void> PeripheralNotifyParam::Validate(const PeripheralNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> VoiceGuidanceBase::Validate(const VoiceGuidanceBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(is_valid(data.type));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> VoiceGuidanceParamSettingMtk::Validate(const VoiceGuidanceParamSettingMtk& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_GET_PARAM || data.base.command == Command::VOICE_GUIDANCE_RET_PARAM || data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH || data.base.type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH || data.base.type == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> VoiceGuidanceParamSettingSupportLangSwitch::Validate(const VoiceGuidanceParamSettingSupportLangSwitch& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_GET_PARAM || data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH || data.base.type == VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(is_valid(data.languageValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> VoiceGuidanceParamVolume::Validate(const VoiceGuidanceParamVolume& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_RET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::VOLUME || data.base.type == VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS);
-    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
-    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
-    return MDRResult<void>::Success();
-}
-MDRResult<void> VoiceGuidanceParamSettingOnOff::Validate(const VoiceGuidanceParamSettingOnOff& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_RET_PARAM || data.base.command == Command::VOICE_GUIDANCE_SET_PARAM || data.base.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::BATTERY_LV_VOICE || data.base.type == VoiceGuidanceInquiredType::POWER_ONOFF_SOUND || data.base.type == VoiceGuidanceInquiredType::SOUNDEFFECT_ULT_BEEP_ONOFF);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetParamVolume& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::VOICE_GUIDANCE_SET_PARAM);
-    MDR_VALIDATE(data.base.type == VoiceGuidanceInquiredType::VOLUME || data.base.type == VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS);
-    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
-    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
-    MDR_VALIDATE(is_valid(data.feedbackSound));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningGetCapability::Validate(const SafeListeningGetCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_GET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetCapability::Validate(const SafeListeningRetCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_CAPABILITY);
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningGetStatus::Validate(const SafeListeningGetStatus& data) {
+MDRResult<void> PeripheralNotifyParamMusicHandOverSetting::Validate(const PeripheralNotifyParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_GET_STATUS);
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralNotifyParamSourceSwitchControl::Validate(const PeripheralNotifyParamSourceSwitchControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    MDR_VALIDATE(is_valid(data.result));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralNotifyStatus::Validate(const PeripheralNotifyStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningBase::Validate(const SafeListeningBase& data) {
+MDRResult<void> PeripheralNotifyStatusParingDeviceManagementCommon::Validate(const PeripheralNotifyStatusParingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.btMode));
+    MDR_VALIDATE(is_valid(data.enableDisableStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetCapability::Validate(const PeripheralRetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetCapabilityParingDeviceManagementCommon::Validate(const PeripheralRetCapabilityParingDeviceManagementCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.maxOfPairedDevice >= 0 && data.maxOfPairedDevice <= 255);
+    MDR_VALIDATE(data.maxOfPairedDevice >= 0 && data.maxOfPairedDevice <= 255);
+    MDR_VALIDATE(data.maxOfConnectedDevice >= 0 && data.maxOfConnectedDevice <= 255);
+    MDR_VALIDATE(data.maxOfConnectedDevice >= 0 && data.maxOfConnectedDevice <= 255);
+    MDR_VALIDATE(is_valid(data.fileTransferInMultiConnection));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetParam::Validate(const PeripheralRetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetParamMusicHandOverSetting::Validate(const PeripheralRetParamMusicHandOverSetting& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetParamSourceSwitchControl::Validate(const PeripheralRetParamSourceSwitchControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetStatus::Validate(const PeripheralRetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetStatusPairingDeviceManagementCommon::Validate(const PeripheralRetStatusPairingDeviceManagementCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.btMode));
+    MDR_VALIDATE(is_valid(data.enableDisableStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetExtendedParam::Validate(const PeripheralSetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetExtendedParamParingDeviceManagementCommon::Validate(const PeripheralSetExtendedParamParingDeviceManagementCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.connectivityActionType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetExtendedParamSourceSwitchControl::Validate(const PeripheralSetExtendedParamSourceSwitchControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetParam::Validate(const PeripheralSetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetParamMusicHandOverSetting::Validate(const PeripheralSetParamMusicHandOverSetting& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetParamSourceSwitchControl::Validate(const PeripheralSetParamSourceSwitchControl& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetStatus::Validate(const PeripheralSetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralSetStatusParingDeviceManagementCommon::Validate(const PeripheralSetStatusParingDeviceManagementCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.btMode));
+    MDR_VALIDATE(is_valid(data.enableDisableStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerGetCapability::Validate(const PowerGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_GET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningRetStatusSL::Validate(const SafeListeningRetStatusSL& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetStatusHbs::Validate(const SafeListeningRetStatusHbs& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2);
-    MDR_VALIDATE(is_valid(data.logDataStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetStatusHbs1::Validate(const SafeListeningRetStatusHbs1& data) {
-    MDR_VALIDATE(is_valid(data.base.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatus));
-    MDR_VALIDATE(data.base.base.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1);
-    MDR_VALIDATE(is_valid(data.currentData.data.targetType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetStatusHbs2::Validate(const SafeListeningRetStatusHbs2& data) {
-    MDR_VALIDATE(is_valid(data.base.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatus));
-    MDR_VALIDATE(data.base.base.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2);
-    MDR_VALIDATE(is_valid(data.currentData.data.targetType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetStatusTws::Validate(const SafeListeningRetStatusTws& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.logDataStatusRight));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetStatusTws1::Validate(const SafeListeningRetStatusTws1& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusRight));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1);
-    MDR_VALIDATE(is_valid(data.currentDataLeft.data.targetType));
-    MDR_VALIDATE(is_valid(data.currentDataRight.data.targetType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningRetStatusTws2::Validate(const SafeListeningRetStatusTws2& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusRight));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_RET_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    MDR_VALIDATE(is_valid(data.currentDataLeft.data.targetType));
-    MDR_VALIDATE(is_valid(data.currentDataRight.data.targetType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetStatus::Validate(const SafeListeningSetStatus& data) {
+MDRResult<void> PowerGetParam::Validate(const PowerGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    MDR_VALIDATE(data.command == Command::POWER_GET_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningSetStatusSL::Validate(const SafeListeningSetStatusSL& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_SET_STATUS);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetStatusHbs::Validate(const SafeListeningSetStatusHbs& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_SET_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2);
-    MDR_VALIDATE(is_valid(data.logDataStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetStatusTws::Validate(const SafeListeningSetStatusTws& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_SET_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.logDataStatusRight));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetStatusSVC::Validate(const SafeListeningSetStatusSVC& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_SET_STATUS);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_VOLUME_CONTROL);
-    MDR_VALIDATE(is_valid(data.whoStandardLevel));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningNotifyStatus::Validate(const SafeListeningNotifyStatus& data) {
+MDRResult<void> PowerGetStatus::Validate(const PowerGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(data.command == Command::POWER_GET_STATUS);
     MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusSL::Validate(const SafeListeningNotifyStatusSL& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
+MDRResult<void> PowerNotifyParam::Validate(const PowerNotifyParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusHbs::Validate(const SafeListeningNotifyStatusHbs& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2);
-    MDR_VALIDATE(is_valid(data.logDataStatus));
+MDRResult<void> PowerNotifyParamSettingOnOff::Validate(const PowerNotifyParamSettingOnOff& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotifyStatusHbs1& data) {
-    MDR_VALIDATE(is_valid(data.base.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatus));
-    MDR_VALIDATE(data.base.base.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1);
-    for (const auto& data_elem : data.data) {
-        MDR_VALIDATE(is_valid(data_elem.data.targetType));
-    }
+MDRResult<void> PowerNotifyParamUsbSubmersion::Validate(const PowerNotifyParamUsbSubmersion& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == PowerInquiredType::USB_SUBMERSION);
+    MDR_VALIDATE(is_valid(data.userConfirmationStatus));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotifyStatusHbs2& data) {
-    MDR_VALIDATE(is_valid(data.base.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatus));
-    MDR_VALIDATE(data.base.base.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2);
-    for (const auto& data_elem : data.data) {
-        MDR_VALIDATE(is_valid(data_elem.data.targetType));
-    }
+MDRResult<void> PowerNotifyStatus::Validate(const PowerNotifyStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusTws::Validate(const SafeListeningNotifyStatusTws& data) {
-    MDR_VALIDATE(is_valid(data.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.type));
-    MDR_VALIDATE(data.base.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+MDRResult<void> PowerNotifyStatusCaringChargeWithThreshold::Validate(const PowerNotifyStatusCaringChargeWithThreshold& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
+    MDR_VALIDATE(is_valid(data.enableDisable));
+    MDR_VALIDATE(is_valid(data.noticeForBatteryNecessity));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotifyStatusTws1& data) {
-    MDR_VALIDATE(is_valid(data.base.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusRight));
-    MDR_VALIDATE(data.base.base.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1);
-    for (const auto& data_elem : data.data) {
-        MDR_VALIDATE(is_valid(data_elem.data.targetType));
-    }
+MDRResult<void> PowerNotifyStatusCommon::Validate(const PowerNotifyStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.enableDisable));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotifyStatusTws2& data) {
-    MDR_VALIDATE(is_valid(data.base.base.base.command));
-    MDR_VALIDATE(is_valid(data.base.base.base.type));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusLeft));
-    MDR_VALIDATE(is_valid(data.base.logDataStatusRight));
-    MDR_VALIDATE(data.base.base.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.base.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    for (const auto& data_elem : data.data) {
-        MDR_VALIDATE(is_valid(data_elem.data.targetType));
-    }
+MDRResult<void> PowerNotifyStatusUsbSubmersion::Validate(const PowerNotifyStatusUsbSubmersion& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == PowerInquiredType::USB_SUBMERSION);
+    MDR_VALIDATE(is_valid(data.usbSubmersionStatus));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningNotifyStatusSVC::Validate(const SafeListeningNotifyStatusSVC& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_VOLUME_CONTROL);
-    MDR_VALIDATE(is_valid(data.whoStandardLevel));
+MDRResult<void> PowerRetCapability::Validate(const PowerRetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetCapabilityAutoStandby::Validate(const PowerRetCapabilityAutoStandby& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.candidateElement));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetCapabilityCaringChargeWithThreshold::Validate(const PowerRetCapabilityCaringChargeWithThreshold& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetCapabilityUsbSubmersion::Validate(const PowerRetCapabilityUsbSubmersion& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PowerInquiredType::USB_SUBMERSION);
+    MDR_VALIDATE(is_valid(data.monitoringCapability));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetParam::Validate(const PowerRetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetParamSettingOnOff::Validate(const PowerRetParamSettingOnOff& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetStatus::Validate(const PowerRetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetStatusCaringChargeWithThreshold::Validate(const PowerRetStatusCaringChargeWithThreshold& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
+    MDR_VALIDATE(is_valid(data.enableDisable));
+    MDR_VALIDATE(is_valid(data.noticeForBatteryNecessity));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetStatusCommon::Validate(const PowerRetStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.enableDisable));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerRetStatusUsbSubmersion::Validate(const PowerRetStatusUsbSubmersion& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == PowerInquiredType::USB_SUBMERSION);
+    MDR_VALIDATE(is_valid(data.usbSubmersionStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerSetParam::Validate(const PowerSetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PowerSetParamSettingOnOff::Validate(const PowerSetParamSettingOnOff& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::POWER_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.onOffSettingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningGetExtendedParam::Validate(const SafeListeningGetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_GET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> SafeListeningGetParam::Validate(const SafeListeningGetParam& data) {
@@ -386,72 +854,1389 @@ MDRResult<void> SafeListeningGetParam::Validate(const SafeListeningGetParam& dat
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningRetParam::Validate(const SafeListeningRetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(is_valid(data.availability));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetParam::Validate(const SafeListeningSetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetParamSL::Validate(const SafeListeningSetParamSL& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_SET_PARAM);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
-    MDR_VALIDATE(is_valid(data.safeListeningMode));
-    MDR_VALIDATE(is_valid(data.previewMode));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SafeListeningSetParamSVC::Validate(const SafeListeningSetParamSVC& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_SET_PARAM);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_VOLUME_CONTROL);
-    MDR_VALIDATE(is_valid(data.volumeLimitationMode));
-    MDR_VALIDATE(is_valid(data.safeVolumeControlMode));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> SafeListeningNotifyParam::Validate(const SafeListeningNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyParamMaxVolLvLimit::Validate(const SafeListeningNotifyParamMaxVolLvLimit& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> SafeListeningNotifyParamSL::Validate(const SafeListeningNotifyParamSL& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_1 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_HBS_2 || data.base.type == SafeListeningInquiredType::SAFE_LISTENING_TWS_2);
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(is_valid(data.safeListeningMode));
     MDR_VALIDATE(is_valid(data.previewMode));
     return MDRResult<void>::Success();
 }
 MDRResult<void> SafeListeningNotifyParamSVC::Validate(const SafeListeningNotifyParamSVC& data) {
-    MDR_VALIDATE(is_valid(data.base.command));
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.command == Command::SAFE_LISTENING_NTFY_PARAM);
-    MDR_VALIDATE(data.base.type == SafeListeningInquiredType::SAFE_VOLUME_CONTROL);
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(is_valid(data.volumeLimitationMode));
     MDR_VALIDATE(is_valid(data.safeVolumeControlMode));
     return MDRResult<void>::Success();
 }
-MDRResult<void> SafeListeningGetExtendedParam::Validate(const SafeListeningGetExtendedParam& data) {
+MDRResult<void> SafeListeningNotifyStatus::Validate(const SafeListeningNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_GET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusMaxVolLvLimit::Validate(const SafeListeningNotifyStatusMaxVolLvLimit& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.onOff));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusSL::Validate(const SafeListeningNotifyStatusSL& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusSVC::Validate(const SafeListeningNotifyStatusSVC& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.wHOStandardLevel));
     return MDRResult<void>::Success();
 }
 MDRResult<void> SafeListeningRetExtendedParam::Validate(const SafeListeningRetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_EXTENDED_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.levelPerPeriod >= 0 && data.levelPerPeriod <= 255);
+    MDR_VALIDATE(data.levelPerPeriod >= 0 && data.levelPerPeriod <= 255);
     MDR_VALIDATE(is_valid(data.errorCause));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetParam::Validate(const SafeListeningRetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetParamMaxVolLvLimit::Validate(const SafeListeningRetParamMaxVolLvLimit& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetParamSL::Validate(const SafeListeningRetParamSL& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.availability));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatus::Validate(const SafeListeningRetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusMaxVolLvLimit::Validate(const SafeListeningRetStatusMaxVolLvLimit& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.onOff));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusSL::Validate(const SafeListeningRetStatusSL& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetParam::Validate(const SafeListeningSetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetParamMaxVolLvLimit::Validate(const SafeListeningSetParamMaxVolLvLimit& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetParamSL::Validate(const SafeListeningSetParamSL& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.safeListeningMode));
+    MDR_VALIDATE(is_valid(data.previewMode));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetParamSVC::Validate(const SafeListeningSetParamSVC& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.volumeLimitationMode));
+    MDR_VALIDATE(is_valid(data.safeVolumeControlMode));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetStatus::Validate(const SafeListeningSetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetStatusMaxVolLvLimit::Validate(const SafeListeningSetStatusMaxVolLvLimit& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.onOff));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetStatusSL::Validate(const SafeListeningSetStatusSL& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetStatusSVC::Validate(const SafeListeningSetStatusSVC& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.wHOStandardLevel));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetCapability::Validate(const SystemGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetCapabilityCommon::Validate(const SystemGetCapabilityCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetCapabilitySVACommand::Validate(const SystemGetCapabilitySVACommand& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetExtendedParam::Validate(const SystemGetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetExtendedParamCommon::Validate(const SystemGetExtendedParamCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetExtendedParamUsbBrowser::Validate(const SystemGetExtendedParamUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetParam::Validate(const SystemGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemGetStatus::Validate(const SystemGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyExtendedParam::Validate(const SystemNotifyExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyExtendedParamUsbBrowser::Validate(const SystemNotifyExtendedParamUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyExtendedParamUsbBrowserForDirectoryStatus::Validate(const SystemNotifyExtendedParamUsbBrowserForDirectoryStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    MDR_VALIDATE(data.informationType == UsbInformationType::DIRECTORY_STATUS);
+    MDR_VALIDATE(is_valid(data.currentLayerStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyExtendedParamUsbBrowserForFileStatus::Validate(const SystemNotifyExtendedParamUsbBrowserForFileStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    MDR_VALIDATE(data.informationType == UsbInformationType::FILE);
+    MDR_VALIDATE(is_valid(data.currentLayerStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParam::Validate(const SystemNotifyParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamAutoVolumeWithLimitation::Validate(const SystemNotifyParamAutoVolumeWithLimitation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::AUTO_VOLUME_WITH_LIMITATION);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    for (const auto& limitationTypeList_elem : data.limitationTypeList) {
+        MDR_VALIDATE(is_valid(limitationTypeList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamCommon::Validate(const SystemNotifyParamCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamFunctionChange::Validate(const SystemNotifyParamFunctionChange& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::FUNCTION_CHANGE);
+    MDR_VALIDATE(is_valid(data.function));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamLightingDefaultColorColorType::Validate(const SystemNotifyParamLightingDefaultColorColorType& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    MDR_VALIDATE(is_valid(data.colorType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamLightingDefaultColorCustomColor::Validate(const SystemNotifyParamLightingDefaultColorCustomColor& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_CUSTOM_COLOR);
+    MDR_VALIDATE(data.red >= 0 && data.red <= 255);
+    MDR_VALIDATE(data.red >= 0 && data.red <= 255);
+    MDR_VALIDATE(data.green >= 0 && data.green <= 255);
+    MDR_VALIDATE(data.green >= 0 && data.green <= 255);
+    MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
+    MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamLightingMode::Validate(const SystemNotifyParamLightingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_MODE);
+    MDR_VALIDATE(is_valid(data.lightingMode));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamLinkAutoSwitchForHeadsets::Validate(const SystemNotifyParamLinkAutoSwitchForHeadsets& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
+    MDR_VALIDATE(is_valid(data.linkAutoSwitchStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamLinkAutoSwitchForSpeaker::Validate(const SystemNotifyParamLinkAutoSwitchForSpeaker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    for (const auto& smartPhoneBDAddressList_elem : data.smartPhoneBDAddressList) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamMicOnOffByHeadphoneOperation::Validate(const SystemNotifyParamMicOnOffByHeadphoneOperation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    MDR_VALIDATE(is_valid(data.micOnOffByHeadphoneOperation));
+    MDR_VALIDATE(is_valid(data.micOffSoundEffect));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamQuickAccessEasySetting::Validate(const SystemNotifyParamQuickAccessEasySetting& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::QUICK_ACCESS_EASY_SETTING);
+    MDR_VALIDATE(is_valid(data.result));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamRepeatTapTrainingMode::Validate(const SystemNotifyParamRepeatTapTrainingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    MDR_VALIDATE(is_valid(data.key));
+    MDR_VALIDATE(is_valid(data.action));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamSVACommand::Validate(const SystemNotifyParamSVACommand& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    MDR_VALIDATE(is_valid(data.trainingModeOnOffValue));
+    MDR_VALIDATE(is_valid(data.detectType));
+    MDR_VALIDATE(data.detectType == SVADetectType::COMMAND);
+    MDR_VALIDATE(data.detectId >= 0 && data.detectId <= 255);
+    MDR_VALIDATE(data.detectId >= 0 && data.detectId <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamUsbBrowser::Validate(const SystemNotifyParamUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.usbBrowserCommand));
+    MDR_VALIDATE(is_valid(data.requestResult));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamUsbBrowserWithIndex::Validate(const SystemNotifyParamUsbBrowserWithIndex& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.usbBrowserCommand));
+    MDR_VALIDATE(is_valid(data.requestResult));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamUsbBrowserWithoutIndex::Validate(const SystemNotifyParamUsbBrowserWithoutIndex& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.usbBrowserCommand));
+    MDR_VALIDATE(is_valid(data.requestResult));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyStatus::Validate(const SystemNotifyStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyStatusCommon::Validate(const SystemNotifyStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyStatusLinkAutoSwitchForSpeaker::Validate(const SystemNotifyStatusLinkAutoSwitchForSpeaker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.stereoPairStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyStatusRepeatTapTrainingMode::Validate(const SystemNotifyStatusRepeatTapTrainingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyStatusWearingStatusChecker::Validate(const SystemNotifyStatusWearingStatusChecker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapability::Validate(const SystemRetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityFunctionChange::Validate(const SystemRetCapabilityFunctionChange& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::FUNCTION_CHANGE);
+    for (const auto& functions_elem : data.functions) {
+        MDR_VALIDATE(is_valid(functions_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityLightingDefaultColorColorType::Validate(const SystemRetCapabilityLightingDefaultColorColorType& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    for (const auto& colorTypeList_elem : data.colorTypeList) {
+        MDR_VALIDATE(is_valid(colorTypeList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityLightingMode::Validate(const SystemRetCapabilityLightingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_MODE);
+    for (const auto& lightingModeList_elem : data.lightingModeList) {
+        MDR_VALIDATE(is_valid(lightingModeList_elem));
+    }
+    for (const auto& exclusiveFunctionIdList_elem : data.exclusiveFunctionIdList) {
+        MDR_VALIDATE(is_valid(exclusiveFunctionIdList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityLinkAutoSwitchForSpeaker::Validate(const SystemRetCapabilityLinkAutoSwitchForSpeaker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityMicOnOffByHeadphoneOperation::Validate(const SystemRetCapabilityMicOnOffByHeadphoneOperation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    MDR_VALIDATE(is_valid(data.keyType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilitySVACommand& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    MDR_VALIDATE(is_valid(data.dataContinue));
+    MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
+    MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
+    for (const auto& data_elem : data.data) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch::Validate(const SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(is_valid(data.resumableStatus));
+    MDR_VALIDATE(is_valid(data.trueWirelessStatus));
+    MDR_VALIDATE(is_valid(data.bGTransferStatus));
+    for (const auto& supportLanguages_elem : data.supportLanguages) {
+        MDR_VALIDATE(is_valid(supportLanguages_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityUsbBrowser::Validate(const SystemRetCapabilityUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport::Validate(const SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityWearingDeviceInformation::Validate(const SystemRetCapabilityWearingDeviceInformation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_DEVICE_INFORMATION);
+    MDR_VALIDATE(is_valid(data.earphoneShape));
+    MDR_VALIDATE(data.numOfDeviceSupporter >= 1 && data.numOfDeviceSupporter <= 255);
+    MDR_VALIDATE(data.numOfDeviceSupporter >= 1 && data.numOfDeviceSupporter <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetExtendedParam::Validate(const SystemRetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetExtendedParamUsbBrowser::Validate(const SystemRetExtendedParamUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetExtendedParamUsbBrowserForDirectoryStatus::Validate(const SystemRetExtendedParamUsbBrowserForDirectoryStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    MDR_VALIDATE(data.informationType == UsbInformationType::DIRECTORY_STATUS);
+    MDR_VALIDATE(is_valid(data.currentLayerStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetExtendedParamUsbBrowserForFileStatus::Validate(const SystemRetExtendedParamUsbBrowserForFileStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    MDR_VALIDATE(data.informationType == UsbInformationType::FILE);
+    MDR_VALIDATE(is_valid(data.currentLayerStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetExtendedParamUsbBrowserForSize::Validate(const SystemRetExtendedParamUsbBrowserForSize& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.informationType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParam::Validate(const SystemRetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamAutoVolumeWithLimitation::Validate(const SystemRetParamAutoVolumeWithLimitation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::AUTO_VOLUME_WITH_LIMITATION);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    for (const auto& limitationTypeList_elem : data.limitationTypeList) {
+        MDR_VALIDATE(is_valid(limitationTypeList_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamCommon::Validate(const SystemRetParamCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamFunctionChange::Validate(const SystemRetParamFunctionChange& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::FUNCTION_CHANGE);
+    MDR_VALIDATE(is_valid(data.function));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamLightingDefaultColorColorType::Validate(const SystemRetParamLightingDefaultColorColorType& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    MDR_VALIDATE(is_valid(data.colorType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamLightingDefaultColorCustomColor::Validate(const SystemRetParamLightingDefaultColorCustomColor& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_CUSTOM_COLOR);
+    MDR_VALIDATE(data.red >= 0 && data.red <= 255);
+    MDR_VALIDATE(data.red >= 0 && data.red <= 255);
+    MDR_VALIDATE(data.green >= 0 && data.green <= 255);
+    MDR_VALIDATE(data.green >= 0 && data.green <= 255);
+    MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
+    MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamLightingMode::Validate(const SystemRetParamLightingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_MODE);
+    MDR_VALIDATE(is_valid(data.lightingMode));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamLinkAutoSwitchForHeadsets::Validate(const SystemRetParamLinkAutoSwitchForHeadsets& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
+    MDR_VALIDATE(is_valid(data.linkAutoSwitchStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamLinkAutoSwitchForSpeaker::Validate(const SystemRetParamLinkAutoSwitchForSpeaker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    for (const auto& smartPhoneBDAddressList_elem : data.smartPhoneBDAddressList) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamMicOnOffByHeadphoneOperation::Validate(const SystemRetParamMicOnOffByHeadphoneOperation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    MDR_VALIDATE(is_valid(data.micOnOffByHeadphoneOperation));
+    MDR_VALIDATE(is_valid(data.micOffSoundEffect));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetParamSVASettingMtkTransferSupportLanguageSwitch::Validate(const SystemRetParamSVASettingMtkTransferSupportLanguageSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    MDR_VALIDATE(is_valid(data.currentLanguage));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetStatus::Validate(const SystemRetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetStatusCommon::Validate(const SystemRetStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetStatusLinkAutoSwitchForSpeaker::Validate(const SystemRetStatusLinkAutoSwitchForSpeaker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    MDR_VALIDATE(is_valid(data.status));
+    MDR_VALIDATE(is_valid(data.stereoPairStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetStatusRepeatTapTrainingMode::Validate(const SystemRetStatusRepeatTapTrainingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetStatusWearingStatusChecker::Validate(const SystemRetStatusWearingStatusChecker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetExtendedParam::Validate(const SystemSetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetExtendedParamUsbBrowser::Validate(const SystemSetExtendedParamUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParam::Validate(const SystemSetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamCommon::Validate(const SystemSetParamCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamFunctionChange::Validate(const SystemSetParamFunctionChange& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::FUNCTION_CHANGE);
+    MDR_VALIDATE(is_valid(data.function));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamLightingDefaultColorColorType::Validate(const SystemSetParamLightingDefaultColorColorType& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    MDR_VALIDATE(is_valid(data.colorType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamLightingDefaultColorCustomColor::Validate(const SystemSetParamLightingDefaultColorCustomColor& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_DEFAULT_COLOR_CUSTOM_COLOR);
+    MDR_VALIDATE(data.red >= 0 && data.red <= 255);
+    MDR_VALIDATE(data.red >= 0 && data.red <= 255);
+    MDR_VALIDATE(data.green >= 0 && data.green <= 255);
+    MDR_VALIDATE(data.green >= 0 && data.green <= 255);
+    MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
+    MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamLightingMode::Validate(const SystemSetParamLightingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_MODE);
+    MDR_VALIDATE(is_valid(data.function));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamLinkAutoSwitchForHeadsets::Validate(const SystemSetParamLinkAutoSwitchForHeadsets& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
+    MDR_VALIDATE(is_valid(data.linkAutoSwitchStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamLinkAutoSwitchForSpeaker::Validate(const SystemSetParamLinkAutoSwitchForSpeaker& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    MDR_VALIDATE(is_valid(data.linkAutoSwitchAction));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamMicOnOffByHeadphoneOperation::Validate(const SystemSetParamMicOnOffByHeadphoneOperation& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    MDR_VALIDATE(is_valid(data.micOnOffByHeadphoneOperation));
+    MDR_VALIDATE(is_valid(data.micOffSoundEffect));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamQuickAccessEasySetting::Validate(const SystemSetParamQuickAccessEasySetting& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::QUICK_ACCESS_EASY_SETTING);
+    MDR_VALIDATE(is_valid(data.gattSetting));
+    for (const auto& presetList_elem : data.presetList) {
+        MDR_VALIDATE(is_valid(presetList_elem));
+    }
+    for (const auto& quickAccessFunctionList_elem : data.quickAccessFunctionList) {
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamSVACommand::Validate(const SystemSetParamSVACommand& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    MDR_VALIDATE(is_valid(data.trainingModeOnOffValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamUsbBrowser::Validate(const SystemSetParamUsbBrowser& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.usbBrowserCommand));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamUsbBrowserWithIndex::Validate(const SystemSetParamUsbBrowserWithIndex& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.usbBrowserCommand));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamUsbBrowserWithoutIndex::Validate(const SystemSetParamUsbBrowserWithoutIndex& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    MDR_VALIDATE(is_valid(data.usbBrowserCommand));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetParamWearingPositionJudgmentBySensor::Validate(const SystemSetParamWearingPositionJudgmentBySensor& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.judgmentModeOperation));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetStatus::Validate(const SystemSetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetStatusRepeatTapTrainingMode::Validate(const SystemSetStatusRepeatTapTrainingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    MDR_VALIDATE(is_valid(data.modeOperation));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemSetStatusSVASettingMtkSupportLanguageSwitch::Validate(const SystemSetStatusSVASettingMtkSupportLanguageSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceGetCapability::Validate(const VoiceGuidanceGetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceGetExtendedParam::Validate(const VoiceGuidanceGetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceGetParam::Validate(const VoiceGuidanceGetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceGetStatus::Validate(const VoiceGuidanceGetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceGetStatusCommon::Validate(const VoiceGuidanceGetStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceGetStatusCommonWithStatusType::Validate(const VoiceGuidanceGetStatusCommonWithStatusType& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceNotifyStatus::Validate(const VoiceGuidanceNotifyStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceNotifyStatusCommon::Validate(const VoiceGuidanceNotifyStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceNotifyStatusSettingSupportLangSwitch::Validate(const VoiceGuidanceNotifyStatusSettingSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetCapability::Validate(const VoiceGuidanceRetCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetCapabilitySettingMtk::Validate(const VoiceGuidanceRetCapabilitySettingMtk& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(is_valid(data.resumableStatus));
+    MDR_VALIDATE(is_valid(data.trueWirelessStatus));
+    MDR_VALIDATE(is_valid(data.bGTransferStatus));
+    MDR_VALIDATE(is_valid(data.supportOnOffSwitch));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(is_valid(data.resumableStatus));
+    MDR_VALIDATE(is_valid(data.trueWirelessStatus));
+    MDR_VALIDATE(is_valid(data.bGTransferStatus));
+    MDR_VALIDATE(is_valid(data.supportOnOffSwitch));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch::Validate(const VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
+    MDR_VALIDATE(is_valid(data.resumableStatus));
+    MDR_VALIDATE(is_valid(data.trueWirelessStatus));
+    MDR_VALIDATE(is_valid(data.bGTransferStatus));
+    MDR_VALIDATE(is_valid(data.supportOnOffSwitch));
+    for (const auto& supportLanguages_elem : data.supportLanguages) {
+        MDR_VALIDATE(is_valid(supportLanguages_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetCapabilitySettingSupportLangSwitch::Validate(const VoiceGuidanceRetCapabilitySettingSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.supportOnOffSwitch));
+    for (const auto& supportLanguages_elem : data.supportLanguages) {
+        MDR_VALIDATE(is_valid(supportLanguages_elem));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetExtendedParam::Validate(const VoiceGuidanceRetExtendedParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetParam::Validate(const VoiceGuidanceRetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetParamSettingMtk::Validate(const VoiceGuidanceRetParamSettingMtk& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch::Validate(const VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    MDR_VALIDATE(is_valid(data.currentLanguage));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetParamSettingOnOff::Validate(const VoiceGuidanceRetParamSettingOnOff& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetParamVolume::Validate(const VoiceGuidanceRetParamVolume& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOLUME);
+    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
+    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetStatus::Validate(const VoiceGuidanceRetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetStatusCommon::Validate(const VoiceGuidanceRetStatusCommon& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetStatusSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceRetStatusSettingMtkSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetStatusSettingSupportLangSwitch::Validate(const VoiceGuidanceRetStatusSettingSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetParam::Validate(const VoiceGuidanceSetParam& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetParamSettingMtk::Validate(const VoiceGuidanceSetParamSettingMtk& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetParamSettingOnOff::Validate(const VoiceGuidanceSetParamSettingOnOff& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
+    MDR_VALIDATE(is_valid(data.settingValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetParamSettingSupportLangSwitch::Validate(const VoiceGuidanceSetParamSettingSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.settingValue));
+    MDR_VALIDATE(is_valid(data.languageValue));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetParamVolume& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOLUME);
+    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
+    MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
+    MDR_VALIDATE(is_valid(data.feedbackSound));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetStatus::Validate(const VoiceGuidanceSetStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceSetStatusSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceSetStatusSettingMtkSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
+    MDR_VALIDATE(is_valid(data.statusType));
+    MDR_VALIDATE(is_valid(data.status));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PartyRetCapabilityIllumination::Validate(const PartyRetCapabilityIllumination& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    for (const auto& partyIlluminationInfoList_elem : data.partyIlluminationInfoList) {
+        MDR_VALIDATE(is_valid(partyIlluminationInfoList_elem.illuminationItem));
+        MDR_VALIDATE(is_valid(partyIlluminationInfoList_elem.colorElement));
+        MDR_VALIDATE(is_valid(partyIlluminationInfoList_elem.palettePattern));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralNotifyParamPairingDeviceManagementClassicBt::Validate(const PeripheralNotifyParamPairingDeviceManagementClassicBt& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& deviceInfo_elem : data.deviceInfo) {
+    }
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& deviceInfo_elem : data.deviceInfo) {
+    }
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetParamPairingDeviceManagementClassicBt::Validate(const PeripheralRetParamPairingDeviceManagementClassicBt& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& deviceInfo_elem : data.deviceInfo) {
+    }
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& deviceInfo_elem : data.deviceInfo) {
+    }
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusHbs::Validate(const SafeListeningNotifyStatusHbs& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
+        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotifyStatusHbs1& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
+        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
+    }
+    for (const auto& logDataList_elem : data.logDataList) {
+        MDR_VALIDATE(is_valid(logDataList_elem.targetType));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotifyStatusHbs2& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
+        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
+    }
+    for (const auto& logDataList_elem : data.logDataList) {
+        MDR_VALIDATE(is_valid(logDataList_elem.targetType));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusTws::Validate(const SafeListeningNotifyStatusTws& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
+        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotifyStatusTws1& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
+        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
+    }
+    for (const auto& logDataList_elem : data.logDataList) {
+        MDR_VALIDATE(is_valid(logDataList_elem.targetType));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotifyStatusTws2& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
+        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
+    }
+    for (const auto& logDataList_elem : data.logDataList) {
+        MDR_VALIDATE(is_valid(logDataList_elem.targetType));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusHbs::Validate(const SafeListeningRetStatusHbs& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusHbs1::Validate(const SafeListeningRetStatusHbs1& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
+    MDR_VALIDATE(is_valid(data.currentData.targetType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusHbs2::Validate(const SafeListeningRetStatusHbs2& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
+    MDR_VALIDATE(is_valid(data.currentData.targetType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusTws::Validate(const SafeListeningRetStatusTws& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
+    MDR_VALIDATE(is_valid(data.safeListeningData2.targetType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusTws1::Validate(const SafeListeningRetStatusTws1& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
+    MDR_VALIDATE(is_valid(data.safeListeningData2.targetType));
+    MDR_VALIDATE(is_valid(data.currentDataLeft.targetType));
+    MDR_VALIDATE(is_valid(data.currentDataRight.targetType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningRetStatusTws2::Validate(const SafeListeningRetStatusTws2& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
+    MDR_VALIDATE(is_valid(data.safeListeningInquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
+    MDR_VALIDATE(is_valid(data.safeListeningData2.targetType));
+    MDR_VALIDATE(is_valid(data.currentDataLeft.targetType));
+    MDR_VALIDATE(is_valid(data.currentDataRight.targetType));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetStatusHbs::Validate(const SafeListeningSetStatusHbs& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatus));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SafeListeningSetStatusTws::Validate(const SafeListeningSetStatusTws& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(is_valid(data.logDataStatusLeft));
+    MDR_VALIDATE(is_valid(data.logDataStatusRight));
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemNotifyParamWearingPositionJudgmentBySensor::Validate(const SystemNotifyParamWearingPositionJudgmentBySensor& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_POSITION_JUDGMENT_BY_SENSOR);
+    MDR_VALIDATE(is_valid(data.wearingPositionOperationStatus));
+    for (const auto& leftSideParameterList_elem : data.leftSideParameterList) {
+        MDR_VALIDATE(is_valid(leftSideParameterList_elem.wearingPositionResultCode));
+        MDR_VALIDATE(is_valid(leftSideParameterList_elem.resultCodeValue));
+    }
+    for (const auto& rightSideParameterList_elem : data.rightSideParameterList) {
+        for (const auto& axisXBytes_elem : rightSideParameterList_elem.axisXBytes) {
+        }
+        for (const auto& axisYBytes_elem : rightSideParameterList_elem.axisYBytes) {
+        }
+        for (const auto& axisZBytes_elem : rightSideParameterList_elem.axisZBytes) {
+        }
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetCapabilityRepeatTapTrainingMode::Validate(const SystemRetCapabilityRepeatTapTrainingMode& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
+    MDR_VALIDATE(is_valid(data.type));
+    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    for (const auto& keys_elem : data.keys) {
+        MDR_VALIDATE(is_valid(keys_elem.key));
+        MDR_VALIDATE(is_valid(keys_elem.type));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch::Validate(const SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    for (const auto& serviceInformationList_elem : data.serviceInformationList) {
+        MDR_VALIDATE(is_valid(serviceInformationList_elem.language));
+    }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    for (const auto& serviceInformationList_elem : data.serviceInformationList) {
+        MDR_VALIDATE(is_valid(serviceInformationList_elem.language));
+    }
     return MDRResult<void>::Success();
 }
 }

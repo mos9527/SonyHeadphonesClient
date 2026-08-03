@@ -6,6 +6,15 @@ namespace mdr
     using namespace v2;
     using namespace t2;
 
+    template <typename T>
+    bool ReadInquiredType(Span<const UInt8> cmd, T& out)
+    {
+        if (cmd.size() < 2)
+            return false;
+        out = static_cast<T>(cmd[1]);
+        return true;
+    }
+
     int HandleSupportFunctionT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(ConnectRetSupportFunction, res, cmd);
@@ -18,19 +27,21 @@ namespace mdr
 
     int HandleVoiceGuidanceParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        Deserialize(VoiceGuidanceBase, base, cmd);
+        VoiceGuidanceInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         using enum VoiceGuidanceInquiredType;
-        switch (base.type)
+        switch (type)
         {
         case MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
         {
-            Deserialize(VoiceGuidanceParamSettingMtk, res, cmd);
-            self->mVoiceGuidanceEnabled.overwrite(res.settingValue == MessageMdrV2OnOffSettingValue::ON);
+            Deserialize(VoiceGuidanceRetParamSettingMtk, res, cmd);
+            self->mVoiceGuidanceEnabled.overwrite(res.settingValue == OnOffSettingValue::ON);
             return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE;
         }
         case VOLUME:
         {
-            Deserialize(VoiceGuidanceParamVolume, res, cmd);
+            Deserialize(VoiceGuidanceRetParamVolume, res, cmd);
             self->mVoiceGuidanceVolume.overwrite(res.volumeValue);
             return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_VOLUME;
         }
@@ -42,14 +53,25 @@ namespace mdr
 
     int HandlePeripheralStatusT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        Deserialize(PeripheralBase, base, cmd);
+        PeripheralInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         using enum PeripheralInquiredType;
-        switch (base.type)
+        switch (type)
         {
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
-            Deserialize(PeripheralStatusPairingDeviceManagementCommon, res, cmd);
-            self->mPairingMode.overwrite(res.enableDisableStatus == MessageMdrV2EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+            const auto command = static_cast<Command>(cmd[0]);
+            if (command == Command::PERI_NTFY_STATUS)
+            {
+                Deserialize(PeripheralNotifyStatusParingDeviceManagementCommon, res, cmd);
+                self->mPairingMode.overwrite(res.enableDisableStatus == EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+            }
+            else
+            {
+                Deserialize(PeripheralRetStatusPairingDeviceManagementCommon, res, cmd);
+                self->mPairingMode.overwrite(res.enableDisableStatus == EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+            }
             return MDR_HEADPHONES_EVT_BLUETOOTH_MODE;
         }
         default:
@@ -60,9 +82,11 @@ namespace mdr
 
     int HandlePeripheralNotifyExtendedParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        Deserialize(PeripheralBase, base, cmd);
+        PeripheralInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         using enum PeripheralInquiredType;
-        switch (base.type)
+        switch (type)
         {
         case SOURCE_SWITCH_CONTROL:
         {
@@ -78,38 +102,74 @@ namespace mdr
 
     int HandlePeripheralParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        Deserialize(PeripheralBase, base, cmd);
+        PeripheralInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         using enum PeripheralInquiredType;
-        switch (base.type)
+        switch (type)
         {
         case PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
         {
-            Deserialize(PeripheralParamPairingDeviceManagementClassicBt, res, cmd);
-            self->mPairedDevicesPlaybackDeviceID = res.playbackDevice;
-            self->mPairedDevices.resize(res.deviceList.size());
+            const auto command = static_cast<Command>(cmd[0]);
+            if (command == Command::PERI_NTFY_PARAM)
+            {
+                Deserialize(PeripheralNotifyParamPairingDeviceManagementClassicBt, res, cmd);
+                self->mPairedDevicesPlaybackDeviceID = res.playbackrightDevice;
+                self->mPairedDevices.resize(res.deviceInfo.size());
+                for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
+                {
+                    auto& mac = res.deviceInfo.value[i].btDeviceAddress;
+                    self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
+                    self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
+                    self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
+                    if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
+                        self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
+                }
+                return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
+            }
+            Deserialize(PeripheralRetParamPairingDeviceManagementClassicBt, res, cmd);
+            self->mPairedDevicesPlaybackDeviceID = res.playbackrightDevice;
+            self->mPairedDevices.resize(res.deviceInfo.size());
             for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
             {
-                auto& mac = res.deviceList.value[i].btDeviceAddress;
+                auto& mac = res.deviceInfo.value[i].btDeviceAddress;
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
-                self->mPairedDevices[i].name = res.deviceList.value[i].btFriendlyName.value;
-                self->mPairedDevices[i].connected = res.deviceList.value[i].connectedStatus;
-                if (res.deviceList.value[i].connectedStatus == res.playbackDevice)
+                self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
+                self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
+                if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
                     self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
             }
             return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
         }
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
-            Deserialize(PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice, res, cmd);
-            self->mPairedDevicesPlaybackDeviceID = res.playbackDevice;
-            self->mPairedDevices.resize(res.deviceList.size());
+            const auto command = static_cast<Command>(cmd[0]);
+            if (command == Command::PERI_NTFY_PARAM)
+            {
+                Deserialize(PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice, res, cmd);
+                self->mPairedDevicesPlaybackDeviceID = res.playbackrightDevice;
+                self->mPairedDevices.resize(res.deviceInfo.size());
+                for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
+                {
+                    auto& mac = res.deviceInfo.value[i].btDeviceAddress;
+                    self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
+                    self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
+                    self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
+                    if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
+                        self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
+                }
+                return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
+            }
+            Deserialize(PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice, res, cmd);
+            self->mPairedDevicesPlaybackDeviceID = res.playbackrightDevice;
+            self->mPairedDevices.resize(res.deviceInfo.size());
             for (size_t i = 0; i < self->mPairedDevices.size(); ++i)
             {
-                auto& mac = res.deviceList.value[i].btDeviceAddress;
+                auto& mac = res.deviceInfo.value[i].btDeviceAddress;
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
-                self->mPairedDevices[i].name = res.deviceList.value[i].btFriendlyName.value;
-                self->mPairedDevices[i].connected = res.deviceList.value[i].connectedStatus;
-                if (res.deviceList.value[i].connectedStatus == res.playbackDevice)
+                self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
+                self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
+                if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
                     self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
             }
             return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
@@ -122,9 +182,11 @@ namespace mdr
 
     int HandleSafeListeningParamsT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        Deserialize(SafeListeningNotifyParam, base, cmd);
+        SafeListeningInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_HEADPHONES_EVT_UNHANDLED;
         using enum SafeListeningInquiredType;
-        switch (base.type)
+        switch (type)
         {
         case SAFE_LISTENING_HBS_1:
         case SAFE_LISTENING_HBS_2:
@@ -132,7 +194,7 @@ namespace mdr
         case SAFE_LISTENING_TWS_2:
         {
             Deserialize(SafeListeningNotifyParamSL, res, cmd);
-            self->mSafeListeningPreviewMode.overwrite(res.previewMode == MessageMdrV2EnableDisable::ENABLE);
+            self->mSafeListeningPreviewMode.overwrite(res.previewMode == OnOffSettingValue::ON);
             return MDR_HEADPHONES_EVT_SAFE_LISTENING_PARAM;
         }
         default:
@@ -152,13 +214,14 @@ namespace mdr
     {
         auto* self = this;
         using enum Command;
-        Deserialize(CommandBase, base, cmd);
-        switch (base.command)
+        if (cmd.empty())
+            return MDR_HEADPHONES_EVT_UNHANDLED;
+        const auto command = static_cast<Command>(cmd[0]);
+        switch (command)
         {
         case CONNECT_RET_SUPPORT_FUNCTION:
             return HandleSupportFunctionT2(this, cmd);
         case VOICE_GUIDANCE_RET_PARAM:
-        case VOICE_GUIDANCE_NTFY_PARAM:
             return HandleVoiceGuidanceParamT2(this, cmd);
         case PERI_RET_STATUS:
         case PERI_NTFY_STATUS:
@@ -173,7 +236,7 @@ namespace mdr
         case SAFE_LISTENING_RET_EXTENDED_PARAM:
             return HandleSafeListeningExtendedParamT2(this, cmd);
         default:
-            MDR_LOG_DEBUG("** Unhandled {}", base.command);
+            MDR_LOG_DEBUG("** Unhandled {}", command);
             break;
         }
         return MDR_HEADPHONES_EVT_UNHANDLED;

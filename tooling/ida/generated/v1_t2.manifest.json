@@ -1,0 +1,1491 @@
+{
+  "binary_fingerprint": "d615ff298e1070328d5704eb54655bebe03ddf7fed512375ac3b388467dfe8f0",
+  "candidates": [
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2ActionType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013E80E4",
+        "0x1013E7C78"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2Command",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013DA824",
+        "0x1013DA14C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2DetailedDataType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013CBC24",
+        "0x1013CB88C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2DownloadServerMethod",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013CA094",
+        "0x1013C9CFC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2FileTransferInMultiConnection",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013E9CD8",
+        "0x1013E986C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetPeripheralCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013E3064",
+        "0x1013E3638",
+        "0x1013E32B8",
+        "0x1013E3354"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralCapability",
+      "source_addresses": [
+        "0x1013E3268",
+        "0x1013E32B8",
+        "0x1013E3354",
+        "0x1013E3638",
+        "0x1013E37BC"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralCapability",
+      "source_addresses": [
+        "0x1013E3CD8",
+        "0x1013E3D04",
+        "0x1013E3D30"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetPeripheralParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013E6300",
+        "0x1013E68D4",
+        "0x1013E6554",
+        "0x1013E65F0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralParam",
+      "source_addresses": [
+        "0x1013E6504",
+        "0x1013E6554",
+        "0x1013E65F0",
+        "0x1013E68D4",
+        "0x1013E6A54"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralParam",
+      "source_addresses": [
+        "0x1013E6EAC",
+        "0x1013E6ED8",
+        "0x1013E6F04"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013DCE90",
+        "0x1013DD464",
+        "0x1013DD0E4",
+        "0x1013DD180"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralStatus",
+      "source_addresses": [
+        "0x1013DD094",
+        "0x1013DD0E4",
+        "0x1013DD180",
+        "0x1013DD464",
+        "0x1013DD5E8"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralStatus",
+      "source_addresses": [
+        "0x1013DDB04",
+        "0x1013DDB30",
+        "0x1013DDB5C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BDA64",
+        "0x1013BE2AC",
+        "0x1013BDEC8",
+        "0x1013BE108"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceCapability",
+      "source_addresses": [
+        "0x1013BDE78",
+        "0x1013BDEC8",
+        "0x1013BE108",
+        "0x1013BE2AC",
+        "0x1013BE430"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceCapability",
+      "source_addresses": [
+        "0x1013BE94C",
+        "0x1013BE978",
+        "0x1013BE9A4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D7538",
+        "0x1013D7D80",
+        "0x1013D7920",
+        "0x1013D7BDC"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013D78D0",
+        "0x1013D7920",
+        "0x1013D7BDC",
+        "0x1013D7D80",
+        "0x1013D7F44"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013D84CC",
+        "0x1013D84F8",
+        "0x1013D8524"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013C0968",
+        "0x1013C10EC",
+        "0x1013C0C8C",
+        "0x1013C0F48"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013C0C3C",
+        "0x1013C0C8C",
+        "0x1013C0F48",
+        "0x1013C10EC",
+        "0x1013C12B0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013C1838",
+        "0x1013C1864",
+        "0x1013C1890"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013DDD58",
+        "0x1013DE2E0",
+        "0x1013DDFAC",
+        "0x1013DE100"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013EAE84",
+        "0x1013EB3FC",
+        "0x1013EB0D8",
+        "0x1013EB214"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013F2878",
+        "0x1013F2E0C",
+        "0x1013F2B9C",
+        "0x1013F2C38"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "source_addresses": [
+        "0x1013F2B4C",
+        "0x1013F2B9C",
+        "0x1013F2C38",
+        "0x1013F2E0C",
+        "0x1013F3094"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        "0x1013EB088",
+        "0x1013EB0D8",
+        "0x1013EB214",
+        "0x1013EB3FC",
+        "0x1013EB4DC"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParam",
+      "source_addresses": [
+        "0x1013DDF5C",
+        "0x1013DDFAC",
+        "0x1013DE100",
+        "0x1013DE2E0",
+        "0x1013DE3BC"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParam",
+      "source_addresses": [
+        "0x1013DE8D8",
+        "0x1013DE904",
+        "0x1013DE930"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013E22D4",
+        "0x1013E285C",
+        "0x1013E2528",
+        "0x1013E267C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013EE91C",
+        "0x1013EF7B0",
+        "0x1013EF0CC",
+        "0x1013EF168"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_1",
+      "reason": "non-wire class with no recoverable serialized fields",
+      "source_addresses": [
+        "0x1013EEE24",
+        "0x1013EEE50",
+        "0x1013EEEEC",
+        "0x1013EEF14",
+        "0x1013EEF44",
+        "0x1013EEF7C",
+        "0x1013EEFAC",
+        "0x1013EEFDC",
+        "0x1013EF00C",
+        "0x1013EF03C"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        "0x1013EF07C",
+        "0x1013EF0CC",
+        "0x1013EF168",
+        "0x1013EF7B0",
+        "0x1013EFDE8"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralParam",
+      "source_addresses": [
+        "0x1013E24D8",
+        "0x1013E2528",
+        "0x1013E267C",
+        "0x1013E285C",
+        "0x1013E2938"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralParam",
+      "source_addresses": [
+        "0x1013E2E54",
+        "0x1013E2E80",
+        "0x1013E2EAC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013E1500",
+        "0x1013E1A88",
+        "0x1013E1754",
+        "0x1013E18A8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013DB3C4",
+        "0x1013DBB60",
+        "0x1013DB6E8",
+        "0x1013DB784"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        "0x1013DB698",
+        "0x1013DB6E8",
+        "0x1013DB784",
+        "0x1013DBB60",
+        "0x1013DBD24"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralStatus",
+      "source_addresses": [
+        "0x1013E1704",
+        "0x1013E1754",
+        "0x1013E18A8",
+        "0x1013E1A88",
+        "0x1013E1B64"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralStatus",
+      "source_addresses": [
+        "0x1013E2080",
+        "0x1013E20AC",
+        "0x1013E20D8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BF8FC",
+        "0x1013BFF50",
+        "0x1013BFA78",
+        "0x1013BFDA8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D4808",
+        "0x1013D4E68",
+        "0x1013D4A5C",
+        "0x1013D4C14"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff",
+      "source_addresses": [
+        "0x1013D4A0C",
+        "0x1013D4A5C",
+        "0x1013D4C14",
+        "0x1013D4E68",
+        "0x1013D4FF4",
+        "0x1013D54D4"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013BFA28",
+        "0x1013BFA78",
+        "0x1013BFDA8",
+        "0x1013BFF50",
+        "0x1013C002C",
+        "0x1013C0058"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013C0680",
+        "0x1013C06AC",
+        "0x1013C06D8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013CD550",
+        "0x1013CDB48",
+        "0x1013CD6CC",
+        "0x1013CD9A0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D57D4",
+        "0x1013D5DB4",
+        "0x1013D5AC4",
+        "0x1013D5B60"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage",
+      "source_addresses": [
+        "0x1013D5A74",
+        "0x1013D5AC4",
+        "0x1013D5B60",
+        "0x1013D5DB4",
+        "0x1013D5F40",
+        "0x1013D6420"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013CE578",
+        "0x1013CEABC",
+        "0x1013CE7CC",
+        "0x1013CE868"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff",
+      "source_addresses": [
+        "0x1013CE77C",
+        "0x1013CE7CC",
+        "0x1013CE868",
+        "0x1013CEABC",
+        "0x1013CEC48",
+        "0x1013CF128"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013CD67C",
+        "0x1013CD6CC",
+        "0x1013CD9A0",
+        "0x1013CDB48",
+        "0x1013CDC24",
+        "0x1013CDC50"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013CE278",
+        "0x1013CE2A4",
+        "0x1013CE2D0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T2Payload",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013D8D90",
+        "0x1013D9188",
+        "0x1013D8FE4",
+        "0x1013D912C"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2Payload_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2Payload",
+      "source_addresses": [
+        "0x1013D8FA0",
+        "0x1013D8FE4",
+        "0x1013D912C",
+        "0x1013D9188",
+        "0x1013D91F4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2PeripheralBluetoothModeStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013E8828",
+        "0x1013E83CC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2PeripheralDetailDataType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013E8F3C",
+        "0x1013E8AD0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T2PeripheralDeviceInfo",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013DC750"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2PeripheralInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013E95C8",
+        "0x1013E916C"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RawPayload",
+      "reason": "non-wire class with no recoverable serialized fields",
+      "source_addresses": [
+        "0x1013D85D0",
+        "0x1013D8630"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RawPayload_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RawPayload",
+      "source_addresses": [
+        "0x1013D87A0",
+        "0x1013D87F0",
+        "0x1013D8848",
+        "0x1013D88A0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2ResultType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013E761C",
+        "0x1013E71B0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013EA0B0",
+        "0x1013EA638",
+        "0x1013EA304",
+        "0x1013EA458"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013ED224",
+        "0x1013ED774",
+        "0x1013ED52C",
+        "0x1013ED5C8"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        "0x1013ED4DC",
+        "0x1013ED52C",
+        "0x1013ED5C8",
+        "0x1013ED774",
+        "0x1013ED9A0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralCapability",
+      "source_addresses": [
+        "0x1013EA2B4",
+        "0x1013EA304",
+        "0x1013EA458",
+        "0x1013EA638",
+        "0x1013EA714"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralCapability",
+      "source_addresses": [
+        "0x1013EAC30",
+        "0x1013EAC5C",
+        "0x1013EAC88"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013E072C",
+        "0x1013E0CB4",
+        "0x1013E0980",
+        "0x1013E0AD4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013E47E8",
+        "0x1013E567C",
+        "0x1013E4F98",
+        "0x1013E5034"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_1",
+      "reason": "non-wire class with no recoverable serialized fields",
+      "source_addresses": [
+        "0x1013E4CF0",
+        "0x1013E4D1C",
+        "0x1013E4DB8",
+        "0x1013E4DE0",
+        "0x1013E4E10",
+        "0x1013E4E48",
+        "0x1013E4E78",
+        "0x1013E4EA8",
+        "0x1013E4ED8",
+        "0x1013E4F08"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        "0x1013E4F48",
+        "0x1013E4F98",
+        "0x1013E5034",
+        "0x1013E567C",
+        "0x1013E5CB4"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralParam",
+      "source_addresses": [
+        "0x1013E0930",
+        "0x1013E0980",
+        "0x1013E0AD4",
+        "0x1013E0CB4",
+        "0x1013E0D90"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralParam",
+      "source_addresses": [
+        "0x1013E12AC",
+        "0x1013E12D8",
+        "0x1013E1304"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013F05E4",
+        "0x1013F1004",
+        "0x1013F0A74",
+        "0x1013F0B10"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralStatus",
+      "source_addresses": [
+        "0x1013F0A24",
+        "0x1013F0A74",
+        "0x1013F0B10",
+        "0x1013F1004",
+        "0x1013F1208"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralStatus",
+      "source_addresses": [
+        "0x1013F1808",
+        "0x1013F1834",
+        "0x1013F1860"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013C4C0C",
+        "0x1013C58AC",
+        "0x1013C516C",
+        "0x1013C5208"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceCapability",
+      "source_addresses": [
+        "0x1013C511C",
+        "0x1013C516C",
+        "0x1013C5208",
+        "0x1013C58AC",
+        "0x1013C5E58"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceCapability",
+      "source_addresses": [
+        "0x1013C64D0",
+        "0x1013C64FC",
+        "0x1013C6528"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D1CC0",
+        "0x1013D2378",
+        "0x1013D1E3C",
+        "0x1013D21D0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013C2134",
+        "0x1013C3B6C",
+        "0x1013C2FA0",
+        "0x1013C303C"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic",
+      "source_addresses": [
+        "0x1013C2F50",
+        "0x1013C2FA0",
+        "0x1013C303C",
+        "0x1013C3B6C",
+        "0x1013C3FF4",
+        "0x1013C4630"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013C29A0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013CF364",
+        "0x1013CF830",
+        "0x1013CF618",
+        "0x1013CF6B4"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingLanguage",
+      "source_addresses": [
+        "0x1013CF5C8",
+        "0x1013CF618",
+        "0x1013CF6B4",
+        "0x1013CF830",
+        "0x1013CF9E0",
+        "0x1013CFEC0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BEB88",
+        "0x1013BF0AC",
+        "0x1013BED78",
+        "0x1013BEF30"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingOnOff",
+      "source_addresses": [
+        "0x1013BED28",
+        "0x1013BED78",
+        "0x1013BEF30",
+        "0x1013BF0AC",
+        "0x1013BF25C",
+        "0x1013BF73C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D0114",
+        "0x1013D06B0",
+        "0x1013D0304",
+        "0x1013D0534"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime",
+      "source_addresses": [
+        "0x1013D02B4",
+        "0x1013D0304",
+        "0x1013D0534",
+        "0x1013D06B0",
+        "0x1013D0844",
+        "0x1013D0C24"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BB344",
+        "0x1013BB534",
+        "0x1013BB6C8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D3AA8",
+        "0x1013D3E74",
+        "0x1013D3B44",
+        "0x1013D3DC0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr",
+      "source_addresses": [
+        "0x1013D3AF4",
+        "0x1013D3B44",
+        "0x1013D3DC0",
+        "0x1013D3E74",
+        "0x1013D406C",
+        "0x1013D45A0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013CC2BC",
+        "0x1013CCBE0",
+        "0x1013CC574",
+        "0x1013CC944"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk",
+      "source_addresses": [
+        "0x1013CC524",
+        "0x1013CC574",
+        "0x1013CC944",
+        "0x1013CCBE0",
+        "0x1013CCDEC",
+        "0x1013CD390"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod",
+      "source_addresses": [
+        "0x1013BB4E4",
+        "0x1013BB534",
+        "0x1013BB6C8",
+        "0x1013BB844",
+        "0x1013BBB54"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013D1DEC",
+        "0x1013D1E3C",
+        "0x1013D21D0",
+        "0x1013D2378",
+        "0x1013D2454",
+        "0x1013D2480"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013D29A8",
+        "0x1013D29D4",
+        "0x1013D2A00"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D65E0",
+        "0x1013D6C20",
+        "0x1013D675C",
+        "0x1013D6A78"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BA554",
+        "0x1013BAA34",
+        "0x1013BA744",
+        "0x1013BA7E0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatusSettingLanguage",
+      "source_addresses": [
+        "0x1013BA6F4",
+        "0x1013BA744",
+        "0x1013BA7E0",
+        "0x1013BAA34",
+        "0x1013BABE4",
+        "0x1013BB0C4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013C67A4",
+        "0x1013C6C84",
+        "0x1013C6994",
+        "0x1013C6A30"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatusSettingOnOff",
+      "source_addresses": [
+        "0x1013C6944",
+        "0x1013C6994",
+        "0x1013C6A30",
+        "0x1013C6C84",
+        "0x1013C6E34",
+        "0x1013C7314"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013D670C",
+        "0x1013D675C",
+        "0x1013D6A78",
+        "0x1013D6C20",
+        "0x1013D6CFC",
+        "0x1013D6D28"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013D7250",
+        "0x1013D727C",
+        "0x1013D72A8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013F1A5C",
+        "0x1013F1FE4",
+        "0x1013F1CB0",
+        "0x1013F1E04"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013DEB2C",
+        "0x1013DF0A4",
+        "0x1013DED80",
+        "0x1013DEEBC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013DF838",
+        "0x1013DFDCC",
+        "0x1013DFB5C",
+        "0x1013DFBF8"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "source_addresses": [
+        "0x1013DFB0C",
+        "0x1013DFB5C",
+        "0x1013DFBF8",
+        "0x1013DFDCC",
+        "0x1013E0054"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        "0x1013DED30",
+        "0x1013DED80",
+        "0x1013DEEBC",
+        "0x1013DF0A4",
+        "0x1013DF184"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParam",
+      "source_addresses": [
+        "0x1013F1C60",
+        "0x1013F1CB0",
+        "0x1013F1E04",
+        "0x1013F1FE4",
+        "0x1013F20C0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParam",
+      "source_addresses": [
+        "0x1013F25DC",
+        "0x1013F2608",
+        "0x1013F2634"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013EBCB4",
+        "0x1013EC638",
+        "0x1013EC0A8",
+        "0x1013EC144"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralStatus",
+      "source_addresses": [
+        "0x1013EC058",
+        "0x1013EC0A8",
+        "0x1013EC144",
+        "0x1013EC638",
+        "0x1013EC838"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralStatus",
+      "source_addresses": [
+        "0x1013ECE38",
+        "0x1013ECE64",
+        "0x1013ECE90"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D2B3C",
+        "0x1013D3190",
+        "0x1013D2CB8",
+        "0x1013D2FE8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParamSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BCB30",
+        "0x1013BD190",
+        "0x1013BCDC8",
+        "0x1013BCF3C"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceParamSettingOnOff",
+      "source_addresses": [
+        "0x1013BCD78",
+        "0x1013BCDC8",
+        "0x1013BCF3C",
+        "0x1013BD190",
+        "0x1013BD31C",
+        "0x1013BD7FC"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013D2C68",
+        "0x1013D2CB8",
+        "0x1013D2FE8",
+        "0x1013D3190",
+        "0x1013D326C",
+        "0x1013D3298"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceParam",
+      "source_addresses": [
+        "0x1013D37C0",
+        "0x1013D37EC",
+        "0x1013D3818"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013BBCCC",
+        "0x1013BC2C4",
+        "0x1013BBE48",
+        "0x1013BC11C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D0F50",
+        "0x1013D1494",
+        "0x1013D11E8",
+        "0x1013D1240"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatusSettingLanguage",
+      "source_addresses": [
+        "0x1013D1198",
+        "0x1013D11E8",
+        "0x1013D1240",
+        "0x1013D1494",
+        "0x1013D1620",
+        "0x1013D1B00"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013C7640",
+        "0x1013C7B84",
+        "0x1013C78D8",
+        "0x1013C7930"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatusSettingOnOff",
+      "source_addresses": [
+        "0x1013C7888",
+        "0x1013C78D8",
+        "0x1013C7930",
+        "0x1013C7B84",
+        "0x1013C7D10",
+        "0x1013C81F0"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013BBDF8",
+        "0x1013BBE48",
+        "0x1013BC11C",
+        "0x1013BC2C4",
+        "0x1013BC3A0",
+        "0x1013BC3CC"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatus",
+      "source_addresses": [
+        "0x1013BC8F4",
+        "0x1013BC920",
+        "0x1013BC94C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2StatusType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013C8718",
+        "0x1013C8380"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2SupportsSwitch",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013C9418",
+        "0x1013C9080"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2UnknownCommand",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013D9744",
+        "0x1013D98A8",
+        "0x1013D97C0",
+        "0x1013D985C"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2UnknownCommand_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2UnknownCommand",
+      "source_addresses": [
+        "0x1013D9770",
+        "0x1013D97C0",
+        "0x1013D985C",
+        "0x1013D98A8",
+        "0x1013D99C4",
+        "0x1013D9DA4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2VoiceGuidanceInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013C9A78",
+        "0x1013C96E0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2VoiceGuidanceLanguage",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013CADA0",
+        "0x1013CA658"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2VoiceGuidanceSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013C8D98",
+        "0x1013C8A00"
+      ]
+    }
+  ],
+  "table": 2,
+  "version": 1
+}

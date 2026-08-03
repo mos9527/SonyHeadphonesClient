@@ -193,6 +193,14 @@ namespace mdr
          * @return One of MDR_HEADPHONES_* values
          */
         int PollEvents();
+        void SetPacketCallback(
+            MDRPacketCallback callback,
+            void* userData
+        ) noexcept
+        {
+            mPacketCallback = callback;
+            mPacketCallbackUserData = userData;
+        }
         /**
          * @brief Check if @ref MDRHeadphones is ready to do more @ref Invoke.
          */
@@ -248,12 +256,12 @@ namespace mdr
             Array<bool, 256> table1Functions;
             Array<bool, 256> table2Functions;
 
-            [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table1 v) const
+            [[nodiscard]] constexpr bool contains(v2::FunctionType_Table1 v) const
             {
                 return table1Functions[static_cast<UInt8>(v)];
             }
 
-            [[nodiscard]] constexpr bool contains(v2::MessageMdrV2FunctionType_Table2 v) const
+            [[nodiscard]] constexpr bool contains(v2::FunctionType_Table2 v) const
             {
                 return table2Functions[static_cast<UInt8>(v)];
             }
@@ -262,8 +270,8 @@ namespace mdr
         String mUniqueId; // MAC Address
         String mFWVersion;
         String mModelName;
-        v2::t1::ModelSeriesType mModelSeries{};
-        v2::t1::ModelColor mModelColor{};
+        v2::t1::ModelSeries mModelSeries{};
+        v2::ModelColor mModelColor{};
         v2::t1::AudioCodec mAudioCodec{};
 
         v2::t1::AlertMessageType mLastAlertMessage{};
@@ -391,6 +399,8 @@ namespace mdr
     private:
         String mLastError = "N/A";
 
+        MDRPacketCallback mPacketCallback{};
+        void* mPacketCallbackUserData{};
         Deque<UInt8> mRecvBuf, mSendBuf;
         MDRCommandSeqNumber mSeqNumber{0};
 

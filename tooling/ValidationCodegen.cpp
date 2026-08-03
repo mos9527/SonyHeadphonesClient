@@ -79,7 +79,8 @@ CXChildVisitResult methodVisitor(CXCursor cursor, CXCursor parent, CXClientData 
     if (kind == CXCursor_CXXMethod)
     {
         CXString name = clang_getCursorSpelling(cursor);
-        std::string methodName = clang_getCString(name);
+        const char* rawName = clang_getCString(name);
+        std::string methodName = rawName ? rawName : "";
         if (methodName == "Validate")
             p->hasValidate = true;
         clang_disposeString(name);
@@ -177,18 +178,21 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
     if (clang_Cursor_getStorageClass(cursor) == CX_SC_Static)
         return CXChildVisit_Continue; // Ignore static members
     CXString name = clang_getCursorSpelling(cursor);
+    const char* rawName = clang_getCString(name);
+    const std::string fieldName = rawName ? rawName : "";
     CXType type = clang_getCursorType(cursor);
     CXCursor typeDecl = clang_getTypeDeclaration(type);
     CXCursorKind typeKind = clang_getCursorKind(typeDecl);
     CXString typeName = clang_getTypeSpelling(type);
     // Emit for-each loop for iterable types
     bool isIterable = false;
-    std::string typeNameStr = clang_getCString(typeName);
+    const char* rawTypeName = clang_getCString(typeName);
+    std::string typeNameStr = rawTypeName ? rawTypeName : "";
     for (const char* reserved : kMDRReservedIterableStructs)
         if (typeNameStr.starts_with(reserved))
             isIterable = true;
-    std::string newParentName = format("{}.{}", *pParentName, clang_getCString(name));
-    std::string forClauseName = format("{}_elem", clang_getCString(name));
+    std::string newParentName = format("{}.{}", *pParentName, fieldName);
+    std::string forClauseName = format("{}_elem", fieldName);
     if (isIterable)
     {
         // Deduce element type
@@ -198,12 +202,12 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         clang_disposeString(typeName);
         typeName = clang_getTypeSpelling(type);
         // Enter for-each clause
-        println("{}for (const auto& {} : {}.{}) {{", emitIndent(), forClauseName, *pParentName, clang_getCString(name));
+        println("{}for (const auto& {} : {}.{}) {{", emitIndent(), forClauseName, *pParentName, fieldName);
         gDepth++;
         newParentName = forClauseName;
     }
     uint32_t fieldValidationFlags = kValidationFlagNONE;
-    for (auto& check : gCodegenComments[clang_getCString(name)])
+    for (auto& check : gCodegenComments[fieldName])
         fieldValidationFlags |= collectCodegenFlags(cursor, check);
     ValidateVisitorCD CD{&newParentName, fieldValidationFlags};
     if (!(fieldValidationFlags & kValidationFlagIGNORE))
@@ -233,7 +237,7 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         // Emit CODEGEN specific checks
         // We only do this at the top level to avoid duplicate field names
         if (gVisitDepth == 0)
-            for (auto& check : gCodegenComments[clang_getCString(name)])
+            for (auto& check : gCodegenComments[fieldName])
                 emitCodegenCheck(cursor, newParentName, check, fieldValidationFlags);
     }
     else
@@ -255,7 +259,8 @@ CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClie
     using enum ValidationVerb;
     CXCursorKind kind = clang_getCursorKind(cursor);
     CXString name = clang_getCursorSpelling(cursor);
-    std::string fieldName = clang_getCString(name);
+    const char* rawName = clang_getCString(name);
+    std::string fieldName = rawName ? rawName : "";
     clang_disposeString(name);
     if (kind == CXCursor_FieldDecl)
     {
@@ -290,7 +295,8 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             if (parentStr != gNamespaceName)
                 return CXChildVisit_Continue;
             CXString name = clang_getCursorSpelling(cursor);
-            std::string structName = clang_getCString(name);
+            const char* rawName = clang_getCString(name);
+            std::string structName = rawName ? rawName : "";
             MethodVisitorResult methods;
             clang_visitChildren(cursor, methodVisitor, &methods);
             // Emit Validate bodies
@@ -345,6 +351,7 @@ int main(int argc, char** argv)
     println("namespace {} {{", gNamespaceName);
     clang_visitChildren(cursor, structVisitor, nullptr);
     println("}}");
+    std::fflush(stdout);
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);

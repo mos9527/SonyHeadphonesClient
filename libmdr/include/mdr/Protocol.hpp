@@ -136,6 +136,41 @@ namespace mdr
         }
     };
 
+    struct UInt64BE
+    {
+        uint64_t value; // Big-endian
+
+        UInt64BE() :
+            value(0)
+        {
+        }
+
+        UInt64BE(uint64_t v) :
+            value(Swap(v))
+        {
+        }
+
+        static uint64_t Swap(uint64_t v)
+        {
+            return ((v & 0x00000000000000FFull) << 56) |
+                ((v & 0x000000000000FF00ull) << 40) |
+                ((v & 0x0000000000FF0000ull) << 24) |
+                ((v & 0x00000000FF000000ull) << 8) |
+                ((v & 0x000000FF00000000ull) >> 8) |
+                ((v & 0x0000FF0000000000ull) >> 24) |
+                ((v & 0x00FF000000000000ull) >> 40) |
+                ((v & 0xFF00000000000000ull) >> 56);
+        }
+
+        operator uint64_t() const { return Swap(value); }
+
+        UInt64BE& operator=(uint64_t v)
+        {
+            value = Swap(v);
+            return *this;
+        }
+    };
+
 #pragma pack(pop)
 
     template <typename T>
@@ -303,6 +338,85 @@ namespace mdr
     template <typename T>
     using Span = std::span<T>;
     /**
+     * @brief Byte-count-prefixed sequence of POD key/value pairs.
+     */
+    template <typename K, typename V>
+    struct MDRMap
+    {
+        struct Entry
+        {
+            K key;
+            V value;
+        };
+
+        Vector<Entry> entries;
+
+        static MDRResult<size_t> Read(
+            const UInt8** ppSrcBuffer, MDRMap& out, size_t maxSize
+        )
+        {
+            const UInt8* start = *ppSrcBuffer;
+            UInt8 count{};
+            MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, count, maxSize));
+            out.entries.clear();
+            out.entries.reserve(count);
+            for (UInt8 i = 0; i < count; ++i)
+            {
+                Entry entry{};
+                const size_t remaining = maxSize - (*ppSrcBuffer - start);
+                MDR_TRY_SIZE(
+                    size_t,
+                    MDRPod::Read(ppSrcBuffer, entry.key, remaining)
+                );
+                MDR_TRY_SIZE(
+                    size_t,
+                    MDRPod::Read(
+                        ppSrcBuffer,
+                        entry.value,
+                        maxSize - (*ppSrcBuffer - start)
+                    )
+                );
+                out.entries.push_back(entry);
+            }
+            return MDRResult<size_t>::Success(*ppSrcBuffer - start);
+        }
+
+        static MDRResult<size_t> Write(
+            const MDRMap& data, UInt8** ppDstBuffer, size_t maxSize
+        )
+        {
+            if (data.entries.size() > UINT8_MAX)
+                return MDRResult<size_t>::Failure(
+                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD
+                );
+            UInt8* start = *ppDstBuffer;
+            const auto count = static_cast<UInt8>(data.entries.size());
+            MDR_TRY_SIZE(
+                size_t, MDRPod::Write(count, ppDstBuffer, maxSize)
+            );
+            for (const Entry& entry : data.entries)
+            {
+                MDR_TRY_SIZE(
+                    size_t,
+                    MDRPod::Write(
+                        entry.key,
+                        ppDstBuffer,
+                        maxSize - (*ppDstBuffer - start)
+                    )
+                );
+                MDR_TRY_SIZE(
+                    size_t,
+                    MDRPod::Write(
+                        entry.value,
+                        ppDstBuffer,
+                        maxSize - (*ppDstBuffer - start)
+                    )
+                );
+            }
+            return MDRResult<size_t>::Success(*ppDstBuffer - start);
+        }
+    };
+    /**
      * @brief String prefixed with a length byte. Max len=256
      */
     struct MDRPrefixedString
@@ -432,7 +546,7 @@ namespace mdr
     };
 
     /**
-     * @brief Non-POD Array with a fixed size
+     * @brief Non-POD Array with a fixed size. For PODs of fixed size array, just use @ref Array instead.
      * @tparam T Type that implements @ref Read and @ref Write methods.
      */
     template <typename T, size_t Size>

@@ -152,10 +152,19 @@ namespace mdr
         MDRBuffer command;
         MDRDataType type;
         MDRCommandSeqNumber seqNum;
+        if (mPacketCallback)
+        {
+            mPacketCallback(
+                mPacketCallbackUserData,
+                MDR_PACKET_DIRECTION_RX,
+                packedCommand.data(),
+                static_cast<int>(packedCommand.size())
+            );
+        }
         switch (MDRUnpackCommand(packedCommand, command, type, seqNum))
         {
         case MDRUnpackResult::OK:
-            mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
+            mRecvBuf.erase(mRecvBuf.begin(), commandEnd + 1);
             return Handle(command, type, seqNum);
         case MDRUnpackResult::INCOMPLETE:
             // Incomplete. Nop.
@@ -191,6 +200,15 @@ namespace mdr
     void MDRHeadphones::SendCommandImpl(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
     {
         MDRBuffer packed = MDRPackCommand(type, seq, command);
+        if (mPacketCallback)
+        {
+            mPacketCallback(
+                mPacketCallbackUserData,
+                MDR_PACKET_DIRECTION_TX,
+                packed.data(),
+                static_cast<int>(packed.size())
+            );
+        }
         mSendBuf.insert(mSendBuf.end(), packed.begin(), packed.end());
     }
 
@@ -306,6 +324,16 @@ void mdrHeadphonesDestroy(MDRHeadphones* h)
 {
     auto* ptr = reinterpret_cast<mdr::MDRHeadphones*>(h);
     mdr::Destruct(ptr);
+}
+
+void mdrHeadphonesSetPacketCallback(
+    MDRHeadphones* p,
+    MDRPacketCallback callback,
+    void* userData
+)
+{
+    auto* h = reinterpret_cast<mdr::MDRHeadphones*>(p);
+    h->SetPacketCallback(callback, userData);
 }
 
 int mdrHeadphonesPollEvents(MDRHeadphones* p)

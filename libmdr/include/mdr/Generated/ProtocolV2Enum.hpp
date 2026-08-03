@@ -2,24 +2,26 @@
 #pragma once
 
 namespace mdr::v2 {
-    static const char* format_as(MessageMdrV2EnableDisable value) {
-        using enum MessageMdrV2EnableDisable;
+    static const char* format_as(CommonStatus value) {
+        using enum CommonStatus;
         switch (value) {
             case ENABLE: return "ENABLE";
             case DISABLE: return "DISABLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(MessageMdrV2OnOffSettingValue value) {
-        using enum MessageMdrV2OnOffSettingValue;
+    static const char* format_as(EnableDisable value) {
+        using enum EnableDisable;
         switch (value) {
-            case ON: return "ON";
-            case OFF: return "OFF";
+            case ENABLE: return "ENABLE";
+            case DISABLE: return "DISABLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(MessageMdrV2FunctionType_Table1 value) {
-        using enum MessageMdrV2FunctionType_Table1;
+    static const char* format_as(FunctionType_Table1 value) {
+        using enum FunctionType_Table1;
         switch (value) {
             case CONCIERGE_DATA: return "CONCIERGE_DATA";
             case CONNECTION_STATUS: return "CONNECTION_STATUS";
@@ -49,6 +51,7 @@ namespace mdr::v2 {
             case BT_STANDBY: return "BT_STANDBY";
             case STAMINA: return "STAMINA";
             case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF: return "AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF";
+            case FW_UPDATE_TANDEM: return "FW_UPDATE_TANDEM";
             case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION: return "FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION";
             case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION_AUTO_UPDATE: return "FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION_AUTO_UPDATE";
             case FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE: return "FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE";
@@ -79,6 +82,8 @@ namespace mdr::v2 {
             case CUSTOM_EQ: return "CUSTOM_EQ";
             case TURN_KEY_EQ: return "TURN_KEY_EQ";
             case PRESET_EQ_AND_ERRORCODE: return "PRESET_EQ_AND_ERRORCODE";
+            case ULT_SOUND_EFFECT_ASSIGN: return "ULT_SOUND_EFFECT_ASSIGN";
+            case CUSTOMIZABLE_SOUND_EFFECT: return "CUSTOMIZABLE_SOUND_EFFECT";
             case NOISE_CANCELLING_ONOFF: return "NOISE_CANCELLING_ONOFF";
             case NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF: return "NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF";
             case NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF: return "NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF";
@@ -94,6 +99,10 @@ namespace mdr::v2 {
             case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION: return "MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION";
             case AUTO_NCASM: return "AUTO_NCASM";
             case ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION: return "ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION";
+            case HEART_RATE_SENSOR_SETTING: return "HEART_RATE_SENSOR_SETTING";
+            case HEART_RATE_PROFILE_SETTING: return "HEART_RATE_PROFILE_SETTING";
+            case HEART_RATE_SENSOR_TEST: return "HEART_RATE_SENSOR_TEST";
+            case HEART_RATE_SENSOR_GREEN_LIGHT: return "HEART_RATE_SENSOR_GREEN_LIGHT";
             case NC_OPTIMIZER_PERSONAL_BAROMETRIC: return "NC_OPTIMIZER_PERSONAL_BAROMETRIC";
             case NC_OPTIMIZER_PERSONAL: return "NC_OPTIMIZER_PERSONAL";
             case NC_OPTIMIZER_BAROMETRIC: return "NC_OPTIMIZER_BAROMETRIC";
@@ -135,6 +144,7 @@ namespace mdr::v2 {
             case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE: return "LISTENING_OPTION_ASSIGN_CUSTOMIZABLE";
             case BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE: return "BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE";
             case UPMIX_SERIES: return "UPMIX_SERIES";
+            case UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON: return "UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON";
             case VIBRATOR_ON_OFF: return "VIBRATOR_ON_OFF";
             case PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF: return "PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF";
             case SMART_TALKING_MODE_TYPE1: return "SMART_TALKING_MODE_TYPE1";
@@ -154,13 +164,14 @@ namespace mdr::v2 {
             default: return "Unknown";
         }
     }
-    static const char* format_as(MessageMdrV2FunctionType_Table2 value) {
-        using enum MessageMdrV2FunctionType_Table2;
+    static const char* format_as(FunctionType_Table2 value) {
+        using enum FunctionType_Table2;
         switch (value) {
             case AUTO_STANDBY: return "AUTO_STANDBY";
             case CHARGE_IN_USE: return "CHARGE_IN_USE";
             case CARING_CHARGE_WITH_THRESHOLD: return "CARING_CHARGE_WITH_THRESHOLD";
             case USB_SUBMERSION: return "USB_SUBMERSION";
+            case USB_OVERHEAT_DETECTION: return "USB_OVERHEAT_DETECTION";
             case PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT: return "PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT";
             case SOURCE_SWITCH_CONTROL: return "SOURCE_SWITCH_CONTROL";
             case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT: return "PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT";
@@ -180,14 +191,19 @@ namespace mdr::v2 {
             case SAFE_LISTENING_HBS_2: return "SAFE_LISTENING_HBS_2";
             case SAFE_LISTENING_TWS_2: return "SAFE_LISTENING_TWS_2";
             case SAFE_VOLUME_CONTROL: return "SAFE_VOLUME_CONTROL";
+            case MAX_VOLUME_LEVEL_LIMIT: return "MAX_VOLUME_LEVEL_LIMIT";
             case LE_AUDIO_CONNECTION_STATE_NOTIFICATION: return "LE_AUDIO_CONNECTION_STATE_NOTIFICATION";
             case LE_AUDIO_SWITCH_SUPPORTED_COMPATIBILITY: return "LE_AUDIO_SWITCH_SUPPORTED_COMPATIBILITY";
             case LE_AUDIO_CONNECTION_MODE: return "LE_AUDIO_CONNECTION_MODE";
             case GET_IDENTITY_RESOLVING_KEY: return "GET_IDENTITY_RESOLVING_KEY";
+            case PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD: return "PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD";
             case LINK_AUTO_SWITCH_CANT_BE_USED_WITH_LEA_CONNECTION: return "LINK_AUTO_SWITCH_CANT_BE_USED_WITH_LEA_CONNECTION";
             case DJ_CONTROL: return "DJ_CONTROL";
             case ILLUMINATION: return "ILLUMINATION";
             case KARAOKE: return "KARAOKE";
+            case DJ_CONTROL_WITH_STATUS_DISABLE_REASON: return "DJ_CONTROL_WITH_STATUS_DISABLE_REASON";
+            case KARAOKE_WITH_STATUS_DISABLE_REASON: return "KARAOKE_WITH_STATUS_DISABLE_REASON";
+            case LIVE_KARAOKE: return "LIVE_KARAOKE";
             case WEARING_STATUS_CHECKER: return "WEARING_STATUS_CHECKER";
             case REPEAT_TAP_TRAINING_MODE: return "REPEAT_TAP_TRAINING_MODE";
             case QUICK_ACCESS_EASY_SETTING: return "QUICK_ACCESS_EASY_SETTING";
@@ -201,31 +217,120 @@ namespace mdr::v2 {
             case FUNCTION_CHANGE: return "FUNCTION_CHANGE";
             case USB_BROWSER: return "USB_BROWSER";
             case LIGHTING_MODE: return "LIGHTING_MODE";
+            case VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT: return "VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT";
+            case LIGHTING_DEFAULT_COLOR: return "LIGHTING_DEFAULT_COLOR";
+            case WEARING_POSITION_WITHOUT_FITTING_SUPPORTER: return "WEARING_POSITION_WITHOUT_FITTING_SUPPORTER";
             default: return "Unknown";
         }
     }
-    static bool is_valid(MessageMdrV2EnableDisable value) {
-        using enum MessageMdrV2EnableDisable;
+    static const char* format_as(ModelColor value) {
+        using enum ModelColor;
+        switch (value) {
+            case DEFAULT: return "DEFAULT";
+            case BLACK: return "BLACK";
+            case WHITE: return "WHITE";
+            case SILVER: return "SILVER";
+            case RED: return "RED";
+            case BLUE: return "BLUE";
+            case PINK: return "PINK";
+            case YELLOW: return "YELLOW";
+            case GREEN: return "GREEN";
+            case GRAY: return "GRAY";
+            case GOLD: return "GOLD";
+            case CREAM: return "CREAM";
+            case ORANGE: return "ORANGE";
+            case BROWN: return "BROWN";
+            case VIOLET: return "VIOLET";
+            case BLACK_I: return "BLACK_I";
+            case WHITE_I: return "WHITE_I";
+            case SILVER_I: return "SILVER_I";
+            case RED_I: return "RED_I";
+            case BLUE_I: return "BLUE_I";
+            case PINK_I: return "PINK_I";
+            case YELLOW_I: return "YELLOW_I";
+            case GREEN_I: return "GREEN_I";
+            case GRAY_I: return "GRAY_I";
+            case GOLD_I: return "GOLD_I";
+            case CREAM_I: return "CREAM_I";
+            case ORANGE_I: return "ORANGE_I";
+            case BROWN_I: return "BROWN_I";
+            case VIOLET_I: return "VIOLET_I";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(OnOffSettingValue value) {
+        using enum OnOffSettingValue;
+        switch (value) {
+            case ON: return "ON";
+            case OFF: return "OFF";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PairedHistory value) {
+        using enum PairedHistory;
+        switch (value) {
+            case BOTH_CLASSIC_BT_BLE: return "BOTH_CLASSIC_BT_BLE";
+            case ONLY_CLASSIC_BT: return "ONLY_CLASSIC_BT";
+            case ONLY_BLE: return "ONLY_BLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(RequestResult value) {
+        using enum RequestResult;
+        switch (value) {
+            case ACCEPTED: return "ACCEPTED";
+            case DECLINED: return "DECLINED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(StreamingStatus value) {
+        using enum StreamingStatus;
+        switch (value) {
+            case POWER_OFF: return "POWER_OFF";
+            case NONE: return "NONE";
+            case VIA_A2DP: return "VIA_A2DP";
+            case VIA_LE_AUDIO_UNICAST: return "VIA_LE_AUDIO_UNICAST";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UnavailableReason value) {
+        using enum UnavailableReason;
+        switch (value) {
+            case UNAVAILABLE_BY_LE_AUDIO_PRIOR: return "UNAVAILABLE_BY_LE_AUDIO_PRIOR";
+            case UNAVAILABLE: return "UNAVAILABLE";
+            case UNAVAILABLE_BY_LE_AUDIO_SWITCH_ON: return "UNAVAILABLE_BY_LE_AUDIO_SWITCH_ON";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static bool is_valid(CommonStatus value) {
+        using enum CommonStatus;
         switch (value) {
             case ENABLE:
             case DISABLE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(MessageMdrV2OnOffSettingValue value) {
-        using enum MessageMdrV2OnOffSettingValue;
+    static bool is_valid(EnableDisable value) {
+        using enum EnableDisable;
         switch (value) {
-            case ON:
-            case OFF:
+            case ENABLE:
+            case DISABLE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(MessageMdrV2FunctionType_Table1 value) {
-        using enum MessageMdrV2FunctionType_Table1;
+    static bool is_valid(FunctionType_Table1 value) {
+        using enum FunctionType_Table1;
         switch (value) {
             case CONCIERGE_DATA:
             case CONNECTION_STATUS:
@@ -255,6 +360,7 @@ namespace mdr::v2 {
             case BT_STANDBY:
             case STAMINA:
             case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF:
+            case FW_UPDATE_TANDEM:
             case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION:
             case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION_AUTO_UPDATE:
             case FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE:
@@ -285,6 +391,8 @@ namespace mdr::v2 {
             case CUSTOM_EQ:
             case TURN_KEY_EQ:
             case PRESET_EQ_AND_ERRORCODE:
+            case ULT_SOUND_EFFECT_ASSIGN:
+            case CUSTOMIZABLE_SOUND_EFFECT:
             case NOISE_CANCELLING_ONOFF:
             case NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF:
             case NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF:
@@ -300,6 +408,10 @@ namespace mdr::v2 {
             case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION:
             case AUTO_NCASM:
             case ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION:
+            case HEART_RATE_SENSOR_SETTING:
+            case HEART_RATE_PROFILE_SETTING:
+            case HEART_RATE_SENSOR_TEST:
+            case HEART_RATE_SENSOR_GREEN_LIGHT:
             case NC_OPTIMIZER_PERSONAL_BAROMETRIC:
             case NC_OPTIMIZER_PERSONAL:
             case NC_OPTIMIZER_BAROMETRIC:
@@ -341,6 +453,7 @@ namespace mdr::v2 {
             case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE:
             case BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE:
             case UPMIX_SERIES:
+            case UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON:
             case VIBRATOR_ON_OFF:
             case PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF:
             case SMART_TALKING_MODE_TYPE1:
@@ -362,13 +475,14 @@ namespace mdr::v2 {
            return false;
         }
     }
-    static bool is_valid(MessageMdrV2FunctionType_Table2 value) {
-        using enum MessageMdrV2FunctionType_Table2;
+    static bool is_valid(FunctionType_Table2 value) {
+        using enum FunctionType_Table2;
         switch (value) {
             case AUTO_STANDBY:
             case CHARGE_IN_USE:
             case CARING_CHARGE_WITH_THRESHOLD:
             case USB_SUBMERSION:
+            case USB_OVERHEAT_DETECTION:
             case PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
             case SOURCE_SWITCH_CONTROL:
             case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT:
@@ -388,14 +502,19 @@ namespace mdr::v2 {
             case SAFE_LISTENING_HBS_2:
             case SAFE_LISTENING_TWS_2:
             case SAFE_VOLUME_CONTROL:
+            case MAX_VOLUME_LEVEL_LIMIT:
             case LE_AUDIO_CONNECTION_STATE_NOTIFICATION:
             case LE_AUDIO_SWITCH_SUPPORTED_COMPATIBILITY:
             case LE_AUDIO_CONNECTION_MODE:
             case GET_IDENTITY_RESOLVING_KEY:
+            case PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD:
             case LINK_AUTO_SWITCH_CANT_BE_USED_WITH_LEA_CONNECTION:
             case DJ_CONTROL:
             case ILLUMINATION:
             case KARAOKE:
+            case DJ_CONTROL_WITH_STATUS_DISABLE_REASON:
+            case KARAOKE_WITH_STATUS_DISABLE_REASON:
+            case LIVE_KARAOKE:
             case WEARING_STATUS_CHECKER:
             case REPEAT_TAP_TRAINING_MODE:
             case QUICK_ACCESS_EASY_SETTING:
@@ -409,6 +528,105 @@ namespace mdr::v2 {
             case FUNCTION_CHANGE:
             case USB_BROWSER:
             case LIGHTING_MODE:
+            case VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT:
+            case LIGHTING_DEFAULT_COLOR:
+            case WEARING_POSITION_WITHOUT_FITTING_SUPPORTER:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ModelColor value) {
+        using enum ModelColor;
+        switch (value) {
+            case DEFAULT:
+            case BLACK:
+            case WHITE:
+            case SILVER:
+            case RED:
+            case BLUE:
+            case PINK:
+            case YELLOW:
+            case GREEN:
+            case GRAY:
+            case GOLD:
+            case CREAM:
+            case ORANGE:
+            case BROWN:
+            case VIOLET:
+            case BLACK_I:
+            case WHITE_I:
+            case SILVER_I:
+            case RED_I:
+            case BLUE_I:
+            case PINK_I:
+            case YELLOW_I:
+            case GREEN_I:
+            case GRAY_I:
+            case GOLD_I:
+            case CREAM_I:
+            case ORANGE_I:
+            case BROWN_I:
+            case VIOLET_I:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(OnOffSettingValue value) {
+        using enum OnOffSettingValue;
+        switch (value) {
+            case ON:
+            case OFF:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PairedHistory value) {
+        using enum PairedHistory;
+        switch (value) {
+            case BOTH_CLASSIC_BT_BLE:
+            case ONLY_CLASSIC_BT:
+            case ONLY_BLE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(RequestResult value) {
+        using enum RequestResult;
+        switch (value) {
+            case ACCEPTED:
+            case DECLINED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(StreamingStatus value) {
+        using enum StreamingStatus;
+        switch (value) {
+            case POWER_OFF:
+            case NONE:
+            case VIA_A2DP:
+            case VIA_LE_AUDIO_UNICAST:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UnavailableReason value) {
+        using enum UnavailableReason;
+        switch (value) {
+            case UNAVAILABLE_BY_LE_AUDIO_PRIOR:
+            case UNAVAILABLE:
+            case UNAVAILABLE_BY_LE_AUDIO_SWITCH_ON:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
