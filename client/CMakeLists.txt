@@ -28,6 +28,7 @@ target_sources(
 )
 
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_CAMERA OFF CACHE BOOL "" FORCE)
 set(SDL_GPU OFF CACHE BOOL "" FORCE)
 set(SDL_RENDER_GPU OFF CACHE BOOL "" FORCE)
@@ -81,7 +82,7 @@ target_include_directories(ImGuiSDL3 PUBLIC
 set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory(Platform)
 
-target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3)
+target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3-static)
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform)
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE
