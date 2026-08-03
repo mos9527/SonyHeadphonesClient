@@ -1,6 +1,6 @@
 # MDR protocol extraction
 
-**DISCLAIMER:** LLM generated guide. Follow at your own discretion.
+**DISCLAIMER:** LLM generated guide/scripts. Follow at your own discretion.
 
 The files in `generated/` are checked-in build inputs and review artifacts.
 They contain normalized protocol IR, extraction inventories, and candidate

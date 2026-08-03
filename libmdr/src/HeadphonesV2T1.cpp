@@ -1,6 +1,6 @@
 #include <mdr/Headphones.hpp>
 #include <algorithm>
-#include "Macros.hpp"
+#include "Details.hpp"
 namespace mdr
 {
     using namespace v2;

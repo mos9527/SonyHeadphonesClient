@@ -1,6 +1,8 @@
 #include <mdr/Headphones.hpp>
 #include <mdr/ProtocolV1T1.hpp>
 #include <mdr/ProtocolV1T2.hpp>
+#include <mdr/ProtocolV2T1.hpp>
+#include <mdr/ProtocolV2T2.hpp>
 
 #include <algorithm>
 #include <filesystem>
@@ -266,6 +268,96 @@ namespace
         );
     }
 
+    void TestStringify()
+    {
+        mdr::v2::t2::PeripheralDeviceInfo device{};
+        for (size_t i = 0; i < device.btDeviceAddress.size(); ++i)
+            device.btDeviceAddress[i] = static_cast<mdr::UInt8>(i);
+        device.connectedStatus = 1;
+        device.bluetoothClassOfDevice = 0x010203;
+        device.btFriendlyName.value = "WH-\"1000\n";
+        device.btFriendlyName.value.push_back('\x01');
+
+        const mdr::String deviceJson = mdr::v2::t2::format_as(device);
+        Check(
+            deviceJson == R"json({
+    "btDeviceAddress": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+    ],
+    "connectedStatus": 1,
+    "bluetoothClassOfDevice": 66051,
+    "btFriendlyName": "WH-\"1000\n\u0001"
+})json",
+            "JSON formats byte arrays, endian integers, and escaped strings"
+        );
+
+        mdr::v2::t1::AmbientSoundModeLevelSet ambient{};
+        ambient.asLevelRange.min = 1;
+        ambient.asLevelRange.max = 20;
+        ambient.asLevelRange.step = 2;
+        Check(
+            mdr::v2::t1::format_as(ambient) == R"json({
+    "ambientSoundMode": "NORMAL",
+    "asLevelRange": {
+        "min": 1,
+        "max": 20,
+        "step": 2
+    }
+})json",
+            "JSON formats shared nested structs"
+        );
+
+        mdr::v2::t1::EqEbbNtfyStatusSoundEffect soundEffect{};
+        soundEffect.soundEffectValueAndStatusMap.entries.push_back({
+            mdr::v2::t1::SoundEffectType::SOUND_EFFECT_ULT,
+            mdr::v2::EnableDisable::ENABLE,
+        });
+        soundEffect.soundEffectValueAndStatusMap.entries.push_back({
+            mdr::v2::t1::SoundEffectType::SOUND_EFFECT_LIVE,
+            mdr::v2::EnableDisable::DISABLE,
+        });
+        const mdr::String soundEffectJson =
+            mdr::v2::t1::format_as(soundEffect);
+        Check(
+            soundEffectJson == R"json({
+    "command": "EQEBB_NTFY_STATUS",
+    "type": "SOUND_EFFECT",
+    "enableDisable": "ENABLE",
+    "soundEffectValueAndStatusMap": [
+        {
+            "key": "SOUND_EFFECT_ULT",
+            "value": "ENABLE"
+        },
+        {
+            "key": "SOUND_EFFECT_LIVE",
+            "value": "DISABLE"
+        }
+    ]
+})json",
+            "JSON preserves ordered map entries"
+        );
+        Check(
+            mdr::Format("{}", soundEffect) == soundEffectJson,
+            "fmt discovers generated struct format_as through ADL"
+        );
+    }
+
     void TestDynamicDispatch()
     {
         mdr::v2::t2::PeripheralRetStatusPairingDeviceManagementCommon
@@ -494,6 +586,7 @@ int main(int argc, char** argv)
     std::cerr << "Playback of captured RX data fixtures from " << (argc == 2 ? argv[1] : MDR_TEST_FIXTURE_DIR) << '\n';
     TestFraming();
     TestSerialization();
+    TestStringify();
     TestDynamicDispatch();
     TestBufferedFrames();
     TestCapturedFixtures(
