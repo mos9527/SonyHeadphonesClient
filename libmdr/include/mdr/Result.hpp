@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <utility>
 
-#if defined(MDR_DEBUG)
+#if defined(MDR_DEBUG_TRAPS)
 #if defined(_MSC_VER)
 #define MDR_TRAP() __debugbreak()
 #elif defined(__clang__) && __has_builtin(__builtin_debugtrap)

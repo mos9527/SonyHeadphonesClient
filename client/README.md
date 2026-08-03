@@ -2,6 +2,16 @@ Client
 ===
 Reference client interface implementation for every platform `libmdr` supports.
 
+## Command-line options
+
+```text
+SonyHeadphonesClient [-con] [-record <capture-folder>]
+```
+
+- `-con` opens a console on Windows so diagnostic logs are visible, including in release builds.
+- `-record <capture-folder>` records MDR packets for replay tests. See the
+  [capture guide](../tests/README.md#capturing--contributing) for privacy considerations.
+
 ## Credits
 The following third-party libraries are used in the implementation.
 

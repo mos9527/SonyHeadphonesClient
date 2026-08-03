@@ -92,7 +92,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 add_compile_definitions(
     $<$<OR:$<BOOL:${MDR_DEBUG}>,$<CONFIG:Debug>>:MDR_DEBUG>
-    $<$<OR:$<BOOL:${MDR_DEBUG}>,$<CONFIG:Debug>>:_DEBUG>
+    $<$<CONFIG:Debug>:MDR_DEBUG_TRAPS>
 )
 if (MDR_DEBUG)
     message(STATUS "Debugging features *ON*. Enjoy the logs.")

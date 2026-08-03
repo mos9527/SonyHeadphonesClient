@@ -10,6 +10,7 @@
 #include <Platform/Platform.hpp>
 #include <mdr-c/Headphones.h>
 #include <mdr/Headphones.hpp>
+#include <mdr/Protocol.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
 #include "Platform/Platform.hpp"
@@ -1427,7 +1428,14 @@ void DrawDeviceDisconnect()
     MDRConnection* conn = clientPlatformConnectionGet();
     static bool popup = false;
     if (!popup)
+    {
+        MDR_LOG("[Client] Device disconnected");
+        if (conn)
+            MDR_LOG("[Client] Connection: {}", mdrConnectionGetLastError(conn));
+        if (gDevice)
+            MDR_LOG("[Client] Headphones: {}", mdrHeadphonesGetLastError(gDevice));
         ImGui::OpenPopup("Disconnected"), popup = true;
+    }
     ImSetNextWindowCentered();
 
     if (ImGui::BeginPopupModal("Disconnected", nullptr, kImWindowFlagsTopMost))
