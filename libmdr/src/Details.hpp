@@ -43,7 +43,8 @@
     auto Name##Result = Type::Deserialize((Command).data(), (Command).size());                                         \
     if (!Name##Result)                                                                                                 \
         return self->SetLastError(Name##Result.error, Name##Result.errMessage ? Name##Result.errMessage : "Unable to deserialize " #Type);   \
-    auto& Name = Name##Result.value
+    auto& Name = Name##Result.value;                                                                                   \
+    MDR_LOG_DEBUG("{}", format_as(Name))
 
 // NOLINTEND
 

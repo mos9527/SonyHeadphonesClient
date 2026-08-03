@@ -1038,7 +1038,9 @@ namespace mdr::v1::t1
     // THMSGV1T1AsCapabilityAction
     struct AsCapabilityAction
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AssignableSettingsAction action{AssignableSettingsAction::SINGLE_TAP}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AssignableSettingsFunction function{AssignableSettingsFunction::NO_FUNCTION}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(AsCapabilityAction);
@@ -1047,6 +1049,7 @@ namespace mdr::v1::t1
     // THMSGV1T1Asm
     struct Asm
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId id{AsmId::NORMAL}; // 0x0
         UInt8 step{}; // 0x1
 
@@ -1058,8 +1061,10 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::AMBIENT_SOUND_MODE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x1
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x3
         UInt8 asmValue{}; // 0x4
 
@@ -1080,6 +1085,7 @@ namespace mdr::v1::t1
     struct AssignableSettingsStatus
     {
         MDRPodArray<CommonStatus> allStatus; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE};
 
         MDR_DEFINE_EXTERN_READ_WRITE(AssignableSettingsStatus);
@@ -1088,9 +1094,11 @@ namespace mdr::v1::t1
     // THMSGV1T1AtCommandParam
     struct AtCommandParam
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AtCommandMessageType messageType{}; // 0x0
         UInt8 commandLength{}; // 0x1
         MDRPrefixedString command2; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AtCommandMessageType messageType2{AtCommandMessageType::REQUEST};
         UInt8 commandLength2{};
         MDRPrefixedString command3;
@@ -1103,6 +1111,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x1
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x2
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
@@ -1211,6 +1220,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::AUDIO_GET_CAPABILITY
         Command command{Command::AUDIO_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType inquiredType{AudioInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioCapability);
@@ -1221,6 +1231,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_GET_AUDIO_CODEC
         Command command{Command::COMMON_GET_AUDIO_CODEC}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioCodec);
@@ -1231,6 +1242,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::AUDIO_GET_PARAM
         Command command{Command::AUDIO_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType audioInquiredType{AudioInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioParam);
@@ -1241,6 +1253,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::AUDIO_GET_STATUS
         Command command{Command::AUDIO_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType audioInquiredType{AudioInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioStatus);
@@ -1251,6 +1264,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_GET_BATTERY_LEVEL
         Command command{Command::COMMON_GET_BATTERY_LEVEL}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         BatteryInquiredType batteryInquiredType{BatteryInquiredType::BATTERY}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetBatteryLevel);
@@ -1272,6 +1286,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_CAPABILITY_INFO
         Command command{Command::CONNECT_GET_CAPABILITY_INFO}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetCapabilityInfo);
@@ -1282,6 +1297,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_GET_CONCIERGE_DATA
         Command command{Command::COMMON_GET_CONCIERGE_DATA}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
         MDRPrefixedString data; // 0x2
 
@@ -1293,6 +1309,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_GET_CONNECTION_STATUS
         Command command{Command::COMMON_GET_CONNECTION_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionStatusInquiredType connectionStatusInquiredType{ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetConnectionStatus);
@@ -1314,6 +1331,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_GET_CAPABILITY
         Command command{Command::EQEBB_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x1
         DisplayLanguage language{DisplayLanguage::UNDEFINED_LANGUAGE}; // 0x2
 
@@ -1325,6 +1343,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_GET_EXTENDED_INFO
         Command command{Command::EQEBB_GET_EXTENDED_INFO}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbExtendedInfo);
@@ -1335,6 +1354,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_GET_PARAM
         Command command{Command::EQEBB_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbParam);
@@ -1345,6 +1365,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_GET_STATUS
         Command command{Command::EQEBB_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbStatus);
@@ -1355,6 +1376,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_GET_CAPABILITY
         Command command{Command::GENERAL_SETTING_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         DisplayLanguage displayLanguage{DisplayLanguage::UNDEFINED_LANGUAGE}; // 0x2
 
@@ -1366,6 +1388,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_GET_PARAM
         Command command{Command::GENERAL_SETTING_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetGsParam);
@@ -1376,6 +1399,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_GET_STATUS
         Command command{Command::GENERAL_SETTING_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetGsStatus);
@@ -1386,6 +1410,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::NCASM_GET_CAPABILITY
         Command command{Command::NCASM_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetNcAsmCapability);
@@ -1396,6 +1421,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::NCASM_GET_PARAM
         Command command{Command::NCASM_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetNcAsmParam);
@@ -1406,6 +1432,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::NCASM_GET_STATUS
         Command command{Command::NCASM_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetNcAsmStatus);
@@ -1449,6 +1476,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::PLAY_GET_CAPABILITY
         Command command{Command::PLAY_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType type{PlayInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayCapability);
@@ -1459,7 +1487,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::PLAY_GET_PARAM
         Command command{Command::PLAY_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType type{PlayInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayParam);
@@ -1470,6 +1500,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::PLAY_GET_STATUS
         Command command{Command::PLAY_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType type{PlayInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayStatus);
@@ -1480,6 +1511,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_PROTOCOL_INFO
         Command command{Command::CONNECT_GET_PROTOCOL_INFO}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetProtocolInfo);
@@ -1490,6 +1522,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SENSE_GET_CAPABILITY
         Command command{Command::SENSE_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseInquiredType senseInquiredType{SenseInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSenseCapability);
@@ -1500,6 +1533,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SPORTS_GET_CAPABILITY
         Command command{Command::SPORTS_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SportsInquiredType type{SportsInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSportsCapability);
@@ -1508,6 +1542,7 @@ namespace mdr::v1::t1
     // THMSGV1T1GetSportsExParam_TrainingModeRequest
     struct GetSportsExParam_TrainingModeRequest
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeExParameterType type{TrainingModeExParameterType::NO_USE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(GetSportsExParam_TrainingModeRequest);
@@ -1518,6 +1553,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SPORTS_GET_PARAM
         Command command{Command::SPORTS_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SportsInquiredType type{SportsInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSportsParam);
@@ -1528,6 +1564,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SPORTS_GET_STATUS
         Command command{Command::SPORTS_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SportsInquiredType type{SportsInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSportsStatus);
@@ -1538,6 +1575,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSupportFunction);
@@ -1548,6 +1586,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_CAPABILITY
         Command command{Command::SYSTEM_GET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType inquiredType{SystemInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemCapability);
@@ -1558,6 +1597,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_PARAM
         Command command{Command::SYSTEM_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType systemInquiredType{SystemInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemExParam);
@@ -1568,6 +1608,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_PARAM
         Command command{Command::SYSTEM_GET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType systemInquiredType{SystemInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemParam);
@@ -1578,6 +1619,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_STATUS
         Command command{Command::SYSTEM_GET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType systemInquiredType{SystemInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemStatus);
@@ -1599,6 +1641,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_GET_UPSCALING_EFFECT
         Command command{Command::COMMON_GET_UPSCALING_EFFECT}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetUpscalingEffect);
@@ -1657,6 +1700,7 @@ namespace mdr::v1::t1
     // THMSGV1T1GsSettingInfo
     struct GsSettingInfo
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsStringFormat stringFormat{GsStringFormat::NO_USE}; // 0x0
         MDRPrefixedString subject; // 0x1
         MDRPrefixedString summary;
@@ -1669,6 +1713,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange LinkControlInquiredType::KEEP_ALIVE
         LinkControlInquiredType type{LinkControlInquiredType::KEEP_ALIVE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(KeepAliveLinkControlNotifiedParam);
@@ -1679,6 +1724,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange LinkControlInquiredType::KEEP_ALIVE
         LinkControlInquiredType type{LinkControlInquiredType::KEEP_ALIVE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x1
         UInt8 timeMin{}; // 0x2
 
@@ -1714,10 +1760,12 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x1
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x2
         UInt8 ncValue{}; // 0x3
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x5
         UInt8 asmValue{}; // 0x6
 
@@ -1730,6 +1778,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING}; // 0x0
         NcSettingType ncSettingType{NcSettingType::ON_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcSettingValue ncSettingValue{NcSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(NcParam);
@@ -1753,6 +1802,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_AUDIO_CODEC
         Command command{Command::COMMON_NTFY_AUDIO_CODEC}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType commonCapabilityInquiredType{CommonCapabilityInquiredType::FIXED_VALUE}; // 0x1
         AudioCodec audioCodec{AudioCodec::UNSETTLED}; // 0x2
 
@@ -1802,7 +1852,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyAudioStatus);
@@ -1933,7 +1985,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_STATUS
         Command command{Command::EQEBB_NTFY_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus commonStatus{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyEqEbbStatus);
@@ -1944,6 +1998,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_NTNY_PARAM
         Command command{Command::GENERAL_SETTING_NTNY_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         // CODEGEN EnumRange GsSettingType::BOOLEAN_TYPE
         GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x2
@@ -1957,6 +2012,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_NTNY_PARAM
         Command command{Command::GENERAL_SETTING_NTNY_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         // CODEGEN EnumRange GsSettingType::LIST_TYPE
         GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
@@ -1970,7 +2026,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_NTFY_STATUS
         Command command{Command::GENERAL_SETTING_NTFY_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyGsStatus);
@@ -1983,6 +2041,7 @@ namespace mdr::v1::t1
         Command command{Command::COMMON_NTFY_LINK_CONTROL}; // 0x0
         // CODEGEN EnumRange LinkControlInquiredType::KEEP_ALIVE
         LinkControlInquiredType type{LinkControlInquiredType::KEEP_ALIVE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyLinkControlKeepAliveLinkControlNotifiedParam);
@@ -1995,6 +2054,7 @@ namespace mdr::v1::t1
         Command command{Command::COMMON_NTFY_LINK_CONTROL}; // 0x0
         // CODEGEN EnumRange LinkControlInquiredType::KEEP_ALIVE
         LinkControlInquiredType type{LinkControlInquiredType::KEEP_ALIVE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
         UInt8 timeMin{}; // 0x3
 
@@ -2020,8 +2080,10 @@ namespace mdr::v1::t1
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::AMBIENT_SOUND_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x4
         UInt8 asmValue{}; // 0x5
 
@@ -2047,10 +2109,12 @@ namespace mdr::v1::t1
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x3
         UInt8 ncValue{}; // 0x4
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x6
         UInt8 asmValue{}; // 0x7
 
@@ -2065,6 +2129,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING}; // 0x1
         NcSettingType ncSettingType{NcSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcSettingValue ncSettingValue{NcSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyNcAsmParamcParam);
@@ -2075,7 +2140,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_STATUS
         Command command{Command::NCASM_NTFY_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyNcAsmStatus);
@@ -2088,8 +2155,10 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange OptimizerInquiredType::NC_OPTIMIZER
         OptimizerInquiredType type{OptimizerInquiredType::NC_OPTIMIZER}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalMeasureType personalType{PersonalMeasureType::NOT_SUPPORT}; // 0x2
         UInt8 personalValue{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         BarometricMeasureType barometricType{BarometricMeasureType::NOT_SUPPORT}; // 0x4
         UInt8 barometricValue{}; // 0x5
 
@@ -2103,6 +2172,7 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange OptimizerInquiredType::NC_OPTIMIZER
         OptimizerInquiredType type{OptimizerInquiredType::NC_OPTIMIZER}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
         OptimizerStatus optimizerStatus{OptimizerStatus::IDLE}; // 0x3
 
@@ -2128,8 +2198,11 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::PLAY_NTFY_STATUS
         Command command{Command::PLAY_NTFY_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType playInquiredType{PlayInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackStatus playbackStatus{PlaybackStatus::UNSETTLED}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPlayStatus);
@@ -2142,6 +2215,7 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeExParameterType trainingModeExParameterType{TrainingModeExParameterType::NO_USE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest);
@@ -2154,8 +2228,10 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x4
         UInt8 asmValue{}; // 0x5
 
@@ -2182,10 +2258,12 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x3
         UInt8 ncValue{}; // 0x4
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x6
         UInt8 asmValue{}; // 0x7
 
@@ -2224,6 +2302,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -2252,6 +2331,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamChildPayloadPowerSavingModeParam);
@@ -2300,11 +2380,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -2318,11 +2404,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -2348,8 +2440,10 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x2
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamChildPayloadSmartTalkingModeExType1Param);
@@ -2362,7 +2456,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamChildPayloadSmartTalkingModeRetParam);
@@ -2377,6 +2473,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam);
@@ -2390,6 +2487,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamChildPayloadVibratorParam);
@@ -2414,6 +2512,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -2442,6 +2541,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam);
@@ -2504,8 +2604,10 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeDetailSettingType::TYPE_1
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x3
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x5
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param);
@@ -2519,6 +2621,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamSmartTalkingModeExParamVibratorParam);
@@ -2543,6 +2646,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -2571,6 +2675,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamPowerSavingModeParam);
@@ -2619,11 +2724,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -2637,11 +2748,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -2667,7 +2784,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamSmartTalkingModeRetParam);
@@ -2682,6 +2801,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamSmartTalkingModeSetNtfyParam);
@@ -2709,6 +2829,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamVibratorParam);
@@ -2734,6 +2855,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<CommonStatus> allStatus; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(NotifySystemStatusAssignableSettingsStatus);
@@ -2746,6 +2868,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -2774,6 +2897,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusPowerSavingModeParam);
@@ -2822,11 +2946,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -2840,11 +2970,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -2870,7 +3006,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusSmartTalkingModeRetParam);
@@ -2885,6 +3023,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusSmartTalkingModeSetNtfyParam);
@@ -2897,7 +3036,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeEffectStatus effectStatus{SmartTalkingModeEffectStatus::NOT_ACTIVE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusSmartTalkingModeStatus);
@@ -2911,6 +3052,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusVibratorParam);
@@ -2923,6 +3065,7 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange UpdateInquiredType::UPDATE_METHOD
         UpdateInquiredType type{UpdateInquiredType::UPDATE_METHOD}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyUpdateStatus);
@@ -2933,6 +3076,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_UPSCALING_EFFECT
         Command command{Command::COMMON_NTFY_UPSCALING_EFFECT}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType commonCapabilityInquiredType{CommonCapabilityInquiredType::FIXED_VALUE}; // 0x1
         UpscalingEffectType effectType{UpscalingEffectType::DSEE_HX}; // 0x2
         UpscalingEffectStatus effectStatus{UpscalingEffectStatus::OFF}; // 0x3
@@ -2958,6 +3102,7 @@ namespace mdr::v1::t1
         Command command{Command::VPT_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange VptInquiredType::SOUND_POSITION
         VptInquiredType type{VptInquiredType::SOUND_POSITION}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundPositionPresetId presetId{SoundPositionPresetId::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVptParamSoundPositionParam);
@@ -2982,6 +3127,7 @@ namespace mdr::v1::t1
         Command command{Command::VPT_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange VptInquiredType::VPT
         VptInquiredType type{VptInquiredType::VPT}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVptStatus);
@@ -2998,6 +3144,7 @@ namespace mdr::v1::t1
     // THMSGV1T1PlaybackControllerNotifyNameData
     struct PlaybackControllerNotifyNameData
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackControllerNotifyNameData);
@@ -3017,6 +3164,7 @@ namespace mdr::v1::t1
     struct PlaybackName
     {
         MDRPrefixedString name; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED};
 
         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackName);
@@ -3028,6 +3176,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x0
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(PowerSavingModeParam);
@@ -3046,7 +3195,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::ALERT_RET_CAPABILITY
         Command command{Command::ALERT_RET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType inquiredType{}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertVibrationPattern vibrationPattern{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAlertCapability);
@@ -3055,6 +3206,7 @@ namespace mdr::v1::t1
     // THMSGV1T1RetAudioCapability_AudioCapabilityBase
     struct RetAudioCapability_AudioCapabilityBase
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::NO_USE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(RetAudioCapability_AudioCapabilityBase);
@@ -3065,6 +3217,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_AUDIO_CODEC
         Command command{Command::COMMON_RET_AUDIO_CODEC}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType commonCapabilityInquiredType{CommonCapabilityInquiredType::FIXED_VALUE}; // 0x1
         AudioCodec audioCodec{AudioCodec::UNSETTLED}; // 0x2
 
@@ -3114,7 +3267,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioStatus);
@@ -3205,6 +3360,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_CAPABILITY_INFO
         Command command{Command::CONNECT_RET_CAPABILITY_INFO}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
         UInt8 capabilityCounter{}; // 0x2
         MDRPrefixedString uniqueId; // 0x3
@@ -3247,6 +3403,7 @@ namespace mdr::v1::t1
     // THMSGV1T1RetEqEbbCapability_EqEbbCapabilityBase
     struct RetEqEbbCapability_EqEbbCapabilityBase
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(RetEqEbbCapability_EqEbbCapabilityBase);
@@ -3295,7 +3452,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_STATUS
         Command command{Command::EQEBB_RET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetEqEbbStatus);
@@ -3306,6 +3465,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_PARAM
         Command command{Command::GENERAL_SETTING_RET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         // CODEGEN EnumRange GsSettingType::BOOLEAN_TYPE
         GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x2
@@ -3319,6 +3479,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_PARAM
         Command command{Command::GENERAL_SETTING_RET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         // CODEGEN EnumRange GsSettingType::LIST_TYPE
         GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
@@ -3332,7 +3493,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_STATUS
         Command command{Command::GENERAL_SETTING_RET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetGsStatus);
@@ -3341,6 +3504,7 @@ namespace mdr::v1::t1
     // THMSGV1T1RetNcAsmCapability_NcAsmCapabilityBase
     struct RetNcAsmCapability_NcAsmCapabilityBase
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NO_USE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(RetNcAsmCapability_NcAsmCapabilityBase);
@@ -3353,8 +3517,10 @@ namespace mdr::v1::t1
         Command command{Command::NCASM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::AMBIENT_SOUND_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x4
         UInt8 asmValue{}; // 0x5
 
@@ -3380,10 +3546,12 @@ namespace mdr::v1::t1
         Command command{Command::NCASM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x3
         UInt8 ncValue{}; // 0x4
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x6
         UInt8 asmValue{}; // 0x7
 
@@ -3398,6 +3566,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING}; // 0x1
         NcSettingType ncSettingType{NcSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcSettingValue ncSettingValue{NcSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmParamNcParam);
@@ -3408,7 +3577,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_STATUS
         Command command{Command::NCASM_RET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmStatus);
@@ -3422,8 +3593,10 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange OptimizerInquiredType::NC_OPTIMIZER
         OptimizerInquiredType type{OptimizerInquiredType::NC_OPTIMIZER}; // 0x1
         UInt8 optimizationTime{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalMeasureType personalType{}; // 0x3
         UInt8 personalTime{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         BarometricMeasureType barometricType{}; // 0x5
         UInt8 barometricTime{}; // 0x6
 
@@ -3437,8 +3610,10 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange OptimizerInquiredType::NC_OPTIMIZER
         OptimizerInquiredType type{OptimizerInquiredType::NC_OPTIMIZER}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalMeasureType personalType{PersonalMeasureType::NOT_SUPPORT}; // 0x2
         UInt8 personalValue{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         BarometricMeasureType barometricType{BarometricMeasureType::NOT_SUPPORT}; // 0x4
         UInt8 barometricValue{}; // 0x5
 
@@ -3452,6 +3627,7 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange OptimizerInquiredType::NC_OPTIMIZER
         OptimizerInquiredType type{OptimizerInquiredType::NC_OPTIMIZER}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
         OptimizerStatus optimizerStatus{OptimizerStatus::IDLE}; // 0x3
 
@@ -3466,6 +3642,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlayInquiredType::PLAYBACK_CONTROLLER
         PlayInquiredType inquiredType{PlayInquiredType::PLAYBACK_CONTROLLER}; // 0x1
         UInt8 volumeStep{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackControlType playbackControlType{}; // 0x3
         // CODEGEN EnumRange PlaybackDetailedDataType::VOLUME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::VOLUME}; // 0x4
@@ -3493,8 +3670,11 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::PLAY_RET_STATUS
         Command command{Command::PLAY_RET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType playInquiredType{PlayInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackStatus playbackStatus{PlaybackStatus::UNSETTLED}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPlayStatus);
@@ -3505,6 +3685,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_PROTOCOL_INFO
         Command command{Command::CONNECT_RET_PROTOCOL_INFO}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
         UInt8 protocolVersion{}; // 0x2
 
@@ -3516,7 +3697,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SENSE_RET_CAPABILITY
         Command command{Command::SENSE_RET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseInquiredType type{}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseTableType tableType{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSenseCapability);
@@ -3529,6 +3712,7 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeExParameterType trainingModeExParameterType{TrainingModeExParameterType::NO_USE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest);
@@ -3541,8 +3725,10 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x4
         UInt8 asmValue{}; // 0x5
 
@@ -3569,10 +3755,12 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x3
         UInt8 ncValue{}; // 0x4
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x6
         UInt8 asmValue{}; // 0x7
 
@@ -3597,6 +3785,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_RET_SUPPORT_FUNCTION}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
         MDRPodArray<FunctionType> supportFunctions; // 0x2
 
@@ -3606,6 +3795,7 @@ namespace mdr::v1::t1
     // THMSGV1T1RetSystemCapability_SystemCapabilityBase
     struct RetSystemCapability_SystemCapabilityBase
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::NO_USE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(RetSystemCapability_SystemCapabilityBase);
@@ -3630,6 +3820,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -3680,11 +3871,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -3698,11 +3895,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -3742,6 +3945,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamChildPayloadPowerSavingModeParam);
@@ -3754,8 +3958,10 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x2
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamChildPayloadSmartTalkingModeExType1Param);
@@ -3768,7 +3974,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamChildPayloadSmartTalkingModeRetParam);
@@ -3783,6 +3991,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam);
@@ -3796,6 +4005,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamChildPayloadVibratorParam);
@@ -3820,6 +4030,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -3896,6 +4107,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam);
@@ -3910,8 +4122,10 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeDetailSettingType::TYPE_1
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x3
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x5
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param);
@@ -3925,6 +4139,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamSmartTalkingModeExParamVibratorParam);
@@ -3949,6 +4164,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -3999,11 +4215,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -4017,11 +4239,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -4061,6 +4289,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamPowerSavingModeParam);
@@ -4073,7 +4302,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamSmartTalkingModeRetParam);
@@ -4088,6 +4319,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamSmartTalkingModeSetNtfyParam);
@@ -4115,6 +4347,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamVibratorParam);
@@ -4140,6 +4373,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<CommonStatus> allStatus; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(RetSystemStatusAssignableSettingsStatus);
@@ -4152,6 +4386,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -4202,11 +4437,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -4220,11 +4461,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -4264,6 +4511,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusPowerSavingModeParam);
@@ -4276,7 +4524,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusSmartTalkingModeRetParam);
@@ -4291,6 +4541,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusSmartTalkingModeSetNtfyParam);
@@ -4303,7 +4554,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeEffectStatus effectStatus{SmartTalkingModeEffectStatus::NOT_ACTIVE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusSmartTalkingModeStatus);
@@ -4317,6 +4570,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusVibratorParam);
@@ -4398,6 +4652,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_UPSCALING_EFFECT
         Command command{Command::COMMON_RET_UPSCALING_EFFECT}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType commonCapabilityInquiredType{CommonCapabilityInquiredType::FIXED_VALUE}; // 0x1
         UpscalingEffectType effectType{UpscalingEffectType::DSEE_HX}; // 0x2
         UpscalingEffectStatus effectStatus{UpscalingEffectStatus::OFF}; // 0x3
@@ -4432,6 +4687,7 @@ namespace mdr::v1::t1
         Command command{Command::VPT_RET_PARAM}; // 0x0
         // CODEGEN EnumRange VptInquiredType::SOUND_POSITION
         VptInquiredType type{VptInquiredType::SOUND_POSITION}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundPositionPresetId presetId{SoundPositionPresetId::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptParamSoundPositionParam);
@@ -4456,6 +4712,7 @@ namespace mdr::v1::t1
         Command command{Command::VPT_RET_STATUS}; // 0x0
         // CODEGEN EnumRange VptInquiredType::VPT
         VptInquiredType type{VptInquiredType::VPT}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptStatus);
@@ -4493,6 +4750,7 @@ namespace mdr::v1::t1
         Command command{Command::ALERT_SET_STATUS}; // 0x0
         // CODEGEN EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION
         AlertInquiredType type{AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAlertStatus);
@@ -4581,6 +4839,7 @@ namespace mdr::v1::t1
         Command command{Command::COMMON_SET_LINK_CONTROL}; // 0x0
         // CODEGEN EnumRange LinkControlInquiredType::KEEP_ALIVE
         LinkControlInquiredType type{LinkControlInquiredType::KEEP_ALIVE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetLinkControlKeepAliveLinkControlNotifiedParam);
@@ -4593,6 +4852,7 @@ namespace mdr::v1::t1
         Command command{Command::COMMON_SET_LINK_CONTROL}; // 0x0
         // CODEGEN EnumRange LinkControlInquiredType::KEEP_ALIVE
         LinkControlInquiredType type{LinkControlInquiredType::KEEP_ALIVE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
         UInt8 timeMin{}; // 0x3
 
@@ -4617,8 +4877,10 @@ namespace mdr::v1::t1
         Command command{Command::NCASM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::AMBIENT_SOUND_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x4
         UInt8 asmValue{}; // 0x5
 
@@ -4632,10 +4894,12 @@ namespace mdr::v1::t1
         Command command{Command::NCASM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x2
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x3
         UInt8 ncValue{}; // 0x4
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x6
         UInt8 asmValue{}; // 0x7
 
@@ -4650,6 +4914,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange NcAsmInquiredType::NOISE_CANCELLING
         NcAsmInquiredType type{NcAsmInquiredType::NOISE_CANCELLING}; // 0x1
         NcSettingType ncSettingType{NcSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcSettingValue ncSettingValue{NcSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetNcAsmParamNcParam);
@@ -4674,6 +4939,7 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange OptimizerInquiredType::NC_OPTIMIZER
         OptimizerInquiredType optimizerInquiredType{OptimizerInquiredType::NC_OPTIMIZER}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerControl optimizerControl{OptimizerControl::CANCEL}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetOptimizerStatus);
@@ -4698,7 +4964,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::PLAY_SET_STATUS
         Command command{Command::PLAY_SET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType type{PlayInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackControl control{PlaybackControl::KEY_OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayStatus);
@@ -4722,6 +4990,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::SENSE_SET_STATUS
         Command command{Command::SENSE_SET_STATUS}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseInquiredType type{SenseInquiredType::NO_USE}; // 0x1
         SenseSettingControl senseSettingControl{SenseSettingControl::NO_USE}; // 0x2
 
@@ -4747,6 +5016,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -4775,6 +5045,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamPowerSavingModeParam);
@@ -4823,11 +5094,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -4841,11 +5118,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -4872,6 +5155,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamVibratorParam);
@@ -4886,8 +5170,10 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeDetailSettingType::TYPE_1
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x3
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x5
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeExParamType1Param);
@@ -4900,8 +5186,10 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x2
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeExType1Param);
@@ -4914,7 +5202,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeRetParam);
@@ -4929,6 +5219,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeSetNtfyParam);
@@ -4953,6 +5244,7 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::AUTO_POWER_OFF
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffParameterType autoPowerOffParameterType{AutoPowerOffParameterType::ACTIVE_AND_SELECTIME_ID}; // 0x2
         AutoPowerOffElementId activeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x3
         AutoPowerOffElementId selectTimeElementId{AutoPowerOffElementId::POWER_OFF_IN_5_MIN}; // 0x4
@@ -4981,6 +5273,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::POWER_SAVING_MODE
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerSavingModeSettingValue settingValue{PowerSavingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamPowerSavingModeParam);
@@ -5029,11 +5322,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -5047,11 +5346,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -5078,6 +5383,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamVibratorParam);
@@ -5090,7 +5396,9 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParammartTalkingModeRetParam);
@@ -5105,6 +5413,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParammartTalkingModeSetNtfyParam);
@@ -5117,6 +5426,7 @@ namespace mdr::v1::t1
         Command command{Command::TEST_COMMAND}; // 0x0
         // CODEGEN EnumRange UpdateInquiredType::UPDATE_METHOD
         UpdateInquiredType updateInquiredType{UpdateInquiredType::UPDATE_METHOD}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus commonStatus{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetUpdateStatus);
@@ -5163,6 +5473,7 @@ namespace mdr::v1::t1
         Command command{Command::VPT_SET_PARAM}; // 0x0
         // CODEGEN EnumRange VptInquiredType::SOUND_POSITION
         VptInquiredType type{VptInquiredType::SOUND_POSITION}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundPositionPresetId presetId{SoundPositionPresetId::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVptParamoundPositionParam);
@@ -5173,8 +5484,10 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange SmartTalkingModeDetailSettingType::TYPE_1
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x1
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x3
 
         MDR_DEFINE_EXTERN_READ_WRITE(SmartTalkingModeExParamType1Param);
@@ -5183,8 +5496,10 @@ namespace mdr::v1::t1
     // THMSGV1T1SmartTalkingModeExType1Param
     struct SmartTalkingModeExType1Param
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectionSensitivity devectionSensitivity{DetectionSensitivity::AUTO}; // 0x0
         CommonOnOffSettingValue voiceFocus{CommonOnOffSettingValue::OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ModeOutTime modeOutTime{ModeOutTime::FAST}; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(SmartTalkingModeExType1Param);
@@ -5195,7 +5510,9 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(SmartTalkingModeRetParam);
@@ -5208,6 +5525,7 @@ namespace mdr::v1::t1
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x0
         // CODEGEN EnumRange SmartTalkingModeParameterType::MODE_ON_OFF
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::MODE_ON_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingValue settingValue{SmartTalkingModeSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(SmartTalkingModeSetNtfyParam);
@@ -5216,7 +5534,9 @@ namespace mdr::v1::t1
     // THMSGV1T1SmartTalkingModeStatus
     struct SmartTalkingModeStatus
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeEffectStatus effectStatus{SmartTalkingModeEffectStatus::NOT_ACTIVE}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(SmartTalkingModeStatus);
@@ -5227,6 +5547,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange VptInquiredType::SOUND_POSITION
         VptInquiredType type{VptInquiredType::SOUND_POSITION}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundPositionPresetId presetId{SoundPositionPresetId::OFF}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(SoundPositionParam);
@@ -5243,6 +5564,7 @@ namespace mdr::v1::t1
     // THMSGV1T1SystemStatus
     struct SystemStatus
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(SystemStatus);
@@ -5252,6 +5574,7 @@ namespace mdr::v1::t1
     struct TrainingModeCapability
     {
         CommonOnOffSettingType settingType{CommonOnOffSettingType::ON_OFF}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeAvailableEffectType availableEffectType{TrainingModeAvailableEffectType::NO_USE}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(TrainingModeCapability);
@@ -5260,8 +5583,10 @@ namespace mdr::v1::t1
     // THMSGV1T1TrainingModeExAsmParam
     struct TrainingModeExAsmParam
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x0
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x2
         UInt8 asmValue{}; // 0x3
 
@@ -5280,10 +5605,12 @@ namespace mdr::v1::t1
     // THMSGV1T1TrainingModeExNcAsmParam
     struct TrainingModeExNcAsmParam
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x0
         NcAsmSettingType ncType{NcAsmSettingType::ON_OFF}; // 0x1
         UInt8 ncValue{}; // 0x2
         AsmSettingType asmType{AsmSettingType::ON_OFF}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x4
         UInt8 asmValue{}; // 0x5
 
@@ -5302,6 +5629,7 @@ namespace mdr::v1::t1
     // THMSGV1T1TrainingModeStatus
     struct TrainingModeStatus
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(TrainingModeStatus);
@@ -5393,6 +5721,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange SystemInquiredType::VIBRATOR
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x0
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VibratorSettingValue settingValue{VibratorSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(VibratorParam);
@@ -5420,6 +5749,7 @@ namespace mdr::v1::t1
     // THMSGV1T1AsCapabilityPreset
     struct AsCapabilityPreset
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AssignableSettingsPreset preset{AssignableSettingsPreset::AMBIENT_SOUND_CONTROL}; // 0x0
         MDRPodArray<AsCapabilityAction> actions; // 0x1
 
@@ -5520,11 +5850,14 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeExParameterType parameterType{TrainingModeExParameterType::NO_USE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x3
         NcAsmSettingType ncAsmSettingType{NcAsmSettingType::ON_OFF}; // 0x4
         UInt8 value4{}; // 0x5
         AsmSettingType asmSettingType{AsmSettingType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x7
         UInt8 value7{}; // 0x8
         TrainingModeExNcAsmParam ncAsmParam{}; // 0x9
@@ -5725,6 +6058,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_CAPABILITY
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         GsSettingInfo title{}; // 0x2
 
@@ -5819,6 +6153,7 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlayInquiredType::PLAYBACK_CONTROLLER
         PlayInquiredType inquiredType{PlayInquiredType::PLAYBACK_CONTROLLER}; // 0x1
         UInt8 volumeStep{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlaybackControlType playbackControlType{}; // 0x3
         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x4
@@ -5862,11 +6197,14 @@ namespace mdr::v1::t1
         Command command{Command::SPORTS_RET_PARAM}; // 0x0
         // CODEGEN EnumRange SportsInquiredType::TRAINING_MODE
         SportsInquiredType type{SportsInquiredType::TRAINING_MODE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeExParameterType parameterType{TrainingModeExParameterType::NO_USE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x3
         NcAsmSettingType ncAsmSettingType{NcAsmSettingType::ON_OFF}; // 0x4
         UInt8 value4{}; // 0x5
         AsmSettingType asmSettingType{AsmSettingType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x7
         UInt8 value7{}; // 0x8
         TrainingModeExNcAsmParam ncAsmParam{}; // 0x9
@@ -5943,11 +6281,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
         // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE
         RetSystemCapability_SystemCapabilityBase base{SystemInquiredType::SMART_TALKING_MODE};
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType smartTalkingModeSettingType{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType smartTalkingModePreviewType{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType smartTalkingModeDetailSettingType{}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType smartTalkingModeDetectionSensitivityType{}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType smartTalkingModeVoceFocusType{}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType smartTalkingModeModeOutTimeType{}; // 0x7
         MDRPodArray<UInt8> smartTalkingModeModeTimeOutValues; // 0x8
 
@@ -5961,11 +6305,17 @@ namespace mdr::v1::t1
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
         // CODEGEN Field type EnumRange SystemInquiredType::SMART_TALKING_MODE
         RetSystemCapability_SystemCapabilityBase base{SystemInquiredType::SMART_TALKING_MODE};
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeSettingType settingType{SmartTalkingModeSettingType::ON_OFF}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModePreviewType previewType{SmartTalkingModePreviewType::NOT_SUPPORT}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetailSettingType detailSettingType{SmartTalkingModeDetailSettingType::TYPE_1}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeDetectionSensitivityType detectionSensitivityType{SmartTalkingModeDetectionSensitivityType::AUTO_HIGH_LOW}; // 0x5
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeVoiceFocusType voiceFocusType{SmartTalkingModeVoiceFocusType::ON_OFF}; // 0x6
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SmartTalkingModeModeOutTimeType modeOutTimeType{SmartTalkingModeModeOutTimeType::TYPE_1}; // 0x7
         MDRPodArray<UInt8> modeTimeOutValues; // 0x8
 
@@ -6003,6 +6353,7 @@ namespace mdr::v1::t1
         Command command{Command::VPT_RET_CAPABILITY}; // 0x0
         // CODEGEN Field type EnumRange VptInquiredType::SOUND_POSITION
         RetVptCapability_VptCapabilityBase base{VptInquiredType::SOUND_POSITION};
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundPositionType soundPositionType{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptCapability_SoundPositionCapability);
@@ -6051,6 +6402,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_SET_PARAM
         Command command{Command::GENERAL_SETTING_SET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         GsBooleanTypeValue settingValue{}; // 0x2
 
@@ -6062,6 +6414,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_SET_PARAM
         Command command{Command::GENERAL_SETTING_SET_PARAM}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         GsListTypeValue currentElementIndex{}; // 0x2
 
@@ -6140,8 +6493,11 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::TEST_COMMAND
         Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TestCommandType testCommandType{}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TargetType sender{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TargetType receiver{}; // 0x3
         UInt8 majorVersion{}; // 0x4
         UInt8 minorVersion{}; // 0x5
@@ -6153,11 +6509,14 @@ namespace mdr::v1::t1
     // THMSGV1T1TrainingModeExParam
     struct TrainingModeExParam
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeExParameterType parameterType{TrainingModeExParameterType::NO_USE}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmEffect ncAsmEffect{NcAsmEffect::OFF}; // 0x1
         NcAsmSettingType ncAsmSettingType{NcAsmSettingType::ON_OFF}; // 0x2
         UInt8 value4{}; // 0x3
         AsmSettingType asmSettingType{AsmSettingType::ON_OFF}; // 0x4
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AsmId asmId{AsmId::NORMAL}; // 0x5
         UInt8 value7{}; // 0x6
         TrainingModeExNcAsmParam ncAsmParam{}; // 0x7
@@ -6170,8 +6529,11 @@ namespace mdr::v1::t1
     // THMSGV1T1AsCapabilityKey
     struct AsCapabilityKey
     {
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AssignableSettingsKey key{AssignableSettingsKey::LEFT_SIDE_KEY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AssignableSettingsKeyType keyType{AssignableSettingsKeyType::TOUCH_SENSOR}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AssignableSettingsPreset defaultPreset{AssignableSettingsPreset::AMBIENT_SOUND_CONTROL}; // 0x2
         MDRArray<AsCapabilityPreset> presets; // 0x3
 
@@ -6205,6 +6567,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_CAPABILITY
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY}; // 0x0
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         GsSettingInfo title{}; // 0x2
         GsCandidateElementList listTypeCapability{};

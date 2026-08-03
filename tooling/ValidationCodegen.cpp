@@ -87,28 +87,43 @@ CXChildVisitResult methodVisitor(CXCursor cursor, CXCursor parent, CXClientData 
     }
     return CXChildVisit_Continue;
 }
-uint32_t collectCodegenFlags(CXCursor cursor, std::string const& check)
+struct CodegenFlags
+{
+    uint32_t flags{kValidationFlagNONE};
+    std::string ignoreReason;
+};
+
+CodegenFlags collectCodegenFlags(CXCursor, std::string const& check)
 {
     std::stringstream cin(check);
     std::string tok;
     cin >> tok; // CODEGEN
     CHECK(kCodegenTokens[tok] == ValidationVerb::CODEGEN, "Expected CODEGEN token");
-    uint32_t flags = kValidationFlagNONE;
-    while (cin)
+    CodegenFlags result{};
+    while (cin >> tok)
     {
-        cin >> tok; // Verb
-        ValidationVerb verb = kCodegenTokens[tok];
-        switch (verb)
+        auto it = kCodegenTokens.find(tok);
+        if (it == kCodegenTokens.end())
+            continue;
+        switch (it->second)
         {
         case ValidationVerb::Ignore:
             {
-                flags |= kValidationFlagIGNORE;
-                break;
+                result.flags |= kValidationFlagIGNORE;
+                std::string reason;
+                std::getline(cin, reason);
+                while (!reason.empty() && (reason.front() == ' ' || reason.front() == '\t'))
+                    reason.erase(reason.begin());
+                while (!reason.empty() && (reason.back() == ' ' || reason.back() == '\r' || reason.back() == '\n'))
+                    reason.pop_back();
+                CHECK(!reason.empty(), "CODEGEN Ignore requires a reason");
+                result.ignoreReason = std::move(reason);
+                return result;
             }
 #ifdef CODEGEN_ENUM_BITMASK
         case ValidationVerb::Bitmask:
             {
-                flags |= kValidationFlagBITMASK;
+                result.flags |= kValidationFlagBITMASK;
                 break;
             }
 #endif
@@ -116,7 +131,7 @@ uint32_t collectCodegenFlags(CXCursor cursor, std::string const& check)
             break;
         }
     }
-    return flags;
+    return result;
 }
 void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string const& check, uint32_t flags)
 {
@@ -206,18 +221,23 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         gDepth++;
         newParentName = forClauseName;
     }
-    uint32_t fieldValidationFlags = kValidationFlagNONE;
+    CodegenFlags fieldValidation{};
     for (auto& check : gCodegenComments[fieldName])
-        fieldValidationFlags |= collectCodegenFlags(cursor, check);
-    ValidateVisitorCD CD{&newParentName, fieldValidationFlags};
-    if (!(fieldValidationFlags & kValidationFlagIGNORE))
+    {
+        CodegenFlags parsed = collectCodegenFlags(cursor, check);
+        fieldValidation.flags |= parsed.flags;
+        if (!parsed.ignoreReason.empty())
+            fieldValidation.ignoreReason = std::move(parsed.ignoreReason);
+    }
+    ValidateVisitorCD CD{&newParentName, fieldValidation.flags};
+    if (!(fieldValidation.flags & kValidationFlagIGNORE))
     {
         switch (typeKind)
         {
         case CXCursor_EnumDecl:
         {
 #ifdef CODEGEN_ENUM_BITMASK
-            if ((fieldValidationFlags & kValidationFlagBITMASK))
+            if ((fieldValidation.flags & kValidationFlagBITMASK))
                 println("{}MDR_VALIDATE(is_valid_bitmask({}));", emitIndent(), newParentName);
             else
 #endif
@@ -238,11 +258,11 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         // We only do this at the top level to avoid duplicate field names
         if (gVisitDepth == 0)
             for (auto& check : gCodegenComments[fieldName])
-                emitCodegenCheck(cursor, newParentName, check, fieldValidationFlags);
+                emitCodegenCheck(cursor, newParentName, check, fieldValidation.flags);
     }
     else
     {
-        println("{} /* FIXME: {} Validation explicitly removed!!! */", emitIndent(), newParentName);
+        println("{}// {} ignored: {}", emitIndent(), newParentName, fieldValidation.ignoreReason);
     }
     clang_disposeString(name);
     clang_disposeString(typeName);

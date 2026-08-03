@@ -175,8 +175,8 @@ MDRResult<void> NotifyPeripheralStatusPairingDeviceManagementClassicBt::Validate
     MDR_VALIDATE(data.command == Command::PERIPHERAL_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT);
-    MDR_VALIDATE(is_valid(data.bluetoothModeStatus));
-    MDR_VALIDATE(is_valid(data.status));
+    // data.bluetoothModeStatus ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const NotifyPeripheralStatusPairingDeviceManagementClassicBt& data) {
@@ -209,7 +209,7 @@ MDRResult<void> NotifyVoiceGuidanceParamSettingOnOff::Validate(const NotifyVoice
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.settingValue));
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const NotifyVoiceGuidanceParamSettingOnOff& data) {
@@ -241,7 +241,7 @@ MDRResult<void> NotifyVoiceGuidanceStatusSettingLanguage::Validate(const NotifyV
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.status));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const NotifyVoiceGuidanceStatusSettingLanguage& data) {
@@ -258,7 +258,7 @@ MDRResult<void> NotifyVoiceGuidanceStatusSettingOnOff::Validate(const NotifyVoic
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.status));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const NotifyVoiceGuidanceStatusSettingOnOff& data) {
@@ -309,7 +309,7 @@ MDRResult<void> RetPeripheralCapabilityPairingDeviceManagementClassicBt::Validat
     MDR_VALIDATE(data.maxOfPairedDevice >= 0 && data.maxOfPairedDevice <= 255);
     MDR_VALIDATE(data.maxOfConnectedDevice >= 0 && data.maxOfConnectedDevice <= 255);
     MDR_VALIDATE(data.maxOfConnectedDevice >= 0 && data.maxOfConnectedDevice <= 255);
-    MDR_VALIDATE(is_valid(data.fileTransferInMultiConnection));
+    // data.fileTransferInMultiConnection ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const RetPeripheralCapabilityPairingDeviceManagementClassicBt& data) {
@@ -341,8 +341,8 @@ MDRResult<void> RetPeripheralStatus::Validate(const RetPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_RET_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(is_valid(data.bluetoothModeStatus));
-    MDR_VALIDATE(is_valid(data.status));
+    // data.bluetoothModeStatus ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const RetPeripheralStatus& data) {
@@ -360,8 +360,8 @@ MDRResult<void> RetVoiceGuidanceCapability::Validate(const RetVoiceGuidanceCapab
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.supportsOnOffSwitching));
-    MDR_VALIDATE(is_valid(data.supportsLanguageSwitching));
+    // data.supportsOnOffSwitching ignored: OUT_OF_RANGE is expected
+    // data.supportsLanguageSwitching ignored: OUT_OF_RANGE is expected
     for (const auto& supportLanguages_elem : data.supportLanguages) {
         MDR_VALIDATE(is_valid(supportLanguages_elem));
     }
@@ -423,7 +423,7 @@ MDRResult<void> RetVoiceGuidanceParamSettingOnOff::Validate(const RetVoiceGuidan
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.settingValue));
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const RetVoiceGuidanceParamSettingOnOff& data) {
@@ -524,7 +524,7 @@ MDRResult<void> RetVoiceGuidanceStatusSettingLanguage::Validate(const RetVoiceGu
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.status));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const RetVoiceGuidanceStatusSettingLanguage& data) {
@@ -541,7 +541,7 @@ MDRResult<void> RetVoiceGuidanceStatusSettingOnOff::Validate(const RetVoiceGuida
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.status));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const RetVoiceGuidanceStatusSettingOnOff& data) {
@@ -605,8 +605,8 @@ MDRResult<void> SetPeripheralStatus::Validate(const SetPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_SET_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(is_valid(data.bluetoothModeStatus));
-    MDR_VALIDATE(is_valid(data.status));
+    // data.bluetoothModeStatus ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const SetPeripheralStatus& data) {
@@ -639,7 +639,7 @@ MDRResult<void> SetVoiceGuidanceParamSettingOnOff::Validate(const SetVoiceGuidan
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.settingValue));
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const SetVoiceGuidanceParamSettingOnOff& data) {
@@ -671,7 +671,7 @@ MDRResult<void> SetVoiceGuidanceStatusSettingLanguage::Validate(const SetVoiceGu
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.status));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const SetVoiceGuidanceStatusSettingLanguage& data) {
@@ -688,7 +688,7 @@ MDRResult<void> SetVoiceGuidanceStatusSettingOnOff::Validate(const SetVoiceGuida
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
-    MDR_VALIDATE(is_valid(data.status));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const SetVoiceGuidanceStatusSettingOnOff& data) {

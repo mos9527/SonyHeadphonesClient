@@ -122,6 +122,11 @@ Declare that the field is a numeric type, and its value must be within the speci
 Declare that the field is a struct, and the specified verb and arguments apply to the specified field within the struct.
 Nested validation can be achieved by declaring `Field field1.field2 ...` on, e.g. `base` to reach `base.field.field2`, or
 with `Field field1 Field field2 ...` on the same line.
+- `CODEGEN Ignore [reason]`
+Skip automatic and explicit validation for the field. The reason is required and is echoed into
+generated validation sources as `// CODEGEN Ignore [reason]`.
+Use this for open enums that declare an `OUT_OF_RANGE` sentinel: Sound Connect maps unknown wire
+bytes to that sentinel, so strict `is_valid()` rejects values that the official client accepts.
 #### Array (Iterable) types
 Array type of objects of any type can have their validation code emitted through the codegen as well. This applies to:
 - `MDRArray<T>`

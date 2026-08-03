@@ -14,6 +14,11 @@ GENERATED_BANNER = (
     "// Generated from Sound Connect iOS J2ObjC metadata. Do not edit by hand."
 )
 
+OUT_OF_RANGE_IGNORE_REASON = (
+    "OUT_OF_RANGE is expected"
+)
+
+
 def _render_v2_shared_types() -> list[str]:
     return [
         "    struct Range",
@@ -62,8 +67,31 @@ def _offset_comment(field: FieldDecl) -> str:
     return f" // 0x{field.offset:X}" if field.offset is not None else ""
 
 
+def _enum_has_out_of_range(enum: EnumDecl) -> bool:
+    return any(value.name == "OUT_OF_RANGE" for value in enum.values)
+
+
+def _field_semantic_rules(
+    field: FieldDecl, enums_by_name: dict[str, EnumDecl]
+) -> tuple[str, ...]:
+    rules = list(field.semantic_rules)
+    if any(
+        rule == "Ignore"
+        or rule.startswith("Ignore ")
+        or rule.startswith("EnumRange ")
+        for rule in rules
+    ):
+        return tuple(rules)
+    enum = enums_by_name.get(field.cpp_type)
+    if enum is not None and _enum_has_out_of_range(enum):
+        rules.append(f"Ignore {OUT_OF_RANGE_IGNORE_REASON}")
+    return tuple(rules)
+
+
 def _render_struct(
-    payload: PayloadDecl, declarations: dict[str, PayloadDecl]
+    payload: PayloadDecl,
+    declarations: dict[str, PayloadDecl],
+    enums_by_name: dict[str, EnumDecl],
 ) -> list[str]:
     lines = [
         f"    // {payload.objc_name}",
@@ -138,7 +166,7 @@ def _render_struct(
         ]
 
     for field in fields:
-        for rule in field.semantic_rules:
+        for rule in _field_semantic_rules(field, enums_by_name):
             lines.append(f"        // CODEGEN {rule}")
         lines.append(
             f"        {field.cpp_type} {field.name}"
@@ -254,11 +282,12 @@ def render_shared_header(version: int, enums: list[EnumDecl]) -> str:
 
 
 def render_table_header(
-    table: TableIR, shared_enum_names: set[str]
+    table: TableIR, shared_enums: list[EnumDecl]
 ) -> str:
     version = table.version
     number = table.table
     local_prefix = f"THMSGV{version}T{number}"
+    shared_enum_names = {enum.cpp_name for enum in shared_enums}
     local_enums = [
         enum
         for enum in table.enums
@@ -288,9 +317,11 @@ def render_table_header(
     declarations = {
         payload.cpp_name: payload for payload in table.payloads
     }
+    enums_by_name = {enum.cpp_name: enum for enum in shared_enums}
+    enums_by_name.update({enum.cpp_name: enum for enum in table.enums})
     for payload in _ordered_payloads(table.payloads):
         lines.append("")
-        lines.extend(_render_struct(payload, declarations))
+        lines.extend(_render_struct(payload, declarations, enums_by_name))
     lines.extend(
         [
             "#pragma endregion Declarations",
@@ -324,11 +355,9 @@ def render_all(
             encoding="utf-8",
             newline="\n",
         )
-        shared_names = {
-            enum.cpp_name for enum in shared.get(version, [])
-        }
+        shared_enums = shared.get(version, [])
         for table in [item for item in tables if item.version == version]:
-            rendered = render_table_header(table, shared_names)
+            rendered = render_table_header(table, shared_enums)
             destination = (
                 include_directory / f"ProtocolV{version}T{table.table}.hpp"
             )

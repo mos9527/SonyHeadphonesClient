@@ -276,7 +276,9 @@ namespace mdr::v1::t2
         Command command{Command::PERIPHERAL_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
         PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PeripheralBluetoothModeStatus bluetoothModeStatus{PeripheralBluetoothModeStatus::NORMAL_MODE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPeripheralStatusPairingDeviceManagementClassicBt);
@@ -300,6 +302,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceGuidanceSettingValue settingValue{VoiceGuidanceSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceParamSettingOnOff);
@@ -323,6 +326,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceStatusSettingLanguage);
@@ -335,6 +339,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceStatusSettingOnOff);
@@ -379,6 +384,7 @@ namespace mdr::v1::t2
         UInt8 maxOfPairedDevice{}; // 0x2
         // CODEGEN Range 0 255
         UInt8 maxOfConnectedDevice{}; // 0x3
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         FileTransferInMultiConnection fileTransferInMultiConnection{FileTransferInMultiConnection::POSSIBLE}; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPeripheralCapabilityPairingDeviceManagementClassicBt);
@@ -400,7 +406,9 @@ namespace mdr::v1::t2
         // CODEGEN EnumRange Command::PERIPHERAL_RET_STATUS
         Command command{Command::PERIPHERAL_RET_STATUS}; // 0x0
         PeripheralInquiredType inquiredType{PeripheralInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PeripheralBluetoothModeStatus bluetoothModeStatus{PeripheralBluetoothModeStatus::NORMAL_MODE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPeripheralStatus);
@@ -413,7 +421,9 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_RET_CAPABILITY}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SupportsSwitch supportsOnOffSwitching{SupportsSwitch::NOT_SUPPORT}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SupportsSwitch supportsLanguageSwitching{SupportsSwitch::NOT_SUPPORT}; // 0x3
         MDRPodArray<VoiceGuidanceLanguage> supportLanguages; // 0x4
 
@@ -459,6 +469,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_RET_PARAM}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceGuidanceSettingValue settingValue{VoiceGuidanceSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParamSettingOnOff);
@@ -533,6 +544,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_RET_STATUS}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceStatusSettingLanguage);
@@ -545,6 +557,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_RET_STATUS}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceStatusSettingOnOff);
@@ -590,7 +603,9 @@ namespace mdr::v1::t2
         // CODEGEN EnumRange Command::PERIPHERAL_SET_STATUS
         Command command{Command::PERIPHERAL_SET_STATUS}; // 0x0
         PeripheralInquiredType inquiredType{PeripheralInquiredType::NO_USE}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PeripheralBluetoothModeStatus bluetoothModeStatus{PeripheralBluetoothModeStatus::NORMAL_MODE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPeripheralStatus);
@@ -614,6 +629,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_SET_PARAM}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceGuidanceSettingValue settingValue{VoiceGuidanceSettingValue::OFF}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceParamSettingOnOff);
@@ -637,6 +653,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_SET_STATUS}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceStatusSettingLanguage);
@@ -649,6 +666,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_SET_STATUS}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonStatus status{CommonStatus::ENABLE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceStatusSettingOnOff);
