@@ -22,7 +22,7 @@ jobs:
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64"
             script: ""
-          - os: windows-latest
+          - os: windows-11-arm
             arch: arm64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-arm64"
@@ -84,15 +84,15 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE --target SonyHeadphonesClient
 
-    - name: Build tests
+    - name: Build packet replay runner
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: cmake --build . --config $BUILD_TYPE --target mdr_tests
 
-    - name: Run tests
+    - name: Replay packet sets
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: ctest --build-config $BUILD_TYPE --output-on-failure
+      run: ctest --build-config $BUILD_TYPE --output-on-failure --no-tests=error
 
     - name: Strip Symbols (Linux)
       if: runner.os == 'Linux'

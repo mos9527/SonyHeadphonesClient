@@ -140,5 +140,25 @@ add_subdirectory(client)
 
 include(CTest)
 if (BUILD_TESTING)
-    add_subdirectory(libmdr/tests)
+    add_subdirectory(tests)
+
+    file(
+        GLOB replay_test_entries
+        CONFIGURE_DEPENDS
+        LIST_DIRECTORIES true
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*"
+    )
+    foreach(replay_test_entry IN LISTS replay_test_entries)
+        if (IS_DIRECTORY "${replay_test_entry}")
+            get_filename_component(
+                replay_test_name
+                "${replay_test_entry}"
+                NAME
+            )
+            add_test(
+                NAME "${replay_test_name}"
+                COMMAND mdr_tests "${replay_test_entry}"
+            )
+        endif()
+    endforeach()
 endif()

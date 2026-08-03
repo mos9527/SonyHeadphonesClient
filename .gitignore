@@ -537,6 +537,7 @@ cmake-build*/
 *.vcxproj
 
 captures/
+/tests/*/*-tx.*.bin
 tooling/ida/input/
 *.ipa
 *.idb
