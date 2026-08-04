@@ -4,6 +4,7 @@ add_executable(mdr_replay_tests Replay.cpp)
 target_link_libraries(mdr_replay_tests PRIVATE mdr_shared)
 
 add_executable(mdr_abi_tests ABI.c)
+set_target_properties(mdr_abi_tests PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON)
 target_link_libraries(mdr_abi_tests PRIVATE mdr_shared)
 
 set(mdr_test_targets mdr_replay_tests mdr_abi_tests)

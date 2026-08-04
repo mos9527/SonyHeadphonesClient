@@ -1,5 +1,6 @@
 #include <mdr-c/Headphones.h>
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -7,7 +8,7 @@
 #include <string.h>
 
 #define MDR_ASSERT_U32(type) \
-    _Static_assert(sizeof(type) == sizeof(uint32_t), #type " must be uint32_t")
+    static_assert(sizeof(type) == sizeof(uint32_t), #type " must be uint32_t")
 MDR_ASSERT_U32(MDRResult);
 MDR_ASSERT_U32(MDRBoolean);
 MDR_ASSERT_U32(MDRFeatureAvailability);
@@ -37,7 +38,7 @@ MDR_ASSERT_U32(MDRAudioPriority);
 #undef MDR_ASSERT_U32
 
 #define MDR_ASSERT_C_STRUCT(type) \
-    _Static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
+    static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
 MDR_ASSERT_C_STRUCT(MDRIdentity);
 MDR_ASSERT_C_STRUCT(MDRBattery);
 MDR_ASSERT_C_STRUCT(MDRPlayback);
