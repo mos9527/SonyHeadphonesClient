@@ -302,62 +302,6 @@ CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClie
     return CXChildVisit_Continue;
 }
 
-CXChildVisitResult fieldStringifyVisitor(CXCursor cursor, CXCursor, CXClientData)
-{
-    if (clang_getCursorKind(cursor) != CXCursor_FieldDecl)
-        return CXChildVisit_Continue;
-    if (clang_Cursor_getStorageClass(cursor) == CX_SC_Static)
-        return CXChildVisit_Continue;
-
-    CXString name = clang_getCursorSpelling(cursor);
-    const char* rawName = clang_getCString(name);
-    const std::string fieldName = rawName ? rawName : "";
-    clang_disposeString(name);
-
-    CXString typeName = clang_getTypeSpelling(clang_getCursorType(cursor));
-    const char* rawTypeName = clang_getCString(typeName);
-    const std::string typeNameStr = rawTypeName ? rawTypeName : "";
-    clang_disposeString(typeName);
-
-    if (
-        typeNameStr == "Range"
-        || typeNameStr == "mdr::v2::Range"
-    )
-    {
-        println("    o.BeginObjectField(\"{}\");", fieldName);
-        println("    o.Field(\"min\", data.{}.min);", fieldName);
-        println("    o.Field(\"max\", data.{}.max);", fieldName);
-        println("    o.Field(\"step\", data.{}.step);", fieldName);
-        println("    o.EndObject();");
-        return CXChildVisit_Continue;
-    }
-
-    if (typeNameStr.find("SupportFunction") != std::string::npos)
-    {
-        CHECK(
-            typeNameStr.starts_with("MDRPodArray<"),
-            "SupportFunction must be a counted POD array"
-        );
-        CHECK(
-            gNamespaceName == "mdr::v2::t1"
-                || gNamespaceName == "mdr::v2::t2",
-            "SupportFunction requires a V2 table namespace"
-        );
-        println("    o.BeginArrayField(\"{}\");", fieldName);
-        println("    for (const auto& element : data.{}) {{", fieldName);
-        println("        o.BeginObjectElement();");
-        println("        o.Field(\"functionType\", element.functionType);");
-        println("        o.Field(\"priority\", element.priority);");
-        println("        o.EndObject();");
-        println("    }}");
-        println("    o.EndArray();");
-        return CXChildVisit_Continue;
-    }
-
-    println("    o.Field(\"{}\", data.{});", fieldName, fieldName);
-    return CXChildVisit_Continue;
-}
-
 CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
 {
     CXCursorKind kind = clang_getCursorKind(cursor);
@@ -390,13 +334,6 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 gDepth--;
                 println("{}}}", emitIndent());
             }
-            println("mdr::String format_as(const {}& data) {{", structName);
-            println("    mdr::detail::JsonFormatter o;");
-            println("    o.BeginObject();");
-            clang_visitChildren(cursor, fieldStringifyVisitor, nullptr);
-            println("    o.EndObject();");
-            println("    return std::move(o).Take();");
-            println("}}");
             clang_disposeString(name);
             return CXChildVisit_Continue;
         }

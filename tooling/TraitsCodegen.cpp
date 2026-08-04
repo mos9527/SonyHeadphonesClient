@@ -1,6 +1,5 @@
 // TODO: Response commands? Do we still need those?
 #include <map>
-#include <vector>
 #include "Codegen.hpp"
 
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
@@ -11,7 +10,6 @@ std::map<std::string, std::string> gNamespaceToDataTypeMapping = {
     {"mdr::v2::t1", "MDRDataType::DATA_MDR"},
     {"mdr::v2::t2", "MDRDataType::DATA_MDR_NO2"}
 };
-std::vector<std::string> gStructNames;
 CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
 {
     CXCursorKind kind = clang_getCursorKind(cursor);
@@ -27,7 +25,6 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         CXString name = clang_getCursorSpelling(cursor);
         std::string structName = clang_getCString(name);
         clang_disposeString(name);
-        gStructNames.push_back(structName);
         println("    template<> struct MDRTraits<{}::{}> {{", parentStr.substr(5 /* mdr:: */), structName);
         println("        static constexpr MDRDataType kDataType = {};", gNamespaceToDataTypeMapping[parentStr]);
         println("    }};");
@@ -62,11 +59,6 @@ int main( int argc, char** argv )
     println("");
     println("namespace mdr {{");
     clang_visitChildren(cursor, structVisitor, nullptr);
-    println("}}");
-    println("");
-    println("namespace {} {{", gNamespaceName);
-    for (const auto& structName : gStructNames)
-        println("    [[nodiscard]] mdr::String format_as(const {}& value);", structName);
     println("}}");
     std::fflush(stdout);
 

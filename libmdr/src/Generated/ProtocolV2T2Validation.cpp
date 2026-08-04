@@ -3,28 +3,12 @@
 #include "../Details.hpp"
 
 namespace mdr::v2::t2 {
-mdr::String format_as(const SupportFunction& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("functionType", data.functionType);
-    o.Field("priority", data.priority);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_GET_SUPPORT_FUNCTION);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == ConnectInquiredType::FIXED_VALUE);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const ConnectGetSupportFunction& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -36,35 +20,11 @@ MDRResult<void> ConnectRetSupportFunction::Validate(const ConnectRetSupportFunct
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const ConnectRetSupportFunction& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.BeginArrayField("supportFunctions");
-    for (const auto& element : data.supportFunctions) {
-        o.BeginObjectElement();
-        o.Field("functionType", element.functionType);
-        o.Field("priority", element.priority);
-        o.EndObject();
-    }
-    o.EndArray();
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEAGetCapability::Validate(const LEAGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_GET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEAGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEAGetParam::Validate(const LEAGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -72,41 +32,17 @@ MDRResult<void> LEAGetParam::Validate(const LEAGetParam& data) {
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEAGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEAGetStatus::Validate(const LEAGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_GET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEAGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEANotifyParam::Validate(const LEANotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEANotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEANotifyParamLEAudioConnectionModeWithBTReconnection::Validate(const LEANotifyParamLEAudioConnectionModeWithBTReconnection& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -117,29 +53,11 @@ MDRResult<void> LEANotifyParamLEAudioConnectionModeWithBTReconnection::Validate(
     // data.connectionResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEANotifyParamLEAudioConnectionModeWithBTReconnection& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectionMode", data.connectionMode);
-    o.Field("connectionResult", data.connectionResult);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEANotifyStatus::Validate(const LEANotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEANotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEANotifyStatusCommon::Validate(const LEANotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -149,30 +67,12 @@ MDRResult<void> LEANotifyStatusCommon::Validate(const LEANotifyStatusCommon& dat
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEANotifyStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("enableDisable", data.enableDisable);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEANotifyStatusCommonUnavailableReason::Validate(const LEANotifyStatusCommonUnavailableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.unavailableReason ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEANotifyStatusCommonUnavailableReason& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("unavailableReason", data.unavailableReason);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -184,29 +84,11 @@ MDRResult<void> LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEA
     MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.Field("streamingStatus", data.streamingStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEARetCapability::Validate(const LEARetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEARetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEARetCapabilityLEAudioConnectionModeWithBTReconnection::Validate(const LEARetCapabilityLEAudioConnectionModeWithBTReconnection& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -217,29 +99,11 @@ MDRResult<void> LEARetCapabilityLEAudioConnectionModeWithBTReconnection::Validat
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEARetCapabilityLEAudioConnectionModeWithBTReconnection& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectionModes", data.connectionModes);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEARetCapabilityLEAudioSwitchSupportedCompatibility::Validate(const LEARetCapabilityLEAudioSwitchSupportedCompatibility& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEARetCapabilityLEAudioSwitchSupportedCompatibility& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("compatibilityVersion", data.compatibilityVersion);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -248,29 +112,11 @@ MDRResult<void> LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad::Validate(const LE
     MDR_VALIDATE(data.inquiredType == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceUniqueId", data.deviceUniqueId);
-    o.Field("bdAddressLE", data.bdAddressLE);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEARetParam::Validate(const LEARetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEARetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEARetParamGetIdentityResolvingKey::Validate(const LEARetParamGetIdentityResolvingKey& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -281,15 +127,6 @@ MDRResult<void> LEARetParamGetIdentityResolvingKey::Validate(const LEARetParamGe
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEARetParamGetIdentityResolvingKey& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("iRK", data.iRK);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEARetParamLEAudioConnectionModeWithBTReconnection::Validate(const LEARetParamLEAudioConnectionModeWithBTReconnection& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
@@ -297,15 +134,6 @@ MDRResult<void> LEARetParamLEAudioConnectionModeWithBTReconnection::Validate(con
     MDR_VALIDATE(is_valid(data.connectionMode));
     MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEARetParamLEAudioConnectionModeWithBTReconnection& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectionMode", data.connectionMode);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEARetParamPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetParamPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -315,28 +143,11 @@ MDRResult<void> LEARetParamPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetP
     // data.pairedHistory ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEARetParamPasSupportsA2dpLeaUniLeaBroad& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("pairedHistory", data.pairedHistory);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEARetStatus::Validate(const LEARetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEARetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEARetStatusCommonUnavailableReason::Validate(const LEARetStatusCommonUnavailableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -345,15 +156,6 @@ MDRResult<void> LEARetStatusCommonUnavailableReason::Validate(const LEARetStatus
     // data.unavailableReason ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEARetStatusCommonUnavailableReason& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("unavailableReason", data.unavailableReason);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEARetStatusLEAudioConnectionModeWithBTReconnection::Validate(const LEARetStatusLEAudioConnectionModeWithBTReconnection& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
@@ -361,15 +163,6 @@ MDRResult<void> LEARetStatusLEAudioConnectionModeWithBTReconnection::Validate(co
     MDR_VALIDATE(data.type == LEAInquiredType::LE_AUDIO_CONNECTION_MODE_WITH_BT_RECONNECTION);
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEARetStatusLEAudioConnectionModeWithBTReconnection& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("enableDisable", data.enableDisable);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEARetStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetStatusPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -381,29 +174,11 @@ MDRResult<void> LEARetStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARet
     MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEARetStatusPasSupportsA2dpLeaUniLeaBroad& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.Field("streamingStatus", data.streamingStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEASetParam::Validate(const LEASetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const LEASetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> LEASetParamLEAudioConnectionModeWithBTReconnection::Validate(const LEASetParamLEAudioConnectionModeWithBTReconnection& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -413,15 +188,6 @@ MDRResult<void> LEASetParamLEAudioConnectionModeWithBTReconnection::Validate(con
     MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEASetParamLEAudioConnectionModeWithBTReconnection& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectionMode", data.connectionMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> LEASetParamLeAudioConnectionStateNotification::Validate(const LEASetParamLeAudioConnectionStateNotification& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_SET_PARAM);
@@ -429,29 +195,11 @@ MDRResult<void> LEASetParamLeAudioConnectionStateNotification::Validate(const LE
     // data.connectionState ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const LEASetParamLeAudioConnectionStateNotification& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectionState", data.connectionState);
-    o.Field("targetDeviceBdAddressOfAccessory", data.targetDeviceBdAddressOfAccessory);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyGetCapability::Validate(const PartyGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_GET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyGetParam::Validate(const PartyGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -459,50 +207,17 @@ MDRResult<void> PartyGetParam::Validate(const PartyGetParam& data) {
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyGetStatus::Validate(const PartyGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_GET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const PartyIlluminationInfo& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("illuminationItem", data.illuminationItem);
-    o.Field("colorElement", data.colorElement);
-    o.Field("palettePattern", data.palettePattern);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyNotifyParam::Validate(const PartyNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyNotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyNotifyParamDjControl::Validate(const PartyNotifyParamDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -513,16 +228,6 @@ MDRResult<void> PartyNotifyParamDjControl::Validate(const PartyNotifyParamDjCont
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyNotifyParamDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("effectItem", data.effectItem);
-    o.Field("customEQBandStepLevel", data.customEQBandStepLevel);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyNotifyParamIllumination::Validate(const PartyNotifyParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
@@ -531,15 +236,6 @@ MDRResult<void> PartyNotifyParamIllumination::Validate(const PartyNotifyParamIll
     MDR_VALIDATE(is_valid(data.illuminationItem));
     MDR_VALIDATE(data.illuminationItem == IlluminationItem::PARTY_FLASH);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyNotifyParamIllumination& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("illuminationItem", data.illuminationItem);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyNotifyParamKaraoke::Validate(const PartyNotifyParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -550,16 +246,6 @@ MDRResult<void> PartyNotifyParamKaraoke::Validate(const PartyNotifyParamKaraoke&
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyNotifyParamKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settings", data.settings);
-    o.Field("score", data.score);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyNotifyParamLiveKaraoke::Validate(const PartyNotifyParamLiveKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
@@ -568,28 +254,11 @@ MDRResult<void> PartyNotifyParamLiveKaraoke::Validate(const PartyNotifyParamLive
     // data.modeStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyNotifyParamLiveKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("modeStatus", data.modeStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyNotifyStatus::Validate(const PartyNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyNotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyNotifyStatusCommon::Validate(const PartyNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -599,30 +268,11 @@ MDRResult<void> PartyNotifyStatusCommon::Validate(const PartyNotifyStatusCommon&
     // data.value2 ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyNotifyStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value2", data.value2);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyNotifyStatusDjControl::Validate(const PartyNotifyStatusDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyNotifyStatusDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("value2", data.value2);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyNotifyStatusDjControlWithStatusDisableReason::Validate(const PartyNotifyStatusDjControlWithStatusDisableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -633,17 +283,6 @@ MDRResult<void> PartyNotifyStatusDjControlWithStatusDisableReason::Validate(cons
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyNotifyStatusDjControlWithStatusDisableReason& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("value2", data.value2);
-    o.Field("disableReasonList", data.disableReasonList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyNotifyStatusKaraoke::Validate(const PartyNotifyStatusKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
@@ -652,17 +291,6 @@ MDRResult<void> PartyNotifyStatusKaraoke::Validate(const PartyNotifyStatusKaraok
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyNotifyStatusKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("pluggedStatus", data.pluggedStatus);
-    o.Field("scoringStatus", data.scoringStatus);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyNotifyStatusKaraokeWithStatusDisableReason::Validate(const PartyNotifyStatusKaraokeWithStatusDisableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -678,31 +306,11 @@ MDRResult<void> PartyNotifyStatusKaraokeWithStatusDisableReason::Validate(const 
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyNotifyStatusKaraokeWithStatusDisableReason& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("status", data.status);
-    o.Field("pluggedStatus", data.pluggedStatus);
-    o.Field("scoringStatus", data.scoringStatus);
-    o.Field("disableReasonList", data.disableReasonList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetCapability::Validate(const PartyRetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetCapabilityDjControl::Validate(const PartyRetCapabilityDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -712,17 +320,6 @@ MDRResult<void> PartyRetCapabilityDjControl::Validate(const PartyRetCapabilityDj
         MDR_VALIDATE(is_valid(effectItemList_elem));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetCapabilityDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("effectItemList", data.effectItemList);
-    o.Field("numOfCustomEqBand", data.numOfCustomEqBand);
-    o.Field("customEqBandStep", data.customEqBandStep);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetCapabilityKaraoke::Validate(const PartyRetCapabilityKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -737,29 +334,11 @@ MDRResult<void> PartyRetCapabilityKaraoke::Validate(const PartyRetCapabilityKara
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetCapabilityKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("karaokeItemList", data.karaokeItemList);
-    o.Field("samplerItemList", data.samplerItemList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetParam::Validate(const PartyRetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetParamDjControl::Validate(const PartyRetParamDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -770,16 +349,6 @@ MDRResult<void> PartyRetParamDjControl::Validate(const PartyRetParamDjControl& d
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetParamDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("effectItem", data.effectItem);
-    o.Field("customEQBandStepLevel", data.customEQBandStepLevel);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetParamIllumination::Validate(const PartyRetParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
@@ -788,15 +357,6 @@ MDRResult<void> PartyRetParamIllumination::Validate(const PartyRetParamIlluminat
     MDR_VALIDATE(is_valid(data.illuminationItem));
     MDR_VALIDATE(data.illuminationItem == IlluminationItem::PARTY_FLASH);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetParamIllumination& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("illuminationItem", data.illuminationItem);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetParamKaraoke::Validate(const PartyRetParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -807,16 +367,6 @@ MDRResult<void> PartyRetParamKaraoke::Validate(const PartyRetParamKaraoke& data)
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetParamKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settings", data.settings);
-    o.Field("score", data.score);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetParamLiveKaraoke::Validate(const PartyRetParamLiveKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
@@ -825,28 +375,11 @@ MDRResult<void> PartyRetParamLiveKaraoke::Validate(const PartyRetParamLiveKaraok
     // data.modeStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetParamLiveKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("modeStatus", data.modeStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetStatus::Validate(const PartyRetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetStatusCommon::Validate(const PartyRetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -856,30 +389,11 @@ MDRResult<void> PartyRetStatusCommon::Validate(const PartyRetStatusCommon& data)
     // data.value2 ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value2", data.value2);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetStatusDjControl::Validate(const PartyRetStatusDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetStatusDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("value2", data.value2);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetStatusDjControlWithStatusDisableReason::Validate(const PartyRetStatusDjControlWithStatusDisableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -890,17 +404,6 @@ MDRResult<void> PartyRetStatusDjControlWithStatusDisableReason::Validate(const P
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetStatusDjControlWithStatusDisableReason& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("value2", data.value2);
-    o.Field("disableReasonList", data.disableReasonList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartyRetStatusKaraoke::Validate(const PartyRetStatusKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
@@ -909,17 +412,6 @@ MDRResult<void> PartyRetStatusKaraoke::Validate(const PartyRetStatusKaraoke& dat
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartyRetStatusKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("pluggedStatus", data.pluggedStatus);
-    o.Field("scoringStatus", data.scoringStatus);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetStatusKaraokeWithStatusDisableReason::Validate(const PartyRetStatusKaraokeWithStatusDisableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -935,31 +427,11 @@ MDRResult<void> PartyRetStatusKaraokeWithStatusDisableReason::Validate(const Par
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetStatusKaraokeWithStatusDisableReason& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("status", data.status);
-    o.Field("pluggedStatus", data.pluggedStatus);
-    o.Field("scoringStatus", data.scoringStatus);
-    o.Field("disableReasonList", data.disableReasonList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartySetExtParam::Validate(const PartySetExtParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartySetExtParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartySetExtParamDjControl::Validate(const PartySetExtParamDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -967,17 +439,6 @@ MDRResult<void> PartySetExtParamDjControl::Validate(const PartySetExtParamDjCont
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.touchPadOperation ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartySetExtParamDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("touchPadOperation", data.touchPadOperation);
-    o.Field("horizontalCoordinate", data.horizontalCoordinate);
-    o.Field("verticalCoordinate", data.verticalCoordinate);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartySetExtParamIllumination::Validate(const PartySetExtParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -987,20 +448,6 @@ MDRResult<void> PartySetExtParamIllumination::Validate(const PartySetExtParamIll
     // data.touchPadOperation ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartySetExtParamIllumination& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("touchPadOperation", data.touchPadOperation);
-    o.Field("horizontalCoordinate", data.horizontalCoordinate);
-    o.Field("verticalCoordinate", data.verticalCoordinate);
-    o.Field("red", data.red);
-    o.Field("green", data.green);
-    o.Field("blue", data.blue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartySetExtParamKaraoke::Validate(const PartySetExtParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
@@ -1009,28 +456,11 @@ MDRResult<void> PartySetExtParamKaraoke::Validate(const PartySetExtParamKaraoke&
     // data.samplerItem ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartySetExtParamKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("samplerItem", data.samplerItem);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartySetParam::Validate(const PartySetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartySetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartySetParamDjControl::Validate(const PartySetParamDjControl& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1041,16 +471,6 @@ MDRResult<void> PartySetParamDjControl::Validate(const PartySetParamDjControl& d
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartySetParamDjControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("effectItem", data.effectItem);
-    o.Field("customEQBandStepLevel", data.customEQBandStepLevel);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartySetParamIllumination::Validate(const PartySetParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
@@ -1059,15 +479,6 @@ MDRResult<void> PartySetParamIllumination::Validate(const PartySetParamIlluminat
     MDR_VALIDATE(is_valid(data.illumination));
     MDR_VALIDATE(data.illumination == IlluminationItem::PARTY_FLASH);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartySetParamIllumination& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("illumination", data.illumination);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartySetParamKaraoke::Validate(const PartySetParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1078,15 +489,6 @@ MDRResult<void> PartySetParamKaraoke::Validate(const PartySetParamKaraoke& data)
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartySetParamKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settings", data.settings);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartySetParamLiveKaraoke::Validate(const PartySetParamLiveKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
@@ -1095,28 +497,11 @@ MDRResult<void> PartySetParamLiveKaraoke::Validate(const PartySetParamLiveKaraok
     // data.modeStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartySetParamLiveKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("modeStatus", data.modeStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PartySetStatus::Validate(const PartySetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PartySetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartySetStatusKaraoke::Validate(const PartySetStatusKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1126,45 +511,11 @@ MDRResult<void> PartySetStatusKaraoke::Validate(const PartySetStatusKaraoke& dat
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartySetStatusKaraoke& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("scoringStatus", data.scoringStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const Payload& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command2", data.command2);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const PeripheralDeviceInfo& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("btDeviceAddress", data.btDeviceAddress);
-    o.Field("connectedStatus", data.connectedStatus);
-    o.Field("bluetoothClassOfDevice", data.bluetoothClassOfDevice);
-    o.Field("btFriendlyName", data.btFriendlyName);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralGetCapability::Validate(const PeripheralGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_GET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralGetParam::Validate(const PeripheralGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1172,41 +523,17 @@ MDRResult<void> PeripheralGetParam::Validate(const PeripheralGetParam& data) {
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralGetStatus::Validate(const PeripheralGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_GET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralNotifyExtendedParam::Validate(const PeripheralNotifyExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralNotifyExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralNotifyExtendedParamParingDeviceManagementCommon::Validate(const PeripheralNotifyExtendedParamParingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1216,17 +543,6 @@ MDRResult<void> PeripheralNotifyExtendedParamParingDeviceManagementCommon::Valid
     // data.peripheralResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralNotifyExtendedParamParingDeviceManagementCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectivityActionType", data.connectivityActionType);
-    o.Field("peripheralResult", data.peripheralResult);
-    o.Field("btDeviceAddress", data.btDeviceAddress);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const PeripheralNotifyExtendedParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_EXTENDED_PARAM);
@@ -1235,29 +551,11 @@ MDRResult<void> PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const
     // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralNotifyExtendedParamSourceSwitchControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("result", data.result);
-    o.Field("targetBdAddress", data.targetBdAddress);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralNotifyParam::Validate(const PeripheralNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralNotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralNotifyParamMusicHandOverSetting::Validate(const PeripheralNotifyParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1265,15 +563,6 @@ MDRResult<void> PeripheralNotifyParamMusicHandOverSetting::Validate(const Periph
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralNotifyParamMusicHandOverSetting& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("on", data.on);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralNotifyParamSourceSwitchControl::Validate(const PeripheralNotifyParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1283,29 +572,11 @@ MDRResult<void> PeripheralNotifyParamSourceSwitchControl::Validate(const Periphe
     // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralNotifyParamSourceSwitchControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value1", data.value1);
-    o.Field("result", data.result);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralNotifyStatus::Validate(const PeripheralNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralNotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralNotifyStatusParingDeviceManagementCommon::Validate(const PeripheralNotifyStatusParingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1315,29 +586,11 @@ MDRResult<void> PeripheralNotifyStatusParingDeviceManagementCommon::Validate(con
     // data.enableDisableStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralNotifyStatusParingDeviceManagementCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("btMode", data.btMode);
-    o.Field("enableDisableStatus", data.enableDisableStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralRetCapability::Validate(const PeripheralRetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralRetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralRetCapabilityParingDeviceManagementCommon::Validate(const PeripheralRetCapabilityParingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1350,30 +603,11 @@ MDRResult<void> PeripheralRetCapabilityParingDeviceManagementCommon::Validate(co
     // data.fileTransferInMultiConnection ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralRetCapabilityParingDeviceManagementCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("maxOfPairedDevice", data.maxOfPairedDevice);
-    o.Field("maxOfConnectedDevice", data.maxOfConnectedDevice);
-    o.Field("fileTransferInMultiConnection", data.fileTransferInMultiConnection);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralRetParam::Validate(const PeripheralRetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralRetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralRetParamMusicHandOverSetting::Validate(const PeripheralRetParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1382,15 +616,6 @@ MDRResult<void> PeripheralRetParamMusicHandOverSetting::Validate(const Periphera
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralRetParamMusicHandOverSetting& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("on", data.on);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralRetParamSourceSwitchControl::Validate(const PeripheralRetParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
@@ -1398,28 +623,11 @@ MDRResult<void> PeripheralRetParamSourceSwitchControl::Validate(const Peripheral
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralRetParamSourceSwitchControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value", data.value);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralRetStatus::Validate(const PeripheralRetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralRetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralRetStatusPairingDeviceManagementCommon::Validate(const PeripheralRetStatusPairingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1429,29 +637,11 @@ MDRResult<void> PeripheralRetStatusPairingDeviceManagementCommon::Validate(const
     // data.enableDisableStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralRetStatusPairingDeviceManagementCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("btMode", data.btMode);
-    o.Field("enableDisableStatus", data.enableDisableStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralSetExtendedParam::Validate(const PeripheralSetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralSetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralSetExtendedParamParingDeviceManagementCommon::Validate(const PeripheralSetExtendedParamParingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1460,16 +650,6 @@ MDRResult<void> PeripheralSetExtendedParamParingDeviceManagementCommon::Validate
     // data.connectivityActionType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralSetExtendedParamParingDeviceManagementCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("connectivityActionType", data.connectivityActionType);
-    o.Field("btDeviceAddress", data.btDeviceAddress);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralSetExtendedParamSourceSwitchControl::Validate(const PeripheralSetExtendedParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_EXTENDED_PARAM);
@@ -1477,28 +657,11 @@ MDRResult<void> PeripheralSetExtendedParamSourceSwitchControl::Validate(const Pe
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralSetExtendedParamSourceSwitchControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("targetBdAddress", data.targetBdAddress);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralSetParam::Validate(const PeripheralSetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralSetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralSetParamMusicHandOverSetting::Validate(const PeripheralSetParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1507,15 +670,6 @@ MDRResult<void> PeripheralSetParamMusicHandOverSetting::Validate(const Periphera
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralSetParamMusicHandOverSetting& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("on", data.on);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralSetParamSourceSwitchControl::Validate(const PeripheralSetParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
@@ -1523,28 +677,11 @@ MDRResult<void> PeripheralSetParamSourceSwitchControl::Validate(const Peripheral
     MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralSetParamSourceSwitchControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value", data.value);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralSetStatus::Validate(const PeripheralSetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralSetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralSetStatusParingDeviceManagementCommon::Validate(const PeripheralSetStatusParingDeviceManagementCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1554,29 +691,11 @@ MDRResult<void> PeripheralSetStatusParingDeviceManagementCommon::Validate(const 
     // data.enableDisableStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralSetStatusParingDeviceManagementCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("btMode", data.btMode);
-    o.Field("enableDisableStatus", data.enableDisableStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerGetCapability::Validate(const PowerGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_GET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerGetParam::Validate(const PowerGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1584,27 +703,11 @@ MDRResult<void> PowerGetParam::Validate(const PowerGetParam& data) {
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerGetStatus::Validate(const PowerGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_GET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerNotifyParam::Validate(const PowerNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1612,29 +715,12 @@ MDRResult<void> PowerNotifyParam::Validate(const PowerNotifyParam& data) {
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerNotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerNotifyParamSettingOnOff::Validate(const PowerNotifyParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_NTFY_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.onOffSettingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerNotifyParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("onOffSettingValue", data.onOffSettingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerNotifyParamUsbSubmersion::Validate(const PowerNotifyParamUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1644,28 +730,11 @@ MDRResult<void> PowerNotifyParamUsbSubmersion::Validate(const PowerNotifyParamUs
     // data.userConfirmationStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerNotifyParamUsbSubmersion& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("userConfirmationStatus", data.userConfirmationStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerNotifyStatus::Validate(const PowerNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerNotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerNotifyStatusCaringChargeWithThreshold::Validate(const PowerNotifyStatusCaringChargeWithThreshold& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1676,31 +745,12 @@ MDRResult<void> PowerNotifyStatusCaringChargeWithThreshold::Validate(const Power
     // data.noticeForBatteryNecessity ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerNotifyStatusCaringChargeWithThreshold& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("enableDisable", data.enableDisable);
-    o.Field("noticeForBatteryNecessity", data.noticeForBatteryNecessity);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerNotifyStatusCommon::Validate(const PowerNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerNotifyStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("enableDisable", data.enableDisable);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerNotifyStatusUsbSubmersion::Validate(const PowerNotifyStatusUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1710,28 +760,11 @@ MDRResult<void> PowerNotifyStatusUsbSubmersion::Validate(const PowerNotifyStatus
     // data.usbSubmersionStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerNotifyStatusUsbSubmersion& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbSubmersionStatus", data.usbSubmersionStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerRetCapability::Validate(const PowerRetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerRetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerRetCapabilityAutoStandby::Validate(const PowerRetCapabilityAutoStandby& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1740,30 +773,12 @@ MDRResult<void> PowerRetCapabilityAutoStandby::Validate(const PowerRetCapability
     // data.candidateElement ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerRetCapabilityAutoStandby& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("candidateElement", data.candidateElement);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerRetCapabilityCaringChargeWithThreshold::Validate(const PowerRetCapabilityCaringChargeWithThreshold& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerRetCapabilityCaringChargeWithThreshold& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value", data.value);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerRetCapabilityUsbSubmersion::Validate(const PowerRetCapabilityUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1773,28 +788,11 @@ MDRResult<void> PowerRetCapabilityUsbSubmersion::Validate(const PowerRetCapabili
     // data.monitoringCapability ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerRetCapabilityUsbSubmersion& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("monitoringCapability", data.monitoringCapability);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerRetParam::Validate(const PowerRetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerRetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerRetParamSettingOnOff::Validate(const PowerRetParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1803,28 +801,11 @@ MDRResult<void> PowerRetParamSettingOnOff::Validate(const PowerRetParamSettingOn
     // data.onOffSettingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerRetParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("onOffSettingValue", data.onOffSettingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerRetStatus::Validate(const PowerRetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerRetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerRetStatusCaringChargeWithThreshold::Validate(const PowerRetStatusCaringChargeWithThreshold& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1835,31 +816,12 @@ MDRResult<void> PowerRetStatusCaringChargeWithThreshold::Validate(const PowerRet
     // data.noticeForBatteryNecessity ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerRetStatusCaringChargeWithThreshold& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("enableDisable", data.enableDisable);
-    o.Field("noticeForBatteryNecessity", data.noticeForBatteryNecessity);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerRetStatusCommon::Validate(const PowerRetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerRetStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("enableDisable", data.enableDisable);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerRetStatusUsbSubmersion::Validate(const PowerRetStatusUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1869,28 +831,11 @@ MDRResult<void> PowerRetStatusUsbSubmersion::Validate(const PowerRetStatusUsbSub
     // data.usbSubmersionStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerRetStatusUsbSubmersion& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbSubmersionStatus", data.usbSubmersionStatus);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PowerSetParam::Validate(const PowerSetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_SET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PowerSetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PowerSetParamSettingOnOff::Validate(const PowerSetParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1899,78 +844,11 @@ MDRResult<void> PowerSetParamSettingOnOff::Validate(const PowerSetParamSettingOn
     // data.onOffSettingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PowerSetParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("onOffSettingValue", data.onOffSettingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const RepeatTapKey& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("key", data.key);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningData& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("targetType", data.targetType);
-    o.Field("timestamp", data.timestamp);
-    o.Field("rtcRc", data.rtcRc);
-    o.Field("viewTime", data.viewTime);
-    o.Field("soundPressure", data.soundPressure);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningData1& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("targetType", data.targetType);
-    o.Field("timestamp", data.timestamp);
-    o.Field("rtcRc", data.rtcRc);
-    o.Field("viewTime", data.viewTime);
-    o.Field("soundPressure", data.soundPressure);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningData2& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("targetType", data.targetType);
-    o.Field("timestamp", data.timestamp);
-    o.Field("rtcRc", data.rtcRc);
-    o.Field("viewTime", data.viewTime);
-    o.Field("soundPressure", data.soundPressure);
-    o.Field("value6", data.value6);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command2", data.command2);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningGetExtendedParam::Validate(const SafeListeningGetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_GET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningGetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningGetParam::Validate(const SafeListeningGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -1978,50 +856,17 @@ MDRResult<void> SafeListeningGetParam::Validate(const SafeListeningGetParam& dat
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command2", data.command2);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyParam::Validate(const SafeListeningNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyParamMaxVolLvLimit::Validate(const SafeListeningNotifyParamMaxVolLvLimit& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyParamMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("idxOfMaxVolLv", data.idxOfMaxVolLv);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningNotifyParamSL::Validate(const SafeListeningNotifyParamSL& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2031,16 +876,6 @@ MDRResult<void> SafeListeningNotifyParamSL::Validate(const SafeListeningNotifyPa
     // data.previewMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyParamSL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("safeListeningMode", data.safeListeningMode);
-    o.Field("previewMode", data.previewMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyParamSVC::Validate(const SafeListeningNotifyParamSVC& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_PARAM);
@@ -2049,29 +884,11 @@ MDRResult<void> SafeListeningNotifyParamSVC::Validate(const SafeListeningNotifyP
     // data.safeVolumeControlMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyParamSVC& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("volumeLimitationMode", data.volumeLimitationMode);
-    o.Field("safeVolumeControlMode", data.safeVolumeControlMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyStatus::Validate(const SafeListeningNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningNotifyStatusMaxVolLvLimit::Validate(const SafeListeningNotifyStatusMaxVolLvLimit& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2080,26 +897,10 @@ MDRResult<void> SafeListeningNotifyStatusMaxVolLvLimit::Validate(const SafeListe
     // data.onOff ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyStatusMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("onOff", data.onOff);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyStatusSL::Validate(const SafeListeningNotifyStatusSL& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyStatusSL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningNotifyStatusSVC::Validate(const SafeListeningNotifyStatusSVC& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2107,43 +908,6 @@ MDRResult<void> SafeListeningNotifyStatusSVC::Validate(const SafeListeningNotify
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.wHOStandardLevel ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyStatusSVC& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("wHOStandardLevel", data.wHOStandardLevel);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningRetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command2", data.command2);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningRetCapabilityMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("limitPattern", data.limitPattern);
-    o.Field("minimumInterval", data.minimumInterval);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningRetCapabilitySL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("roundBase", data.roundBase);
-    o.Field("timestampBase", data.timestampBase);
-    o.Field("minimumInterval", data.minimumInterval);
-    o.Field("logCapacity", data.logCapacity);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningRetExtendedParam::Validate(const SafeListeningRetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2154,44 +918,17 @@ MDRResult<void> SafeListeningRetExtendedParam::Validate(const SafeListeningRetEx
     // data.errorCause ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("levelPerPeriod", data.levelPerPeriod);
-    o.Field("errorCause", data.errorCause);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetParam::Validate(const SafeListeningRetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetParamMaxVolLvLimit::Validate(const SafeListeningRetParamMaxVolLvLimit& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningRetParamMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("idxOfMaxVolLv", data.idxOfMaxVolLv);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningRetParamSL::Validate(const SafeListeningRetParamSL& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2200,28 +937,11 @@ MDRResult<void> SafeListeningRetParamSL::Validate(const SafeListeningRetParamSL&
     // data.availability ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetParamSL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("availability", data.availability);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetStatus::Validate(const SafeListeningRetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningRetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningRetStatusMaxVolLvLimit::Validate(const SafeListeningRetStatusMaxVolLvLimit& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2230,26 +950,10 @@ MDRResult<void> SafeListeningRetStatusMaxVolLvLimit::Validate(const SafeListenin
     // data.onOff ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetStatusMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("onOff", data.onOff);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetStatusSL::Validate(const SafeListeningRetStatusSL& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningRetStatusSL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningSetParam::Validate(const SafeListeningSetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2257,28 +961,11 @@ MDRResult<void> SafeListeningSetParam::Validate(const SafeListeningSetParam& dat
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningSetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningSetParamMaxVolLvLimit::Validate(const SafeListeningSetParamMaxVolLvLimit& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningSetParamMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("idxOfMaxVolLv", data.idxOfMaxVolLv);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningSetParamSL::Validate(const SafeListeningSetParamSL& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2288,16 +975,6 @@ MDRResult<void> SafeListeningSetParamSL::Validate(const SafeListeningSetParamSL&
     // data.previewMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningSetParamSL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("safeListeningMode", data.safeListeningMode);
-    o.Field("previewMode", data.previewMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningSetParamSVC::Validate(const SafeListeningSetParamSVC& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_PARAM);
@@ -2306,29 +983,11 @@ MDRResult<void> SafeListeningSetParamSVC::Validate(const SafeListeningSetParamSV
     // data.safeVolumeControlMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningSetParamSVC& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("volumeLimitationMode", data.volumeLimitationMode);
-    o.Field("safeVolumeControlMode", data.safeVolumeControlMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningSetStatus::Validate(const SafeListeningSetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningSetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningSetStatusMaxVolLvLimit::Validate(const SafeListeningSetStatusMaxVolLvLimit& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2337,26 +996,10 @@ MDRResult<void> SafeListeningSetStatusMaxVolLvLimit::Validate(const SafeListenin
     // data.onOff ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningSetStatusMaxVolLvLimit& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("onOff", data.onOff);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningSetStatusSL::Validate(const SafeListeningSetStatusSL& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningSetStatusSL& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningSetStatusSVC::Validate(const SafeListeningSetStatusSVC& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2365,50 +1008,17 @@ MDRResult<void> SafeListeningSetStatusSVC::Validate(const SafeListeningSetStatus
     // data.wHOStandardLevel ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningSetStatusSVC& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("wHOStandardLevel", data.wHOStandardLevel);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SafeListeningStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("timestamp", data.timestamp);
-    o.Field("rtcRc", data.rtcRc);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemGetCapability::Validate(const SystemGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemGetCapabilityCommon::Validate(const SystemGetCapabilityCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemGetCapabilityCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemGetCapabilitySVACommand::Validate(const SystemGetCapabilitySVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2417,42 +1027,17 @@ MDRResult<void> SystemGetCapabilitySVACommand::Validate(const SystemGetCapabilit
     MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemGetCapabilitySVACommand& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("receivedDataLength", data.receivedDataLength);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemGetExtendedParam::Validate(const SystemGetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemGetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemGetExtendedParamCommon::Validate(const SystemGetExtendedParamCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemGetExtendedParamCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemGetExtendedParamUsbBrowser::Validate(const SystemGetExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2462,28 +1047,11 @@ MDRResult<void> SystemGetExtendedParamUsbBrowser::Validate(const SystemGetExtend
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemGetExtendedParamUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("informationType", data.informationType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemGetParam::Validate(const SystemGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemGetStatus::Validate(const SystemGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2491,27 +1059,11 @@ MDRResult<void> SystemGetStatus::Validate(const SystemGetStatus& data) {
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyExtendedParam::Validate(const SystemNotifyExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyExtendedParamUsbBrowser::Validate(const SystemNotifyExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2520,15 +1072,6 @@ MDRResult<void> SystemNotifyExtendedParamUsbBrowser::Validate(const SystemNotify
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyExtendedParamUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("informationType", data.informationType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyExtendedParamUsbBrowserForDirectoryStatus::Validate(const SystemNotifyExtendedParamUsbBrowserForDirectoryStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2540,17 +1083,6 @@ MDRResult<void> SystemNotifyExtendedParamUsbBrowserForDirectoryStatus::Validate(
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyExtendedParamUsbBrowserForDirectoryStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("informationType", data.informationType);
-    o.Field("currentLayerStatus", data.currentLayerStatus);
-    o.Field("directoryIndex", data.directoryIndex);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyExtendedParamUsbBrowserForFileStatus::Validate(const SystemNotifyExtendedParamUsbBrowserForFileStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
@@ -2561,31 +1093,11 @@ MDRResult<void> SystemNotifyExtendedParamUsbBrowserForFileStatus::Validate(const
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyExtendedParamUsbBrowserForFileStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("informationType", data.informationType);
-    o.Field("currentLayerStatus", data.currentLayerStatus);
-    o.Field("currentDirectoryIndex", data.currentDirectoryIndex);
-    o.Field("fileIndex", data.fileIndex);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParam::Validate(const SystemNotifyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamAutoVolumeWithLimitation::Validate(const SystemNotifyParamAutoVolumeWithLimitation& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2598,31 +1110,12 @@ MDRResult<void> SystemNotifyParamAutoVolumeWithLimitation::Validate(const System
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamAutoVolumeWithLimitation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("settingValue", data.settingValue);
-    o.Field("limitationTypeList", data.limitationTypeList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamCommon::Validate(const SystemNotifyParamCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParamCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamFunctionChange::Validate(const SystemNotifyParamFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2632,15 +1125,6 @@ MDRResult<void> SystemNotifyParamFunctionChange::Validate(const SystemNotifyPara
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamFunctionChange& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("function", data.function);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamLightingDefaultColorColorType::Validate(const SystemNotifyParamLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2648,15 +1132,6 @@ MDRResult<void> SystemNotifyParamLightingDefaultColorColorType::Validate(const S
     MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
     // data.colorType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParamLightingDefaultColorColorType& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("colorType", data.colorType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamLightingDefaultColorCustomColor::Validate(const SystemNotifyParamLightingDefaultColorCustomColor& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2671,17 +1146,6 @@ MDRResult<void> SystemNotifyParamLightingDefaultColorCustomColor::Validate(const
     MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamLightingDefaultColorCustomColor& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("red", data.red);
-    o.Field("green", data.green);
-    o.Field("blue", data.blue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamLightingMode::Validate(const SystemNotifyParamLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2690,15 +1154,6 @@ MDRResult<void> SystemNotifyParamLightingMode::Validate(const SystemNotifyParamL
     // data.lightingMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamLightingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("lightingMode", data.lightingMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamLinkAutoSwitchForHeadsets::Validate(const SystemNotifyParamLinkAutoSwitchForHeadsets& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2706,17 +1161,6 @@ MDRResult<void> SystemNotifyParamLinkAutoSwitchForHeadsets::Validate(const Syste
     MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
     // data.linkAutoSwitchStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParamLinkAutoSwitchForHeadsets& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("linkAutoSwitchStatus", data.linkAutoSwitchStatus);
-    o.Field("speakerIdentifier", data.speakerIdentifier);
-    o.Field("smartPhoneBtAddress", data.smartPhoneBtAddress);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamLinkAutoSwitchForSpeaker::Validate(const SystemNotifyParamLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2727,15 +1171,6 @@ MDRResult<void> SystemNotifyParamLinkAutoSwitchForSpeaker::Validate(const System
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamLinkAutoSwitchForSpeaker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("smartPhoneBDAddressList", data.smartPhoneBDAddressList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamMicOnOffByHeadphoneOperation::Validate(const SystemNotifyParamMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2745,16 +1180,6 @@ MDRResult<void> SystemNotifyParamMicOnOffByHeadphoneOperation::Validate(const Sy
     // data.micOffSoundEffect ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamMicOnOffByHeadphoneOperation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("micOnOffByHeadphoneOperation", data.micOnOffByHeadphoneOperation);
-    o.Field("micOffSoundEffect", data.micOffSoundEffect);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamQuickAccessEasySetting::Validate(const SystemNotifyParamQuickAccessEasySetting& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2762,15 +1187,6 @@ MDRResult<void> SystemNotifyParamQuickAccessEasySetting::Validate(const SystemNo
     MDR_VALIDATE(data.type == SystemInquiredType::QUICK_ACCESS_EASY_SETTING);
     // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParamQuickAccessEasySetting& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("result", data.result);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamRepeatTapTrainingMode::Validate(const SystemNotifyParamRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2780,16 +1196,6 @@ MDRResult<void> SystemNotifyParamRepeatTapTrainingMode::Validate(const SystemNot
     MDR_VALIDATE(is_valid(data.key));
     // data.action ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParamRepeatTapTrainingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("key", data.key);
-    o.Field("action", data.action);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamSVACommand::Validate(const SystemNotifyParamSVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2803,17 +1209,6 @@ MDRResult<void> SystemNotifyParamSVACommand::Validate(const SystemNotifyParamSVA
     MDR_VALIDATE(data.detectId >= 0 && data.detectId <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamSVACommand& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("trainingModeOnOffValue", data.trainingModeOnOffValue);
-    o.Field("detectType", data.detectType);
-    o.Field("detectId", data.detectId);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamUsbBrowser::Validate(const SystemNotifyParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2822,16 +1217,6 @@ MDRResult<void> SystemNotifyParamUsbBrowser::Validate(const SystemNotifyParamUsb
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     // data.requestResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyParamUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbBrowserCommand", data.usbBrowserCommand);
-    o.Field("requestResult", data.requestResult);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamUsbBrowserWithIndex::Validate(const SystemNotifyParamUsbBrowserWithIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2842,17 +1227,6 @@ MDRResult<void> SystemNotifyParamUsbBrowserWithIndex::Validate(const SystemNotif
     // data.requestResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamUsbBrowserWithIndex& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbBrowserCommand", data.usbBrowserCommand);
-    o.Field("requestResult", data.requestResult);
-    o.Field("index", data.index);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyParamUsbBrowserWithoutIndex::Validate(const SystemNotifyParamUsbBrowserWithoutIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
@@ -2862,29 +1236,11 @@ MDRResult<void> SystemNotifyParamUsbBrowserWithoutIndex::Validate(const SystemNo
     // data.requestResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamUsbBrowserWithoutIndex& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbBrowserCommand", data.usbBrowserCommand);
-    o.Field("requestResult", data.requestResult);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyStatus::Validate(const SystemNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyStatusCommon::Validate(const SystemNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2893,15 +1249,6 @@ MDRResult<void> SystemNotifyStatusCommon::Validate(const SystemNotifyStatusCommo
     MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyStatusLinkAutoSwitchForSpeaker::Validate(const SystemNotifyStatusLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2912,17 +1259,6 @@ MDRResult<void> SystemNotifyStatusLinkAutoSwitchForSpeaker::Validate(const Syste
     // data.stereoPairStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyStatusLinkAutoSwitchForSpeaker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.Field("stereoPairStatus", data.stereoPairStatus);
-    o.Field("partnerSpeakerIdentifier", data.partnerSpeakerIdentifier);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemNotifyStatusRepeatTapTrainingMode::Validate(const SystemNotifyStatusRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
@@ -2930,15 +1266,6 @@ MDRResult<void> SystemNotifyStatusRepeatTapTrainingMode::Validate(const SystemNo
     MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemNotifyStatusRepeatTapTrainingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyStatusWearingStatusChecker::Validate(const SystemNotifyStatusWearingStatusChecker& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2948,28 +1275,11 @@ MDRResult<void> SystemNotifyStatusWearingStatusChecker::Validate(const SystemNot
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyStatusWearingStatusChecker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetCapability::Validate(const SystemRetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetCapabilityFunctionChange::Validate(const SystemRetCapabilityFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -2981,15 +1291,6 @@ MDRResult<void> SystemRetCapabilityFunctionChange::Validate(const SystemRetCapab
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetCapabilityFunctionChange& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("functions", data.functions);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetCapabilityLightingDefaultColorColorType::Validate(const SystemRetCapabilityLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
@@ -2999,15 +1300,6 @@ MDRResult<void> SystemRetCapabilityLightingDefaultColorColorType::Validate(const
         MDR_VALIDATE(is_valid(colorTypeList_elem));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetCapabilityLightingDefaultColorColorType& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("colorTypeList", data.colorTypeList);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetCapabilityLightingMode::Validate(const SystemRetCapabilityLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3022,31 +1314,12 @@ MDRResult<void> SystemRetCapabilityLightingMode::Validate(const SystemRetCapabil
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetCapabilityLightingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("lightingModeList", data.lightingModeList);
-    o.Field("exclusiveFunctionIdList", data.exclusiveFunctionIdList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetCapabilityLinkAutoSwitchForSpeaker::Validate(const SystemRetCapabilityLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetCapabilityLinkAutoSwitchForSpeaker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("speakerIdentifier", data.speakerIdentifier);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetCapabilityMicOnOffByHeadphoneOperation::Validate(const SystemRetCapabilityMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3055,15 +1328,6 @@ MDRResult<void> SystemRetCapabilityMicOnOffByHeadphoneOperation::Validate(const 
     MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
     MDR_VALIDATE(is_valid(data.keyType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetCapabilityMicOnOffByHeadphoneOperation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("keyType", data.keyType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilitySVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3076,17 +1340,6 @@ MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilit
     for (const auto& data_elem : data.data) {
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetCapabilitySVACommand& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("dataContinue", data.dataContinue);
-    o.Field("dataLength", data.dataLength);
-    o.Field("data", data.data);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch::Validate(const SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3103,19 +1356,6 @@ MDRResult<void> SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch::V
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("value2", data.value2);
-    o.Field("resumableStatus", data.resumableStatus);
-    o.Field("trueWirelessStatus", data.trueWirelessStatus);
-    o.Field("bGTransferStatus", data.bGTransferStatus);
-    o.Field("supportLanguages", data.supportLanguages);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetCapabilityUsbBrowser::Validate(const SystemRetCapabilityUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
@@ -3123,30 +1363,12 @@ MDRResult<void> SystemRetCapabilityUsbBrowser::Validate(const SystemRetCapabilit
     MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetCapabilityUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("numberOfItemsInOneTransaction", data.numberOfItemsInOneTransaction);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport::Validate(const SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == SystemInquiredType::VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("bluetoothAddressForVASetupLink", data.bluetoothAddressForVASetupLink);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetCapabilityWearingDeviceInformation::Validate(const SystemRetCapabilityWearingDeviceInformation& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3158,37 +1380,11 @@ MDRResult<void> SystemRetCapabilityWearingDeviceInformation::Validate(const Syst
     MDR_VALIDATE(data.numOfDeviceSupporter >= 1 && data.numOfDeviceSupporter <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetCapabilityWearingDeviceInformation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("earphoneShape", data.earphoneShape);
-    o.Field("numOfDeviceSupporter", data.numOfDeviceSupporter);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetExtendedParam::Validate(const SystemRetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_ServiceInformation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("language", data.language);
-    o.Field("serviceId", data.serviceId);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetExtendedParamUsbBrowser::Validate(const SystemRetExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3197,15 +1393,6 @@ MDRResult<void> SystemRetExtendedParamUsbBrowser::Validate(const SystemRetExtend
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetExtendedParamUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("informationType", data.informationType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetExtendedParamUsbBrowserForDirectoryStatus::Validate(const SystemRetExtendedParamUsbBrowserForDirectoryStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3217,17 +1404,6 @@ MDRResult<void> SystemRetExtendedParamUsbBrowserForDirectoryStatus::Validate(con
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetExtendedParamUsbBrowserForDirectoryStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("informationType", data.informationType);
-    o.Field("currentLayerStatus", data.currentLayerStatus);
-    o.Field("directoryIndex", data.directoryIndex);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetExtendedParamUsbBrowserForFileStatus::Validate(const SystemRetExtendedParamUsbBrowserForFileStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
@@ -3238,18 +1414,6 @@ MDRResult<void> SystemRetExtendedParamUsbBrowserForFileStatus::Validate(const Sy
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetExtendedParamUsbBrowserForFileStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("informationType", data.informationType);
-    o.Field("currentLayerStatus", data.currentLayerStatus);
-    o.Field("currentDirectoryIndex", data.currentDirectoryIndex);
-    o.Field("fileIndex", data.fileIndex);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetExtendedParamUsbBrowserForSize::Validate(const SystemRetExtendedParamUsbBrowserForSize& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
@@ -3258,29 +1422,11 @@ MDRResult<void> SystemRetExtendedParamUsbBrowserForSize::Validate(const SystemRe
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetExtendedParamUsbBrowserForSize& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("informationType", data.informationType);
-    o.Field("size", data.size);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParam::Validate(const SystemRetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetParamAutoVolumeWithLimitation::Validate(const SystemRetParamAutoVolumeWithLimitation& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3293,31 +1439,12 @@ MDRResult<void> SystemRetParamAutoVolumeWithLimitation::Validate(const SystemRet
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamAutoVolumeWithLimitation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("settingValue", data.settingValue);
-    o.Field("limitationTypeList", data.limitationTypeList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParamCommon::Validate(const SystemRetParamCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetParamCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetParamFunctionChange::Validate(const SystemRetParamFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3327,15 +1454,6 @@ MDRResult<void> SystemRetParamFunctionChange::Validate(const SystemRetParamFunct
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamFunctionChange& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("function", data.function);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParamLightingDefaultColorColorType::Validate(const SystemRetParamLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
@@ -3343,15 +1461,6 @@ MDRResult<void> SystemRetParamLightingDefaultColorColorType::Validate(const Syst
     MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
     // data.colorType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetParamLightingDefaultColorColorType& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("colorType", data.colorType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetParamLightingDefaultColorCustomColor::Validate(const SystemRetParamLightingDefaultColorCustomColor& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3366,17 +1475,6 @@ MDRResult<void> SystemRetParamLightingDefaultColorCustomColor::Validate(const Sy
     MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamLightingDefaultColorCustomColor& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("red", data.red);
-    o.Field("green", data.green);
-    o.Field("blue", data.blue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParamLightingMode::Validate(const SystemRetParamLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
@@ -3385,15 +1483,6 @@ MDRResult<void> SystemRetParamLightingMode::Validate(const SystemRetParamLightin
     // data.lightingMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamLightingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("lightingMode", data.lightingMode);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParamLinkAutoSwitchForHeadsets::Validate(const SystemRetParamLinkAutoSwitchForHeadsets& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
@@ -3401,17 +1490,6 @@ MDRResult<void> SystemRetParamLinkAutoSwitchForHeadsets::Validate(const SystemRe
     MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
     // data.linkAutoSwitchStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetParamLinkAutoSwitchForHeadsets& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("linkAutoSwitchStatus", data.linkAutoSwitchStatus);
-    o.Field("speakerIdentifier", data.speakerIdentifier);
-    o.Field("smartPhoneBtAddress", data.smartPhoneBtAddress);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetParamLinkAutoSwitchForSpeaker::Validate(const SystemRetParamLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3422,15 +1500,6 @@ MDRResult<void> SystemRetParamLinkAutoSwitchForSpeaker::Validate(const SystemRet
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamLinkAutoSwitchForSpeaker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("smartPhoneBDAddressList", data.smartPhoneBDAddressList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParamMicOnOffByHeadphoneOperation::Validate(const SystemRetParamMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
@@ -3440,16 +1509,6 @@ MDRResult<void> SystemRetParamMicOnOffByHeadphoneOperation::Validate(const Syste
     // data.micOffSoundEffect ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamMicOnOffByHeadphoneOperation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("micOnOffByHeadphoneOperation", data.micOnOffByHeadphoneOperation);
-    o.Field("micOffSoundEffect", data.micOffSoundEffect);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetParamSVASettingMtkTransferSupportLanguageSwitch::Validate(const SystemRetParamSVASettingMtkTransferSupportLanguageSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
@@ -3458,28 +1517,11 @@ MDRResult<void> SystemRetParamSVASettingMtkTransferSupportLanguageSwitch::Valida
     // data.currentLanguage ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetParamSVASettingMtkTransferSupportLanguageSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("currentLanguage", data.currentLanguage);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetStatus::Validate(const SystemRetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetStatusCommon::Validate(const SystemRetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3488,15 +1530,6 @@ MDRResult<void> SystemRetStatusCommon::Validate(const SystemRetStatusCommon& dat
     MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetStatusLinkAutoSwitchForSpeaker::Validate(const SystemRetStatusLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3507,17 +1540,6 @@ MDRResult<void> SystemRetStatusLinkAutoSwitchForSpeaker::Validate(const SystemRe
     // data.stereoPairStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetStatusLinkAutoSwitchForSpeaker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.Field("stereoPairStatus", data.stereoPairStatus);
-    o.Field("partnerSpeakerIdentifier", data.partnerSpeakerIdentifier);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetStatusRepeatTapTrainingMode::Validate(const SystemRetStatusRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
@@ -3525,15 +1547,6 @@ MDRResult<void> SystemRetStatusRepeatTapTrainingMode::Validate(const SystemRetSt
     MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemRetStatusRepeatTapTrainingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemRetStatusWearingStatusChecker::Validate(const SystemRetStatusWearingStatusChecker& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3543,28 +1556,11 @@ MDRResult<void> SystemRetStatusWearingStatusChecker::Validate(const SystemRetSta
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetStatusWearingStatusChecker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetExtendedParam::Validate(const SystemSetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetExtendedParamUsbBrowser::Validate(const SystemSetExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3573,28 +1569,11 @@ MDRResult<void> SystemSetExtendedParamUsbBrowser::Validate(const SystemSetExtend
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetExtendedParamUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("startIndex", data.startIndex);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParam::Validate(const SystemSetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamCommon::Validate(const SystemSetParamCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3602,15 +1581,6 @@ MDRResult<void> SystemSetParamCommon::Validate(const SystemSetParamCommon& data)
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamFunctionChange::Validate(const SystemSetParamFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3620,15 +1590,6 @@ MDRResult<void> SystemSetParamFunctionChange::Validate(const SystemSetParamFunct
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamFunctionChange& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("function", data.function);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParamLightingDefaultColorColorType::Validate(const SystemSetParamLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
@@ -3636,15 +1597,6 @@ MDRResult<void> SystemSetParamLightingDefaultColorColorType::Validate(const Syst
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
     // data.colorType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamLightingDefaultColorColorType& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("colorType", data.colorType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamLightingDefaultColorCustomColor::Validate(const SystemSetParamLightingDefaultColorCustomColor& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3659,18 +1611,6 @@ MDRResult<void> SystemSetParamLightingDefaultColorCustomColor::Validate(const Sy
     MDR_VALIDATE(data.blue >= 0 && data.blue <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamLightingDefaultColorCustomColor& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("notifyRequired", data.notifyRequired);
-    o.Field("red", data.red);
-    o.Field("green", data.green);
-    o.Field("blue", data.blue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParamLightingMode::Validate(const SystemSetParamLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
@@ -3678,15 +1618,6 @@ MDRResult<void> SystemSetParamLightingMode::Validate(const SystemSetParamLightin
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_MODE);
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamLightingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("function", data.function);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamLinkAutoSwitchForHeadsets::Validate(const SystemSetParamLinkAutoSwitchForHeadsets& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3696,16 +1627,6 @@ MDRResult<void> SystemSetParamLinkAutoSwitchForHeadsets::Validate(const SystemSe
     // data.linkAutoSwitchStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamLinkAutoSwitchForHeadsets& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("linkAutoSwitchStatus", data.linkAutoSwitchStatus);
-    o.Field("speakerIdentifier", data.speakerIdentifier);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParamLinkAutoSwitchForSpeaker::Validate(const SystemSetParamLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
@@ -3713,15 +1634,6 @@ MDRResult<void> SystemSetParamLinkAutoSwitchForSpeaker::Validate(const SystemSet
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
     // data.linkAutoSwitchAction ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamLinkAutoSwitchForSpeaker& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("linkAutoSwitchAction", data.linkAutoSwitchAction);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamMicOnOffByHeadphoneOperation::Validate(const SystemSetParamMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3731,16 +1643,6 @@ MDRResult<void> SystemSetParamMicOnOffByHeadphoneOperation::Validate(const Syste
     // data.micOnOffByHeadphoneOperation ignored: OUT_OF_RANGE is expected
     // data.micOffSoundEffect ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamMicOnOffByHeadphoneOperation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("micOnOffByHeadphoneOperation", data.micOnOffByHeadphoneOperation);
-    o.Field("micOffSoundEffect", data.micOffSoundEffect);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamQuickAccessEasySetting::Validate(const SystemSetParamQuickAccessEasySetting& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3755,17 +1657,6 @@ MDRResult<void> SystemSetParamQuickAccessEasySetting::Validate(const SystemSetPa
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamQuickAccessEasySetting& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("gattSetting", data.gattSetting);
-    o.Field("presetList", data.presetList);
-    o.Field("quickAccessFunctionList", data.quickAccessFunctionList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParamSVACommand::Validate(const SystemSetParamSVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
@@ -3773,15 +1664,6 @@ MDRResult<void> SystemSetParamSVACommand::Validate(const SystemSetParamSVAComman
     MDR_VALIDATE(data.inquiredType == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
     // data.trainingModeOnOffValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamSVACommand& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("trainingModeOnOffValue", data.trainingModeOnOffValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamUsbBrowser::Validate(const SystemSetParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3791,15 +1673,6 @@ MDRResult<void> SystemSetParamUsbBrowser::Validate(const SystemSetParamUsbBrowse
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamUsbBrowser& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("usbBrowserCommand", data.usbBrowserCommand);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParamUsbBrowserWithIndex::Validate(const SystemSetParamUsbBrowserWithIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
@@ -3807,16 +1680,6 @@ MDRResult<void> SystemSetParamUsbBrowserWithIndex::Validate(const SystemSetParam
     MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetParamUsbBrowserWithIndex& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbBrowserCommand", data.usbBrowserCommand);
-    o.Field("index", data.index);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetParamUsbBrowserWithoutIndex::Validate(const SystemSetParamUsbBrowserWithoutIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3826,15 +1689,6 @@ MDRResult<void> SystemSetParamUsbBrowserWithoutIndex::Validate(const SystemSetPa
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamUsbBrowserWithoutIndex& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("usbBrowserCommand", data.usbBrowserCommand);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetParamWearingPositionJudgmentBySensor::Validate(const SystemSetParamWearingPositionJudgmentBySensor& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
@@ -3842,28 +1696,11 @@ MDRResult<void> SystemSetParamWearingPositionJudgmentBySensor::Validate(const Sy
     MDR_VALIDATE(is_valid(data.judgmentModeOperation));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetParamWearingPositionJudgmentBySensor& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("judgmentModeOperation", data.judgmentModeOperation);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetStatus::Validate(const SystemSetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SystemSetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemSetStatusRepeatTapTrainingMode::Validate(const SystemSetStatusRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3873,15 +1710,6 @@ MDRResult<void> SystemSetStatusRepeatTapTrainingMode::Validate(const SystemSetSt
     // data.modeOperation ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetStatusRepeatTapTrainingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("modeOperation", data.modeOperation);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemSetStatusSVASettingMtkSupportLanguageSwitch::Validate(const SystemSetStatusSVASettingMtkSupportLanguageSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
@@ -3890,45 +1718,11 @@ MDRResult<void> SystemSetStatusSVASettingMtkSupportLanguageSwitch::Validate(cons
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemSetStatusSVASettingMtkSupportLanguageSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const UsbItemDirectoryInfo& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("directoryIndex", data.directoryIndex);
-    o.Field("name", data.name);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const UsbItemFileInfo& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("currentDirectoryIndex", data.currentDirectoryIndex);
-    o.Field("fileIndex", data.fileIndex);
-    o.Field("name", data.name);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceGetCapability::Validate(const VoiceGuidanceGetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceGetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceGetExtendedParam::Validate(const VoiceGuidanceGetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3936,27 +1730,11 @@ MDRResult<void> VoiceGuidanceGetExtendedParam::Validate(const VoiceGuidanceGetEx
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceGetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceGetParam::Validate(const VoiceGuidanceGetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceGetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceGetStatus::Validate(const VoiceGuidanceGetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3964,27 +1742,11 @@ MDRResult<void> VoiceGuidanceGetStatus::Validate(const VoiceGuidanceGetStatus& d
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceGetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceGetStatusCommon::Validate(const VoiceGuidanceGetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_STATUS);
     // data.voiceGuidanceInquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceGetStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceGetStatusCommonWithStatusType::Validate(const VoiceGuidanceGetStatusCommonWithStatusType& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -3993,69 +1755,11 @@ MDRResult<void> VoiceGuidanceGetStatusCommonWithStatusType::Validate(const Voice
     // data.statusType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceGetStatusCommonWithStatusType& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const VoiceGuidanceNotifyParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command2", data.command2);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const VoiceGuidanceNotifyParamSettingMtk& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const VoiceGuidanceNotifyParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const VoiceGuidanceNotifyParamSettingSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.Field("languageValue", data.languageValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const VoiceGuidanceNotifyParamVolume& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("volumeValue", data.volumeValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceNotifyStatus::Validate(const VoiceGuidanceNotifyStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceNotifyStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceNotifyStatusCommon::Validate(const VoiceGuidanceNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4063,15 +1767,6 @@ MDRResult<void> VoiceGuidanceNotifyStatusCommon::Validate(const VoiceGuidanceNot
     // data.voiceGuidanceInquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceNotifyStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4081,16 +1776,6 @@ MDRResult<void> VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch::Validat
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
@@ -4098,16 +1783,6 @@ MDRResult<void> VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch::Validate(c
     // data.statusType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceNotifyStatusSettingSupportLangSwitch::Validate(const VoiceGuidanceNotifyStatusSettingSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4117,29 +1792,11 @@ MDRResult<void> VoiceGuidanceNotifyStatusSettingSupportLangSwitch::Validate(cons
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceNotifyStatusSettingSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetCapability::Validate(const VoiceGuidanceRetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetCapabilitySettingMtk::Validate(const VoiceGuidanceRetCapabilitySettingMtk& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4153,19 +1810,6 @@ MDRResult<void> VoiceGuidanceRetCapabilitySettingMtk::Validate(const VoiceGuidan
     // data.supportOnOffSwitch ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetCapabilitySettingMtk& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("value2", data.value2);
-    o.Field("resumableStatus", data.resumableStatus);
-    o.Field("trueWirelessStatus", data.trueWirelessStatus);
-    o.Field("bGTransferStatus", data.bGTransferStatus);
-    o.Field("supportOnOffSwitch", data.supportOnOffSwitch);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
@@ -4177,19 +1821,6 @@ MDRResult<void> VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch::Valida
     // data.bGTransferStatus ignored: OUT_OF_RANGE is expected
     // data.supportOnOffSwitch ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("value2", data.value2);
-    o.Field("resumableStatus", data.resumableStatus);
-    o.Field("trueWirelessStatus", data.trueWirelessStatus);
-    o.Field("bGTransferStatus", data.bGTransferStatus);
-    o.Field("supportOnOffSwitch", data.supportOnOffSwitch);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch::Validate(const VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4206,20 +1837,6 @@ MDRResult<void> VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch::Validate(
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("value2", data.value2);
-    o.Field("resumableStatus", data.resumableStatus);
-    o.Field("trueWirelessStatus", data.trueWirelessStatus);
-    o.Field("bGTransferStatus", data.bGTransferStatus);
-    o.Field("supportOnOffSwitch", data.supportOnOffSwitch);
-    o.Field("supportLanguages", data.supportLanguages);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetCapabilitySettingSupportLangSwitch::Validate(const VoiceGuidanceRetCapabilitySettingSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
@@ -4230,37 +1847,11 @@ MDRResult<void> VoiceGuidanceRetCapabilitySettingSupportLangSwitch::Validate(con
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetCapabilitySettingSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("supportOnOffSwitch", data.supportOnOffSwitch);
-    o.Field("supportLanguages", data.supportLanguages);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetExtendedParam::Validate(const VoiceGuidanceRetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetExtendedParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch_ServiceInformation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("language", data.language);
-    o.Field("serviceId", data.serviceId);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetParam::Validate(const VoiceGuidanceRetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4268,29 +1859,12 @@ MDRResult<void> VoiceGuidanceRetParam::Validate(const VoiceGuidanceRetParam& dat
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetParamSettingMtk::Validate(const VoiceGuidanceRetParamSettingMtk& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetParamSettingMtk& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch::Validate(const VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4300,16 +1874,6 @@ MDRResult<void> VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSw
     // data.currentLanguage ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.Field("currentLanguage", data.currentLanguage);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetParamSettingOnOff::Validate(const VoiceGuidanceRetParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
@@ -4317,15 +1881,6 @@ MDRResult<void> VoiceGuidanceRetParamSettingOnOff::Validate(const VoiceGuidanceR
     MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetParamVolume::Validate(const VoiceGuidanceRetParamVolume& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4336,28 +1891,11 @@ MDRResult<void> VoiceGuidanceRetParamVolume::Validate(const VoiceGuidanceRetPara
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetParamVolume& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("volumeValue", data.volumeValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetStatus::Validate(const VoiceGuidanceRetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetStatusCommon::Validate(const VoiceGuidanceRetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4365,15 +1903,6 @@ MDRResult<void> VoiceGuidanceRetStatusCommon::Validate(const VoiceGuidanceRetSta
     // data.voiceGuidanceInquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetStatusCommon& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4383,16 +1912,6 @@ MDRResult<void> VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch::Validate(c
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetStatusSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceRetStatusSettingMtkSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
@@ -4400,16 +1919,6 @@ MDRResult<void> VoiceGuidanceRetStatusSettingMtkSupportLangSwitch::Validate(cons
     // data.statusType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetStatusSettingMtkSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceRetStatusSettingSupportLangSwitch::Validate(const VoiceGuidanceRetStatusSettingSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4419,29 +1928,11 @@ MDRResult<void> VoiceGuidanceRetStatusSettingSupportLangSwitch::Validate(const V
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceRetStatusSettingSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceSetParam::Validate(const VoiceGuidanceSetParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceSetParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceSetParamSettingMtk::Validate(const VoiceGuidanceSetParamSettingMtk& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4449,15 +1940,6 @@ MDRResult<void> VoiceGuidanceSetParamSettingMtk::Validate(const VoiceGuidanceSet
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceSetParamSettingMtk& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceSetParamSettingOnOff::Validate(const VoiceGuidanceSetParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4467,15 +1949,6 @@ MDRResult<void> VoiceGuidanceSetParamSettingOnOff::Validate(const VoiceGuidanceS
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceSetParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceSetParamSettingSupportLangSwitch::Validate(const VoiceGuidanceSetParamSettingSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
@@ -4483,16 +1956,6 @@ MDRResult<void> VoiceGuidanceSetParamSettingSupportLangSwitch::Validate(const Vo
     // data.settingValue ignored: OUT_OF_RANGE is expected
     // data.languageValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceSetParamSettingSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.Field("languageValue", data.languageValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetParamVolume& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4504,29 +1967,11 @@ MDRResult<void> VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetPara
     // data.feedbackSound ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceSetParamVolume& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("volumeValue", data.volumeValue);
-    o.Field("feedbackSound", data.feedbackSound);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceSetStatus::Validate(const VoiceGuidanceSetStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceSetStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch::Validate(const VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4536,16 +1981,6 @@ MDRResult<void> VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch::Validate(c
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceSetStatusSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceSetStatusSettingMtkSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
@@ -4553,36 +1988,6 @@ MDRResult<void> VoiceGuidanceSetStatusSettingMtkSupportLangSwitch::Validate(cons
     // data.statusType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceSetStatusSettingMtkSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("statusType", data.statusType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const WearingPositionAccelerometerData& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("axisX", data.axisX);
-    o.Field("axisY", data.axisY);
-    o.Field("axisZ", data.axisZ);
-    o.Field("axisXBytes", data.axisXBytes);
-    o.Field("axisYBytes", data.axisYBytes);
-    o.Field("axisZBytes", data.axisZBytes);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const WearingPositionJudgmentBySensorResultSet& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("wearingPositionResultCode", data.wearingPositionResultCode);
-    o.Field("resultCodeValue", data.resultCodeValue);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PartyRetCapabilityIllumination::Validate(const PartyRetCapabilityIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4596,15 +2001,6 @@ MDRResult<void> PartyRetCapabilityIllumination::Validate(const PartyRetCapabilit
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PartyRetCapabilityIllumination& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("partyIlluminationInfoList", data.partyIlluminationInfoList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralNotifyParamPairingDeviceManagementClassicBt::Validate(const PeripheralNotifyParamPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
@@ -4614,16 +2010,6 @@ MDRResult<void> PeripheralNotifyParamPairingDeviceManagementClassicBt::Validate(
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralNotifyParamPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceInfo", data.deviceInfo);
-    o.Field("playbackrightDevice", data.playbackrightDevice);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4635,16 +2021,6 @@ MDRResult<void> PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOf
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceInfo", data.deviceInfo);
-    o.Field("playbackrightDevice", data.playbackrightDevice);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> PeripheralRetParamPairingDeviceManagementClassicBt::Validate(const PeripheralRetParamPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
@@ -4654,16 +2030,6 @@ MDRResult<void> PeripheralRetParamPairingDeviceManagementClassicBt::Validate(con
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const PeripheralRetParamPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceInfo", data.deviceInfo);
-    o.Field("playbackrightDevice", data.playbackrightDevice);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4675,16 +2041,6 @@ MDRResult<void> PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDev
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceInfo", data.deviceInfo);
-    o.Field("playbackrightDevice", data.playbackrightDevice);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyStatusHbs::Validate(const SafeListeningNotifyStatusHbs& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
@@ -4694,16 +2050,6 @@ MDRResult<void> SafeListeningNotifyStatusHbs::Validate(const SafeListeningNotify
         MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyStatusHbs& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("safeListeningDatas", data.safeListeningDatas);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotifyStatusHbs1& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4715,16 +2061,6 @@ MDRResult<void> SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotif
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyStatusHbs1& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("logDataList", data.logDataList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotifyStatusHbs2& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
@@ -4734,16 +2070,6 @@ MDRResult<void> SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotif
         MDR_VALIDATE(is_valid(logDataList_elem.targetType));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyStatusHbs2& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("logDataList", data.logDataList);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningNotifyStatusTws::Validate(const SafeListeningNotifyStatusTws& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4756,17 +2082,6 @@ MDRResult<void> SafeListeningNotifyStatusTws::Validate(const SafeListeningNotify
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyStatusTws& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("safeListeningDatas", data.safeListeningDatas);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotifyStatusTws1& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
@@ -4777,17 +2092,6 @@ MDRResult<void> SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotif
         MDR_VALIDATE(is_valid(logDataList_elem.targetType));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningNotifyStatusTws1& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("logDataList", data.logDataList);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotifyStatusTws2& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4800,17 +2104,6 @@ MDRResult<void> SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotif
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningNotifyStatusTws2& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("logDataList", data.logDataList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetStatusHbs::Validate(const SafeListeningRetStatusHbs& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
@@ -4818,16 +2111,6 @@ MDRResult<void> SafeListeningRetStatusHbs::Validate(const SafeListeningRetStatus
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningRetStatusHbs& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("safeListeningData", data.safeListeningData);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningRetStatusHbs1::Validate(const SafeListeningRetStatusHbs1& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4837,16 +2120,6 @@ MDRResult<void> SafeListeningRetStatusHbs1::Validate(const SafeListeningRetStatu
     MDR_VALIDATE(is_valid(data.currentData.targetType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetStatusHbs1& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("currentData", data.currentData);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetStatusHbs2::Validate(const SafeListeningRetStatusHbs2& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
@@ -4854,16 +2127,6 @@ MDRResult<void> SafeListeningRetStatusHbs2::Validate(const SafeListeningRetStatu
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.currentData.targetType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningRetStatusHbs2& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("currentData", data.currentData);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningRetStatusTws::Validate(const SafeListeningRetStatusTws& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4875,18 +2138,6 @@ MDRResult<void> SafeListeningRetStatusTws::Validate(const SafeListeningRetStatus
     MDR_VALIDATE(is_valid(data.safeListeningData2.targetType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetStatusTws& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("safeListeningData", data.safeListeningData);
-    o.Field("safeListeningData2", data.safeListeningData2);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningRetStatusTws1::Validate(const SafeListeningRetStatusTws1& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
@@ -4896,18 +2147,6 @@ MDRResult<void> SafeListeningRetStatusTws1::Validate(const SafeListeningRetStatu
     MDR_VALIDATE(is_valid(data.currentDataLeft.targetType));
     MDR_VALIDATE(is_valid(data.currentDataRight.targetType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningRetStatusTws1& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("currentDataLeft", data.currentDataLeft);
-    o.Field("currentDataRight", data.currentDataRight);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningRetStatusTws2::Validate(const SafeListeningRetStatusTws2& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4919,34 +2158,12 @@ MDRResult<void> SafeListeningRetStatusTws2::Validate(const SafeListeningRetStatu
     MDR_VALIDATE(is_valid(data.currentDataRight.targetType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SafeListeningRetStatusTws2& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("currentDataLeft", data.currentDataLeft);
-    o.Field("currentDataRight", data.currentDataRight);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SafeListeningSetStatusHbs::Validate(const SafeListeningSetStatusHbs& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_SET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningSetStatusHbs& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatus", data.logDataStatus);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SafeListeningSetStatusTws::Validate(const SafeListeningSetStatusTws& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4955,18 +2172,6 @@ MDRResult<void> SafeListeningSetStatusTws::Validate(const SafeListeningSetStatus
     // data.logDataStatusLeft ignored: OUT_OF_RANGE is expected
     // data.logDataStatusRight ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SafeListeningSetStatusTws& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("logDataStatusLeft", data.logDataStatusLeft);
-    o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("statusLeft", data.statusLeft);
-    o.Field("statusRight", data.statusRight);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SystemNotifyParamWearingPositionJudgmentBySensor::Validate(const SystemNotifyParamWearingPositionJudgmentBySensor& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -4988,17 +2193,6 @@ MDRResult<void> SystemNotifyParamWearingPositionJudgmentBySensor::Validate(const
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemNotifyParamWearingPositionJudgmentBySensor& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("wearingPositionOperationStatus", data.wearingPositionOperationStatus);
-    o.Field("leftSideParameterList", data.leftSideParameterList);
-    o.Field("rightSideParameterList", data.rightSideParameterList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetCapabilityRepeatTapTrainingMode::Validate(const SystemRetCapabilityRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
@@ -5010,15 +2204,6 @@ MDRResult<void> SystemRetCapabilityRepeatTapTrainingMode::Validate(const SystemR
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetCapabilityRepeatTapTrainingMode& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("type", data.type);
-    o.Field("keys", data.keys);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch::Validate(const SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
@@ -5029,21 +2214,6 @@ MDRResult<void> SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch::Va
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("requiredTime", data.requiredTime);
-    o.Field("categoryId", data.categoryId);
-    o.Field("serialNumber", data.serialNumber);
-    o.Field("threshold", data.threshold);
-    o.Field("thresholdForInterrupt", data.thresholdForInterrupt);
-    o.Field("uniqueId", data.uniqueId);
-    o.Field("serviceInformationList", data.serviceInformationList);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch::Validate(const VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
@@ -5052,20 +2222,5 @@ MDRResult<void> VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch::Valida
         MDR_VALIDATE(is_valid(serviceInformationList_elem.language));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("requiredTime", data.requiredTime);
-    o.Field("categoryId", data.categoryId);
-    o.Field("serialNumber", data.serialNumber);
-    o.Field("threshold", data.threshold);
-    o.Field("thresholdForInterrupt", data.thresholdForInterrupt);
-    o.Field("uniqueId", data.uniqueId);
-    o.Field("serviceInformationList", data.serviceInformationList);
-    o.EndObject();
-    return std::move(o).Take();
 }
 }

@@ -9,27 +9,11 @@ MDRResult<void> GetPeripheralCapability::Validate(const GetPeripheralCapability&
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const GetPeripheralCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> GetPeripheralParam::Validate(const GetPeripheralParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_GET_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const GetPeripheralParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> GetPeripheralStatus::Validate(const GetPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -37,28 +21,12 @@ MDRResult<void> GetPeripheralStatus::Validate(const GetPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const GetPeripheralStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> GetVoiceGuidanceCapability::Validate(const GetVoiceGuidanceCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const GetVoiceGuidanceCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> GetVoiceGuidanceParam::Validate(const GetVoiceGuidanceParam& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -68,15 +36,6 @@ MDRResult<void> GetVoiceGuidanceParam::Validate(const GetVoiceGuidanceParam& dat
     MDR_VALIDATE(is_valid(data.detailedDataType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const GetVoiceGuidanceParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("detailedDataType", data.detailedDataType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> GetVoiceGuidanceStatus::Validate(const GetVoiceGuidanceStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_STATUS);
@@ -85,28 +44,11 @@ MDRResult<void> GetVoiceGuidanceStatus::Validate(const GetVoiceGuidanceStatus& d
     MDR_VALIDATE(is_valid(data.statusType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const GetVoiceGuidanceStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("statusType", data.statusType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyPeripheralExParam::Validate(const NotifyPeripheralExParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_NTFY_EX_PARAM);
     MDR_VALIDATE(is_valid(data.settingType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const NotifyPeripheralExParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("settingType", data.settingType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> NotifyPeripheralExParamPairingDeviceManagementClassicBt::Validate(const NotifyPeripheralExParamPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -116,15 +58,6 @@ MDRResult<void> NotifyPeripheralExParamPairingDeviceManagementClassicBt::Validat
     MDR_VALIDATE(is_valid(data.detailType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyPeripheralExParamPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("settingType", data.settingType);
-    o.Field("detailType", data.detailType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl::Validate(const NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_NTFY_EX_PARAM);
@@ -132,43 +65,17 @@ MDRResult<void> NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectio
     MDR_VALIDATE(is_valid(data.resultType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("detailType", data.detailType);
-    o.Field("resultType", data.resultType);
-    o.Field("btDeviceAddress", data.btDeviceAddress);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyPeripheralParam::Validate(const NotifyPeripheralParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyPeripheralParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyPeripheralStatus::Validate(const NotifyPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const NotifyPeripheralStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> NotifyPeripheralStatusPairingDeviceManagementClassicBt::Validate(const NotifyPeripheralStatusPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -179,30 +86,12 @@ MDRResult<void> NotifyPeripheralStatusPairingDeviceManagementClassicBt::Validate
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyPeripheralStatusPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("bluetoothModeStatus", data.bluetoothModeStatus);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyVoiceGuidanceParam::Validate(const NotifyVoiceGuidanceParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const NotifyVoiceGuidanceParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> NotifyVoiceGuidanceParamSettingOnOff::Validate(const NotifyVoiceGuidanceParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -212,29 +101,12 @@ MDRResult<void> NotifyVoiceGuidanceParamSettingOnOff::Validate(const NotifyVoice
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyVoiceGuidanceParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyVoiceGuidanceStatus::Validate(const NotifyVoiceGuidanceStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const NotifyVoiceGuidanceStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> NotifyVoiceGuidanceStatusSettingLanguage::Validate(const NotifyVoiceGuidanceStatusSettingLanguage& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -244,15 +116,6 @@ MDRResult<void> NotifyVoiceGuidanceStatusSettingLanguage::Validate(const NotifyV
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyVoiceGuidanceStatusSettingLanguage& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> NotifyVoiceGuidanceStatusSettingOnOff::Validate(const NotifyVoiceGuidanceStatusSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
@@ -261,44 +124,11 @@ MDRResult<void> NotifyVoiceGuidanceStatusSettingOnOff::Validate(const NotifyVoic
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyVoiceGuidanceStatusSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const Payload& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command2", data.command2);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const PeripheralDeviceInfo& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("btDeviceAddress", data.btDeviceAddress);
-    o.Field("connectedStatus", data.connectedStatus);
-    o.Field("btFriendlyName", data.btFriendlyName);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetPeripheralCapability::Validate(const RetPeripheralCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetPeripheralCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetPeripheralCapabilityPairingDeviceManagementClassicBt::Validate(const RetPeripheralCapabilityPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -312,30 +142,11 @@ MDRResult<void> RetPeripheralCapabilityPairingDeviceManagementClassicBt::Validat
     // data.fileTransferInMultiConnection ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetPeripheralCapabilityPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("maxOfPairedDevice", data.maxOfPairedDevice);
-    o.Field("maxOfConnectedDevice", data.maxOfConnectedDevice);
-    o.Field("fileTransferInMultiConnection", data.fileTransferInMultiConnection);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetPeripheralParam::Validate(const RetPeripheralParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_RET_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetPeripheralParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetPeripheralStatus::Validate(const RetPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -344,16 +155,6 @@ MDRResult<void> RetPeripheralStatus::Validate(const RetPeripheralStatus& data) {
     // data.bluetoothModeStatus ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetPeripheralStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("bluetoothModeStatus", data.bluetoothModeStatus);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetVoiceGuidanceCapability::Validate(const RetVoiceGuidanceCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -367,39 +168,12 @@ MDRResult<void> RetVoiceGuidanceCapability::Validate(const RetVoiceGuidanceCapab
     }
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceCapability& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("supportsOnOffSwitching", data.supportsOnOffSwitching);
-    o.Field("supportsLanguageSwitching", data.supportsLanguageSwitching);
-    o.Field("supportLanguages", data.supportLanguages);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceParam::Validate(const RetVoiceGuidanceParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetVoiceGuidanceParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
-}
-mdr::String format_as(const RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("language", data.language);
-    o.Field("serviceId", data.serviceId);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetVoiceGuidanceParamSettingLanguage::Validate(const RetVoiceGuidanceParamSettingLanguage& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -409,15 +183,6 @@ MDRResult<void> RetVoiceGuidanceParamSettingLanguage::Validate(const RetVoiceGui
     MDR_VALIDATE(is_valid(data.currentLangauge));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceParamSettingLanguage& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("currentLangauge", data.currentLangauge);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceParamSettingOnOff::Validate(const RetVoiceGuidanceParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
@@ -426,15 +191,6 @@ MDRResult<void> RetVoiceGuidanceParamSettingOnOff::Validate(const RetVoiceGuidan
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceParamSettingRequiredTime::Validate(const RetVoiceGuidanceParamSettingRequiredTime& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
@@ -442,28 +198,11 @@ MDRResult<void> RetVoiceGuidanceParamSettingRequiredTime::Validate(const RetVoic
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceParamSettingRequiredTime& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("requiredTime", data.requiredTime);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceParamSettingUpdateMethod::Validate(const RetVoiceGuidanceParamSettingUpdateMethod& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
     MDR_VALIDATE(is_valid(data.updateMethod));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetVoiceGuidanceParamSettingUpdateMethod& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("updateMethod", data.updateMethod);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetVoiceGuidanceParamSettingUpdateMethodCsr::Validate(const RetVoiceGuidanceParamSettingUpdateMethodCsr& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -473,17 +212,6 @@ MDRResult<void> RetVoiceGuidanceParamSettingUpdateMethodCsr::Validate(const RetV
     MDR_VALIDATE(is_valid(data.updateMethod));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceParamSettingUpdateMethodCsr& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("updateMethod", data.updateMethod);
-    o.Field("bleTxPower", data.bleTxPower);
-    o.Field("batteryPowerThresh", data.batteryPowerThresh);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceParamSettingUpdateMethodMtk::Validate(const RetVoiceGuidanceParamSettingUpdateMethodMtk& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
@@ -492,32 +220,12 @@ MDRResult<void> RetVoiceGuidanceParamSettingUpdateMethodMtk::Validate(const RetV
     MDR_VALIDATE(is_valid(data.updateMethod));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceParamSettingUpdateMethodMtk& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("updateMethod", data.updateMethod);
-    o.Field("batteryPowerThresh", data.batteryPowerThresh);
-    o.Field("batteryPowerThreshForInterrupting", data.batteryPowerThreshForInterrupting);
-    o.Field("uniqueId", data.uniqueId);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceStatus::Validate(const RetVoiceGuidanceStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetVoiceGuidanceStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetVoiceGuidanceStatusSettingLanguage::Validate(const RetVoiceGuidanceStatusSettingLanguage& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -527,15 +235,6 @@ MDRResult<void> RetVoiceGuidanceStatusSettingLanguage::Validate(const RetVoiceGu
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceStatusSettingLanguage& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetVoiceGuidanceStatusSettingOnOff::Validate(const RetVoiceGuidanceStatusSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
@@ -544,28 +243,11 @@ MDRResult<void> RetVoiceGuidanceStatusSettingOnOff::Validate(const RetVoiceGuida
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const RetVoiceGuidanceStatusSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SetPeripheralExParam::Validate(const SetPeripheralExParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_SET_EX_PARAM);
     MDR_VALIDATE(is_valid(data.settingType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SetPeripheralExParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("settingType", data.settingType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SetPeripheralExParamPairingDeviceManagementClassicBt::Validate(const SetPeripheralExParamPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -575,31 +257,12 @@ MDRResult<void> SetPeripheralExParamPairingDeviceManagementClassicBt::Validate(c
     MDR_VALIDATE(is_valid(data.detailType));
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SetPeripheralExParamPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("settingType", data.settingType);
-    o.Field("detailType", data.detailType);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl::Validate(const SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_SET_EX_PARAM);
     MDR_VALIDATE(is_valid(data.detailType));
     MDR_VALIDATE(is_valid(data.actionType));
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("detailType", data.detailType);
-    o.Field("actionType", data.actionType);
-    o.Field("btDeviceAddress", data.btDeviceAddress);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SetPeripheralStatus::Validate(const SetPeripheralStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -609,30 +272,12 @@ MDRResult<void> SetPeripheralStatus::Validate(const SetPeripheralStatus& data) {
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SetPeripheralStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("bluetoothModeStatus", data.bluetoothModeStatus);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SetVoiceGuidanceParam::Validate(const SetVoiceGuidanceParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SetVoiceGuidanceParam& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SetVoiceGuidanceParamSettingOnOff::Validate(const SetVoiceGuidanceParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -642,29 +287,12 @@ MDRResult<void> SetVoiceGuidanceParamSettingOnOff::Validate(const SetVoiceGuidan
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SetVoiceGuidanceParamSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("settingValue", data.settingValue);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SetVoiceGuidanceStatus::Validate(const SetVoiceGuidanceStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const SetVoiceGuidanceStatus& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> SetVoiceGuidanceStatusSettingLanguage::Validate(const SetVoiceGuidanceStatusSettingLanguage& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -674,15 +302,6 @@ MDRResult<void> SetVoiceGuidanceStatusSettingLanguage::Validate(const SetVoiceGu
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SetVoiceGuidanceStatusSettingLanguage& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> SetVoiceGuidanceStatusSettingOnOff::Validate(const SetVoiceGuidanceStatusSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
@@ -691,26 +310,10 @@ MDRResult<void> SetVoiceGuidanceStatusSettingOnOff::Validate(const SetVoiceGuida
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const SetVoiceGuidanceStatusSettingOnOff& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("status", data.status);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> UnknownCommand::Validate(const UnknownCommand& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::UNKNOWN);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const UnknownCommand& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> NotifyPeripheralParamPairingDeviceManagementClassicBt::Validate(const NotifyPeripheralParamPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -723,16 +326,6 @@ MDRResult<void> NotifyPeripheralParamPairingDeviceManagementClassicBt::Validate(
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     return MDRResult<void>::Success();
 }
-mdr::String format_as(const NotifyPeripheralParamPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceInfo", data.deviceInfo);
-    o.Field("playbackrightDevice", data.playbackrightDevice);
-    o.EndObject();
-    return std::move(o).Take();
-}
 MDRResult<void> RetPeripheralParamPairingDeviceManagementClassicBt::Validate(const RetPeripheralParamPairingDeviceManagementClassicBt& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERIPHERAL_RET_PARAM);
@@ -743,16 +336,6 @@ MDRResult<void> RetPeripheralParamPairingDeviceManagementClassicBt::Validate(con
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetPeripheralParamPairingDeviceManagementClassicBt& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("inquiredType", data.inquiredType);
-    o.Field("deviceInfo", data.deviceInfo);
-    o.Field("playbackrightDevice", data.playbackrightDevice);
-    o.EndObject();
-    return std::move(o).Take();
 }
 MDRResult<void> RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic::Validate(const RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic& data) {
     MDR_VALIDATE(is_valid(data.command));
@@ -765,17 +348,5 @@ MDRResult<void> RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic::Valid
         MDR_VALIDATE(is_valid(serviceInformationList_elem.language));
     }
     return MDRResult<void>::Success();
-}
-mdr::String format_as(const RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic& data) {
-    mdr::detail::JsonFormatter o;
-    o.BeginObject();
-    o.Field("command", data.command);
-    o.Field("voiceGuidanceInquiredType", data.voiceGuidanceInquiredType);
-    o.Field("downloadServerMethod", data.downloadServerMethod);
-    o.Field("categoryId", data.categoryId);
-    o.Field("serialNumber", data.serialNumber);
-    o.Field("serviceInformationList", data.serviceInformationList);
-    o.EndObject();
-    return std::move(o).Take();
 }
 }
