@@ -6,10 +6,6 @@
 #include <winsock2.h>
 #include <ws2bth.h>
 
-#include <fmt/format.h>
-#include <string>
-#include <vector>
-
 #include "../Platform.hpp"
 #include <mdr-c/Platform/PlatformWindows.h>
 

@@ -3,14 +3,12 @@
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
-#include <fmt/format.h>
 #include <mdr/Command.hpp>
 #include <mdr/ProtocolV2T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
 #include <atomic>
 #include <chrono>
-#include <string>
 #include <string_view>
 
 namespace
@@ -18,7 +16,7 @@ namespace
     constexpr std::string_view kCapturePrefix{"mdr-packet-"};
 
     std::atomic_uint64_t gCaptureCounter{0};
-    std::string gCaptureDirectory;
+    mdr::String gCaptureDirectory;
 
     bool IsCaptureFilename(std::string_view filename)
     {
@@ -35,7 +33,7 @@ namespace
         if (!IsCaptureFilename(filename))
             return SDL_ENUM_CONTINUE;
 
-        const std::string path = std::string(directory) + filename;
+        const mdr::String path = mdr::String(directory) + filename;
         SDL_PathInfo info{};
         if (
             !SDL_GetPathInfo(path.c_str(), &info)
@@ -104,7 +102,7 @@ namespace
         );
         const char* directionName =
             direction == MDR_PACKET_DIRECTION_RX ? "rx" : "tx";
-        const std::string filename = fmt::format(
+        const mdr::String filename = mdr::Format(
             "{}{}-{:06}-{}.type-{}-{:02x}.seq-{:02x}."
             "cmd-{}-{:02x}.bin",
             kCapturePrefix,
@@ -119,7 +117,7 @@ namespace
                 : "NO_COMMAND",
             command
         );
-        const std::string path =
+        const mdr::String path =
             gCaptureDirectory + "/" + filename;
         SDL_IOStream* output = SDL_IOFromFile(path.c_str(), "wb");
         if (!output)

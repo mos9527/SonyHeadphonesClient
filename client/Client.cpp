@@ -5,25 +5,23 @@
 #include <cstdio>
 #include <cstring>
 #include <span>
-#include <string>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <SDL3/SDL.h>
-#include <fmt/format.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 
 #include <mdr-c/Headphones.h>
+#include <mdr/Protocol.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
 #include "Platform/Platform.hpp"
 #include "PayloadRecorder.hpp"
 
 MDRHeadphones* gDevice;
-std::string gHeadphonesError;
+mdr::String gHeadphonesError;
 
 template <typename T>
 T MDRStruct()
@@ -291,14 +289,14 @@ bool FeatureAvailable(MDRFeature feature)
         availability == MDR_FEATURE_AVAILABLE;
 }
 
-std::string GetText(MDRText text, uint32_t index = 0)
+mdr::String GetText(MDRText text, uint32_t index = 0)
 {
     if (!gDevice)
         return {};
     uint32_t size = 0;
     if (mdrHeadphonesGetText(gDevice, text, index, nullptr, &size) != MDR_RESULT_OK || size == 0)
         return {};
-    std::vector<char> buffer(size);
+    mdr::Vector<char> buffer(size);
     if (mdrHeadphonesGetText(gDevice, text, index, buffer.data(), &size) != MDR_RESULT_OK)
         return {};
     return buffer.data();
@@ -310,12 +308,12 @@ uint8_t GetModelColor()
     return gDevice && mdrHeadphonesGetIdentity(gDevice, &identity) == MDR_RESULT_OK ? identity.model_color : 0;
 }
 
-std::vector<MDRBattery> GetBatteries()
+mdr::Vector<MDRBattery> GetBatteries()
 {
     uint32_t count = 0;
     if (!gDevice || mdrHeadphonesGetBatteries(gDevice, nullptr, &count) != MDR_RESULT_OK)
         return {};
-    std::vector<MDRBattery> values(count);
+    mdr::Vector<MDRBattery> values(count);
     for (auto& value : values)
         value = MDRStruct<MDRBattery>();
     if (count && mdrHeadphonesGetBatteries(gDevice, values.data(), &count) != MDR_RESULT_OK)
@@ -324,12 +322,12 @@ std::vector<MDRBattery> GetBatteries()
     return values;
 }
 
-std::vector<MDRPairedDevice> GetPairedDevices()
+mdr::Vector<MDRPairedDevice> GetPairedDevices()
 {
     uint32_t count = 0;
     if (!gDevice || mdrHeadphonesGetPairedDevices(gDevice, nullptr, &count) != MDR_RESULT_OK)
         return {};
-    std::vector<MDRPairedDevice> values(count);
+    mdr::Vector<MDRPairedDevice> values(count);
     for (auto& value : values)
         value = MDRStruct<MDRPairedDevice>();
     if (count && mdrHeadphonesGetPairedDevices(gDevice, values.data(), &count) != MDR_RESULT_OK)
@@ -338,12 +336,12 @@ std::vector<MDRPairedDevice> GetPairedDevices()
     return values;
 }
 
-std::vector<MDRGeneralSettingInfo> GetGeneralSettings()
+mdr::Vector<MDRGeneralSettingInfo> GetGeneralSettings()
 {
     uint32_t count = 0;
     if (!gDevice || mdrHeadphonesGetGeneralSettingInfo(gDevice, nullptr, &count) != MDR_RESULT_OK)
         return {};
-    std::vector<MDRGeneralSettingInfo> values(count);
+    mdr::Vector<MDRGeneralSettingInfo> values(count);
     for (auto& value : values)
         value = MDRStruct<MDRGeneralSettingInfo>();
     if (count && mdrHeadphonesGetGeneralSettingInfo(gDevice, values.data(), &count) != MDR_RESULT_OK)
@@ -352,24 +350,24 @@ std::vector<MDRGeneralSettingInfo> GetGeneralSettings()
     return values;
 }
 
-std::vector<int> GetEqualizerBands()
+mdr::Vector<int> GetEqualizerBands()
 {
     uint32_t count = 0;
     if (!gDevice || mdrHeadphonesGetEqualizerBands(gDevice, MDR_STATE_EFFECTIVE, nullptr, &count) != MDR_RESULT_OK)
         return {};
-    std::vector<int8_t> bytes(count);
+    mdr::Vector<int8_t> bytes(count);
     if (count && mdrHeadphonesGetEqualizerBands(gDevice, MDR_STATE_EFFECTIVE, bytes.data(), &count) != MDR_RESULT_OK)
         return {};
-    std::vector<int> values;
+    mdr::Vector<int> values;
     values.reserve(count);
     for (const int8_t value : bytes)
         values.push_back(value);
     return values;
 }
 
-void SetEqualizerBands(const std::vector<int>& values)
+void SetEqualizerBands(const mdr::Vector<int>& values)
 {
-    std::vector<int8_t> bytes;
+    mdr::Vector<int8_t> bytes;
     bytes.reserve(values.size());
     for (const int value : values)
         bytes.push_back(static_cast<int8_t>(value));
@@ -646,7 +644,7 @@ void DrawDeviceDiscovery()
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
-        ImTextCentered(fmt::format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME,
+        ImTextCentered(mdr::Format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME,
                                    MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS)
                            .c_str());
         // Chose, and have the GATT backend active
@@ -730,7 +728,7 @@ void DrawDeviceDiscovery()
         };
         if (connInitResult != MDR_RESULT_OK && connInitResult != MDR_RESULT_INPROGRESS)
         {
-            ImTextCentered(fmt::format(PSI_EXCLAMATION_SIGN " Failed to initialize connection: {}",
+            ImTextCentered(mdr::Format(PSI_EXCLAMATION_SIGN " Failed to initialize connection: {}",
                                        mdrResultString(connInitResult))
                                .c_str());
         }
@@ -817,12 +815,12 @@ void DrawDeviceConnecting()
 void DrawDeviceControlsHeader()
 {
     MDRConnection* conn = clientPlatformConnectionGet();
-    const std::string modelName = GetText(MDR_TEXT_MODEL_NAME);
+    const mdr::String modelName = GetText(MDR_TEXT_MODEL_NAME);
     if (ImGui::BeginMenuBar())
     {
         auto& style = ImGui::GetStyle();
         /* Disconnect & Shutdown */
-        if (ImGui::BeginMenu(fmt::format(PSI_CHEVRON_DOWN " {}", modelName).c_str()))
+        if (ImGui::BeginMenu(mdr::Format(PSI_CHEVRON_DOWN " {}", modelName).c_str()))
         {
             if (ImGui::MenuItem(PSI_UNLINK " Disconnect"))
             {
@@ -1150,7 +1148,7 @@ void DrawDeviceControlsSound()
             MDR_EQ_USER_5};
         changed |= ImComboBoxItems(
             "Preset", std::span{kSelections}, equalizer.preset, FormatEqualizerPreset);
-        std::vector<int> bands = GetEqualizerBands();
+        mdr::Vector<int> bands = GetEqualizerBands();
         if (ImEqualizer(bands))
             SetEqualizerBands(bands);
         if (bands.size() == 5)
@@ -1183,14 +1181,14 @@ void DrawDeviceControlsDevices()
     struct DeviceView
     {
         MDRPairedDevice state;
-        std::string id;
-        std::string name;
+        mdr::String id;
+        mdr::String name;
     };
-    std::vector<DeviceView> devices;
+    mdr::Vector<DeviceView> devices;
     for (const MDRPairedDevice& state : GetPairedDevices())
         devices.push_back({state, GetText(MDR_TEXT_PAIRED_DEVICE_ID, state.index),
                            GetText(MDR_TEXT_PAIRED_DEVICE_NAME, state.index)});
-    auto StageDeviceAction = [](MDRPairedDeviceCommand command, const std::string& id)
+    auto StageDeviceAction = [](MDRPairedDeviceCommand command, const mdr::String& id)
     {
         MDRPairedDeviceAction action = MDRStruct<MDRPairedDeviceAction>();
         action.command = command;
@@ -1225,7 +1223,7 @@ void DrawDeviceControlsDevices()
         ImGui::EndGroup();
         return res;
     };
-    static std::string connectSelectedMac;
+    static mdr::String connectSelectedMac;
     if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen))
     {
         for (auto& device : devices)
@@ -1307,8 +1305,8 @@ void DrawDeviceControlsSystem()
             if (mdrHeadphonesGetGeneralSetting(
                     gDevice, MDR_STATE_EFFECTIVE, info.index, &setting) != MDR_RESULT_OK)
                 continue;
-            const std::string subjectKey = GetText(MDR_TEXT_GENERAL_SETTING_SUBJECT, info.index);
-            const std::string summaryKey = GetText(MDR_TEXT_GENERAL_SETTING_SUMMARY, info.index);
+            const mdr::String subjectKey = GetText(MDR_TEXT_GENERAL_SETTING_SUBJECT, info.index);
+            const mdr::String summaryKey = GetText(MDR_TEXT_GENERAL_SETTING_SUMMARY, info.index);
             const char* subject = kFormatGSString(subjectKey.c_str(), kGSSubjectStrings);
             const char* summary = kFormatGSString(summaryKey.c_str(), kGSSummaryStrings);
             bool value = setting.boolean_value != MDR_FALSE;

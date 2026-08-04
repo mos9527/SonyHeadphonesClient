@@ -13,12 +13,9 @@
 #include "WaitForCompletion.h"
 
 #include <atomic>
-#include <fmt/format.h>
 #include <mdr/Protocol.hpp>
 #include <mutex>
-#include <string>
 #include <thread>
-#include <vector>
 
 #include <mdr-c/Platform/PlatformWindowsBLE.h>
 #include "../Platform.hpp"

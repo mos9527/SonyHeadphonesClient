@@ -1,4 +1,3 @@
-#include <string>
 #include <mdr-c/Platform/PlatformEmscripten.h>
 
 #include <emscripten.h>
