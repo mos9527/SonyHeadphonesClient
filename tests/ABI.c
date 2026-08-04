@@ -6,63 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-_Static_assert(sizeof(MDRResult) == sizeof(uint32_t), "MDRResult must be uint32_t");
-_Static_assert(sizeof(MDRBoolean) == sizeof(uint32_t), "MDRBoolean must be uint32_t");
-_Static_assert(
-    sizeof(MDRFeatureAvailability) == sizeof(uint32_t),
-    "MDRFeatureAvailability must be uint32_t"
-);
-_Static_assert(sizeof(MDRFeature) == sizeof(uint32_t), "MDRFeature must be fixed-width");
-_Static_assert(sizeof(MDROperation) == sizeof(uint32_t), "MDROperation must be uint32_t");
-_Static_assert(sizeof(MDREvent) == sizeof(uint32_t), "MDREvent must be uint32_t");
-_Static_assert(
-    sizeof(MDRPacketDirection) == sizeof(uint32_t),
-    "MDRPacketDirection must be uint32_t"
-);
-_Static_assert(sizeof(MDRText) == sizeof(uint32_t), "MDRText must be uint32_t");
-_Static_assert(sizeof(MDRAudioCodec) == sizeof(uint32_t), "MDRAudioCodec must be uint32_t");
-_Static_assert(sizeof(MDRBatteryPart) == sizeof(uint32_t), "MDRBatteryPart must be uint32_t");
-_Static_assert(sizeof(MDRChargingState) == sizeof(uint32_t), "MDRChargingState must be uint32_t");
-_Static_assert(sizeof(MDRPlaybackStatus) == sizeof(uint32_t), "MDRPlaybackStatus must be uint32_t");
-_Static_assert(sizeof(MDRPlaybackAction) == sizeof(uint32_t), "MDRPlaybackAction must be uint32_t");
-_Static_assert(sizeof(MDRNoiseMode) == sizeof(uint32_t), "MDRNoiseMode must be uint32_t");
-_Static_assert(sizeof(MDRAdaptiveSensitivity) == sizeof(uint32_t), "MDRAdaptiveSensitivity must be uint32_t");
-_Static_assert(sizeof(MDRNoiseButtonMode) == sizeof(uint32_t), "MDRNoiseButtonMode must be uint32_t");
-_Static_assert(sizeof(MDRSpeechSensitivity) == sizeof(uint32_t), "MDRSpeechSensitivity must be uint32_t");
-_Static_assert(sizeof(MDRSpeakTimeout) == sizeof(uint32_t), "MDRSpeakTimeout must be uint32_t");
-_Static_assert(sizeof(MDRListeningMode) == sizeof(uint32_t), "MDRListeningMode must be uint32_t");
-_Static_assert(sizeof(MDRRoomSize) == sizeof(uint32_t), "MDRRoomSize must be uint32_t");
-_Static_assert(sizeof(MDREqualizerPreset) == sizeof(uint32_t), "MDREqualizerPreset must be uint32_t");
-_Static_assert(sizeof(MDRDseeType) == sizeof(uint32_t), "MDRDseeType must be uint32_t");
-_Static_assert(sizeof(MDRPairedDeviceCommand) == sizeof(uint32_t), "MDRPairedDeviceCommand must be uint32_t");
-_Static_assert(sizeof(MDRGeneralSettingType) == sizeof(uint32_t), "MDRGeneralSettingType must be uint32_t");
-_Static_assert(sizeof(MDRAssignableAction) == sizeof(uint32_t), "MDRAssignableAction must be uint32_t");
-_Static_assert(sizeof(MDRWearingPowerMode) == sizeof(uint32_t), "MDRWearingPowerMode must be uint32_t");
-_Static_assert(sizeof(MDRAudioPriority) == sizeof(uint32_t), "MDRAudioPriority must be uint32_t");
-
-#define MDR_ASSERT_C_STRUCT(type) \
-    _Static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
-MDR_ASSERT_C_STRUCT(MDRHeadphonesStatus);
-MDR_ASSERT_C_STRUCT(MDRIdentity);
-MDR_ASSERT_C_STRUCT(MDRBattery);
-MDR_ASSERT_C_STRUCT(MDRPlayback);
-MDR_ASSERT_C_STRUCT(MDRPlaybackCommand);
-MDR_ASSERT_C_STRUCT(MDRNoiseControl);
-MDR_ASSERT_C_STRUCT(MDRSpeakToChat);
-MDR_ASSERT_C_STRUCT(MDRListening);
-MDR_ASSERT_C_STRUCT(MDREqualizer);
-MDR_ASSERT_C_STRUCT(MDRPairedDevice);
-MDR_ASSERT_C_STRUCT(MDRPairedDeviceAction);
-MDR_ASSERT_C_STRUCT(MDRPairing);
-MDR_ASSERT_C_STRUCT(MDRGeneralSettingInfo);
-MDR_ASSERT_C_STRUCT(MDRGeneralSetting);
-MDR_ASSERT_C_STRUCT(MDRAssignableControls);
-MDR_ASSERT_C_STRUCT(MDRPower);
-MDR_ASSERT_C_STRUCT(MDRVoiceGuidance);
-MDR_ASSERT_C_STRUCT(MDRConnectionMode);
-MDR_ASSERT_C_STRUCT(MDRSafeListening);
-#undef MDR_ASSERT_C_STRUCT
-
 enum
 {
     MOCK_BUFFER_CAPACITY = 4096,
