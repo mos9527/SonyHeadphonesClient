@@ -43,7 +43,8 @@ The client creates the directory if needed and deletes existing
 - Create an immediate subdirectory in the source tree named `<model>-<firmware version>` under
    `tests/`, for example `tests/WF-1000XM5-6.1.0/`
 - You can find the FW version to your device under the **About** tab
-- Testing locally is encouraged though not necessary, as sucessful application runs implies validated packets.
-- Should you validate your packets nontheless, build and run `mdr_tests` on the folder.
+- Testing locally is encouraged though not necessary, as successful application runs imply validated packets.
+- To validate captures locally, build the aggregate `mdr_tests` target and run
+  `mdr_replay_tests <packet-directory>`.
 
 - Commit and make your PR. Do note that only `rx` packets would be uploaded for validation.

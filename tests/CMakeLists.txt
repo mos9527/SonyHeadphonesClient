@@ -6,14 +6,21 @@ target_link_libraries(mdr_replay_tests PRIVATE mdr_shared)
 add_executable(mdr_abi_tests ABI.c)
 target_link_libraries(mdr_abi_tests PRIVATE mdr_shared)
 
-if (WIN32)
-    foreach(test_target IN ITEMS mdr_replay_tests mdr_abi_tests)
-        add_custom_command(
-            TARGET ${test_target}
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    $<TARGET_FILE:mdr_shared>
-                    $<TARGET_FILE_DIR:${test_target}>
-        )
-    endforeach()
-endif()
+set(mdr_test_targets mdr_replay_tests mdr_abi_tests)
+add_custom_target(mdr_tests DEPENDS ${mdr_test_targets})
+
+foreach(test_target IN LISTS mdr_test_targets)
+    add_custom_command(
+        TARGET ${test_target}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:mdr_shared>
+                $<TARGET_FILE_DIR:${test_target}>
+    )
+
+    if (APPLE)
+        set_target_properties(${test_target} PROPERTIES BUILD_RPATH "@loader_path")
+    elseif (UNIX)
+        set_target_properties(${test_target} PROPERTIES BUILD_RPATH "$ORIGIN")
+    endif()
+endforeach()
