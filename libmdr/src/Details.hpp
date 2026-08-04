@@ -459,6 +459,21 @@ namespace mdr
          */
         MDRTask RequestCommit();
 
+        /**
+         * @brief Queues an arbitrary debugger payload through the normal engine
+         * send path. This is an internal C++ developer API, not part of the C ABI.
+         */
+        MDRTask RequestDebugCommand(
+            MDRBuffer payload,
+            MDRDataType type,
+            MDRCommandSeqNumber sequence,
+            bool awaitAck
+        );
+        [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept
+        {
+            return mSeqNumber;
+        }
+
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();

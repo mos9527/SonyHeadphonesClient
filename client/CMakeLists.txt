@@ -1,5 +1,35 @@
 set(CLIENT_VERSION "2.0.0")
 
+set(CLIENT_DEBUGGER_GENERATED_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T1Debugger.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T2Debugger.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T1Debugger.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T2Debugger.cpp"
+)
+
+if (MDR_CLIENT_DEBUGGER_TARGET AND COMMAND mdr_add_codegen)
+    mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T1Debugger.cpp"
+        TOOL      tooling_DebuggerCodegen
+        INPUT     "${CMAKE_SOURCE_DIR}/libmdr/include/mdr/ProtocolV1T1.hpp"
+        NAMESPACE "mdr::v1::t1"
+        INCLUDE   "mdr/ProtocolV1T1.hpp")
+    mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T2Debugger.cpp"
+        TOOL      tooling_DebuggerCodegen
+        INPUT     "${CMAKE_SOURCE_DIR}/libmdr/include/mdr/ProtocolV1T2.hpp"
+        NAMESPACE "mdr::v1::t2"
+        INCLUDE   "mdr/ProtocolV1T2.hpp")
+    mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T1Debugger.cpp"
+        TOOL      tooling_DebuggerCodegen
+        INPUT     "${CMAKE_SOURCE_DIR}/libmdr/include/mdr/ProtocolV2T1.hpp"
+        NAMESPACE "mdr::v2::t1"
+        INCLUDE   "mdr/ProtocolV2T1.hpp")
+    mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T2Debugger.cpp"
+        TOOL      tooling_DebuggerCodegen
+        INPUT     "${CMAKE_SOURCE_DIR}/libmdr/include/mdr/ProtocolV2T2.hpp"
+        NAMESPACE "mdr::v2::t2"
+        INCLUDE   "mdr/ProtocolV2T2.hpp")
+endif ()
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
 
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
@@ -23,6 +53,7 @@ target_sources(
         PRIVATE
         SDLMain.cpp
         Client.cpp
+        PacketObserver.cpp
         PayloadRecorder.cpp
         Fonts/PlexSansIcon.c
 )
@@ -78,6 +109,29 @@ target_include_directories(ImGuiSDL3 PUBLIC
         ${imgui_SOURCE_DIR}/backends
         .
 )
+
+if (MDR_CLIENT_DEBUGGER_TARGET)
+    add_library(Client_Debugger STATIC
+        Debugger.cpp
+        Debugger.hpp
+        DebuggerDetails.hpp
+        ${CLIENT_DEBUGGER_GENERATED_SOURCES}
+    )
+    target_link_libraries(Client_Debugger PUBLIC mdr ImGuiSDL3)
+    target_include_directories(Client_Debugger PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+endif ()
+
+if (MDR_CLIENT_DEBUGGER_TARGET)
+    set(CLIENT_DEBUGGER_ENABLED
+        $<OR:$<BOOL:${MDR_CLIENT_DEBUGGER}>,$<CONFIG:Debug>>
+    )
+    target_link_libraries(SonyHeadphonesClient PRIVATE
+        $<${CLIENT_DEBUGGER_ENABLED}:Client_Debugger>
+    )
+    target_compile_definitions(SonyHeadphonesClient PRIVATE
+        $<${CLIENT_DEBUGGER_ENABLED}:MDR_CLIENT_DEBUGGER>
+    )
+endif ()
 
 set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory(Platform)

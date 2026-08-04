@@ -18,11 +18,17 @@
 #include <mdr/Protocol.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
+#include "PacketObserver.hpp"
 #include "Platform/Platform.hpp"
-#include "PayloadRecorder.hpp"
+#ifdef MDR_CLIENT_DEBUGGER
+#include "Debugger.hpp"
+#endif
 
 MDRHeadphones* gDevice;
 mdr::String gHeadphonesError;
+#ifdef MDR_CLIENT_DEBUGGER
+bool gDebuggerOpen{};
+#endif
 
 template <typename T>
 T MDRStruct()
@@ -373,7 +379,11 @@ void CloseDevice()
 {
     if (!gDevice)
         return;
+#ifdef MDR_CLIENT_DEBUGGER
+    gDebuggerOpen = false;
+#endif
     gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
+    clientPacketObserverDetach();
     mdrHeadphonesDestroy(gDevice);
     gDevice = nullptr;
 }
@@ -893,7 +903,7 @@ void DrawDeviceConnecting()
             DisconnectWithModal();
             return;
         }
-        clientPayloadRecorderAttach(gDevice);
+        clientPacketObserverAttach(gDevice);
         if (mdrHeadphonesRequestInit(gDevice) != MDR_RESULT_OK)
             DisconnectWithModal();
 
@@ -970,6 +980,10 @@ void DrawDeviceControlsHeader()
                     }
                 }
             }
+#ifdef MDR_CLIENT_DEBUGGER
+            ImGui::Separator();
+            ImGui::MenuItem("Protocol Debugger", nullptr, &gDebuggerOpen);
+#endif
             ImGui::EndMenu();
         }
         if (!gDevice)
@@ -1012,7 +1026,7 @@ void DrawDeviceControlsHeader()
             ImVec2 size = ImGui::CalcTextSize(s);
             badgeRegionX += size.x + padding.x * 2, badgeRegionY = std::max(badgeRegionY, size.y);
         }
-        ImGui::SameLine(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - badgeRegionX);
+        ImGui::SameLine(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - badgeRegionX - padding.x * 2);
         float rounding = style.FrameRounding;
         float offsetY = padding.y / 2;
         for (auto& [s, border, text] : badges)
@@ -1801,6 +1815,10 @@ void DrawApp()
         }
     }
     ImGui::End();
+#ifdef MDR_CLIENT_DEBUGGER
+    if (gDebuggerOpen || ImGui::IsPopupOpen("Command Playground"))
+        clientDebuggerDraw(&gDebuggerOpen);
+#endif
 }
 
 bool clientShouldExit()

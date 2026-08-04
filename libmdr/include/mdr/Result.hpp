@@ -29,8 +29,14 @@ std::abort(); \
 } \
 } while (false);
 
+#if defined(MDR_VALIDATION_NO_DEBUG_TRAPS)
+#define MDR_VALIDATION_TRAP() ((void)0)
+#else
+#define MDR_VALIDATION_TRAP() MDR_TRAP()
+#endif
+
 namespace mdr
-{    
+{
     template <typename T>
     struct [[nodiscard]] MDRResult
     {
@@ -117,7 +123,7 @@ namespace mdr
     do { \
         if (!(__VA_ARGS__)) \
         { \
-            MDR_TRAP(); \
+        MDR_VALIDATION_TRAP(); \
             return ::mdr::MDRResult<void>::Failure(                                                                    \
                 MDR_RESULT_ERROR_MALFORMED_PAYLOAD,                                                                    \
                 MDR_SOURCE_LOCATION("Validation failed: " #__VA_ARGS__)                                               \

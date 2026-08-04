@@ -173,6 +173,26 @@ namespace mdr
         }
     }
 
+    MDRTask MDRHeadphones::RequestDebugCommand(
+        MDRBuffer payload,
+        MDRDataType type,
+        MDRCommandSeqNumber sequence,
+        bool awaitAck
+    )
+    {
+        SendCommandImpl(payload, type, sequence);
+        if (awaitAck)
+        {
+            const int result = co_await Await(AWAIT_ACK);
+            if (result != MDR_RESULT_OK)
+            {
+                SetLastError(result, "Debugger command did not receive an ACK");
+                co_return MDR_HEADPHONES_ERROR;
+            }
+        }
+        co_return MDR_HEADPHONES_EVT_OK;
+    }
+
     int MDRHeadphones::PollEvents()
     {
         int r = mdrConnectionPoll(mConn, 0);

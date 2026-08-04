@@ -169,11 +169,11 @@ bool clientPayloadRecorderConfigure(const char* directory)
     return true;
 }
 
-void clientPayloadRecorderAttach(MDRHeadphones* headphones)
+void clientPayloadRecorderObserve(
+    MDRPacketDirection direction,
+    const unsigned char* frame,
+    int frameSize
+)
 {
-    mdrHeadphonesSetPacketCallback(
-        headphones,
-        gCaptureDirectory.empty() ? nullptr : RecordPacket,
-        nullptr
-    );
+    RecordPacket(nullptr, direction, frame, frameSize);
 }

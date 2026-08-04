@@ -87,12 +87,18 @@ if (MDR_BUILD_WITH_ASAN)
 endif ()
 
 option(MDR_DEBUG "Build with debug flags enabled (also always on for Debug builds)" OFF)
+option(MDR_DEBUG_TRAPS "Break into the debugger when MDR operations fail in Debug builds" OFF)
+option(MDR_CLIENT_DEBUGGER "Build the ImGui packet debugger in all configurations" OFF)
+set(MDR_CLIENT_DEBUGGER_TARGET OFF)
+if (MDR_CLIENT_DEBUGGER OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_CONFIGURATION_TYPES)
+    set(MDR_CLIENT_DEBUGGER_TARGET ON)
+endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(MDR_DEBUG ON)
 endif ()
 add_compile_definitions(
     $<$<OR:$<BOOL:${MDR_DEBUG}>,$<CONFIG:Debug>>:MDR_DEBUG>
-    $<$<CONFIG:Debug>:MDR_DEBUG_TRAPS>
+    $<$<AND:$<BOOL:${MDR_DEBUG_TRAPS}>,$<CONFIG:Debug>>:MDR_DEBUG_TRAPS>
 )
 if (MDR_DEBUG)
     message(STATUS "Debugging features *ON*. Enjoy the logs.")

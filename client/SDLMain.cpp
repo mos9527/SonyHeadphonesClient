@@ -15,6 +15,9 @@
 
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
+#ifdef MDR_CLIENT_DEBUGGER
+#include "Debugger.hpp"
+#endif
 // Implemented by Client.cpp
 extern bool clientShouldExit();
 
@@ -165,7 +168,13 @@ int main(int argc, char** argv)
     // Load our default font
     {
         io.Fonts->Clear();
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+#ifdef MDR_CLIENT_DEBUGGER
+        ImFont* monospaceFont = io.Fonts->AddFontDefault();
+#endif
+        io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+#ifdef MDR_CLIENT_DEBUGGER
+        clientDebuggerSetMonospaceFont(monospaceFont);
+#endif
     }
     // Main loop
 
