@@ -379,9 +379,6 @@ void CloseDevice()
 {
     if (!gDevice)
         return;
-#ifdef MDR_CLIENT_DEBUGGER
-    gDebuggerOpen = false;
-#endif
     gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
     clientPacketObserverDetach();
     mdrHeadphonesDestroy(gDevice);
@@ -852,6 +849,11 @@ void DrawDeviceDiscovery()
                                                "Classic if you don't know what that means or otherwise.");
         ImTextCentered(PSI_WARNING_SIGN
                        " This product is not affiliated with Sony. Use at your own risk. " PSI_WARNING_SIGN);
+#ifdef MDR_CLIENT_DEBUGGER
+        ImGui::Separator();
+        if (ImModalButton("Protocol Debugger"))
+            gDebuggerOpen = true;
+#endif
         ImGui::EndPopup();
     }
     else
@@ -1801,6 +1803,9 @@ void DrawApp()
         switch (connState)
         {
         case CONN_STATE_NO_CONNECTION:
+#ifdef MDR_CLIENT_DEBUGGER
+            if (!gDebuggerOpen)
+#endif
             DrawDeviceDiscovery();
             break;
         case CONN_STATE_CONNECTING:
@@ -1816,7 +1821,10 @@ void DrawApp()
     }
     ImGui::End();
 #ifdef MDR_CLIENT_DEBUGGER
-    if (gDebuggerOpen || ImGui::IsPopupOpen("Command Playground"))
+    // Error modals replace the debugger popup while preserving its open state.
+    // Once the error is dismissed, the debugger reopens with its packet history intact.
+    if (connState != CONN_STATE_DISCONNECTED &&
+        (gDebuggerOpen || ImGui::IsPopupOpen("Command Playground")))
         clientDebuggerDraw(&gDebuggerOpen);
 #endif
 }
