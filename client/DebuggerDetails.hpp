@@ -119,7 +119,7 @@ namespace client::debugger
     inline bool DrawTree(const char* label, auto&& drawContents)
     {
         bool changed = false;
-        if (ImGui::TreeNode(label))
+        if (ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen))
         {
             changed = drawContents();
             ImGui::TreePop();
@@ -262,7 +262,7 @@ namespace client::debugger
     bool DrawSequence(const char* label, Sequence& sequence, bool resizable, DrawElement&& drawElement)
     {
         bool changed = false;
-        if (!ImGui::TreeNode(label, "%s [%zu]", label, sequence.size()))
+        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]", label, sequence.size()))
             return false;
 
         size_t removeIndex = std::numeric_limits<size_t>::max();
@@ -312,14 +312,14 @@ namespace client::debugger
     bool DrawMap(const char* label, Entries& entries, DrawKey&& drawKey, DrawValue&& drawValue)
     {
         bool changed = false;
-        if (!ImGui::TreeNode(label, "%s [%zu]", label, entries.size()))
+        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]", label, entries.size()))
             return false;
 
         size_t removeIndex = std::numeric_limits<size_t>::max();
         for (size_t index = 0; index < entries.size(); ++index)
         {
             ImGui::PushID(static_cast<int>(index));
-            if (ImGui::TreeNode("entry", "[%zu]", index))
+            if (ImGui::TreeNodeEx("entry", ImGuiTreeNodeFlags_DefaultOpen, "[%zu]", index))
             {
                 changed |= drawKey("key", entries[index].key);
                 changed |= drawValue("value", entries[index].value);

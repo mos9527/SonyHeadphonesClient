@@ -192,7 +192,8 @@ namespace
 
     void DrawHex(std::string_view label, mdr::Span<const mdr::UInt8> bytes)
     {
-        if (!ImGui::TreeNode(label.data(), "%.*s [%zu]", static_cast<int>(label.size()), label.data(), bytes.size()))
+        if (!ImGui::TreeNodeEx(label.data(), ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]",
+                               static_cast<int>(label.size()), label.data(), bytes.size()))
             return;
 
         constexpr size_t bytesPerLine = 8;
