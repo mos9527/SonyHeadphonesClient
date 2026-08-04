@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstring>
 #include <span>
+#include <string>
 #include <tuple>
 #include <utility>
 
@@ -56,7 +57,7 @@ const char* FormatAudioCodec(MDRAudioCodec codec)
     }
 }
 
-const char* FormatDseeType(MDRDseeType type)
+const char* FormatDseeType(MDRDSEEType type)
 {
     switch (type)
     {
@@ -304,8 +305,8 @@ mdr::String GetText(MDRText text, uint32_t index = 0)
 
 uint8_t GetModelColor()
 {
-    MDRIdentity identity = MDRStruct<MDRIdentity>();
-    return gDevice && mdrHeadphonesGetIdentity(gDevice, &identity) == MDR_RESULT_OK ? identity.model_color : 0;
+    MDRModel identity = MDRStruct<MDRModel>();
+    return gDevice && mdrHeadphonesGetModel(gDevice, &identity) == MDR_RESULT_OK ? identity.model_color : 0;
 }
 
 mdr::Vector<MDRBattery> GetBatteries()
@@ -621,6 +622,99 @@ enum CONN_STATE
     CONN_STATE_CONNECTED,
     CONN_STATE_DISCONNECTED // Passive, or from errors
 } connState{};
+
+enum DEVICE_TYPE
+{
+    DEVICE_TYPE_AUTO,
+    DEVICE_TYPE_V2,
+    DEVICE_TYPE_V1
+};
+
+struct ConnectionAttemptState
+{
+    static constexpr uint64_t kAttemptTimeoutMs = 10'000;
+
+    std::string address;
+    std::array<const char*, 2> services{};
+    std::string lastError;
+    size_t serviceCount{};
+    size_t serviceIndex{};
+    uint64_t deadlineMs{};
+    bool ble{};
+};
+
+ConnectionAttemptState connectionAttempt;
+
+const char* ConnectionAttemptName()
+{
+    if (connectionAttempt.ble)
+        return "BLE";
+    if (connectionAttempt.serviceCount == 1)
+        return std::strcmp(connectionAttempt.services[0], MDR_SERVICE_UUID_LEGACY) == 0 ? "V1" : "V2";
+    return connectionAttempt.serviceIndex == 0 ? "V2" : "V1";
+}
+
+void CaptureConnectionError(MDRConnection* conn, MDRResult result)
+{
+    const char* error = mdrConnectionGetLastError(conn);
+    connectionAttempt.lastError = error && *error ? error : mdrResultString(result);
+}
+
+MDRResult TryConnectionAttempt(MDRConnection* conn)
+{
+    while (connectionAttempt.serviceIndex < connectionAttempt.serviceCount)
+    {
+        const MDRResult result =
+            mdrConnectionConnect(conn, connectionAttempt.address.c_str(),
+                                 connectionAttempt.services[connectionAttempt.serviceIndex]);
+        if (result == MDR_RESULT_OK || result == MDR_RESULT_INPROGRESS)
+        {
+            connectionAttempt.deadlineMs = SDL_GetTicks() + ConnectionAttemptState::kAttemptTimeoutMs;
+            return result;
+        }
+
+        CaptureConnectionError(conn, result);
+        mdrConnectionDisconnect(conn);
+        ++connectionAttempt.serviceIndex;
+    }
+    return MDR_RESULT_ERROR_NO_CONNECTION;
+}
+
+MDRResult AdvanceConnectionAttempt(MDRConnection* conn, MDRResult reason)
+{
+    CaptureConnectionError(conn, reason);
+    mdrConnectionDisconnect(conn);
+    ++connectionAttempt.serviceIndex;
+    return TryConnectionAttempt(conn);
+}
+
+MDRResult StartConnection(
+    MDRConnection* conn,
+    const char* address,
+    bool usingBLE,
+    DEVICE_TYPE deviceType)
+{
+    connectionAttempt = {};
+    connectionAttempt.address = address;
+    connectionAttempt.ble = usingBLE;
+    if (usingBLE)
+    {
+        connectionAttempt.services[0] = MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC;
+        connectionAttempt.serviceCount = 1;
+    }
+    else if (deviceType == DEVICE_TYPE_AUTO)
+    {
+        connectionAttempt.services = {MDR_SERVICE_UUID_XM5, MDR_SERVICE_UUID_LEGACY};
+        connectionAttempt.serviceCount = 2;
+    }
+    else
+    {
+        connectionAttempt.services[0] =
+            deviceType == DEVICE_TYPE_V2 ? MDR_SERVICE_UUID_XM5 : MDR_SERVICE_UUID_LEGACY;
+        connectionAttempt.serviceCount = 1;
+    }
+    return TryConnectionAttempt(conn);
+}
 #pragma endregion
 
 void DrawDeviceDiscovery()
@@ -642,6 +736,7 @@ void DrawDeviceDiscovery()
                            .c_str());
         // Chose, and have the GATT backend active
         static bool usingBLE = false;
+        static DEVICE_TYPE deviceType = DEVICE_TYPE_AUTO;
         static int connInitResult = MDR_RESULT_INPROGRESS;
         // BLE / Classic toggle
         bool needSwitchClientPlatform = clientPlatformConnectionGet() == nullptr;
@@ -665,6 +760,23 @@ void DrawDeviceDiscovery()
                     usingBLE = true, needSwitchClientPlatform = true;
             }
         }
+        ImGui::BeginDisabled(usingBLE);
+        {
+            ImStylesRAII styles;
+            styles.PushFont(nullptr, 12.0f);
+            styles.PushVar(ImGuiStyleVar_FramePadding, ImVec2{});
+            styles.PushVar(ImGuiStyleVar_FrameRounding, 0.0f);
+            constexpr std::array labels{PSI_PLUS_SIGN " Auto", PSI_FAST_FORWARD " V2", PSI_FORWARD " V1"};
+            for (int i = 0; i < static_cast<int>(labels.size()); ++i)
+            {
+                ImStylesRAII buttonStyles;
+                if (deviceType != i)
+                    buttonStyles.PushCol(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+                if (ImModalButton(labels[i], i, static_cast<int>(labels.size())))
+                    deviceType = static_cast<DEVICE_TYPE>(i);
+            }
+        }
+        ImGui::EndDisabled();
         auto RefreshDeviceList = [&]()
         {
             MDRConnection* conn = clientPlatformConnectionGet();
@@ -707,9 +819,9 @@ void DrawDeviceDiscovery()
             ImGui::BeginDisabled(devices.empty());
             if (ImModalButton(PSI_LINK " Connect", 0, 2))
             {
-                const char* serviceUUID = usingBLE ? MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC : MDR_SERVICE_UUID_XM5;
-                int res = mdrConnectionConnect(clientPlatformConnectionGet(), devices[deviceIndex].szDeviceMacAddress,
-                                               serviceUUID);
+                const int res =
+                    StartConnection(clientPlatformConnectionGet(), devices[deviceIndex].szDeviceMacAddress,
+                                    usingBLE, deviceType);
                 if (res != MDR_RESULT_OK && res != MDR_RESULT_INPROGRESS)
                     connState = CONN_STATE_DISCONNECTED;
                 else
@@ -749,10 +861,32 @@ void DrawDeviceConnecting()
 {
     assert(connState == CONN_STATE_CONNECTING);
     MDRConnection* conn = clientPlatformConnectionGet();
-    switch (mdrConnectionPoll(conn, 0))
+    MDRResult pollResult = mdrConnectionPoll(conn, 0);
+    if (pollResult != MDR_RESULT_OK)
+    {
+        const bool attemptTimedOut =
+            (pollResult == MDR_RESULT_INPROGRESS || pollResult == MDR_RESULT_ERROR_TIMEOUT) &&
+            SDL_GetTicks() >= connectionAttempt.deadlineMs;
+        const bool attemptFailed =
+            pollResult != MDR_RESULT_INPROGRESS && pollResult != MDR_RESULT_ERROR_TIMEOUT;
+        if (attemptTimedOut || attemptFailed)
+        {
+            pollResult =
+                AdvanceConnectionAttempt(conn, attemptTimedOut ? MDR_RESULT_ERROR_TIMEOUT : pollResult);
+            if (pollResult != MDR_RESULT_OK && pollResult != MDR_RESULT_INPROGRESS)
+            {
+                connState = CONN_STATE_DISCONNECTED;
+                CloseDevice();
+                MaterialYouTheme::ApplyDefault();
+                return;
+            }
+        }
+    }
+    switch (pollResult)
     {
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
+        connectionAttempt.lastError.clear();
         CloseDevice();
         if (mdrHeadphonesCreate(conn, &gDevice) != MDR_RESULT_OK)
         {
@@ -775,6 +909,7 @@ void DrawDeviceConnecting()
             {
                 ImGui::NewLine();
                 ImTextCentered("Connecting...");
+                ImTextCentered(mdr::Format("Device type: {}", ConnectionAttemptName()).c_str());
                 ImGui::Dummy({0, 16.0f});
                 ImSpinner(1000.0f, 24.0f,
                           MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface), 2.0f, true,
@@ -786,6 +921,7 @@ void DrawDeviceConnecting()
                 {
                     CloseDevice();
                     mdrConnectionDisconnect(conn);
+                    connectionAttempt = {};
                     connState = CONN_STATE_NO_CONNECTION;
                 }
                 ImGui::EndPopup();
@@ -796,6 +932,7 @@ void DrawDeviceConnecting()
         }
     default:
         {
+            CaptureConnectionError(conn, pollResult);
             connState = CONN_STATE_DISCONNECTED;
             CloseDevice();
             mdrConnectionDisconnect(conn);
@@ -850,8 +987,8 @@ void DrawDeviceControlsHeader()
         std::array<Badge, 4> badges4;
         Badge *badgeFirst = &badges4[0], *badgeLast = &badges4[0];
         /* Codec */
-        MDRIdentity identity = MDRStruct<MDRIdentity>();
-        if (mdrHeadphonesGetIdentity(gDevice, &identity) == MDR_RESULT_OK &&
+        MDRModel identity = MDRStruct<MDRModel>();
+        if (mdrHeadphonesGetModel(gDevice, &identity) == MDR_RESULT_OK &&
             identity.audio_codec != MDR_AUDIO_CODEC_UNKNOWN)
         {
             *(badgeLast++) = {FormatAudioCodec(identity.audio_codec), ~0u, ~0u};
@@ -1589,7 +1726,9 @@ void DrawDeviceDisconnect()
     if (!popup)
     {
         std::fprintf(stderr, "[Client] Device disconnected\n");
-        if (conn)
+        if (!connectionAttempt.lastError.empty())
+            std::fprintf(stderr, "[Client] Connection: %s\n", connectionAttempt.lastError.c_str());
+        else if (conn)
             std::fprintf(stderr, "[Client] Connection: %s\n", mdrConnectionGetLastError(conn));
         if (!gHeadphonesError.empty())
             std::fprintf(stderr, "[Client] Headphones: %s\n", gHeadphonesError.c_str());
@@ -1606,7 +1745,9 @@ void DrawDeviceDisconnect()
                   true, false);
         ImGui::NewLine();
         ImGui::SeparatorText("Messages");
-        if (conn)
+        if (!connectionAttempt.lastError.empty())
+            ImGui::TextWrapped("Connection: %s", connectionAttempt.lastError.c_str());
+        else if (conn)
             ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
         if (!gHeadphonesError.empty())
             ImGui::TextWrapped("Headphones: %s", gHeadphonesError.c_str());
@@ -1616,6 +1757,7 @@ void DrawDeviceDisconnect()
         {
             CloseDevice();
             mdrConnectionDisconnect(conn);
+            connectionAttempt = {};
             connState = CONN_STATE_NO_CONNECTION;
         }
 

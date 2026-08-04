@@ -202,12 +202,12 @@ typedef uint32_t MDREqualizerPreset;
 #define MDR_EQ_USER_5 ((MDREqualizerPreset)29u)
 #define MDR_EQ_UNKNOWN ((MDREqualizerPreset)255u)
 
-typedef uint32_t MDRDseeType;
-#define MDR_DSEE_UNKNOWN ((MDRDseeType)0u)
-#define MDR_DSEE_STANDARD ((MDRDseeType)1u)
-#define MDR_DSEE_HX ((MDRDseeType)2u)
-#define MDR_DSEE_HX_AI ((MDRDseeType)3u)
-#define MDR_DSEE_ULTIMATE ((MDRDseeType)4u)
+typedef uint32_t MDRDSEEType;
+#define MDR_DSEE_UNKNOWN ((MDRDSEEType)0u)
+#define MDR_DSEE_STANDARD ((MDRDSEEType)1u)
+#define MDR_DSEE_HX ((MDRDSEEType)2u)
+#define MDR_DSEE_HX_AI ((MDRDSEEType)3u)
+#define MDR_DSEE_ULTIMATE ((MDRDSEEType)4u)
 
 typedef uint32_t MDRPairedDeviceCommand;
 #define MDR_PAIRED_DEVICE_CONNECT ((MDRPairedDeviceCommand)1u)
@@ -238,13 +238,13 @@ typedef uint32_t MDRAudioPriority;
 #define MDR_AUDIO_PRIORITY_QUALITY ((MDRAudioPriority)1u)
 #define MDR_AUDIO_PRIORITY_STABILITY ((MDRAudioPriority)2u)
 
-typedef struct MDRIdentity
+typedef struct MDRModel
 {
     uint32_t struct_size;
     uint32_t protocol_version;
     MDRAudioCodec audio_codec;
     uint8_t model_color;
-} MDRIdentity;
+} MDRModel;
 
 typedef struct MDRBattery
 {
@@ -302,7 +302,7 @@ typedef struct MDREqualizer
     int8_t clear_bass;
     uint32_t band_count;
     MDRBoolean dsee_enabled;
-    MDRDseeType dsee_type;
+    MDRDSEEType dsee_type;
 } MDREqualizer;
 
 typedef struct MDRPairedDevice
@@ -462,8 +462,8 @@ MDR_API MDRResult mdrHeadphonesGetText(
     uint32_t* inout_size
 );
 
-/* Identity, battery, and playback. */
-MDR_API MDRResult mdrHeadphonesGetIdentity(MDRHeadphones* headphones, MDRIdentity* out_identity);
+/* Model, battery, and playback. */
+MDR_API MDRResult mdrHeadphonesGetModel(MDRHeadphones* headphones, MDRModel* out_identity);
 MDR_API MDRResult mdrHeadphonesGetBatteries(
     MDRHeadphones* headphones,
     MDRBattery* batteries,

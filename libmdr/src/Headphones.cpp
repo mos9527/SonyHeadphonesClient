@@ -21,6 +21,105 @@ namespace mdr
             await.resume_now(MDR_RESULT_OK);
     }
 
+    void MDRHeadphones::RefreshNeutralFeaturesV2()
+    {
+        using T1 = v2::t1::FunctionType;
+        using T2 = v2::t2::FunctionType;
+        auto& features = mSupport.neutralFeatures;
+        std::ranges::fill(features, false);
+        features[MDR_FEATURE_IDENTITY] = true;
+        features[MDR_FEATURE_BATTERY_SINGLE] =
+            mSupport.contains(T1::BATTERY_LEVEL_INDICATOR) ||
+            mSupport.contains(T1::BATTERY_LEVEL_WITH_THRESHOLD);
+        features[MDR_FEATURE_BATTERY_LEFT_RIGHT] =
+            mSupport.contains(T1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR) ||
+            mSupport.contains(T1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
+        features[MDR_FEATURE_BATTERY_CASE] =
+            mSupport.contains(T1::CRADLE_BATTERY_LEVEL_INDICATOR) ||
+            mSupport.contains(T1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
+        const bool playback =
+            mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT) ||
+            mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_MUTE) ||
+            mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE) ||
+            mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_FUNCTION_CHANGE);
+        features[MDR_FEATURE_PLAYBACK_METADATA] = playback;
+        features[MDR_FEATURE_PLAYBACK_CONTROL] = playback;
+        features[MDR_FEATURE_PLAYBACK_VOLUME] = playback;
+        const bool noise =
+            mSupport.contains(T1::NOISE_CANCELLING_ONOFF) ||
+            mSupport.contains(T1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
+            mSupport.contains(T1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
+            mSupport.contains(T1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
+            mSupport.contains(T1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
+            mSupport.contains(T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
+            mSupport.contains(T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
+            mSupport.contains(T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
+            mSupport.contains(
+                T1::MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE) ||
+            mSupport.contains(
+                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
+        features[MDR_FEATURE_NOISE_CANCELLING] = noise;
+        features[MDR_FEATURE_AMBIENT_SOUND] = noise ||
+            mSupport.contains(T1::AMBIENT_SOUND_MODE_ONOFF) ||
+            mSupport.contains(T1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT);
+        features[MDR_FEATURE_ADAPTIVE_AMBIENT_SOUND] = mSupport.contains(
+            T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
+        features[MDR_FEATURE_SPEAK_TO_CHAT] = mSupport.contains(T1::SMART_TALKING_MODE_TYPE2);
+        features[MDR_FEATURE_LISTENING_MODE] = mSupport.contains(T1::LISTENING_OPTION);
+        features[MDR_FEATURE_EQUALIZER] =
+            mSupport.contains(T1::PRESET_EQ) || mSupport.contains(T1::CUSTOM_EQ) ||
+            mSupport.contains(T1::PRESET_EQ_NON_CUSTOMIZABLE) ||
+            mSupport.contains(T1::PRESET_EQ_AND_ULT_MODE) ||
+            mSupport.contains(T1::SOUND_EFFECT) || mSupport.contains(T1::TURN_KEY_EQ) ||
+            mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE) ||
+            mSupport.contains(T1::CUSTOMIZABLE_SOUND_EFFECT);
+        features[MDR_FEATURE_DSEE] = mSupport.contains(T1::UPSCALING_AUTO_OFF);
+        const bool pairing =
+            mSupport.contains(T2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
+            mSupport.contains(T2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT) ||
+            mSupport.contains(T2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE);
+        features[MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT] = pairing;
+        features[MDR_FEATURE_PAIRING_MODE] = pairing;
+        features[MDR_FEATURE_GENERAL_SETTINGS] =
+            mSupport.contains(T1::GENERAL_SETTING_1) || mSupport.contains(T1::GENERAL_SETTING_2) ||
+            mSupport.contains(T1::GENERAL_SETTING_3) || mSupport.contains(T1::GENERAL_SETTING_4);
+        features[MDR_FEATURE_ASSIGNABLE_CONTROLS] = mSupport.contains(T1::ASSIGNABLE_SETTING);
+        features[MDR_FEATURE_NOISE_CONTROL_BUTTON] =
+            mSupport.contains(T1::AMBIENT_SOUND_CONTROL_MODE_SELECT);
+        features[MDR_FEATURE_AUTO_POWER_OFF] =
+            mSupport.contains(T1::AUTO_POWER_OFF) ||
+            mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
+        features[MDR_FEATURE_WEARING_DETECTION] =
+            mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION) ||
+            mSupport.contains(T1::WEARING_STATUS_DETECTOR);
+        features[MDR_FEATURE_AUTO_PAUSE] =
+            mSupport.contains(T1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF);
+        features[MDR_FEATURE_HEAD_GESTURE] =
+            mSupport.contains(T1::HEAD_GESTURE_ON_OFF_TRAINING);
+        const bool voiceGuidance =
+            mSupport.contains(T2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH) ||
+            mSupport.contains(T2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH) ||
+            mSupport.contains(
+                T2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT) ||
+            mSupport.contains(T2::VOICE_GUIDANCE_VOLUME_SETTING_MTK_FIXED_TO_5_STEPS) ||
+            mSupport.contains(T2::VOICE_GUIDANCE_SETTING_SUPPORT_LANGUAGE_SWITCH) ||
+            mSupport.contains(T2::VOICE_GUIDANCE_SETTING_ONLY_ON_OFF_SWITCH);
+        features[MDR_FEATURE_VOICE_GUIDANCE] = voiceGuidance;
+        features[MDR_FEATURE_VOICE_GUIDANCE_VOLUME] =
+            mSupport.contains(
+                T2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT) ||
+            mSupport.contains(T2::VOICE_GUIDANCE_VOLUME_SETTING_MTK_FIXED_TO_5_STEPS);
+        features[MDR_FEATURE_SHUTDOWN] = mSupport.contains(T1::POWER_OFF);
+        features[MDR_FEATURE_CONNECTION_MODE] =
+            mSupport.contains(T1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY);
+        features[MDR_FEATURE_SAFE_LISTENING] =
+            mSupport.contains(T2::SAFE_LISTENING_HBS_1) ||
+            mSupport.contains(T2::SAFE_LISTENING_HBS_2) ||
+            mSupport.contains(T2::SAFE_LISTENING_TWS_1) ||
+            mSupport.contains(T2::SAFE_LISTENING_TWS_2);
+        mSupport.provenance = SupportStates::Provenance::ADVERTISED;
+    }
+
     MDRTask MDRHeadphones::RequestInit()
     {
         mProtocolFamily = ProtocolFamily::UNKNOWN;
@@ -169,6 +268,10 @@ namespace mdr
                 return SetLastError(
                     result.error,
                     result.errMessage ? result.errMessage : "Unable to deserialize MDR V1 protocol info");
+            if (mProtocolFamily != ProtocolFamily::UNKNOWN && mProtocolFamily != ProtocolFamily::V1)
+                return SetLastError(
+                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
+                    "MDR protocol family changed from V2 to V1");
             mProtocolFamily = ProtocolFamily::V1;
             mProtocol = {
                 .version = result.value.protocolVersion,
@@ -183,6 +286,10 @@ namespace mdr
                 return SetLastError(
                     result.error,
                     result.errMessage ? result.errMessage : "Unable to deserialize MDR V2 protocol info");
+            if (mProtocolFamily != ProtocolFamily::UNKNOWN && mProtocolFamily != ProtocolFamily::V2)
+                return SetLastError(
+                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
+                    "MDR protocol family changed from V1 to V2");
             mProtocolFamily = ProtocolFamily::V2;
             mProtocol = {
                 .version = result.value.protocolVersion,
@@ -215,6 +322,10 @@ namespace mdr
             if (!command.empty() &&
                 command.front() == static_cast<UInt8>(v2::t1::Command::CONNECT_RET_PROTOCOL_INFO))
                 return HandleProtocolInfo(command);
+            if (mProtocolFamily == ProtocolFamily::UNKNOWN)
+                return SetLastError(
+                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
+                    "Received MDR Table 1 data before CONNECT_RET_PROTOCOL_INFO");
             switch (mProtocolFamily)
             {
             case ProtocolFamily::V1: return HandleCommandV1T1(command, seq);
@@ -223,6 +334,10 @@ namespace mdr
             }
         case DATA_MDR_NO2:
             SendACK(seq);
+            if (mProtocolFamily == ProtocolFamily::UNKNOWN)
+                return SetLastError(
+                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
+                    "Received MDR Table 2 data before CONNECT_RET_PROTOCOL_INFO");
             switch (mProtocolFamily)
             {
             case ProtocolFamily::V1: return HandleCommandV1T2(command, seq);
@@ -387,42 +502,34 @@ namespace
 
     bool SupportsPairing(const Engine& h)
     {
-        using enum mdr::v2::FunctionType_Table2;
-        return h.mSupport.contains(PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
-            h.mSupport.contains(PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT) ||
-            h.mSupport.contains(PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE);
+        return h.mSupport.contains(MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT);
     }
 
     bool SupportsSafeListening(const Engine& h)
     {
-        using enum mdr::v2::FunctionType_Table2;
-        return h.mSupport.contains(SAFE_LISTENING_HBS_1) ||
-            h.mSupport.contains(SAFE_LISTENING_HBS_2) ||
-            h.mSupport.contains(SAFE_LISTENING_TWS_1) ||
-            h.mSupport.contains(SAFE_LISTENING_TWS_2);
+        return h.mSupport.contains(MDR_FEATURE_SAFE_LISTENING);
     }
 
     bool SupportsVoiceGuidance(const Engine& h)
     {
-        using enum mdr::v2::FunctionType_Table2;
-        return h.mSupport.contains(VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH) ||
-            h.mSupport.contains(VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH) ||
-            h.mSupport.contains(
-                VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT) ||
-            h.mSupport.contains(VOICE_GUIDANCE_VOLUME_SETTING_MTK_FIXED_TO_5_STEPS) ||
-            h.mSupport.contains(VOICE_GUIDANCE_SETTING_SUPPORT_LANGUAGE_SWITCH) ||
-            h.mSupport.contains(VOICE_GUIDANCE_SETTING_ONLY_ON_OFF_SWITCH);
+        return h.mSupport.contains(MDR_FEATURE_VOICE_GUIDANCE);
     }
 
     bool SupportsGeneralSetting(const Engine& h, uint32_t index)
     {
-        using enum mdr::v2::FunctionType_Table1;
         switch (index)
         {
-        case 0: return h.mSupport.contains(GENERAL_SETTING_1);
-        case 1: return h.mSupport.contains(GENERAL_SETTING_2);
-        case 2: return h.mSupport.contains(GENERAL_SETTING_3);
-        case 3: return h.mSupport.contains(GENERAL_SETTING_4);
+        case 0:
+            return h.mSupport.contains(mdr::v1::t1::FunctionType::GENERAL_SETTING1) ||
+                h.mSupport.contains(mdr::v2::t1::FunctionType::GENERAL_SETTING_1);
+        case 1:
+            return h.mSupport.contains(mdr::v1::t1::FunctionType::GENERAL_SETTING2) ||
+                h.mSupport.contains(mdr::v2::t1::FunctionType::GENERAL_SETTING_2);
+        case 2:
+            return h.mSupport.contains(mdr::v1::t1::FunctionType::GENERAL_SETTING3) ||
+                h.mSupport.contains(mdr::v2::t1::FunctionType::GENERAL_SETTING_3);
+        case 3:
+            return h.mSupport.contains(mdr::v2::t1::FunctionType::GENERAL_SETTING_4);
         default: return false;
         }
     }
@@ -670,7 +777,7 @@ namespace
         }
     }
 
-    MDRDseeType ToNeutral(mdr::v2::t1::UpscalingType value)
+    MDRDSEEType ToNeutral(mdr::v2::t1::UpscalingType value)
     {
         using enum mdr::v2::t1::UpscalingType;
         switch (value)
@@ -799,13 +906,13 @@ namespace
             return MDR_EVENT_BATTERY_CHANGED;
         case MDR_HEADPHONES_EVT_PLAYBACK_METADATA:
         case MDR_HEADPHONES_EVT_PLAYBACK_VOLUME:
+        case MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE:
             return MDR_EVENT_PLAYBACK_CHANGED;
         case MDR_HEADPHONES_EVT_SOUND_PRESSURE:
         case MDR_HEADPHONES_EVT_SAFE_LISTENING_PARAM:
             return MDR_EVENT_SAFE_LISTENING_CHANGED;
         case MDR_HEADPHONES_EVT_AUTO_POWER_OFF_PARAM:
         case MDR_HEADPHONES_EVT_AUTO_PAUSE:
-        case MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE:
         case MDR_HEADPHONES_EVT_HEAD_GESTURE:
             return MDR_EVENT_POWER_CHANGED;
         case MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE:
@@ -1083,137 +1190,7 @@ MDRResult mdrHeadphonesGetFeature(
         *outAvailability = MDR_FEATURE_UNKNOWN;
         return MDR_RESULT_OK;
     }
-    using T1 = mdr::v2::FunctionType_Table1;
-    bool available = false;
-    switch (feature)
-    {
-    case MDR_FEATURE_IDENTITY:
-        available = true;
-        break;
-    case MDR_FEATURE_BATTERY_SINGLE:
-        available = h.mSupport.contains(T1::BATTERY_LEVEL_INDICATOR) ||
-            h.mSupport.contains(T1::BATTERY_LEVEL_WITH_THRESHOLD);
-        break;
-    case MDR_FEATURE_BATTERY_LEFT_RIGHT:
-        available = h.mSupport.contains(T1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR) ||
-            h.mSupport.contains(T1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
-        break;
-    case MDR_FEATURE_BATTERY_CASE:
-        available = h.mSupport.contains(T1::CRADLE_BATTERY_LEVEL_INDICATOR) ||
-            h.mSupport.contains(T1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
-        break;
-    case MDR_FEATURE_PLAYBACK_METADATA:
-    case MDR_FEATURE_PLAYBACK_CONTROL:
-    case MDR_FEATURE_PLAYBACK_VOLUME:
-        available = h.mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT) ||
-            h.mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_MUTE) ||
-            h.mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE) ||
-            h.mSupport.contains(T1::PLAYBACK_CONTROLLER_WITH_FUNCTION_CHANGE);
-        break;
-    case MDR_FEATURE_NOISE_CANCELLING:
-        available = h.mSupport.contains(T1::NOISE_CANCELLING_ONOFF) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(
-                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(
-                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(
-                T1::MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE) ||
-            h.mSupport.contains(
-                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
-        break;
-    case MDR_FEATURE_AMBIENT_SOUND:
-        available = h.mSupport.contains(T1::AMBIENT_SOUND_MODE_ONOFF) ||
-            h.mSupport.contains(T1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(T1::NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(
-                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(
-                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-            h.mSupport.contains(
-                T1::MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE) ||
-            h.mSupport.contains(
-                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
-        break;
-    case MDR_FEATURE_ADAPTIVE_AMBIENT_SOUND:
-        available = h.mSupport.contains(
-            T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
-        break;
-    case MDR_FEATURE_SPEAK_TO_CHAT:
-        available = h.mSupport.contains(T1::SMART_TALKING_MODE_TYPE2);
-        break;
-    case MDR_FEATURE_LISTENING_MODE:
-        available = h.mSupport.contains(T1::LISTENING_OPTION);
-        break;
-    case MDR_FEATURE_EQUALIZER:
-        available = h.mSupport.contains(T1::PRESET_EQ) || h.mSupport.contains(T1::CUSTOM_EQ) ||
-            h.mSupport.contains(T1::PRESET_EQ_NON_CUSTOMIZABLE) ||
-            h.mSupport.contains(T1::PRESET_EQ_AND_ULT_MODE) ||
-            h.mSupport.contains(T1::SOUND_EFFECT) || h.mSupport.contains(T1::TURN_KEY_EQ) ||
-            h.mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE) ||
-            h.mSupport.contains(T1::CUSTOMIZABLE_SOUND_EFFECT);
-        break;
-    case MDR_FEATURE_DSEE:
-        available = h.mSupport.contains(T1::UPSCALING_AUTO_OFF);
-        break;
-    case MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT:
-    case MDR_FEATURE_PAIRING_MODE:
-        available = SupportsPairing(h);
-        break;
-    case MDR_FEATURE_GENERAL_SETTINGS:
-        available = h.mSupport.contains(T1::GENERAL_SETTING_1) || h.mSupport.contains(T1::GENERAL_SETTING_2) ||
-            h.mSupport.contains(T1::GENERAL_SETTING_3) || h.mSupport.contains(T1::GENERAL_SETTING_4);
-        break;
-    case MDR_FEATURE_ASSIGNABLE_CONTROLS:
-        available = h.mSupport.contains(T1::ASSIGNABLE_SETTING);
-        break;
-    case MDR_FEATURE_NOISE_CONTROL_BUTTON:
-        available = h.mSupport.contains(T1::AMBIENT_SOUND_CONTROL_MODE_SELECT);
-        break;
-    case MDR_FEATURE_AUTO_POWER_OFF:
-        available = h.mSupport.contains(T1::AUTO_POWER_OFF) ||
-            h.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
-        break;
-    case MDR_FEATURE_WEARING_DETECTION:
-        available = h.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION) ||
-            h.mSupport.contains(T1::WEARING_STATUS_DETECTOR);
-        break;
-    case MDR_FEATURE_AUTO_PAUSE:
-        available = h.mSupport.contains(T1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF);
-        break;
-    case MDR_FEATURE_HEAD_GESTURE:
-        available = h.mSupport.contains(T1::HEAD_GESTURE_ON_OFF_TRAINING);
-        break;
-    case MDR_FEATURE_VOICE_GUIDANCE:
-        available = SupportsVoiceGuidance(h);
-        break;
-    case MDR_FEATURE_VOICE_GUIDANCE_VOLUME:
-        available = h.mSupport.contains(
-            mdr::v2::FunctionType_Table2::
-                VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT) ||
-            h.mSupport.contains(mdr::v2::FunctionType_Table2::VOICE_GUIDANCE_VOLUME_SETTING_MTK_FIXED_TO_5_STEPS);
-        break;
-    case MDR_FEATURE_SHUTDOWN:
-        available = h.mSupport.contains(T1::POWER_OFF);
-        break;
-    case MDR_FEATURE_CONNECTION_MODE:
-        available = h.mSupport.contains(T1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY);
-        break;
-    case MDR_FEATURE_SAFE_LISTENING:
-        available = SupportsSafeListening(h);
-        break;
-    default:
-        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    }
-    *outAvailability = available ? MDR_FEATURE_AVAILABLE : MDR_FEATURE_UNAVAILABLE;
+    *outAvailability = h.mSupport.contains(feature) ? MDR_FEATURE_AVAILABLE : MDR_FEATURE_UNAVAILABLE;
     return MDR_RESULT_OK;
 }
 
@@ -1284,7 +1261,7 @@ MDRResult mdrHeadphonesGetText(
     }
 }
 
-MDRResult mdrHeadphonesGetIdentity(MDRHeadphones* headphones, MDRIdentity* outIdentity)
+MDRResult mdrHeadphonesGetModel(MDRHeadphones* headphones, MDRModel* outIdentity)
 {
     if (!headphones || ValidateStruct(outIdentity) != MDR_RESULT_OK)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -1304,13 +1281,9 @@ MDRResult mdrHeadphonesGetBatteries(
     if (!headphones || !inoutCount)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
-    using T1 = mdr::v2::FunctionType_Table1;
-    const bool hasLR = h.mSupport.contains(T1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR) ||
-        h.mSupport.contains(T1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
-    const bool hasSingle = !hasLR && (h.mSupport.contains(T1::BATTERY_LEVEL_INDICATOR) ||
-        h.mSupport.contains(T1::BATTERY_LEVEL_WITH_THRESHOLD));
-    const bool hasCase = h.mSupport.contains(T1::CRADLE_BATTERY_LEVEL_INDICATOR) ||
-        h.mSupport.contains(T1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
+    const bool hasLR = h.mSupport.contains(MDR_FEATURE_BATTERY_LEFT_RIGHT);
+    const bool hasSingle = !hasLR && h.mSupport.contains(MDR_FEATURE_BATTERY_SINGLE);
+    const bool hasCase = h.mSupport.contains(MDR_FEATURE_BATTERY_CASE);
     const uint32_t required = (hasLR ? 2u : hasSingle ? 1u : 0u) + (hasCase ? 1u : 0u);
     if (!batteries)
     {
@@ -1462,7 +1435,7 @@ MDRResult mdrHeadphonesSetSpeakToChat(
     if (!headphones || ValidateStruct(speakToChat) != MDR_RESULT_OK || !ValidBoolean(speakToChat->enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
-    if (!h->mSupport.contains(mdr::v2::FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+    if (!h->mSupport.contains(MDR_FEATURE_SPEAK_TO_CHAT))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto sensitivity = h->mSpeakToChatDetectSensitivity.desired;
     auto timeout = h->mSpeakToModeOutTime.desired;
@@ -1499,7 +1472,7 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
     if (!headphones || ValidateStruct(listening) != MDR_RESULT_OK || listening->mode > MDR_LISTENING_CINEMA)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
-    if (!h->mSupport.contains(mdr::v2::FunctionType_Table1::LISTENING_OPTION))
+    if (!h->mSupport.contains(mdr::v2::t1::FunctionType::LISTENING_OPTION))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto room = h->mBGMModeRoomSize.desired;
     if (listening->background_room != MDR_ROOM_UNKNOWN && !FromNeutral(listening->background_room, room))
@@ -1641,6 +1614,8 @@ MDRResult mdrHeadphonesSetPairedDevice(
     auto* h = Impl(headphones);
     if (!SupportsPairing(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    if (h->mProtocolFamily == Engine::ProtocolFamily::V1)
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
     const mdr::String value{id.begin(), id.end()};
     switch (action->command)
     {
@@ -1682,12 +1657,9 @@ MDRResult mdrHeadphonesGetGeneralSettingInfo(
     if (!headphones || !inoutCount)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
-    using T1 = mdr::v2::FunctionType_Table1;
-    const T1 features[] = {T1::GENERAL_SETTING_1, T1::GENERAL_SETTING_2,
-                           T1::GENERAL_SETTING_3, T1::GENERAL_SETTING_4};
     uint32_t required = 0;
-    for (const auto feature : features)
-        required += h.mSupport.contains(feature) ? 1u : 0u;
+    for (uint32_t i = 0; i < 4; ++i)
+        required += SupportsGeneralSetting(h, i) ? 1u : 0u;
     if (!settings)
     {
         if (*inoutCount != 0)
@@ -1707,9 +1679,9 @@ MDRResult mdrHeadphonesGetGeneralSettingInfo(
         &h.mGsCapability1, &h.mGsCapability2, &h.mGsCapability3, &h.mGsCapability4
     };
     uint32_t out = 0;
-    for (uint32_t i = 0; i < std::size(features); ++i)
+    for (uint32_t i = 0; i < 4; ++i)
     {
-        if (!h.mSupport.contains(features[i]))
+        if (!SupportsGeneralSetting(h, i))
             continue;
         settings[out++] = {
             .struct_size = sizeof(MDRGeneralSettingInfo),
@@ -1792,7 +1764,7 @@ MDRResult mdrHeadphonesSetAssignableControls(
     if (!FromNeutral(controls->left, left) || !FromNeutral(controls->right, right))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
-    if (!h->mSupport.contains(mdr::v2::FunctionType_Table1::ASSIGNABLE_SETTING))
+    if (!h->mSupport.contains(MDR_FEATURE_ASSIGNABLE_CONTROLS))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     h->mTouchFunctionLeft.stage(left);
     h->mTouchFunctionRight.stage(right);
@@ -1804,7 +1776,7 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPower* outPower)
     if (!headphones || ValidateStruct(outPower) != MDR_RESULT_OK)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
-    using T1 = mdr::v2::FunctionType_Table1;
+    using T1 = mdr::v2::t1::FunctionType;
     const bool wearing = h.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
     const auto wearingValue = h.mPowerAutoOffWearingDetection.current;
     *outPower = {
@@ -1833,7 +1805,7 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         !AutoPowerFromMinutes(power->auto_power_off_minutes, wearingPower))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
-    using T1 = mdr::v2::FunctionType_Table1;
+    using T1 = mdr::v2::t1::FunctionType;
     if (h->mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
     {
         h->mPowerAutoOffWearingDetection.stage(
@@ -1842,6 +1814,8 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
                 : wearingPower);
     }
     else if (h->mSupport.contains(T1::AUTO_POWER_OFF))
+        h->mPowerAutoOff.stage(autoPower);
+    else if (h->mSupport.contains(MDR_FEATURE_AUTO_POWER_OFF))
         h->mPowerAutoOff.stage(autoPower);
     h->mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
     h->mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
@@ -1873,7 +1847,8 @@ MDRResult mdrHeadphonesSetVoiceGuidance(
     if (!SupportsVoiceGuidance(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     h->mVoiceGuidanceEnabled.stage(voiceGuidance->enabled != MDR_FALSE);
-    h->mVoiceGuidanceVolume.stage(voiceGuidance->volume);
+    if (h->mSupport.contains(MDR_FEATURE_VOICE_GUIDANCE_VOLUME))
+        h->mVoiceGuidanceVolume.stage(voiceGuidance->volume);
     return MDR_RESULT_OK;
 }
 
@@ -1899,8 +1874,7 @@ MDRResult mdrHeadphonesSetConnectionMode(
     if (!headphones || ValidateStruct(mode) != MDR_RESULT_OK)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
-    if (!h->mSupport.contains(
-        mdr::v2::FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+    if (!h->mSupport.contains(MDR_FEATURE_CONNECTION_MODE))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     switch (mode->audio_priority)
     {

@@ -51,7 +51,7 @@ namespace mdr
 
             /* General Setting */
             t1::DisplayLanguage lang = t1::DisplayLanguage::ENGLISH;
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_1))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_1))
             {
                 SendCommandACK(t1::GsGetCapability, {
                                .type = t1::GsInquiredType::GENERAL_SETTING1, .displayLanguage = lang
@@ -60,7 +60,7 @@ namespace mdr
                                .type = t1::GsInquiredType::GENERAL_SETTING1
                                });
             }
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_2))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_2))
             {
                 SendCommandACK(t1::GsGetCapability, {
                                .type = t1::GsInquiredType::GENERAL_SETTING2, .displayLanguage = lang
@@ -69,7 +69,7 @@ namespace mdr
                                .type = t1::GsInquiredType::GENERAL_SETTING2
                                });
             }
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_3))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_3))
             {
                 SendCommandACK(t1::GsGetCapability, {
                                .type = t1::GsInquiredType::GENERAL_SETTING3, .displayLanguage = lang
@@ -78,7 +78,7 @@ namespace mdr
                                .type = t1::GsInquiredType::GENERAL_SETTING3
                                });
             }
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_4))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_4))
             {
                 SendCommandACK(t1::GsGetCapability, {
                                .type = t1::GsInquiredType::GENERAL_SETTING4, .displayLanguage = lang
@@ -89,17 +89,17 @@ namespace mdr
             }
 
             /* DSEE */
-            if (mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
                 SendCommandACK(t1::AudioGetCapability, {
                            .type = t1::AudioInquiredType::UPSCALING
                            });
         }
         /* Receive alerts for certain operations like toggling multipoint */
-        if (mSupport.contains(FunctionType_Table1::FIXED_MESSAGE))
+        if (mSupport.contains(t1::FunctionType::FIXED_MESSAGE))
             SendCommandACK(t1::AlertSetStatusFixedMessage, { .status = EnableDisable::ENABLE});
 
         /* Codec Type */
-        if (mSupport.contains(FunctionType_Table1::CODEC_INDICATOR))
+        if (mSupport.contains(t1::FunctionType::CODEC_INDICATOR))
             SendCommandACK(t1::CommonGetStatus, { .type = t1::CommonInquiredType::AUDIO_CODEC });
 
         /* Playback Metadata */
@@ -115,26 +115,26 @@ namespace mdr
 
         /* NC/AMB */
         if (mSupport.contains(
-            FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+            t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
         {
             SendCommandACK(t1::NcAsmGetParam,
                            { .inquiredType = t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS});
         }
         else if (mSupport.contains(
-            FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+            t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
         {
             SendCommandACK(t1::NcAsmGetParam,
                            { .inquiredType = t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA});
         }
-        else if (mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+        else if (mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
         {
             SendCommandACK(t1::NcAsmGetParam, { .inquiredType = t1::NcAsmInquiredType::ASM_SEAMLESS});
         }
 
         /* Pairing Management */
-        constexpr FunctionType_Table2 kPairingFunctions[] = {
-            FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
-            FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
+        constexpr t2::FunctionType kPairingFunctions[] = {
+            t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
+            t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
         };
         if (std::ranges::any_of(kPairingFunctions, [&](auto x) { return mSupport.contains(x); }))
         {
@@ -151,7 +151,7 @@ namespace mdr
                            });
         }
         
-        if (mSupport.contains(FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+        if (mSupport.contains(t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
         {
             /* Pairing Mode */
             SendCommandACK(t2::PeripheralGetStatus,
@@ -167,14 +167,14 @@ namespace mdr
         }
 
         /* Speak To Chat */
-        if (mSupport.contains(FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+        if (mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
         {
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
             SendCommandACK(t1::SystemGetExtParam, {.type = t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
         }
 
         /* Listening Mode */
-        if (mSupport.contains(FunctionType_Table1::LISTENING_OPTION))
+        if (mSupport.contains(t1::FunctionType::LISTENING_OPTION))
         {
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::BGM_MODE_AND_ERRORCODE});
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPMIX_CINEMA});
@@ -186,34 +186,34 @@ namespace mdr
 
         /* Connection Quality */
         if (mSupport.contains(
-            FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+            t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::CONNECTION_MODE});
 
         /* DSEE */
-        if (mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+        if (mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
         {
             SendCommandACK(t1::AudioGetStatus, {.type = t1::AudioInquiredType::UPSCALING});
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPSCALING});
         }
 
         /* Touch Sensor */
-        if (mSupport.contains(FunctionType_Table1::ASSIGNABLE_SETTING))
+        if (mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::ASSIGNABLE_SETTINGS });
 
         /* NC/AMB Toggle */
-        if (mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        if (mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
             SendCommandACK(t1::NcAsmGetParam, {.inquiredType = t1::NcAsmInquiredType::NC_AMB_TOGGLE });
 
         /* Head Gesture */
-        if (mSupport.contains(FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+        if (mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::HEAD_GESTURE_ON_OFF });
 
         /* Auto Power Off */
-        if (mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF))
+        if (mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
         {
             SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
         }
-        else if (mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        else if (mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
             SendCommandACK(t1::PowerGetParam,
                            {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
@@ -249,52 +249,52 @@ namespace mdr
     MDRTask MDRHeadphones::RequestSyncV2()
     {
         /* Single Battery */
-        if (mSupport.contains(FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+        if (mSupport.contains(t1::FunctionType::BATTERY_LEVEL_INDICATOR))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::BATTERY});
         }
-        else if (mSupport.contains(FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+        else if (mSupport.contains(t1::FunctionType::BATTERY_LEVEL_WITH_THRESHOLD))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::BATTERY_WITH_THRESHOLD});
         }
 
         /* L + R Battery */
-        if (mSupport.contains(FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+        if (mSupport.contains(t1::FunctionType::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::LEFT_RIGHT_BATTERY});
         }
-        else if (mSupport.contains(FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+        else if (mSupport.contains(t1::FunctionType::LR_BATTERY_LEVEL_WITH_THRESHOLD))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::LR_BATTERY_WITH_THRESHOLD});
         }
 
         /* Case Battery */
-        if (mSupport.contains(FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+        if (mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_INDICATOR))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::CRADLE_BATTERY});
         }
-        else if (mSupport.contains(FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+        else if (mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD});
         }
 
         /* Sound Pressure */
-        if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_HBS_1))
+        if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_1))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1});
         }
-        else if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_HBS_2))
+        else if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_2))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2});
         }
-        else if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_TWS_1))
+        else if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_1))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1});
         }
-        else if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_TWS_2))
+        else if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_2))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
@@ -354,7 +354,7 @@ namespace mdr
         if (mShutdown.submittedDirty())
         {
             using namespace t1;
-            if (mSupport.contains(FunctionType_Table1::POWER_OFF) && mShutdown.submitted)
+            if (mSupport.contains(t1::FunctionType::POWER_OFF) && mShutdown.submitted)
             {
                 SendCommandACK(PowerSetStatusPowerOff);
                 mShutdown.commitOneShot(false);
@@ -369,7 +369,7 @@ namespace mdr
         {
             using namespace t1;
             if (mSupport.contains(
-                FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+                t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
 
                 NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa res;
@@ -385,7 +385,7 @@ namespace mdr
                 res.noiseAdaptiveSensitivitySettings = mNcAsmNoiseAdaptiveSensitivity.submitted;
                 SendCommandACK(NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa, res);
             }
-            else if (mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+            else if (mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 NcAsmSetParamAsmSeamless res;
                 res.command = Command::NCASM_SET_PARAM;
@@ -414,7 +414,7 @@ namespace mdr
         }
 
         /* NC/AMB Mode */
-        if (mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        if (mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
         {
             using namespace t1;
             if (mNcAsmButtonFunction.submittedDirty())
@@ -473,15 +473,15 @@ namespace mdr
             PeripheralInquiredType type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT;
             if (
                 mSupport.contains(
-                    FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
+                    t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT)
                 ||
                 mSupport.contains(
-                    FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE)
+                    t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE)
             )
             {
                 type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE;
             }
-            else if (mSupport.contains(FunctionType_Table2::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+            else if (mSupport.contains(t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
                 type = PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT;
             }
@@ -533,7 +533,7 @@ namespace mdr
         }
 
         /* STC */
-        if (mSupport.contains(FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+        if (mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
         {
             using namespace t1;
             if (mSpeakToChatEnabled.submittedDirty())
@@ -561,7 +561,7 @@ namespace mdr
         }
 
         /* Listening Mode */
-        if (mSupport.contains(FunctionType_Table1::LISTENING_OPTION))
+        if (mSupport.contains(t1::FunctionType::LISTENING_OPTION))
         {
             using namespace t1;
             if (mBGMModeEnabled.submittedDirty() || mBGMModeRoomSize.submittedDirty())
@@ -657,7 +657,7 @@ namespace mdr
 
         /* Connection Quality */
         if (mSupport.
-            contains(FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+            contains(t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
         {
             if (mAudioPriorityMode.submittedDirty())
             {
@@ -671,7 +671,7 @@ namespace mdr
         }
 
         /* DSEE */
-        if (mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+        if (mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
         {
             if (mUpscalingEnabled.submittedDirty())
             {
@@ -687,7 +687,7 @@ namespace mdr
         }
 
         /* Touch Functions */
-        if (mSupport.contains(FunctionType_Table1::ASSIGNABLE_SETTING))
+        if (mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
         {
             if (mTouchFunctionLeft.submittedDirty() || mTouchFunctionRight.submittedDirty())
             {
@@ -701,7 +701,7 @@ namespace mdr
         }
 
         /* Head Gesture */
-        if (mSupport.contains(FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+        if (mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
         {
             if (mHeadGestureEnabled.submittedDirty())
             {
@@ -718,7 +718,7 @@ namespace mdr
         }
 
         /* Auto Power Off */
-        if (mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF))
+        if (mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
         {
             using namespace t1;
             if (mPowerAutoOff.submittedDirty())
@@ -731,7 +731,7 @@ namespace mdr
                 mPowerAutoOff.commit();
             }
         }
-        else if (mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        else if (mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
             using namespace t1;
             if (mPowerAutoOffWearingDetection.submittedDirty())
@@ -747,7 +747,7 @@ namespace mdr
 
         /* Pause when device is removed */
         if (mSupport.contains(
-            FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+            t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
         {
             using namespace t1;
             if (mAutoPauseEnabled.submittedDirty())
@@ -778,7 +778,7 @@ namespace mdr
 
         /* Voice Guidance */
         if (mSupport.contains(
-            FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
+            t2::FunctionType::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
         {
             if (mVoiceGuidanceVolume.submittedDirty())
             {
@@ -795,7 +795,7 @@ namespace mdr
         /* General Settings */
         {
             using namespace t1;
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_1))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_1))
             {
                 if (mGsParamBool1.submittedDirty())
                 {
@@ -807,7 +807,7 @@ namespace mdr
                     mGsParamBool1.commit();
                 }
             }
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_2))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_2))
             {
                 if (mGsParamBool2.submittedDirty())
                 {
@@ -819,7 +819,7 @@ namespace mdr
                     mGsParamBool2.commit();
                 }
             }
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_3))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_3))
             {
                 if (mGsParamBool3.submittedDirty())
                 {
@@ -831,7 +831,7 @@ namespace mdr
                     mGsParamBool3.commit();
                 }
             }
-            if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_4))
+            if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_4))
             {
                 if (mGsParamBool4.submittedDirty())
                 {
@@ -849,7 +849,7 @@ namespace mdr
         if (mSafeListeningPreviewMode.submittedDirty())
         {
             using namespace t2;
-            if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_HBS_1))
+            if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_1))
             {
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_HBS_1;
@@ -860,7 +860,7 @@ namespace mdr
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
-            else if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_HBS_2))
+            else if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_2))
             {
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_HBS_2;
@@ -871,7 +871,7 @@ namespace mdr
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
-            else if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_TWS_1))
+            else if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_1))
             {
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_TWS_1;
@@ -882,7 +882,7 @@ namespace mdr
                 SendCommandACK(SafeListeningSetParamSL, res);
                 mSafeListeningPreviewMode.commit();
             }
-            else if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_TWS_2))
+            else if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_2))
             {
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_TWS_2;

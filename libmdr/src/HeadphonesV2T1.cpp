@@ -20,6 +20,7 @@ namespace mdr
         std::ranges::fill(self->mSupport.table1Functions, false);
         for (auto fun : res.supportFunctions)
             self->mSupport.table1Functions[static_cast<UInt8>(fun.functionType)] = true;
+        self->RefreshNeutralFeaturesV2();
         self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
         return MDR_HEADPHONES_EVT_SUPPORT_FUNCTIONS;
     }
@@ -105,7 +106,7 @@ namespace mdr
         case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
         {
             if (self->mSupport.contains(
-                FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+                t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
@@ -130,7 +131,7 @@ namespace mdr
         case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA:
         {
             if (self->mSupport.contains(
-                FunctionType_Table1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+                t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
@@ -158,7 +159,7 @@ namespace mdr
         }
         case ASM_SEAMLESS:
         {
-            if (self->mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+            if (self->mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
@@ -180,7 +181,7 @@ namespace mdr
         }
         case NC_AMB_TOGGLE:
         {
-            if (self->mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+            if (self->mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
             {
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
@@ -212,7 +213,7 @@ namespace mdr
         {
         case BATTERY:
         {
-            if (self->mSupport.contains(FunctionType_Table1::BATTERY_LEVEL_INDICATOR))
+            if (self->mSupport.contains(t1::FunctionType::BATTERY_LEVEL_INDICATOR))
             {
                 if (command == Command::POWER_NTFY_STATUS)
                 {
@@ -230,7 +231,7 @@ namespace mdr
         }
         case LEFT_RIGHT_BATTERY:
         {
-            if (self->mSupport.contains(FunctionType_Table1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+            if (self->mSupport.contains(t1::FunctionType::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
             {
                 if (command == Command::POWER_NTFY_STATUS)
                 {
@@ -250,7 +251,7 @@ namespace mdr
         }
         case CRADLE_BATTERY:
         {
-            if (self->mSupport.contains(FunctionType_Table1::CRADLE_BATTERY_LEVEL_INDICATOR))
+            if (self->mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_INDICATOR))
             {
                 if (command == Command::POWER_NTFY_STATUS)
                 {
@@ -268,7 +269,7 @@ namespace mdr
         }
         case BATTERY_WITH_THRESHOLD:
         {
-            if (self->mSupport.contains(FunctionType_Table1::BATTERY_LEVEL_WITH_THRESHOLD))
+            if (self->mSupport.contains(t1::FunctionType::BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 if (command == Command::POWER_NTFY_STATUS)
                 {
@@ -286,7 +287,7 @@ namespace mdr
         }
         case LR_BATTERY_WITH_THRESHOLD:
         {
-            if (self->mSupport.contains(FunctionType_Table1::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+            if (self->mSupport.contains(t1::FunctionType::LR_BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 if (command == Command::POWER_NTFY_STATUS)
                 {
@@ -306,7 +307,7 @@ namespace mdr
         }
         case CRADLE_BATTERY_WITH_THRESHOLD:
         {
-            if (self->mSupport.contains(FunctionType_Table1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+            if (self->mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
             {
                 if (command == Command::POWER_NTFY_STATUS)
                 {
@@ -384,7 +385,7 @@ namespace mdr
         {
         case AUTO_POWER_OFF:
         {
-            if (self->mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF))
+            if (self->mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
             {
                 if (command == Command::POWER_NTFY_PARAM)
                 {
@@ -402,7 +403,7 @@ namespace mdr
         }
         case AUTO_POWER_OFF_WEARING_DETECTION:
         {
-            if (self->mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+            if (self->mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
             {
                 if (command == Command::POWER_NTFY_PARAM)
                 {
@@ -445,7 +446,7 @@ namespace mdr
                 Deserialize(RetPlayStatusPlaybackController, res, cmd);
                 self->mPlayPause = res.playbackStatus;
             }
-            return MDR_HEADPHONES_EVT_PLAYBACK_METADATA;
+            return MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE;
         }
         default:
             break;
@@ -538,7 +539,7 @@ namespace mdr
         {
         case UPSCALING:
         {
-            if (self->mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (self->mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
             {
                 Deserialize(AudioRetCapabilityUpscaling, res, cmd);
                 self->mUpscalingType = res.upscalingType;
@@ -562,7 +563,7 @@ namespace mdr
         {
         case UPSCALING:
         {
-            if (self->mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (self->mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
             {
                 const auto command = static_cast<Command>(cmd[0]);
                 if (command == Command::AUDIO_NTFY_STATUS)
@@ -597,7 +598,7 @@ namespace mdr
         case CONNECTION_MODE:
         {
             if (self->mSupport.contains(
-                FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+                t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -615,7 +616,7 @@ namespace mdr
         }
         case UPSCALING:
         {
-            if (self->mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+            if (self->mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -634,7 +635,7 @@ namespace mdr
         case BGM_MODE:
         case BGM_MODE_AND_ERRORCODE:
         {
-            if (self->mSupport.contains(FunctionType_Table1::LISTENING_OPTION))
+            if (self->mSupport.contains(t1::FunctionType::LISTENING_OPTION))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -654,7 +655,7 @@ namespace mdr
         }
         case UPMIX_CINEMA:
         {
-            if (self->mSupport.contains(FunctionType_Table1::LISTENING_OPTION))
+            if (self->mSupport.contains(t1::FunctionType::LISTENING_OPTION))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -688,7 +689,7 @@ namespace mdr
         case PLAYBACK_CONTROL_BY_WEARING:
         {
             if (self->mSupport.contains(
-                FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+                t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             {
                 if (command == Command::SYSTEM_NTFY_PARAM)
                 {
@@ -706,7 +707,7 @@ namespace mdr
         }
         case ASSIGNABLE_SETTINGS:
         {
-            if (self->mSupport.contains(FunctionType_Table1::ASSIGNABLE_SETTING))
+            if (self->mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
             {
                 if (command == Command::SYSTEM_NTFY_PARAM)
                 {
@@ -732,7 +733,7 @@ namespace mdr
         }
         case SMART_TALKING_MODE_TYPE2:
         {
-            if (self->mSupport.contains(FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+            if (self->mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
             {
                 if (command == Command::SYSTEM_NTFY_PARAM)
                 {
@@ -750,7 +751,7 @@ namespace mdr
         }
         case HEAD_GESTURE_ON_OFF:
         {
-            if (self->mSupport.contains(FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
+            if (self->mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
             {
                 if (command == Command::SYSTEM_NTFY_PARAM)
                 {
@@ -774,7 +775,7 @@ namespace mdr
 
     int HandleSystemExtParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        if (!self->mSupport.contains(FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
+        if (!self->mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
             return MDR_HEADPHONES_EVT_UNHANDLED;
 
         const auto command = static_cast<Command>(cmd[0]);
@@ -924,7 +925,7 @@ namespace mdr
         {
         case FIXED_MESSAGE:
         {
-            if (self->mSupport.contains(FunctionType_Table1::FIXED_MESSAGE))
+            if (self->mSupport.contains(t1::FunctionType::FIXED_MESSAGE))
             {
                 Deserialize(AlertNotifyParamFixedMessage, res, cmd);
                 using enum AlertActionType;

@@ -29,7 +29,7 @@ MDR_ASSERT_U32(MDRSpeakTimeout);
 MDR_ASSERT_U32(MDRListeningMode);
 MDR_ASSERT_U32(MDRRoomSize);
 MDR_ASSERT_U32(MDREqualizerPreset);
-MDR_ASSERT_U32(MDRDseeType);
+MDR_ASSERT_U32(MDRDSEEType);
 MDR_ASSERT_U32(MDRPairedDeviceCommand);
 MDR_ASSERT_U32(MDRGeneralSettingType);
 MDR_ASSERT_U32(MDRAssignableAction);
@@ -39,7 +39,7 @@ MDR_ASSERT_U32(MDRAudioPriority);
 
 #define MDR_ASSERT_C_STRUCT(type) \
     static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
-MDR_ASSERT_C_STRUCT(MDRIdentity);
+MDR_ASSERT_C_STRUCT(MDRModel);
 MDR_ASSERT_C_STRUCT(MDRBattery);
 MDR_ASSERT_C_STRUCT(MDRPlayback);
 MDR_ASSERT_C_STRUCT(MDRPlaybackCommand);
@@ -333,7 +333,6 @@ static char* get_text(MDRHeadphones* headphones, MDRText text)
 static const unsigned char k_v2_protocol_info[] = {
     0x01, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01
 };
-static const unsigned char k_v1_protocol_info[] = {0x01, 0x00, 0x01};
 
 static void select_v2(Session* session, const char* message)
 {
@@ -597,7 +596,7 @@ static void test_v2_bootstrap(void)
     Session session;
     unsigned char frame[FRAME_BUFFER_CAPACITY];
     size_t frame_size;
-    MDRIdentity identity;
+    MDRModel identity;
     MDREvent event;
 
     if (!session_open(&session))
@@ -623,7 +622,7 @@ static void test_v2_bootstrap(void)
     memset(&identity, 0, sizeof(identity));
     identity.struct_size = (uint32_t)sizeof(identity);
     check_result(
-        mdrHeadphonesGetIdentity(session.headphones, &identity),
+        mdrHeadphonesGetModel(session.headphones, &identity),
         MDR_RESULT_OK,
         "V2 identity is readable"
     );
@@ -638,66 +637,6 @@ static void test_v2_bootstrap(void)
             && mdrHeadphonesIsReady(session.headphones) == MDR_FALSE,
         "V2 bootstrap automatically continues into backend initialization"
     );
-    session_close(&session);
-}
-
-static void test_v1_bootstrap_not_supported(void)
-{
-    Session session;
-    unsigned char frame[FRAME_BUFFER_CAPACITY];
-    size_t frame_size;
-    MDRIdentity identity;
-    MDREvent state_changed;
-    MDREvent completed;
-    char* last_error;
-
-    if (!session_open(&session))
-        return;
-    check_result(
-        mdrHeadphonesRequestInit(session.headphones),
-        MDR_RESULT_OK,
-        "V1 probe starts"
-    );
-    frame_size = pack_ack(frame);
-    mock_load(&session.transport, frame, frame_size);
-    poll_event(session.headphones, &completed, "V1 probe ACK polls");
-
-    frame_size = pack_data_frame(
-        k_v1_protocol_info,
-        sizeof(k_v1_protocol_info),
-        0,
-        frame
-    );
-    mock_load(&session.transport, frame, frame_size);
-    poll_event(session.headphones, &state_changed, "three-byte V1 protocol-info polls");
-    check_result(
-        mdrHeadphonesPoll(session.headphones, &completed),
-        MDR_RESULT_ERROR_GENERAL,
-        "unsupported V1 initialization fails"
-    );
-
-    memset(&identity, 0, sizeof(identity));
-    identity.struct_size = (uint32_t)sizeof(identity);
-    check_result(
-        mdrHeadphonesGetIdentity(session.headphones, &identity),
-        MDR_RESULT_OK,
-        "V1 identity is readable"
-    );
-    check(identity.protocol_version == 1, "three-byte payload is recognized as MDR V1");
-    check(
-        state_changed == MDR_EVENT_IDENTITY_CHANGED,
-        "V1 recognition reports the identity change"
-    );
-    check(
-        completed == MDR_EVENT_NONE,
-        "failed initialization does not manufacture a completion event"
-    );
-    last_error = get_text(session.headphones, MDR_TEXT_LAST_ERROR);
-    check(
-        last_error != NULL && strstr(last_error, "not implemented") != NULL,
-        "V1 failure text exposes the not-supported backend"
-    );
-    free(last_error);
     session_close(&session);
 }
 
@@ -776,7 +715,6 @@ int main(void)
     test_playback_actions();
     test_poll_events();
     test_v2_bootstrap();
-    test_v1_bootstrap_not_supported();
     test_newer_staging_survives_apply();
 
     if (g_failures != 0)

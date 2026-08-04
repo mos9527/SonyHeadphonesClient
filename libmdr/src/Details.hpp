@@ -2,6 +2,8 @@
 
 #include <mdr-c/Headphones.h>
 #include <mdr/Command.hpp>
+#include <mdr/ProtocolV1T1.hpp>
+#include <mdr/ProtocolV1T2.hpp>
 #include <mdr/ProtocolV2T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
@@ -162,7 +164,8 @@ namespace mdr
             AWAIT_ACK = 0,
             AWAIT_PROTOCOL_INFO = 1,
             AWAIT_SUPPORT_FUNCTION = 2,
-            AWAIT_NUM_TYPES = 3
+            AWAIT_MODEL_INFO = 3,
+            AWAIT_NUM_TYPES = 4
         };
 
         enum class ProtocolFamily
@@ -296,19 +299,42 @@ namespace mdr
         //    we're sticking with C++20 as is.
         struct SupportStates
         {
+            enum class Provenance
+            {
+                UNKNOWN,
+                ADVERTISED,
+                LEGACY_PROFILE
+            };
+
+            Array<bool, 256> v1Functions;
             Array<bool, 256> table1Functions;
             Array<bool, 256> table2Functions;
+            Array<bool, 256> neutralFeatures;
+            Provenance provenance{Provenance::UNKNOWN};
 
-            [[nodiscard]] constexpr bool contains(v2::FunctionType_Table1 v) const
+            [[nodiscard]] constexpr bool contains(v1::t1::FunctionType v) const
+            {
+                return v1Functions[static_cast<UInt8>(v)];
+            }
+
+            [[nodiscard]] constexpr bool contains(v2::t1::FunctionType v) const
             {
                 return table1Functions[static_cast<UInt8>(v)];
             }
 
-            [[nodiscard]] constexpr bool contains(v2::FunctionType_Table2 v) const
+            [[nodiscard]] constexpr bool contains(v2::t2::FunctionType v) const
             {
                 return table2Functions[static_cast<UInt8>(v)];
             }
+
+            [[nodiscard]] constexpr bool contains(MDRFeature feature) const
+            {
+                return neutralFeatures[static_cast<UInt8>(feature)];
+            }
         } mSupport{};
+
+        void RefreshNeutralFeaturesV1();
+        void RefreshNeutralFeaturesV2();
 
         String mUniqueId; // MAC Address
         String mFWVersion;
@@ -394,6 +420,9 @@ namespace mdr
         MDRProperty<bool> mSpeakToChatEnabled;
         MDRProperty<v2::t1::DetectSensitivity> mSpeakToChatDetectSensitivity;
         MDRProperty<v2::t1::ModeOutTime> mSpeakToModeOutTime;
+        v1::t1::CommonOnOffSettingValue mV1SpeakToChatVoiceFocus{
+            v1::t1::CommonOnOffSettingValue::OFF
+        };
 
         MDRProperty<bool> mHeadGestureEnabled;
 

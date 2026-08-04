@@ -316,11 +316,7 @@ namespace mdr::v2
         };
     } // namespace t2
 
-    using FunctionType_Table1 = t1::FunctionType;
-
-    using FunctionType_Table2 = t2::FunctionType;
-
-    static const char* format_as(FunctionType_Table1 value)
+    static const char* format_as(t1::FunctionType value)
     {
         using enum t1::FunctionType;
         switch (value)
@@ -467,7 +463,7 @@ namespace mdr::v2
         }
     }
 
-    static bool is_valid(FunctionType_Table1 value)
+    static bool is_valid(t1::FunctionType value)
     {
         using enum t1::FunctionType;
         switch (value)
@@ -616,7 +612,7 @@ namespace mdr::v2
         }
     }
 
-    static const char* format_as(FunctionType_Table2 value)
+    static const char* format_as(t2::FunctionType value)
     {
         using enum t2::FunctionType;
         switch (value)
@@ -678,7 +674,7 @@ namespace mdr::v2
         }
     }
 
-    static bool is_valid(FunctionType_Table2 value)
+    static bool is_valid(t2::FunctionType value)
     {
         using enum t2::FunctionType;
         switch (value)

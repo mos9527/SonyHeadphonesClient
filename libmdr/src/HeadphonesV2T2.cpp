@@ -20,6 +20,7 @@ namespace mdr
         std::ranges::fill(self->mSupport.table2Functions, false);
         for (auto fun : res.supportFunctions)
             self->mSupport.table2Functions[static_cast<UInt8>(fun.functionType)] = true;
+        self->RefreshNeutralFeaturesV2();
         self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
         return MDR_HEADPHONES_EVT_SUPPORT_FUNCTIONS;
     }

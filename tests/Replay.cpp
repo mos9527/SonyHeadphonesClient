@@ -232,6 +232,18 @@ namespace
             ++replayed;
         }
 
+        MDRModel identity{
+            .struct_size = sizeof(MDRModel)
+        };
+        Check(
+            mdrHeadphonesGetModel(headphones, &identity) == MDR_RESULT_OK,
+            "replayed session identity is readable"
+        );
+        Check(
+            identity.protocol_version != 0,
+            "capture selects an MDR protocol backend"
+        );
+
         mdrHeadphonesDestroy(headphones);
         std::cout << "Replayed " << replayed << " packet(s) from "
                   << root.string() << '\n';
