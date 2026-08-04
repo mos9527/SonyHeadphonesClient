@@ -464,26 +464,12 @@ namespace mdr
          */
         MDROperation mNeutralActiveOperation{MDR_OPERATION_NONE};
         bool mNeutralInitialized{};
-        Array<uint64_t, MDR_DOMAIN_SAFE_LISTENING + 1> mNeutralCurrentRevisions{};
-        Array<uint64_t, MDR_DOMAIN_SAFE_LISTENING + 1> mNeutralDesiredRevisions{};
-
-        void EnqueueNeutralEvent(const MDREvent& event) { mNeutralEvents.push_back(event); }
-
-        bool DequeueNeutralEvent(MDREvent& event)
-        {
-            if (mNeutralEvents.empty())
-                return false;
-            event = mNeutralEvents.front();
-            mNeutralEvents.pop_front();
-            return true;
-        }
 
     private:
         String mLastError = "N/A";
 
         MDRPacketCallback mPacketCallback{};
         void* mPacketCallbackUserData{};
-        Deque<MDREvent> mNeutralEvents;
         Deque<UInt8> mRecvBuf, mSendBuf;
         MDRCommandSeqNumber mSeqNumber{0};
 

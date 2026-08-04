@@ -5,52 +5,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*
- * Canonical, protocol-neutral C API for headphone state and control.
- *
- * All public structures are extensible: callers set struct_size to sizeof the
- * structure before passing it. Getters accept CURRENT (device-confirmed) or
- * EFFECTIVE (current state plus locally staged changes). Setters stage effective
- * state; MDR_OPERATION_APPLY sends all staged changes.
- *
- * Text and arrays always use caller-owned storage. A NULL buffer with an
- * in/out count of zero queries the required element count, including the NUL
- * terminator for text.
- */
-
-/** Opaque headphone session. The associated connection remains caller-owned. */
 typedef struct MDRHeadphones MDRHeadphones;
 
-typedef uint8_t MDRBoolean;
+typedef uint32_t MDRBoolean;
 #define MDR_FALSE ((MDRBoolean)0u)
 #define MDR_TRUE ((MDRBoolean)1u)
 
-typedef uint8_t MDRStateView;
-#define MDR_STATE_CURRENT ((MDRStateView)0u)
-#define MDR_STATE_EFFECTIVE ((MDRStateView)1u)
-
-typedef uint8_t MDRFeatureAvailability;
+typedef uint32_t MDRFeatureAvailability;
 #define MDR_FEATURE_UNKNOWN ((MDRFeatureAvailability)0u)
 #define MDR_FEATURE_UNAVAILABLE ((MDRFeatureAvailability)1u)
 #define MDR_FEATURE_AVAILABLE ((MDRFeatureAvailability)2u)
-
-typedef uint16_t MDRDomain;
-#define MDR_DOMAIN_NONE ((MDRDomain)0u)
-#define MDR_DOMAIN_IDENTITY ((MDRDomain)1u)
-#define MDR_DOMAIN_BATTERY ((MDRDomain)2u)
-#define MDR_DOMAIN_PLAYBACK ((MDRDomain)3u)
-#define MDR_DOMAIN_NOISE_CONTROL ((MDRDomain)4u)
-#define MDR_DOMAIN_SPEAK_TO_CHAT ((MDRDomain)5u)
-#define MDR_DOMAIN_LISTENING_MODE ((MDRDomain)6u)
-#define MDR_DOMAIN_EQUALIZER ((MDRDomain)7u)
-#define MDR_DOMAIN_PAIRED_DEVICES ((MDRDomain)8u)
-#define MDR_DOMAIN_PAIRING ((MDRDomain)9u)
-#define MDR_DOMAIN_GENERAL_SETTINGS ((MDRDomain)10u)
-#define MDR_DOMAIN_ASSIGNABLE_CONTROLS ((MDRDomain)11u)
-#define MDR_DOMAIN_POWER ((MDRDomain)12u)
-#define MDR_DOMAIN_VOICE_GUIDANCE ((MDRDomain)13u)
-#define MDR_DOMAIN_CONNECTION_MODE ((MDRDomain)14u)
-#define MDR_DOMAIN_SAFE_LISTENING ((MDRDomain)15u)
 
 typedef uint32_t MDRFeature;
 #define MDR_FEATURE_IDENTITY ((MDRFeature)1u)
@@ -82,27 +46,42 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_CONNECTION_MODE ((MDRFeature)27u)
 #define MDR_FEATURE_SAFE_LISTENING ((MDRFeature)28u)
 
-typedef uint8_t MDROperation;
+typedef uint32_t MDROperation;
 #define MDR_OPERATION_NONE ((MDROperation)0u)
 #define MDR_OPERATION_INITIALIZE ((MDROperation)1u)
 #define MDR_OPERATION_SYNC ((MDROperation)2u)
 #define MDR_OPERATION_APPLY ((MDROperation)3u)
 
-typedef uint8_t MDREventType;
-#define MDR_EVENT_NONE ((MDREventType)0u)
-#define MDR_EVENT_STATE_CHANGED ((MDREventType)1u)
-#define MDR_EVENT_OPERATION_COMPLETE ((MDREventType)2u)
-#define MDR_EVENT_ALERT ((MDREventType)3u)
-#define MDR_EVENT_INTERACTION ((MDREventType)4u)
-#define MDR_EVENT_DEVICE_MESSAGE ((MDREventType)5u)
-#define MDR_EVENT_UNHANDLED ((MDREventType)6u)
-#define MDR_EVENT_ERROR ((MDREventType)7u)
+typedef uint32_t MDREvent;
+#define MDR_EVENT_NONE ((MDREvent)0u)
+#define MDR_EVENT_IDENTITY_CHANGED ((MDREvent)1u)
+#define MDR_EVENT_BATTERY_CHANGED ((MDREvent)2u)
+#define MDR_EVENT_PLAYBACK_CHANGED ((MDREvent)3u)
+#define MDR_EVENT_NOISE_CONTROL_CHANGED ((MDREvent)4u)
+#define MDR_EVENT_SPEAK_TO_CHAT_CHANGED ((MDREvent)5u)
+#define MDR_EVENT_LISTENING_MODE_CHANGED ((MDREvent)6u)
+#define MDR_EVENT_EQUALIZER_CHANGED ((MDREvent)7u)
+#define MDR_EVENT_PAIRED_DEVICES_CHANGED ((MDREvent)8u)
+#define MDR_EVENT_PAIRING_CHANGED ((MDREvent)9u)
+#define MDR_EVENT_GENERAL_SETTINGS_CHANGED ((MDREvent)10u)
+#define MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED ((MDREvent)11u)
+#define MDR_EVENT_POWER_CHANGED ((MDREvent)12u)
+#define MDR_EVENT_VOICE_GUIDANCE_CHANGED ((MDREvent)13u)
+#define MDR_EVENT_CONNECTION_MODE_CHANGED ((MDREvent)14u)
+#define MDR_EVENT_SAFE_LISTENING_CHANGED ((MDREvent)15u)
+#define MDR_EVENT_INITIALIZE_COMPLETE ((MDREvent)16u)
+#define MDR_EVENT_SYNC_COMPLETE ((MDREvent)17u)
+#define MDR_EVENT_APPLY_COMPLETE ((MDREvent)18u)
+#define MDR_EVENT_ALERT ((MDREvent)19u)
+#define MDR_EVENT_INTERACTION ((MDREvent)20u)
+#define MDR_EVENT_DEVICE_MESSAGE ((MDREvent)21u)
+#define MDR_EVENT_UNHANDLED ((MDREvent)22u)
 
-typedef int32_t MDRPacketDirection;
+typedef uint32_t MDRPacketDirection;
 #define MDR_PACKET_DIRECTION_RX ((MDRPacketDirection)0u)
 #define MDR_PACKET_DIRECTION_TX ((MDRPacketDirection)1u)
 
-typedef uint16_t MDRText;
+typedef uint32_t MDRText;
 #define MDR_TEXT_MODEL_NAME ((MDRText)1u)
 #define MDR_TEXT_UNIQUE_ID ((MDRText)2u)
 #define MDR_TEXT_FIRMWARE_VERSION ((MDRText)3u)
@@ -120,7 +99,7 @@ typedef uint16_t MDRText;
 #define MDR_TEXT_LAST_INTERACTION ((MDRText)15u)
 #define MDR_TEXT_LAST_DEVICE_MESSAGE ((MDRText)16u)
 
-typedef uint8_t MDRAudioCodec;
+typedef uint32_t MDRAudioCodec;
 #define MDR_AUDIO_CODEC_UNKNOWN ((MDRAudioCodec)0u)
 #define MDR_AUDIO_CODEC_SBC ((MDRAudioCodec)1u)
 #define MDR_AUDIO_CODEC_AAC ((MDRAudioCodec)2u)
@@ -130,73 +109,73 @@ typedef uint8_t MDRAudioCodec;
 #define MDR_AUDIO_CODEC_LC3 ((MDRAudioCodec)6u)
 #define MDR_AUDIO_CODEC_OTHER ((MDRAudioCodec)255u)
 
-typedef uint8_t MDRBatteryPart;
+typedef uint32_t MDRBatteryPart;
 #define MDR_BATTERY_MAIN ((MDRBatteryPart)0u)
 #define MDR_BATTERY_LEFT ((MDRBatteryPart)1u)
 #define MDR_BATTERY_RIGHT ((MDRBatteryPart)2u)
 #define MDR_BATTERY_CASE ((MDRBatteryPart)3u)
 
-typedef uint8_t MDRChargingState;
+typedef uint32_t MDRChargingState;
 #define MDR_CHARGING_UNKNOWN ((MDRChargingState)0u)
 #define MDR_CHARGING_NO ((MDRChargingState)1u)
 #define MDR_CHARGING_YES ((MDRChargingState)2u)
 #define MDR_CHARGING_COMPLETE ((MDRChargingState)3u)
 
-typedef uint8_t MDRPlaybackStatus;
+typedef uint32_t MDRPlaybackStatus;
 #define MDR_PLAYBACK_UNKNOWN ((MDRPlaybackStatus)0u)
 #define MDR_PLAYBACK_STOPPED ((MDRPlaybackStatus)1u)
 #define MDR_PLAYBACK_PLAYING ((MDRPlaybackStatus)2u)
 #define MDR_PLAYBACK_PAUSED ((MDRPlaybackStatus)3u)
 
-typedef uint8_t MDRPlaybackAction;
+typedef uint32_t MDRPlaybackAction;
 #define MDR_PLAYBACK_PLAY ((MDRPlaybackAction)1u)
 #define MDR_PLAYBACK_PAUSE ((MDRPlaybackAction)2u)
 #define MDR_PLAYBACK_NEXT ((MDRPlaybackAction)3u)
 #define MDR_PLAYBACK_PREVIOUS ((MDRPlaybackAction)4u)
 
-typedef uint8_t MDRNoiseMode;
+typedef uint32_t MDRNoiseMode;
 #define MDR_NOISE_MODE_OFF ((MDRNoiseMode)0u)
 #define MDR_NOISE_MODE_CANCELLING ((MDRNoiseMode)1u)
 #define MDR_NOISE_MODE_AMBIENT ((MDRNoiseMode)2u)
 
-typedef uint8_t MDRAdaptiveSensitivity;
+typedef uint32_t MDRAdaptiveSensitivity;
 #define MDR_ADAPTIVE_SENSITIVITY_UNKNOWN ((MDRAdaptiveSensitivity)0u)
 #define MDR_ADAPTIVE_SENSITIVITY_LOW ((MDRAdaptiveSensitivity)1u)
 #define MDR_ADAPTIVE_SENSITIVITY_STANDARD ((MDRAdaptiveSensitivity)2u)
 #define MDR_ADAPTIVE_SENSITIVITY_HIGH ((MDRAdaptiveSensitivity)3u)
 
-typedef uint8_t MDRNoiseButtonMode;
+typedef uint32_t MDRNoiseButtonMode;
 #define MDR_NOISE_BUTTON_NONE ((MDRNoiseButtonMode)0u)
 #define MDR_NOISE_BUTTON_NOISE_AMBIENT_OFF ((MDRNoiseButtonMode)1u)
 #define MDR_NOISE_BUTTON_NOISE_AMBIENT ((MDRNoiseButtonMode)2u)
 #define MDR_NOISE_BUTTON_NOISE_OFF ((MDRNoiseButtonMode)3u)
 #define MDR_NOISE_BUTTON_AMBIENT_OFF ((MDRNoiseButtonMode)4u)
 
-typedef uint8_t MDRSpeechSensitivity;
+typedef uint32_t MDRSpeechSensitivity;
 #define MDR_SPEECH_SENSITIVITY_UNKNOWN ((MDRSpeechSensitivity)0u)
 #define MDR_SPEECH_SENSITIVITY_AUTO ((MDRSpeechSensitivity)1u)
 #define MDR_SPEECH_SENSITIVITY_LOW ((MDRSpeechSensitivity)2u)
 #define MDR_SPEECH_SENSITIVITY_HIGH ((MDRSpeechSensitivity)3u)
 
-typedef uint8_t MDRSpeakTimeout;
+typedef uint32_t MDRSpeakTimeout;
 #define MDR_SPEAK_TIMEOUT_UNKNOWN ((MDRSpeakTimeout)0u)
 #define MDR_SPEAK_TIMEOUT_SHORT ((MDRSpeakTimeout)1u)
 #define MDR_SPEAK_TIMEOUT_MEDIUM ((MDRSpeakTimeout)2u)
 #define MDR_SPEAK_TIMEOUT_LONG ((MDRSpeakTimeout)3u)
 #define MDR_SPEAK_TIMEOUT_MANUAL ((MDRSpeakTimeout)4u)
 
-typedef uint8_t MDRListeningMode;
+typedef uint32_t MDRListeningMode;
 #define MDR_LISTENING_STANDARD ((MDRListeningMode)0u)
 #define MDR_LISTENING_BACKGROUND_MUSIC ((MDRListeningMode)1u)
 #define MDR_LISTENING_CINEMA ((MDRListeningMode)2u)
 
-typedef uint8_t MDRRoomSize;
+typedef uint32_t MDRRoomSize;
 #define MDR_ROOM_UNKNOWN ((MDRRoomSize)0u)
 #define MDR_ROOM_SMALL ((MDRRoomSize)1u)
 #define MDR_ROOM_MEDIUM ((MDRRoomSize)2u)
 #define MDR_ROOM_LARGE ((MDRRoomSize)3u)
 
-typedef uint8_t MDREqualizerPreset;
+typedef uint32_t MDREqualizerPreset;
 #define MDR_EQ_OFF ((MDREqualizerPreset)0u)
 #define MDR_EQ_ROCK ((MDREqualizerPreset)1u)
 #define MDR_EQ_POP ((MDREqualizerPreset)2u)
@@ -229,24 +208,24 @@ typedef uint8_t MDREqualizerPreset;
 #define MDR_EQ_USER_5 ((MDREqualizerPreset)29u)
 #define MDR_EQ_UNKNOWN ((MDREqualizerPreset)255u)
 
-typedef uint8_t MDRDseeType;
+typedef uint32_t MDRDseeType;
 #define MDR_DSEE_UNKNOWN ((MDRDseeType)0u)
 #define MDR_DSEE_STANDARD ((MDRDseeType)1u)
 #define MDR_DSEE_HX ((MDRDseeType)2u)
 #define MDR_DSEE_HX_AI ((MDRDseeType)3u)
 #define MDR_DSEE_ULTIMATE ((MDRDseeType)4u)
 
-typedef uint8_t MDRPairedDeviceCommand;
+typedef uint32_t MDRPairedDeviceCommand;
 #define MDR_PAIRED_DEVICE_CONNECT ((MDRPairedDeviceCommand)1u)
 #define MDR_PAIRED_DEVICE_DISCONNECT ((MDRPairedDeviceCommand)2u)
 #define MDR_PAIRED_DEVICE_SELECT_PLAYBACK ((MDRPairedDeviceCommand)3u)
 #define MDR_PAIRED_DEVICE_UNPAIR ((MDRPairedDeviceCommand)4u)
 
-typedef uint8_t MDRGeneralSettingType;
+typedef uint32_t MDRGeneralSettingType;
 #define MDR_GENERAL_SETTING_UNKNOWN ((MDRGeneralSettingType)0u)
 #define MDR_GENERAL_SETTING_BOOLEAN ((MDRGeneralSettingType)1u)
 
-typedef uint8_t MDRAssignableAction;
+typedef uint32_t MDRAssignableAction;
 #define MDR_ASSIGNABLE_NONE ((MDRAssignableAction)0u)
 #define MDR_ASSIGNABLE_PLAYBACK ((MDRAssignableAction)1u)
 #define MDR_ASSIGNABLE_NOISE_CONTROL ((MDRAssignableAction)2u)
@@ -255,12 +234,12 @@ typedef uint8_t MDRAssignableAction;
 #define MDR_ASSIGNABLE_VOICE_ASSISTANT ((MDRAssignableAction)5u)
 #define MDR_ASSIGNABLE_QUICK_ACCESS ((MDRAssignableAction)6u)
 
-typedef uint8_t MDRWearingPowerMode;
+typedef uint32_t MDRWearingPowerMode;
 #define MDR_WEARING_POWER_UNAVAILABLE ((MDRWearingPowerMode)0u)
 #define MDR_WEARING_POWER_DISABLED ((MDRWearingPowerMode)1u)
 #define MDR_WEARING_POWER_WHEN_REMOVED ((MDRWearingPowerMode)2u)
 
-typedef uint8_t MDRAudioPriority;
+typedef uint32_t MDRAudioPriority;
 #define MDR_AUDIO_PRIORITY_UNKNOWN ((MDRAudioPriority)0u)
 #define MDR_AUDIO_PRIORITY_QUALITY ((MDRAudioPriority)1u)
 #define MDR_AUDIO_PRIORITY_STABILITY ((MDRAudioPriority)2u)
@@ -273,16 +252,6 @@ typedef struct MDRHeadphonesStatus
     MDRBoolean dirty;
     MDRBoolean initialized;
 } MDRHeadphonesStatus;
-
-typedef struct MDREvent
-{
-    uint32_t struct_size;
-    MDREventType type;
-    MDRDomain domain;
-    MDROperation operation;
-    MDRResult result;
-    uint32_t detail;
-} MDREvent;
 
 typedef struct MDRIdentity
 {
@@ -425,10 +394,7 @@ typedef struct MDRSafeListening
     MDRBoolean preview;
 } MDRSafeListening;
 
-/**
- * Synchronous observer for complete packed MDR wire frames. The frame is valid
- * only during the callback and must be copied if it is retained.
- */
+// See @ref mdrHeadphonesSetPacketCallback
 typedef void (*MDRPacketCallback)(
     void* user_data,
     MDRPacketDirection direction,
@@ -446,11 +412,11 @@ MDR_API void mdrHeadphonesClose(MDRHeadphones* headphones);
 MDR_API MDRResult mdrHeadphonesGetStatus(MDRHeadphones* headphones, MDRHeadphonesStatus* out_status);
 MDR_API MDRResult mdrHeadphonesStart(MDRHeadphones* headphones, MDROperation operation);
 
-/** Processes pending I/O without blocking and queues any resulting events. */
-MDR_API MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones);
-
-/** Removes the oldest queued event, or returns MDR_RESULT_ERROR_NOT_FOUND. */
-MDR_API MDRResult mdrHeadphonesNextEvent(MDRHeadphones* headphones, MDREvent* out_event);
+/**
+ * Processes pending I/O without blocking and reports one semantic event.
+ * MDR_EVENT_NONE is returned when no command was received.
+ */
+MDR_API MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* out_event);
 
 /**
  * Observes raw packets independently of semantic events. Passing NULL disables
@@ -485,7 +451,6 @@ MDR_API MDRResult mdrHeadphonesGetBatteries(
 );
 MDR_API MDRResult mdrHeadphonesGetPlayback(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRPlayback* out_playback
 );
 MDR_API MDRResult mdrHeadphonesSetPlayback(MDRHeadphones* headphones, const MDRPlayback* playback);
@@ -497,7 +462,6 @@ MDR_API MDRResult mdrHeadphonesPlayback(
 /* Sound controls. */
 MDR_API MDRResult mdrHeadphonesGetNoiseControl(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRNoiseControl* out_noise_control
 );
 MDR_API MDRResult mdrHeadphonesSetNoiseControl(
@@ -506,7 +470,6 @@ MDR_API MDRResult mdrHeadphonesSetNoiseControl(
 );
 MDR_API MDRResult mdrHeadphonesGetSpeakToChat(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRSpeakToChat* out_speak_to_chat
 );
 MDR_API MDRResult mdrHeadphonesSetSpeakToChat(
@@ -515,7 +478,6 @@ MDR_API MDRResult mdrHeadphonesSetSpeakToChat(
 );
 MDR_API MDRResult mdrHeadphonesGetListening(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRListening* out_listening
 );
 MDR_API MDRResult mdrHeadphonesSetListening(
@@ -524,7 +486,6 @@ MDR_API MDRResult mdrHeadphonesSetListening(
 );
 MDR_API MDRResult mdrHeadphonesGetEqualizer(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDREqualizer* out_equalizer
 );
 MDR_API MDRResult mdrHeadphonesSetEqualizer(
@@ -533,7 +494,6 @@ MDR_API MDRResult mdrHeadphonesSetEqualizer(
 );
 MDR_API MDRResult mdrHeadphonesGetEqualizerBands(
     MDRHeadphones* headphones,
-    MDRStateView view,
     int8_t* bands,
     uint32_t* inout_count
 );
@@ -555,7 +515,6 @@ MDR_API MDRResult mdrHeadphonesSetPairedDevice(
 );
 MDR_API MDRResult mdrHeadphonesGetPairing(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRPairing* out_pairing
 );
 MDR_API MDRResult mdrHeadphonesSetPairing(MDRHeadphones* headphones, const MDRPairing* pairing);
@@ -568,7 +527,6 @@ MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(
 );
 MDR_API MDRResult mdrHeadphonesGetGeneralSetting(
     MDRHeadphones* headphones,
-    MDRStateView view,
     uint32_t index,
     MDRGeneralSetting* out_setting
 );
@@ -578,7 +536,6 @@ MDR_API MDRResult mdrHeadphonesSetGeneralSetting(
 );
 MDR_API MDRResult mdrHeadphonesGetAssignableControls(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRAssignableControls* out_controls
 );
 MDR_API MDRResult mdrHeadphonesSetAssignableControls(
@@ -589,13 +546,11 @@ MDR_API MDRResult mdrHeadphonesSetAssignableControls(
 /* Power, wearing behavior, voice guidance, and related system settings. */
 MDR_API MDRResult mdrHeadphonesGetPower(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRPower* out_power
 );
 MDR_API MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power);
 MDR_API MDRResult mdrHeadphonesGetVoiceGuidance(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRVoiceGuidance* out_voice_guidance
 );
 MDR_API MDRResult mdrHeadphonesSetVoiceGuidance(
@@ -604,7 +559,6 @@ MDR_API MDRResult mdrHeadphonesSetVoiceGuidance(
 );
 MDR_API MDRResult mdrHeadphonesGetConnectionMode(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRConnectionMode* out_mode
 );
 MDR_API MDRResult mdrHeadphonesSetConnectionMode(
@@ -613,7 +567,6 @@ MDR_API MDRResult mdrHeadphonesSetConnectionMode(
 );
 MDR_API MDRResult mdrHeadphonesGetSafeListening(
     MDRHeadphones* headphones,
-    MDRStateView view,
     MDRSafeListening* out_safe_listening
 );
 MDR_API MDRResult mdrHeadphonesSetSafeListening(

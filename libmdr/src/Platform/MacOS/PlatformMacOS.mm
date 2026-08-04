@@ -191,7 +191,7 @@ struct MDRConnectionMacOS
         delegate = nil;
     }
 
-    static int Connect(void* user, const char* macAddress, const char* serviceUUID) {
+    static MDRResult Connect(void* user, const char* macAddress, const char* serviceUUID) {
         auto* self = static_cast<MDRConnectionMacOS*>(user);
         @autoreleasepool {
             NSString *addrParams = [NSString stringWithUTF8String:macAddress];
@@ -213,7 +213,7 @@ struct MDRConnectionMacOS
         }
     }
 
-    static int Recv(void* user, char* dst, int size, int* pReceived) {
+    static MDRResult Recv(void* user, char* dst, int size, int* pReceived) {
         auto* self = static_cast<MDRConnectionMacOS*>(user);
         @autoreleasepool {
             if (!self->delegate.isConnected) {
@@ -230,7 +230,7 @@ struct MDRConnectionMacOS
         }
     }
 
-    static int Send(void* user, const char* src, int size, int* pSent) {
+    static MDRResult Send(void* user, const char* src, int size, int* pSent) {
         auto* self = static_cast<MDRConnectionMacOS*>(user);
         @autoreleasepool {
             if (!self->delegate.isConnected) {
@@ -243,7 +243,7 @@ struct MDRConnectionMacOS
         }
     }
 
-    static int Poll(void* user, int timeout) {
+    static MDRResult Poll(void* user, int timeout) {
         auto* self = static_cast<MDRConnectionMacOS*>(user);
         @autoreleasepool {
             // Processing run loop events
@@ -280,7 +280,7 @@ struct MDRConnectionMacOS
         }
     }
 
-    static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) {
+    static MDRResult GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) {
         @autoreleasepool {
             NSArray *devices = [IOBluetoothDevice pairedDevices];
             if (!devices || devices.count == 0) {
@@ -311,7 +311,7 @@ struct MDRConnectionMacOS
         }
     }
     
-    static int FreeDevicesList(void* user, MDRDeviceInfo** ppList) {
+    static MDRResult FreeDevicesList(void* user, MDRDeviceInfo** ppList) {
         if (*ppList)
         {
             mdr::MDRAllocator<MDRDeviceInfo>().deallocate(*ppList);

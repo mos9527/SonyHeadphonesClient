@@ -18,19 +18,19 @@ typedef struct MDRConnection
     // Pointer to whatever your backend uses. See @ref MDRConnectionLinux and co for reference.
     void* user;
     // @ref mdrConnectionConnect
-    int (*connect)(void* user, const char* macAddress, const char* serviceUUID);
+    MDRResult (*connect)(void* user, const char* macAddress, const char* serviceUUID);
     // @ref mdrConnectionDisconnect
     void (*disconnect)(void* user);
     // @ref mdrConnectionRecv
-    int (*recv)(void* user, char* dst, int size, int* pReceived);
+    MDRResult (*recv)(void* user, char* dst, int size, int* pReceived);
     // @ref mdrConnectionSend
-    int (*send)(void* user, const char* src, int size, int* pSent);
+    MDRResult (*send)(void* user, const char* src, int size, int* pSent);
     // @ref mdrConnectionPoll
-    int (*poll)(void* user, int timeout);
+    MDRResult (*poll)(void* user, int timeout);
     // @ref mdrConnectionGetDevicesList
-    int (*getDevicesList)(void* user, MDRDeviceInfo** ppList, int* pCount);
+    MDRResult (*getDevicesList)(void* user, MDRDeviceInfo** ppList, int* pCount);
     // @ref mdrConnectionFreeDevicesList
-    int (*freeDevicesList)(void* user, MDRDeviceInfo** ppList);
+    MDRResult (*freeDevicesList)(void* user, MDRDeviceInfo** ppList);
     // @ref mdrConnectionGetLastError
     const char* (*getLastError)(void* user);
 } MDRConnection;
@@ -48,7 +48,7 @@ extern "C" {
  * @return @ref MDR_RESULT_INPROGRESS on success - do @ref mdrConnectionPoll to wait for it to be _actually_ available.
  *         Other MDR_RESULT_... codes on error.
  */
-MDR_API int mdrConnectionConnect(MDRConnection* conn, const char* macAddress, const char* serviceUUID);
+MDR_API MDRResult mdrConnectionConnect(MDRConnection* conn, const char* macAddress, const char* serviceUUID);
 /**
  * @brief Disconnect from the device.
  * @param conn The connection object.
@@ -62,7 +62,7 @@ MDR_API void mdrConnectionDisconnect(MDRConnection* conn);
  * @param pReceived Pointer to an integer that will be set to the number of bytes actually received.
  * @return @ref MDR_RESULT_OK on success, @ref MDR_RESULT_INPROGRESS in progress, or an error code on failure.
  */
-MDR_API int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived);
+MDR_API MDRResult mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pReceived);
 /**
  * @brief Send data to the device.
  * @param conn The connection object.
@@ -71,14 +71,14 @@ MDR_API int mdrConnectionRecv(MDRConnection* conn, char* dst, int size, int* pRe
  * @param pSent Pointer to an integer that will be set to the number of bytes actually sent.
  * @return @ref MDR_RESULT_OK on success, @ref MDR_RESULT_INPROGRESS in progress, or an error code on failure.
  */
-MDR_API int mdrConnectionSend(MDRConnection* conn, const char* src, int size, int* pSent);
+MDR_API MDRResult mdrConnectionSend(MDRConnection* conn, const char* src, int size, int* pSent);
 /**
  * @brief Poll for @ref mdrConnectionSend or @ref mdrConnectionRecv to be available
  * @param conn The connection object.
  * @param timeout Non-zero for timeout in milliseconds. Zero to return immediately. Negative values to wait forever.
  * @return @ref MDR_RESULT_OK on ready, @ref MDR_RESULT_ERROR_TIMEOUT on timeout, or an error code on failure.
  */
-MDR_API int mdrConnectionPoll(MDRConnection* conn, int timeout);
+MDR_API MDRResult mdrConnectionPoll(MDRConnection* conn, int timeout);
 /**
  * @brief Get a list of available devices.
  * @param conn The connection object.
@@ -86,14 +86,14 @@ MDR_API int mdrConnectionPoll(MDRConnection* conn, int timeout);
  * @param pCount Pointer to an integer that will be set to the number of devices in the list.
  * @return @ref MDR_RESULT_OK on success, or an error code on failure.
  */
-MDR_API int mdrConnectionGetDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList, int* pCount);
+MDR_API MDRResult mdrConnectionGetDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList, int* pCount);
 /**
  * @brief Free a list of devices obtained from @ref mdrConnectionGetDevicesList.
  * @param conn The connection object.
  * @param ppList Pointer to the list of devices to free.
  * @return @ref MDR_RESULT_OK on success, or an error code on failure.
  */
-MDR_API int mdrConnectionFreeDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList);
+MDR_API MDRResult mdrConnectionFreeDevicesList(MDRConnection* conn, MDRDeviceInfo** ppList);
 /**
  * @brief Get error information from the last @ref MDRConnection
  *        operation.

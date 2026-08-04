@@ -310,13 +310,11 @@ uint8_t GetModelColor()
 
 mdr::Vector<MDRBattery> GetBatteries()
 {
-    uint32_t count = 0;
-    if (!gDevice || mdrHeadphonesGetBatteries(gDevice, nullptr, &count) != MDR_RESULT_OK)
-        return {};
-    mdr::Vector<MDRBattery> values(count);
+    mdr::Vector<MDRBattery> values(4);
     for (auto& value : values)
         value = MDRStruct<MDRBattery>();
-    if (count && mdrHeadphonesGetBatteries(gDevice, values.data(), &count) != MDR_RESULT_OK)
+    uint32_t count = static_cast<uint32_t>(values.size());
+    if (!gDevice || mdrHeadphonesGetBatteries(gDevice, values.data(), &count) != MDR_RESULT_OK)
         return {};
     values.resize(count);
     return values;
@@ -324,13 +322,11 @@ mdr::Vector<MDRBattery> GetBatteries()
 
 mdr::Vector<MDRPairedDevice> GetPairedDevices()
 {
-    uint32_t count = 0;
-    if (!gDevice || mdrHeadphonesGetPairedDevices(gDevice, nullptr, &count) != MDR_RESULT_OK)
-        return {};
-    mdr::Vector<MDRPairedDevice> values(count);
+    mdr::Vector<MDRPairedDevice> values(16);
     for (auto& value : values)
         value = MDRStruct<MDRPairedDevice>();
-    if (count && mdrHeadphonesGetPairedDevices(gDevice, values.data(), &count) != MDR_RESULT_OK)
+    uint32_t count = static_cast<uint32_t>(values.size());
+    if (!gDevice || mdrHeadphonesGetPairedDevices(gDevice, values.data(), &count) != MDR_RESULT_OK)
         return {};
     values.resize(count);
     return values;
@@ -338,13 +334,11 @@ mdr::Vector<MDRPairedDevice> GetPairedDevices()
 
 mdr::Vector<MDRGeneralSettingInfo> GetGeneralSettings()
 {
-    uint32_t count = 0;
-    if (!gDevice || mdrHeadphonesGetGeneralSettingInfo(gDevice, nullptr, &count) != MDR_RESULT_OK)
-        return {};
-    mdr::Vector<MDRGeneralSettingInfo> values(count);
+    mdr::Vector<MDRGeneralSettingInfo> values(4);
     for (auto& value : values)
         value = MDRStruct<MDRGeneralSettingInfo>();
-    if (count && mdrHeadphonesGetGeneralSettingInfo(gDevice, values.data(), &count) != MDR_RESULT_OK)
+    uint32_t count = static_cast<uint32_t>(values.size());
+    if (!gDevice || mdrHeadphonesGetGeneralSettingInfo(gDevice, values.data(), &count) != MDR_RESULT_OK)
         return {};
     values.resize(count);
     return values;
@@ -352,12 +346,11 @@ mdr::Vector<MDRGeneralSettingInfo> GetGeneralSettings()
 
 mdr::Vector<int> GetEqualizerBands()
 {
-    uint32_t count = 0;
-    if (!gDevice || mdrHeadphonesGetEqualizerBands(gDevice, MDR_STATE_EFFECTIVE, nullptr, &count) != MDR_RESULT_OK)
+    mdr::Vector<int8_t> bytes(16);
+    uint32_t count = static_cast<uint32_t>(bytes.size());
+    if (!gDevice || mdrHeadphonesGetEqualizerBands(gDevice, bytes.data(), &count) != MDR_RESULT_OK)
         return {};
-    mdr::Vector<int8_t> bytes(count);
-    if (count && mdrHeadphonesGetEqualizerBands(gDevice, MDR_STATE_EFFECTIVE, bytes.data(), &count) != MDR_RESULT_OK)
-        return {};
+    bytes.resize(count);
     mdr::Vector<int> values;
     values.reserve(count);
     for (const int8_t value : bytes)
@@ -833,7 +826,7 @@ void DrawDeviceControlsHeader()
                 if (ImGui::MenuItem(PSI_OFF " Shutdown"))
                 {
                     MDRPower power = MDRStruct<MDRPower>();
-                    if (mdrHeadphonesGetPower(gDevice, MDR_STATE_EFFECTIVE, &power) == MDR_RESULT_OK)
+                    if (mdrHeadphonesGetPower(gDevice, &power) == MDR_RESULT_OK)
                     {
                         power.shutdown_requested = MDR_TRUE;
                         mdrHeadphonesSetPower(gDevice, &power);
@@ -867,7 +860,7 @@ void DrawDeviceControlsHeader()
         /* DSEE */
         MDREqualizer equalizer = MDRStruct<MDREqualizer>();
         if (FeatureAvailable(MDR_FEATURE_DSEE) &&
-            mdrHeadphonesGetEqualizer(gDevice, MDR_STATE_EFFECTIVE, &equalizer) == MDR_RESULT_OK &&
+            mdrHeadphonesGetEqualizer(gDevice, &equalizer) == MDR_RESULT_OK &&
             equalizer.dsee_enabled)
         {
             *(badgeLast++) = {FormatDseeType(equalizer.dsee_type), ~0u, ~0u};
@@ -951,7 +944,7 @@ void DrawDeviceControlsHeader()
 void DrawDeviceControlsPlayback()
 {
     MDRPlayback playback = MDRStruct<MDRPlayback>();
-    if (mdrHeadphonesGetPlayback(gDevice, MDR_STATE_EFFECTIVE, &playback) != MDR_RESULT_OK)
+    if (mdrHeadphonesGetPlayback(gDevice, &playback) != MDR_RESULT_OK)
         return;
     ImGui::SeparatorText("Volume");
     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -1004,7 +997,7 @@ void DrawDeviceControlsSound()
     {
         MDRNoiseControl noise = MDRStruct<MDRNoiseControl>();
         const bool haveNoise =
-            mdrHeadphonesGetNoiseControl(gDevice, MDR_STATE_EFFECTIVE, &noise) == MDR_RESULT_OK;
+            mdrHeadphonesGetNoiseControl(gDevice, &noise) == MDR_RESULT_OK;
         if (ImGui::TreeNodeEx("Ambient Sound", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
@@ -1061,7 +1054,7 @@ void DrawDeviceControlsSound()
     {
         MDRSpeakToChat speak = MDRStruct<MDRSpeakToChat>();
         const bool haveSpeak =
-            mdrHeadphonesGetSpeakToChat(gDevice, MDR_STATE_EFFECTIVE, &speak) == MDR_RESULT_OK;
+            mdrHeadphonesGetSpeakToChat(gDevice, &speak) == MDR_RESULT_OK;
         if (ImGui::TreeNodeEx("Speak To Chat", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
@@ -1089,7 +1082,7 @@ void DrawDeviceControlsSound()
     {
         MDRListening listening = MDRStruct<MDRListening>();
         const bool haveListening =
-            mdrHeadphonesGetListening(gDevice, MDR_STATE_EFFECTIVE, &listening) == MDR_RESULT_OK;
+            mdrHeadphonesGetListening(gDevice, &listening) == MDR_RESULT_OK;
         if (ImGui::TreeNodeEx("Listening Mode", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
@@ -1137,7 +1130,7 @@ void DrawDeviceControlsSound()
     {
         MDREqualizer equalizer = MDRStruct<MDREqualizer>();
         const bool haveEqualizer =
-            mdrHeadphonesGetEqualizer(gDevice, MDR_STATE_EFFECTIVE, &equalizer) == MDR_RESULT_OK;
+            mdrHeadphonesGetEqualizer(gDevice, &equalizer) == MDR_RESULT_OK;
         bool changed = false;
         constexpr MDREqualizerPreset kSelections[] = {
             MDR_EQ_OFF, MDR_EQ_ROCK, MDR_EQ_POP, MDR_EQ_JAZZ, MDR_EQ_DANCE, MDR_EQ_EDM,
@@ -1240,7 +1233,7 @@ void DrawDeviceControlsDevices()
     }
     MDRPairing pairing = MDRStruct<MDRPairing>();
     const bool havePairing =
-        mdrHeadphonesGetPairing(gDevice, MDR_STATE_EFFECTIVE, &pairing) == MDR_RESULT_OK;
+        mdrHeadphonesGetPairing(gDevice, &pairing) == MDR_RESULT_OK;
     if (pairing.enabled)
     {
         ImTextCentered("Pairing...");
@@ -1302,8 +1295,7 @@ void DrawDeviceControlsSystem()
             if (info.type != MDR_GENERAL_SETTING_BOOLEAN)
                 continue;
             MDRGeneralSetting setting = MDRStruct<MDRGeneralSetting>();
-            if (mdrHeadphonesGetGeneralSetting(
-                    gDevice, MDR_STATE_EFFECTIVE, info.index, &setting) != MDR_RESULT_OK)
+            if (mdrHeadphonesGetGeneralSetting(gDevice, info.index, &setting) != MDR_RESULT_OK)
                 continue;
             const mdr::String subjectKey = GetText(MDR_TEXT_GENERAL_SETTING_SUBJECT, info.index);
             const mdr::String summaryKey = GetText(MDR_TEXT_GENERAL_SETTING_SUMMARY, info.index);
@@ -1331,7 +1323,7 @@ void DrawDeviceControlsSystem()
         ImGui::TreeNodeEx("Touch Preset", ImGuiTreeNodeFlags_DefaultOpen))
     {
         MDRAssignableControls controls = MDRStruct<MDRAssignableControls>();
-        if (mdrHeadphonesGetAssignableControls(gDevice, MDR_STATE_EFFECTIVE, &controls) == MDR_RESULT_OK)
+        if (mdrHeadphonesGetAssignableControls(gDevice, &controls) == MDR_RESULT_OK)
         {
             constexpr MDRAssignableAction kSelections[] = {
                 MDR_ASSIGNABLE_PLAYBACK, MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS, MDR_ASSIGNABLE_NONE};
@@ -1349,7 +1341,7 @@ void DrawDeviceControlsSystem()
         ImGui::TreeNodeEx("NC/AMB Button Function", ImGuiTreeNodeFlags_DefaultOpen))
     {
         MDRNoiseControl noise = MDRStruct<MDRNoiseControl>();
-        if (mdrHeadphonesGetNoiseControl(gDevice, MDR_STATE_EFFECTIVE, &noise) == MDR_RESULT_OK)
+        if (mdrHeadphonesGetNoiseControl(gDevice, &noise) == MDR_RESULT_OK)
         {
             constexpr MDRNoiseButtonMode kSelections[] = {
                 MDR_NOISE_BUTTON_NONE, MDR_NOISE_BUTTON_NOISE_AMBIENT_OFF, MDR_NOISE_BUTTON_NOISE_AMBIENT,
@@ -1361,7 +1353,7 @@ void DrawDeviceControlsSystem()
         ImGui::TreePop();
     }
     MDRPower power = MDRStruct<MDRPower>();
-    const bool havePower = mdrHeadphonesGetPower(gDevice, MDR_STATE_EFFECTIVE, &power) == MDR_RESULT_OK;
+    const bool havePower = mdrHeadphonesGetPower(gDevice, &power) == MDR_RESULT_OK;
     /* Head Gesture */
     if (FeatureAvailable(MDR_FEATURE_HEAD_GESTURE) &&
         ImGui::TreeNodeEx("Head Gesture", ImGuiTreeNodeFlags_DefaultOpen))
@@ -1410,7 +1402,7 @@ void DrawDeviceControlsSystem()
         ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen))
     {
         MDRVoiceGuidance voice = MDRStruct<MDRVoiceGuidance>();
-        if (mdrHeadphonesGetVoiceGuidance(gDevice, MDR_STATE_EFFECTIVE, &voice) == MDR_RESULT_OK)
+        if (mdrHeadphonesGetVoiceGuidance(gDevice, &voice) == MDR_RESULT_OK)
         {
             bool changed = false;
             bool enabled = voice.enabled != MDR_FALSE;
@@ -1559,36 +1551,23 @@ void DrawDeviceControlsTabs()
 
 void DrawDeviceControls()
 {
-    const MDRResult pollResult = mdrHeadphonesPoll(gDevice);
+    MDREvent event = MDR_EVENT_NONE;
+    const MDRResult pollResult = mdrHeadphonesPoll(gDevice, &event);
     if (pollResult != MDR_RESULT_OK)
     {
         DisconnectWithModal();
         return;
     }
-    for (;;)
+    if (event == MDR_EVENT_INITIALIZE_COMPLETE)
     {
-        MDREvent event = MDRStruct<MDREvent>();
-        const MDRResult nextResult = mdrHeadphonesNextEvent(gDevice, &event);
-        if (nextResult == MDR_RESULT_ERROR_NOT_FOUND)
-            break;
-        if (nextResult != MDR_RESULT_OK || event.type == MDR_EVENT_ERROR ||
-            event.result != MDR_RESULT_OK)
+        if (mdrHeadphonesStart(gDevice, MDR_OPERATION_SYNC) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;
         }
-        if (event.type == MDR_EVENT_OPERATION_COMPLETE && event.operation == MDR_OPERATION_INITIALIZE)
-        {
-            if (mdrHeadphonesStart(gDevice, MDR_OPERATION_SYNC) != MDR_RESULT_OK)
-            {
-                DisconnectWithModal();
-                return;
-            }
-        }
-        if ((event.type == MDR_EVENT_STATE_CHANGED && event.domain == MDR_DOMAIN_IDENTITY) ||
-            (event.type == MDR_EVENT_OPERATION_COMPLETE && event.operation == MDR_OPERATION_SYNC))
-            MaterialYouTheme::ApplyForModelColor(GetModelColor());
     }
+    if (event == MDR_EVENT_IDENTITY_CHANGED || event == MDR_EVENT_SYNC_COMPLETE)
+        MaterialYouTheme::ApplyForModelColor(GetModelColor());
 
     DrawDeviceControlsHeader();
     if (!gDevice)

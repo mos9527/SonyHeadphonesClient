@@ -47,7 +47,7 @@ namespace
             offset = 0;
         }
 
-        static int Connect(void*, const char*, const char*)
+        static MDRResult Connect(void*, const char*, const char*)
         {
             return MDR_RESULT_OK;
         }
@@ -56,7 +56,7 @@ namespace
         {
         }
 
-        static int Receive(void* user, char* destination, int size, int* received)
+        static MDRResult Receive(void* user, char* destination, int size, int* received)
         {
             auto& self = *static_cast<MockTransport*>(user);
             *received = 0;
@@ -77,7 +77,7 @@ namespace
             return MDR_RESULT_OK;
         }
 
-        static int Send(void* user, const char* source, int size, int* sent)
+        static MDRResult Send(void* user, const char* source, int size, int* sent)
         {
             auto& self = *static_cast<MockTransport*>(user);
             self.tx.insert(self.tx.end(), source, source + size);
@@ -85,19 +85,19 @@ namespace
             return MDR_RESULT_OK;
         }
 
-        static int Poll(void*, int)
+        static MDRResult Poll(void*, int)
         {
             return MDR_RESULT_OK;
         }
 
-        static int GetDevices(void*, MDRDeviceInfo** devices, int* count)
+        static MDRResult GetDevices(void*, MDRDeviceInfo** devices, int* count)
         {
             *devices = nullptr;
             *count = 0;
             return MDR_RESULT_OK;
         }
 
-        static int FreeDevices(void*, MDRDeviceInfo** devices)
+        static MDRResult FreeDevices(void*, MDRDeviceInfo** devices)
         {
             *devices = nullptr;
             return MDR_RESULT_OK;
@@ -141,16 +141,6 @@ namespace
         };
     }
 
-    bool TakeEvent(MDRHeadphones* headphones, MDREvent& event)
-    {
-        event = {.struct_size = sizeof(event)};
-        const MDRResult result = mdrHeadphonesNextEvent(headphones, &event);
-        if (result == MDR_RESULT_ERROR_NOT_FOUND)
-            return false;
-        Check(result == MDR_RESULT_OK, "event dequeue succeeds");
-        return result == MDR_RESULT_OK;
-    }
-
     bool Replay(
         std::span<const uint8_t> frame,
         MDRHeadphones* headphones,
@@ -161,9 +151,10 @@ namespace
         transport.Load(frame);
         for (size_t attempt = 0; attempt < frame.size() + 4; ++attempt)
         {
-            if (mdrHeadphonesPoll(headphones) != MDR_RESULT_OK)
+            event = MDR_EVENT_NONE;
+            if (mdrHeadphonesPoll(headphones, &event) != MDR_RESULT_OK)
                 return false;
-            if (TakeEvent(headphones, event))
+            if (event != MDR_EVENT_NONE)
                 return true;
         }
         return false;
@@ -224,16 +215,9 @@ namespace
                 continue;
 
             const auto frame = ReadPacket(path);
-            MDREvent event{};
+            MDREvent event = MDR_EVENT_NONE;
             const bool producedEvent = Replay(frame, headphones, transport, event);
-            const bool isRawUnhandled =
-                event.type == MDR_EVENT_UNHANDLED
-                && event.detail == MDR_HEADPHONES_EVT_UNHANDLED;
-            const bool dispatched = producedEvent && (
-                isAck
-                    ? isRawUnhandled
-                    : event.type != MDR_EVENT_ERROR && !isRawUnhandled
-            );
+            const bool dispatched = producedEvent;
             Check(dispatched, "packet dispatches: " + path.string());
             if (!dispatched)
             {
@@ -241,11 +225,7 @@ namespace
                 const MDRResult statusResult =
                     mdrHeadphonesGetStatus(headphones, &status);
                 std::cerr
-                    << "  event type: " << static_cast<unsigned>(event.type)
-                    << ", domain: " << event.domain
-                    << ", operation: " << static_cast<unsigned>(event.operation)
-                    << ", result: " << event.result
-                    << ", detail: " << event.detail
+                    << "  event: " << event
                     << ", status result: " << statusResult
                     << ", last error: " << GetLastError(headphones)
                     << '\n';

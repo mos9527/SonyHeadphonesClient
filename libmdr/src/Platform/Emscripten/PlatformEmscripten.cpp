@@ -131,7 +131,7 @@ struct MDRConnectionEmscripten
     {
         em_js_init(this);
     }
-    static int Connect(void*, const char*, const char* uuid) noexcept
+    static MDRResult Connect(void*, const char*, const char* uuid) noexcept
     {
         em_js_connect(uuid);
         return MDR_RESULT_INPROGRESS;
@@ -140,25 +140,25 @@ struct MDRConnectionEmscripten
     {
         em_js_disconnect();
     }
-    static int Recv(void*, char* dst, int size, int* pReceived) noexcept
+    static MDRResult Recv(void*, char* dst, int size, int* pReceived) noexcept
     {
         *pReceived = em_js_read(dst, size);
         if (*pReceived == 0)
             return MDR_RESULT_INPROGRESS;
         return MDR_RESULT_OK;
     }
-    static int Send(void*, const char* src, int size, int* pSent) noexcept
+    static MDRResult Send(void*, const char* src, int size, int* pSent) noexcept
     {
         *pSent = em_js_send(src, size);
         if (*pSent)
             return MDR_RESULT_OK;
         return MDR_RESULT_INPROGRESS;
     }
-    static int Poll(void*, int) noexcept
+    static MDRResult Poll(void*, int) noexcept
     {
         return em_js_poll();
     }
-    static int GetDevicesList(void*, MDRDeviceInfo** ppList, int* pCount) noexcept
+    static MDRResult GetDevicesList(void*, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         static MDRDeviceInfo sInfo{
             .szDeviceName = "Web Serial API device",
@@ -167,7 +167,7 @@ struct MDRConnectionEmscripten
         *ppList = &sInfo, *pCount = 1;
         return MDR_RESULT_OK;
     }
-    static int FreeDevicesList(void*, MDRDeviceInfo**) noexcept
+    static MDRResult FreeDevicesList(void*, MDRDeviceInfo**) noexcept
     {
         // No-op
         return MDR_RESULT_OK;

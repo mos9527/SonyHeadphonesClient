@@ -20,7 +20,7 @@
 /**
  * @brief Stable result type used by the neutral C ABI.
  */
-typedef int32_t MDRResult;
+typedef uint32_t MDRResult;
 
 // MDR_INIT...
 #define MDR_INIT_BT_BLE (1u << 0u) // Use BLE profile instead of Classic bluetooth

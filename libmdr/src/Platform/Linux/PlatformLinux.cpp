@@ -41,7 +41,7 @@ struct MDRConnectionLinux
     uint8_t uuid[16];
     mdr::String macAddress;
 
-    static int Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
+    static MDRResult Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         ptr->fd = socket(AF_BLUETOOTH, SOCK_STREAM | SOCK_NONBLOCK, BTPROTO_RFCOMM);
@@ -74,7 +74,7 @@ struct MDRConnectionLinux
             sdp_close(ptr->sdpSession), ptr->sdpSession = nullptr;
     }
 
-    static int Recv(void* user, char* dst, int size, int* pReceived) noexcept
+    static MDRResult Recv(void* user, char* dst, int size, int* pReceived) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         if (!ptr->fd)
@@ -93,7 +93,7 @@ struct MDRConnectionLinux
         return MDR_RESULT_OK;
     }
 
-    static int Send(void* user, const char* src, int size, int* pSent) noexcept
+    static MDRResult Send(void* user, const char* src, int size, int* pSent) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         if (!ptr->fd)
@@ -112,7 +112,7 @@ struct MDRConnectionLinux
         return MDR_RESULT_OK;
     }
 
-    static int Poll(void* user, int timeout) noexcept
+    static MDRResult Poll(void* user, int timeout) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         // SDP query not done yet - poll for that
@@ -172,7 +172,7 @@ struct MDRConnectionLinux
         return MDR_RESULT_ERROR_NET;
     }
 
-    static int GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
+    static MDRResult GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         auto* ptr = static_cast<MDRConnectionLinux*>(user);
         auto paths = dbus_list_adapters(ptr->dbusConn);
@@ -189,7 +189,7 @@ struct MDRConnectionLinux
         return MDR_RESULT_OK;
     }
 
-    static int FreeDevicesList(void*, MDRDeviceInfo** ppList) noexcept
+    static MDRResult FreeDevicesList(void*, MDRDeviceInfo** ppList) noexcept
     {
         if (*ppList)
         {
