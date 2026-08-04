@@ -1,6 +1,22 @@
 #pragma once
 #include <stdint.h>
 
+#if !defined(MDR_API)
+#if defined(_WIN32)
+#if defined(MDR_BUILDING_SHARED)
+#define MDR_API __declspec(dllexport)
+#elif defined(MDR_USING_SHARED)
+#define MDR_API __declspec(dllimport)
+#else
+#define MDR_API
+#endif
+#elif defined(__GNUC__) || defined(__clang__)
+#define MDR_API __attribute__((visibility("default")))
+#else
+#define MDR_API
+#endif
+#endif
+
 /**
  * @brief Stable result type used by the neutral C ABI.
  */
@@ -78,7 +94,7 @@ extern "C" {
 /**
  * @brief Format MDR_RESULT_... error codes as null-terminated strings
  */
-const char* mdrResultString(MDRResult err);
+MDR_API const char* mdrResultString(MDRResult err);
 #ifdef __cplusplus
 }
 #endif

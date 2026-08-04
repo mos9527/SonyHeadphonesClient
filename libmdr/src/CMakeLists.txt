@@ -26,7 +26,10 @@ add_library(mdr ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
 add_library(mdr_shared SHARED ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
 set_target_properties(mdr_shared PROPERTIES
     OUTPUT_NAME "mdr-shared"
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
+target_compile_definitions(mdr_shared
+    PRIVATE MDR_BUILDING_SHARED
+    INTERFACE MDR_USING_SHARED
 )
 add_subdirectory(Platform)
 
