@@ -27,10 +27,9 @@ def _render_function_type_helpers(
     enum: EnumDecl,
     table: int,
 ) -> list[str]:
-    alias = f"FunctionType_Table{table}"
     qualified = f"t{table}::FunctionType"
     lines = [
-        f"    static const char* format_as({alias} value)",
+        f"    static const char* format_as({qualified} value)",
         "    {",
         f"        using enum {qualified};",
         "        switch (value)",
@@ -46,7 +45,7 @@ def _render_function_type_helpers(
             "        }",
             "    }",
             "",
-            f"    static bool is_valid({alias} value)",
+            f"    static bool is_valid({qualified} value)",
             "    {",
             f"        using enum {qualified};",
             "        switch (value)",
@@ -100,16 +99,6 @@ def _render_v2_shared_types(
                 "            UInt8 priority;",
                 "        };",
                 f"    }} // namespace t{table}",
-            ]
-        )
-    for table in (1, 2):
-        lines.extend(
-            [
-                "",
-                # Keep source compatibility and make the parent namespace
-                # overloads available to cross-table payload fields.
-                f"    using FunctionType_Table{table} = "
-                f"t{table}::FunctionType;",
             ]
         )
     for table in (1, 2):

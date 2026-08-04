@@ -1096,8 +1096,8 @@ namespace mdr::v1::t1
     {
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AtCommandMessageType messageType{}; // 0x0
-        UInt8 commandLength{}; // 0x1
-        MDRPrefixedString command2; // 0x2
+        Int16BE commandLength{}; // 0x1
+        MDRPrefixedString command2; // 0x3
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AtCommandMessageType messageType2{AtCommandMessageType::REQUEST};
         UInt8 commandLength2{};
@@ -3687,7 +3687,7 @@ namespace mdr::v1::t1
         Command command{Command::CONNECT_RET_PROTOCOL_INFO}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonCapabilityInquiredType type{}; // 0x1
-        UInt8 protocolVersion{}; // 0x2
+        Int16BE protocolVersion{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetProtocolInfo);
     };

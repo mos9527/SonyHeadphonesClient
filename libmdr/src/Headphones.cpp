@@ -301,7 +301,7 @@ namespace mdr
         {
             return SetLastError(
                 MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
-                "CONNECT_RET_PROTOCOL_INFO must be 3 bytes (V1) or 8 bytes (V2)");
+                "CONNECT_RET_PROTOCOL_INFO size is not valid");
         }
 
         Awake(AWAIT_PROTOCOL_INFO);

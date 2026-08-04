@@ -8403,7 +8403,9 @@
       "cpp_name": "AtCommandParam",
       "discriminator_field": null,
       "discriminator_value": null,
-      "evidence": [],
+      "evidence": [
+        "parser reads commandLength from local bytes 1..2"
+      ],
       "factory_signature": null,
       "fields": [
         {
@@ -8416,7 +8418,7 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
+          "cpp_type": "Int16BE",
           "default": "{}",
           "name": "commandLength",
           "offset": 1,
@@ -8428,7 +8430,7 @@
           "cpp_type": "MDRPrefixedString",
           "default": null,
           "name": "command2",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LNSString;",
           "wire_kind": "string"
@@ -24854,6 +24856,8 @@
       "discriminator_field": null,
       "discriminator_value": null,
       "evidence": [
+        "parser reads protocolVersion from local bytes 2..3",
+        "serializer writes 2 byte(s) for protocolVersion",
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
         "_JreThrowNullPointerException",
@@ -24882,7 +24886,7 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
+          "cpp_type": "Int16BE",
           "default": "{}",
           "name": "protocolVersion",
           "offset": 2,
@@ -25813,10 +25817,10 @@
         "writeWithInt:",
         "-[THMSGV1T1RetSystemCapability_AssignableSettingsCapability getType]",
         "_JreThrowNullPointerException",
-        "writeToWithJavaIoByteArrayOutputStream:",
         "-[THMSGV1T1AsCapabilityKeyList writeToWithJavaIoByteArrayOutputStream:]",
         "_create_JavaLangUnsupportedOperationException_init",
-        "_objc_exception_throw"
+        "_objc_exception_throw",
+        "writeToWithJavaIoByteArrayOutputStream:"
       ],
       "factory_signature": null,
       "fields": [
@@ -37141,12 +37145,12 @@
         "-[THMSGV1T1TestCommandType byteCode]",
         "-[THMSGV1T1TargetType byteCode]",
         "sub_1012CA5A4",
+        "writeToWithJavaIoByteArrayOutputStream:",
         "-[THMSGV1T1AtCommandParam writeToWithJavaIoByteArrayOutputStream:]",
         "-[THMSGV1T1AtCommandMessageType byteCode]",
         "sub_1012CB8FC",
         "_JavaUtilArrays_copyOfRangeWithByteArray_withInt_withInt_",
-        "writeWithByteArray:withInt:withInt:",
-        "writeToWithJavaIoByteArrayOutputStream:"
+        "writeWithByteArray:withInt:withInt:"
       ],
       "factory_signature": null,
       "fields": [

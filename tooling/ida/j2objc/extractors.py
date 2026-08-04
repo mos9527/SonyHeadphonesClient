@@ -479,6 +479,170 @@ class ProtocolExtractor:
             or self._getter_byte_span(getter)
         )
 
+    @staticmethod
+    def _field_ivar_name(field: FieldDecl) -> str:
+        return f"m{field.name[:1].upper()}{field.name[1:]}_"
+
+    def _serializer_primitive_width(
+        self,
+        serializer: JavaMethod | MethodSymbol | None,
+        field: FieldDecl,
+    ) -> int | None:
+        if serializer is None:
+            return None
+        text = self._decompile_text(serializer)
+        ivar = re.escape(self._field_ivar_name(field))
+        writes = re.findall(
+            r"objc_msgSend\([^;]*?\"writeWithInt:\"\s*,\s*([^;]*?)\);",
+            text,
+            re.DOTALL,
+        )
+        matching = [
+            expression
+            for expression in writes
+            if re.search(rf"(?:self|[A-Za-z_][A-Za-z0-9_]*)->{ivar}\b",
+                         expression)
+        ]
+        return len(matching) if 1 <= len(matching) <= 8 else None
+
+    def _parser_primitive_span(
+        self,
+        parser: JavaMethod,
+        field: FieldDecl,
+    ) -> tuple[int, int] | None:
+        text = self._decompile_text(parser)
+        ivar = re.escape(self._field_ivar_name(field))
+        target = re.search(
+            rf"(?:self|[A-Za-z_][A-Za-z0-9_]*)->{ivar}\s*=\s*([^;]+);",
+            text,
+        )
+        if target is None:
+            return None
+        assignments = {
+            name: expression
+            for name, expression in re.findall(
+                r"(?m)^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([^;]+);",
+                text,
+            )
+        }
+
+        def byte_indices(expression: str, seen: set[str]) -> set[int]:
+            indices = {
+                int(value, 0)
+                for value in re.findall(
+                    r"IOSByteArray_buffer_\s*\+\s*"
+                    r"(0x[0-9A-Fa-f]+|\d+)",
+                    expression,
+                )
+            }
+            if re.search(r"IOSByteArray_buffer_\s*\]", expression):
+                indices.add(0)
+            for name in re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b",
+                                   expression):
+                if name in seen or name not in assignments:
+                    continue
+                indices.update(
+                    byte_indices(assignments[name], {*seen, name})
+                )
+            return indices
+
+        indices = sorted(byte_indices(target.group(1), set()))
+        if not indices or indices != list(range(indices[0], indices[-1] + 1)):
+            return None
+        return indices[0], len(indices)
+
+    def _primitive_span_evidence(
+        self,
+        class_name: str,
+        serializer: JavaMethod | MethodSymbol | None,
+        parsers: list[JavaMethod],
+        fields: list[FieldDecl],
+    ) -> tuple[list[FieldDecl], dict[str, int], list[str]]:
+        output: list[FieldDecl] = []
+        offsets: dict[str, int] = {}
+        evidence: list[str] = []
+        shift = 0
+        for field in fields:
+            adjusted_offset = (
+                field.offset + shift if field.offset is not None else None
+            )
+            descriptor = (field.source_type or "").lstrip("+-")
+            if descriptor not in ("I", "J"):
+                output.append(replace(field, offset=adjusted_offset))
+                continue
+            serializer_width = self._serializer_primitive_width(
+                serializer, field
+            )
+            parser_spans = {
+                span
+                for parser in parsers
+                if (span := self._parser_primitive_span(parser, field))
+                is not None
+            }
+            if len(parser_spans) > 1:
+                raise ExtractionError(
+                    f"contradictory parser spans for "
+                    f"{class_name}.{field.name}: "
+                    f"{sorted(parser_spans)}"
+                )
+            parser_span = next(iter(parser_spans), None)
+            parser_width = parser_span[1] if parser_span is not None else None
+            widths = {
+                width
+                for width in (serializer_width, parser_width)
+                if width is not None
+            }
+            if len(widths) > 1:
+                raise ExtractionError(
+                    f"serializer/parser width mismatch for "
+                    f"{class_name}.{field.name}: "
+                    f"serializer={serializer_width}, parser={parser_width}"
+                )
+            if not widths:
+                output.append(replace(field, offset=adjusted_offset))
+                continue
+            width = next(iter(widths))
+            sized = self._sized_primitive(descriptor, width)
+            if sized is None:
+                raise ExtractionError(
+                    f"unsupported inferred width {width} for "
+                    f"{class_name}.{field.name} ({descriptor})"
+                )
+            if sized == field.cpp_type:
+                output.append(replace(field, offset=adjusted_offset))
+                continue
+            # Nested parsers receive a child slice after its discriminator,
+            # so parser indices prove width but are not always absolute wire
+            # offsets. Preserve the declaration's accumulated offset.
+            start = adjusted_offset
+            old_size = _FIXED_SIZES.get(field.cpp_type)
+            if old_size is None:
+                output.append(replace(field, offset=start))
+                continue
+            output.append(
+                replace(
+                    field,
+                    cpp_type=sized,
+                    wire_kind="pod",
+                    offset=start,
+                )
+            )
+            if start is not None:
+                offsets[field.name] = start
+            shift += width - old_size
+            if parser_span is not None:
+                evidence.append(
+                    f"parser reads {field.name} from local bytes "
+                    f"{parser_span[0]}.."
+                    f"{parser_span[0] + parser_span[1] - 1}"
+                )
+            if serializer_width is not None:
+                evidence.append(
+                    f"serializer writes {serializer_width} byte(s) "
+                    f"for {field.name}"
+                )
+        return output, offsets, evidence
+
     def _fixed_count_from_getter(self, getter: JavaMethod) -> int | None:
         text = self._decompile_text(getter)
         if '"size"' not in text and " size" not in text:
@@ -2605,6 +2769,21 @@ class ProtocolExtractor:
                 )
             getter_offsets[name] = static_offset
         field_evidence.extend(static_evidence)
+
+        raw_fields, primitive_offsets, primitive_evidence = (
+            self._primitive_span_evidence(
+                class_name, serializer_method, parser_methods, raw_fields
+            )
+        )
+        for name, primitive_offset in primitive_offsets.items():
+            known_offset = getter_offsets.get(name)
+            if known_offset is not None and known_offset != primitive_offset:
+                raise ExtractionError(
+                    f"contradictory offsets for {class_name}.{name}: "
+                    f"inferred={known_offset}, parser={primitive_offset}"
+                )
+            getter_offsets[name] = primitive_offset
+        field_evidence.extend(primitive_evidence)
 
         if (
             serializer_method is None
