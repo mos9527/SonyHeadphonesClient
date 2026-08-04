@@ -2040,7 +2040,7 @@ mdr::String format_as(const CommonSetParamConnectionEstablishedTime& data) {
     o.Field("inquiredType", data.inquiredType);
     o.Field("timeValidation", data.timeValidation);
     o.Field("unixTime", data.unixTime);
-    o.Field("value3", data.value3);
+    o.Field("utcYear", data.utcYear);
     o.Field("utcMonth", data.utcMonth);
     o.Field("utcDay", data.utcDay);
     o.Field("utcHour", data.utcHour);
@@ -3055,8 +3055,8 @@ MDRResult<void> GsRetCapability::Validate(const GsRetCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.gsStringFormat ignored: OUT_OF_RANGE is expected
     // data.settingType ignored: OUT_OF_RANGE is expected
+    // data.gsStringFormat ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const GsRetCapability& data) {
@@ -3064,8 +3064,8 @@ mdr::String format_as(const GsRetCapability& data) {
     o.BeginObject();
     o.Field("command", data.command);
     o.Field("type", data.type);
-    o.Field("gsStringFormat", data.gsStringFormat);
     o.Field("settingType", data.settingType);
+    o.Field("gsStringFormat", data.gsStringFormat);
     o.Field("value3", data.value3);
     o.Field("value4", data.value4);
     o.EndObject();
@@ -3075,8 +3075,8 @@ MDRResult<void> GsRetCapabilityBoolean::Validate(const GsRetCapabilityBoolean& d
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.gsStringFormat ignored: OUT_OF_RANGE is expected
     // data.settingType ignored: OUT_OF_RANGE is expected
+    // data.gsStringFormat ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const GsRetCapabilityBoolean& data) {
@@ -3084,8 +3084,8 @@ mdr::String format_as(const GsRetCapabilityBoolean& data) {
     o.BeginObject();
     o.Field("command", data.command);
     o.Field("type", data.type);
-    o.Field("gsStringFormat", data.gsStringFormat);
     o.Field("settingType", data.settingType);
+    o.Field("gsStringFormat", data.gsStringFormat);
     o.Field("value3", data.value3);
     o.Field("value4", data.value4);
     o.EndObject();
@@ -3578,7 +3578,7 @@ MDRResult<void> LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad::Validate(const LEAR
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
-    for (const auto& value4_elem : data.value4) {
+    for (const auto& adPacketIdentifier_elem : data.adPacketIdentifier) {
     }
     return MDRResult<void>::Success();
 }
@@ -3589,7 +3589,7 @@ mdr::String format_as(const LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad& data) {
     o.Field("inquiredType", data.inquiredType);
     o.Field("adPacketIdentifierStartIndex", data.adPacketIdentifierStartIndex);
     o.Field("adPacketIdentifierEndIndex", data.adPacketIdentifierEndIndex);
-    o.Field("value4", data.value4);
+    o.Field("adPacketIdentifier", data.adPacketIdentifier);
     o.EndObject();
     return std::move(o).Take();
 }
@@ -3599,7 +3599,7 @@ MDRResult<void> LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad::Validate(const LEAR
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& leftAdPacketIdentifier_elem : data.leftAdPacketIdentifier) {
     }
-    for (const auto& value4_elem : data.value4) {
+    for (const auto& rightAdPacketIdentifier_elem : data.rightAdPacketIdentifier) {
     }
     return MDRResult<void>::Success();
 }
@@ -3608,12 +3608,12 @@ mdr::String format_as(const LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad& data) {
     o.BeginObject();
     o.Field("command", data.command);
     o.Field("inquiredType", data.inquiredType);
-    o.Field("rightAdPacketIdentifierEndIndex", data.rightAdPacketIdentifierEndIndex);
     o.Field("leftAdPacketIdentifierStartIndex", data.leftAdPacketIdentifierStartIndex);
-    o.Field("leftAdPacketIdentifier", data.leftAdPacketIdentifier);
     o.Field("leftAdPacketIdentifierEndIndex", data.leftAdPacketIdentifierEndIndex);
-    o.Field("value3", data.value3);
-    o.Field("value4", data.value4);
+    o.Field("leftAdPacketIdentifier", data.leftAdPacketIdentifier);
+    o.Field("rightAdPacketIdentifierStartIndex", data.rightAdPacketIdentifierStartIndex);
+    o.Field("rightAdPacketIdentifierEndIndex", data.rightAdPacketIdentifierEndIndex);
+    o.Field("rightAdPacketIdentifier", data.rightAdPacketIdentifier);
     o.EndObject();
     return std::move(o).Take();
 }
@@ -7850,7 +7850,7 @@ MDRResult<void> SetPlayStatusPlaybackController::Validate(const SetPlayStatusPla
     // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.control));
-    MDR_VALIDATE(data.control == PlaybackControl::PLAY);
+    MDR_VALIDATE(data.control == PlaybackControl::PAUSE || data.control == PlaybackControl::TRACK_UP || data.control == PlaybackControl::TRACK_DOWN || data.control == PlaybackControl::PLAY);
     return MDRResult<void>::Success();
 }
 mdr::String format_as(const SetPlayStatusPlaybackController& data) {
@@ -10211,9 +10211,9 @@ MDRResult<void> GsRetCapabilityList::Validate(const GsRetCapabilityList& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.gsStringFormat ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.settingType));
     MDR_VALIDATE(data.settingType == GsSettingType::LIST_TYPE);
+    // data.gsStringFormat ignored: OUT_OF_RANGE is expected
     for (const auto& elements_elem : data.elements) {
         MDR_VALIDATE(is_valid(elements_elem.stringFormat));
     }
@@ -10224,8 +10224,8 @@ mdr::String format_as(const GsRetCapabilityList& data) {
     o.BeginObject();
     o.Field("command", data.command);
     o.Field("type", data.type);
-    o.Field("gsStringFormat", data.gsStringFormat);
     o.Field("settingType", data.settingType);
+    o.Field("gsStringFormat", data.gsStringFormat);
     o.Field("value3", data.value3);
     o.Field("value4", data.value4);
     o.Field("elements", data.elements);

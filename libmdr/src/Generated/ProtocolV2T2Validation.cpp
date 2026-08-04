@@ -4699,11 +4699,8 @@ mdr::String format_as(const SafeListeningNotifyStatusHbs& data) {
 MDRResult<void> SafeListeningNotifyStatusHbs1::Validate(const SafeListeningNotifyStatusHbs1& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
-    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
-        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
-    }
     for (const auto& logDataList_elem : data.logDataList) {
         MDR_VALIDATE(is_valid(logDataList_elem.targetType));
     }
@@ -4713,9 +4710,8 @@ mdr::String format_as(const SafeListeningNotifyStatusHbs1& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatus", data.logDataStatus);
-    o.Field("safeListeningDatas", data.safeListeningDatas);
     o.Field("logDataList", data.logDataList);
     o.EndObject();
     return std::move(o).Take();
@@ -4723,11 +4719,8 @@ mdr::String format_as(const SafeListeningNotifyStatusHbs1& data) {
 MDRResult<void> SafeListeningNotifyStatusHbs2::Validate(const SafeListeningNotifyStatusHbs2& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
-    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
-        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
-    }
     for (const auto& logDataList_elem : data.logDataList) {
         MDR_VALIDATE(is_valid(logDataList_elem.targetType));
     }
@@ -4737,9 +4730,8 @@ mdr::String format_as(const SafeListeningNotifyStatusHbs2& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatus", data.logDataStatus);
-    o.Field("safeListeningDatas", data.safeListeningDatas);
     o.Field("logDataList", data.logDataList);
     o.EndObject();
     return std::move(o).Take();
@@ -4769,12 +4761,9 @@ mdr::String format_as(const SafeListeningNotifyStatusTws& data) {
 MDRResult<void> SafeListeningNotifyStatusTws1::Validate(const SafeListeningNotifyStatusTws1& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatusLeft ignored: OUT_OF_RANGE is expected
     // data.logDataStatusRight ignored: OUT_OF_RANGE is expected
-    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
-        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
-    }
     for (const auto& logDataList_elem : data.logDataList) {
         MDR_VALIDATE(is_valid(logDataList_elem.targetType));
     }
@@ -4784,10 +4773,9 @@ mdr::String format_as(const SafeListeningNotifyStatusTws1& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatusLeft", data.logDataStatusLeft);
     o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("safeListeningDatas", data.safeListeningDatas);
     o.Field("logDataList", data.logDataList);
     o.EndObject();
     return std::move(o).Take();
@@ -4795,12 +4783,9 @@ mdr::String format_as(const SafeListeningNotifyStatusTws1& data) {
 MDRResult<void> SafeListeningNotifyStatusTws2::Validate(const SafeListeningNotifyStatusTws2& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_NTFY_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatusLeft ignored: OUT_OF_RANGE is expected
     // data.logDataStatusRight ignored: OUT_OF_RANGE is expected
-    for (const auto& safeListeningDatas_elem : data.safeListeningDatas) {
-        MDR_VALIDATE(is_valid(safeListeningDatas_elem.targetType));
-    }
     for (const auto& logDataList_elem : data.logDataList) {
         MDR_VALIDATE(is_valid(logDataList_elem.targetType));
     }
@@ -4810,10 +4795,9 @@ mdr::String format_as(const SafeListeningNotifyStatusTws2& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatusLeft", data.logDataStatusLeft);
     o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("safeListeningDatas", data.safeListeningDatas);
     o.Field("logDataList", data.logDataList);
     o.EndObject();
     return std::move(o).Take();
@@ -4839,9 +4823,8 @@ mdr::String format_as(const SafeListeningRetStatusHbs& data) {
 MDRResult<void> SafeListeningRetStatusHbs1::Validate(const SafeListeningRetStatusHbs1& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
     MDR_VALIDATE(is_valid(data.currentData.targetType));
     return MDRResult<void>::Success();
 }
@@ -4849,9 +4832,8 @@ mdr::String format_as(const SafeListeningRetStatusHbs1& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatus", data.logDataStatus);
-    o.Field("safeListeningData", data.safeListeningData);
     o.Field("currentData", data.currentData);
     o.EndObject();
     return std::move(o).Take();
@@ -4859,9 +4841,8 @@ mdr::String format_as(const SafeListeningRetStatusHbs1& data) {
 MDRResult<void> SafeListeningRetStatusHbs2::Validate(const SafeListeningRetStatusHbs2& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatus ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
     MDR_VALIDATE(is_valid(data.currentData.targetType));
     return MDRResult<void>::Success();
 }
@@ -4869,9 +4850,8 @@ mdr::String format_as(const SafeListeningRetStatusHbs2& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatus", data.logDataStatus);
-    o.Field("safeListeningData", data.safeListeningData);
     o.Field("currentData", data.currentData);
     o.EndObject();
     return std::move(o).Take();
@@ -4901,11 +4881,9 @@ mdr::String format_as(const SafeListeningRetStatusTws& data) {
 MDRResult<void> SafeListeningRetStatusTws1::Validate(const SafeListeningRetStatusTws1& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatusLeft ignored: OUT_OF_RANGE is expected
     // data.logDataStatusRight ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
-    MDR_VALIDATE(is_valid(data.safeListeningData2.targetType));
     MDR_VALIDATE(is_valid(data.currentDataLeft.targetType));
     MDR_VALIDATE(is_valid(data.currentDataRight.targetType));
     return MDRResult<void>::Success();
@@ -4914,11 +4892,9 @@ mdr::String format_as(const SafeListeningRetStatusTws1& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatusLeft", data.logDataStatusLeft);
     o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("safeListeningData", data.safeListeningData);
-    o.Field("safeListeningData2", data.safeListeningData2);
     o.Field("currentDataLeft", data.currentDataLeft);
     o.Field("currentDataRight", data.currentDataRight);
     o.EndObject();
@@ -4927,11 +4903,9 @@ mdr::String format_as(const SafeListeningRetStatusTws1& data) {
 MDRResult<void> SafeListeningRetStatusTws2::Validate(const SafeListeningRetStatusTws2& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SAFE_LISTENING_RET_STATUS);
-    // data.safeListeningInquiredType ignored: OUT_OF_RANGE is expected
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.logDataStatusLeft ignored: OUT_OF_RANGE is expected
     // data.logDataStatusRight ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.safeListeningData.targetType));
-    MDR_VALIDATE(is_valid(data.safeListeningData2.targetType));
     MDR_VALIDATE(is_valid(data.currentDataLeft.targetType));
     MDR_VALIDATE(is_valid(data.currentDataRight.targetType));
     return MDRResult<void>::Success();
@@ -4940,11 +4914,9 @@ mdr::String format_as(const SafeListeningRetStatusTws2& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
     o.Field("command", data.command);
-    o.Field("safeListeningInquiredType", data.safeListeningInquiredType);
+    o.Field("inquiredType", data.inquiredType);
     o.Field("logDataStatusLeft", data.logDataStatusLeft);
     o.Field("logDataStatusRight", data.logDataStatusRight);
-    o.Field("safeListeningData", data.safeListeningData);
-    o.Field("safeListeningData2", data.safeListeningData2);
     o.Field("currentDataLeft", data.currentDataLeft);
     o.Field("currentDataRight", data.currentDataRight);
     o.EndObject();
@@ -5053,13 +5025,13 @@ mdr::String format_as(const SystemRetExtendedParamSVASettingMtkTransferSupportLa
     o.BeginObject();
     o.Field("command", data.command);
     o.Field("inquiredType", data.inquiredType);
-    o.Field("serviceInformationList", data.serviceInformationList);
     o.Field("requiredTime", data.requiredTime);
     o.Field("categoryId", data.categoryId);
     o.Field("serialNumber", data.serialNumber);
     o.Field("threshold", data.threshold);
     o.Field("thresholdForInterrupt", data.thresholdForInterrupt);
     o.Field("uniqueId", data.uniqueId);
+    o.Field("serviceInformationList", data.serviceInformationList);
     o.EndObject();
     return std::move(o).Take();
 }
@@ -5077,13 +5049,13 @@ mdr::String format_as(const VoiceGuidanceRetExtendedParamSettingMtkSupportLangSw
     o.BeginObject();
     o.Field("command", data.command);
     o.Field("inquiredType", data.inquiredType);
-    o.Field("serviceInformationList", data.serviceInformationList);
     o.Field("requiredTime", data.requiredTime);
     o.Field("categoryId", data.categoryId);
     o.Field("serialNumber", data.serialNumber);
     o.Field("threshold", data.threshold);
     o.Field("thresholdForInterrupt", data.thresholdForInterrupt);
     o.Field("uniqueId", data.uniqueId);
+    o.Field("serviceInformationList", data.serviceInformationList);
     o.EndObject();
     return std::move(o).Take();
 }

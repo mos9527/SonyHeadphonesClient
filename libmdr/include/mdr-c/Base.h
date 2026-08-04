@@ -1,4 +1,11 @@
 #pragma once
+#include <stdint.h>
+
+/**
+ * @brief Stable result type used by the neutral C ABI.
+ */
+typedef int32_t MDRResult;
+
 // MDR_INIT...
 #define MDR_INIT_BT_BLE (1u << 0u) // Use BLE profile instead of Classic bluetooth
 // MDR_RESULT...
@@ -71,7 +78,7 @@ extern "C" {
 /**
  * @brief Format MDR_RESULT_... error codes as null-terminated strings
  */
-const char* mdrResultString(int err);
+const char* mdrResultString(MDRResult err);
 #ifdef __cplusplus
 }
 #endif

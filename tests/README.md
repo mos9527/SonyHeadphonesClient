@@ -1,12 +1,16 @@
 # MDR Packet Replay Tests
 
-The util executable `mdr_tests` replays the `-rx.` `.bin` packets in one
+The `mdr_replay_tests` executable replays the `-rx.` `.bin` packets in one
 directory, and checks on malformed/incompatible payloads.
+
+The separate, pure-C `mdr_abi_tests` executable checks the public ABI,
+state staging, operation serialization, event delivery, and protocol
+bootstrap behavior through the shared libmdr test library.
 
 ## Usage
 
 ```sh
-mdr_tests <packet-directory>
+mdr_replay_tests <packet-directory>
 ```
 
 Each immediate subdirectory of `tests/` is registered as a separate CTest

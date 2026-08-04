@@ -1,9 +1,13 @@
-#include <mdr/Headphones.hpp>
+#include <mdr-c/Headphones.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iterator>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -22,8 +26,8 @@ namespace
 
     struct MockTransport
     {
-        mdr::Vector<mdr::UInt8> rx;
-        mdr::Vector<mdr::UInt8> tx;
+        std::vector<uint8_t> rx;
+        std::vector<uint8_t> tx;
         size_t offset{};
         MDRConnection connection{
             this,
@@ -37,6 +41,12 @@ namespace
             GetLastError,
         };
 
+        void Load(std::span<const uint8_t> bytes)
+        {
+            rx.assign(bytes.begin(), bytes.end());
+            offset = 0;
+        }
+
         static int Connect(void*, const char*, const char*)
         {
             return MDR_RESULT_OK;
@@ -46,9 +56,7 @@ namespace
         {
         }
 
-        static int Receive(
-            void* user, char* destination, int size, int* received
-        )
+        static int Receive(void* user, char* destination, int size, int* received)
         {
             auto& self = *static_cast<MockTransport*>(user);
             *received = 0;
@@ -69,9 +77,7 @@ namespace
             return MDR_RESULT_OK;
         }
 
-        static int Send(
-            void* user, const char* source, int size, int* sent
-        )
+        static int Send(void* user, const char* source, int size, int* sent)
         {
             auto& self = *static_cast<MockTransport*>(user);
             self.tx.insert(self.tx.end(), source, source + size);
@@ -103,9 +109,30 @@ namespace
         }
     };
 
-    mdr::Vector<mdr::UInt8> ReadPacket(
-        const std::filesystem::path& path
-    )
+    std::string GetLastError(MDRHeadphones* headphones)
+    {
+        uint32_t size = 0;
+        if (
+            mdrHeadphonesGetText(
+                headphones, MDR_TEXT_LAST_ERROR, 0, nullptr, &size
+            ) != MDR_RESULT_OK
+        )
+        {
+            return {};
+        }
+        std::vector<char> buffer(size);
+        if (
+            mdrHeadphonesGetText(
+                headphones, MDR_TEXT_LAST_ERROR, 0, buffer.data(), &size
+            ) != MDR_RESULT_OK
+        )
+        {
+            return {};
+        }
+        return buffer.data();
+    }
+
+    std::vector<uint8_t> ReadPacket(const std::filesystem::path& path)
     {
         std::ifstream input(path, std::ios::binary);
         return {
@@ -114,21 +141,32 @@ namespace
         };
     }
 
-    int Replay(
-        mdr::Span<const mdr::UInt8> frame,
-        mdr::MDRHeadphones& headphones,
-        MockTransport& transport
+    bool TakeEvent(MDRHeadphones* headphones, MDREvent& event)
+    {
+        event = {.struct_size = sizeof(event)};
+        const MDRResult result = mdrHeadphonesNextEvent(headphones, &event);
+        if (result == MDR_RESULT_ERROR_NOT_FOUND)
+            return false;
+        Check(result == MDR_RESULT_OK, "event dequeue succeeds");
+        return result == MDR_RESULT_OK;
+    }
+
+    bool Replay(
+        std::span<const uint8_t> frame,
+        MDRHeadphones* headphones,
+        MockTransport& transport,
+        MDREvent& event
     )
     {
-        transport.rx.assign(frame.begin(), frame.end());
-        transport.offset = 0;
+        transport.Load(frame);
         for (size_t attempt = 0; attempt < frame.size() + 4; ++attempt)
         {
-            const int event = headphones.PollEvents();
-            if (event == MDR_HEADPHONES_ERROR || event > MDR_HEADPHONES_IDLE)
-                return event;
+            if (mdrHeadphonesPoll(headphones) != MDR_RESULT_OK)
+                return false;
+            if (TakeEvent(headphones, event))
+                return true;
         }
-        return MDR_HEADPHONES_IDLE;
+        return false;
     }
 
     void ReplayDirectory(const std::filesystem::path& root)
@@ -160,33 +198,24 @@ namespace
             iterator.increment(error);
         }
         Check(!error, "replay directory traversal succeeds");
-        Check(
-            !packets.empty(),
-            "replay directory contains RX .bin packets"
-        );
+        Check(!packets.empty(), "replay directory contains RX .bin packets");
         std::ranges::sort(packets);
 
         MockTransport transport;
-        mdr::MDRHeadphones headphones(&transport.connection);
+        MDRHeadphones* headphones = nullptr;
+        Check(
+            mdrHeadphonesOpen(&transport.connection, &headphones) == MDR_RESULT_OK,
+            "opaque headphones session opens"
+        );
+        if (headphones == nullptr)
+            return;
+
         size_t replayed = 0;
         for (const auto& path : packets)
         {
-            const auto frame = ReadPacket(path);
-            mdr::MDRBuffer payload;
-            mdr::MDRDataType type{};
-            mdr::MDRCommandSeqNumber sequence{};
-            const bool unpacked =
-                mdr::MDRUnpackCommand(
-                    frame, payload, type, sequence
-                ) == mdr::MDRUnpackResult::OK;
-            Check(unpacked, "packet unpacks: " + path.string());
-            if (!unpacked)
-                continue;
-
-            const bool isAck = type == mdr::MDRDataType::ACK;
-            const bool isData =
-                type == mdr::MDRDataType::DATA_MDR
-                || type == mdr::MDRDataType::DATA_MDR_NO2;
+            const std::string filename = path.filename().string();
+            const bool isAck = filename.find(".type-ACK-") != std::string::npos;
+            const bool isData = filename.find(".type-DATA_MDR") != std::string::npos;
             Check(
                 isAck || isData,
                 "packet is replayable RX data or ACK: " + path.string()
@@ -194,24 +223,37 @@ namespace
             if (!isAck && !isData)
                 continue;
 
-            const int event = Replay(frame, headphones, transport);
-            const bool dispatched = isAck
-                ? event == MDR_HEADPHONES_EVT_UNHANDLED
-                : event != MDR_HEADPHONES_ERROR
-                    && event != MDR_HEADPHONES_EVT_UNHANDLED
-                    && event > MDR_HEADPHONES_IDLE;
+            const auto frame = ReadPacket(path);
+            MDREvent event{};
+            const bool producedEvent = Replay(frame, headphones, transport, event);
+            const bool isRawUnhandled =
+                event.type == MDR_EVENT_UNHANDLED
+                && event.detail == MDR_HEADPHONES_EVT_UNHANDLED;
+            const bool dispatched = producedEvent && (
+                isAck
+                    ? isRawUnhandled
+                    : event.type != MDR_EVENT_ERROR && !isRawUnhandled
+            );
             Check(dispatched, "packet dispatches: " + path.string());
             if (!dispatched)
             {
+                MDRHeadphonesStatus status{.struct_size = sizeof(status)};
+                const MDRResult statusResult =
+                    mdrHeadphonesGetStatus(headphones, &status);
                 std::cerr
-                    << "  type: " << mdr::format_as(type)
-                    << ", sequence: " << static_cast<unsigned>(sequence)
-                    << ", event: " << event
-                    << ", detail: " << headphones.GetLastError() << '\n';
+                    << "  event type: " << static_cast<unsigned>(event.type)
+                    << ", domain: " << event.domain
+                    << ", operation: " << static_cast<unsigned>(event.operation)
+                    << ", result: " << event.result
+                    << ", detail: " << event.detail
+                    << ", status result: " << statusResult
+                    << ", last error: " << GetLastError(headphones)
+                    << '\n';
             }
             ++replayed;
         }
 
+        mdrHeadphonesClose(headphones);
         std::cout << "Replayed " << replayed << " packet(s) from "
                   << root.string() << '\n';
     }
@@ -221,12 +263,12 @@ int main(int argc, char** argv)
 {
     if (argc != 2)
     {
-        std::cerr << "Usage: mdr_tests <packet-directory>\n";
+        std::cerr << "Usage: mdr_replay_tests <packet-directory>\n";
         return 2;
     }
 
     ReplayDirectory(argv[1]);
     if (gFailures)
-        std::cerr << gFailures << " replay assertion(s) failed\n";
+        std::cerr << gFailures << " test assertion(s) failed\n";
     return gFailures ? 1 : 0;
 }

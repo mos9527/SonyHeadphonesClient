@@ -3439,14 +3439,14 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionEstablishedTimeStatus timeValidation{ConnectionEstablishedTimeStatus::VALID}; // 0x2
         UInt64BE unixTime{}; // 0x3
-        UInt8 value3{}; // 0xB
-        UInt8 utcMonth{}; // 0xC
-        UInt8 utcDay{}; // 0xD
-        UInt8 utcHour{}; // 0xE
-        UInt8 utcMinute{}; // 0xF
-        UInt8 utcSecond{}; // 0x10
-        UInt8 timeZoneHour{}; // 0x11
-        UInt8 timeZoneMinute{}; // 0x12
+        Int16BE utcYear{}; // 0xB
+        UInt8 utcMonth{}; // 0xD
+        UInt8 utcDay{}; // 0xE
+        UInt8 utcHour{}; // 0xF
+        UInt8 utcMinute{}; // 0x10
+        UInt8 utcSecond{}; // 0x11
+        UInt8 timeZoneHour{}; // 0x12
+        UInt8 timeZoneMinute{}; // 0x13
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(CommonSetParamConnectionEstablishedTime);
     };
@@ -4224,9 +4224,9 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x2
+        GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x3
+        GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x3
         MDRPrefixedString value3; // 0x4
         MDRPrefixedString value4;
 
@@ -4241,9 +4241,9 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x2
+        GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x3
+        GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x3
         MDRPrefixedString value3; // 0x4
         MDRPrefixedString value4;
 
@@ -4647,7 +4647,7 @@ namespace mdr::v2::t1
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         UInt8 adPacketIdentifierStartIndex{}; // 0x2
         UInt8 adPacketIdentifierEndIndex{}; // 0x3
-        MDRPodArray<UInt8> value4; // 0x4
+        MDRPodArray<UInt8> adPacketIdentifier; // 0x4
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad);
     };
@@ -4659,12 +4659,12 @@ namespace mdr::v2::t1
         Command command{Command::LEA_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
-        Int24BE rightAdPacketIdentifierEndIndex{}; // 0x2
-        UInt8 leftAdPacketIdentifierStartIndex{}; // 0x5
-        MDRPodArray<UInt8> leftAdPacketIdentifier; // 0x6
-        UInt8 leftAdPacketIdentifierEndIndex{};
-        UInt8 value3{};
-        MDRPodArray<UInt8> value4;
+        UInt8 leftAdPacketIdentifierStartIndex{}; // 0x2
+        UInt8 leftAdPacketIdentifierEndIndex{}; // 0x3
+        MDRPodArray<UInt8> leftAdPacketIdentifier; // 0x4
+        UInt8 rightAdPacketIdentifierStartIndex{};
+        UInt8 rightAdPacketIdentifierEndIndex{};
+        MDRPodArray<UInt8> rightAdPacketIdentifier;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad);
     };
@@ -5884,8 +5884,8 @@ namespace mdr::v2::t1
         Command command{Command::LOG_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LogInquiredType logInquiredType{LogInquiredType::ACTION_LOG_NOTIFIER}; // 0x1
-        UInt8 secondsAgo{}; // 0x2
-        MDRPrefixedString data; // 0x3
+        Int16BE secondsAgo{}; // 0x2
+        MDRPrefixedString data; // 0x4
 
         MDR_DEFINE_EXTERN_SERIALIZATION(NotifyLogParamSoundDropout);
     };
@@ -8018,7 +8018,7 @@ namespace mdr::v2::t1
         PlayInquiredType type{PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
-        // CODEGEN EnumRange PlaybackControl::PLAY
+        // CODEGEN EnumRange PlaybackControl::PAUSE PlaybackControl::TRACK_UP PlaybackControl::TRACK_DOWN PlaybackControl::PLAY
         PlaybackControl control{PlaybackControl::PLAY}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayStatusPlaybackController);
@@ -9265,8 +9265,8 @@ namespace mdr::v2::t1
         UpdtInquiredType inquiredType{UpdtInquiredType::FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION}; // 0x1
         // CODEGEN EnumRange TandemFotaResult::ERROR_FIRMWARE_TRANSFER_INCOMPLETED
         TandemFotaResult result{TandemFotaResult::ERROR_FIRMWARE_TRANSFER_INCOMPLETED}; // 0x2
-        UInt8 maxPacketSize{}; // 0x3
-        UInt8 offset{}; // 0x4
+        Int32BE maxPacketSize{}; // 0x3
+        Int32BE offset{}; // 0x7
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(UpdtNtfyParamTandemStartTransfer);
     };
@@ -9555,8 +9555,8 @@ namespace mdr::v2::t1
         Command command{Command::UPDT_TRANSFER_DATA}; // 0x0
         // CODEGEN EnumRange UpdtInquiredType::FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION
         UpdtInquiredType type{UpdtInquiredType::FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION}; // 0x1
-        UInt8 offset{}; // 0x2
-        MDRPodArray<UInt8> data; // 0x3
+        Int32BE offset{}; // 0x2
+        MDRPodArray<UInt8> data; // 0x6
 
         MDR_DEFINE_EXTERN_SERIALIZATION(UpdtTransferData);
     };
@@ -9827,10 +9827,10 @@ namespace mdr::v2::t1
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        // CODEGEN Ignore OUT_OF_RANGE is expected
-        GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x2
         // CODEGEN EnumRange GsSettingType::LIST_TYPE
-        GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x3
+        GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
+        GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x3
         MDRPrefixedString value3; // 0x4
         MDRPrefixedString value4;
         MDRArray<GsSettingInfo> elements;

@@ -1243,9 +1243,8 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatus, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData>::Write)(data.safeListeningDatas, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData1>::Write)(data.logDataList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1253,9 +1252,8 @@ namespace mdr::v2::t2 {
     {
         SafeListeningNotifyStatusHbs1 out{};
         MDR_TRY_SIZE(SafeListeningNotifyStatusHbs1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusHbs1, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningNotifyStatusHbs1, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusHbs1, MDRPod::Read(&data, out.logDataStatus, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusHbs1, (MDRPodArray<SafeListeningData>::Read)(&data, out.safeListeningDatas, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusHbs1, (MDRPodArray<SafeListeningData1>::Read)(&data, out.logDataList, maxSize));
         MDR_TRY(SafeListeningNotifyStatusHbs1, Validate(out));
         return MDRResult<SafeListeningNotifyStatusHbs1>::Success(std::move(out));
@@ -1265,9 +1263,8 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatus, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData>::Write)(data.safeListeningDatas, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData2>::Write)(data.logDataList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1275,9 +1272,8 @@ namespace mdr::v2::t2 {
     {
         SafeListeningNotifyStatusHbs2 out{};
         MDR_TRY_SIZE(SafeListeningNotifyStatusHbs2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusHbs2, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningNotifyStatusHbs2, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusHbs2, MDRPod::Read(&data, out.logDataStatus, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusHbs2, (MDRPodArray<SafeListeningData>::Read)(&data, out.safeListeningDatas, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusHbs2, (MDRPodArray<SafeListeningData2>::Read)(&data, out.logDataList, maxSize));
         MDR_TRY(SafeListeningNotifyStatusHbs2, Validate(out));
         return MDRResult<SafeListeningNotifyStatusHbs2>::Success(std::move(out));
@@ -1309,10 +1305,9 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusLeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusRight, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData>::Write)(data.safeListeningDatas, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData1>::Write)(data.logDataList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1320,10 +1315,9 @@ namespace mdr::v2::t2 {
     {
         SafeListeningNotifyStatusTws1 out{};
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, MDRPod::Read(&data, out.logDataStatusLeft, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, MDRPod::Read(&data, out.logDataStatusRight, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, (MDRPodArray<SafeListeningData>::Read)(&data, out.safeListeningDatas, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws1, (MDRPodArray<SafeListeningData1>::Read)(&data, out.logDataList, maxSize));
         MDR_TRY(SafeListeningNotifyStatusTws1, Validate(out));
         return MDRResult<SafeListeningNotifyStatusTws1>::Success(std::move(out));
@@ -1333,10 +1327,9 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusLeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusRight, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData>::Write)(data.safeListeningDatas, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<SafeListeningData2>::Write)(data.logDataList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1344,10 +1337,9 @@ namespace mdr::v2::t2 {
     {
         SafeListeningNotifyStatusTws2 out{};
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, MDRPod::Read(&data, out.logDataStatusLeft, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, MDRPod::Read(&data, out.logDataStatusRight, maxSize));
-        MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, (MDRPodArray<SafeListeningData>::Read)(&data, out.safeListeningDatas, maxSize));
         MDR_TRY_SIZE(SafeListeningNotifyStatusTws2, (MDRPodArray<SafeListeningData2>::Read)(&data, out.logDataList, maxSize));
         MDR_TRY(SafeListeningNotifyStatusTws2, Validate(out));
         return MDRResult<SafeListeningNotifyStatusTws2>::Success(std::move(out));
@@ -1377,9 +1369,8 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatus, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (SafeListeningData::Write)(data.safeListeningData, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (SafeListeningData1::Write)(data.currentData, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1387,9 +1378,8 @@ namespace mdr::v2::t2 {
     {
         SafeListeningRetStatusHbs1 out{};
         MDR_TRY_SIZE(SafeListeningRetStatusHbs1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusHbs1, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningRetStatusHbs1, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusHbs1, MDRPod::Read(&data, out.logDataStatus, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusHbs1, (SafeListeningData::Read)(&data, out.safeListeningData, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusHbs1, (SafeListeningData1::Read)(&data, out.currentData, maxSize));
         MDR_TRY(SafeListeningRetStatusHbs1, Validate(out));
         return MDRResult<SafeListeningRetStatusHbs1>::Success(std::move(out));
@@ -1399,9 +1389,8 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatus, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (SafeListeningData::Write)(data.safeListeningData, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (SafeListeningData2::Write)(data.currentData, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1409,9 +1398,8 @@ namespace mdr::v2::t2 {
     {
         SafeListeningRetStatusHbs2 out{};
         MDR_TRY_SIZE(SafeListeningRetStatusHbs2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusHbs2, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningRetStatusHbs2, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusHbs2, MDRPod::Read(&data, out.logDataStatus, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusHbs2, (SafeListeningData::Read)(&data, out.safeListeningData, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusHbs2, (SafeListeningData2::Read)(&data, out.currentData, maxSize));
         MDR_TRY(SafeListeningRetStatusHbs2, Validate(out));
         return MDRResult<SafeListeningRetStatusHbs2>::Success(std::move(out));
@@ -1445,11 +1433,9 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusLeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusRight, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (SafeListeningData::Write)(data.safeListeningData, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (SafeListeningData::Write)(data.safeListeningData2, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (SafeListeningData1::Write)(data.currentDataLeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (SafeListeningData1::Write)(data.currentDataRight, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -1458,11 +1444,9 @@ namespace mdr::v2::t2 {
     {
         SafeListeningRetStatusTws1 out{};
         MDR_TRY_SIZE(SafeListeningRetStatusTws1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusTws1, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningRetStatusTws1, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws1, MDRPod::Read(&data, out.logDataStatusLeft, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws1, MDRPod::Read(&data, out.logDataStatusRight, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusTws1, (SafeListeningData::Read)(&data, out.safeListeningData, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusTws1, (SafeListeningData::Read)(&data, out.safeListeningData2, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws1, (SafeListeningData1::Read)(&data, out.currentDataLeft, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws1, (SafeListeningData1::Read)(&data, out.currentDataRight, maxSize));
         MDR_TRY(SafeListeningRetStatusTws1, Validate(out));
@@ -1473,11 +1457,9 @@ namespace mdr::v2::t2 {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.safeListeningInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusLeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logDataStatusRight, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (SafeListeningData::Write)(data.safeListeningData, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (SafeListeningData::Write)(data.safeListeningData2, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (SafeListeningData2::Write)(data.currentDataLeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (SafeListeningData2::Write)(data.currentDataRight, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -1486,11 +1468,9 @@ namespace mdr::v2::t2 {
     {
         SafeListeningRetStatusTws2 out{};
         MDR_TRY_SIZE(SafeListeningRetStatusTws2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusTws2, MDRPod::Read(&data, out.safeListeningInquiredType, maxSize));
+        MDR_TRY_SIZE(SafeListeningRetStatusTws2, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws2, MDRPod::Read(&data, out.logDataStatusLeft, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws2, MDRPod::Read(&data, out.logDataStatusRight, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusTws2, (SafeListeningData::Read)(&data, out.safeListeningData, maxSize));
-        MDR_TRY_SIZE(SafeListeningRetStatusTws2, (SafeListeningData::Read)(&data, out.safeListeningData2, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws2, (SafeListeningData2::Read)(&data, out.currentDataLeft, maxSize));
         MDR_TRY_SIZE(SafeListeningRetStatusTws2, (SafeListeningData2::Read)(&data, out.currentDataRight, maxSize));
         MDR_TRY(SafeListeningRetStatusTws2, Validate(out));
@@ -1586,13 +1566,13 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_ServiceInformation>::Write)(data.serviceInformationList, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.requiredTime, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.categoryId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.serialNumber, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.threshold, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.thresholdForInterrupt, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.uniqueId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRArray<SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_ServiceInformation>::Write)(data.serviceInformationList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch> SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch::Deserialize(const UInt8* data, size_t maxSize)
@@ -1600,13 +1580,13 @@ namespace mdr::v2::t2 {
         SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch out{};
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, (MDRArray<SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_ServiceInformation>::Read)(&data, out.serviceInformationList, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, MDRPod::Read(&data, out.requiredTime, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, (MDRPrefixedString::Read)(&data, out.categoryId, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, (MDRPrefixedString::Read)(&data, out.serialNumber, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, MDRPod::Read(&data, out.threshold, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, MDRPod::Read(&data, out.thresholdForInterrupt, maxSize));
         MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, (MDRPrefixedString::Read)(&data, out.uniqueId, maxSize));
+        MDR_TRY_SIZE(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, (MDRArray<SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_ServiceInformation>::Read)(&data, out.serviceInformationList, maxSize));
         MDR_TRY(SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch, Validate(out));
         return MDRResult<SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch>::Success(std::move(out));
     }
@@ -1616,13 +1596,13 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch_ServiceInformation>::Write)(data.serviceInformationList, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.requiredTime, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.categoryId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.serialNumber, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.threshold, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.thresholdForInterrupt, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.uniqueId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRArray<VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch_ServiceInformation>::Write)(data.serviceInformationList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch> VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch::Deserialize(const UInt8* data, size_t maxSize)
@@ -1630,13 +1610,13 @@ namespace mdr::v2::t2 {
         VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch out{};
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, (MDRArray<VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch_ServiceInformation>::Read)(&data, out.serviceInformationList, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, MDRPod::Read(&data, out.requiredTime, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, (MDRPrefixedString::Read)(&data, out.categoryId, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, (MDRPrefixedString::Read)(&data, out.serialNumber, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, MDRPod::Read(&data, out.threshold, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, MDRPod::Read(&data, out.thresholdForInterrupt, maxSize));
         MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, (MDRPrefixedString::Read)(&data, out.uniqueId, maxSize));
+        MDR_TRY_SIZE(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, (MDRArray<VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch_ServiceInformation>::Read)(&data, out.serviceInformationList, maxSize));
         MDR_TRY(VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch, Validate(out));
         return MDRResult<VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch>::Success(std::move(out));
     }

@@ -141,6 +141,10 @@ add_subdirectory(client)
 include(CTest)
 if (BUILD_TESTING)
     add_subdirectory(tests)
+    add_test(
+        NAME mdr-c-abi
+        COMMAND mdr_abi_tests
+    )
 
     file(
         GLOB replay_test_entries
@@ -157,7 +161,7 @@ if (BUILD_TESTING)
             )
             add_test(
                 NAME "${replay_test_name}"
-                COMMAND mdr_tests "${replay_test_entry}"
+                COMMAND mdr_replay_tests "${replay_test_entry}"
             )
         endif()
     endforeach()

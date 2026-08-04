@@ -1,4 +1,3 @@
-#include <mdr/Headphones.hpp>
 #include <algorithm>
 #include "Details.hpp"
 namespace mdr

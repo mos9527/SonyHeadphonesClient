@@ -385,6 +385,9 @@ class ProtocolExtractor:
         }
         if len(ranges) == 1:
             return next(iter(ranges))
+        helper_span = self._integer_helper_span(text)
+        if helper_span is not None:
+            return helper_span
         constants = {
             name: int(value, 0)
             for name, value in re.findall(
@@ -415,6 +418,66 @@ class ProtocolExtractor:
         if ordered != list(range(ordered[0], ordered[-1] + 1)):
             return None
         return ordered[0], len(ordered)
+
+    def _integer_helper_span(
+        self, text: str, depth: int = 2
+    ) -> tuple[int, int] | None:
+        if depth < 0:
+            return None
+        calls = re.findall(
+            r"\b(sub_[0-9A-Fa-f]+)\s*\(([^;\r\n]*)\)", text
+        )
+        spans: set[tuple[int, int]] = set()
+        for symbol, arguments in calls:
+            address = ida_name.get_name_ea(idaapi.BADADDR, symbol)
+            if address == idaapi.BADADDR or ida_funcs.get_func(address) is None:
+                continue
+            callee = self._decompile_text(
+                MethodSymbol(address, "", "", symbol, symbol)
+            )
+            widths = {
+                int(value, 0)
+                for value in re.findall(
+                    r">=\s*[A-Za-z_][A-Za-z0-9_]*\s*\+\s*"
+                    r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*",
+                    callee,
+                )
+                if 1 <= int(value, 0) <= 8
+            }
+            offsets = re.findall(
+                r",\s*(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*$",
+                arguments,
+            )
+            if len(widths) == 1 and len(offsets) == 1:
+                spans.add((int(offsets[0], 0), next(iter(widths))))
+                continue
+            nested = self._integer_helper_span(callee, depth - 1)
+            if nested is not None:
+                spans.add(nested)
+        return next(iter(spans)) if len(spans) == 1 else None
+
+    def _static_getter_span(
+        self, class_name: str, getter: JavaMethod
+    ) -> tuple[int, int] | None:
+        field_name = self._getter_field_name(getter)
+        suffix = "_".join(self._camel_tokens(field_name))
+        constants = {
+            constant.name: constant
+            for constant in self.database.static_integer_constants(class_name)
+        }
+        index = constants.get(f"INDEX_{suffix}")
+        size = constants.get(f"BYTE_SIZE_{suffix}")
+        if index is not None and size is not None:
+            return index.value, size.value
+        return None
+
+    def _getter_span(
+        self, class_name: str, getter: JavaMethod
+    ) -> tuple[int, int] | None:
+        return (
+            self._static_getter_span(class_name, getter)
+            or self._getter_byte_span(getter)
+        )
 
     def _fixed_count_from_getter(self, getter: JavaMethod) -> int | None:
         text = self._decompile_text(getter)
@@ -942,6 +1005,17 @@ class ProtocolExtractor:
                     ),
                     None,
                 )
+                covariant_match = next(
+                    (
+                        index
+                        for index, field in enumerate(fields)
+                        if index not in matched
+                        and cls._covariant_cpp_type(
+                            base_field.cpp_type, field.cpp_type
+                        )
+                    ),
+                    None,
+                )
                 source_match = next(
                     (
                         index
@@ -964,12 +1038,21 @@ class ProtocolExtractor:
                 existing = (
                     named_match
                     if named_match is not None
+                    else covariant_match
+                    if covariant_match is not None
                     else source_match
                     if source_match is not None
                     else type_match
                 )
                 if existing is not None:
                     field = fields[existing]
+                    if (
+                        covariant_match is not None
+                        and existing == covariant_match
+                        and named_match is None
+                    ):
+                        matched.add(existing)
+                        continue
                     preserve_discriminator = (
                         field.name == base_field.name
                         and field.name in ("type", "dataType")
@@ -1030,7 +1113,91 @@ class ProtocolExtractor:
                     ),
                 )
             )
-        return output
+        return [
+            cls._normalize_safe_listening_variant(
+                cls._name_battery_threshold_fields(payload)
+            )
+            for payload in output
+        ]
+
+    @staticmethod
+    def _covariant_cpp_type(base: str, derived: str) -> bool:
+        if base == derived:
+            return False
+        for wrapper in ("MDRArray", "MDRPodArray"):
+            prefix = f"{wrapper}<"
+            if base.startswith(prefix) and derived.startswith(prefix):
+                base_inner = base[len(prefix) : -1]
+                derived_inner = derived[len(prefix) : -1]
+                return derived_inner.startswith(base_inner)
+        return derived.startswith(base)
+
+    @staticmethod
+    def _normalize_safe_listening_variant(
+        payload: PayloadDecl,
+    ) -> PayloadDecl:
+        if not payload.cpp_name.startswith("SafeListening"):
+            return payload
+        discriminator = next(
+            (
+                (suffix, member)
+                for suffix, member in (
+                    ("Hbs1", "SAFE_LISTENING_HBS_1"),
+                    ("Hbs2", "SAFE_LISTENING_HBS_2"),
+                    ("Tws1", "SAFE_LISTENING_TWS_1"),
+                    ("Tws2", "SAFE_LISTENING_TWS_2"),
+                )
+                if payload.cpp_name.endswith(suffix)
+            ),
+            None,
+        )
+        fields = [
+            replace(
+                field,
+                name="inquiredType",
+                default=(
+                    f"SafeListeningInquiredType::{discriminator[1]}"
+                    if discriminator is not None
+                    else field.default
+                ),
+            )
+            if field.cpp_type == "SafeListeningInquiredType"
+            else field
+            for field in payload.fields
+        ]
+        return replace(payload, fields=tuple(fields))
+
+    @staticmethod
+    def _name_battery_threshold_fields(
+        payload: PayloadDecl,
+    ) -> PayloadDecl:
+        if "BatteryThreshold" not in payload.cpp_name:
+            return payload
+        numeric = [
+            index
+            for index, field in enumerate(payload.fields)
+            if field.cpp_type == "UInt8"
+        ]
+        expected = (
+            (
+                "leftBatteryLevel",
+                "rightBatteryLevel",
+                "leftBatteryThreshold",
+                "rightBatteryThreshold",
+            )
+            if "LeftRight" in payload.cpp_name
+            else (
+                ("batteryLevel", "batteryThreshold")
+                if payload.cpp_name.endswith("Base")
+                else ("value1", "batteryThreshold")
+            )
+        )
+        if len(numeric) != len(expected):
+            return payload
+        fields = list(payload.fields)
+        for index, name in zip(numeric, expected):
+            fields[index] = replace(fields[index], name=name)
+        return replace(payload, fields=tuple(fields))
 
     @staticmethod
     def _descriptor_identity(descriptor: str | None) -> str | None:
@@ -1273,7 +1440,13 @@ class ProtocolExtractor:
         }
         output: list[PayloadDecl] = []
         for payload in payloads:
-            name_tokens = set(cls._camel_tokens(payload.cpp_name))
+            name_tokens = set(cls._camel_tokens(payload.cpp_name)) - {
+                "GET",
+                "RET",
+                "SET",
+                "NTFY",
+                "NOTIFY",
+            }
             inherited_layout = any(
                 evidence.startswith("inherited wire layout from ")
                 for evidence in payload.evidence
@@ -1344,11 +1517,20 @@ class ProtocolExtractor:
                         continue
                 member = next(iter(members))
                 default = f"{field.cpp_type}::{member}"
+                semantic_rules = field.semantic_rules
+                if not semantic_rules or all(
+                    rule.startswith("EnumRange ")
+                    and rule.endswith(
+                        ("::NO_USE", "::OUT_OF_RANGE", "::UNKNOWN")
+                    )
+                    for rule in semantic_rules
+                ):
+                    semantic_rules = (f"EnumRange {default}",)
                 fields.append(
                     replace(
                         field,
                         default=default,
-                        semantic_rules=(f"EnumRange {default}",),
+                        semantic_rules=semantic_rules,
                     )
                 )
             output.append(replace(payload, fields=tuple(fields)))
@@ -1984,6 +2166,13 @@ class ProtocolExtractor:
                 class_name, selector_prefix="getCommandStream"
             )
         )
+        inferred_command = (
+            self._infer_command(
+                simple_name, metadata.package_name, command_enum
+            )
+            if has_command_stream or factory_methods
+            else None
+        )
         getter_methods = self._payload_getters(metadata)
         raw_fields: list[FieldDecl] = []
         used_names: set[str] = set()
@@ -1991,6 +2180,7 @@ class ProtocolExtractor:
         field_evidence: list[str] = []
         dynamic_seen = False
         offset = 0
+        wire_prefix = 1 if inferred_command is not None else 0
         serializer_text = (
             self._decompile_text(serializer_method)
             if serializer_method is not None
@@ -2037,8 +2227,11 @@ class ProtocolExtractor:
                 getter_methods,
                 descriptor,
                 generic,
-                expected_offsets=(
-                    range(offset, offset + 4) if not dynamic_seen else None
+                class_name=class_name,
+                expected_offset=(
+                    offset + wire_prefix
+                    if not dynamic_seen
+                    else None
                 ),
             )
             name = (
@@ -2050,7 +2243,31 @@ class ProtocolExtractor:
             )
             name = self._unique_name(name, used_names)
             if getter is not None:
-                span = self._getter_byte_span(getter)
+                span = (
+                    self._getter_span(class_name, getter)
+                )
+                expected_offset = (
+                    offset + wire_prefix
+                    if not dynamic_seen
+                    else None
+                )
+                if (
+                    span is not None
+                    and expected_offset is not None
+                    and span[0] > expected_offset
+                    and span[0] - expected_offset <= 2
+                    and not getter_offsets
+                ):
+                    wire_prefix = span[0] - offset
+                    expected_offset = span[0]
+                if (
+                    span is not None
+                    and (
+                        expected_offset is None
+                        or span[0] != expected_offset
+                    )
+                ):
+                    span = None
                 if span is not None:
                     getter_offsets[name] = span[0]
                     field_evidence.append(
@@ -2153,6 +2370,13 @@ class ProtocolExtractor:
                     else (),
                 )
             )
+        serializer_order = self._serializer_parameter_order(
+            serializer_method, len(raw_fields)
+        )
+        if serializer_order is not None:
+            raw_fields = self._recalculate_offsets(
+                [raw_fields[index] for index in serializer_order]
+            )
         descriptor_field_count = len(raw_fields)
 
         implicit_type_getters = [
@@ -2214,7 +2438,7 @@ class ProtocolExtractor:
                     semantic_rules=rules,
                 ),
             )
-            span = self._getter_byte_span(getter)
+            span = self._getter_span(class_name, getter)
             if span is not None:
                 getter_offsets[
                     "type"
@@ -2306,7 +2530,7 @@ class ProtocolExtractor:
                 name = self._unique_name(
                     self._getter_field_name(getter), used_names
                 )
-                span = self._getter_byte_span(getter)
+                span = self._getter_span(class_name, getter)
                 if span is not None:
                     getter_offsets[name] = span[0]
                     field_evidence.append(
@@ -2410,13 +2634,14 @@ class ProtocolExtractor:
                         and lowered.endswith("deviceaddress")
                     ):
                         lengths = {
-                            int(value)
+                            int(value, 0)
                             for value in re.findall(
                                 r"\bsub_[0-9A-Fa-f]+\("
-                                r"[^,\n]+,\s*[^,\n]+,\s*(\d+)\s*\)",
+                                r"[^,\n]+,\s*[^,\n]+,\s*"
+                                r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*\)",
                                 external_text,
                             )
-                            if 8 <= int(value) <= 64
+                            if 8 <= int(value, 0) <= 64
                         }
                         if len(lengths) != 1:
                             raise ExtractionError(
@@ -2477,11 +2702,7 @@ class ProtocolExtractor:
                     ordered_fields.append(field)
                 raw_fields = self._recalculate_offsets(ordered_fields)
 
-        command = None
-        if has_command_stream or factory_methods:
-            command = self._infer_command(
-                simple_name, metadata.package_name, command_enum
-            )
+        command = inferred_command
         if (
             command is None
             and has_command_stream
@@ -2497,7 +2718,7 @@ class ProtocolExtractor:
             if command is not None
             else "field_helper"
         )
-        if len(getter_offsets) >= 2:
+        if serializer_method is None and len(getter_offsets) >= 2:
             original_order = {
                 field.name: index for index, field in enumerate(raw_fields)
             }
@@ -2547,6 +2768,9 @@ class ProtocolExtractor:
                 for field in raw_fields
             ]
         fields.extend(raw_fields)
+        fields = self._apply_parser_enum_rules(
+            parser_methods, fields, references
+        )
 
         serialization = (
             "trivial"
@@ -2958,24 +3182,11 @@ class ProtocolExtractor:
                     reverse=True,
                 )
                 return (ranked[0],)
-        abstract_names = _POLYMORPHIC_INTERFACES
-        concrete = [
-            method
-            for method in constructors
-            if not any(
-                descriptor.startswith("L")
-                and self._descriptor_simple_name(descriptor) in abstract_names
-                for descriptor in parse_descriptors(
-                    method.parameter_types or ""
-                )
-            )
-        ]
-        if concrete:
-            return tuple(sorted(concrete, key=lambda method: method.selector))
-        try:
-            return tuple(self._select_constructor(constructors))
-        except ExtractionError:
-            return tuple(sorted(constructors, key=lambda method: method.selector))
+        # Command-stream overloads describe distinct wire variants. Keep both
+        # concrete helpers and abstract ChildPayload constructors so the later
+        # polymorphic expansion and structural deduplication passes can see the
+        # complete variant set.
+        return tuple(sorted(constructors, key=lambda method: method.selector))
 
     @staticmethod
     def _select_value_method(
@@ -3033,7 +3244,8 @@ class ProtocolExtractor:
         descriptor: str,
         generic: str | None,
         *,
-        expected_offsets: range | None = None,
+        class_name: str,
+        expected_offset: int | None,
     ) -> JavaMethod | None:
         exact = [
             method
@@ -3052,28 +3264,27 @@ class ProtocolExtractor:
         ]
         if not candidates:
             return None
-        if expected_offsets is not None:
-            spanned = [
-                (method, span)
+        candidates.sort(key=lambda method: method.source_address)
+        if expected_offset is not None:
+            positional = [
+                method
                 for method in candidates
-                if (span := self._getter_byte_span(method)) is not None
+                if (
+                    span := self._getter_span(class_name, method)
+                ) is not None
+                and span[0] == expected_offset
             ]
-            if spanned:
-                positional = [
-                    (method, span[0])
-                    for method, span in spanned
-                    if span[0] in expected_offsets
-                ]
-                if positional:
-                    earliest = min(offset for _, offset in positional)
-                    positional = [
-                        method
-                        for method, offset in positional
-                        if offset == earliest
-                    ]
-                if not positional:
-                    return None
-                candidates = positional[:1]
+            if positional:
+                candidates = positional
+            elif all(
+                self._getter_span(class_name, method) is not None
+                for method in candidates
+            ):
+                candidates.sort(
+                    key=lambda method: (
+                        self._getter_span(class_name, method) or (1 << 30, 0)
+                    )[0]
+                )
         getter = candidates[0]
         getters.remove(getter)
         return getter
@@ -3104,16 +3315,17 @@ class ProtocolExtractor:
             alias_pattern = "(?:" + "|".join(
                 re.escape(alias) for alias in sorted(aliases)
             ) + ")"
+            number = r"-?(?:0x[0-9A-Fa-f]+|\d+)[uUlL]*"
             lower = {
-                int(value)
+                int(value.rstrip("uUlL"), 0)
                 for value in re.findall(
-                    rf"\b{alias_pattern}\s*<\s*(-?\d+)", text
+                    rf"\b{alias_pattern}\s*<\s*({number})", text
                 )
             }
             upper = {
-                int(value)
+                int(value.rstrip("uUlL"), 0)
                 for value in re.findall(
-                    rf"\b{alias_pattern}\s*>\s*(-?\d+)", text
+                    rf"\b{alias_pattern}\s*>\s*({number})", text
                 )
             }
             if len(lower) == 1 and len(upper) == 1:
@@ -3121,6 +3333,194 @@ class ProtocolExtractor:
                 maximum = next(iter(upper))
                 if minimum <= maximum:
                     output[index] = (minimum, maximum)
+        return output
+
+    def _serializer_parameter_order(
+        self,
+        serializer: MethodSymbol | None,
+        parameter_count: int,
+    ) -> tuple[int, ...] | None:
+        if serializer is None or parameter_count < 2:
+            return None
+        text = self._decompile_text(serializer)
+        anchor = text.rfind("toStreamWith")
+        if anchor < 0:
+            return None
+        body = text[anchor:]
+        assignments = re.findall(
+            r"\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+            r"([A-Za-z_][A-Za-z0-9_]*)\s*;",
+            text,
+        )
+        positions: list[tuple[int, int]] = []
+        for index in range(parameter_count):
+            aliases = {f"a{index + 3}"}
+            changed = True
+            while changed:
+                changed = False
+                for target, source in assignments:
+                    if source in aliases and target not in aliases:
+                        aliases.add(target)
+                        changed = True
+            occurrences = [
+                match.start()
+                for alias in aliases
+                if (
+                    match := re.search(
+                        rf"\b{re.escape(alias)}\b", body
+                    )
+                )
+                is not None
+            ]
+            if not occurrences:
+                return None
+            positions.append((min(occurrences), index))
+        if len({position for position, _ in positions}) != parameter_count:
+            return None
+        return tuple(index for _, index in sorted(positions))
+
+    @staticmethod
+    def _valid_ordinals_from_invalid_condition(
+        variable: str, condition: str
+    ) -> tuple[int, ...]:
+        """Invert simple parser rejection guards expressed in enum ordinals."""
+        number = r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*"
+        escaped = re.escape(variable)
+        range_match = re.search(
+            rf"\b{escaped}\s*-\s*{number}\s*>\s*{number}\b",
+            condition,
+        )
+        if range_match is not None and "&&" in condition:
+            minimum = int(range_match.group(1), 0)
+            width = int(range_match.group(2), 0)
+            valid = set(range(minimum, minimum + width + 1))
+            valid.update(
+                int(value, 0)
+                for value in re.findall(
+                    rf"\b{escaped}\s*!=\s*{number}", condition
+                )
+            )
+            return tuple(sorted(valid))
+
+        exact_match = re.fullmatch(
+            rf"\s*{escaped}\s*!=\s*{number}\s*", condition
+        )
+        if exact_match is not None:
+            return (int(exact_match.group(1), 0),)
+        return ()
+
+    def _apply_parser_enum_rules(
+        self,
+        parsers: list[JavaMethod],
+        fields: list[FieldDecl],
+        references: set[str],
+    ) -> list[FieldDecl]:
+        """Map parser ordinal checks back to source-order enum members."""
+        enums_by_cpp: dict[str, EnumDecl] = {}
+        lookup_helpers_by_cpp: dict[str, set[str]] = {}
+        for reference in references:
+            if not self.is_wire_enum(reference):
+                continue
+            enum = self.extract_enum(reference)
+            enums_by_cpp[enum.cpp_name] = enum
+            lookup_helpers: set[str] = set()
+            for method in self.database.find_methods(
+                reference, selector_prefix="fromByteCode", kind="+"
+            ):
+                lookup_helpers.update(
+                    re.findall(
+                        r"\breturn\s+(sub_[0-9A-Fa-f]+)\s*\(",
+                        self._decompile_text(method),
+                    )
+                )
+            lookup_helpers_by_cpp[enum.cpp_name] = lookup_helpers
+
+        accepted_by_lookup: dict[tuple[int, str], tuple[int, ...]] = {}
+        assignment = re.compile(
+            r"\b(?P<variable>v\d+)\s*=\s*objc_msgSend\("
+            r"(?P<expression>[^;\r\n]+),\s*\"ordinal\"\s*\)"
+        )
+        for parser in parsers:
+            if parser.java_name != "parseBytes":
+                continue
+            text = self._decompile_text(parser)
+            for match in assignment.finditer(text):
+                offsets = re.findall(
+                    r"\+\s*(\d+)\s*\)", match.group("expression")
+                )
+                if not offsets:
+                    continue
+                offset = int(offsets[-1])
+                lookup_helpers = re.findall(
+                    r"\b(sub_[0-9A-Fa-f]+)\s*\(",
+                    match.group("expression"),
+                )
+                if len(lookup_helpers) != 1:
+                    continue
+                lookup_helper = lookup_helpers[0]
+                variable = match.group("variable")
+                guards = re.finditer(
+                    rf"if\s*\(\s*([^\r\n]*\b{re.escape(variable)}"
+                    rf"\b[^\r\n]*)\s*\)",
+                    text[match.end() :],
+                )
+                for guard in guards:
+                    tail = text[
+                        match.end() + guard.end() :
+                        match.end() + guard.end() + 512
+                    ]
+                    if (
+                        "wrong" not in tail
+                        and "objc_exception_throw" not in tail
+                    ):
+                        continue
+                    ordinals = self._valid_ordinals_from_invalid_condition(
+                        variable, guard.group(1)
+                    )
+                    if ordinals:
+                        accepted_by_lookup[
+                            (offset, lookup_helper)
+                        ] = ordinals
+                        break
+
+        output: list[FieldDecl] = []
+        for field in fields:
+            if (
+                field.name in ("type", "dataType", "inquiredType")
+                or field.name.endswith("Type")
+                or field.cpp_type.endswith("InquiredType")
+            ):
+                output.append(field)
+                continue
+            enum = enums_by_cpp.get(field.cpp_type)
+            matching_rules = {
+                ordinals
+                for helper in lookup_helpers_by_cpp.get(
+                    field.cpp_type, set()
+                )
+                if field.offset is not None
+                and (
+                    ordinals := accepted_by_lookup.get(
+                        (field.offset, helper)
+                    )
+                )
+            }
+            ordinals = (
+                next(iter(matching_rules))
+                if len(matching_rules) == 1
+                else None
+            )
+            if enum is None or not ordinals:
+                output.append(field)
+                continue
+            if any(ordinal >= len(enum.values) for ordinal in ordinals):
+                output.append(field)
+                continue
+            members = tuple(enum.values[ordinal].name for ordinal in ordinals)
+            rule = "EnumRange " + " ".join(
+                f"{field.cpp_type}::{member}" for member in members
+            )
+            output.append(replace(field, semantic_rules=(rule,)))
         return output
 
     @staticmethod

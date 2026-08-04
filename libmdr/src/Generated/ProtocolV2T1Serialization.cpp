@@ -1204,8 +1204,8 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.gsStringFormat, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.gsStringFormat, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.value3, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.value4, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -1215,8 +1215,8 @@ namespace mdr::v2::t1 {
         GsRetCapability out{};
         MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.gsStringFormat, maxSize));
         MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(GsRetCapability, MDRPod::Read(&data, out.gsStringFormat, maxSize));
         MDR_TRY_SIZE(GsRetCapability, (MDRPrefixedString::Read)(&data, out.value3, maxSize));
         MDR_TRY_SIZE(GsRetCapability, (MDRPrefixedString::Read)(&data, out.value4, maxSize));
         MDR_TRY(GsRetCapability, Validate(out));
@@ -1228,8 +1228,8 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.gsStringFormat, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.gsStringFormat, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.value3, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.value4, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -1239,8 +1239,8 @@ namespace mdr::v2::t1 {
         GsRetCapabilityBoolean out{};
         MDR_TRY_SIZE(GsRetCapabilityBoolean, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityBoolean, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(GsRetCapabilityBoolean, MDRPod::Read(&data, out.gsStringFormat, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityBoolean, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(GsRetCapabilityBoolean, MDRPod::Read(&data, out.gsStringFormat, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityBoolean, (MDRPrefixedString::Read)(&data, out.value3, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityBoolean, (MDRPrefixedString::Read)(&data, out.value4, maxSize));
         MDR_TRY(GsRetCapabilityBoolean, Validate(out));
@@ -1376,7 +1376,7 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.adPacketIdentifierStartIndex, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.adPacketIdentifierEndIndex, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.value4, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.adPacketIdentifier, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad> LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad::Deserialize(const UInt8* data, size_t maxSize)
@@ -1386,7 +1386,7 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.adPacketIdentifierStartIndex, maxSize));
         MDR_TRY_SIZE(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.adPacketIdentifierEndIndex, maxSize));
-        MDR_TRY_SIZE(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad, (MDRPodArray<UInt8>::Read)(&data, out.value4, maxSize));
+        MDR_TRY_SIZE(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad, (MDRPodArray<UInt8>::Read)(&data, out.adPacketIdentifier, maxSize));
         MDR_TRY(LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad, Validate(out));
         return MDRResult<LEARetExtParamHbsSupportsA2dpLeaUniLeaBroad>::Success(std::move(out));
     }
@@ -1396,12 +1396,12 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightAdPacketIdentifierEndIndex, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftAdPacketIdentifierStartIndex, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.leftAdPacketIdentifier, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftAdPacketIdentifierEndIndex, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.value3, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.value4, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.leftAdPacketIdentifier, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightAdPacketIdentifierStartIndex, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightAdPacketIdentifierEndIndex, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.rightAdPacketIdentifier, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad> LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad::Deserialize(const UInt8* data, size_t maxSize)
@@ -1409,12 +1409,12 @@ namespace mdr::v2::t1 {
         LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad out{};
         MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.rightAdPacketIdentifierEndIndex, maxSize));
         MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.leftAdPacketIdentifierStartIndex, maxSize));
-        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, (MDRPodArray<UInt8>::Read)(&data, out.leftAdPacketIdentifier, maxSize));
         MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.leftAdPacketIdentifierEndIndex, maxSize));
-        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.value3, maxSize));
-        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, (MDRPodArray<UInt8>::Read)(&data, out.value4, maxSize));
+        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, (MDRPodArray<UInt8>::Read)(&data, out.leftAdPacketIdentifier, maxSize));
+        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.rightAdPacketIdentifierStartIndex, maxSize));
+        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.rightAdPacketIdentifierEndIndex, maxSize));
+        MDR_TRY_SIZE(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, (MDRPodArray<UInt8>::Read)(&data, out.rightAdPacketIdentifier, maxSize));
         MDR_TRY(LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad, Validate(out));
         return MDRResult<LEARetExtParamTwsSupportsA2dpLeaUniLeaBroad>::Success(std::move(out));
     }
@@ -2674,8 +2674,8 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.gsStringFormat, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.gsStringFormat, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.value3, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.value4, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRArray<GsSettingInfo>::Write)(data.elements, &ptr, maxSize));
@@ -2686,8 +2686,8 @@ namespace mdr::v2::t1 {
         GsRetCapabilityList out{};
         MDR_TRY_SIZE(GsRetCapabilityList, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityList, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(GsRetCapabilityList, MDRPod::Read(&data, out.gsStringFormat, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityList, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(GsRetCapabilityList, MDRPod::Read(&data, out.gsStringFormat, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityList, (MDRPrefixedString::Read)(&data, out.value3, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityList, (MDRPrefixedString::Read)(&data, out.value4, maxSize));
         MDR_TRY_SIZE(GsRetCapabilityList, (MDRArray<GsSettingInfo>::Read)(&data, out.elements, maxSize));

@@ -1,0 +1,980 @@
+#include <mdr-c/Headphones.h>
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+_Static_assert(sizeof(MDRResult) == sizeof(int32_t), "MDRResult must be fixed-width");
+_Static_assert(sizeof(MDRBoolean) == sizeof(uint8_t), "MDRBoolean must be fixed-width");
+_Static_assert(sizeof(MDRStateView) == sizeof(uint8_t), "MDRStateView must be fixed-width");
+_Static_assert(
+    sizeof(MDRFeatureAvailability) == sizeof(uint8_t),
+    "MDRFeatureAvailability must be fixed-width"
+);
+_Static_assert(sizeof(MDRDomain) == sizeof(uint16_t), "MDRDomain must be fixed-width");
+_Static_assert(sizeof(MDRFeature) == sizeof(uint32_t), "MDRFeature must be fixed-width");
+_Static_assert(sizeof(MDROperation) == sizeof(uint8_t), "MDROperation must be fixed-width");
+_Static_assert(sizeof(MDREventType) == sizeof(uint8_t), "MDREventType must be fixed-width");
+_Static_assert(
+    sizeof(MDRPacketDirection) == sizeof(int32_t),
+    "MDRPacketDirection must be fixed-width"
+);
+
+#define MDR_ASSERT_C_STRUCT(type) \
+    _Static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
+MDR_ASSERT_C_STRUCT(MDRHeadphonesStatus);
+MDR_ASSERT_C_STRUCT(MDREvent);
+MDR_ASSERT_C_STRUCT(MDRIdentity);
+MDR_ASSERT_C_STRUCT(MDRBattery);
+MDR_ASSERT_C_STRUCT(MDRPlayback);
+MDR_ASSERT_C_STRUCT(MDRPlaybackCommand);
+MDR_ASSERT_C_STRUCT(MDRNoiseControl);
+MDR_ASSERT_C_STRUCT(MDRSpeakToChat);
+MDR_ASSERT_C_STRUCT(MDRListening);
+MDR_ASSERT_C_STRUCT(MDREqualizer);
+MDR_ASSERT_C_STRUCT(MDRPairedDevice);
+MDR_ASSERT_C_STRUCT(MDRPairedDeviceAction);
+MDR_ASSERT_C_STRUCT(MDRPairing);
+MDR_ASSERT_C_STRUCT(MDRGeneralSettingInfo);
+MDR_ASSERT_C_STRUCT(MDRGeneralSetting);
+MDR_ASSERT_C_STRUCT(MDRAssignableControls);
+MDR_ASSERT_C_STRUCT(MDRPower);
+MDR_ASSERT_C_STRUCT(MDRVoiceGuidance);
+MDR_ASSERT_C_STRUCT(MDRConnectionMode);
+MDR_ASSERT_C_STRUCT(MDRSafeListening);
+#undef MDR_ASSERT_C_STRUCT
+
+enum
+{
+    MOCK_BUFFER_CAPACITY = 4096,
+    FRAME_BUFFER_CAPACITY = 64,
+    MDR_DATA_TYPE_ACK = 1,
+    MDR_DATA_TYPE_DATA_MDR = 12
+};
+
+typedef struct MockTransport
+{
+    unsigned char rx[MOCK_BUFFER_CAPACITY];
+    size_t rx_size;
+    size_t rx_offset;
+    unsigned char tx[MOCK_BUFFER_CAPACITY];
+    size_t tx_size;
+    MDRConnection connection;
+} MockTransport;
+
+typedef struct Session
+{
+    MockTransport transport;
+    MDRHeadphones* headphones;
+} Session;
+
+static int g_failures;
+
+static void check(int condition, const char* message)
+{
+    if (condition)
+        return;
+    fprintf(stderr, "FAIL: %s\n", message);
+    ++g_failures;
+}
+
+static void check_result(MDRResult actual, MDRResult expected, const char* message)
+{
+    if (actual == expected)
+        return;
+    fprintf(
+        stderr,
+        "FAIL: %s (expected %ld, got %ld)\n",
+        message,
+        (long)expected,
+        (long)actual
+    );
+    ++g_failures;
+}
+
+static int mock_connect(void* user, const char* address, const char* service)
+{
+    (void)user;
+    (void)address;
+    (void)service;
+    return MDR_RESULT_OK;
+}
+
+static void mock_disconnect(void* user)
+{
+    (void)user;
+}
+
+static int mock_receive(void* user, char* destination, int size, int* received)
+{
+    MockTransport* transport = (MockTransport*)user;
+    size_t remaining;
+    size_t count;
+
+    *received = 0;
+    if (transport->rx_offset == transport->rx_size)
+        return MDR_RESULT_INPROGRESS;
+
+    remaining = transport->rx_size - transport->rx_offset;
+    count = (size_t)size < remaining ? (size_t)size : remaining;
+    memcpy(destination, transport->rx + transport->rx_offset, count);
+    transport->rx_offset += count;
+    *received = (int)count;
+    return MDR_RESULT_OK;
+}
+
+static int mock_send(void* user, const char* source, int size, int* sent)
+{
+    MockTransport* transport = (MockTransport*)user;
+    size_t count = (size_t)size;
+
+    if (count > MOCK_BUFFER_CAPACITY - transport->tx_size)
+        return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
+    memcpy(transport->tx + transport->tx_size, source, count);
+    transport->tx_size += count;
+    *sent = size;
+    return MDR_RESULT_OK;
+}
+
+static int mock_poll(void* user, int timeout)
+{
+    (void)user;
+    (void)timeout;
+    return MDR_RESULT_OK;
+}
+
+static int mock_get_devices(void* user, MDRDeviceInfo** devices, int* count)
+{
+    (void)user;
+    *devices = NULL;
+    *count = 0;
+    return MDR_RESULT_OK;
+}
+
+static int mock_free_devices(void* user, MDRDeviceInfo** devices)
+{
+    (void)user;
+    *devices = NULL;
+    return MDR_RESULT_OK;
+}
+
+static const char* mock_get_last_error(void* user)
+{
+    (void)user;
+    return "mock transport";
+}
+
+static void mock_init(MockTransport* transport)
+{
+    memset(transport, 0, sizeof(*transport));
+    transport->connection.user = transport;
+    transport->connection.connect = mock_connect;
+    transport->connection.disconnect = mock_disconnect;
+    transport->connection.recv = mock_receive;
+    transport->connection.send = mock_send;
+    transport->connection.poll = mock_poll;
+    transport->connection.getDevicesList = mock_get_devices;
+    transport->connection.freeDevicesList = mock_free_devices;
+    transport->connection.getLastError = mock_get_last_error;
+}
+
+static void mock_load(MockTransport* transport, const unsigned char* data, size_t size)
+{
+    check(size <= MOCK_BUFFER_CAPACITY, "mock input fits");
+    if (size > MOCK_BUFFER_CAPACITY)
+        return;
+    memcpy(transport->rx, data, size);
+    transport->rx_size = size;
+    transport->rx_offset = 0;
+}
+
+static void mock_append(MockTransport* transport, const unsigned char* data, size_t size)
+{
+    check(size <= MOCK_BUFFER_CAPACITY - transport->rx_size, "appended mock input fits");
+    if (size > MOCK_BUFFER_CAPACITY - transport->rx_size)
+        return;
+    memcpy(transport->rx + transport->rx_size, data, size);
+    transport->rx_size += size;
+}
+
+static int session_open(Session* session)
+{
+    memset(session, 0, sizeof(*session));
+    mock_init(&session->transport);
+    check_result(
+        mdrHeadphonesOpen(&session->transport.connection, &session->headphones),
+        MDR_RESULT_OK,
+        "opaque headphones session opens"
+    );
+    return session->headphones != NULL;
+}
+
+static void session_close(Session* session)
+{
+    mdrHeadphonesClose(session->headphones);
+    session->headphones = NULL;
+}
+
+static size_t append_escaped(unsigned char byte, unsigned char* output, size_t offset)
+{
+    if (byte == 0x3c || byte == 0x3d || byte == 0x3e)
+    {
+        output[offset++] = 0x3d;
+        output[offset++] = (unsigned char)(byte - 0x10);
+    }
+    else
+    {
+        output[offset++] = byte;
+    }
+    return offset;
+}
+
+static size_t pack_frame(
+    unsigned char type,
+    unsigned char sequence,
+    const unsigned char* payload,
+    size_t payload_size,
+    unsigned char output[FRAME_BUFFER_CAPACITY]
+)
+{
+    unsigned char unescaped[FRAME_BUFFER_CAPACITY];
+    unsigned char checksum = 0;
+    size_t unescaped_size = 0;
+    size_t output_size = 0;
+    size_t index;
+
+    check(payload_size <= FRAME_BUFFER_CAPACITY - 7, "test payload fits frame buffer");
+    if (payload_size > FRAME_BUFFER_CAPACITY - 7)
+        return 0;
+
+    unescaped[unescaped_size++] = type;
+    unescaped[unescaped_size++] = sequence;
+    unescaped[unescaped_size++] = (unsigned char)(payload_size >> 24);
+    unescaped[unescaped_size++] = (unsigned char)(payload_size >> 16);
+    unescaped[unescaped_size++] = (unsigned char)(payload_size >> 8);
+    unescaped[unescaped_size++] = (unsigned char)payload_size;
+    if (payload_size != 0)
+    {
+        memcpy(unescaped + unescaped_size, payload, payload_size);
+        unescaped_size += payload_size;
+    }
+    for (index = 0; index < unescaped_size; ++index)
+        checksum = (unsigned char)(checksum + unescaped[index]);
+    unescaped[unescaped_size++] = checksum;
+
+    output[output_size++] = 0x3e;
+    for (index = 0; index < unescaped_size; ++index)
+        output_size = append_escaped(unescaped[index], output, output_size);
+    output[output_size++] = 0x3c;
+    return output_size;
+}
+
+static size_t pack_data_frame(
+    const unsigned char* payload,
+    size_t payload_size,
+    unsigned char sequence,
+    unsigned char output[FRAME_BUFFER_CAPACITY]
+)
+{
+    return pack_frame(
+        MDR_DATA_TYPE_DATA_MDR,
+        sequence,
+        payload,
+        payload_size,
+        output
+    );
+}
+
+static size_t pack_ack(unsigned char output[FRAME_BUFFER_CAPACITY])
+{
+    return pack_frame(MDR_DATA_TYPE_ACK, 1, NULL, 0, output);
+}
+
+static int take_event(MDRHeadphones* headphones, MDREvent* event)
+{
+    MDRResult result;
+    memset(event, 0, sizeof(*event));
+    event->struct_size = (uint32_t)sizeof(*event);
+    result = mdrHeadphonesNextEvent(headphones, event);
+    if (result == MDR_RESULT_ERROR_NOT_FOUND)
+        return 0;
+    check_result(result, MDR_RESULT_OK, "event dequeue succeeds");
+    return result == MDR_RESULT_OK;
+}
+
+static void drain_events(MDRHeadphones* headphones)
+{
+    MDREvent event;
+    while (take_event(headphones, &event))
+    {
+    }
+}
+
+static char* get_text(MDRHeadphones* headphones, MDRText text)
+{
+    uint32_t size = 0;
+    char* buffer;
+
+    if (mdrHeadphonesGetText(headphones, text, 0, NULL, &size) != MDR_RESULT_OK)
+        return NULL;
+    buffer = (char*)malloc(size);
+    if (buffer == NULL)
+        return NULL;
+    if (mdrHeadphonesGetText(headphones, text, 0, buffer, &size) != MDR_RESULT_OK)
+    {
+        free(buffer);
+        return NULL;
+    }
+    return buffer;
+}
+
+static const unsigned char k_v2_protocol_info[] = {
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01
+};
+static const unsigned char k_v1_protocol_info[] = {0x01, 0x00, 0x01};
+
+static void select_v2(Session* session, const char* message)
+{
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    size_t frame_size = pack_data_frame(
+        k_v2_protocol_info,
+        sizeof(k_v2_protocol_info),
+        0,
+        frame
+    );
+    mock_load(&session->transport, frame, frame_size);
+    check_result(mdrHeadphonesPoll(session->headphones), MDR_RESULT_OK, message);
+    drain_events(session->headphones);
+}
+
+static void test_struct_and_buffer_contracts(void)
+{
+    Session session;
+    MDRHeadphonesStatus status;
+    struct ExtendedStatus
+    {
+        MDRHeadphonesStatus base;
+        uint32_t future_field;
+    } extended;
+    uint32_t text_size;
+    char short_text[1];
+    uint32_t short_text_size;
+    char* text;
+    uint32_t copied_text_size;
+    const int8_t staged_bands[5] = {-10, -5, 0, 5, 10};
+    uint32_t band_count;
+    int8_t short_bands[4];
+    uint32_t short_band_count;
+    int8_t copied_bands[5];
+    uint32_t copied_band_count;
+
+    if (!session_open(&session))
+        return;
+
+    memset(&status, 0, sizeof(status));
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &status),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "status rejects a missing struct_size"
+    );
+    status.struct_size = (uint32_t)sizeof(status);
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &status),
+        MDR_RESULT_OK,
+        "status accepts its current struct_size"
+    );
+    check(status.struct_size == sizeof(status), "status reports its current struct_size");
+
+    memset(&extended, 0, sizeof(extended));
+    extended.base.struct_size = (uint32_t)sizeof(extended);
+    extended.future_field = UINT32_C(0xa5a5a5a5);
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &extended.base),
+        MDR_RESULT_OK,
+        "status accepts a forward-compatible struct_size"
+    );
+    check(
+        extended.future_field == UINT32_C(0xa5a5a5a5),
+        "status leaves caller extension storage untouched"
+    );
+
+    text_size = 1;
+    check_result(
+        mdrHeadphonesGetText(
+            session.headphones, MDR_TEXT_LAST_ERROR, 0, NULL, &text_size
+        ),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "text size query requires a zero input size"
+    );
+    text_size = 0;
+    check_result(
+        mdrHeadphonesGetText(
+            session.headphones, MDR_TEXT_LAST_ERROR, 0, NULL, &text_size
+        ),
+        MDR_RESULT_OK,
+        "text size query succeeds"
+    );
+    check(text_size > 1, "text size includes a NUL terminator");
+
+    short_text_size = (uint32_t)sizeof(short_text);
+    check_result(
+        mdrHeadphonesGetText(
+            session.headphones,
+            MDR_TEXT_LAST_ERROR,
+            0,
+            short_text,
+            &short_text_size
+        ),
+        MDR_RESULT_ERROR_BUFFER_TOO_SMALL,
+        "text copy reports a short caller buffer"
+    );
+    check(short_text_size == text_size, "text copy returns the required size");
+
+    text = (char*)malloc(text_size);
+    copied_text_size = text_size;
+    check(text != NULL, "text test allocation succeeds");
+    if (text != NULL)
+    {
+        check_result(
+            mdrHeadphonesGetText(
+                session.headphones,
+                MDR_TEXT_LAST_ERROR,
+                0,
+                text,
+                &copied_text_size
+            ),
+            MDR_RESULT_OK,
+            "text copy succeeds on the second call"
+        );
+        check(
+            copied_text_size == text_size && text[text_size - 1] == '\0',
+            "text copy is NUL terminated"
+        );
+        free(text);
+    }
+
+    check_result(
+        mdrHeadphonesSetEqualizerBands(
+            session.headphones,
+            staged_bands,
+            (uint32_t)(sizeof(staged_bands) / sizeof(staged_bands[0]))
+        ),
+        MDR_RESULT_OK,
+        "equalizer bands stage"
+    );
+    band_count = 0;
+    check_result(
+        mdrHeadphonesGetEqualizerBands(
+            session.headphones, MDR_STATE_EFFECTIVE, NULL, &band_count
+        ),
+        MDR_RESULT_OK,
+        "array size query succeeds"
+    );
+    check(band_count == 5, "array size query returns the element count");
+
+    short_band_count = (uint32_t)(sizeof(short_bands) / sizeof(short_bands[0]));
+    check_result(
+        mdrHeadphonesGetEqualizerBands(
+            session.headphones,
+            MDR_STATE_EFFECTIVE,
+            short_bands,
+            &short_band_count
+        ),
+        MDR_RESULT_ERROR_BUFFER_TOO_SMALL,
+        "array copy reports a short caller buffer"
+    );
+    check(short_band_count == 5, "array copy returns the required count");
+
+    copied_band_count = (uint32_t)(sizeof(copied_bands) / sizeof(copied_bands[0]));
+    check_result(
+        mdrHeadphonesGetEqualizerBands(
+            session.headphones,
+            MDR_STATE_EFFECTIVE,
+            copied_bands,
+            &copied_band_count
+        ),
+        MDR_RESULT_OK,
+        "array copy succeeds on the second call"
+    );
+    check(
+        memcmp(copied_bands, staged_bands, sizeof(staged_bands)) == 0,
+        "array copy preserves staged values"
+    );
+    session_close(&session);
+}
+
+static void test_one_operation_at_a_time(void)
+{
+    Session session;
+    MDRHeadphonesStatus status;
+
+    if (!session_open(&session))
+        return;
+    check_result(
+        mdrHeadphonesStart(session.headphones, MDR_OPERATION_INITIALIZE),
+        MDR_RESULT_OK,
+        "initialization starts"
+    );
+    check_result(
+        mdrHeadphonesStart(session.headphones, MDR_OPERATION_SYNC),
+        MDR_RESULT_INPROGRESS,
+        "a second operation is rejected while initialization is active"
+    );
+    memset(&status, 0, sizeof(status));
+    status.struct_size = (uint32_t)sizeof(status);
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &status),
+        MDR_RESULT_OK,
+        "active operation status is available"
+    );
+    check(
+        status.active_operation == MDR_OPERATION_INITIALIZE
+            && status.ready == MDR_FALSE,
+        "status retains the first operation"
+    );
+    session_close(&session);
+}
+
+static void test_effective_state_staging(void)
+{
+    Session session;
+    MDRPlayback staged;
+    MDRPlayback current;
+    MDRPlayback effective;
+    MDRHeadphonesStatus status;
+
+    if (!session_open(&session))
+        return;
+    memset(&staged, 0, sizeof(staged));
+    staged.struct_size = (uint32_t)sizeof(staged);
+    staged.status = MDR_PLAYBACK_UNKNOWN;
+    staged.volume = 12;
+    check_result(
+        mdrHeadphonesSetPlayback(session.headphones, &staged),
+        MDR_RESULT_OK,
+        "playback volume stages"
+    );
+
+    memset(&current, 0, sizeof(current));
+    current.struct_size = (uint32_t)sizeof(current);
+    memset(&effective, 0, sizeof(effective));
+    effective.struct_size = (uint32_t)sizeof(effective);
+    check_result(
+        mdrHeadphonesGetPlayback(session.headphones, MDR_STATE_CURRENT, &current),
+        MDR_RESULT_OK,
+        "current playback is readable"
+    );
+    check_result(
+        mdrHeadphonesGetPlayback(session.headphones, MDR_STATE_EFFECTIVE, &effective),
+        MDR_RESULT_OK,
+        "effective playback is readable"
+    );
+    check(current.volume == 0, "staging does not alter current playback");
+    check(effective.volume == staged.volume, "effective playback includes staged changes");
+
+    memset(&status, 0, sizeof(status));
+    status.struct_size = (uint32_t)sizeof(status);
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &status),
+        MDR_RESULT_OK,
+        "dirty status is readable"
+    );
+    check(status.dirty == MDR_TRUE, "staging marks the session dirty");
+    session_close(&session);
+}
+
+static void test_playback_actions(void)
+{
+    Session session;
+    const MDRPlaybackAction actions[] = {
+        MDR_PLAYBACK_PLAY,
+        MDR_PLAYBACK_PAUSE,
+        MDR_PLAYBACK_NEXT,
+        MDR_PLAYBACK_PREVIOUS
+    };
+    size_t index;
+    MDRPlaybackCommand command;
+    MDRHeadphonesStatus status;
+    unsigned char ack[FRAME_BUFFER_CAPACITY];
+    size_t ack_size;
+    MDRPlayback unsupported_status;
+
+    if (!session_open(&session))
+        return;
+    select_v2(&session, "V2 protocol is selected for playback actions");
+
+    for (index = 0; index < sizeof(actions) / sizeof(actions[0]); ++index)
+    {
+        memset(&command, 0, sizeof(command));
+        command.struct_size = (uint32_t)sizeof(command);
+        command.action = actions[index];
+        check_result(
+            mdrHeadphonesPlayback(session.headphones, &command),
+            MDR_RESULT_OK,
+            "supported playback action stages"
+        );
+
+        memset(&status, 0, sizeof(status));
+        status.struct_size = (uint32_t)sizeof(status);
+        check_result(
+            mdrHeadphonesGetStatus(session.headphones, &status),
+            MDR_RESULT_OK,
+            "staged playback action status is readable"
+        );
+        check(status.dirty == MDR_TRUE, "playback action is pending");
+
+        check_result(
+            mdrHeadphonesStart(session.headphones, MDR_OPERATION_APPLY),
+            MDR_RESULT_OK,
+            "playback action apply starts"
+        );
+        ack_size = pack_ack(ack);
+        mock_load(&session.transport, ack, ack_size);
+        check_result(
+            mdrHeadphonesPoll(session.headphones),
+            MDR_RESULT_OK,
+            "playback action ACK polls"
+        );
+        check_result(
+            mdrHeadphonesPoll(session.headphones),
+            MDR_RESULT_OK,
+            "playback action completion polls"
+        );
+        drain_events(session.headphones);
+
+        memset(&status, 0, sizeof(status));
+        status.struct_size = (uint32_t)sizeof(status);
+        check_result(
+            mdrHeadphonesGetStatus(session.headphones, &status),
+            MDR_RESULT_OK,
+            "applied playback action status is readable"
+        );
+        check(
+            status.ready == MDR_TRUE && status.dirty == MDR_FALSE,
+            "playback action is consumed as a one-shot"
+        );
+    }
+
+    memset(&command, 0, sizeof(command));
+    command.struct_size = (uint32_t)sizeof(command);
+    command.action = (MDRPlaybackAction)0xff;
+    check_result(
+        mdrHeadphonesPlayback(session.headphones, &command),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "unknown playback action is rejected"
+    );
+
+    memset(&unsupported_status, 0, sizeof(unsupported_status));
+    unsupported_status.struct_size = (uint32_t)sizeof(unsupported_status);
+    unsupported_status.status = MDR_PLAYBACK_PLAYING;
+    unsupported_status.volume = 10;
+    check_result(
+        mdrHeadphonesSetPlayback(session.headphones, &unsupported_status),
+        MDR_RESULT_ERROR_NOT_SUPPORTED,
+        "playback status is not misrepresented as a staged volume change"
+    );
+    session_close(&session);
+}
+
+static void test_event_fifo(void)
+{
+    Session session;
+    const unsigned char unknown_payload[] = {0xfe};
+    unsigned char protocol_frame[FRAME_BUFFER_CAPACITY];
+    unsigned char unknown_frame[FRAME_BUFFER_CAPACITY];
+    size_t protocol_size;
+    size_t unknown_size;
+    MDREvent first;
+    MDREvent second;
+    MDREvent none;
+
+    if (!session_open(&session))
+        return;
+    protocol_size = pack_data_frame(
+        k_v2_protocol_info,
+        sizeof(k_v2_protocol_info),
+        0,
+        protocol_frame
+    );
+    unknown_size = pack_data_frame(
+        unknown_payload,
+        sizeof(unknown_payload),
+        1,
+        unknown_frame
+    );
+    mock_load(&session.transport, protocol_frame, protocol_size);
+    mock_append(&session.transport, unknown_frame, unknown_size);
+
+    check_result(mdrHeadphonesPoll(session.headphones), MDR_RESULT_OK, "first frame polls");
+    check_result(mdrHeadphonesPoll(session.headphones), MDR_RESULT_OK, "second frame polls");
+    check(take_event(session.headphones, &first), "first event is queued");
+    check(take_event(session.headphones, &second), "second event is queued");
+    check(
+        first.type == MDR_EVENT_STATE_CHANGED && first.domain == MDR_DOMAIN_IDENTITY,
+        "protocol state change remains first in the FIFO"
+    );
+    check(
+        second.type == MDR_EVENT_UNHANDLED
+            && second.detail == MDR_HEADPHONES_EVT_UNHANDLED,
+        "unhandled frame remains second in the FIFO"
+    );
+    check(!take_event(session.headphones, &none), "event FIFO is empty after both dequeues");
+    session_close(&session);
+}
+
+static void test_v2_bootstrap(void)
+{
+    Session session;
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    size_t frame_size;
+    MDRIdentity identity;
+    MDREvent event;
+    MDRHeadphonesStatus status;
+
+    if (!session_open(&session))
+        return;
+    check_result(
+        mdrHeadphonesStart(session.headphones, MDR_OPERATION_INITIALIZE),
+        MDR_RESULT_OK,
+        "automatic initialization starts"
+    );
+    frame_size = pack_ack(frame);
+    mock_load(&session.transport, frame, frame_size);
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "protocol-info request ACK polls"
+    );
+    drain_events(session.headphones);
+
+    frame_size = pack_data_frame(
+        k_v2_protocol_info,
+        sizeof(k_v2_protocol_info),
+        0,
+        frame
+    );
+    mock_load(&session.transport, frame, frame_size);
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "eight-byte V2 protocol-info polls"
+    );
+
+    memset(&identity, 0, sizeof(identity));
+    identity.struct_size = (uint32_t)sizeof(identity);
+    check_result(
+        mdrHeadphonesGetIdentity(session.headphones, &identity),
+        MDR_RESULT_OK,
+        "V2 identity is readable"
+    );
+    check(identity.protocol_version == 2, "eight-byte payload selects MDR V2");
+    check(take_event(session.headphones, &event), "V2 protocol selection queues an event");
+    check(
+        event.type == MDR_EVENT_STATE_CHANGED && event.domain == MDR_DOMAIN_IDENTITY,
+        "V2 protocol selection reports identity change"
+    );
+
+    memset(&status, 0, sizeof(status));
+    status.struct_size = (uint32_t)sizeof(status);
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &status),
+        MDR_RESULT_OK,
+        "V2 bootstrap status is readable"
+    );
+    check(
+        status.active_operation == MDR_OPERATION_INITIALIZE
+            && status.initialized == MDR_FALSE
+            && status.ready == MDR_FALSE,
+        "V2 bootstrap automatically continues into backend initialization"
+    );
+    session_close(&session);
+}
+
+static void test_v1_bootstrap_not_supported(void)
+{
+    Session session;
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    size_t frame_size;
+    MDRIdentity identity;
+    MDREvent state_changed;
+    MDREvent completed;
+    char* last_error;
+
+    if (!session_open(&session))
+        return;
+    check_result(
+        mdrHeadphonesStart(session.headphones, MDR_OPERATION_INITIALIZE),
+        MDR_RESULT_OK,
+        "V1 probe starts"
+    );
+    frame_size = pack_ack(frame);
+    mock_load(&session.transport, frame, frame_size);
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "V1 probe ACK polls"
+    );
+    drain_events(session.headphones);
+
+    frame_size = pack_data_frame(
+        k_v1_protocol_info,
+        sizeof(k_v1_protocol_info),
+        0,
+        frame
+    );
+    mock_load(&session.transport, frame, frame_size);
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "three-byte V1 protocol-info polls"
+    );
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "unsupported V1 completion polls"
+    );
+
+    memset(&identity, 0, sizeof(identity));
+    identity.struct_size = (uint32_t)sizeof(identity);
+    check_result(
+        mdrHeadphonesGetIdentity(session.headphones, &identity),
+        MDR_RESULT_OK,
+        "V1 identity is readable"
+    );
+    check(identity.protocol_version == 1, "three-byte payload is recognized as MDR V1");
+    check(take_event(session.headphones, &state_changed), "V1 identity event is queued");
+    check(take_event(session.headphones, &completed), "V1 completion event is queued");
+    check(
+        state_changed.type == MDR_EVENT_STATE_CHANGED
+            && state_changed.domain == MDR_DOMAIN_IDENTITY,
+        "V1 recognition precedes completion"
+    );
+    check(
+        completed.type == MDR_EVENT_OPERATION_COMPLETE
+            && completed.operation == MDR_OPERATION_INITIALIZE
+            && completed.result != MDR_RESULT_OK,
+        "V1 initialization completes as not supported"
+    );
+    last_error = get_text(session.headphones, MDR_TEXT_LAST_ERROR);
+    check(
+        last_error != NULL && strstr(last_error, "not implemented") != NULL,
+        "V1 failure text exposes the not-supported backend"
+    );
+    free(last_error);
+    session_close(&session);
+}
+
+static void test_newer_staging_survives_apply(void)
+{
+    Session session;
+    MDRPlayback first;
+    MDRPlayback newer;
+    MDRPlayback current;
+    MDRPlayback effective;
+    MDRHeadphonesStatus status;
+    unsigned char ack[FRAME_BUFFER_CAPACITY];
+    size_t ack_size;
+    MDREvent ack_event;
+    MDREvent completion;
+
+    if (!session_open(&session))
+        return;
+    select_v2(&session, "V2 protocol is selected for apply");
+
+    memset(&first, 0, sizeof(first));
+    first.struct_size = (uint32_t)sizeof(first);
+    first.status = MDR_PLAYBACK_UNKNOWN;
+    first.volume = 10;
+    check_result(
+        mdrHeadphonesSetPlayback(session.headphones, &first),
+        MDR_RESULT_OK,
+        "first playback value stages"
+    );
+    check_result(
+        mdrHeadphonesStart(session.headphones, MDR_OPERATION_APPLY),
+        MDR_RESULT_OK,
+        "apply starts"
+    );
+
+    memset(&newer, 0, sizeof(newer));
+    newer.struct_size = (uint32_t)sizeof(newer);
+    newer.status = MDR_PLAYBACK_UNKNOWN;
+    newer.volume = 20;
+    check_result(
+        mdrHeadphonesSetPlayback(session.headphones, &newer),
+        MDR_RESULT_OK,
+        "newer playback value stages during apply"
+    );
+
+    ack_size = pack_ack(ack);
+    mock_load(&session.transport, ack, ack_size);
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "apply ACK polls"
+    );
+    check_result(
+        mdrHeadphonesPoll(session.headphones),
+        MDR_RESULT_OK,
+        "apply completion polls"
+    );
+    check(take_event(session.headphones, &ack_event), "apply ACK event is queued");
+    check(take_event(session.headphones, &completion), "apply completion event is queued");
+    check(
+        ack_event.type == MDR_EVENT_UNHANDLED
+            && completion.type == MDR_EVENT_OPERATION_COMPLETE
+            && completion.operation == MDR_OPERATION_APPLY
+            && completion.result == MDR_RESULT_OK,
+        "ACK and completion preserve FIFO and operation semantics"
+    );
+
+    memset(&current, 0, sizeof(current));
+    current.struct_size = (uint32_t)sizeof(current);
+    memset(&effective, 0, sizeof(effective));
+    effective.struct_size = (uint32_t)sizeof(effective);
+    check_result(
+        mdrHeadphonesGetPlayback(session.headphones, MDR_STATE_CURRENT, &current),
+        MDR_RESULT_OK,
+        "applied playback is readable"
+    );
+    check_result(
+        mdrHeadphonesGetPlayback(session.headphones, MDR_STATE_EFFECTIVE, &effective),
+        MDR_RESULT_OK,
+        "pending playback is readable"
+    );
+    check(current.volume == first.volume, "apply commits its original snapshot");
+    check(effective.volume == newer.volume, "newer staged value remains effective");
+
+    memset(&status, 0, sizeof(status));
+    status.struct_size = (uint32_t)sizeof(status);
+    check_result(
+        mdrHeadphonesGetStatus(session.headphones, &status),
+        MDR_RESULT_OK,
+        "post-apply status is readable"
+    );
+    check(
+        status.active_operation == MDR_OPERATION_NONE
+            && status.ready == MDR_TRUE
+            && status.dirty == MDR_TRUE,
+        "newer value remains pending after apply completes"
+    );
+    session_close(&session);
+}
+
+int main(void)
+{
+    test_struct_and_buffer_contracts();
+    test_one_operation_at_a_time();
+    test_effective_state_staging();
+    test_playback_actions();
+    test_event_fifo();
+    test_v2_bootstrap();
+    test_v1_bootstrap_not_supported();
+    test_newer_staging_survives_apply();
+
+    if (g_failures != 0)
+        fprintf(stderr, "%d test assertion(s) failed\n", g_failures);
+    return g_failures != 0 ? 1 : 0;
+}

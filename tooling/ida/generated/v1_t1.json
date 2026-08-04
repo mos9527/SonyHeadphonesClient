@@ -37141,12 +37141,12 @@
         "-[THMSGV1T1TestCommandType byteCode]",
         "-[THMSGV1T1TargetType byteCode]",
         "sub_1012CA5A4",
-        "writeToWithJavaIoByteArrayOutputStream:",
         "-[THMSGV1T1AtCommandParam writeToWithJavaIoByteArrayOutputStream:]",
         "-[THMSGV1T1AtCommandMessageType byteCode]",
         "sub_1012CB8FC",
         "_JavaUtilArrays_copyOfRangeWithByteArray_withInt_withInt_",
-        "writeWithByteArray:withInt:withInt:"
+        "writeWithByteArray:withInt:withInt:",
+        "writeToWithJavaIoByteArrayOutputStream:"
       ],
       "factory_signature": null,
       "fields": [

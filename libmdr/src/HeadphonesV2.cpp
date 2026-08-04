@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <mdr/Headphones.hpp>
 #include "Details.hpp"
 // NOLINTBEGIN
 namespace mdr
@@ -7,8 +6,26 @@ namespace mdr
     using namespace v2;
     MDRTask MDRHeadphones::RequestInitV2()
     {
+        mProtocolFamily = ProtocolFamily::UNKNOWN;
+        mProtocol = {};
+
         SendCommandACK(t1::ConnectGetProtocolInfo);
-        co_await Await(AWAIT_PROTOCOL_INFO);
+        const int result = co_await Await(AWAIT_PROTOCOL_INFO);
+        if (result != MDR_RESULT_OK)
+        {
+            SetLastError(result, "Unable to initialize MDR V2");
+            co_return MDR_HEADPHONES_ERROR;
+        }
+        if (mProtocolFamily != ProtocolFamily::V2)
+        {
+            SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V2");
+            co_return MDR_HEADPHONES_ERROR;
+        }
+        co_return co_await RequestInitV2Selected();
+    }
+
+    MDRTask MDRHeadphones::RequestInitV2Selected()
+    {
         if (!mProtocol.hasTable1)
         {
             SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
@@ -285,22 +302,70 @@ namespace mdr
         co_return MDR_HEADPHONES_TASK_SYNC_OK;
     }
 
+    void MDRHeadphones::SnapshotProperties()
+    {
+        mShutdown.submit();
+        mNcAsmEnabled.submit();
+        mNcAsmFocusOnVoice.submit();
+        mNcAsmAmbientLevel.submit();
+        mNcAsmButtonFunction.submit();
+        mNcAsmMode.submit();
+        mNcAsmAutoAsmEnabled.submit();
+        mNcAsmNoiseAdaptiveSensitivity.submit();
+        mPowerAutoOff.submit();
+        mPowerAutoOffWearingDetection.submit();
+        mPlayVolume.submit();
+        mPlayControl.submit();
+        mGsParamBool1.submit();
+        mGsParamBool2.submit();
+        mGsParamBool3.submit();
+        mGsParamBool4.submit();
+        mUpscalingEnabled.submit();
+        mAudioPriorityMode.submit();
+        mBGMModeEnabled.submit();
+        mBGMModeRoomSize.submit();
+        mUpmixCinemaEnabled.submit();
+        mAutoPauseEnabled.submit();
+        mTouchFunctionLeft.submit();
+        mTouchFunctionRight.submit();
+        mSpeakToChatEnabled.submit();
+        mSpeakToChatDetectSensitivity.submit();
+        mSpeakToModeOutTime.submit();
+        mHeadGestureEnabled.submit();
+        mEqAvailable.submit();
+        mEqPresetId.submit();
+        mEqClearBass.submit();
+        mEqConfig.submit();
+        mVoiceGuidanceEnabled.submit();
+        mVoiceGuidanceVolume.submit();
+        mPairingMode.submit();
+        mMultipointDeviceMac.submit();
+        mPairedDeviceDisconnectMac.submit();
+        mPairedDeviceConnectMac.submit();
+        mPairedDeviceUnpairMac.submit();
+        mSafeListeningPreviewMode.submit();
+    }
+
     MDRTask MDRHeadphones::RequestCommitV2()
     {
+        SnapshotProperties();
+
         /* Shutdown */
-        if (mShutdown.dirty())
+        if (mShutdown.submittedDirty())
         {
             using namespace t1;
-            if (mSupport.contains(FunctionType_Table1::POWER_OFF) && mShutdown.desired)
+            if (mSupport.contains(FunctionType_Table1::POWER_OFF) && mShutdown.submitted)
             {
                 SendCommandACK(PowerSetStatusPowerOff);
+                mShutdown.commitOneShot(false);
             }
             else
-                mShutdown.overwrite(false);
+                mShutdown.commitOneShot(false);
         }
         /* NC/ASM */
-        if (mNcAsmAmbientLevel.dirty() || mNcAsmEnabled.dirty() || mNcAsmMode.dirty() ||
-            mNcAsmFocusOnVoice.dirty() || mNcAsmAutoAsmEnabled.dirty() || mNcAsmNoiseAdaptiveSensitivity.dirty())
+        if (mNcAsmAmbientLevel.submittedDirty() || mNcAsmEnabled.submittedDirty() ||
+            mNcAsmMode.submittedDirty() || mNcAsmFocusOnVoice.submittedDirty() ||
+            mNcAsmAutoAsmEnabled.submittedDirty() || mNcAsmNoiseAdaptiveSensitivity.submittedDirty())
         {
             using namespace t1;
             if (mSupport.contains(
@@ -310,12 +375,14 @@ namespace mdr
                 NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa res;
                 res.command = Command::NCASM_SET_PARAM;
                 res.valueChangeStatus = ValueChangeStatus::CHANGED;
-                res.ncAsmTotalEffect = mNcAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
-                res.ncAsmMode = mNcAsmMode.desired;
-                res.ambientSoundMode = mNcAsmFocusOnVoice.desired ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
-                res.ambientSoundLevelValue = mNcAsmAmbientLevel.desired;
-                res.ncAsmOnOffValue = mNcAsmAutoAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
-                res.noiseAdaptiveSensitivitySettings = mNcAsmNoiseAdaptiveSensitivity.desired;
+                res.ncAsmTotalEffect = mNcAsmEnabled.submitted ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.ncAsmMode = mNcAsmMode.submitted;
+                res.ambientSoundMode = mNcAsmFocusOnVoice.submitted
+                    ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
+                res.ambientSoundLevelValue = mNcAsmAmbientLevel.submitted;
+                res.ncAsmOnOffValue = mNcAsmAutoAsmEnabled.submitted
+                    ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.noiseAdaptiveSensitivitySettings = mNcAsmNoiseAdaptiveSensitivity.submitted;
                 SendCommandACK(NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa, res);
             }
             else if (mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
@@ -323,9 +390,10 @@ namespace mdr
                 NcAsmSetParamAsmSeamless res;
                 res.command = Command::NCASM_SET_PARAM;
                 res.valueChangeStatus = ValueChangeStatus::CHANGED;
-                res.ncAsmTotalEffect = mNcAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
-                res.ambientSoundMode = mNcAsmFocusOnVoice.desired ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
-                res.ambientSoundLevelValue = mNcAsmAmbientLevel.desired;
+                res.ncAsmTotalEffect = mNcAsmEnabled.submitted ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.ambientSoundMode = mNcAsmFocusOnVoice.submitted
+                    ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
+                res.ambientSoundLevelValue = mNcAsmAmbientLevel.submitted;
                 SendCommandACK(NcAsmSetParamAsmSeamless, res);
             }
             else
@@ -333,12 +401,12 @@ namespace mdr
                 NcAsmSetParamModeNcDualModeSwitchAsmSeamless res;
                 res.command = Command::NCASM_SET_PARAM;
                 res.valueChangeStatus = ValueChangeStatus::CHANGED;
-                res.ncAsmTotalEffect = mNcAsmEnabled.desired ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
-                res.ncAsmMode = mNcAsmMode.desired,
-                    res.ambientSoundMode = mNcAsmFocusOnVoice.desired
+                res.ncAsmTotalEffect = mNcAsmEnabled.submitted ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
+                res.ncAsmMode = mNcAsmMode.submitted,
+                    res.ambientSoundMode = mNcAsmFocusOnVoice.submitted
                     ? AmbientSoundMode::VOICE
                     : AmbientSoundMode::NORMAL;
-                res.ambientSoundLevelValue = mNcAsmAmbientLevel.desired;
+                res.ambientSoundLevelValue = mNcAsmAmbientLevel.submitted;
                 SendCommandACK(NcAsmSetParamModeNcDualModeSwitchAsmSeamless, res);
             }
             mNcAsmAmbientLevel.commit(), mNcAsmEnabled.commit(), mNcAsmMode.commit();
@@ -349,51 +417,51 @@ namespace mdr
         if (mSupport.contains(FunctionType_Table1::AMBIENT_SOUND_CONTROL_MODE_SELECT))
         {
             using namespace t1;
-            if (mNcAsmButtonFunction.dirty())
+            if (mNcAsmButtonFunction.submittedDirty())
             {
                 NcAsmSetParamNcAmbToggle res;
                 res.command = Command::NCASM_SET_PARAM;
-                res.function = mNcAsmButtonFunction.desired;
+                res.function = mNcAsmButtonFunction.submitted;
                 SendCommandACK(NcAsmSetParamNcAmbToggle, res);
                 mNcAsmButtonFunction.commit();
             }
         }
         /* Volume */
-        if (mPlayVolume.dirty())
+        if (mPlayVolume.submittedDirty())
         {
             using namespace t1;
             SetPlayParamPlaybackControllerVolume res;
             res.command = Command::PLAY_SET_PARAM;
             res.type = PlayInquiredType::MUSIC_VOLUME;
-            res.volumeValue = mPlayVolume.desired;
+            res.volumeValue = mPlayVolume.submitted;
             SendCommandACK(SetPlayParamPlaybackControllerVolume, res);
             mPlayVolume.commit();
         }
         /* Play Control */
         // A bit of a special case. We reset the value to something else
         // so simply setting 'desired' repeatedly works as intended
-        if (mPlayControl.dirty())
+        if (mPlayControl.submittedDirty())
         {
             using namespace t1;
             SetPlayStatusPlaybackController res;
             res.command = Command::PLAY_SET_STATUS;
             res.type = PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT;
             res.status = EnableDisable::ENABLE;
-            res.control = mPlayControl.desired;
+            res.control = mPlayControl.submitted;
             SendCommandACK(SetPlayStatusPlaybackController, res);
-            mPlayControl.overwrite(PlaybackControl::KEY_OFF);
+            mPlayControl.commitOneShot(PlaybackControl::KEY_OFF);
         }
 
         /* Multipoint Switch */
-        if (mMultipointDeviceMac.dirty())
+        if (mMultipointDeviceMac.submittedDirty())
         {
             using namespace t2;
             PeripheralSetExtendedParamSourceSwitchControl res;
-            if (mMultipointDeviceMac.desired.length() != 17)
-                mMultipointDeviceMac.overwrite("");
+            if (mMultipointDeviceMac.submitted.length() != 17)
+                mMultipointDeviceMac.commitOneShot("");
             else
             {
-                res.targetBdAddress.value = mMultipointDeviceMac.desired;
+                res.targetBdAddress.value = mMultipointDeviceMac.submitted;
                 SendCommandACK(PeripheralSetExtendedParamSourceSwitchControl, res);
                 mMultipointDeviceMac.commit();
             }
@@ -420,42 +488,42 @@ namespace mdr
             else
             {
                 // Unsupported. Ignore the rest.
-                mPairedDeviceConnectMac.overwrite("");
-                mPairedDeviceDisconnectMac.overwrite("");
-                mPairedDeviceUnpairMac.overwrite("");
+                mPairedDeviceConnectMac.commitOneShot("");
+                mPairedDeviceDisconnectMac.commitOneShot("");
+                mPairedDeviceUnpairMac.commitOneShot("");
             }
             PeripheralSetExtendedParamParingDeviceManagementCommon res;
             res.inquiredType = type;
-            if (mPairedDeviceConnectMac.dirty())
+            if (mPairedDeviceConnectMac.submittedDirty())
             {
                 res.connectivityActionType = ConnectivityActionType::CONNECT;
-                res.btDeviceAddress.value = mPairedDeviceConnectMac.desired;
-                mPairedDeviceConnectMac.overwrite("");
+                res.btDeviceAddress.value = mPairedDeviceConnectMac.submitted;
                 SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
+                mPairedDeviceConnectMac.commitOneShot("");
             }
-            if (mPairedDeviceDisconnectMac.dirty())
+            if (mPairedDeviceDisconnectMac.submittedDirty())
             {
                 res.connectivityActionType = ConnectivityActionType::DISCONNECT;
-                res.btDeviceAddress.value = mPairedDeviceDisconnectMac.desired;
-                mPairedDeviceDisconnectMac.overwrite("");
+                res.btDeviceAddress.value = mPairedDeviceDisconnectMac.submitted;
                 SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
+                mPairedDeviceDisconnectMac.commitOneShot("");
             }
-            if (mPairedDeviceUnpairMac.dirty())
+            if (mPairedDeviceUnpairMac.submittedDirty())
             {
                 res.connectivityActionType = ConnectivityActionType::UNPAIR;
-                res.btDeviceAddress.value = mPairedDeviceUnpairMac.desired;
-                mPairedDeviceUnpairMac.overwrite("");
+                res.btDeviceAddress.value = mPairedDeviceUnpairMac.submitted;
                 SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
+                mPairedDeviceUnpairMac.commitOneShot("");
             }
         
 
             /* Pairing Mode */
-            if (mPairingMode.dirty())
+            if (mPairingMode.submittedDirty())
             {
                 using namespace t2;
                 PeripheralSetStatusParingDeviceManagementCommon res;
                 res.inquiredType = type;
-                res.btMode = mPairingMode.desired
+                res.btMode = mPairingMode.submitted
                     ? PeripheralBluetoothMode::INQUIRY_SCAN_MODE
                     : PeripheralBluetoothMode::NORMAL_MODE;
                 res.enableDisableStatus = EnableDisable::ENABLE;
@@ -468,12 +536,12 @@ namespace mdr
         if (mSupport.contains(FunctionType_Table1::SMART_TALKING_MODE_TYPE2))
         {
             using namespace t1;
-            if (mSpeakToChatEnabled.dirty())
+            if (mSpeakToChatEnabled.submittedDirty())
             {
                 SystemSetParamSmartTalking res;
                 res.command = Command::SYSTEM_SET_PARAM;
                 res.type = SystemInquiredType::SMART_TALKING_MODE_TYPE2;
-                res.onOffValue = mSpeakToChatEnabled.desired
+                res.onOffValue = mSpeakToChatEnabled.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 res.previewModeOnOffValue = OnOffSettingValue::OFF;
@@ -481,12 +549,12 @@ namespace mdr
                 mSpeakToChatEnabled.commit();
             }
 
-            if (mSpeakToChatDetectSensitivity.dirty() || mSpeakToModeOutTime.dirty())
+            if (mSpeakToChatDetectSensitivity.submittedDirty() || mSpeakToModeOutTime.submittedDirty())
             {
                 SystemSetExtParamSmartTalkingModeType2 res;
                 res.command = Command::SYSTEM_SET_EXT_PARAM;
-                res.detectSensitivity = mSpeakToChatDetectSensitivity.desired;
-                res.modeOffTime = mSpeakToModeOutTime.desired;
+                res.detectSensitivity = mSpeakToChatDetectSensitivity.submitted;
+                res.modeOffTime = mSpeakToModeOutTime.submitted;
                 SendCommandACK(SystemSetExtParamSmartTalkingModeType2, res);
                 mSpeakToChatDetectSensitivity.commit(), mSpeakToModeOutTime.commit();
             }
@@ -496,24 +564,24 @@ namespace mdr
         if (mSupport.contains(FunctionType_Table1::LISTENING_OPTION))
         {
             using namespace t1;
-            if (mBGMModeEnabled.dirty() || mBGMModeRoomSize.dirty())
+            if (mBGMModeEnabled.submittedDirty() || mBGMModeRoomSize.submittedDirty())
             {
                 AudioSetParamBGMMode res;
                 res.command = Command::AUDIO_SET_PARAM;
                 res.type = AudioInquiredType::BGM_MODE_AND_ERRORCODE;
-                res.onOffSettingValue = mBGMModeEnabled.desired
+                res.onOffSettingValue = mBGMModeEnabled.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
-                res.targetRoomSize = mBGMModeRoomSize.desired;
+                res.targetRoomSize = mBGMModeRoomSize.submitted;
                 SendCommandACK(AudioSetParamBGMMode, res);
                 mBGMModeEnabled.commit(), mBGMModeRoomSize.commit();
                 MDR_LOG("S/W BGM BGM {} ROOM {} UPMIX {}", mBGMModeEnabled.desired, mBGMModeRoomSize.desired, mUpmixCinemaEnabled.desired);
             }
-            if (mUpmixCinemaEnabled.dirty())
+            if (mUpmixCinemaEnabled.submittedDirty())
             {
                 AudioSetParamUpmixCinema res;
                 res.command = Command::AUDIO_SET_PARAM;
-                res.onOffSettingValue = mUpmixCinemaEnabled.desired
+                res.onOffSettingValue = mUpmixCinemaEnabled.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(AudioSetParamUpmixCinema, res);
@@ -523,37 +591,37 @@ namespace mdr
         }
 
         /* EQ */
-        if (mEqPresetId.dirty())
+        if (mEqPresetId.submittedDirty())
         {
             using namespace t1;
             EqEbbSetParamEq res;
             res.command = Command::EQEBB_SET_PARAM;
             res.type = EqEbbInquiredType::PRESET_EQ;
-            res.parameter.presetId = mEqPresetId.desired;
+            res.parameter.presetId = mEqPresetId.submitted;
             SendCommandACK(EqEbbSetParamEq, res);
             mEqPresetId.commit();
             // Ask for a equalizer param update afterwards
             SendCommandACK(EqEbbGetParam);
         }
-        if (mEqConfig.dirty() || mEqClearBass.dirty())
+        if (mEqConfig.submittedDirty() || mEqClearBass.submittedDirty())
         {
             using namespace t1;
             EqEbbSetParamEq res;
             res.command = Command::EQEBB_SET_PARAM;
             res.type = EqEbbInquiredType::PRESET_EQ;
-            res.parameter.presetId = mEqPresetId.current;
-            int eqBands = mEqConfig.desired.size(), eqOffset = 0;
+            res.parameter.presetId = mEqPresetId.submitted;
+            int eqBands = mEqConfig.submitted.size(), eqOffset = 0;
             if (eqBands == 0)
             {
                 mEqConfig.commit(), mEqClearBass.commit();
             }
             else
             {
-                auto& bands = mEqConfig.desired;
+                auto& bands = mEqConfig.submitted;
                 if (eqBands == 5)
                 {
                     res.parameter.bandSteps.value = Vector<UInt8>{{
-                        static_cast<UInt8>(mEqClearBass.desired + 10),
+                        static_cast<UInt8>(mEqClearBass.submitted + 10),
                         static_cast<UInt8>(bands[0] + 10),
                         static_cast<UInt8>(bands[1] + 10),
                         static_cast<UInt8>(bands[2] + 10),
@@ -579,9 +647,9 @@ namespace mdr
                     SetLastError(MDR_RESULT_ERROR_INVALID_ARGUMENT, "mEqConfig size must be 0, 5, or 10");
                     co_return MDR_HEADPHONES_ERROR;
                 }
+                SendCommandACK(EqEbbSetParamEq, res);
                 mEqConfig.commit();
                 mEqClearBass.commit();
-                SendCommandACK(EqEbbSetParamEq, res);
                 // Ask for a equalizer param update afterwards
                 SendCommandACK(EqEbbGetParam);
             }
@@ -591,12 +659,12 @@ namespace mdr
         if (mSupport.
             contains(FunctionType_Table1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
         {
-            if (mAudioPriorityMode.dirty())
+            if (mAudioPriorityMode.submittedDirty())
             {
                 using namespace t1;
                 AudioSetParamConnection res;
                 res.command = Command::AUDIO_SET_PARAM;
-                res.settingValue = mAudioPriorityMode.desired;
+                res.settingValue = mAudioPriorityMode.submitted;
                 SendCommandACK(AudioSetParamConnection, res);
                 mAudioPriorityMode.commit();
             }
@@ -605,13 +673,14 @@ namespace mdr
         /* DSEE */
         if (mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
         {
-            if (mUpscalingEnabled.dirty())
+            if (mUpscalingEnabled.submittedDirty())
             {
                 using namespace t1;
                 AudioSetParamUpscaling res;
                 res.command = Command::AUDIO_SET_PARAM;
                 res.type = AudioInquiredType::UPSCALING;
-                res.settingValue = mUpscalingEnabled.desired ? UpscalingTypeAutoOff::AUTO : UpscalingTypeAutoOff::OFF;
+                res.settingValue = mUpscalingEnabled.submitted
+                    ? UpscalingTypeAutoOff::AUTO : UpscalingTypeAutoOff::OFF;
                 SendCommandACK(AudioSetParamUpscaling, res);
                 mUpscalingEnabled.commit();
             }
@@ -620,27 +689,27 @@ namespace mdr
         /* Touch Functions */
         if (mSupport.contains(FunctionType_Table1::ASSIGNABLE_SETTING))
         {
-            if (mTouchFunctionLeft.dirty() || mTouchFunctionRight.dirty())
+            if (mTouchFunctionLeft.submittedDirty() || mTouchFunctionRight.submittedDirty())
             {
                 using namespace t1;
                 SystemSetParamAssignableSettings res;
                 res.command = Command::SYSTEM_SET_PARAM;
-                res.presetList.value = {mTouchFunctionLeft.desired, mTouchFunctionRight.desired};
+                res.presetList.value = {mTouchFunctionLeft.submitted, mTouchFunctionRight.submitted};
                 SendCommandACK(SystemSetParamAssignableSettings, res);
                 mTouchFunctionLeft.commit(), mTouchFunctionRight.commit();
             }
         }
 
         /* Head Gesture */
-        if (mSupport.contains(FunctionType_Table1::UPSCALING_AUTO_OFF))
+        if (mSupport.contains(FunctionType_Table1::HEAD_GESTURE_ON_OFF_TRAINING))
         {
-            if (mHeadGestureEnabled.dirty())
+            if (mHeadGestureEnabled.submittedDirty())
             {
                 using namespace t1;
                 SystemSetParamCommon res;
                 res.command = Command::SYSTEM_SET_PARAM;
                 res.type = SystemInquiredType::HEAD_GESTURE_ON_OFF;
-                res.settingValue = mHeadGestureEnabled.desired
+                res.settingValue = mHeadGestureEnabled.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SystemSetParamCommon, res);
@@ -652,11 +721,11 @@ namespace mdr
         if (mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF))
         {
             using namespace t1;
-            if (mPowerAutoOff.dirty())
+            if (mPowerAutoOff.submittedDirty())
             {
                 PowerSetParamAutoPowerOff res;
                 res.command = Command::POWER_SET_PARAM;
-                res.currentPowerOffElements = mPowerAutoOff.desired;
+                res.currentPowerOffElements = mPowerAutoOff.submitted;
                 res.lastSelectPowerOffElements = AutoPowerOffElements::POWER_OFF_IN_5_MIN;
                 SendCommandACK(PowerSetParamAutoPowerOff, res);
                 mPowerAutoOff.commit();
@@ -665,11 +734,11 @@ namespace mdr
         else if (mSupport.contains(FunctionType_Table1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
             using namespace t1;
-            if (mPowerAutoOffWearingDetection.dirty())
+            if (mPowerAutoOffWearingDetection.submittedDirty())
             {
                 PowerSetParamAutoPowerOffWithWearingDetection res;
                 res.command = Command::POWER_SET_PARAM;
-                res.currentPowerOffElements = mPowerAutoOffWearingDetection.desired;
+                res.currentPowerOffElements = mPowerAutoOffWearingDetection.submitted;
                 res.lastSelectPowerOffElements = AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN;
                 SendCommandACK(PowerSetParamAutoPowerOffWithWearingDetection, res);
                 mPowerAutoOffWearingDetection.commit();
@@ -681,12 +750,12 @@ namespace mdr
             FunctionType_Table1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
         {
             using namespace t1;
-            if (mAutoPauseEnabled.dirty())
+            if (mAutoPauseEnabled.submittedDirty())
             {
                 SystemSetParamCommon res;
                 res.command = Command::SYSTEM_SET_PARAM;
                 res.type = SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING;
-                res.settingValue = mAutoPauseEnabled.desired
+                res.settingValue = mAutoPauseEnabled.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SystemSetParamCommon, res);
@@ -695,28 +764,28 @@ namespace mdr
         }
 
         /* Voice Guidance */
-        if (mVoiceGuidanceEnabled.dirty())
+        if (mVoiceGuidanceEnabled.submittedDirty())
         {
             using namespace t2;
             VoiceGuidanceSetParamSettingMtk res;
             res.inquiredType = VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH;
-            res.settingValue = mVoiceGuidanceEnabled.desired
+            res.settingValue = mVoiceGuidanceEnabled.submitted
                 ? OnOffSettingValue::ON
                 : OnOffSettingValue::OFF;
             SendCommandACK(VoiceGuidanceSetParamSettingMtk, res);
-            mVoiceGuidanceVolume.commit();
+            mVoiceGuidanceEnabled.commit();
         }
 
         /* Voice Guidance */
         if (mSupport.contains(
             FunctionType_Table2::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
         {
-            if (mVoiceGuidanceVolume.dirty())
+            if (mVoiceGuidanceVolume.submittedDirty())
             {
                 using namespace t2;
                 VoiceGuidanceSetParamVolume res;
                 res.inquiredType = VoiceGuidanceInquiredType::VOLUME;
-                res.volumeValue = mVoiceGuidanceVolume.desired;
+                res.volumeValue = mVoiceGuidanceVolume.submitted;
                 res.feedbackSound = OnOffSettingValue::ON;
                 SendCommandACK(VoiceGuidanceSetParamVolume, res);
                 mVoiceGuidanceVolume.commit();
@@ -728,48 +797,48 @@ namespace mdr
             using namespace t1;
             if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_1))
             {
-                if (mGsParamBool1.dirty())
+                if (mGsParamBool1.submittedDirty())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING1;
-                    res.value = mGsParamBool1.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = mGsParamBool1.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                     mGsParamBool1.commit();
                 }
             }
             if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_2))
             {
-                if (mGsParamBool2.dirty())
+                if (mGsParamBool2.submittedDirty())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING2;
-                    res.value = mGsParamBool2.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = mGsParamBool2.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                     mGsParamBool2.commit();
                 }
             }
             if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_3))
             {
-                if (mGsParamBool3.dirty())
+                if (mGsParamBool3.submittedDirty())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING3;
-                    res.value = mGsParamBool3.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = mGsParamBool3.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                     mGsParamBool3.commit();
                 }
             }
             if (mSupport.contains(FunctionType_Table1::GENERAL_SETTING_4))
             {
-                if (mGsParamBool4.dirty())
+                if (mGsParamBool4.submittedDirty())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING4;
-                    res.value = mGsParamBool4.desired ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = mGsParamBool4.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                     mGsParamBool4.commit();
                 }
@@ -777,7 +846,7 @@ namespace mdr
         }
 
         /* Safe Listening */
-        if (mSafeListeningPreviewMode.dirty())
+        if (mSafeListeningPreviewMode.submittedDirty())
         {
             using namespace t2;
             if (mSupport.contains(FunctionType_Table2::SAFE_LISTENING_HBS_1))
@@ -785,7 +854,7 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_HBS_1;
                 res.previewMode = OnOffSettingValue::OFF;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                res.safeListeningMode = mSafeListeningPreviewMode.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
@@ -796,7 +865,7 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_HBS_2;
                 res.previewMode = OnOffSettingValue::OFF;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                res.safeListeningMode = mSafeListeningPreviewMode.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
@@ -807,7 +876,7 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_TWS_1;
                 res.previewMode = OnOffSettingValue::OFF;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                res.safeListeningMode = mSafeListeningPreviewMode.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
@@ -818,7 +887,7 @@ namespace mdr
                 SafeListeningSetParamSL res;
                 res.inquiredType = SafeListeningInquiredType::SAFE_LISTENING_TWS_2;
                 res.previewMode = OnOffSettingValue::OFF;
-                res.safeListeningMode = mSafeListeningPreviewMode.desired
+                res.safeListeningMode = mSafeListeningPreviewMode.submitted
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);

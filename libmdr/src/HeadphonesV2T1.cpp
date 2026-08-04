@@ -1,4 +1,3 @@
-#include <mdr/Headphones.hpp>
 #include <algorithm>
 #include "Details.hpp"
 namespace mdr
@@ -13,18 +12,6 @@ namespace mdr
             return false;
         out = static_cast<T>(cmd[1]);
         return true;
-    }
-
-    int HandleProtocolInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
-    {
-        Deserialize(ConnectRetProtocolInfo, res, cmd);
-        self->mProtocol = {
-            .version = res.protocolVersion,
-            .hasTable1 = res.supportTable1Value == EnableDisable::ENABLE,
-            .hasTable2 = res.supportTable1Value == EnableDisable::ENABLE
-        };
-        self->Awake(MDRHeadphones::AWAIT_PROTOCOL_INFO);
-        return MDR_HEADPHONES_EVT_OK;
     }
 
     int HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -1017,8 +1004,6 @@ namespace mdr
         MDR_LOG_DEBUG("<< {}", command);
         switch (command)
         {
-        case CONNECT_RET_PROTOCOL_INFO:
-            return HandleProtocolInfoT1(this, cmd);
         case CONNECT_RET_SUPPORT_FUNCTION:
             return HandleSupportFunctionT1(this, cmd);
         case CONNECT_RET_CAPABILITY_INFO:
