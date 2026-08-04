@@ -1767,6 +1767,10 @@ void DrawDeviceDisconnect()
             ImGui::TextWrapped("Connection: %s", mdrConnectionGetLastError(conn));
         if (!gHeadphonesError.empty())
             ImGui::TextWrapped("Headphones: %s", gHeadphonesError.c_str());
+#ifdef MDR_CLIENT_DEBUGGER
+        ImGui::Separator();
+        ImTextCentered(PSI_INFO_SIGN " NOTE: Use the Protocol Debugger for more info. This is available from the Device Selection menu");
+#endif
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImModalButton(PSI_LINK " Reconnect"))
@@ -1824,7 +1828,7 @@ void DrawApp()
     // Error modals replace the debugger popup while preserving its open state.
     // Once the error is dismissed, the debugger reopens with its packet history intact.
     if (connState != CONN_STATE_DISCONNECTED &&
-        (gDebuggerOpen || ImGui::IsPopupOpen("Command Playground")))
+        (gDebuggerOpen || ImGui::IsPopupOpen("Debugger")))
         clientDebuggerDraw(&gDebuggerOpen);
 #endif
 }

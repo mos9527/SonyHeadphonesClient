@@ -649,13 +649,13 @@ void clientDebuggerObservePacket(MDRPacketDirection direction, const unsigned ch
 void clientDebuggerDraw(bool* open)
 {
     const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-    if (!ImGui::IsPopupOpen("Command Playground"))
-        ImGui::OpenPopup("Command Playground");
+    if (!ImGui::IsPopupOpen("Debugger"))
+        ImGui::OpenPopup("Debugger");
     ImGui::SetNextWindowSize({displaySize.x, displaySize.y * 0.8f}, ImGuiCond_Appearing);
     ImGui::SetNextWindowPos({displaySize.x * 0.5f, displaySize.y * 0.5f}, ImGuiCond_Appearing, {0.5f, 0.5f});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {20.0f, 16.0f});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8.0f, 8.0f});
-    if (!ImGui::BeginPopupModal("Command Playground", open, ImGuiWindowFlags_NoTitleBar))
+    if (!ImGui::BeginPopupModal("Debugger", open, ImGuiWindowFlags_NoTitleBar))
     {
         ImGui::PopStyleVar(2);
         return;
