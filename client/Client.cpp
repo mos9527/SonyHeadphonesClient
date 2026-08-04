@@ -373,7 +373,7 @@ void CloseDevice()
     if (!gDevice)
         return;
     gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
-    mdrHeadphonesClose(gDevice);
+    mdrHeadphonesDestroy(gDevice);
     gDevice = nullptr;
 }
 
@@ -754,13 +754,13 @@ void DrawDeviceConnecting()
     case MDR_RESULT_OK:
         connState = CONN_STATE_CONNECTED;
         CloseDevice();
-        if (mdrHeadphonesOpen(conn, &gDevice) != MDR_RESULT_OK)
+        if (mdrHeadphonesCreate(conn, &gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;
         }
         clientPayloadRecorderAttach(gDevice);
-        if (mdrHeadphonesStart(gDevice, MDR_OPERATION_INITIALIZE) != MDR_RESULT_OK)
+        if (mdrHeadphonesRequestInit(gDevice) != MDR_RESULT_OK)
             DisconnectWithModal();
 
         return;
@@ -840,8 +840,7 @@ void DrawDeviceControlsHeader()
             ImGui::EndMenuBar();
             return;
         }
-        MDRHeadphonesStatus status = MDRStruct<MDRHeadphonesStatus>();
-        if (mdrHeadphonesGetStatus(gDevice, &status) != MDR_RESULT_OK || !status.ready)
+        if (!mdrHeadphonesIsReady(gDevice))
             ImSpinner(1000, style.FontSizeBase * 0.5f,
                       MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface, 0.5f), 2.0f, false,
                       true, 1.0f, ImEaseInOutCubic);
@@ -1560,7 +1559,7 @@ void DrawDeviceControls()
     }
     if (event == MDR_EVENT_INITIALIZE_COMPLETE)
     {
-        if (mdrHeadphonesStart(gDevice, MDR_OPERATION_SYNC) != MDR_RESULT_OK)
+        if (mdrHeadphonesRequestFetch(gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;
@@ -1578,14 +1577,8 @@ void DrawDeviceControls()
     ImScrollWhenDraggingAnywhere(ImGui::GetIO().MouseDelta, ImGuiMouseButton_Left);
     ImGui::EndChild();
 
-    MDRHeadphonesStatus status = MDRStruct<MDRHeadphonesStatus>();
-    if (mdrHeadphonesGetStatus(gDevice, &status) != MDR_RESULT_OK)
-    {
-        DisconnectWithModal();
-        return;
-    }
-    if (status.ready && status.dirty && status.active_operation == MDR_OPERATION_NONE &&
-        mdrHeadphonesStart(gDevice, MDR_OPERATION_APPLY) != MDR_RESULT_OK)
+    if (mdrHeadphonesIsReady(gDevice) && mdrHeadphonesIsDirty(gDevice) &&
+        mdrHeadphonesRequestCommit(gDevice) != MDR_RESULT_OK)
         DisconnectWithModal();
 }
 

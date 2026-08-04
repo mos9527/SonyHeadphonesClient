@@ -6,6 +6,58 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MDR_ASSERT_U32(type) \
+    _Static_assert(sizeof(type) == sizeof(uint32_t), #type " must be uint32_t")
+MDR_ASSERT_U32(MDRResult);
+MDR_ASSERT_U32(MDRBoolean);
+MDR_ASSERT_U32(MDRFeatureAvailability);
+MDR_ASSERT_U32(MDRFeature);
+MDR_ASSERT_U32(MDREvent);
+MDR_ASSERT_U32(MDRPacketDirection);
+MDR_ASSERT_U32(MDRText);
+MDR_ASSERT_U32(MDRAudioCodec);
+MDR_ASSERT_U32(MDRBatteryPart);
+MDR_ASSERT_U32(MDRChargingState);
+MDR_ASSERT_U32(MDRPlaybackStatus);
+MDR_ASSERT_U32(MDRPlaybackAction);
+MDR_ASSERT_U32(MDRNoiseMode);
+MDR_ASSERT_U32(MDRAdaptiveSensitivity);
+MDR_ASSERT_U32(MDRNoiseButtonMode);
+MDR_ASSERT_U32(MDRSpeechSensitivity);
+MDR_ASSERT_U32(MDRSpeakTimeout);
+MDR_ASSERT_U32(MDRListeningMode);
+MDR_ASSERT_U32(MDRRoomSize);
+MDR_ASSERT_U32(MDREqualizerPreset);
+MDR_ASSERT_U32(MDRDseeType);
+MDR_ASSERT_U32(MDRPairedDeviceCommand);
+MDR_ASSERT_U32(MDRGeneralSettingType);
+MDR_ASSERT_U32(MDRAssignableAction);
+MDR_ASSERT_U32(MDRWearingPowerMode);
+MDR_ASSERT_U32(MDRAudioPriority);
+#undef MDR_ASSERT_U32
+
+#define MDR_ASSERT_C_STRUCT(type) \
+    _Static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
+MDR_ASSERT_C_STRUCT(MDRIdentity);
+MDR_ASSERT_C_STRUCT(MDRBattery);
+MDR_ASSERT_C_STRUCT(MDRPlayback);
+MDR_ASSERT_C_STRUCT(MDRPlaybackCommand);
+MDR_ASSERT_C_STRUCT(MDRNoiseControl);
+MDR_ASSERT_C_STRUCT(MDRSpeakToChat);
+MDR_ASSERT_C_STRUCT(MDRListening);
+MDR_ASSERT_C_STRUCT(MDREqualizer);
+MDR_ASSERT_C_STRUCT(MDRPairedDevice);
+MDR_ASSERT_C_STRUCT(MDRPairedDeviceAction);
+MDR_ASSERT_C_STRUCT(MDRPairing);
+MDR_ASSERT_C_STRUCT(MDRGeneralSettingInfo);
+MDR_ASSERT_C_STRUCT(MDRGeneralSetting);
+MDR_ASSERT_C_STRUCT(MDRAssignableControls);
+MDR_ASSERT_C_STRUCT(MDRPower);
+MDR_ASSERT_C_STRUCT(MDRVoiceGuidance);
+MDR_ASSERT_C_STRUCT(MDRConnectionMode);
+MDR_ASSERT_C_STRUCT(MDRSafeListening);
+#undef MDR_ASSERT_C_STRUCT
+
 enum
 {
     MOCK_BUFFER_CAPACITY = 4096,
@@ -164,7 +216,7 @@ static int session_open(Session* session)
     memset(session, 0, sizeof(*session));
     mock_init(&session->transport);
     check_result(
-        mdrHeadphonesOpen(&session->transport.connection, &session->headphones),
+        mdrHeadphonesCreate(&session->transport.connection, &session->headphones),
         MDR_RESULT_OK,
         "opaque headphones session opens"
     );
@@ -173,7 +225,7 @@ static int session_open(Session* session)
 
 static void session_close(Session* session)
 {
-    mdrHeadphonesClose(session->headphones);
+    mdrHeadphonesDestroy(session->headphones);
     session->headphones = NULL;
 }
 
@@ -299,12 +351,6 @@ static void select_v2(Session* session, const char* message)
 static void test_struct_and_buffer_contracts(void)
 {
     Session session;
-    MDRHeadphonesStatus status;
-    struct ExtendedStatus
-    {
-        MDRHeadphonesStatus base;
-        uint32_t future_field;
-    } extended;
     uint32_t text_size;
     char short_text[1];
     uint32_t short_text_size;
@@ -313,33 +359,6 @@ static void test_struct_and_buffer_contracts(void)
 
     if (!session_open(&session))
         return;
-
-    memset(&status, 0, sizeof(status));
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &status),
-        MDR_RESULT_ERROR_INVALID_ARGUMENT,
-        "status rejects a missing struct_size"
-    );
-    status.struct_size = (uint32_t)sizeof(status);
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &status),
-        MDR_RESULT_OK,
-        "status accepts its current struct_size"
-    );
-    check(status.struct_size == sizeof(status), "status reports its current struct_size");
-
-    memset(&extended, 0, sizeof(extended));
-    extended.base.struct_size = (uint32_t)sizeof(extended);
-    extended.future_field = UINT32_C(0xa5a5a5a5);
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &extended.base),
-        MDR_RESULT_OK,
-        "status accepts a forward-compatible struct_size"
-    );
-    check(
-        extended.future_field == UINT32_C(0xa5a5a5a5),
-        "status leaves caller extension storage untouched"
-    );
 
     text_size = 1;
     check_result(
@@ -402,31 +421,22 @@ static void test_struct_and_buffer_contracts(void)
 static void test_one_operation_at_a_time(void)
 {
     Session session;
-    MDRHeadphonesStatus status;
 
     if (!session_open(&session))
         return;
     check_result(
-        mdrHeadphonesStart(session.headphones, MDR_OPERATION_INITIALIZE),
+        mdrHeadphonesRequestInit(session.headphones),
         MDR_RESULT_OK,
         "initialization starts"
     );
     check_result(
-        mdrHeadphonesStart(session.headphones, MDR_OPERATION_SYNC),
+        mdrHeadphonesRequestFetch(session.headphones),
         MDR_RESULT_INPROGRESS,
         "a second operation is rejected while initialization is active"
     );
-    memset(&status, 0, sizeof(status));
-    status.struct_size = (uint32_t)sizeof(status);
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &status),
-        MDR_RESULT_OK,
-        "active operation status is available"
-    );
     check(
-        status.active_operation == MDR_OPERATION_INITIALIZE
-            && status.ready == MDR_FALSE,
-        "status retains the first operation"
+        mdrHeadphonesIsReady(session.headphones) == MDR_FALSE,
+        "status reports the active operation as busy"
     );
     session_close(&session);
 }
@@ -436,7 +446,6 @@ static void test_committed_state_staging(void)
     Session session;
     MDRPlayback staged;
     MDRPlayback current;
-    MDRHeadphonesStatus status;
 
     if (!session_open(&session))
         return;
@@ -459,14 +468,10 @@ static void test_committed_state_staging(void)
     );
     check(current.volume == 0, "staging does not alter current playback");
 
-    memset(&status, 0, sizeof(status));
-    status.struct_size = (uint32_t)sizeof(status);
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &status),
-        MDR_RESULT_OK,
-        "dirty status is readable"
+    check(
+        mdrHeadphonesIsDirty(session.headphones) == MDR_TRUE,
+        "staging marks the session dirty"
     );
-    check(status.dirty == MDR_TRUE, "staging marks the session dirty");
     session_close(&session);
 }
 
@@ -481,7 +486,6 @@ static void test_playback_actions(void)
     };
     size_t index;
     MDRPlaybackCommand command;
-    MDRHeadphonesStatus status;
     unsigned char ack[FRAME_BUFFER_CAPACITY];
     size_t ack_size;
     MDRPlayback unsupported_status;
@@ -502,17 +506,13 @@ static void test_playback_actions(void)
             "supported playback action stages"
         );
 
-        memset(&status, 0, sizeof(status));
-        status.struct_size = (uint32_t)sizeof(status);
-        check_result(
-            mdrHeadphonesGetStatus(session.headphones, &status),
-            MDR_RESULT_OK,
-            "staged playback action status is readable"
+        check(
+            mdrHeadphonesIsDirty(session.headphones) == MDR_TRUE,
+            "playback action is pending"
         );
-        check(status.dirty == MDR_TRUE, "playback action is pending");
 
         check_result(
-            mdrHeadphonesStart(session.headphones, MDR_OPERATION_APPLY),
+            mdrHeadphonesRequestCommit(session.headphones),
             MDR_RESULT_OK,
             "playback action apply starts"
         );
@@ -522,15 +522,9 @@ static void test_playback_actions(void)
         poll_event(session.headphones, &event, "playback action completion polls");
         check(event == MDR_EVENT_APPLY_COMPLETE, "playback action apply completes");
 
-        memset(&status, 0, sizeof(status));
-        status.struct_size = (uint32_t)sizeof(status);
-        check_result(
-            mdrHeadphonesGetStatus(session.headphones, &status),
-            MDR_RESULT_OK,
-            "applied playback action status is readable"
-        );
         check(
-            status.ready == MDR_TRUE && status.dirty == MDR_FALSE,
+            mdrHeadphonesIsReady(session.headphones) == MDR_TRUE
+                && mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
             "playback action is consumed as a one-shot"
         );
     }
@@ -604,12 +598,11 @@ static void test_v2_bootstrap(void)
     size_t frame_size;
     MDRIdentity identity;
     MDREvent event;
-    MDRHeadphonesStatus status;
 
     if (!session_open(&session))
         return;
     check_result(
-        mdrHeadphonesStart(session.headphones, MDR_OPERATION_INITIALIZE),
+        mdrHeadphonesRequestInit(session.headphones),
         MDR_RESULT_OK,
         "automatic initialization starts"
     );
@@ -639,17 +632,9 @@ static void test_v2_bootstrap(void)
         "V2 protocol selection reports identity change"
     );
 
-    memset(&status, 0, sizeof(status));
-    status.struct_size = (uint32_t)sizeof(status);
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &status),
-        MDR_RESULT_OK,
-        "V2 bootstrap status is readable"
-    );
     check(
-        status.active_operation == MDR_OPERATION_INITIALIZE
-            && status.initialized == MDR_FALSE
-            && status.ready == MDR_FALSE,
+        mdrHeadphonesIsInitialized(session.headphones) == MDR_FALSE
+            && mdrHeadphonesIsReady(session.headphones) == MDR_FALSE,
         "V2 bootstrap automatically continues into backend initialization"
     );
     session_close(&session);
@@ -668,7 +653,7 @@ static void test_v1_bootstrap_not_supported(void)
     if (!session_open(&session))
         return;
     check_result(
-        mdrHeadphonesStart(session.headphones, MDR_OPERATION_INITIALIZE),
+        mdrHeadphonesRequestInit(session.headphones),
         MDR_RESULT_OK,
         "V1 probe starts"
     );
@@ -721,7 +706,6 @@ static void test_newer_staging_survives_apply(void)
     MDRPlayback first;
     MDRPlayback newer;
     MDRPlayback current;
-    MDRHeadphonesStatus status;
     unsigned char ack[FRAME_BUFFER_CAPACITY];
     size_t ack_size;
     MDREvent ack_event;
@@ -741,7 +725,7 @@ static void test_newer_staging_survives_apply(void)
         "first playback value stages"
     );
     check_result(
-        mdrHeadphonesStart(session.headphones, MDR_OPERATION_APPLY),
+        mdrHeadphonesRequestCommit(session.headphones),
         MDR_RESULT_OK,
         "apply starts"
     );
@@ -775,17 +759,9 @@ static void test_newer_staging_survives_apply(void)
     );
     check(current.volume == first.volume, "apply commits its original snapshot");
 
-    memset(&status, 0, sizeof(status));
-    status.struct_size = (uint32_t)sizeof(status);
-    check_result(
-        mdrHeadphonesGetStatus(session.headphones, &status),
-        MDR_RESULT_OK,
-        "post-apply status is readable"
-    );
     check(
-        status.active_operation == MDR_OPERATION_NONE
-            && status.ready == MDR_TRUE
-            && status.dirty == MDR_TRUE,
+        mdrHeadphonesIsReady(session.headphones) == MDR_TRUE
+            && mdrHeadphonesIsDirty(session.headphones) == MDR_TRUE,
         "newer value remains pending after apply completes"
     );
     session_close(&session);

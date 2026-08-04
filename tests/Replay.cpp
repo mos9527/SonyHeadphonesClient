@@ -195,7 +195,7 @@ namespace
         MockTransport transport;
         MDRHeadphones* headphones = nullptr;
         Check(
-            mdrHeadphonesOpen(&transport.connection, &headphones) == MDR_RESULT_OK,
+            mdrHeadphonesCreate(&transport.connection, &headphones) == MDR_RESULT_OK,
             "opaque headphones session opens"
         );
         if (headphones == nullptr)
@@ -221,19 +221,18 @@ namespace
             Check(dispatched, "packet dispatches: " + path.string());
             if (!dispatched)
             {
-                MDRHeadphonesStatus status{.struct_size = sizeof(status)};
-                const MDRResult statusResult =
-                    mdrHeadphonesGetStatus(headphones, &status);
                 std::cerr
                     << "  event: " << event
-                    << ", status result: " << statusResult
+                    << ", ready: " << mdrHeadphonesIsReady(headphones)
+                    << ", dirty: " << mdrHeadphonesIsDirty(headphones)
+                    << ", initialized: " << mdrHeadphonesIsInitialized(headphones)
                     << ", last error: " << GetLastError(headphones)
                     << '\n';
             }
             ++replayed;
         }
 
-        mdrHeadphonesClose(headphones);
+        mdrHeadphonesDestroy(headphones);
         std::cout << "Replayed " << replayed << " packet(s) from "
                   << root.string() << '\n';
     }

@@ -462,7 +462,6 @@ namespace mdr
          * not participate in wire handling; the existing V2 engine remains the
          * temporary source of current/desired state.
          */
-        MDROperation mNeutralActiveOperation{MDR_OPERATION_NONE};
         bool mNeutralInitialized{};
 
     private:

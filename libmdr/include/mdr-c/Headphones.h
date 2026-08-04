@@ -46,12 +46,6 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_CONNECTION_MODE ((MDRFeature)27u)
 #define MDR_FEATURE_SAFE_LISTENING ((MDRFeature)28u)
 
-typedef uint32_t MDROperation;
-#define MDR_OPERATION_NONE ((MDROperation)0u)
-#define MDR_OPERATION_INITIALIZE ((MDROperation)1u)
-#define MDR_OPERATION_SYNC ((MDROperation)2u)
-#define MDR_OPERATION_APPLY ((MDROperation)3u)
-
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
 #define MDR_EVENT_IDENTITY_CHANGED ((MDREvent)1u)
@@ -244,15 +238,6 @@ typedef uint32_t MDRAudioPriority;
 #define MDR_AUDIO_PRIORITY_QUALITY ((MDRAudioPriority)1u)
 #define MDR_AUDIO_PRIORITY_STABILITY ((MDRAudioPriority)2u)
 
-typedef struct MDRHeadphonesStatus
-{
-    uint32_t struct_size;
-    MDROperation active_operation;
-    MDRBoolean ready;
-    MDRBoolean dirty;
-    MDRBoolean initialized;
-} MDRHeadphonesStatus;
-
 typedef struct MDRIdentity
 {
     uint32_t struct_size;
@@ -406,11 +391,46 @@ typedef void (*MDRPacketCallback)(
 extern "C" {
 #endif
 
-/* Lifecycle and processing. */
-MDR_API MDRResult mdrHeadphonesOpen(MDRConnection* connection, MDRHeadphones** out_headphones);
-MDR_API void mdrHeadphonesClose(MDRHeadphones* headphones);
-MDR_API MDRResult mdrHeadphonesGetStatus(MDRHeadphones* headphones, MDRHeadphonesStatus* out_status);
-MDR_API MDRResult mdrHeadphonesStart(MDRHeadphones* headphones, MDROperation operation);
+/**
+ * @brief Creates a new MDRHeadphones instance with an existing @ref MDRConnection. 
+ */
+MDR_API MDRResult mdrHeadphonesCreate(MDRConnection* connection, MDRHeadphones** ppHeadphones);
+/**
+ * @brief Frees the @ref MDRHeadphones instance. 
+ */
+MDR_API void mdrHeadphonesDestroy(MDRHeadphones* headphones);
+/**
+ * @brief Returns true if the @ref MDRHeadphones instance has been initialized via @ref mdrHeadphonesRequestInit.
+ */
+MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
+/**
+ * @brief Returns true if new ...Request calls can be made.
+ *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request calls will 
+ *        fail with @ref MDR_RESULT_INPROGRESS. 
+ */
+MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
+/**
+ * @brief Returns true if there are pending changes made through the ...Set calls that have not yet been committed to
+ *        the device via @ref mdrHeadphonesRequestCommit. 
+ */
+MDR_API MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones);
+/**
+ * @brief Request initialization. This MUST be called prior to other operations. 
+ *        See also @ref mdrHeadphonesIsInitialized, @ref mdrHeadphonesIsReady, and @ref mdrHeadphonesIsDirty. 
+ */
+MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones);
+/**
+ * @brief Request pulling latest states from the device. This includes e.g. battery levels and some other states that may change without being 
+ *        notified by the headphones themselves. 
+ */
+MDR_API MDRResult mdrHeadphonesRequestFetch(MDRHeadphones* headphones);
+/**
+ * @brief Commits any pending changes made via the ...Set calls. Changes are ONLY applied to the devices
+ *        after this call is complete, and only then @ref mdrHeadphonesIsDirty will return false
+ * @note  You may call this function at the end of your frame/event loop. Calling this function
+ *        when @ref mdrHeadphonesIsDirty returns false is a no-op.
+ */
+MDR_API MDRResult mdrHeadphonesRequestCommit(MDRHeadphones* headphones);
 
 /**
  * Processes pending I/O without blocking and reports one semantic event.

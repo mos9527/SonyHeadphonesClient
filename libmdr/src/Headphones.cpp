@@ -929,7 +929,7 @@ const char* mdrConnectionGetLastError(MDRConnection* conn)
     return conn->getLastError(conn->user);
 }
 
-MDRResult mdrHeadphonesOpen(MDRConnection* connection, MDRHeadphones** outHeadphones)
+MDRResult mdrHeadphonesCreate(MDRConnection* connection, MDRHeadphones** outHeadphones)
 {
     if (!connection || !outHeadphones || !connection->recv || !connection->send || !connection->poll)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -941,54 +941,55 @@ MDRResult mdrHeadphonesOpen(MDRConnection* connection, MDRHeadphones** outHeadph
     return MDR_RESULT_OK;
 }
 
-void mdrHeadphonesClose(MDRHeadphones* headphones)
+void mdrHeadphonesDestroy(MDRHeadphones* headphones)
 {
     if (headphones)
         mdr::Destruct(Impl(headphones));
 }
 
-MDRResult mdrHeadphonesGetStatus(MDRHeadphones* headphones, MDRHeadphonesStatus* outStatus)
+MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones)
 {
-    if (!headphones || ValidateStruct(outStatus) != MDR_RESULT_OK)
-        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    const auto* h = Impl(headphones);
-    *outStatus = {
-        .struct_size = sizeof(*outStatus),
-        .active_operation = h->mNeutralActiveOperation,
-        .ready = static_cast<MDRBoolean>(h->IsReady()),
-        .dirty = static_cast<MDRBoolean>(h->IsDirty()),
-        .initialized = static_cast<MDRBoolean>(h->mNeutralInitialized)
-    };
-    return MDR_RESULT_OK;
+    return static_cast<MDRBoolean>(headphones && Impl(headphones)->mNeutralInitialized);
 }
 
-MDRResult mdrHeadphonesStart(MDRHeadphones* headphones, MDROperation operation)
+MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones)
+{
+    return static_cast<MDRBoolean>(headphones && Impl(headphones)->IsReady());
+}
+
+MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones)
+{
+    return static_cast<MDRBoolean>(headphones && Impl(headphones)->IsDirty());
+}
+
+MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones)
 {
     if (!headphones)
-        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    if (operation < MDR_OPERATION_INITIALIZE || operation > MDR_OPERATION_APPLY)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
     if (!h->IsReady())
         return MDR_RESULT_INPROGRESS;
-    MDRResult result = MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    switch (operation)
-    {
-    case MDR_OPERATION_INITIALIZE:
-        result = h->Invoke(h->RequestInit());
-        break;
-    case MDR_OPERATION_SYNC:
-        result = h->Invoke(h->RequestSync());
-        break;
-    case MDR_OPERATION_APPLY:
-        result = h->Invoke(h->RequestCommit());
-        break;
-    default:
+    return h->Invoke(h->RequestInit());
+}
+
+MDRResult mdrHeadphonesRequestFetch(MDRHeadphones* headphones)
+{
+    if (!headphones)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    }
-    if (result == MDR_RESULT_OK)
-        h->mNeutralActiveOperation = operation;
-    return result;
+    auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
+    return h->Invoke(h->RequestSync());
+}
+
+MDRResult mdrHeadphonesRequestCommit(MDRHeadphones* headphones)
+{
+    if (!headphones)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
+    return h->Invoke(h->RequestCommit());
 }
 
 MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* outEvent)
@@ -1014,28 +1015,26 @@ MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* outEvent)
     if (raw == MDR_HEADPHONES_TASK_INIT_OK || raw == MDR_HEADPHONES_TASK_SYNC_OK ||
         raw == MDR_HEADPHONES_TASK_COMMIT_OK)
     {
-        switch (h->mNeutralActiveOperation)
+        switch (raw)
         {
-        case MDR_OPERATION_INITIALIZE:
+        case MDR_HEADPHONES_TASK_INIT_OK:
             h->mNeutralInitialized = true;
             *outEvent = MDR_EVENT_INITIALIZE_COMPLETE;
             break;
-        case MDR_OPERATION_SYNC:
+        case MDR_HEADPHONES_TASK_SYNC_OK:
             *outEvent = MDR_EVENT_SYNC_COMPLETE;
             break;
-        case MDR_OPERATION_APPLY:
+        case MDR_HEADPHONES_TASK_COMMIT_OK:
             *outEvent = MDR_EVENT_APPLY_COMPLETE;
             break;
         default:
             *outEvent = MDR_EVENT_UNHANDLED;
             break;
         }
-        h->mNeutralActiveOperation = MDR_OPERATION_NONE;
         return MDR_RESULT_OK;
     }
     if (raw == MDR_HEADPHONES_ERROR)
     {
-        h->mNeutralActiveOperation = MDR_OPERATION_NONE;
         return MDR_RESULT_ERROR_GENERAL;
     }
     if (raw == MDR_HEADPHONES_IDLE || raw == MDR_HEADPHONES_INPROGRESS)
