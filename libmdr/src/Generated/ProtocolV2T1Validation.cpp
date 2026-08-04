@@ -3,6 +3,14 @@
 #include "../Details.hpp"
 
 namespace mdr::v2::t1 {
+mdr::String format_as(const SupportFunction& data) {
+    mdr::detail::JsonFormatter o;
+    o.BeginObject();
+    o.Field("functionType", data.functionType);
+    o.Field("priority", data.priority);
+    o.EndObject();
+    return std::move(o).Take();
+}
 mdr::String format_as(const AfEqPresetId& data) {
     mdr::detail::JsonFormatter o;
     o.BeginObject();
@@ -2237,6 +2245,7 @@ MDRResult<void> ConnectRetSupportFunction::Validate(const ConnectRetSupportFunct
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == ConnectInquiredType::FIXED_VALUE);
     for (const auto& supportFunctions_elem : data.supportFunctions) {
+        MDR_VALIDATE(is_valid(supportFunctions_elem.functionType));
     }
     return MDRResult<void>::Success();
 }
@@ -2248,7 +2257,7 @@ mdr::String format_as(const ConnectRetSupportFunction& data) {
     o.BeginArrayField("supportFunctions");
     for (const auto& element : data.supportFunctions) {
         o.BeginObjectElement();
-        o.Field("functionType", element.table1);
+        o.Field("functionType", element.functionType);
         o.Field("priority", element.priority);
         o.EndObject();
     }

@@ -338,22 +338,15 @@ CXChildVisitResult fieldStringifyVisitor(CXCursor cursor, CXCursor, CXClientData
             typeNameStr.starts_with("MDRPodArray<"),
             "SupportFunction must be a counted POD array"
         );
-        const char* functionTypeField = nullptr;
-        if (gNamespaceName == "mdr::v2::t1")
-            functionTypeField = "table1";
-        else if (gNamespaceName == "mdr::v2::t2")
-            functionTypeField = "table2";
         CHECK(
-            functionTypeField != nullptr,
+            gNamespaceName == "mdr::v2::t1"
+                || gNamespaceName == "mdr::v2::t2",
             "SupportFunction requires a V2 table namespace"
         );
         println("    o.BeginArrayField(\"{}\");", fieldName);
         println("    for (const auto& element : data.{}) {{", fieldName);
         println("        o.BeginObjectElement();");
-        println(
-            "        o.Field(\"functionType\", element.{});",
-            functionTypeField
-        );
+        println("        o.Field(\"functionType\", element.functionType);");
         println("        o.Field(\"priority\", element.priority);");
         println("        o.EndObject();");
         println("    }}");

@@ -6852,8 +6852,8 @@ namespace mdr::v2::t1
         PowerInquiredType inquiredType{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevelThreshHold{}; // 0x2
-        MDRPodArray<FunctionType_Table1> supportedFunctionsOnTable1; // 0x3
-        MDRPodArray<FunctionType_Table2> supportedFunctionsOnTable2;
+        MDRPodArray<FunctionType> supportedFunctionsOnTable1; // 0x3
+        MDRPodArray<mdr::v2::t2::FunctionType> supportedFunctionsOnTable2;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(PowerRetCapabilityBatterySafeMode);
     };

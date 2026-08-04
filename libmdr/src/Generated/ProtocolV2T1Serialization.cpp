@@ -1611,8 +1611,8 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.batteryLevelThreshHold, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<FunctionType_Table1>::Write)(data.supportedFunctionsOnTable1, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<FunctionType_Table2>::Write)(data.supportedFunctionsOnTable2, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<FunctionType>::Write)(data.supportedFunctionsOnTable1, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<mdr::v2::t2::FunctionType>::Write)(data.supportedFunctionsOnTable2, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<PowerRetCapabilityBatterySafeMode> PowerRetCapabilityBatterySafeMode::Deserialize(const UInt8* data, size_t maxSize)
@@ -1621,8 +1621,8 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, MDRPod::Read(&data, out.batteryLevelThreshHold, maxSize));
-        MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, (MDRPodArray<FunctionType_Table1>::Read)(&data, out.supportedFunctionsOnTable1, maxSize));
-        MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, (MDRPodArray<FunctionType_Table2>::Read)(&data, out.supportedFunctionsOnTable2, maxSize));
+        MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, (MDRPodArray<FunctionType>::Read)(&data, out.supportedFunctionsOnTable1, maxSize));
+        MDR_TRY_SIZE(PowerRetCapabilityBatterySafeMode, (MDRPodArray<mdr::v2::t2::FunctionType>::Read)(&data, out.supportedFunctionsOnTable2, maxSize));
         MDR_TRY(PowerRetCapabilityBatterySafeMode, Validate(out));
         return MDRResult<PowerRetCapabilityBatterySafeMode>::Success(std::move(out));
     }

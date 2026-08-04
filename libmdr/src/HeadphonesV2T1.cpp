@@ -19,7 +19,7 @@ namespace mdr
         Deserialize(ConnectRetSupportFunction, res, cmd);
         std::ranges::fill(self->mSupport.table1Functions, false);
         for (auto fun : res.supportFunctions)
-            self->mSupport.table1Functions[static_cast<UInt8>(fun.table1)] = true;
+            self->mSupport.table1Functions[static_cast<UInt8>(fun.functionType)] = true;
         self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
         return MDR_HEADPHONES_EVT_SUPPORT_FUNCTIONS;
     }

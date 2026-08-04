@@ -665,7 +665,7 @@ class ProtocolExtractor:
             )
         return EnumDecl(
             objc_name=class_name,
-            cpp_name=f"{self.metadata(class_name).java_name}_Table{table}",
+            cpp_name=self.metadata(class_name).java_name,
             values=tuple(values),
             sources=(
                 SourceRef(initializer.address, initializer.symbol),
@@ -1608,12 +1608,11 @@ class ProtocolExtractor:
             "SupportFunction",
             "EnableDisable",
             "OnOffSettingValue",
-            "FunctionType_Table1",
-            "FunctionType_Table2",
             "Range",
             "mdr",
             "v2",
             "t1",
+            "t2",
             "Preset",
         }
         referenced = {
@@ -2311,13 +2310,22 @@ class ProtocolExtractor:
                 == "MDRPodArray<FunctionType>"
             ):
                 if "Table1" in name:
-                    cpp_type = (
-                        "MDRPodArray<FunctionType_Table1>"
-                    )
+                    function_type_table = 1
                 elif "Table2" in name:
-                    cpp_type = (
-                        "MDRPodArray<FunctionType_Table2>"
-                    )
+                    function_type_table = 2
+                else:
+                    function_type_table = None
+                if function_type_table is not None:
+                    function_type = "FunctionType"
+                    if self._current_coordinates != (
+                        2,
+                        function_type_table,
+                    ):
+                        function_type = (
+                            f"mdr::v2::t{function_type_table}::"
+                            "FunctionType"
+                        )
+                    cpp_type = f"MDRPodArray<{function_type}>"
             size = _FIXED_SIZES.get(cpp_type)
             if (
                 size is None

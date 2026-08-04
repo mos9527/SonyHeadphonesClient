@@ -20894,7 +20894,7 @@
       ]
     },
     {
-      "cpp_name": "FunctionType_Table1",
+      "cpp_name": "FunctionType",
       "objc_name": "ComSonySongpalTandemfamilyMessageMdrV2FunctionType",
       "sources": [
         {
@@ -56952,7 +56952,7 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPodArray<FunctionType_Table1>",
+          "cpp_type": "MDRPodArray<FunctionType>",
           "default": null,
           "name": "supportedFunctionsOnTable1",
           "offset": 3,
@@ -56961,7 +56961,7 @@
           "wire_kind": "array"
         },
         {
-          "cpp_type": "MDRPodArray<FunctionType_Table2>",
+          "cpp_type": "MDRPodArray<mdr::v2::t2::FunctionType>",
           "default": null,
           "name": "supportedFunctionsOnTable2",
           "offset": null,

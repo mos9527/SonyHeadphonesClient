@@ -18,9 +18,61 @@ OUT_OF_RANGE_IGNORE_REASON = (
     "OUT_OF_RANGE is expected"
 )
 
+V2_FUNCTION_TYPE_CLASS = (
+    "ComSonySongpalTandemfamilyMessageMdrV2FunctionType"
+)
 
-def _render_v2_shared_types() -> list[str]:
-    return [
+
+def _render_function_type_helpers(
+    enum: EnumDecl,
+    table: int,
+) -> list[str]:
+    alias = f"FunctionType_Table{table}"
+    qualified = f"t{table}::FunctionType"
+    lines = [
+        f"    static const char* format_as({alias} value)",
+        "    {",
+        f"        using enum {qualified};",
+        "        switch (value)",
+        "        {",
+    ]
+    lines.extend(
+        f'        case {value.name}: return "{value.name}";'
+        for value in enum.values
+    )
+    lines.extend(
+        [
+            '        default: return "Unknown";',
+            "        }",
+            "    }",
+            "",
+            f"    static bool is_valid({alias} value)",
+            "    {",
+            f"        using enum {qualified};",
+            "        switch (value)",
+            "        {",
+        ]
+    )
+    lines.extend(
+        f"        case {value.name}:"
+        for value in enum.values
+    )
+    lines.extend(
+        [
+            "            return true;",
+            "        default:",
+            "            return false;",
+            "        }",
+            "    }",
+        ]
+    )
+    return lines
+
+
+def _render_v2_shared_types(
+    function_types: dict[int, EnumDecl],
+) -> list[str]:
+    lines = [
         "    struct Range",
         "    {",
         "        UInt8 min;",
@@ -29,17 +81,43 @@ def _render_v2_shared_types() -> list[str]:
         "",
         "        MDR_DEFINE_TRIVIAL_SERIALIZATION(Range);",
         "    };",
-        "",
-        "    struct SupportFunction",
-        "    {",
-        "        union",
-        "        {",
-        "            FunctionType_Table1 table1;",
-        "            FunctionType_Table2 table2;",
-        "        };",
-        "        UInt8 priority;",
-        "    };",
     ]
+    for table in (1, 2):
+        lines.extend(
+            [
+                "",
+                f"    namespace t{table}",
+                "    {",
+            ]
+        )
+        lines.extend(_render_enum(function_types[table], indent="        "))
+        lines.extend(
+            [
+                "",
+                "        struct SupportFunction",
+                "        {",
+                "            FunctionType functionType;",
+                "            UInt8 priority;",
+                "        };",
+                f"    }} // namespace t{table}",
+            ]
+        )
+    for table in (1, 2):
+        lines.extend(
+            [
+                "",
+                # Keep source compatibility and make the parent namespace
+                # overloads available to cross-table payload fields.
+                f"    using FunctionType_Table{table} = "
+                f"t{table}::FunctionType;",
+            ]
+        )
+    for table in (1, 2):
+        lines.append("")
+        lines.extend(
+            _render_function_type_helpers(function_types[table], table)
+        )
+    return lines
 
 
 def _render_enum(enum: EnumDecl, indent: str = "    ") -> list[str]:
@@ -239,6 +317,11 @@ def _shared_enums(tables: list[TableIR]) -> dict[int, list[EnumDecl]]:
     output: dict[int, dict[str, EnumDecl]] = defaultdict(dict)
     for table in tables:
         for enum in table.enums:
+            if (
+                table.version == 2
+                and enum.objc_name == V2_FUNCTION_TYPE_CLASS
+            ):
+                continue
             if re.match(r"^THMSGV[12]T[12]", enum.objc_name):
                 continue
             prior = output[table.version].get(enum.cpp_name)
@@ -254,7 +337,15 @@ def _shared_enums(tables: list[TableIR]) -> dict[int, list[EnumDecl]]:
     }
 
 
-def render_shared_header(version: int, enums: list[EnumDecl]) -> str:
+def render_shared_header(
+    version: int,
+    enums: list[EnumDecl],
+    function_types: dict[int, EnumDecl] | None = None,
+) -> str:
+    rendered_enums = list(enums)
+    if version == 2:
+        if function_types is None or set(function_types) != {1, 2}:
+            raise ValueError("V2 requires function types for tables 1 and 2")
     lines = [
         "#pragma once",
         '#include "Protocol.hpp"',
@@ -263,13 +354,13 @@ def render_shared_header(version: int, enums: list[EnumDecl]) -> str:
         f"namespace mdr::v{version}",
         "{",
     ]
-    for index, enum in enumerate(enums):
+    for index, enum in enumerate(rendered_enums):
         if index:
             lines.append("")
         lines.extend(_render_enum(enum, indent="    "))
     if version == 2:
         lines.append("")
-        lines.extend(_render_v2_shared_types())
+        lines.extend(_render_v2_shared_types(function_types))
     lines.extend(
         [
             f"}} // namespace mdr::v{version}",
@@ -347,11 +438,24 @@ def render_all(
         for table in (1, 2)
     ]
     shared = _shared_enums(tables)
+    function_types = {
+        table.table: next(
+            enum
+            for enum in table.enums
+            if enum.objc_name == V2_FUNCTION_TYPE_CLASS
+        )
+        for table in tables
+        if table.version == 2
+    }
     include_directory.mkdir(parents=True, exist_ok=True)
     for version in (1, 2):
         destination = include_directory / f"ProtocolV{version}.hpp"
         destination.write_text(
-            render_shared_header(version, shared.get(version, [])),
+            render_shared_header(
+                version,
+                shared.get(version, []),
+                function_types if version == 2 else None,
+            ),
             encoding="utf-8",
             newline="\n",
         )

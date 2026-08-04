@@ -8993,7 +8993,7 @@
       ]
     },
     {
-      "cpp_name": "FunctionType_Table2",
+      "cpp_name": "FunctionType",
       "objc_name": "ComSonySongpalTandemfamilyMessageMdrV2FunctionType",
       "sources": [
         {

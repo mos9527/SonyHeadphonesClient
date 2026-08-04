@@ -2,6 +2,9 @@
 #pragma once
 
 namespace mdr {
+    template<> struct MDRTraits<v2::t2::SupportFunction> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
     template<> struct MDRTraits<v2::t2::ConnectGetSupportFunction> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
@@ -920,6 +923,7 @@ namespace mdr {
 }
 
 namespace mdr::v2::t2 {
+    [[nodiscard]] mdr::String format_as(const SupportFunction& value);
     [[nodiscard]] mdr::String format_as(const ConnectGetSupportFunction& value);
     [[nodiscard]] mdr::String format_as(const ConnectRetSupportFunction& value);
     [[nodiscard]] mdr::String format_as(const LEAGetCapability& value);

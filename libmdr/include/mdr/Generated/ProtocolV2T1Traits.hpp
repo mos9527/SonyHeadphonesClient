@@ -2,6 +2,9 @@
 #pragma once
 
 namespace mdr {
+    template<> struct MDRTraits<v2::t1::SupportFunction> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v2::t1::AfEqPresetId> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -1874,6 +1877,7 @@ namespace mdr {
 }
 
 namespace mdr::v2::t1 {
+    [[nodiscard]] mdr::String format_as(const SupportFunction& value);
     [[nodiscard]] mdr::String format_as(const AfEqPresetId& value);
     [[nodiscard]] mdr::String format_as(const AfModeNcDualModeSwitchAsmSeamless& value);
     [[nodiscard]] mdr::String format_as(const AfModeNcDualModeSwitchAsmSeamlessNa& value);
