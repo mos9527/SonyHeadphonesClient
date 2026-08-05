@@ -1,6 +1,12 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
 #include <cstdio>
 #include <cstring>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -108,6 +114,19 @@ void mainLoop()
 
 namespace
 {
+#ifdef _WIN32
+    void OpenConsole()
+    {
+        if (!AllocConsole() && GetLastError() != ERROR_ACCESS_DENIED)
+            return;
+
+        std::freopen("CONOUT$", "w", stdout);
+        std::freopen("CONOUT$", "w", stderr);
+        std::freopen("CONIN$", "r", stdin);
+        SetConsoleOutputCP(CP_UTF8);
+    }
+#endif
+
     struct ClientOptions
     {
         const char* recordDirectory{};
@@ -119,9 +138,10 @@ namespace
     {
         std::fprintf(
             output,
-            "Usage: SonyHeadphonesClient [--record <capture-folder>]\n"
-            "       SonyHeadphonesClient [--replay <packet-folder>]\n"
+            "Usage: SonyHeadphonesClient [-con] [--record <capture-folder>]\n"
+            "       SonyHeadphonesClient [-con] [--replay <packet-folder>]\n"
             "\n"
+            "-con opens a diagnostic console on Windows.\n"
             "Packet replay requires a client build with the debugger enabled.\n"
         );
     }
@@ -134,6 +154,13 @@ namespace
             if (std::strcmp(argument, "--help") == 0 || std::strcmp(argument, "-h") == 0)
             {
                 options.showHelp = true;
+                continue;
+            }
+            if (std::strcmp(argument, "-con") == 0)
+            {
+#ifdef _WIN32
+                OpenConsole();
+#endif
                 continue;
             }
 

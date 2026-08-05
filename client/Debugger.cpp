@@ -582,6 +582,7 @@ namespace
     void ClearHistory()
     {
         gHistory.clear();
+        gNextPacketId = 0;
         if (gSelectedCaptureId)
             gPacket.Reset();
         gSelectedCaptureId = 0;
