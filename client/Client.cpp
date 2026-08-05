@@ -28,6 +28,7 @@ MDRHeadphones* gDevice;
 mdr::String gHeadphonesError;
 #ifdef MDR_CLIENT_DEBUGGER
 bool gDebuggerOpen{};
+bool gDebuggerOnlyMode{};
 #endif
 
 template <typename T>
@@ -1791,6 +1792,18 @@ void DrawApp()
 {
     auto& io = ImGui::GetIO();
     auto& g = *ImGui::GetCurrentContext();
+#ifdef MDR_CLIENT_DEBUGGER
+    if (gDebuggerOnlyMode)
+    {
+        ImGui::SetNextWindowPos({0, 0});
+        ImGui::SetNextWindowSize(io.DisplaySize);
+        if (ImGui::Begin("SonyHeadphonesClient", nullptr, kImWindowFlagsTopMost))
+            ImGui::TextDisabled("Packet replay mode");
+        ImGui::End();
+        clientDebuggerDraw(nullptr);
+        return;
+    }
+#endif
     ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGuiWindowFlags flags = kImWindowFlagsTopMost;
@@ -1832,6 +1845,18 @@ void DrawApp()
         clientDebuggerDraw(&gDebuggerOpen);
 #endif
 }
+
+#ifdef MDR_CLIENT_DEBUGGER
+void clientEnterDebuggerReplayMode()
+{
+    CloseDevice();
+    clientPlatformConnectionDestroy();
+    connectionAttempt = {};
+    connState = CONN_STATE_NO_CONNECTION;
+    gDebuggerOnlyMode = true;
+    gDebuggerOpen = true;
+}
+#endif
 
 bool clientShouldExit()
 {

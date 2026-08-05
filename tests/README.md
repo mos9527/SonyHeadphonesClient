@@ -27,16 +27,24 @@ On-device packet captures for tests are generally welcome.
 
 ### Capture a session
 
-Simply by running the Client with an folder argument enables packet recording.
-
-You may also create a folder and drag-n-drop to the executable icon to do the same.
-
 ```powershell
-.\SonyHeadphonesClient.exe capture-folder
+.\SonyHeadphonesClient.exe --record capture-folder
 ```
 
 The client creates the directory if needed and deletes existing
 `mdr-packet-*.bin` files in it at startup.
+
+### Inspect a recorded session
+
+When the client includes the protocol debugger (a Debug build, or a build configured
+with `-DMDR_CLIENT_DEBUGGER=ON`), replay a capture without connecting to headphones:
+
+```powershell
+.\SonyHeadphonesClient.exe --replay capture-folder
+```
+
+A folder can also be dropped onto a running client window. Replay mode loads both TX
+and RX packet files in filename order and exposes only the debugger interface.
 
 ### Submitting the data
 

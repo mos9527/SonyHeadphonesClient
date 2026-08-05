@@ -5,6 +5,8 @@
 
 #include "Fonts/PlexSansIcon.h"
 
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <imgui.h>
 #include <mdr/Command.hpp>
@@ -15,6 +17,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <iterator>
+#include <limits>
 #include <string_view>
 
 namespace
@@ -586,6 +589,29 @@ namespace
         gOriginalPayload.clear();
     }
 
+    struct ReplayCapture
+    {
+        mdr::String filename;
+        mdr::String path;
+        MDRPacketDirection direction{};
+        mdr::MDRBuffer frame;
+    };
+
+    bool ReplayDirection(std::string_view filename, MDRPacketDirection& direction)
+    {
+        if (filename.find("-rx.") != std::string_view::npos)
+        {
+            direction = MDR_PACKET_DIRECTION_RX;
+            return true;
+        }
+        if (filename.find("-tx.") != std::string_view::npos)
+        {
+            direction = MDR_PACKET_DIRECTION_TX;
+            return true;
+        }
+        return false;
+    }
+
     void DrawHistoryToolbar(bool* open)
     {
         ImGui::AlignTextToFramePadding();
@@ -596,20 +622,25 @@ namespace
 
         const float clearWidth =
             ImGui::CalcTextSize(PSI_TRASH " Clear history").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        const float closeWidth = ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        const float closeWidth =
+            open ? ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
         const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
-        ImGui::SameLine(std::max(ImGui::GetCursorPosX(), rightEdge - clearWidth - closeWidth - buttonSpacing));
+        ImGui::SameLine(std::max(ImGui::GetCursorPosX(),
+                                 rightEdge - clearWidth - closeWidth - (open ? buttonSpacing : 0.0f)));
         if (ImGui::Button("Clear history"))
             ClearHistory();
-        ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(200, 0, 0, 255));
-        if (ImGui::Button("Close"))
+        if (open)
         {
-            *open = false;
-            ImGui::CloseCurrentPopup();
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(200, 0, 0, 255));
+            if (ImGui::Button("Close"))
+            {
+                *open = false;
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::PopStyleColor();
         }
-        ImGui::PopStyleColor();
     }
 } // namespace
 
@@ -646,6 +677,73 @@ void clientDebuggerObservePacket(MDRPacketDirection direction, const unsigned ch
     }
 }
 
+bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
+{
+    if (packetCount)
+        *packetCount = 0;
+    if (!directory || !*directory)
+        return SDL_SetError("Replay folder is empty");
+
+    SDL_PathInfo directoryInfo{};
+    if (!SDL_GetPathInfo(directory, &directoryInfo))
+        return false;
+    if (directoryInfo.type != SDL_PATHTYPE_DIRECTORY)
+        return SDL_SetError("Replay path is not a folder: %s", directory);
+
+    int entryCount{};
+    char** entries = SDL_GlobDirectory(directory, "mdr-packet-*.bin", 0, &entryCount);
+    if (!entries)
+        return false;
+
+    mdr::Vector<ReplayCapture> captures;
+    captures.reserve(static_cast<size_t>(entryCount));
+    for (int index = 0; index < entryCount; ++index)
+    {
+        MDRPacketDirection direction{};
+        if (!ReplayDirection(entries[index], direction))
+            continue;
+        ReplayCapture& capture = captures.emplace_back();
+        capture.filename = entries[index];
+        capture.path = mdr::Format("{}/{}", directory, entries[index]);
+        capture.direction = direction;
+    }
+    SDL_free(entries);
+
+    std::ranges::sort(captures, {}, &ReplayCapture::filename);
+    if (captures.empty())
+        return SDL_SetError("Replay folder contains no mdr-packet-*-rx/tx .bin files: %s", directory);
+
+    for (ReplayCapture& capture : captures)
+    {
+        size_t frameSize{};
+        void* frame = SDL_LoadFile(capture.path.c_str(), &frameSize);
+        if (!frame)
+            return false;
+        if (frameSize == 0 || frameSize > static_cast<size_t>(std::numeric_limits<int>::max()))
+        {
+            SDL_free(frame);
+            return SDL_SetError("Invalid packet size in %s", capture.path.c_str());
+        }
+        const auto* bytes = static_cast<const mdr::UInt8*>(frame);
+        capture.frame.assign(bytes, bytes + frameSize);
+        SDL_free(frame);
+    }
+
+    ClearHistory();
+    MDRHeadphones* attachedHeadphones = gHeadphones;
+    gHeadphones = nullptr;
+    for (const ReplayCapture& capture : captures)
+    {
+        clientDebuggerObservePacket(
+            capture.direction, capture.frame.data(), static_cast<int>(capture.frame.size()));
+    }
+    gHeadphones = attachedHeadphones;
+    if (packetCount)
+        *packetCount = captures.size();
+    gStatus = mdr::Format("Replayed {} packet(s) from {}", captures.size(), directory);
+    return true;
+}
+
 void clientDebuggerDraw(bool* open)
 {
     const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
@@ -661,7 +759,7 @@ void clientDebuggerDraw(bool* open)
         return;
     }
 
-    if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+    if (open && ImGui::IsKeyPressed(ImGuiKey_Escape))
     {
         *open = false;
         ImGui::CloseCurrentPopup();
