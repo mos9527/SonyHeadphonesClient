@@ -5,24 +5,29 @@
 #include <array>
 #include <cstdint>
 #include <deque>
+#include <iterator>
 #include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <iterator>
 
 #include <fmt/format.h>
 
 #define MDR_LOG_STREAM stderr
-#define MDR_LOG(str, ...) \
-    fprintf(MDR_LOG_STREAM, "%s\n", mdr::Format((str) __VA_OPT__(,) __VA_ARGS__).c_str());
-#ifdef MDR_DEBUG
-#define MDR_LOG_DEBUG(...) \
-    MDR_LOG(__VA_ARGS__);
+#ifdef MDR_ENABLE_LOG
+#define MDR_LOG(str, ...)                                                                                              \
+    {                                                                                                                  \
+        fprintf(MDR_LOG_STREAM, "%s\n", mdr::Format((str)__VA_OPT__(, ) __VA_ARGS__).c_str());                         \
+    }
 #else
-#define MDR_LOG_DEBUG(...)
+#define MDR_LOG(str, ...) ((void)0)
+#endif
+#ifdef MDR_DEBUG
+#define MDR_LOG_DEBUG(...) MDR_LOG(__VA_ARGS__);
+#else
+#define MDR_LOG_DEBUG(...) ((void)0)
 #endif
 
 namespace mdr
@@ -50,26 +55,16 @@ namespace mdr
         LARGE_DATA_COMMON = 45,
         UNKNOWN = 0xff
     };
-#pragma pack(push,1)
+#pragma pack(push, 1)
     struct Int16BE
     {
         int16_t value; // Big-endian
 
-        Int16BE() :
-            value(0)
-        {
-        }
+        Int16BE() : value(0) {}
 
-        Int16BE(int16_t v) :
-            value(Swap(v))
-        {
-        }
+        Int16BE(int16_t v) : value(Swap(v)) {}
 
-        static uint16_t Swap(uint16_t v)
-        {
-            return ((v & 0x000000FF) << 8) |
-                ((v & 0x0000FF00) >> 8);
-        }
+        static uint16_t Swap(uint16_t v) { return ((v & 0x000000FF) << 8) | ((v & 0x0000FF00) >> 8); }
 
         operator int16_t() const { return Swap(value); }
 
@@ -86,24 +81,18 @@ namespace mdr
         uint8_t mid;
         uint8_t high;
 
-        Int24BE() :
-            low(0), mid(0), high(0)
-        {
-        }
+        Int24BE() : low(0), mid(0), high(0) {}
 
 
-        Int24BE(int32_t v)
-        {
-            this->operator=(v);
-        }
+        Int24BE(int32_t v) { this->operator=(v); }
 
         operator int32_t() const { return low << 16u | mid << 8u | high; }
 
         Int24BE& operator=(int32_t v)
         {
             high = v & 0xFF;
-            mid  = (v >> 8) & 0xFF;
-            low  = (v >> 16) & 0xFF;
+            mid = (v >> 8) & 0xFF;
+            low = (v >> 16) & 0xFF;
             return *this;
         }
     };
@@ -112,21 +101,13 @@ namespace mdr
     {
         int32_t value; // Big-endian
 
-        Int32BE() :
-            value(0)
-        {
-        }
+        Int32BE() : value(0) {}
 
-        Int32BE(int32_t v) :
-            value(Swap(v))
-        {
-        }
+        Int32BE(int32_t v) : value(Swap(v)) {}
 
         static uint32_t Swap(uint32_t v) // Compiles into bswap
         {
-            return ((v & 0x000000FF) << 24) |
-                ((v & 0x0000FF00) << 8) |
-                ((v & 0x00FF0000) >> 8) |
+            return ((v & 0x000000FF) << 24) | ((v & 0x0000FF00) << 8) | ((v & 0x00FF0000) >> 8) |
                 ((v & 0xFF000000) >> 24);
         }
 
@@ -143,26 +124,16 @@ namespace mdr
     {
         uint64_t value; // Big-endian
 
-        UInt64BE() :
-            value(0)
-        {
-        }
+        UInt64BE() : value(0) {}
 
-        UInt64BE(uint64_t v) :
-            value(Swap(v))
-        {
-        }
+        UInt64BE(uint64_t v) : value(Swap(v)) {}
 
         static uint64_t Swap(uint64_t v)
         {
-            return ((v & 0x00000000000000FFull) << 56) |
-                ((v & 0x000000000000FF00ull) << 40) |
-                ((v & 0x0000000000FF0000ull) << 24) |
-                ((v & 0x00000000FF000000ull) << 8) |
-                ((v & 0x000000FF00000000ull) >> 8) |
-                ((v & 0x0000FF0000000000ull) >> 24) |
-                ((v & 0x00FF000000000000ull) >> 40) |
-                ((v & 0xFF00000000000000ull) >> 56);
+            return ((v & 0x00000000000000FFull) << 56) | ((v & 0x000000000000FF00ull) << 40) |
+                ((v & 0x0000000000FF0000ull) << 24) | ((v & 0x00000000FF000000ull) << 8) |
+                ((v & 0x000000FF00000000ull) >> 8) | ((v & 0x0000FF0000000000ull) >> 24) |
+                ((v & 0x00FF000000000000ull) >> 40) | ((v & 0xFF00000000000000ull) >> 56);
         }
 
         operator uint64_t() const { return Swap(value); }
@@ -177,8 +148,7 @@ namespace mdr
 #pragma pack(pop)
 
     template <typename T>
-    concept MDRIsSerializable = requires(T const& a)
-    {
+    concept MDRIsSerializable = requires(T const& a) {
         { T::Serialize(a, std::declval<UInt8*>(), std::declval<size_t>()) } -> std::same_as<MDRResult<size_t>>;
         { T::Deserialize(std::declval<const UInt8*>(), std::declval<size_t>()) } -> std::same_as<MDRResult<T>>;
         { T::Validate(a) } -> std::same_as<MDRResult<void>>;
@@ -186,10 +156,13 @@ namespace mdr
     template <typename T>
     concept MDRIsTrivial = std::is_standard_layout_v<T> && std::is_trivially_copyable_v<T>;
     template <typename T>
-    concept MDRIsReadWritable = requires
-    {
-        { T::Read(std::declval<const UInt8**>(), std::declval<T&>(), std::declval<size_t>()) } -> std::same_as<MDRResult<size_t>>;
-        { T::Write(std::declval<T const&>(), std::declval<UInt8**>(), std::declval<size_t>()) } -> std::same_as<MDRResult<size_t>>;
+    concept MDRIsReadWritable = requires {
+        {
+            T::Read(std::declval<const UInt8**>(), std::declval<T&>(), std::declval<size_t>())
+        } -> std::same_as<MDRResult<size_t>>;
+        {
+            T::Write(std::declval<T const&>(), std::declval<UInt8**>(), std::declval<size_t>())
+        } -> std::same_as<MDRResult<size_t>>;
     };
 
     /**
@@ -238,7 +211,8 @@ namespace mdr
      * @note  Terminates on OOM, etc., instead of throwing an exception.
      */
     template <typename T = void>
-    struct MDRAllocator {
+    struct MDRAllocator
+    {
         using value_type = T;
         using size_type = std::size_t;
         using difference_type = std::ptrdiff_t;
@@ -249,26 +223,24 @@ namespace mdr
 
         MDRAllocator() = default;
         template <typename U>
-            constexpr MDRAllocator(const MDRAllocator<U>&) noexcept {}
+        constexpr MDRAllocator(const MDRAllocator<U>&) noexcept
+        {
+        }
 
-        pointer allocate(size_type n) noexcept {
+        pointer allocate(size_type n) noexcept
+        {
             pointer p = static_cast<pointer>(std::malloc(n * sizeof(T)));
             MDR_CHECK(p != nullptr && "OOM");
             return p;
         }
-        void deallocate(pointer p, size_type n) noexcept {
-            deallocate(p);
-        }
+        void deallocate(pointer p, size_type n) noexcept { deallocate(p); }
         void deallocate(pointer p) noexcept { std::free(p); }
-        friend bool operator==(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept {
-            return true;
-        }
-        friend bool operator!=(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept {
-            return false;
-        }
+        friend bool operator==(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept { return true; }
+        friend bool operator!=(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept { return false; }
         struct Deleter
         {
-            void operator()(T* ptr) noexcept {
+            void operator()(T* ptr) noexcept
+            {
                 MDRAllocator<T> alloc;
                 MDR_CHECK(ptr != nullptr);
                 std::destroy_at(ptr);
@@ -281,8 +253,9 @@ namespace mdr
      * @note Using `delete`, `delete[]` on the returned pointer is undefined behaviour. @ref Destruct should ALWAYS
      *       be used for such purposes.
      */
-    template <typename T, typename ...Args>
-    T* Construct(Args&& ...args) {
+    template <typename T, typename... Args>
+    T* Construct(Args&&... args)
+    {
         MDRAllocator<T> alloc;
         auto raw = alloc.allocate(1);
         return std::construct_at(raw, std::forward<Args>(args)...);
@@ -291,7 +264,8 @@ namespace mdr
      * @brief Convenience destructor for objects allocated with @ref Construct
      */
     template <typename T>
-    void Destruct(T* obj) {
+    void Destruct(T* obj)
+    {
         typename MDRAllocator<T>::Deleter deleter;
         deleter(obj);
     }
@@ -303,7 +277,7 @@ namespace mdr
     /**
      * @breif Alias for std::pair. This does not map to any specific protocol type directly.
      */
-    template<typename A, typename B>
+    template <typename A, typename B>
     using Pair = std::pair<A, B>;
     /**
      * @breif Alias for std::tuple. This does not map to any specific protocol type directly.
@@ -354,9 +328,7 @@ namespace mdr
 
         Vector<Entry> entries;
 
-        static MDRResult<size_t> Read(
-            const UInt8** ppSrcBuffer, MDRMap& out, size_t maxSize
-        )
+        static MDRResult<size_t> Read(const UInt8** ppSrcBuffer, MDRMap& out, size_t maxSize)
         {
             const UInt8* start = *ppSrcBuffer;
             UInt8 count{};
@@ -367,54 +339,24 @@ namespace mdr
             {
                 Entry entry{};
                 const size_t remaining = maxSize - (*ppSrcBuffer - start);
-                MDR_TRY_SIZE(
-                    size_t,
-                    MDRPod::Read(ppSrcBuffer, entry.key, remaining)
-                );
-                MDR_TRY_SIZE(
-                    size_t,
-                    MDRPod::Read(
-                        ppSrcBuffer,
-                        entry.value,
-                        maxSize - (*ppSrcBuffer - start)
-                    )
-                );
+                MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, entry.key, remaining));
+                MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, entry.value, maxSize - (*ppSrcBuffer - start)));
                 out.entries.push_back(entry);
             }
             return MDRResult<size_t>::Success(*ppSrcBuffer - start);
         }
 
-        static MDRResult<size_t> Write(
-            const MDRMap& data, UInt8** ppDstBuffer, size_t maxSize
-        )
+        static MDRResult<size_t> Write(const MDRMap& data, UInt8** ppDstBuffer, size_t maxSize)
         {
             if (data.entries.size() > UINT8_MAX)
-                return MDRResult<size_t>::Failure(
-                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD
-                );
+                return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD);
             UInt8* start = *ppDstBuffer;
             const auto count = static_cast<UInt8>(data.entries.size());
-            MDR_TRY_SIZE(
-                size_t, MDRPod::Write(count, ppDstBuffer, maxSize)
-            );
+            MDR_TRY_SIZE(size_t, MDRPod::Write(count, ppDstBuffer, maxSize));
             for (const Entry& entry : data.entries)
             {
-                MDR_TRY_SIZE(
-                    size_t,
-                    MDRPod::Write(
-                        entry.key,
-                        ppDstBuffer,
-                        maxSize - (*ppDstBuffer - start)
-                    )
-                );
-                MDR_TRY_SIZE(
-                    size_t,
-                    MDRPod::Write(
-                        entry.value,
-                        ppDstBuffer,
-                        maxSize - (*ppDstBuffer - start)
-                    )
-                );
+                MDR_TRY_SIZE(size_t, MDRPod::Write(entry.key, ppDstBuffer, maxSize - (*ppDstBuffer - start)));
+                MDR_TRY_SIZE(size_t, MDRPod::Write(entry.value, ppDstBuffer, maxSize - (*ppDstBuffer - start)));
             }
             return MDRResult<size_t>::Success(*ppDstBuffer - start);
         }
@@ -588,27 +530,29 @@ namespace mdr
      * @note  This defines @ref Serialize and @ref Deserialize and @ref Validate in the current scope,
      *        which must be a struct.
      */
-#define MDR_DEFINE_TRIVIAL_SERIALIZATION(Type) \
-    static MDRResult<size_t> Serialize(const Type &data, UInt8* out, size_t maxSize) { \
-        static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
-        static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
-        if (sizeof(Type) > maxSize) \
-            return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_BUFFER_TOO_SMALL); \
-        MDR_TRY(size_t, Validate(data)); \
-        const UInt8 *ptr = reinterpret_cast<const UInt8*>(&data); \
-        std::memcpy(out, ptr, sizeof(Type)); \
-        return MDRResult<size_t>::Success(sizeof(Type)); \
-    } \
-    static MDRResult<Type> Deserialize(const UInt8* data, size_t maxSize) { \
-        static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment"); \
-        static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization"); \
-        if (sizeof(Type) > maxSize) \
-            return MDRResult<Type>::Failure(MDR_RESULT_ERROR_BUFFER_TOO_SMALL); \
-        Type out{}; \
-        std::memcpy(&out, data, sizeof(Type)); \
-        MDR_TRY(Type, Validate(out)); \
-        return MDRResult<Type>::Success(std::move(out)); \
-    } \
+#define MDR_DEFINE_TRIVIAL_SERIALIZATION(Type)                                                                         \
+    static MDRResult<size_t> Serialize(const Type& data, UInt8* out, size_t maxSize)                                   \
+    {                                                                                                                  \
+        static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment");                      \
+        static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization");       \
+        if (sizeof(Type) > maxSize)                                                                                    \
+            return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_BUFFER_TOO_SMALL);                                      \
+        MDR_TRY(size_t, Validate(data));                                                                               \
+        const UInt8* ptr = reinterpret_cast<const UInt8*>(&data);                                                      \
+        std::memcpy(out, ptr, sizeof(Type));                                                                           \
+        return MDRResult<size_t>::Success(sizeof(Type));                                                               \
+    }                                                                                                                  \
+    static MDRResult<Type> Deserialize(const UInt8* data, size_t maxSize)                                              \
+    {                                                                                                                  \
+        static_assert(alignof(Type) == 1u, "Trivial type are required to have 1-byte alignment");                      \
+        static_assert(MDRIsTrivial<Type> && "Non-trivial layout attempted with trivial (memcpy) serialization");       \
+        if (sizeof(Type) > maxSize)                                                                                    \
+            return MDRResult<Type>::Failure(MDR_RESULT_ERROR_BUFFER_TOO_SMALL);                                        \
+        Type out{};                                                                                                    \
+        std::memcpy(&out, data, sizeof(Type));                                                                         \
+        MDR_TRY(Type, Validate(out));                                                                                  \
+        return MDRResult<Type>::Success(std::move(out));                                                               \
+    }                                                                                                                  \
     static MDRResult<void> Validate(const Type& data);
     /**
      * @brief Macro to declare external serialization methods for non-trivial types.
@@ -619,9 +563,9 @@ namespace mdr
      * @note The implementations must be provided elsewhere, ideally in a corresponding
      *       translation unit, which may or may not be generated.
      */
-#define MDR_DEFINE_EXTERN_SERIALIZATION(Type) \
-    static MDRResult<size_t> Serialize(const Type &data, UInt8* out, size_t maxSize); \
-    static MDRResult<Type> Deserialize(const UInt8* data, size_t maxSize); \
+#define MDR_DEFINE_EXTERN_SERIALIZATION(Type)                                                                          \
+    static MDRResult<size_t> Serialize(const Type& data, UInt8* out, size_t maxSize);                                  \
+    static MDRResult<Type> Deserialize(const UInt8* data, size_t maxSize);                                             \
     static MDRResult<void> Validate(const Type& data);
     /**
      * @brief Macro to declare external read/write methods for non-trivial types.
@@ -632,11 +576,11 @@ namespace mdr
      * @note The implementations must be provided elsewhere, ideally in a corresponding
      *       translation unit, which may or may not be generated.
      */
-#define MDR_DEFINE_EXTERN_READ_WRITE(SubType) \
-    static MDRResult<size_t> Read(const UInt8** ppSrcBuffer, SubType &out, size_t maxSize); \
-    static MDRResult<size_t> Write(const SubType &data, UInt8** ppDstBuffer, size_t maxSize);
+#define MDR_DEFINE_EXTERN_READ_WRITE(SubType)                                                                          \
+    static MDRResult<size_t> Read(const UInt8** ppSrcBuffer, SubType& out, size_t maxSize);                            \
+    static MDRResult<size_t> Write(const SubType& data, UInt8** ppDstBuffer, size_t maxSize);
     /**
      * @brief Macro to mark the struct to implement bespoke serialization logic.
      */
 #define MDR_CODEGEN_IGNORE_SERIALIZATION
-}
+} // namespace mdr

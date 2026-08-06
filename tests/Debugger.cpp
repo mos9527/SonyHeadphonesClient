@@ -40,7 +40,7 @@ namespace
                 const auto first = descriptor.encode(source.Value(), firstBytes, sizeof(firstBytes));
                 if (!first)
                 {
-                    std::fprintf(stderr, "Unable to encode default %s\n", descriptor.name);
+                    MDR_LOG("Unable to encode default {}", descriptor.name);
                     return false;
                 }
 
@@ -48,7 +48,7 @@ namespace
                 const auto decode = descriptor.decode(decoded.Value(), {firstBytes, first.value});
                 if (!decode)
                 {
-                    std::fprintf(stderr, "Unable to decode default %s\n", descriptor.name);
+                    MDR_LOG("Unable to decode default {}", descriptor.name);
                     return false;
                 }
 
@@ -56,14 +56,14 @@ namespace
                 const auto second = descriptor.encode(decoded.Value(), secondBytes, sizeof(secondBytes));
                 if (!second || second.value != first.value || std::memcmp(firstBytes, secondBytes, first.value) != 0)
                 {
-                    std::fprintf(stderr, "Round trip changed %s\n", descriptor.name);
+                    MDR_LOG("Round trip changed {}", descriptor.name);
                     return false;
                 }
                 return true;
             });
         if (count == 0)
         {
-            std::fprintf(stderr, "No debugger packet descriptors were generated\n");
+            MDR_LOG("No debugger packet descriptors were generated");
             return false;
         }
         return passed;
@@ -96,7 +96,7 @@ namespace
             return false;
         if (selected->validate(invalid.Value()))
         {
-            std::fprintf(stderr, "Invalid debugger packet unexpectedly validated\n");
+            MDR_LOG("Invalid debugger packet unexpectedly validated");
             return false;
         }
 
@@ -131,7 +131,7 @@ namespace
             || classicBytes[22] != 2
         )
         {
-            std::fprintf(stderr, "ClassicBt device info wire layout is incorrect\n");
+            MDR_LOG("ClassicBt device info wire layout is incorrect");
             return false;
         }
 
@@ -165,10 +165,7 @@ namespace
             || classOfDeviceBytes[25] != 2
         )
         {
-            std::fprintf(
-                stderr,
-                "Bluetooth class-of-device wire layout is incorrect\n"
-            );
+            MDR_LOG("Bluetooth class-of-device wire layout is incorrect");
             return false;
         }
         return true;

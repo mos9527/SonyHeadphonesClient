@@ -114,6 +114,12 @@ if (MDR_BLE)
     add_compile_definitions(MDR_BLE)
 endif()
 
+option(MDR_ENABLE_LOG "Enable MDR_LOG logging output" ON)
+if (MDR_ENABLE_LOG)
+    message(STATUS "MDR_LOG logging output is ON.")
+    add_compile_definitions(MDR_ENABLE_LOG)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 include(DetectPlatform.cmake)

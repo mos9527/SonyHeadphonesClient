@@ -1728,13 +1728,13 @@ void DrawDeviceDisconnect()
     static bool popup = false;
     if (!popup)
     {
-        std::fprintf(stderr, "[Client] Device disconnected\n");
+        MDR_LOG("[Client] Device disconnected");
         if (!connectionAttempt.lastError.empty())
-            std::fprintf(stderr, "[Client] Connection: %s\n", connectionAttempt.lastError.c_str());
+            MDR_LOG("[Client] Connection: {}", connectionAttempt.lastError)
         else if (conn)
-            std::fprintf(stderr, "[Client] Connection: %s\n", mdrConnectionGetLastError(conn));
+            MDR_LOG("[Client] Connection: {}", mdrConnectionGetLastError(conn))
         if (!gHeadphonesError.empty())
-            std::fprintf(stderr, "[Client] Headphones: %s\n", gHeadphonesError.c_str());
+            MDR_LOG("[Client] Headphones: {}", gHeadphonesError)
         ImGui::OpenPopup("Disconnected"), popup = true;
     }
     ImSetNextWindowCentered();

@@ -16,7 +16,7 @@ DBusConnection* dbus_open_system_bus(void)
 
     if (dbus_error_is_set(&error))
     {
-        printf("Could not get system bus\nError: %s\n", error.message);
+        MDR_LOG("Could not get system bus\nError: {}", error.message);
         dbus_error_free(&error);
         return NULL;
     }
@@ -64,7 +64,7 @@ dbus_bool_t read_next_object_path_entry(DBusMessageIter* const iter_object_paths
 
     if (dbus_message_iter_get_arg_type(&iter_dict_entry) != DBUS_TYPE_OBJECT_PATH)
     {
-        printf("Error: Unexpected arg type for object path\n");
+        MDR_LOG("Error: Unexpected arg type for object path");
         goto error;
     }
 
@@ -103,7 +103,7 @@ dbus_bool_t read_next_interface_entry(DBusMessageIter* const interface_dict, cha
 
     if (dbus_message_iter_get_arg_type(&iter_dict_entry) != DBUS_TYPE_STRING)
     {
-        printf("Error: Unexpected arg type for interface\n");
+        MDR_LOG("Error: Unexpected arg type for interface");
         goto error;
     }
 
@@ -140,7 +140,7 @@ mdr::Vector<mdr::String> dbus_list_adapters(DBusConnection* const connection)
                                        "GetManagedObjects");
     if (NULL == msg)
     {
-        printf("Error: Could not obtain method call\n");
+        MDR_LOG("Error: Could not obtain method call");
         goto clean_up;
     }
 
@@ -153,26 +153,26 @@ mdr::Vector<mdr::String> dbus_list_adapters(DBusConnection* const connection)
                                                     &error);
     if (dbus_error_is_set(&error))
     {
-        printf("Could not send dbus message\nError: %s\n", error.message);
+        MDR_LOG("Could not send dbus message\nError: {}", error.message);
         dbus_error_free(&error);
         goto clean_up;
     }
 
     if (NULL == rsp)
     {
-        printf("Error: Response was NULL\n");
+        MDR_LOG("Error: Response was NULL");
         goto clean_up;
     }
 
     if (!dbus_message_iter_init(rsp, &args))
     {
-        printf("Error: RCould not start message iterator on response\n");
+        MDR_LOG("Error: RCould not start message iterator on response");
         goto clean_up;
     }
 
     if (!open_dict_read(&args, &subargs))
     {
-        printf("Error: Could not start dict read\n");
+        MDR_LOG("Error: Could not start dict read");
         goto clean_up;
     }
 
@@ -222,7 +222,7 @@ mdr::String dbus_get_property(DBusConnection* const connection, const char* devi
                                        "Get");
     if (NULL == msg)
     {
-        printf("Error: Could not obtain method call\n");
+        MDR_LOG("Error: Could not obtain method call");
         goto clean_up;
     }
 
@@ -242,20 +242,20 @@ mdr::String dbus_get_property(DBusConnection* const connection, const char* devi
                                                     &error);
     if (dbus_error_is_set(&error))
     {
-        printf("Could not send dbus message\nError: %s\n", error.message);
+        MDR_LOG("Could not send dbus message\nError: {}", error.message);
         dbus_error_free(&error);
         goto clean_up;
     }
 
     if (NULL == rsp)
     {
-        printf("Error: Response was NULL\n");
+        MDR_LOG("Error: Response was NULL");
         goto clean_up;
     }
 
     if (!dbus_message_iter_init(rsp, &args))
     {
-        printf("Error: Could not start message iterator on response\n");
+        MDR_LOG("Error: Could not start message iterator on response");
         goto clean_up;
     }
 

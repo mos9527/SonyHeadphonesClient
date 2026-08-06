@@ -49,32 +49,32 @@ struct MDRConnectionWindows
     static MDRResult Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
         auto* ptr = static_cast<MDRConnectionWindows*>(user);
-        fprintf(stderr, "[BT-DEBUG] Connect called: mac=%s uuid=%s\n", macAddress, serviceUUID);
+        MDR_LOG("[BT] Connect called: mac={} uuid={}", macAddress, serviceUUID);
         if (!gWSAStartup)
         {
             WSAData data;
             if (WSAStartup(MAKEWORD(2, 2), &data) != 0)
             {
-                fprintf(stderr, "[BT-DEBUG] WSAStartup FAILED: %d\n", WSAGetLastError());
+                MDR_LOG("[BT] WSAStartup FAILED: {}", WSAGetLastError());
                 ptr->lastError = FormatErrorString(WSAGetLastError());
                 return MDR_RESULT_ERROR_NET;
             }
             gWSAStartup = true;
-            fprintf(stderr, "[BT-DEBUG] WSAStartup OK\n");
+            MDR_LOG("[BT] WSAStartup OK");
         }
         ptr->conn = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
-        fprintf(stderr, "[BT-DEBUG] socket() returned %lld\n", (long long)ptr->conn);
+        MDR_LOG("[BT] socket() returned {}", (long long)ptr->conn);
         ULONG nonblock = 1;
         if (ioctlsocket(ptr->conn, FIONBIO, &nonblock) != 0)
         {
-            fprintf(stderr, "[BT-DEBUG] ioctlsocket FIONBIO FAILED: %lu\n", ::GetLastError());
+            MDR_LOG("[BT] ioctlsocket FIONBIO FAILED: {}", ::GetLastError());
             ptr->lastError = FormatErrorString(::GetLastError());
             closesocket(ptr->conn);
             return 1;
         }
         if (ptr->conn == INVALID_SOCKET)
         {
-            fprintf(stderr, "[BT-DEBUG] socket is INVALID_SOCKET: %lu\n", ::GetLastError());
+            MDR_LOG("[BT] socket is INVALID_SOCKET: {}", ::GetLastError());
             ptr->lastError = FormatErrorString(::GetLastError());
             return MDR_RESULT_ERROR_NET;
         }
@@ -86,27 +86,27 @@ struct MDRConnectionWindows
         RPC_STATUS errCode = ::UuidFromStringA((RPC_CSTR)serviceUUID, &sab.serviceClassId);
         if (errCode != RPC_S_OK)
         {
-            fprintf(stderr, "[BT-DEBUG] UuidFromStringA FAILED: %ld\n", errCode);
+            MDR_LOG("[BT] UuidFromStringA FAILED: {}", errCode);
             closesocket(ptr->conn);
             ptr->lastError = FormatErrorString(errCode);
             return MDR_RESULT_ERROR_NET;
         }
         sab.btAddr = macAddressToULL(macAddress);
-        fprintf(stderr, "[BT-DEBUG] Connecting to btAddr=0x%llX, serviceClassId={%08lX-%04X-%04X-...}\n",
-                (unsigned long long)sab.btAddr, sab.serviceClassId.Data1, sab.serviceClassId.Data2, sab.serviceClassId.Data3);
+        MDR_LOG("[BT] Connecting to btAddr=0x{:X}, serviceClassId={{{:08X}-{:04X}-{:04X}-...}}",
+            (unsigned long long)sab.btAddr, sab.serviceClassId.Data1, sab.serviceClassId.Data2, sab.serviceClassId.Data3);
         int ret = ::connect(ptr->conn, (sockaddr*)&sab, sizeof(sab));
         if (ret == SOCKET_ERROR)
         {
             int err = WSAGetLastError();
-            fprintf(stderr, "[BT-DEBUG] connect() returned SOCKET_ERROR, WSA err=%d\n", err);
+            MDR_LOG("[BT] connect() returned SOCKET_ERROR, WSA err={}", err);
             if (err != WSAEWOULDBLOCK && err != WSAEINPROGRESS)
             {
-                fprintf(stderr, "[BT-DEBUG] Connect FAILED (not WOULDBLOCK): %s\n", FormatErrorString(err).c_str());
+                MDR_LOG("[BT] Connect FAILED (not WOULDBLOCK): {}", FormatErrorString(err));
                 closesocket(ptr->conn);
                 ptr->lastError = FormatErrorString(err);
                 return MDR_RESULT_ERROR_NET;
             }
-            fprintf(stderr, "[BT-DEBUG] Connect in progress (WOULDBLOCK/INPROGRESS) - normal for non-blocking\n");
+            MDR_LOG("[BT] Connect in progress (WOULDBLOCK/INPROGRESS) - normal for non-blocking");
         }
         ptr->lastError = "Connecting to WSA Bluetooth socket";
         return MDR_RESULT_INPROGRESS;
@@ -202,12 +202,12 @@ static MDRResult Poll(void* user, int timeout) noexcept
             // You MUST get the actual error code from the socket
             if (getsockopt(ptr->conn, SOL_SOCKET, SO_ERROR, (char*)&err, &errLen) == 0)
             {
-                fprintf(stderr, "[BT-DEBUG] Poll: exceptfds signaled! SO_ERROR=%d (%s)\n", err, FormatErrorString(err).c_str());
+                MDR_LOG("[BT] Poll: exceptfds signaled! SO_ERROR={} ({})", err, FormatErrorString(err));
                 ptr->lastError = FormatErrorString(err);
             }
             else
             {
-                fprintf(stderr, "[BT-DEBUG] Poll: exceptfds signaled! getsockopt failed, WSA=%d\n", WSAGetLastError());
+                MDR_LOG("[BT] Poll: exceptfds signaled! getsockopt failed, WSA={}", WSAGetLastError());
                 // Fallback if getsockopt fails
                 ptr->lastError = FormatErrorString(WSAGetLastError());
             }
@@ -236,7 +236,7 @@ static MDRResult Poll(void* user, int timeout) noexcept
     static MDRResult GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
         auto* ptr = static_cast<MDRConnectionWindows*>(user);
-        fprintf(stderr, "[BT-DEBUG] GetDevicesList called\n");
+        MDR_LOG("[BT] GetDevicesList called");
 
         BLUETOOTH_FIND_RADIO_PARAMS radioFindParams = {sizeof(BLUETOOTH_FIND_RADIO_PARAMS)};
         BLUETOOTH_DEVICE_SEARCH_PARAMS deviceSearchParams = {.dwSize = sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),
@@ -252,45 +252,45 @@ static MDRResult Poll(void* user, int timeout) noexcept
         if (!radioFindHandle)
         {
             DWORD err = ::GetLastError();
-            fprintf(stderr, "[BT-DEBUG] BluetoothFindFirstRadio FAILED, error=%lu\n", err);
+            MDR_LOG("[BT] BluetoothFindFirstRadio FAILED, error={}", err);
             if (err == ERROR_NO_MORE_ITEMS)
             {
-                fprintf(stderr, "[BT-DEBUG] No Bluetooth radios found on this system!\n");
+                MDR_LOG("[BT] No Bluetooth radios found on this system!");
                 *ppList = nullptr;
                 *pCount = 0;
             }
             else
             {
                 ptr->lastError = FormatErrorString(err);
-                fprintf(stderr, "[BT-DEBUG] Radio error: %s\n", ptr->lastError.c_str());
+                MDR_LOG("[BT] Radio error: {}", ptr->lastError);
                 return MDR_RESULT_ERROR_NET;
             }
         }
         else
         {
-            fprintf(stderr, "[BT-DEBUG] BluetoothFindFirstRadio OK, radio handle=%p\n", radio);
+            MDR_LOG("[BT] BluetoothFindFirstRadio OK, radio handle={}", (void*)radio);
         }
         mdr::Vector<MDRDeviceInfo> devices;
         int radioIndex = 0;
         do
         {
-            fprintf(stderr, "[BT-DEBUG] Scanning radio #%d (handle=%p)\n", radioIndex, radio);
+            MDR_LOG("[BT] Scanning radio #{} (handle={})", radioIndex, (void*)radio);
             deviceSearchParams.hRadio = radio;
             BLUETOOTH_DEVICE_INFO deviceInfo = {sizeof(BLUETOOTH_DEVICE_INFO)};
             HBLUETOOTH_DEVICE_FIND deviceFindHandle = BluetoothFindFirstDevice(&deviceSearchParams, &deviceInfo);
             if (!deviceFindHandle)
             {
                 DWORD err = ::GetLastError();
-                fprintf(stderr, "[BT-DEBUG] BluetoothFindFirstDevice FAILED on radio #%d, error=%lu\n", radioIndex, err);
+                MDR_LOG("[BT] BluetoothFindFirstDevice FAILED on radio #{} error={}", radioIndex, err);
                 if (err == ERROR_NO_MORE_ITEMS)
                 {
-                    fprintf(stderr, "[BT-DEBUG] No devices found on radio #%d\n", radioIndex);
+                    MDR_LOG("[BT] No devices found on radio #{}", radioIndex);
                     break;
                 }
                 else
                 {
                     ptr->lastError = FormatErrorString(err);
-                    fprintf(stderr, "[BT-DEBUG] Device search error: %s\n", ptr->lastError.c_str());
+                    MDR_LOG("[BT] Device search error: {}", ptr->lastError);
                     return MDR_RESULT_ERROR_NET;
                 }
             }
@@ -300,7 +300,7 @@ static MDRResult Poll(void* user, int timeout) noexcept
                 mdr::String szName = ToU8String(deviceInfo.szName);
                 mdr::String szMacAddress = mdr::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[5], pBytes[4],
                                pBytes[3], pBytes[2], pBytes[1], pBytes[0]);
-                fprintf(stderr, "[BT-DEBUG] Found device: name=\"%s\" mac=%s connected=%d authenticated=%d remembered=%d\n",
+                MDR_LOG("[BT] Found device: name=\"{}\" mac={} connected={} authenticated={} remembered={}",
                         szName.c_str(), szMacAddress.c_str(),
                         (int)deviceInfo.fConnected, (int)deviceInfo.fAuthenticated, (int)deviceInfo.fRemembered);
                 devices.emplace_back();
@@ -325,7 +325,7 @@ static MDRResult Poll(void* user, int timeout) noexcept
         *ppList = mdr::MDRAllocator<MDRDeviceInfo>().allocate(devices.size());
         std::memcpy(*ppList, devices.data(), devices.size() * sizeof(MDRDeviceInfo));
         *pCount = devices.size();
-        fprintf(stderr, "[BT-DEBUG] GetDevicesList returning %d device(s)\n", *pCount);
+        MDR_LOG("[BT] GetDevicesList returning {} device(s)", *pCount);
         return MDR_RESULT_OK;
     }
 

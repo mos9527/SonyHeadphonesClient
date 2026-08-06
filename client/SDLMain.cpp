@@ -7,6 +7,7 @@
 #include <windows.h>
 #endif
 
+#include <mdr/Protocol.hpp>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -134,15 +135,14 @@ namespace
         bool showHelp{};
     };
 
-    void PrintUsage(FILE* output)
+    void PrintUsage()
     {
-        std::fprintf(
-            output,
+        MDR_LOG(
             "Usage: SonyHeadphonesClient [-con] [--record <capture-folder>]\n"
             "       SonyHeadphonesClient [-con] [--replay <packet-folder>]\n"
             "\n"
             "-con opens a diagnostic console on Windows.\n"
-            "Packet replay requires a client build with the debugger enabled.\n"
+            "Packet replay requires a client build with the debugger enabled."
         );
     }
 
@@ -170,27 +170,27 @@ namespace
             {
                 if (index + 1 >= argc)
                 {
-                    std::fprintf(stderr, "Missing folder after %s.\n", argument);
+                    MDR_LOG("Missing folder after {}.", argument);
                     return false;
                 }
                 const char* directory = argv[++index];
                 const char*& destination = record ? options.recordDirectory : options.replayDirectory;
                 if (destination)
                 {
-                    std::fprintf(stderr, "%s may only be specified once.\n", argument);
+                    MDR_LOG("{} may only be specified once.", argument);
                     return false;
                 }
                 destination = directory;
                 continue;
             }
 
-            std::fprintf(stderr, "Unknown argument: %s\n", argument);
+            MDR_LOG("Unknown argument: {}", argument);
             return false;
         }
 
         if (options.recordDirectory && options.replayDirectory)
         {
-            std::fprintf(stderr, "--record and --replay cannot be used together.\n");
+            MDR_LOG("--record and --replay cannot be used together.");
             return false;
         }
         return true;
@@ -202,47 +202,36 @@ int main(int argc, char** argv)
     ClientOptions options;
     if (!ParseOptions(argc, argv, options))
     {
-        PrintUsage(stderr);
+        PrintUsage();
         return 2;
     }
     if (options.showHelp)
     {
-        PrintUsage(stdout);
+        PrintUsage();
         return 0;
     }
 #ifndef MDR_CLIENT_DEBUGGER
     if (options.replayDirectory)
     {
-        std::fprintf(stderr, "Packet replay is unavailable because this client was built without the debugger.\n");
+        MDR_LOG("Packet replay is unavailable because this client was built without the debugger.");
         return 2;
     }
 #endif
 
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        printf("SDL_Init Error: %s\n", SDL_GetError());
+        MDR_LOG("SDL_Init Error: {}", SDL_GetError());
         return 1;
     }
     if (options.recordDirectory)
     {
         if (!clientPayloadRecorderConfigure(options.recordDirectory))
         {
-            std::fprintf(
-                stderr,
-                "Unable to prepare capture folder %s: %s\n",
-                options.recordDirectory,
-                SDL_GetError()
-            );
+            MDR_LOG("Unable to prepare capture folder {}: {}", options.recordDirectory, SDL_GetError());
             SDL_Quit();
             return 1;
         }
-        std::fprintf(
-            stderr,
-            "Recording MDR packets to %s. Existing mdr-packet-*.bin "
-            "files were cleared. Captures may contain "
-            "device addresses, names, and playback metadata.\n",
-            options.recordDirectory
-        );
+        MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain device addresses, names, and playback metadata.", options.recordDirectory);
     }
 #ifdef MDR_CLIENT_DEBUGGER
     if (options.replayDirectory)
@@ -250,14 +239,12 @@ int main(int argc, char** argv)
         size_t replayed{};
         if (!clientDebuggerReplayDirectory(options.replayDirectory, &replayed))
         {
-            std::fprintf(stderr, "Unable to replay packet folder %s: %s\n",
-                         options.replayDirectory, SDL_GetError());
+            MDR_LOG("Unable to replay packet folder {}: {}", options.replayDirectory, SDL_GetError());
             SDL_Quit();
             return 1;
         }
         clientEnterDebuggerReplayMode();
-        std::fprintf(stderr, "Replayed %zu packet(s) from %s in debugger-only mode.\n",
-                     replayed, options.replayDirectory);
+        MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayDirectory);
     }
 #endif
     // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md#numeric-example

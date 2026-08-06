@@ -128,7 +128,7 @@ inline DWORD SHProcessMessagesUntilEventsEx(HWND hwnd, HANDLE* pHandles, DWORD c
                 }
 
                 TranslateMessage(&msg);
-                if (msg.message == WM_SETCURSOR && LOWORD(msg.lParam) != HTERROR)
+                if (msg.message == WM_SETCURSOR && LOWORD(msg.lParam) != (WORD)(HTERROR))
                 {
                     SetCursor(LoadCursorW(nullptr, MAKEINTRESOURCEW(32514) /*IDC_WAIT*/));
                 }

@@ -247,10 +247,10 @@ namespace mdr
         if (r != MDR_RESULT_OK)
             return r;
 #ifdef MDR_DEBUG
-        fprintf(MDR_LOG_STREAM, "<< ");
+        mdr::String dump = "<< ";
         for (char* p = buf; p != buf + recvd; p++)
-            fprintf(MDR_LOG_STREAM, "%X ", static_cast<UInt8>(*p));
-        fprintf(MDR_LOG_STREAM, "\n");
+            dump += mdr::Format("{:X} ", static_cast<UInt8>(*p));
+        MDR_LOG("{}", dump);
 #endif
         mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
         return r;
@@ -267,10 +267,10 @@ namespace mdr
         if (r != MDR_RESULT_OK)
             return r;
 #ifdef MDR_DEBUG
-        fprintf(MDR_LOG_STREAM, "<< ");
+        mdr::String dump = "<< ";
         for (char* p = buf; p != buf + sent; p++)
-            fprintf(MDR_LOG_STREAM, "%X ", static_cast<UInt8>(*p));
-        fprintf(MDR_LOG_STREAM, "\n");
+            dump += mdr::Format("{:X} ", static_cast<UInt8>(*p));
+        MDR_LOG("{}", dump);
 #endif
         mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
         return r;
