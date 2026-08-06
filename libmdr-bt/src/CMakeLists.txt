@@ -1,32 +1,31 @@
-set(_SRC "${CMAKE_CURRENT_SOURCE_DIR}")
-
 set(SRCS
-    ${_SRC}/Utils.hpp
+    Utils.hpp
 )
 
 if (MDR_PLATFORM_OS STREQUAL "LINUX")
     list(APPEND SRCS
-        ${_SRC}/Linux/ConnectionLinux.cpp)
-    list(APPEND CMAKE_MODULE_PATH "${_SRC}/Linux")
+        Linux/ConnectionLinux.cpp
+        Linux/DBusHelper.cpp)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Linux")
     # Classic Linux connection uses DBus (always, not just for BLE).
     find_package(DBus REQUIRED)
 elseif (WIN32)
     list(APPEND SRCS
-        ${_SRC}/Windows/ConnectionWindows.cpp)
+        Windows/ConnectionWindows.cpp)
     if (MDR_BLE)
         list(APPEND SRCS
-            ${_SRC}/Windows/ConnectionWindowsBLE.cpp)
+            Windows/ConnectionWindowsBLE.cpp)
     endif ()
 elseif (APPLE)
     list(APPEND SRCS
-        ${_SRC}/MacOS/ConnectionMacOS.mm)
+        MacOS/ConnectionMacOS.mm)
     if (MDR_BLE)
         find_library(FOUNDATION_LIB Foundation REQUIRED)
         find_library(IOBLUETOOTH_LIB IOBluetooth REQUIRED)
     endif ()
 elseif (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     list(APPEND SRCS
-        ${_SRC}/Emscripten/ConnectionEmscripten.cpp)
+        Emscripten/ConnectionEmscripten.cpp)
 endif ()
 
 add_library(mdr-bt STATIC ${SRCS})
