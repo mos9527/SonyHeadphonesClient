@@ -22,12 +22,12 @@
         fprintf(MDR_LOG_STREAM, "%s\n", mdr::Format((str)__VA_OPT__(, ) __VA_ARGS__).c_str());                         \
     }
 #else
-#define MDR_LOG(str, ...) ((void)0)
+#define MDR_LOG(str, ...) {}
 #endif
 #ifdef MDR_DEBUG
 #define MDR_LOG_DEBUG(...) MDR_LOG(__VA_ARGS__);
 #else
-#define MDR_LOG_DEBUG(...) ((void)0)
+#define MDR_LOG_DEBUG(...) {}
 #endif
 
 namespace mdr

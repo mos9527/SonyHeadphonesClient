@@ -1728,7 +1728,7 @@ void DrawDeviceDisconnect()
     static bool popup = false;
     if (!popup)
     {
-        MDR_LOG("[Client] Device disconnected");
+        MDR_LOG("[Client] Device disconnected")
         if (!connectionAttempt.lastError.empty())
             MDR_LOG("[Client] Connection: {}", connectionAttempt.lastError)
         else if (conn)
