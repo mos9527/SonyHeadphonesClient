@@ -581,10 +581,10 @@ namespace
 
     void SendPacket()
     {
-        auto* engine = mdr::detail::HeadphonesImpl(gHeadphones);
-        gEnvelopeSequence = engine->CurrentSequenceNumber();
+        auto* h = mdr::detail::HeadphonesImpl(gHeadphones);
+        gEnvelopeSequence = h->CurrentSequenceNumber();
         const int result =
-            engine->Invoke(engine->RequestDebugCommand(gEncodedPayload, gEnvelopeType, gEnvelopeSequence, gAwaitAck));
+            h->Invoke(h->RequestDebugCommand(gEncodedPayload, gEnvelopeType, gEnvelopeSequence, gAwaitAck));
         gStatus = result == MDR_RESULT_OK ? "Packet queued" : mdrResultString(result);
     }
 

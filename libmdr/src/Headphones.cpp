@@ -470,14 +470,14 @@ namespace mdr
 #pragma region C Exports
 namespace
 {
-    using Engine = mdr::MDRHeadphones;
+    using Headphones = mdr::MDRHeadphones;
 
-    Engine* Impl(MDRHeadphones* headphones)
+    Headphones* Impl(MDRHeadphones* headphones)
     {
         return mdr::detail::HeadphonesImpl(headphones);
     }
 
-    const Engine* Impl(const MDRHeadphones* headphones)
+    const Headphones* Impl(const MDRHeadphones* headphones)
     {
         return mdr::detail::HeadphonesImpl(headphones);
     }
@@ -510,22 +510,22 @@ namespace
         return MDR_RESULT_OK;
     }
 
-    bool SupportsPairing(const Engine& h)
+    bool SupportsPairing(const Headphones& h)
     {
         return h.mSupport.contains(MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT);
     }
 
-    bool SupportsSafeListening(const Engine& h)
+    bool SupportsSafeListening(const Headphones& h)
     {
         return h.mSupport.contains(MDR_FEATURE_SAFE_LISTENING);
     }
 
-    bool SupportsVoiceGuidance(const Engine& h)
+    bool SupportsVoiceGuidance(const Headphones& h)
     {
         return h.mSupport.contains(MDR_FEATURE_VOICE_GUIDANCE);
     }
 
-    bool SupportsGeneralSetting(const Engine& h, uint32_t index)
+    bool SupportsGeneralSetting(const Headphones& h, uint32_t index)
     {
         switch (index)
         {
@@ -1005,7 +1005,7 @@ MDRResult mdrHeadphonesCreate(
         return MDR_RESULT_ERROR_ABI_MISMATCH;
     if (!connection || !outHeadphones || !connection->recv || !connection->send || !connection->poll)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    auto* headphones = mdr::Construct<Engine>(connection);
+    auto* headphones = mdr::Construct<Headphones>(connection);
     if (!headphones)
         return MDR_RESULT_ERROR_GENERAL;
     *outHeadphones = mdr::detail::HeadphonesHandle(headphones);
@@ -1136,7 +1136,7 @@ MDRResult mdrHeadphonesGetText(
     case MDR_TEXT_GENERAL_SETTING_SUBJECT:
     case MDR_TEXT_GENERAL_SETTING_SUMMARY:
         {
-            const Engine::GsCapability* capabilities[] = {
+            const Headphones::GsCapability* capabilities[] = {
                 &h.mGsCapability1, &h.mGsCapability2, &h.mGsCapability3, &h.mGsCapability4
             };
             if (index >= std::size(capabilities))
@@ -1198,7 +1198,7 @@ MDRResult mdrHeadphonesGetBatteries(
         return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
     }
     uint32_t out = 0;
-    const auto write = [&](MDRBatteryPart part, const Engine::BatteryState& state)
+    const auto write = [&](MDRBatteryPart part, const Headphones::BatteryState& state)
     {
         batteries[out++] = {
             .part = part,
@@ -1501,7 +1501,7 @@ MDRResult mdrHeadphonesSetPairedDevice(
     auto* h = Impl(headphones);
     if (!SupportsPairing(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    if (h->mProtocolFamily == Engine::ProtocolFamily::V1)
+    if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     const mdr::String value{id.begin(), id.end()};
     switch (action->command)
@@ -1558,7 +1558,7 @@ MDRResult mdrHeadphonesGetGeneralSettingInfo(
         *inoutCount = required;
         return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
     }
-    const Engine::GsCapability* capabilities[] = {
+    const Headphones::GsCapability* capabilities[] = {
         &h.mGsCapability1, &h.mGsCapability2, &h.mGsCapability3, &h.mGsCapability4
     };
     uint32_t out = 0;
@@ -1586,7 +1586,7 @@ MDRResult mdrHeadphonesGetGeneralSetting(
     const auto& h = *Impl(headphones);
     if (!SupportsGeneralSetting(h, index))
         return MDR_RESULT_ERROR_NOT_FOUND;
-    const Engine::GsCapability* capabilities[] = {
+    const Headphones::GsCapability* capabilities[] = {
         &h.mGsCapability1, &h.mGsCapability2, &h.mGsCapability3, &h.mGsCapability4
     };
     if (capabilities[index]->type != mdr::v2::t1::GsSettingType::BOOLEAN_TYPE)
@@ -1610,7 +1610,7 @@ MDRResult mdrHeadphonesSetGeneralSetting(
     auto* h = Impl(headphones);
     if (!SupportsGeneralSetting(*h, setting->index))
         return MDR_RESULT_ERROR_NOT_FOUND;
-    const Engine::GsCapability* capabilities[] = {
+    const Headphones::GsCapability* capabilities[] = {
         &h->mGsCapability1, &h->mGsCapability2, &h->mGsCapability3, &h->mGsCapability4
     };
     if (capabilities[setting->index]->type != mdr::v2::t1::GsSettingType::BOOLEAN_TYPE)

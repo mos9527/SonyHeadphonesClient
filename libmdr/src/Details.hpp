@@ -15,7 +15,7 @@ namespace mdr
     // NOLINTBEGIN
     /**
      * @brief Coroutine task boilerplate from https://github.com/mos9527/coro
-     * @note The coroutine MUST return a value on the engine's event channel: an @ref MDREvent
+     * @note The coroutine MUST return a value on the Headphones's event channel: an @ref MDREvent
      *       describing what completed, or -1 on failure. @ref SetLastError produces the latter.
      */
     struct MDRTask
@@ -467,7 +467,7 @@ namespace mdr
         MDRTask RequestCommit();
 
         /**
-         * @brief Queues an arbitrary debugger payload through the normal engine
+         * @brief Queues an arbitrary debugger payload through the normal Headphones
          * send path. This is an internal C++ developer API, not part of the C ABI.
          */
         MDRTask RequestDebugCommand(MDRBuffer payload, MDRDataType type, MDRCommandSeqNumber sequence, bool awaitAck);
@@ -502,7 +502,7 @@ namespace mdr
 
         /*
          * Protocol-neutral C facade bookkeeping. These fields deliberately do
-         * not participate in wire handling; the existing V2 engine remains the
+         * not participate in wire handling; the existing V2 Headphones remains the
          * temporary source of current/desired state.
          */
         bool mNeutralInitialized{};
