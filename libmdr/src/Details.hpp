@@ -16,8 +16,7 @@ namespace mdr
     /**
      * @brief Coroutine task boilerplate from https://github.com/mos9527/coro
      * @note The coroutine MUST return a value on the engine's event channel: an @ref MDREvent
-     *       describing what completed, or a negated MDR_RESULT_ code on failure. @ref SetLastError
-     *       produces the latter.
+     *       describing what completed, or -1 on failure. @ref SetLastError produces the latter.
      */
     struct MDRTask
     {
@@ -92,10 +91,7 @@ namespace mdr
             return coroutine;
         }
 
-        int await_resume() const noexcept
-        {
-            return coroutine ? coroutine.promise().result : -static_cast<int>(MDR_RESULT_ERROR_GENERAL);
-        }
+        int await_resume() const noexcept { return coroutine ? coroutine.promise().result : -1; }
     };
 
     inline MDRTask MDRTask::promise_type::get_return_object()
@@ -243,9 +239,10 @@ namespace mdr
          * @note  This is your best friend.
          * @note  This function does not block. To not burn cycles for fun - poll on your @ref MDRConnection
          *        with @ref mdrConnectionPoll is recommended
-         * @return MDR_EVENT_* values on success, and -1 on failure. See @ref SetLastError.
+         * @param outEvent Receives what happened, or @ref MDR_EVENT_NONE when nothing did.
+         * @return MDR_RESULT_OK, or the code behind the failure. @ref GetLastError describes it.
          */
-        int PollEvents();
+        ::MDRResult PollEvents(MDREvent& outEvent);
         void SetPacketCallback(MDRPacketCallback callback, void* userData) noexcept
         {
             mPacketCallback = callback;
@@ -282,14 +279,16 @@ namespace mdr
          */
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
         /**
-         * @brief Record @p error against @p context and return it in the form the event channel expects.
-         * @return The negated @p error, so that @ref PollEvents can hand the original MDR_RESULT_ back to
-         *         the caller instead of flattening every failure into one generic code.
+         * @brief Record @p error against @p context and signal it on the event channel.
+         * @return -1, the channel's failure marker. The code itself is kept on the instance rather
+         *         than encoded here, so the channel stays a plain @ref MDREvent. @ref PollEvents
+         *         turns the marker back into the code.
          */
         int SetLastError(int error, const char* context)
         {
             mLastError = mdr::Format("{} ({})", context, mdrResultString(error));
-            return -error;
+            mLastErrorCode = static_cast<::MDRResult>(error);
+            return -1;
         }
 
 #pragma region States
@@ -509,7 +508,17 @@ namespace mdr
         bool mNeutralInitialized{};
 
     private:
+        /**
+         * @brief @ref SetLastError for callers that report an MDR_RESULT_ rather than an event.
+         */
+        ::MDRResult Fail(int error, const char* context)
+        {
+            SetLastError(error, context);
+            return mLastErrorCode;
+        }
+
         String mLastError = "N/A";
+        ::MDRResult mLastErrorCode{MDR_RESULT_ERROR_GENERAL};
 
         MDRPacketCallback mPacketCallback{};
         void* mPacketCallbackUserData{};

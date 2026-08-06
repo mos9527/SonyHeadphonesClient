@@ -184,8 +184,9 @@ namespace mdr
         co_return MDR_EVENT_UNHANDLED;
     }
 
-    int MDRHeadphones::PollEvents()
+    ::MDRResult MDRHeadphones::PollEvents(MDREvent& outEvent)
     {
+        outEvent = MDR_EVENT_NONE;
         int r = mdrConnectionPoll(mConn, 0);
         if (r == MDR_RESULT_OK)
         {
@@ -193,17 +194,23 @@ namespace mdr
             // Failfast if that happens - the owner usually has to die.
             r = Send();
             if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-                return SetLastError(r, "Unable to send to the device");
+                return Fail(r, "Unable to send to the device");
             r = Receive();
             if (r != MDR_RESULT_OK && r != MDR_RESULT_INPROGRESS)
-                return SetLastError(r, "Unable to receive from the device");
+                return Fail(r, "Unable to receive from the device");
         }
         else
         {
             if (r != MDR_RESULT_ERROR_TIMEOUT)
-                return SetLastError(r, "Unable to poll the connection");
+                return Fail(r, "Unable to poll the connection");
         }
-        return MoveNext();
+        // Anything that failed deeper in - a handler, a running task - only reaches us as the
+        // channel's marker, so the code it recorded on the way out is all we have to go on.
+        const int raw = MoveNext();
+        if (raw == -1)
+            return mLastErrorCode;
+        outEvent = static_cast<MDREvent>(raw);
+        return MDR_RESULT_OK;
     }
 
     bool MDRHeadphones::IsReady() const
@@ -1060,15 +1067,7 @@ MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* outEvent)
 {
     if (!headphones || !outEvent)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    *outEvent = MDR_EVENT_NONE;
-    auto* h = Impl(headphones);
-    const int raw = h->PollEvents();
-    if (raw < 0)
-        return static_cast<MDRResult>(-raw);
-    if (raw == static_cast<int>(MDR_EVENT_INITIALIZE_COMPLETE))
-        h->mNeutralInitialized = true;
-    *outEvent = static_cast<MDREvent>(raw);
-    return MDR_RESULT_OK;
+    return Impl(headphones)->PollEvents(*outEvent);
 }
 
 void mdrHeadphonesSetPacketCallback(MDRHeadphones* headphones, MDRPacketCallback callback, void* userData)

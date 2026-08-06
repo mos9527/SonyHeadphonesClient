@@ -220,6 +220,7 @@ namespace mdr
             {
                 mSupport.provenance = SupportStates::Provenance::UNKNOWN;
                 RefreshNeutralFeaturesV1();
+                mNeutralInitialized = true;
                 co_return MDR_EVENT_INITIALIZE_COMPLETE;
             }
         }
@@ -346,6 +347,7 @@ namespace mdr
                 });
             }
         }
+        mNeutralInitialized = true;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 

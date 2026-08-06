@@ -234,6 +234,7 @@ namespace mdr
         };
         SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
         co_await Await(AWAIT_ACK);
+        mNeutralInitialized = true;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 
