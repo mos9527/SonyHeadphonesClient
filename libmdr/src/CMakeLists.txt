@@ -31,14 +31,14 @@ target_compile_definitions(mdr_shared
     PRIVATE MDR_BUILDING_SHARED
     INTERFACE MDR_USING_SHARED
 )
-target_link_libraries(mdr PUBLIC mdr_Includes fmt::fmt)
+target_link_libraries(mdr PUBLIC mdr_Includes)
 target_include_directories(mdr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # The ABI tests provide their own MDRConnection and intentionally exercise the
 # public C surface through a DLL/shared object, without platform backends.
 target_link_libraries(mdr_shared
     PUBLIC mdr-c
-    PRIVATE mdr_Includes fmt::fmt
+    PRIVATE mdr_Includes
 )
 target_include_directories(mdr_shared PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 

@@ -40,7 +40,7 @@ target_include_directories(mdr-bt
 
 target_link_libraries(mdr-bt
     PUBLIC  mdr-c
-    PRIVATE mdr
+    PRIVATE mdr_Includes
 )
 
 add_library(mdr-bt_shared SHARED ${SRCS})
@@ -55,7 +55,7 @@ target_include_directories(mdr-bt_shared
 
 target_link_libraries(mdr-bt_shared
     PUBLIC  mdr-c
-    PRIVATE mdr
+    PRIVATE mdr_Includes
 )
 
 target_compile_definitions(mdr-bt_shared
