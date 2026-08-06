@@ -144,6 +144,7 @@ endif()
 
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
+add_subdirectory(libmdr-bt)
 if (MDR_BUILD_CLIENT)
     add_subdirectory(client)
 endif ()

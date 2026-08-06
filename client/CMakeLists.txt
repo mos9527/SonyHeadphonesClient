@@ -137,7 +137,7 @@ set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory(Platform)
 
 target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3-static)
-target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform)
+target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform mdr::bt)
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE
     -DCLIENT_VERSION="${CLIENT_VERSION}"

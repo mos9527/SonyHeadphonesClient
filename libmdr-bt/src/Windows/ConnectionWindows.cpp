@@ -7,7 +7,7 @@
 #include <ws2bth.h>
 
 #include "../Utils.hpp"
-#include "ConnectionWindows.hpp"
+#include <mdr-bt/ConnectionWindows.h>
 
 static bool gWSAStartup = false;
 struct MDRConnectionWindows
@@ -347,7 +347,7 @@ static MDRResult Poll(void* user, int timeout) noexcept
 };
 
 extern "C" {
-MDRConnectionWindows* clientPlatformWindowsConnectionCreate() { return mdr::Construct<MDRConnectionWindows>(); }
-void clientPlatformWindowsConnectionDestroy(MDRConnectionWindows* instance) { mdr::Destruct(instance); }
-MDRConnection* clientPlatformWindowsConnectionGet(MDRConnectionWindows* instance) { return &instance->mdrConn; }
+MDR_API MDRConnectionWindows* mdrConnectionWindowsCreate() { return mdr::Construct<MDRConnectionWindows>(); }
+MDR_API void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { mdr::Destruct(instance); }
+MDR_API MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* instance) { return &instance->mdrConn; }
 }

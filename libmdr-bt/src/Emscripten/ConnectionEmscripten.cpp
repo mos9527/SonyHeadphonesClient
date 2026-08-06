@@ -1,4 +1,4 @@
-#include "ConnectionEmscripten.hpp"
+#include <mdr-bt/ConnectionEmscripten.h>
 
 #include <emscripten.h>
 
@@ -185,7 +185,7 @@ extern "C"{
         auto* ptr = static_cast<MDRConnectionEmscripten*>(user);
         ptr->lastError = error;
     }
-    MDRConnectionEmscripten* clientPlatformEmscriptenConnectionCreate() { return mdr::Construct<MDRConnectionEmscripten>(); }
-    MDRConnection* clientPlatformEmscriptenConnectionGet(MDRConnectionEmscripten* p) { return &p->mdrConn; }
-    void clientPlatformEmscriptenConnectionDestroy(MDRConnectionEmscripten* p) { mdr::Destruct(p); }
+    MDR_API MDRConnectionEmscripten* mdrConnectionEmscriptenCreate() { return mdr::Construct<MDRConnectionEmscripten>(); }
+    MDR_API MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* p) { return &p->mdrConn; }
+    MDR_API void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p) { mdr::Destruct(p); }
 }

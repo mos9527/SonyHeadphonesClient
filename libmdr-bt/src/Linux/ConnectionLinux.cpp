@@ -8,7 +8,7 @@
 #include <bluetooth/rfcomm.h>
 
 #include "../Utils.hpp"
-#include "ConnectionLinux.hpp"
+#include <mdr-bt/ConnectionLinux.h>
 
 #include "mdr/Protocol.hpp"
 
@@ -207,7 +207,7 @@ struct MDRConnectionLinux
 };
 
 extern "C" {
-MDRConnectionLinux* clientPlatformLinuxConnectionCreate() { return mdr::Construct<MDRConnectionLinux>(); }
-void clientPlatformLinuxConnectionDestroy(MDRConnectionLinux* instance) { mdr::Destruct(instance); }
-MDRConnection* clientPlatformLinuxConnectionGet(MDRConnectionLinux* instance) { return &instance->mdrConn; }
+MDR_API MDRConnectionLinux* mdrConnectionLinuxCreate() { return mdr::Construct<MDRConnectionLinux>(); }
+MDR_API void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance) { mdr::Destruct(instance); }
+MDR_API MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux* instance) { return &instance->mdrConn; }
 }

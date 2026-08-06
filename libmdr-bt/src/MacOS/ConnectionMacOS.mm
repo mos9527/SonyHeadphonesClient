@@ -12,7 +12,7 @@ please do so.
 #include <string>
 
 #include "../Utils.hpp"
-#include "ConnectionMacOS.hpp"
+#include <mdr-bt/ConnectionMacOS.h>
 
 @interface MDRBluetoothDelegate : NSObject <IOBluetoothRFCOMMChannelDelegate>
 @property (nonatomic, strong) IOBluetoothRFCOMMChannel *rfcommChannel;
@@ -334,6 +334,6 @@ struct MDRConnectionMacOS
     }
 };
 
-MDRConnectionMacOS* clientPlatformMacOSConnectionCreate() { return mdr::Construct<MDRConnectionMacOS>(); }
-MDRConnection* clientPlatformMacOSConnectionGet(MDRConnectionMacOS* self) { return &self->mdrConn; }
-void clientPlatformMacOSConnectionDestroy(MDRConnectionMacOS* self) { mdr::Destruct(self); }
+MDR_API MDRConnectionMacOS* mdrConnectionMacOSCreate() { return mdr::Construct<MDRConnectionMacOS>(); }
+MDR_API MDRConnection* mdrConnectionMacOSGet(MDRConnectionMacOS* self) { return &self->mdrConn; }
+MDR_API void mdrConnectionMacOSDestroy(MDRConnectionMacOS* self) { mdr::Destruct(self); }
