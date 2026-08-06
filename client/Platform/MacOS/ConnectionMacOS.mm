@@ -11,8 +11,8 @@ please do so.
 #include <mutex>
 #include <string>
 
-#include "../Platform.hpp"
-#include <mdr-c/Platform/PlatformMacOS.h>
+#include "../Utils.hpp"
+#include "ConnectionMacOS.hpp"
 
 @interface MDRBluetoothDelegate : NSObject <IOBluetoothRFCOMMChannelDelegate>
 @property (nonatomic, strong) IOBluetoothRFCOMMChannel *rfcommChannel;
@@ -334,6 +334,6 @@ struct MDRConnectionMacOS
     }
 };
 
-MDRConnectionMacOS* mdrConnectionMacOSCreate() { return mdr::Construct<MDRConnectionMacOS>(); }
-MDRConnection* mdrConnectionMacOSGet(MDRConnectionMacOS* self) { return &self->mdrConn; }
-void mdrConnectionMacOSDestroy(MDRConnectionMacOS* self) { mdr::Destruct(self); }
+MDRConnectionMacOS* clientPlatformMacOSConnectionCreate() { return mdr::Construct<MDRConnectionMacOS>(); }
+MDRConnection* clientPlatformMacOSConnectionGet(MDRConnectionMacOS* self) { return &self->mdrConn; }
+void clientPlatformMacOSConnectionDestroy(MDRConnectionMacOS* self) { mdr::Destruct(self); }

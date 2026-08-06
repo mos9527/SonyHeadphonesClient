@@ -20,22 +20,6 @@
 #endif
 
 
-#if !defined(MDR_PLATFORM_API)
-#if defined(_WIN32)
-#if defined(MDR_PLATFORM_BUILDING_SHARED)
-#define MDR_PLATFORM_API __declspec(dllexport)
-#elif defined(MDR_PLATFORM_USING_SHARED)
-#define MDR_PLATFORM_API __declspec(dllimport)
-#else
-#define MDR_PLATFORM_API
-#endif
-#elif defined(__GNUC__) || defined(__clang__)
-#define MDR_PLATFORM_API __attribute__((visibility("default")))
-#else
-#define MDR_PLATFORM_API
-#endif
-#endif
-
 /**
  * @brief Stable result type used by the neutral C ABI.
  */

@@ -88,9 +88,11 @@ endif ()
 
 option(MDR_DEBUG "Build with debug flags enabled (also always on for Debug builds)" OFF)
 option(MDR_DEBUG_TRAPS "Break into the debugger when MDR operations fail in Debug builds" OFF)
+option(MDR_BUILD_CLIENT "Build the Sony Headphones Client and platform backends" ON)
 option(MDR_CLIENT_DEBUGGER "Build the ImGui packet debugger in all configurations" OFF)
 set(MDR_CLIENT_DEBUGGER_TARGET OFF)
-if (MDR_CLIENT_DEBUGGER OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_CONFIGURATION_TYPES)
+if (MDR_BUILD_CLIENT AND
+    (MDR_CLIENT_DEBUGGER OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_CONFIGURATION_TYPES))
     set(MDR_CLIENT_DEBUGGER_TARGET ON)
 endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -142,7 +144,9 @@ endif()
 
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
-add_subdirectory(client)
+if (MDR_BUILD_CLIENT)
+    add_subdirectory(client)
+endif ()
 
 include(CTest)
 if (BUILD_TESTING)

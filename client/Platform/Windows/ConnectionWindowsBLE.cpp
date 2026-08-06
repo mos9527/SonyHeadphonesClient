@@ -17,8 +17,8 @@
 #include <mutex>
 #include <thread>
 
-#include <mdr-c/Platform/PlatformWindowsBLE.h>
-#include "../Platform.hpp"
+#include "ConnectionWindowsBLE.hpp"
+#include "../Utils.hpp"
 
 using namespace Microsoft::WRL;
 using namespace ABI::Windows::Foundation;
@@ -918,17 +918,17 @@ struct MDRConnectionWindowsBLE
 
 extern "C" {
 
-MDRConnectionWindowsBLE* mdrConnectionWindowsBLECreate()
+MDRConnectionWindowsBLE* clientPlatformWindowsBLEConnectionCreate()
 {
-    MDR_LOG("[BLE] mdrConnectionWindowsBLECreate");
+    MDR_LOG("[BLE] clientPlatformWindowsBLEConnectionCreate");
     return mdr::Construct<MDRConnectionWindowsBLE>();
 }
 
-MDRConnection* mdrConnectionWindowsBLEGet(MDRConnectionWindowsBLE* pConn) { return &pConn->mdrConn; }
+MDRConnection* clientPlatformWindowsBLEConnectionGet(MDRConnectionWindowsBLE* pConn) { return &pConn->mdrConn; }
 
-void mdrConnectionWindowsBLEDestroy(MDRConnectionWindowsBLE* pConn)
+void clientPlatformWindowsBLEConnectionDestroy(MDRConnectionWindowsBLE* pConn)
 {
-    MDR_LOG("[BLE] mdrConnectionWindowsBLEDestroy");
+    MDR_LOG("[BLE] clientPlatformWindowsBLEConnectionDestroy");
     if (pConn)
     {
         MDRConnectionWindowsBLE::Disconnect(pConn);

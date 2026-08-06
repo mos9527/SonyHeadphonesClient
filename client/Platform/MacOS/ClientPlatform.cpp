@@ -1,7 +1,7 @@
 #include "../Platform.hpp"
-#include <mdr-c/Platform/PlatformLinux.h>
+#include "ConnectionMacOS.hpp"
 
-MDRConnectionLinux* gConn;
+MDRConnectionMacOS* gConn = nullptr;
 extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
@@ -10,23 +10,22 @@ extern "C" {
             gConn = nullptr;
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
         }
-        gConn = mdrConnectionLinuxCreate();
+        gConn = clientPlatformMacOSConnectionCreate();
         return MDR_RESULT_OK;
     }
     void clientPlatformConnectionDestroy()
     {
         if (gConn)
-            mdrConnectionLinuxDestroy(gConn);
+            clientPlatformMacOSConnectionDestroy(gConn), gConn = nullptr;
     }
     MDRConnection* clientPlatformConnectionGet()
     {
         if (gConn)
-            return mdrConnectionLinuxGet(gConn);
+            return clientPlatformMacOSConnectionGet(gConn);
         [[unlikely]] return nullptr;
     }
     int clientPlatformLocateFontBinary(const char** outData)
     {
-        // TODO: This would be hell.
         *outData = nullptr;
         return 0;
     }

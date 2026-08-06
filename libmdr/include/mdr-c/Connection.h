@@ -41,8 +41,8 @@ extern "C" {
 
 /**
  * @brief Connect to a device using the specified MAC address and service UUID.
- * @param conn The connection object created by platform-specific backends.
- *             e.g. @ref mdrConnectionWindowsCreate, @ref mdrConnectionLinuxCreate
+ * @param conn The connection object supplied by the application or a platform
+ *             backend.
  * @param macAddress The MAC address of the device to connect to. e.g. "AA:BB:CC:DD:EE:FF"
  * @param serviceUUID The service UUID to connect to. e.g."956C7B26-D49A-4BA8-B03F-B17D393CB6E2" (XM5s and newer)
  * @return @ref MDR_RESULT_INPROGRESS on success - do @ref mdrConnectionPoll to wait for it to be _actually_ available.

@@ -1,7 +1,7 @@
-#include <mdr-c/Platform/PlatformWindows.h>
-#include <mdr-c/Platform/PlatformWindowsBLE.h>
 #include <mdr/Protocol.hpp>
 #include "../Platform.hpp"
+#include "ConnectionWindows.hpp"
+#include "ConnectionWindowsBLE.hpp"
 
 
 // Override global operator new for reference Windows Client only
@@ -24,31 +24,35 @@ int clientPlatformConnectionInit(int flags)
     if (flags & MDR_INIT_BT_BLE)
     {
 #ifdef MDR_BLE
-        gConnBLE = mdrConnectionWindowsBLECreate(), gConnClassic = nullptr;
+        gConnBLE = clientPlatformWindowsBLEConnectionCreate(), gConnClassic = nullptr;
 #else
         gConnBLE = nullptr, gConnClassic = nullptr;
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
 #endif
     }
     else
-        gConnClassic = mdrConnectionWindowsCreate(), gConnBLE = nullptr;
+        gConnClassic = clientPlatformWindowsConnectionCreate(), gConnBLE = nullptr;
     return MDR_RESULT_OK;
 }
 
 void clientPlatformConnectionDestroy()
 {
     if (gConnClassic)
-        mdrConnectionWindowsDestroy(gConnClassic), gConnClassic = nullptr;
+        clientPlatformWindowsConnectionDestroy(gConnClassic), gConnClassic = nullptr;
+#ifdef MDR_BLE
     if (gConnBLE)
-        mdrConnectionWindowsBLEDestroy(gConnBLE), gConnBLE = nullptr;
+        clientPlatformWindowsBLEConnectionDestroy(gConnBLE), gConnBLE = nullptr;
+#endif
 }
 
 MDRConnection* clientPlatformConnectionGet()
 {
     if (gConnClassic)
-        return mdrConnectionWindowsGet(gConnClassic);
+        return clientPlatformWindowsConnectionGet(gConnClassic);
+#ifdef MDR_BLE
     if (gConnBLE)
-        return mdrConnectionWindowsBLEGet(gConnBLE);
+        return clientPlatformWindowsBLEConnectionGet(gConnBLE);
+#endif
     [[unlikely]] return nullptr;
 }
 

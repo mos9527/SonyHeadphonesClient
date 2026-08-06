@@ -31,9 +31,6 @@ target_compile_definitions(mdr_shared
     PRIVATE MDR_BUILDING_SHARED
     INTERFACE MDR_USING_SHARED
 )
-add_subdirectory(Platform)
-
-target_link_libraries(mdr PRIVATE mdr_Platform)
 target_link_libraries(mdr PUBLIC mdr_Includes fmt::fmt)
 target_include_directories(mdr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 

@@ -1,8 +1,8 @@
 #include "../Platform.hpp"
-#include <mdr-c/Platform/PlatformEmscripten.h>
+#include "ConnectionEmscripten.hpp"
 #include <emscripten.h>
 
-MDRConnectionEmscripten* gConn;
+MDRConnectionEmscripten* gConn = nullptr;
 extern "C" {
     int clientPlatformConnectionInit(int flags)
     {
@@ -11,18 +11,18 @@ extern "C" {
             gConn = nullptr;
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
         }
-        gConn = mdrConnectionEmscriptenCreate();
+        gConn = clientPlatformEmscriptenConnectionCreate();
         return MDR_RESULT_OK;
     }
     void clientPlatformConnectionDestroy()
     {
         if (gConn)
-            mdrConnectionEmscriptenDestroy(gConn);
+            clientPlatformEmscriptenConnectionDestroy(gConn), gConn = nullptr;
     }
     MDRConnection* clientPlatformConnectionGet()
     {
         if (gConn)
-            return mdrConnectionEmscriptenGet(gConn);
+            return clientPlatformEmscriptenConnectionGet(gConn);
         [[unlikely]] return nullptr;
     }
     void clientPlatformDestroy()
