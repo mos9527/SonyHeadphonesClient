@@ -7,3 +7,10 @@ message(STATUS "Found DBus: ${DBus_INCLUDE_DIRS} ${DBus_LIBRARIES}")
 
 target_link_libraries(mdr_PlatformLinux PRIVATE mdr-c mdr ${DBus_LIBRARIES} bluetooth)
 target_include_directories(mdr_PlatformLinux PRIVATE ${DBus_INCLUDE_DIRS})
+
+set(MDR_PLATFORM_SHARED_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/DBusHelper.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/PlatformLinux.cpp"
+    PARENT_SCOPE)
+set(MDR_PLATFORM_SHARED_LIBS ${DBus_LIBRARIES} bluetooth PARENT_SCOPE)
+set(MDR_PLATFORM_SHARED_INCLUDES ${DBus_INCLUDE_DIRS} PARENT_SCOPE)

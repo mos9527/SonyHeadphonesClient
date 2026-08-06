@@ -25,7 +25,23 @@ elseif (MDR_PLATFORM_OS STREQUAL "MACOS")
 elseif (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     message(STATUS "Configuring for Emscripten platform")
     add_subdirectory(Emscripten)
-    target_link_libraries(mdr_Platform INTERFACE mdr_PlatformEmscripten)
+    target_link_libraries(mdr_Platform INTERFACE mdr_PlatformEmscripten)    
 else()
     message(FATAL_ERROR "Unsupported platform ${MDR_PLATFORM_OS}")
+endif ()
+
+if (MDR_PLATFORM_SHARED_SOURCES)
+    add_library(mdr_Platform_shared SHARED ${MDR_PLATFORM_SHARED_SOURCES})
+    set_target_properties(mdr_Platform_shared PROPERTIES OUTPUT_NAME "mdr-platform-shared")
+    target_compile_definitions(mdr_Platform_shared
+        PRIVATE MDR_PLATFORM_BUILDING_SHARED
+        INTERFACE MDR_PLATFORM_USING_SHARED
+    )
+    target_link_libraries(mdr_Platform_shared
+        PUBLIC mdr-c
+        PRIVATE mdr_shared mdr_Includes fmt::fmt ${MDR_PLATFORM_SHARED_LIBS}
+    )
+    target_include_directories(mdr_Platform_shared
+        PRIVATE "${CMAKE_SOURCE_DIR}/libmdr/src" ${MDR_PLATFORM_SHARED_INCLUDES}
+    )
 endif ()
