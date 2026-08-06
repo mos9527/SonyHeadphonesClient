@@ -63,6 +63,8 @@ target_compile_definitions(mdr-bt_shared
     INTERFACE MDR_USING_SHARED
 )
 
+set_target_properties(mdr-bt_shared PROPERTIES OUTPUT_NAME "mdr-bt-shared")
+
 if (WIN32)
     target_link_libraries(mdr-bt PRIVATE ws2_32 rpcrt4)
     target_link_libraries(mdr-bt_shared PRIVATE ws2_32 rpcrt4)
