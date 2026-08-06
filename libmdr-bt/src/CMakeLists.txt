@@ -7,6 +7,7 @@ set(SRCS
 if (MDR_PLATFORM_OS STREQUAL "LINUX")
     list(APPEND SRCS
         ${_SRC}/Linux/ConnectionLinux.cpp)
+    list(APPEND CMAKE_MODULE_PATH "${_SRC}/Linux")
     # Classic Linux connection uses DBus (always, not just for BLE).
     find_package(DBus REQUIRED)
 elseif (WIN32)
