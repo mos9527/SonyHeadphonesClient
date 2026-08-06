@@ -30,7 +30,7 @@ namespace mdr
             if (cmd.size() < 2 ||
                 static_cast<PeripheralInquiredType>(cmd[1]) !=
                     PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
-                return MDR_HEADPHONES_EVT_UNHANDLED;
+                return MDR_EVENT_UNHANDLED;
             if (static_cast<Command>(cmd[0]) == Command::PERIPHERAL_NTFY_STATUS)
             {
                 Deserialize(NotifyPeripheralStatusPairingDeviceManagementClassicBt, result, cmd);
@@ -45,7 +45,7 @@ namespace mdr
                     result.status == v1::CommonStatus::ENABLE &&
                     result.bluetoothModeStatus == PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
             }
-            return MDR_HEADPHONES_EVT_BLUETOOTH_MODE;
+            return MDR_EVENT_PAIRING_CHANGED;
         }
 
         int HandlePeripheralParam(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -53,7 +53,7 @@ namespace mdr
             if (cmd.size() < 2 ||
                 static_cast<PeripheralInquiredType>(cmd[1]) !=
                     PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT)
-                return MDR_HEADPHONES_EVT_UNHANDLED;
+                return MDR_EVENT_UNHANDLED;
             if (static_cast<Command>(cmd[0]) == Command::PERIPHERAL_NTFY_PARAM)
             {
                 Deserialize(NotifyPeripheralParamPairingDeviceManagementClassicBt, result, cmd);
@@ -64,7 +64,7 @@ namespace mdr
                 Deserialize(RetPeripheralParamPairingDeviceManagementClassicBt, result, cmd);
                 ApplyPairedDevices(self, result);
             }
-            return MDR_HEADPHONES_EVT_CONNECTED_DEVICES;
+            return MDR_EVENT_PAIRED_DEVICES_CHANGED;
         }
 
         int HandleVoiceGuidance(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -92,14 +92,14 @@ namespace mdr
                 Deserialize(RetVoiceGuidanceStatusSettingOnOff, result, cmd);
                 self->mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
             }
-            return MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE;
+            return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
         }
     }
 
     int MDRHeadphones::HandleCommandV1T2(Span<const UInt8> cmd, MDRCommandSeqNumber)
     {
         if (cmd.empty())
-            return MDR_HEADPHONES_EVT_UNHANDLED;
+            return MDR_EVENT_UNHANDLED;
         switch (static_cast<Command>(cmd[0]))
         {
         case Command::PERIPHERAL_RET_STATUS:
@@ -115,7 +115,7 @@ namespace mdr
             return HandleVoiceGuidance(this, cmd);
         default:
             MDR_LOG_DEBUG("** Unhandled V1 T2 {}", static_cast<Command>(cmd[0]));
-            return MDR_HEADPHONES_EVT_UNHANDLED;
+            return MDR_EVENT_UNHANDLED;
         }
     }
 }

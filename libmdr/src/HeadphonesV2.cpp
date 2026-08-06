@@ -12,25 +12,16 @@ namespace mdr
         SendCommandACK(t1::ConnectGetProtocolInfo);
         const int result = co_await Await(AWAIT_PROTOCOL_INFO);
         if (result != MDR_RESULT_OK)
-        {
-            SetLastError(result, "Unable to initialize MDR V2");
-            co_return MDR_HEADPHONES_ERROR;
-        }
+            co_return SetLastError(result, "Unable to initialize MDR V2");
         if (mProtocolFamily != ProtocolFamily::V2)
-        {
-            SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V2");
-            co_return MDR_HEADPHONES_ERROR;
-        }
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V2");
         co_return co_await RequestInitV2Selected();
     }
 
     MDRTask MDRHeadphones::RequestInitV2Selected()
     {
         if (!mProtocol.hasTable1)
-        {
-            SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
-            co_return MDR_HEADPHONES_ERROR;
-        }
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
         SendCommandACK(t1::ConnectGetCapabilityInfo);
 
         /* Device Info */
@@ -243,7 +234,7 @@ namespace mdr
         };
         SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
         co_await Await(AWAIT_ACK);
-        co_return MDR_HEADPHONES_TASK_INIT_OK;
+        co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 
     MDRTask MDRHeadphones::RequestSyncV2()
@@ -299,7 +290,7 @@ namespace mdr
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
-        co_return MDR_HEADPHONES_TASK_SYNC_OK;
+        co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
     void MDRHeadphones::SnapshotProperties()
@@ -643,10 +634,7 @@ namespace mdr
                         static_cast<UInt8>(bands[9] + 6),
                     }};
                 else
-                {
-                    SetLastError(MDR_RESULT_ERROR_INVALID_ARGUMENT, "mEqConfig size must be 0, 5, or 10");
-                    co_return MDR_HEADPHONES_ERROR;
-                }
+                    co_return SetLastError(MDR_RESULT_ERROR_INVALID_ARGUMENT, "mEqConfig size must be 0, 5, or 10");
                 SendCommandACK(EqEbbSetParamEq, res);
                 mEqConfig.commit();
                 mEqClearBass.commit();
@@ -894,7 +882,7 @@ namespace mdr
                 mSafeListeningPreviewMode.commit();
             }
         }
-        co_return MDR_HEADPHONES_TASK_COMMIT_OK;
+        co_return MDR_EVENT_APPLY_COMPLETE;
     }
 #pragma endregion
 }

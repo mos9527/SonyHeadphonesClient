@@ -6,9 +6,9 @@ typedef struct MDRConnectionEmscripten MDRConnectionEmscripten;
 #ifdef __cplusplus
 extern "C" {
 #endif
-MDRConnectionEmscripten* mdrConnectionEmscriptenCreate();
-MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten*);
-void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten*);
+MDR_PLATFORM_API MDRConnectionEmscripten* mdrConnectionEmscriptenCreate(void);
+MDR_PLATFORM_API MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* connection);
+MDR_PLATFORM_API void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* connection);
 #ifdef __cplusplus
 }
 #endif

@@ -195,7 +195,7 @@ namespace
         MockTransport transport;
         MDRHeadphones* headphones = nullptr;
         Check(
-            mdrHeadphonesCreate(&transport.connection, &headphones) == MDR_RESULT_OK,
+            mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones) == MDR_RESULT_OK,
             "opaque headphones session opens"
         );
         if (headphones == nullptr)
@@ -232,9 +232,7 @@ namespace
             ++replayed;
         }
 
-        MDRModel identity{
-            .struct_size = sizeof(MDRModel)
-        };
+        MDRModel identity{};
         Check(
             mdrHeadphonesGetModel(headphones, &identity) == MDR_RESULT_OK,
             "replayed session identity is readable"

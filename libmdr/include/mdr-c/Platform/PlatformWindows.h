@@ -6,9 +6,9 @@ typedef struct MDRConnectionWindows MDRConnectionWindows;
 #ifdef __cplusplus
 extern "C" {
 #endif
-MDRConnectionWindows* mdrConnectionWindowsCreate();
-MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows*);
-void mdrConnectionWindowsDestroy(MDRConnectionWindows*);
+MDR_PLATFORM_API MDRConnectionWindows* mdrConnectionWindowsCreate(void);
+MDR_PLATFORM_API MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* connection);
+MDR_PLATFORM_API void mdrConnectionWindowsDestroy(MDRConnectionWindows* connection);
 #ifdef __cplusplus
 }
 #endif

@@ -12,9 +12,9 @@ typedef uint32_t MDRBoolean;
 #define MDR_TRUE ((MDRBoolean)1u)
 
 typedef uint32_t MDRFeatureAvailability;
-#define MDR_FEATURE_UNKNOWN ((MDRFeatureAvailability)0u)
-#define MDR_FEATURE_UNAVAILABLE ((MDRFeatureAvailability)1u)
-#define MDR_FEATURE_AVAILABLE ((MDRFeatureAvailability)2u)
+#define MDR_AVAILABILITY_UNKNOWN ((MDRFeatureAvailability)0u)
+#define MDR_AVAILABILITY_UNAVAILABLE ((MDRFeatureAvailability)1u)
+#define MDR_AVAILABILITY_AVAILABLE ((MDRFeatureAvailability)2u)
 
 typedef uint32_t MDRFeature;
 #define MDR_FEATURE_IDENTITY ((MDRFeature)1u)
@@ -238,9 +238,9 @@ typedef uint32_t MDRAudioPriority;
 #define MDR_AUDIO_PRIORITY_QUALITY ((MDRAudioPriority)1u)
 #define MDR_AUDIO_PRIORITY_STABILITY ((MDRAudioPriority)2u)
 
+
 typedef struct MDRModel
 {
-    uint32_t struct_size;
     uint32_t protocol_version;
     MDRAudioCodec audio_codec;
     uint8_t model_color;
@@ -248,7 +248,6 @@ typedef struct MDRModel
 
 typedef struct MDRBattery
 {
-    uint32_t struct_size;
     MDRBatteryPart part;
     MDRBoolean present;
     uint8_t level_percent;
@@ -258,20 +257,17 @@ typedef struct MDRBattery
 
 typedef struct MDRPlayback
 {
-    uint32_t struct_size;
     MDRPlaybackStatus status;
     uint8_t volume;
 } MDRPlayback;
 
 typedef struct MDRPlaybackCommand
 {
-    uint32_t struct_size;
     MDRPlaybackAction action;
 } MDRPlaybackCommand;
 
 typedef struct MDRNoiseControl
 {
-    uint32_t struct_size;
     MDRNoiseMode mode;
     uint8_t ambient_level;
     MDRBoolean focus_on_voice;
@@ -282,7 +278,6 @@ typedef struct MDRNoiseControl
 
 typedef struct MDRSpeakToChat
 {
-    uint32_t struct_size;
     MDRBoolean enabled;
     MDRSpeechSensitivity sensitivity;
     MDRSpeakTimeout timeout;
@@ -290,14 +285,12 @@ typedef struct MDRSpeakToChat
 
 typedef struct MDRListening
 {
-    uint32_t struct_size;
     MDRListeningMode mode;
     MDRRoomSize background_room;
 } MDRListening;
 
 typedef struct MDREqualizer
 {
-    uint32_t struct_size;
     MDREqualizerPreset preset;
     int8_t clear_bass;
     uint32_t band_count;
@@ -307,7 +300,6 @@ typedef struct MDREqualizer
 
 typedef struct MDRPairedDevice
 {
-    uint32_t struct_size;
     uint32_t index;
     MDRBoolean connected;
     MDRBoolean playback_device;
@@ -315,7 +307,6 @@ typedef struct MDRPairedDevice
 
 typedef struct MDRPairedDeviceAction
 {
-    uint32_t struct_size;
     MDRPairedDeviceCommand command;
     const char* device_id;
     uint32_t device_id_size;
@@ -323,13 +314,11 @@ typedef struct MDRPairedDeviceAction
 
 typedef struct MDRPairing
 {
-    uint32_t struct_size;
     MDRBoolean enabled;
 } MDRPairing;
 
 typedef struct MDRGeneralSettingInfo
 {
-    uint32_t struct_size;
     uint32_t index;
     MDRGeneralSettingType type;
     MDRBoolean writable;
@@ -337,21 +326,18 @@ typedef struct MDRGeneralSettingInfo
 
 typedef struct MDRGeneralSetting
 {
-    uint32_t struct_size;
     uint32_t index;
     MDRBoolean boolean_value;
 } MDRGeneralSetting;
 
 typedef struct MDRAssignableControls
 {
-    uint32_t struct_size;
     MDRAssignableAction left;
     MDRAssignableAction right;
 } MDRAssignableControls;
 
 typedef struct MDRPower
 {
-    uint32_t struct_size;
     uint32_t auto_power_off_minutes;
     MDRWearingPowerMode wearing_power;
     MDRBoolean auto_pause;
@@ -361,20 +347,17 @@ typedef struct MDRPower
 
 typedef struct MDRVoiceGuidance
 {
-    uint32_t struct_size;
     MDRBoolean enabled;
     int8_t volume;
 } MDRVoiceGuidance;
 
 typedef struct MDRConnectionMode
 {
-    uint32_t struct_size;
     MDRAudioPriority audio_priority;
 } MDRConnectionMode;
 
 typedef struct MDRSafeListening
 {
-    uint32_t struct_size;
     uint8_t sound_pressure;
     MDRBoolean preview;
 } MDRSafeListening;
@@ -392,9 +375,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Creates a new MDRHeadphones instance with an existing @ref MDRConnection. 
+ * @brief Creates a new MDRHeadphones instance with an existing @ref MDRConnection.
+ * @param abiVersion Always pass @ref MDR_ABI_VERSION. This is the one handshake between the header
+ *                   you compiled against and the library you ended up linked to; every struct in
+ *                   this header is fixed layout for a given value of it.
+ * @return @ref MDR_RESULT_ERROR_ABI_MISMATCH if this library does not implement @p abiVersion, in
+ *         which case no instance is created and every other entry point is unsafe to call.
  */
-MDR_API MDRResult mdrHeadphonesCreate(MDRConnection* connection, MDRHeadphones** ppHeadphones);
+MDR_API MDRResult mdrHeadphonesCreate(
+    uint32_t abiVersion,
+    MDRConnection* connection,
+    MDRHeadphones** ppHeadphones
+);
 /**
  * @brief Frees the @ref MDRHeadphones instance. 
  */

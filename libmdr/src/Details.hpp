@@ -15,7 +15,9 @@ namespace mdr
     // NOLINTBEGIN
     /**
      * @brief Coroutine task boilerplate from https://github.com/mos9527/coro
-     * @note The coroutine MUST return one of MDR_HEADPHONES_... values indicating its completion.
+     * @note The coroutine MUST return a value on the engine's event channel: an @ref MDREvent
+     *       describing what completed, or a negated MDR_RESULT_ code on failure. @ref SetLastError
+     *       produces the latter.
      */
     struct MDRTask
     {
@@ -90,7 +92,10 @@ namespace mdr
             return coroutine;
         }
 
-        int await_resume() const noexcept { return coroutine ? coroutine.promise().result : MDR_HEADPHONES_ERROR; }
+        int await_resume() const noexcept
+        {
+            return coroutine ? coroutine.promise().result : -static_cast<int>(MDR_RESULT_ERROR_GENERAL);
+        }
     };
 
     inline MDRTask MDRTask::promise_type::get_return_object()
@@ -238,7 +243,7 @@ namespace mdr
          * @note  This is your best friend.
          * @note  This function does not block. To not burn cycles for fun - poll on your @ref MDRConnection
          *        with @ref mdrConnectionPoll is recommended
-         * @return One of MDR_HEADPHONES_* values
+         * @return MDR_EVENT_* values on success, and -1 on failure. See @ref SetLastError.
          */
         int PollEvents();
         void SetPacketCallback(MDRPacketCallback callback, void* userData) noexcept
@@ -276,10 +281,15 @@ namespace mdr
          * @brief This does what you think it does.
          */
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
+        /**
+         * @brief Record @p error against @p context and return it in the form the event channel expects.
+         * @return The negated @p error, so that @ref PollEvents can hand the original MDR_RESULT_ back to
+         *         the caller instead of flattening every failure into one generic code.
+         */
         int SetLastError(int error, const char* context)
         {
             mLastError = mdr::Format("{} ({})", context, mdrResultString(error));
-            return MDR_HEADPHONES_ERROR;
+            return -error;
         }
 
 #pragma region States
@@ -420,9 +430,7 @@ namespace mdr
         MDRProperty<bool> mSpeakToChatEnabled;
         MDRProperty<v2::t1::DetectSensitivity> mSpeakToChatDetectSensitivity;
         MDRProperty<v2::t1::ModeOutTime> mSpeakToModeOutTime;
-        v1::t1::CommonOnOffSettingValue mV1SpeakToChatVoiceFocus{
-            v1::t1::CommonOnOffSettingValue::OFF
-        };
+        v1::t1::CommonOnOffSettingValue mV1SpeakToChatVoiceFocus{v1::t1::CommonOnOffSettingValue::OFF};
 
         MDRProperty<bool> mHeadGestureEnabled;
 
@@ -463,16 +471,8 @@ namespace mdr
          * @brief Queues an arbitrary debugger payload through the normal engine
          * send path. This is an internal C++ developer API, not part of the C ABI.
          */
-        MDRTask RequestDebugCommand(
-            MDRBuffer payload,
-            MDRDataType type,
-            MDRCommandSeqNumber sequence,
-            bool awaitAck
-        );
-        [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept
-        {
-            return mSeqNumber;
-        }
+        MDRTask RequestDebugCommand(MDRBuffer payload, MDRDataType type, MDRCommandSeqNumber sequence, bool awaitAck);
+        [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept { return mSeqNumber; }
 
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
@@ -483,20 +483,20 @@ namespace mdr
         /**
          * @brief Send initialization payloads to the headphones.
          * @note  To be used with @ref Invoke.
-         * @return @ref MDR_HEADPHONES_TASK_INIT_OK on completion (returned in @ref PollEvents)
+         * @return @ref MDR_EVENT_INITIALIZE_COMPLETE on completion (returned in @ref PollEvents)
          **/
         MDRTask RequestInitV2();
         MDRTask RequestInitV2Selected();
         /**
          * @brief Requests states that the device won't send automatically. (e.g. Battery levels)
          * @note  To be used with @ref Invoke.
-         * @return @ref MDR_HEADPHONES_TASK_SYNC_OK on completion (returned in @ref PollEvents)
+         * @return @ref MDR_EVENT_SYNC_COMPLETE on completion (returned in @ref PollEvents)
          **/
         MDRTask RequestSyncV2();
         /**
          * @brief Requests all changed @ref MDRProperty up until this point to be set on the device
          * @note  To be used with @ref Invoke.
-         * @return @ref MDR_HEADPHONES_TASK_COMMIT_OK on completion (returned in @ref PollEvents)
+         * @return @ref MDR_EVENT_APPLY_COMPLETE on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommitV2();
 #pragma endregion
@@ -618,20 +618,14 @@ namespace mdr::detail
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
             if (_sendResult != MDR_RESULT_OK)                                                                          \
-            {                                                                                                          \
-                SetLastError(_sendResult, "Unable to serialize command");                                              \
-                co_return MDR_HEADPHONES_ERROR;                                                                        \
-            }                                                                                                          \
+                co_return SetLastError(_sendResult, "Unable to serialize command");                                    \
             int res = co_await Await(AWAIT_ACK);                                                                       \
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
             MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, _maxRetries);                                          \
         }                                                                                                              \
         if (_retries == _maxRetries)                                                                                   \
-        {                                                                                                              \
-            SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");                  \
-            co_return MDR_HEADPHONES_ERROR;                                                                            \
-        }                                                                                                              \
+            co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \
     }
 
 /**
@@ -640,7 +634,8 @@ namespace mdr::detail
 #define Deserialize(Type, Name, Command)                                                                               \
     auto Name##Result = Type::Deserialize((Command).data(), (Command).size());                                         \
     if (!Name##Result)                                                                                                 \
-        return self->SetLastError(Name##Result.error, Name##Result.errMessage ? Name##Result.errMessage : "Unable to deserialize " #Type);   \
+        return self->SetLastError(Name##Result.error,                                                                  \
+                                  Name##Result.errMessage ? Name##Result.errMessage : "Unable to deserialize " #Type); \
     auto& Name = Name##Result.value;                                                                                   \
     MDR_LOG_DEBUG("Deserialized " #Type)
 

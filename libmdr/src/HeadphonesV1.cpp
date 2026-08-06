@@ -198,10 +198,7 @@ namespace mdr
     MDRTask MDRHeadphones::RequestInitV1()
     {
         if (!mProtocol.hasTable1)
-        {
-            SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V1 Table 1");
-            co_return MDR_HEADPHONES_ERROR;
-        }
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V1 Table 1");
 
         SendCommandACK(t1::GetCapabilityInfo);
         SendCommandACK(t1::GetDeviceInfo, {.inquiredType = t1::DeviceInfoInquiredType::MODEL_NAME});
@@ -223,7 +220,7 @@ namespace mdr
             {
                 mSupport.provenance = SupportStates::Provenance::UNKNOWN;
                 RefreshNeutralFeaturesV1();
-                co_return MDR_HEADPHONES_TASK_INIT_OK;
+                co_return MDR_EVENT_INITIALIZE_COMPLETE;
             }
         }
 
@@ -349,14 +346,14 @@ namespace mdr
                 });
             }
         }
-        co_return MDR_HEADPHONES_TASK_INIT_OK;
+        co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 
     MDRTask MDRHeadphones::RequestSyncV1()
     {
         if (mSupport.contains(t1::FunctionType::BATTERY_LEVEL))
             SendCommandACK(t1::GetBatteryLevel, {.batteryInquiredType = t1::BatteryInquiredType::BATTERY});
-        co_return MDR_HEADPHONES_TASK_SYNC_OK;
+        co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
     MDRTask MDRHeadphones::RequestCommitV1()
@@ -528,10 +525,7 @@ namespace mdr
                 SendCommandImpl(payload, MDRDataType::DATA_MDR, mSeqNumber);
                 const int result = co_await Await(AWAIT_ACK);
                 if (result != MDR_RESULT_OK)
-                {
-                    SetLastError(result, "Timeout waiting for V1 Speak-to-Chat options");
-                    co_return MDR_HEADPHONES_ERROR;
-                }
+                    co_return SetLastError(result, "Timeout waiting for V1 Speak-to-Chat options");
             }
             mSpeakToChatDetectSensitivity.commit();
             mSpeakToModeOutTime.commit();
@@ -569,12 +563,11 @@ namespace mdr
             mPairedDeviceDisconnectMac.submittedDirty() ||
             mPairedDeviceUnpairMac.submittedDirty())
         {
-            SetLastError(
+            co_return SetLastError(
                 MDR_RESULT_ERROR_NOT_SUPPORTED,
                 "V1 paired-device mutations require a capture-confirmed address layout");
-            co_return MDR_HEADPHONES_ERROR;
         }
 
-        co_return MDR_HEADPHONES_TASK_COMMIT_OK;
+        co_return MDR_EVENT_APPLY_COMPLETE;
     }
 }

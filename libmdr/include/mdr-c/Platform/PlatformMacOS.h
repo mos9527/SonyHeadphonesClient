@@ -6,9 +6,9 @@ typedef struct MDRConnectionMacOS MDRConnectionMacOS;
 #ifdef __cplusplus
 extern "C" {
 #endif
-MDRConnectionMacOS* mdrConnectionMacOSCreate();
-MDRConnection* mdrConnectionMacOSGet(MDRConnectionMacOS*);
-void mdrConnectionMacOSDestroy(MDRConnectionMacOS*);
+MDR_PLATFORM_API MDRConnectionMacOS* mdrConnectionMacOSCreate(void);
+MDR_PLATFORM_API MDRConnection* mdrConnectionMacOSGet(MDRConnectionMacOS* connection);
+MDR_PLATFORM_API void mdrConnectionMacOSDestroy(MDRConnectionMacOS* connection);
 #ifdef __cplusplus
 }
 #endif

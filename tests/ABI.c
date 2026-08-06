@@ -37,26 +37,6 @@ MDR_ASSERT_U32(MDRWearingPowerMode);
 MDR_ASSERT_U32(MDRAudioPriority);
 #undef MDR_ASSERT_U32
 
-#define MDR_ASSERT_C_STRUCT(type) \
-    static_assert(offsetof(type, struct_size) == 0, #type " struct_size must be first")
-MDR_ASSERT_C_STRUCT(MDRModel);
-MDR_ASSERT_C_STRUCT(MDRBattery);
-MDR_ASSERT_C_STRUCT(MDRPlayback);
-MDR_ASSERT_C_STRUCT(MDRPlaybackCommand);
-MDR_ASSERT_C_STRUCT(MDRNoiseControl);
-MDR_ASSERT_C_STRUCT(MDRSpeakToChat);
-MDR_ASSERT_C_STRUCT(MDRListening);
-MDR_ASSERT_C_STRUCT(MDREqualizer);
-MDR_ASSERT_C_STRUCT(MDRPairedDevice);
-MDR_ASSERT_C_STRUCT(MDRPairedDeviceAction);
-MDR_ASSERT_C_STRUCT(MDRPairing);
-MDR_ASSERT_C_STRUCT(MDRGeneralSettingInfo);
-MDR_ASSERT_C_STRUCT(MDRGeneralSetting);
-MDR_ASSERT_C_STRUCT(MDRAssignableControls);
-MDR_ASSERT_C_STRUCT(MDRPower);
-MDR_ASSERT_C_STRUCT(MDRVoiceGuidance);
-MDR_ASSERT_C_STRUCT(MDRConnectionMode);
-MDR_ASSERT_C_STRUCT(MDRSafeListening);
 #undef MDR_ASSERT_C_STRUCT
 
 enum
@@ -217,7 +197,7 @@ static int session_open(Session* session)
     memset(session, 0, sizeof(*session));
     mock_init(&session->transport);
     check_result(
-        mdrHeadphonesCreate(&session->transport.connection, &session->headphones),
+        mdrHeadphonesCreate(MDR_ABI_VERSION, &session->transport.connection, &session->headphones),
         MDR_RESULT_OK,
         "opaque headphones session opens"
     );
@@ -348,6 +328,34 @@ static void select_v2(Session* session, const char* message)
     poll_event(session->headphones, &event, message);
 }
 
+static void test_abi_version_handshake(void)
+{
+    MockTransport transport;
+    MDRHeadphones* headphones = (MDRHeadphones*)0x1;
+
+    mock_init(&transport);
+    check_result(
+        mdrHeadphonesCreate(MDR_ABI_VERSION + 1u, &transport.connection, &headphones),
+        MDR_RESULT_ERROR_ABI_MISMATCH,
+        "a newer header is refused by an older library"
+    );
+    check(headphones == NULL, "a refused handshake leaves no instance behind");
+
+    check_result(
+        mdrHeadphonesCreate(0u, &transport.connection, &headphones),
+        MDR_RESULT_ERROR_ABI_MISMATCH,
+        "an unversioned caller is refused"
+    );
+
+    check_result(
+        mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones),
+        MDR_RESULT_OK,
+        "the matching version is accepted"
+    );
+    check(headphones != NULL, "an accepted handshake yields an instance");
+    mdrHeadphonesDestroy(headphones);
+}
+
 static void test_struct_and_buffer_contracts(void)
 {
     Session session;
@@ -450,7 +458,6 @@ static void test_committed_state_staging(void)
     if (!session_open(&session))
         return;
     memset(&staged, 0, sizeof(staged));
-    staged.struct_size = (uint32_t)sizeof(staged);
     staged.status = MDR_PLAYBACK_UNKNOWN;
     staged.volume = 12;
     check_result(
@@ -460,7 +467,6 @@ static void test_committed_state_staging(void)
     );
 
     memset(&current, 0, sizeof(current));
-    current.struct_size = (uint32_t)sizeof(current);
     check_result(
         mdrHeadphonesGetPlayback(session.headphones, &current),
         MDR_RESULT_OK,
@@ -498,7 +504,6 @@ static void test_playback_actions(void)
     for (index = 0; index < sizeof(actions) / sizeof(actions[0]); ++index)
     {
         memset(&command, 0, sizeof(command));
-        command.struct_size = (uint32_t)sizeof(command);
         command.action = actions[index];
         check_result(
             mdrHeadphonesPlayback(session.headphones, &command),
@@ -530,7 +535,6 @@ static void test_playback_actions(void)
     }
 
     memset(&command, 0, sizeof(command));
-    command.struct_size = (uint32_t)sizeof(command);
     command.action = (MDRPlaybackAction)0xff;
     check_result(
         mdrHeadphonesPlayback(session.headphones, &command),
@@ -539,7 +543,6 @@ static void test_playback_actions(void)
     );
 
     memset(&unsupported_status, 0, sizeof(unsupported_status));
-    unsupported_status.struct_size = (uint32_t)sizeof(unsupported_status);
     unsupported_status.status = MDR_PLAYBACK_PLAYING;
     unsupported_status.volume = 10;
     check_result(
@@ -620,7 +623,6 @@ static void test_v2_bootstrap(void)
     poll_event(session.headphones, &event, "eight-byte V2 protocol-info polls");
 
     memset(&identity, 0, sizeof(identity));
-    identity.struct_size = (uint32_t)sizeof(identity);
     check_result(
         mdrHeadphonesGetModel(session.headphones, &identity),
         MDR_RESULT_OK,
@@ -656,7 +658,6 @@ static void test_newer_staging_survives_apply(void)
     select_v2(&session, "V2 protocol is selected for apply");
 
     memset(&first, 0, sizeof(first));
-    first.struct_size = (uint32_t)sizeof(first);
     first.status = MDR_PLAYBACK_UNKNOWN;
     first.volume = 10;
     check_result(
@@ -671,7 +672,6 @@ static void test_newer_staging_survives_apply(void)
     );
 
     memset(&newer, 0, sizeof(newer));
-    newer.struct_size = (uint32_t)sizeof(newer);
     newer.status = MDR_PLAYBACK_UNKNOWN;
     newer.volume = 20;
     check_result(
@@ -691,7 +691,6 @@ static void test_newer_staging_survives_apply(void)
     );
 
     memset(&current, 0, sizeof(current));
-    current.struct_size = (uint32_t)sizeof(current);
     check_result(
         mdrHeadphonesGetPlayback(session.headphones, &current),
         MDR_RESULT_OK,
@@ -709,6 +708,7 @@ static void test_newer_staging_survives_apply(void)
 
 int main(void)
 {
+    test_abi_version_handshake();
     test_struct_and_buffer_contracts();
     test_one_operation_at_a_time();
     test_committed_state_staging();
