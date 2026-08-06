@@ -394,6 +394,22 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.btFriendlyName, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
+    MDRResult<size_t> PeripheralDeviceInfoWithoutBluetoothClassOfDevice::Write(const PeripheralDeviceInfoWithoutBluetoothClassOfDevice& data, UInt8** ppDstBuffer, size_t maxSize)
+    {
+        UInt8* ptr = *ppDstBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectedStatus, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btFriendlyName, ppDstBuffer, maxSize));
+        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
+    }
+    MDRResult<size_t> PeripheralDeviceInfoWithoutBluetoothClassOfDevice::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfoWithoutBluetoothClassOfDevice& out, size_t maxSize)
+    {
+        const UInt8* ptr = *ppSrcBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.btFriendlyName, maxSize));
+        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
+    }
     MDRResult<size_t> PeripheralNotifyExtendedParamParingDeviceManagementCommon::Serialize(const PeripheralNotifyExtendedParamParingDeviceManagementCommon& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -1144,7 +1160,7 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<PeripheralDeviceInfo>::Write)(data.deviceInfo, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Write)(data.deviceInfo, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.playbackrightDevice, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1153,7 +1169,7 @@ namespace mdr::v2::t2 {
         PeripheralNotifyParamPairingDeviceManagementClassicBt out{};
         MDR_TRY_SIZE(PeripheralNotifyParamPairingDeviceManagementClassicBt, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(PeripheralNotifyParamPairingDeviceManagementClassicBt, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(PeripheralNotifyParamPairingDeviceManagementClassicBt, (MDRArray<PeripheralDeviceInfo>::Read)(&data, out.deviceInfo, maxSize));
+        MDR_TRY_SIZE(PeripheralNotifyParamPairingDeviceManagementClassicBt, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Read)(&data, out.deviceInfo, maxSize));
         MDR_TRY_SIZE(PeripheralNotifyParamPairingDeviceManagementClassicBt, MDRPod::Read(&data, out.playbackrightDevice, maxSize));
         MDR_TRY(PeripheralNotifyParamPairingDeviceManagementClassicBt, Validate(out));
         return MDRResult<PeripheralNotifyParamPairingDeviceManagementClassicBt>::Success(std::move(out));
@@ -1184,7 +1200,7 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<PeripheralDeviceInfo>::Write)(data.deviceInfo, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Write)(data.deviceInfo, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.playbackrightDevice, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1193,7 +1209,7 @@ namespace mdr::v2::t2 {
         PeripheralRetParamPairingDeviceManagementClassicBt out{};
         MDR_TRY_SIZE(PeripheralRetParamPairingDeviceManagementClassicBt, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(PeripheralRetParamPairingDeviceManagementClassicBt, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(PeripheralRetParamPairingDeviceManagementClassicBt, (MDRArray<PeripheralDeviceInfo>::Read)(&data, out.deviceInfo, maxSize));
+        MDR_TRY_SIZE(PeripheralRetParamPairingDeviceManagementClassicBt, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Read)(&data, out.deviceInfo, maxSize));
         MDR_TRY_SIZE(PeripheralRetParamPairingDeviceManagementClassicBt, MDRPod::Read(&data, out.playbackrightDevice, maxSize));
         MDR_TRY(PeripheralRetParamPairingDeviceManagementClassicBt, Validate(out));
         return MDRResult<PeripheralRetParamPairingDeviceManagementClassicBt>::Success(std::move(out));

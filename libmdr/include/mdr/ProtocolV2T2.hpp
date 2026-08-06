@@ -1549,6 +1549,16 @@ namespace mdr::v2::t2
         MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfo);
     };
 
+    // THMSGV2T2PeripheralDeviceInfo
+    struct PeripheralDeviceInfoWithoutBluetoothClassOfDevice
+    {
+        Array<UInt8, 17> btDeviceAddress; // 0x0
+        UInt8 connectedStatus{};
+        MDRPrefixedString btFriendlyName;
+
+        MDR_DEFINE_EXTERN_READ_WRITE(PeripheralDeviceInfoWithoutBluetoothClassOfDevice);
+    };
+
     // THMSGV2T2PeripheralGetCapability
     struct PeripheralGetCapability
     {
@@ -4331,7 +4341,7 @@ namespace mdr::v2::t2
         Command command{Command::PERI_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT}; // 0x1
-        MDRArray<PeripheralDeviceInfo> deviceInfo; // 0x2
+        MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice> deviceInfo; // 0x2
         // CODEGEN Range 0 255
         UInt8 playbackrightDevice{};
 
@@ -4343,8 +4353,8 @@ namespace mdr::v2::t2
     {
         // CODEGEN EnumRange Command::PERI_NTFY_PARAM
         Command command{Command::PERI_NTFY_PARAM}; // 0x0
-        // CODEGEN Ignore OUT_OF_RANGE is expected
-        PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT}; // 0x1
+        // CODEGEN EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+        PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE}; // 0x1
         MDRArray<PeripheralDeviceInfo> deviceInfo; // 0x2
         // CODEGEN Range 0 255
         UInt8 playbackrightDevice{};
@@ -4359,7 +4369,7 @@ namespace mdr::v2::t2
         Command command{Command::PERI_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT}; // 0x1
-        MDRArray<PeripheralDeviceInfo> deviceInfo; // 0x2
+        MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice> deviceInfo; // 0x2
         // CODEGEN Range 0 255
         UInt8 playbackrightDevice{};
 
@@ -4371,8 +4381,8 @@ namespace mdr::v2::t2
     {
         // CODEGEN EnumRange Command::PERI_RET_PARAM
         Command command{Command::PERI_RET_PARAM}; // 0x0
-        // CODEGEN Ignore OUT_OF_RANGE is expected
-        PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT}; // 0x1
+        // CODEGEN EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+        PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE}; // 0x1
         MDRArray<PeripheralDeviceInfo> deviceInfo; // 0x2
         // CODEGEN Range 0 255
         UInt8 playbackrightDevice{};

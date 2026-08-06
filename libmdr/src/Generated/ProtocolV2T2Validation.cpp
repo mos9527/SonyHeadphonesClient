@@ -2014,7 +2014,8 @@ MDRResult<void> PeripheralNotifyParamPairingDeviceManagementClassicBt::Validate(
 MDRResult<void> PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
-    // data.inquiredType ignored: OUT_OF_RANGE is expected
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
     for (const auto& deviceInfo_elem : data.deviceInfo) {
     }
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
@@ -2034,7 +2035,8 @@ MDRResult<void> PeripheralRetParamPairingDeviceManagementClassicBt::Validate(con
 MDRResult<void> PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
-    // data.inquiredType ignored: OUT_OF_RANGE is expected
+    MDR_VALIDATE(is_valid(data.inquiredType));
+    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
     for (const auto& deviceInfo_elem : data.deviceInfo) {
     }
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);

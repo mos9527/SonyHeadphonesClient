@@ -209,6 +209,9 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::PeripheralDeviceInfo> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
+    template<> struct MDRTraits<v2::t2::PeripheralDeviceInfoWithoutBluetoothClassOfDevice> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
     template<> struct MDRTraits<v2::t2::PeripheralGetCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };

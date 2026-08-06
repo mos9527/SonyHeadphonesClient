@@ -1,5 +1,7 @@
 #include "DebuggerDetails.hpp"
 
+#include <mdr/ProtocolV2T2.hpp>
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -103,6 +105,74 @@ namespace
         return invalidEncoded && invalidEncoded.value == encoded.value &&
             std::memcmp(bytes, roundTrip, encoded.value) == 0;
     }
+
+    bool CheckPeripheralDeviceInfoWireLayouts()
+    {
+        using namespace mdr;
+        using namespace mdr::v2::t2;
+
+        UInt8 classicBytes[64]{};
+        PeripheralNotifyParamPairingDeviceManagementClassicBt classic{};
+        auto& classicDevice = classic.deviceInfo.value.emplace_back();
+        classicDevice.btDeviceAddress.fill(0xAA);
+        classicDevice.connectedStatus = 1;
+        classic.playbackrightDevice = 2;
+        const auto classicResult =
+            PeripheralNotifyParamPairingDeviceManagementClassicBt::Serialize(
+                classic, classicBytes, sizeof(classicBytes)
+            );
+        if (
+            !classicResult
+            || classicResult.value != 23
+            || classicBytes[1] != static_cast<UInt8>(
+                PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+            )
+            || classicBytes[21] != 0
+            || classicBytes[22] != 2
+        )
+        {
+            std::fprintf(stderr, "ClassicBt device info wire layout is incorrect\n");
+            return false;
+        }
+
+        UInt8 classOfDeviceBytes[64]{};
+        PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice
+            classOfDevice{};
+        auto& classOfDeviceDevice =
+            classOfDevice.deviceInfo.value.emplace_back();
+        classOfDeviceDevice.btDeviceAddress.fill(0xAA);
+        classOfDeviceDevice.connectedStatus = 1;
+        classOfDeviceDevice.bluetoothClassOfDevice = 0x123456;
+        classOfDevice.playbackrightDevice = 2;
+        const auto classOfDeviceResult =
+            PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice::
+                Serialize(
+                    classOfDevice,
+                    classOfDeviceBytes,
+                    sizeof(classOfDeviceBytes)
+                );
+        if (
+            !classOfDeviceResult
+            || classOfDeviceResult.value != 26
+            || classOfDeviceBytes[1] != static_cast<UInt8>(
+                PeripheralInquiredType::
+                    PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+            )
+            || classOfDeviceBytes[21] != 0x12
+            || classOfDeviceBytes[22] != 0x34
+            || classOfDeviceBytes[23] != 0x56
+            || classOfDeviceBytes[24] != 0
+            || classOfDeviceBytes[25] != 2
+        )
+        {
+            std::fprintf(
+                stderr,
+                "Bluetooth class-of-device wire layout is incorrect\n"
+            );
+            return false;
+        }
+        return true;
+    }
 } // namespace
 
 int main()
@@ -111,5 +181,7 @@ int main()
         return 1;
     if (!CheckInvalidValuesRemainEditable())
         return 2;
+    if (!CheckPeripheralDeviceInfoWireLayouts())
+        return 3;
     return 0;
 }

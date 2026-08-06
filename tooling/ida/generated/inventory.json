@@ -48,7 +48,7 @@
         "unsupported": 1
       },
       "enums": 47,
-      "payload_declarations": 305,
+      "payload_declarations": 306,
       "serializers": 300
     }
   }

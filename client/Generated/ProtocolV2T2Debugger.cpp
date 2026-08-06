@@ -10624,7 +10624,6 @@ namespace client::debugger {
                         bool changed = false;
                         changed |= DrawScalar("btDeviceAddress", element.btDeviceAddress);
                         changed |= DrawScalar("connectedStatus", element.connectedStatus);
-                        changed |= DrawEndian("bluetoothClassOfDevice", element.bluetoothClassOfDevice);
                         changed |= DrawPrefixedString("btFriendlyName", element.btFriendlyName);
                         return changed;
                     });
@@ -10641,7 +10640,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<PeripheralDeviceInfo>::Read)(&ptr, value.deviceInfo, remaining));
+            MDR_DEBUGGER_TRY_READ(void, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Read)(&ptr, value.deviceInfo, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playbackrightDevice, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -10653,7 +10652,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<PeripheralDeviceInfo>::Write)(value.deviceInfo, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Write)(value.deviceInfo, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playbackrightDevice, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -10732,7 +10731,6 @@ namespace client::debugger {
                         bool changed = false;
                         changed |= DrawScalar("btDeviceAddress", element.btDeviceAddress);
                         changed |= DrawScalar("connectedStatus", element.connectedStatus);
-                        changed |= DrawEndian("bluetoothClassOfDevice", element.bluetoothClassOfDevice);
                         changed |= DrawPrefixedString("btFriendlyName", element.btFriendlyName);
                         return changed;
                     });
@@ -10749,7 +10747,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<PeripheralDeviceInfo>::Read)(&ptr, value.deviceInfo, remaining));
+            MDR_DEBUGGER_TRY_READ(void, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Read)(&ptr, value.deviceInfo, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playbackrightDevice, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -10761,7 +10759,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<PeripheralDeviceInfo>::Write)(value.deviceInfo, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<PeripheralDeviceInfoWithoutBluetoothClassOfDevice>::Write)(value.deviceInfo, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playbackrightDevice, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }

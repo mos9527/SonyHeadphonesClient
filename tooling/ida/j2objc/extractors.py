@@ -1068,6 +1068,9 @@ class ProtocolExtractor:
         result.payloads = self._infer_discriminator_defaults(
             result.payloads, result.enums
         )
+        result.payloads = self._split_contextual_field_helpers(
+            result.payloads, result.enums
+        )
         result.payloads = self._link_nested_variants(result.payloads)
         unknown_types = self._unknown_field_types(
             result.payloads, {enum.cpp_name for enum in result.enums}
@@ -1483,6 +1486,259 @@ class ProtocolExtractor:
                 )
             )
         return output
+
+    def _split_contextual_field_helpers(
+        self,
+        payloads: list[PayloadDecl],
+        enums: list[EnumDecl],
+    ) -> list[PayloadDecl]:
+        """Split helpers when a parent serializer omits logical fields.
+
+        J2ObjC factory signatures describe the Java object model rather than
+        necessarily describing every byte written for that object.  Some
+        parents therefore accept the same helper class but serialize only a
+        subset of its getters.  Preserve the complete helper as the canonical
+        layout and create a wire-specific helper for each proven subset.
+        """
+        helpers = {
+            payload.cpp_name: payload
+            for payload in payloads
+            if payload.classification == "field_helper"
+        }
+        contexts: dict[
+            tuple[str, str],
+            tuple[tuple[str, ...], MethodSymbol],
+        ] = {}
+        layouts: dict[str, set[tuple[str, ...]]] = {}
+        for payload in payloads:
+            if payload.classification == "field_helper":
+                continue
+            for field in payload.fields:
+                match = re.fullmatch(
+                    r"MDR(?:Pod)?Array<([A-Za-z_][A-Za-z0-9_]*)>",
+                    field.cpp_type,
+                )
+                helper = helpers.get(match.group(1)) if match else None
+                if helper is None:
+                    continue
+                subset = self._serialized_helper_field_subset(payload, helper)
+                if subset is None:
+                    continue
+                contexts[(payload.cpp_name, field.name)] = subset
+                layouts.setdefault(helper.cpp_name, set()).add(subset[0])
+
+        existing_names = {payload.cpp_name for payload in payloads}
+        variants: dict[
+            tuple[str, tuple[str, ...]], PayloadDecl
+        ] = {}
+        output: list[PayloadDecl] = []
+
+        for payload in payloads:
+            if payload.classification == "field_helper":
+                output.append(payload)
+                continue
+
+            fields: list[FieldDecl] = []
+            contextual_evidence: list[str] = []
+            contextual_family = False
+            for field in payload.fields:
+                match = re.fullmatch(
+                    r"(MDR(?:Pod)?Array)<([A-Za-z_][A-Za-z0-9_]*)>",
+                    field.cpp_type,
+                )
+                helper = helpers.get(match.group(2)) if match else None
+                if helper is None:
+                    fields.append(field)
+                    continue
+
+                subset = contexts.get((payload.cpp_name, field.name))
+                if (
+                    subset is None
+                    or len(layouts.get(helper.cpp_name, ())) < 2
+                ):
+                    fields.append(field)
+                    continue
+                contextual_family = True
+                selected_names, serializer = subset
+                if len(selected_names) == len(helper.fields):
+                    fields.append(field)
+                    continue
+
+                selected = [
+                    helper_field
+                    for helper_field in helper.fields
+                    if helper_field.name in selected_names
+                ]
+                omitted = [
+                    helper_field
+                    for helper_field in helper.fields
+                    if helper_field.name not in selected_names
+                ]
+                omitted_suffix = "And".join(
+                    item.name[:1].upper() + item.name[1:]
+                    for item in omitted
+                )
+                variant_name = (
+                    f"{helper.cpp_name}Without{omitted_suffix}"
+                )
+                key = (helper.cpp_name, selected_names)
+                source = SourceRef(serializer.address, serializer.symbol)
+                evidence = (
+                    f"{serializer.symbol} serializes "
+                    f"{', '.join(selected_names)} and omits "
+                    f"{', '.join(item.name for item in omitted)}"
+                )
+                variant = variants.get(key)
+                if variant is None:
+                    if variant_name in existing_names:
+                        raise ExtractionError(
+                            f"contextual helper name collision: {variant_name}"
+                        )
+                    variants[key] = replace(
+                        helper,
+                        cpp_name=variant_name,
+                        fields=tuple(self._recalculate_offsets(selected)),
+                        sources=tuple(dict.fromkeys((*helper.sources, source))),
+                        evidence=tuple(
+                            dict.fromkeys((*helper.evidence, evidence))
+                        ),
+                    )
+                    existing_names.add(variant_name)
+                else:
+                    variants[key] = replace(
+                        variant,
+                        sources=tuple(
+                            dict.fromkeys((*variant.sources, source))
+                        ),
+                        evidence=tuple(
+                            dict.fromkeys((*variant.evidence, evidence))
+                        ),
+                    )
+
+                fields.append(
+                    replace(
+                        field,
+                        cpp_type=f"{match.group(1)}<{variant_name}>",
+                    )
+                )
+                contextual_evidence.append(
+                    f"{field.name} uses contextual wire helper "
+                    f"{variant_name}"
+                )
+
+            updated = replace(
+                payload,
+                fields=tuple(fields),
+                evidence=tuple(
+                    dict.fromkeys(
+                        (*payload.evidence, *contextual_evidence)
+                    )
+                ),
+            )
+            if contextual_family:
+                updated = self._correct_contextual_discriminator(
+                    updated, enums
+                )
+            output.append(updated)
+
+        output.extend(variants.values())
+        return output
+
+    @classmethod
+    def _correct_contextual_discriminator(
+        cls,
+        payload: PayloadDecl,
+        enums: list[EnumDecl],
+    ) -> PayloadDecl:
+        enum_names = {enum.cpp_name for enum in enums}
+        reset_fields = tuple(
+            replace(
+                field,
+                default=f"{field.cpp_type}::OUT_OF_RANGE",
+                semantic_rules=(
+                    f"EnumRange {field.cpp_type}::OUT_OF_RANGE",
+                ),
+            )
+            if (
+                field.name in {"inquiredType", "type"}
+                and field.cpp_type in enum_names
+            )
+            else field
+            for field in payload.fields
+        )
+        inferred = cls._infer_discriminator_defaults(
+            [replace(payload, fields=reset_fields)], enums
+        )[0]
+        fields = tuple(
+            original
+            if candidate.default == original.default
+            else candidate
+            for original, candidate in zip(
+                payload.fields, inferred.fields
+            )
+        )
+        return replace(payload, fields=fields)
+
+    def _serialized_helper_field_subset(
+        self,
+        payload: PayloadDecl,
+        helper: PayloadDecl,
+    ) -> tuple[tuple[str, ...], MethodSymbol] | None:
+        serializer_sources = [
+            source
+            for source in payload.sources
+            if re.search(
+                r" (?:valueOf|toStream|getCommandStream)[^]]*\]$",
+                source.symbol,
+            )
+        ]
+        if len(serializer_sources) != 1:
+            return None
+        source = serializer_sources[0]
+        serializer = MethodSymbol(
+            source.address,
+            "",
+            payload.objc_name,
+            "",
+            source.symbol,
+        )
+        try:
+            text = self._expanded_method_text(serializer)
+        except ExtractionError:
+            return None
+
+        positions = {
+            field.name: text.find(
+                f'"get{field.name[:1].upper()}{field.name[1:]}"'
+            )
+            for field in helper.fields
+        }
+        present = {
+            name: position
+            for name, position in positions.items()
+            if position >= 0
+        }
+        # One getter is not enough to prove that an object is serialized
+        # field-by-field; it may only be incidental validation or logging.
+        if len(present) < 2:
+            return None
+        observed = tuple(
+            name
+            for name, _ in sorted(
+                present.items(), key=lambda item: item[1]
+            )
+        )
+        canonical = tuple(
+            field.name
+            for field in helper.fields
+            if field.name in present
+        )
+        if observed != canonical:
+            raise ExtractionError(
+                f"contextual serializer field order for {payload.objc_name} "
+                f"does not match {helper.objc_name}: {observed}"
+            )
+        return observed, serializer
 
     @classmethod
     def _infer_missing_discriminators(
