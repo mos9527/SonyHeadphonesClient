@@ -8,12 +8,14 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_log.h>
 #include <imgui.h>
 #include <mdr/Command.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <iterator>
@@ -54,7 +56,9 @@ namespace
     ProtocolFamily gNewPacketFamily{ProtocolFamily::V2};
     int gNewPacketTable{};
     std::array<char, 128> gTypeFilter{};
+    std::array<char, 128> gHistoryFilter{};
     mdr::String gStatus;
+    mdr::String gHistoryStatus;
     bool gFollowMessages{true};
     bool gScrollToLatest{};
 
@@ -92,6 +96,8 @@ namespace
 
     bool ContainsCaseInsensitive(std::string_view value, std::string_view query)
     {
+        if (query.empty())
+            return true;
         return std::ranges::search(value, query,
                                    [](char lhs, char rhs)
                                    {
@@ -99,6 +105,23 @@ namespace
                                            std::tolower(static_cast<unsigned char>(rhs));
                                    })
                    .begin() != value.end();
+    }
+
+    bool ContainsAllTokens(std::string_view value, std::string_view query)
+    {
+        size_t start = 0;
+        while (start < query.size())
+        {
+            while (start < query.size() && std::isspace(static_cast<unsigned char>(query[start])))
+                ++start;
+            size_t end = start;
+            while (end < query.size() && !std::isspace(static_cast<unsigned char>(query[end])))
+                ++end;
+            if (start < end && !ContainsCaseInsensitive(value, query.substr(start, end - start)))
+                return false;
+            start = end;
+        }
+        return true;
     }
 
     bool MatchesActiveProtocolFamily(const PacketDescriptor& descriptor)
@@ -255,6 +278,27 @@ namespace
 
     bool IsAck(const CapturedPacket& packet) { return packet.unpacked && packet.type == mdr::MDRDataType::ACK; }
 
+    mdr::String PacketSearchText(const CapturedPacket& packet)
+    {
+        const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
+        if (IsAck(packet))
+            return mdr::Format("#{} {} ACK seq {:02X}", packet.id, direction, packet.sequence);
+
+        const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
+        const char* packetName =
+            packet.candidates.empty() ? "Unknown packet" : ShortPacketName(packet.candidates.front()->name);
+        mdr::String text = mdr::Format("#{} {} {} type {:02X} cmd {:02X} seq {:02X}", packet.id, direction, packetName,
+                                       static_cast<mdr::UInt8>(packet.type), command, packet.sequence);
+        for (const PacketDescriptor* descriptor : packet.candidates)
+            text += mdr::Format(" {}", descriptor->name);
+        return text;
+    }
+
+    bool MatchesHistoryFilter(const CapturedPacket& packet)
+    {
+        return ContainsAllTokens(PacketSearchText(packet), gHistoryFilter.data());
+    }
+
     void DrawHistory()
     {
         if (gHistory.empty())
@@ -267,19 +311,29 @@ namespace
             return;
         }
 
+        bool drewPacket = false;
         const ImVec4 accent = ImGui::GetStyleColorVec4(ImGuiCol_Header);
         for (auto iterator = gHistory.begin(); iterator != gHistory.end(); ++iterator)
         {
             CapturedPacket& packet = *iterator;
+            const bool isLatest = std::next(iterator) == gHistory.end();
+            if (!MatchesHistoryFilter(packet))
+            {
+                if (gScrollToLatest && isLatest)
+                    gScrollToLatest = false;
+                continue;
+            }
+
+            drewPacket = true;
             const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
             if (IsAck(packet))
             {
                 const mdr::String ackLabel =
                     mdr::Format("#{}  {} ACK  seq {:02X}", packet.id, direction, packet.sequence);
                 ImGui::BeginDisabled();
-                ImGui::Text(ackLabel.c_str());
+                ImGui::TextUnformatted(ackLabel.c_str());
                 ImGui::EndDisabled();
-                if (gScrollToLatest && std::next(iterator) == gHistory.end())
+                if (gScrollToLatest && isLatest)
                 {
                     ImGui::SetScrollHereY(1.0f);
                     gScrollToLatest = false;
@@ -313,11 +367,20 @@ namespace
             ImGui::PopID();
             ImGui::Dummy({0.0f, 3.0f});
 
-            if (gScrollToLatest && std::next(iterator) == gHistory.end())
+            if (gScrollToLatest && isLatest)
             {
                 ImGui::SetScrollHereY(1.0f);
                 gScrollToLatest = false;
             }
+        }
+
+        if (!drewPacket)
+        {
+            constexpr const char* placeholder = "No packets match the current filter.";
+            const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
+            ImGui::SetCursorPos({std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f),
+                                 std::max(0.0f, (ImGui::GetContentRegionAvail().y - textSize.y) * 0.5f)});
+            ImGui::TextDisabled("%s", placeholder);
         }
     }
 
@@ -329,7 +392,7 @@ namespace
             gNewPacketTable == 0 ? mdr::MDRDataType::DATA_MDR : mdr::MDRDataType::DATA_MDR_NO2;
         if (descriptor.dataType != wantedType)
             return false;
-        return ContainsCaseInsensitive(descriptor.name, gTypeFilter.data());
+        return ContainsAllTokens(descriptor.name, gTypeFilter.data());
     }
 
     void DrawNewPacketPicker()
@@ -347,7 +410,8 @@ namespace
         ImGui::RadioButton("Table 1", &gNewPacketTable, 0);
         ImGui::SameLine();
         ImGui::RadioButton("Table 2", &gNewPacketTable, 1);
-        ImGui::InputTextWithHint("##type-filter", "Filter packet types", gTypeFilter.data(), gTypeFilter.size());
+        ImGui::InputTextWithHint("##type-filter", "Filter packet types (space-separated)", gTypeFilter.data(),
+                                 gTypeFilter.size());
         ImGui::BeginChild("##packet-types", {600.0f, 320.0f}, ImGuiChildFlags_Borders);
         ForEachDescriptor(
             [&](const PacketDescriptor& descriptor)
@@ -590,6 +654,65 @@ namespace
         gOriginalPayload.clear();
     }
 
+    const char* DumpCommandName(const CapturedPacket& packet)
+    {
+        if (IsAck(packet))
+            return "ACK";
+        if (packet.candidates.empty())
+            return "NO_COMMAND";
+        return ShortPacketName(packet.candidates.front()->name);
+    }
+
+    bool WriteCaptureFile(const char* path, mdr::Span<const mdr::UInt8> frame)
+    {
+        SDL_IOStream* output = SDL_IOFromFile(path, "wb");
+        if (!output)
+            return false;
+        const size_t written = SDL_WriteIO(output, frame.data(), frame.size());
+        const bool closed = SDL_CloseIO(output);
+        return written == frame.size() && closed;
+    }
+
+    void DumpHistory()
+    {
+        if (gHistory.empty())
+        {
+            gHistoryStatus = "No packets to dump";
+            return;
+        }
+
+        const auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                   std::chrono::system_clock::now().time_since_epoch())
+                                   .count();
+        const mdr::String directory = mdr::Format("mdr-debugger-dump-{}", timestamp);
+        if (!SDL_CreateDirectory(directory.c_str()))
+        {
+            gHistoryStatus = SDL_GetError();
+            return;
+        }
+
+        size_t dumped = 0;
+        for (const CapturedPacket& packet : gHistory)
+        {
+            const char* directionName = packet.direction == MDR_PACKET_DIRECTION_RX ? "rx" : "tx";
+            const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
+            const mdr::String filename =
+                mdr::Format("{}-{:06}-{}.type-{}-{:02x}.seq-{:02x}.cmd-{}-{:02x}.bin", timestamp, packet.id,
+                            directionName, packet.unpacked ? mdr::format_as(packet.type) : "INVALID",
+                            static_cast<mdr::UInt8>(packet.type), packet.sequence, DumpCommandName(packet), command);
+            const mdr::String path = directory + "/mdr-packet-" + filename;
+            if (!WriteCaptureFile(path.c_str(), packet.frame))
+            {
+                gHistoryStatus = mdr::Format("Failed dumping {}: {}", path, SDL_GetError());
+                return;
+            }
+            ++dumped;
+        }
+
+        gHistoryStatus = mdr::Format("Dumped {} packet(s) to {}", dumped, directory);
+        SDL_Log("%s", gHistoryStatus.c_str());
+    }
+
     struct ReplayCapture
     {
         mdr::String filename;
@@ -618,18 +741,25 @@ namespace
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted("Packets");
         ImGui::SameLine();
-        if (ImGui::Button(gFollowMessages ? "Auto-follow: On" : "Auto-follow: Off"))
+        if (ImGui::Button(gFollowMessages ? PSI_SIGNAL " Follow: On" : PSI_SIGNAL " Follow: Off"))
             gFollowMessages = !gFollowMessages;
 
+        const float dumpWidth =
+            ImGui::CalcTextSize(PSI_SAVE " Dump").x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const float clearWidth =
-            ImGui::CalcTextSize(PSI_TRASH " Clear history").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+            ImGui::CalcTextSize(PSI_TRASH " Clear").x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const float closeWidth =
             open ? ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
         const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
-        ImGui::SameLine(std::max(ImGui::GetCursorPosX(),
-                                 rightEdge - clearWidth - closeWidth - (open ? buttonSpacing : 0.0f)));
-        if (ImGui::Button("Clear history"))
+        const float rightButtons = dumpWidth + buttonSpacing + clearWidth + (open ? buttonSpacing + closeWidth : 0.0f);
+        ImGui::SameLine(std::max(ImGui::GetCursorPosX(), rightEdge - rightButtons));
+        ImGui::BeginDisabled(gHistory.empty());
+        if (ImGui::Button(PSI_SAVE " Dump"))
+            DumpHistory();
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button(PSI_TRASH " Clear"))
             ClearHistory();
         if (open)
         {
@@ -642,6 +772,12 @@ namespace
             }
             ImGui::PopStyleColor();
         }
+
+        ImGui::SetNextItemWidth(-1.0f);
+        ImGui::InputTextWithHint("##history-filter", PSI_FILTER " Filter packets (space-separated)",
+                                 gHistoryFilter.data(), gHistoryFilter.size());
+        if (!gHistoryStatus.empty())
+            ImGui::TextWrapped("%s", gHistoryStatus.c_str());
     }
 } // namespace
 
