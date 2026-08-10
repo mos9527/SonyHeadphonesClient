@@ -859,7 +859,7 @@ namespace mdr::v2::t2
         Command command{Command::LEA_RET_CAPABILITY}; // 0x0
         // CODEGEN EnumRange LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD
         LEAInquiredType inquiredType{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
-        MDRPrefixedString deviceUniqueId; // 0x2
+        Array<UInt8, 17> deviceUniqueId{}; // 0x2
         MDRPrefixedString bdAddressLE;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad);
@@ -999,7 +999,7 @@ namespace mdr::v2::t2
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionState connectionState{ConnectionState::CONNECTING}; // 0x2
-        MDRPrefixedString targetDeviceBdAddressOfAccessory; // 0x3
+        Array<UInt8, 17> targetDeviceBdAddressOfAccessory{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEASetParamLeAudioConnectionStateNotification);
     };
@@ -1614,7 +1614,7 @@ namespace mdr::v2::t2
         ConnectivityActionType connectivityActionType{ConnectivityActionType::DISCONNECT}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PeripheralResult peripheralResult{PeripheralResult::DISCONNECTION_SUCCESS}; // 0x3
-        MDRPrefixedString btDeviceAddress; // 0x4
+        Array<UInt8, 17> btDeviceAddress{}; // 0x4
 
         MDR_DEFINE_EXTERN_SERIALIZATION(PeripheralNotifyExtendedParamParingDeviceManagementCommon);
     };
@@ -1628,7 +1628,7 @@ namespace mdr::v2::t2
         PeripheralInquiredType inquiredType{PeripheralInquiredType::SOURCE_SWITCH_CONTROL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SourceSwitchControlResult result{SourceSwitchControlResult::SUCCESS}; // 0x2
-        MDRPrefixedString targetBdAddress; // 0x3
+        Array<UInt8, 17> targetBdAddress{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(PeripheralNotifyExtendedParamSourceSwitchControl);
     };
@@ -1805,7 +1805,7 @@ namespace mdr::v2::t2
         PeripheralInquiredType inquiredType{PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectivityActionType connectivityActionType{ConnectivityActionType::DISCONNECT}; // 0x2
-        MDRPrefixedString btDeviceAddress; // 0x3
+        Array<UInt8, 17> btDeviceAddress{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(PeripheralSetExtendedParamParingDeviceManagementCommon);
     };
@@ -1817,7 +1817,7 @@ namespace mdr::v2::t2
         Command command{Command::PERI_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN EnumRange PeripheralInquiredType::SOURCE_SWITCH_CONTROL
         PeripheralInquiredType inquiredType{PeripheralInquiredType::SOURCE_SWITCH_CONTROL}; // 0x1
-        MDRPrefixedString targetBdAddress; // 0x2
+        Array<UInt8, 17> targetBdAddress{}; // 0x2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(PeripheralSetExtendedParamSourceSwitchControl);
     };
@@ -2840,7 +2840,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue linkAutoSwitchStatus{OnOffSettingValue::ON}; // 0x2
         Int16BE speakerIdentifier{}; // 0x3
-        MDRPrefixedString smartPhoneBtAddress; // 0x5
+        Array<UInt8, 17> smartPhoneBtAddress{}; // 0x5
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemNotifyParamLinkAutoSwitchForHeadsets);
     };
@@ -3155,7 +3155,7 @@ namespace mdr::v2::t2
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
         // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT}; // 0x1
-        MDRPrefixedString bluetoothAddressForVASetupLink; // 0x2
+        Array<UInt8, 17> bluetoothAddressForVASetupLink{}; // 0x2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport);
     };
@@ -3360,7 +3360,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue linkAutoSwitchStatus{OnOffSettingValue::ON}; // 0x2
         Int16BE speakerIdentifier{}; // 0x3
-        MDRPrefixedString smartPhoneBtAddress; // 0x5
+        Array<UInt8, 17> smartPhoneBtAddress{}; // 0x5
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemRetParamLinkAutoSwitchForHeadsets);
     };

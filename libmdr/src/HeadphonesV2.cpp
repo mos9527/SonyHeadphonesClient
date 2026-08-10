@@ -453,7 +453,7 @@ namespace mdr
                 mMultipointDeviceMac.commitOneShot("");
             else
             {
-                res.targetBdAddress.value = mMultipointDeviceMac.submitted;
+                std::copy_n(mMultipointDeviceMac.submitted.begin(), 17, res.targetBdAddress.begin());
                 SendCommandACK(PeripheralSetExtendedParamSourceSwitchControl, res);
                 mMultipointDeviceMac.commit();
             }
@@ -488,24 +488,39 @@ namespace mdr
             res.inquiredType = type;
             if (mPairedDeviceConnectMac.submittedDirty())
             {
-                res.connectivityActionType = ConnectivityActionType::CONNECT;
-                res.btDeviceAddress.value = mPairedDeviceConnectMac.submitted;
-                SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                mPairedDeviceConnectMac.commitOneShot("");
+                if (mPairedDeviceConnectMac.submitted.length() != 17)
+                    mPairedDeviceConnectMac.commitOneShot("");
+                else
+                {
+                    res.connectivityActionType = ConnectivityActionType::CONNECT;
+                    std::copy_n(mPairedDeviceConnectMac.submitted.begin(), 17, res.btDeviceAddress.begin());
+                    SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
+                    mPairedDeviceConnectMac.commitOneShot("");
+                }
             }
             if (mPairedDeviceDisconnectMac.submittedDirty())
             {
-                res.connectivityActionType = ConnectivityActionType::DISCONNECT;
-                res.btDeviceAddress.value = mPairedDeviceDisconnectMac.submitted;
-                SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                mPairedDeviceDisconnectMac.commitOneShot("");
+                if (mPairedDeviceDisconnectMac.submitted.length() != 17)
+                    mPairedDeviceDisconnectMac.commitOneShot("");
+                else
+                {
+                    res.connectivityActionType = ConnectivityActionType::DISCONNECT;
+                    std::copy_n(mPairedDeviceDisconnectMac.submitted.begin(), 17, res.btDeviceAddress.begin());
+                    SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
+                    mPairedDeviceDisconnectMac.commitOneShot("");
+                }
             }
             if (mPairedDeviceUnpairMac.submittedDirty())
             {
-                res.connectivityActionType = ConnectivityActionType::UNPAIR;
-                res.btDeviceAddress.value = mPairedDeviceUnpairMac.submitted;
-                SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                mPairedDeviceUnpairMac.commitOneShot("");
+                if (mPairedDeviceUnpairMac.submitted.length() != 17)
+                    mPairedDeviceUnpairMac.commitOneShot("");
+                else
+                {
+                    res.connectivityActionType = ConnectivityActionType::UNPAIR;
+                    std::copy_n(mPairedDeviceUnpairMac.submitted.begin(), 17, res.btDeviceAddress.begin());
+                    SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
+                    mPairedDeviceUnpairMac.commitOneShot("");
+                }
             }
         
 

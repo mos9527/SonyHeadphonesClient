@@ -91,7 +91,10 @@ namespace mdr
         case SOURCE_SWITCH_CONTROL:
         {
             Deserialize(PeripheralNotifyExtendedParamSourceSwitchControl, res, cmd);
-            self->mMultipointDeviceMac.overwrite(String(res.targetBdAddress.begin(), res.targetBdAddress.end()));
+            const String target{res.targetBdAddress.begin(), res.targetBdAddress.end()};
+            self->mMultipointDeviceMac.overwrite(target);
+            for (auto& dev : self->mPairedDevices)
+                dev.playbackDevice = dev.macAddress == target;
             return MDR_EVENT_PAIRED_DEVICES_CHANGED;
         }
         default:
@@ -121,8 +124,10 @@ namespace mdr
                     auto& mac = res.deviceInfo.value[i].btDeviceAddress;
                     self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                     self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
-                    self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
-                    if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
+                    self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus != 0;
+                    self->mPairedDevices[i].playbackDevice =
+                        res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice;
+                    if (self->mPairedDevices[i].playbackDevice)
                         self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
                 }
                 return MDR_EVENT_PAIRED_DEVICES_CHANGED;
@@ -135,7 +140,9 @@ namespace mdr
                 auto& mac = res.deviceInfo.value[i].btDeviceAddress;
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                 self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
-                self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
+                self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus != 0;
+                self->mPairedDevices[i].playbackDevice =
+                    res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice;
                 if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
                     self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
             }
@@ -154,8 +161,10 @@ namespace mdr
                     auto& mac = res.deviceInfo.value[i].btDeviceAddress;
                     self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                     self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
-                    self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
-                    if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
+                    self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus != 0;
+                    self->mPairedDevices[i].playbackDevice =
+                        res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice;
+                    if (self->mPairedDevices[i].playbackDevice)
                         self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
                 }
                 return MDR_EVENT_PAIRED_DEVICES_CHANGED;
@@ -168,7 +177,9 @@ namespace mdr
                 auto& mac = res.deviceInfo.value[i].btDeviceAddress;
                 self->mPairedDevices[i].macAddress = {mac.begin(), mac.end()};
                 self->mPairedDevices[i].name = res.deviceInfo.value[i].btFriendlyName.value;
-                self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus;
+                self->mPairedDevices[i].connected = res.deviceInfo.value[i].connectedStatus != 0;
+                self->mPairedDevices[i].playbackDevice =
+                    res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice;
                 if (res.deviceInfo.value[i].connectedStatus == res.playbackrightDevice)
                     self->mMultipointDeviceMac.overwrite(self->mPairedDevices[i].macAddress);
             }

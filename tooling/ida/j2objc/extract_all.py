@@ -18,6 +18,9 @@ if __package__ in (None, ""):
     _IDA_DIRECTORY = Path(__file__).resolve().parent.parent
     if str(_IDA_DIRECTORY) not in sys.path:
         sys.path.insert(0, str(_IDA_DIRECTORY))
+    import importlib
+    import j2objc.extractors as _jex
+    importlib.reload(_jex)
     from j2objc.extractors import ProtocolExtractor
     from j2objc.ida_database import IDADatabase, binary_fingerprint
 else:

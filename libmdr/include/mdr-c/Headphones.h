@@ -300,9 +300,10 @@ typedef struct MDREqualizer
 
 typedef struct MDRPairedDevice
 {
-    uint32_t index;
     MDRBoolean connected;
     MDRBoolean playback_device;
+    char macAddress[18];
+    char name[128];
 } MDRPairedDevice;
 
 typedef struct MDRPairedDeviceAction

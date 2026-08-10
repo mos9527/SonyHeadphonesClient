@@ -729,7 +729,7 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.requestType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.targetDeviceBdAddressOfAccessory, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.targetDeviceBdAddressOfAccessory, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<CommonNotifyParamTandemReconnectionRequest> CommonNotifyParamTandemReconnectionRequest::Deserialize(const UInt8* data, size_t maxSize)
@@ -738,7 +738,7 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(CommonNotifyParamTandemReconnectionRequest, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(CommonNotifyParamTandemReconnectionRequest, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(CommonNotifyParamTandemReconnectionRequest, MDRPod::Read(&data, out.requestType, maxSize));
-        MDR_TRY_SIZE(CommonNotifyParamTandemReconnectionRequest, (MDRPrefixedString::Read)(&data, out.targetDeviceBdAddressOfAccessory, maxSize));
+        MDR_TRY_SIZE(CommonNotifyParamTandemReconnectionRequest, MDRPod::Read(&data, out.targetDeviceBdAddressOfAccessory, maxSize));
         MDR_TRY(CommonNotifyParamTandemReconnectionRequest, Validate(out));
         return MDRResult<CommonNotifyParamTandemReconnectionRequest>::Success(std::move(out));
     }
@@ -766,7 +766,7 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btAddress, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bleHash, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -775,7 +775,7 @@ namespace mdr::v2::t1 {
         CommonRetCapabilityBLESetup out{};
         MDR_TRY_SIZE(CommonRetCapabilityBLESetup, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(CommonRetCapabilityBLESetup, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(CommonRetCapabilityBLESetup, (MDRPrefixedString::Read)(&data, out.btAddress, maxSize));
+        MDR_TRY_SIZE(CommonRetCapabilityBLESetup, MDRPod::Read(&data, out.btAddress, maxSize));
         MDR_TRY_SIZE(CommonRetCapabilityBLESetup, (MDRPrefixedString::Read)(&data, out.bleHash, maxSize));
         MDR_TRY(CommonRetCapabilityBLESetup, Validate(out));
         return MDRResult<CommonRetCapabilityBLESetup>::Success(std::move(out));
@@ -804,7 +804,7 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.smartPhoneBDAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartPhoneBDAddress, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.deviceBDAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -813,7 +813,7 @@ namespace mdr::v2::t1 {
         CommonRetCapabilitySmartPhoneAndDeviceInformation out{};
         MDR_TRY_SIZE(CommonRetCapabilitySmartPhoneAndDeviceInformation, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(CommonRetCapabilitySmartPhoneAndDeviceInformation, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(CommonRetCapabilitySmartPhoneAndDeviceInformation, (MDRPrefixedString::Read)(&data, out.smartPhoneBDAddress, maxSize));
+        MDR_TRY_SIZE(CommonRetCapabilitySmartPhoneAndDeviceInformation, MDRPod::Read(&data, out.smartPhoneBDAddress, maxSize));
         MDR_TRY_SIZE(CommonRetCapabilitySmartPhoneAndDeviceInformation, (MDRPrefixedString::Read)(&data, out.deviceBDAddress, maxSize));
         MDR_TRY(CommonRetCapabilitySmartPhoneAndDeviceInformation, Validate(out));
         return MDRResult<CommonRetCapabilitySmartPhoneAndDeviceInformation>::Success(std::move(out));
@@ -1269,7 +1269,7 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectionType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.targetDeviceBdAddressOfAccessory, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.targetDeviceBdAddressOfAccessory, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<LEANotifyParamChangeTandemConnectionProfileForAndroid> LEANotifyParamChangeTandemConnectionProfileForAndroid::Deserialize(const UInt8* data, size_t maxSize)
@@ -1278,7 +1278,7 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(LEANotifyParamChangeTandemConnectionProfileForAndroid, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEANotifyParamChangeTandemConnectionProfileForAndroid, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(LEANotifyParamChangeTandemConnectionProfileForAndroid, MDRPod::Read(&data, out.connectionType, maxSize));
-        MDR_TRY_SIZE(LEANotifyParamChangeTandemConnectionProfileForAndroid, (MDRPrefixedString::Read)(&data, out.targetDeviceBdAddressOfAccessory, maxSize));
+        MDR_TRY_SIZE(LEANotifyParamChangeTandemConnectionProfileForAndroid, MDRPod::Read(&data, out.targetDeviceBdAddressOfAccessory, maxSize));
         MDR_TRY(LEANotifyParamChangeTandemConnectionProfileForAndroid, Validate(out));
         return MDRResult<LEANotifyParamChangeTandemConnectionProfileForAndroid>::Success(std::move(out));
     }
@@ -1288,7 +1288,7 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.deviceUniqueId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.deviceUniqueId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bdAddressLE, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1297,7 +1297,7 @@ namespace mdr::v2::t1 {
         LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad out{};
         MDR_TRY_SIZE(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.deviceUniqueId, maxSize));
+        MDR_TRY_SIZE(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.deviceUniqueId, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.bdAddressLE, maxSize));
         MDR_TRY(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad, Validate(out));
         return MDRResult<LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad>::Success(std::move(out));
@@ -1330,7 +1330,7 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.deviceUniqueId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.deviceUniqueId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bdAddressLELeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bdAddressLERight, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -1340,7 +1340,7 @@ namespace mdr::v2::t1 {
         LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad out{};
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.deviceUniqueId, maxSize));
+        MDR_TRY_SIZE(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.deviceUniqueId, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.bdAddressLELeft, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.bdAddressLERight, maxSize));
         MDR_TRY(LEARetCapabilityTwsSupportsA2dpLeaUniLeaBroad, Validate(out));
@@ -1352,7 +1352,7 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.deviceUniqueId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.deviceUniqueId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bdAddressLELeft, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bdAddressLERight, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -1362,7 +1362,7 @@ namespace mdr::v2::t1 {
         LEARetCapabilityTwsSupportsLeaUniLeaBroad out{};
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsLeaUniLeaBroad, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsLeaUniLeaBroad, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(LEARetCapabilityTwsSupportsLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.deviceUniqueId, maxSize));
+        MDR_TRY_SIZE(LEARetCapabilityTwsSupportsLeaUniLeaBroad, MDRPod::Read(&data, out.deviceUniqueId, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.bdAddressLELeft, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityTwsSupportsLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.bdAddressLERight, maxSize));
         MDR_TRY(LEARetCapabilityTwsSupportsLeaUniLeaBroad, Validate(out));

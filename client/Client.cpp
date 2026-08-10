@@ -1313,61 +1313,66 @@ void DrawDeviceControlsDevices()
     struct DeviceView
     {
         MDRPairedDevice state;
-        mdr::String id;
+        mdr::String mac;   // Colonated MAC (17 chars); stable addressing key
         mdr::String name;
     };
     mdr::Vector<DeviceView> devices;
     for (const MDRPairedDevice& state : GetPairedDevices())
-        devices.push_back({state, GetText(MDR_TEXT_PAIRED_DEVICE_ID, state.index),
-                           GetText(MDR_TEXT_PAIRED_DEVICE_NAME, state.index)});
-    auto StageDeviceAction = [](MDRPairedDeviceCommand command, const mdr::String& id)
+        devices.push_back({state, mdr::String{state.macAddress},
+                           mdr::String{state.name}});
+    auto StageDeviceAction = [](MDRPairedDeviceCommand command, const char* mac)
     {
         MDRPairedDeviceAction action{};
         action.command = command;
-        action.device_id = id.c_str();
-        action.device_id_size = static_cast<uint32_t>(id.size() + 1);
+        action.device_id = mac;
+        action.device_id_size = static_cast<uint32_t>(std::strlen(mac));
         mdrHeadphonesSetPairedDevice(gDevice, &action);
     };
     auto DrawDeviceElement = [&](const DeviceView& device, bool selected) -> bool
     {
+        ImGui::PushID(device.mac.c_str());
         ImGui::BeginGroup();
         if (device.state.playback_device)
             ImGui::Text(PSI_VOLUME_DOWN " "), ImGui::SameLine();
         bool res = ImGui::Selectable(device.name.c_str(), selected);
+        if (device.state.connected && ImGui::IsItemHovered() &&
+            ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+            StageDeviceAction(MDR_PAIRED_DEVICE_SELECT_PLAYBACK, device.mac.c_str());
         if (selected)
         {
             ImGui::Separator();
             if (device.state.connected)
             {
                 if (ImModalButton(PSI_UNLINK " Disconnect", 0, 2))
-                    StageDeviceAction(MDR_PAIRED_DEVICE_DISCONNECT, device.id);
-                if (res)
-                    StageDeviceAction(MDR_PAIRED_DEVICE_SELECT_PLAYBACK, device.id);
+                    StageDeviceAction(MDR_PAIRED_DEVICE_DISCONNECT, device.mac.c_str());
+                if (ImModalButton(PSI_VOLUME_DOWN " Switch Playback", 1, 2))
+                    StageDeviceAction(MDR_PAIRED_DEVICE_SELECT_PLAYBACK, device.mac.c_str());
             }
             else
             {
                 if (ImModalButton(PSI_LINK " Connect", 0, 2))
-                    StageDeviceAction(MDR_PAIRED_DEVICE_CONNECT, device.id);
+                    StageDeviceAction(MDR_PAIRED_DEVICE_CONNECT, device.mac.c_str());
             }
             if (ImModalButton(PSI_BLUETOOTH_ALT " Unpair", 1, 2))
-                StageDeviceAction(MDR_PAIRED_DEVICE_UNPAIR, device.id);
+                StageDeviceAction(MDR_PAIRED_DEVICE_UNPAIR, device.mac.c_str());
         }
         ImGui::EndGroup();
+        ImGui::PopID();
         return res;
     };
     static mdr::String connectSelectedMac;
     if (ImGui::TreeNodeEx("Connected", ImGuiTreeNodeFlags_DefaultOpen))
     {
         for (auto& device : devices)
-            if (device.state.connected && DrawDeviceElement(device, connectSelectedMac == device.id))
-                connectSelectedMac = connectSelectedMac == device.id ? "" : device.id;
+            if (device.state.connected && DrawDeviceElement(device, connectSelectedMac == device.mac))
+                connectSelectedMac = connectSelectedMac == device.mac ? "" : device.mac;
         ImGui::TreePop();
     }
     if (ImGui::TreeNodeEx("Paired", ImGuiTreeNodeFlags_DefaultOpen))
     {
         for (auto& device : devices)
-            if (!device.state.connected && DrawDeviceElement(device, connectSelectedMac == device.id))
-                connectSelectedMac = connectSelectedMac == device.id ? "" : device.id;
+            if (!device.state.connected && DrawDeviceElement(device, connectSelectedMac == device.mac))
+                connectSelectedMac = connectSelectedMac == device.mac ? "" : device.mac;
         ImGui::TreePop();
     }
     MDRPairing pairing{};

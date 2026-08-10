@@ -374,20 +374,15 @@ class ProtocolExtractor:
     ) -> tuple[int, int] | None:
         """Recover a consecutive byte span read by a translated getter."""
         text = self._decompile_text(getter)
-        ranges = {
-            (int(start), int(end) - int(start))
-            for start, end in re.findall(
-                r"JavaUtilArrays_copyOfRangeWithByteArray_withInt_withInt_"
-                r"\([\s\S]{0,400},\s*(\d+),\s*(\d+)\s*\)",
-                text,
-            )
-            if int(end) > int(start)
-        }
+        ranges = self._copyof_range_spans(text)
         if len(ranges) == 1:
             return next(iter(ranges))
         helper_span = self._integer_helper_span(text)
         if helper_span is not None:
             return helper_span
+        wrapper_spans = self._wrapper_fixed_spans(text)
+        if len(wrapper_spans) == 1:
+            return next(iter(wrapper_spans))
         constants = {
             name: int(value, 0)
             for name, value in re.findall(
@@ -418,6 +413,60 @@ class ProtocolExtractor:
         if ordered != list(range(ordered[0], ordered[-1] + 1)):
             return None
         return ordered[0], len(ordered)
+
+    @staticmethod
+    def _copyof_range_spans(text: str) -> set[tuple[int, int]]:
+        return {
+            (int(start), int(end) - int(start))
+            for start, end in re.findall(
+                r"JavaUtilArrays_copyOfRangeWithByteArray_withInt_withInt_"
+                r"\([\s\S]{0,400},\s*(\d+),\s*(\d+)\s*\)",
+                text,
+            )
+            if int(end) > int(start)
+        }
+
+    def _wrapper_fixed_spans(self, text: str) -> set[tuple[int, int]]:
+        """Follow a single-level wrapper (e.g. sub_xxx(bytes, start, len))
+        that forwards to a fixed byte-array slice, recovering the fixed
+        (start, length) only when the wrapper body proves a matching slice.
+        The third wrapper argument is the slice length (not an end offset).
+        """
+        spans: set[tuple[int, int]] = set()
+        for symbol, start, length in re.findall(
+            r"\b(sub_[0-9A-Fa-f]+)\([\s\S]*?,\s*"
+            r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*,\s*"
+            r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*\)",
+            text,
+        ):
+            try:
+                start_value = int(start, 0)
+                length_value = int(length, 0)
+            except ValueError:
+                continue
+            if length_value < 6 or length_value > 64:
+                continue
+            address = ida_name.get_name_ea(idaapi.BADADDR, symbol)
+            if address == idaapi.BADADDR or ida_funcs.get_func(address) is None:
+                continue
+            try:
+                callee = self._decompile_text(
+                    MethodSymbol(address, "", "", symbol, symbol)
+                )
+            except Exception:
+                continue
+            # Direct copyOfRange(from, from + length) proves (start, length).
+            if (start_value, length_value) in self._copyof_range_spans(callee):
+                spans.add((start_value, length_value))
+                continue
+            # java_stringWithBytes:(bytes, offset, length, charset) is a fixed
+            # length byte slice (e.g. a 17-byte MAC address laid out inline).
+            if "java_stringWithBytes:offset:length:charset:" in callee:
+                spans.add((start_value, length_value))
+                continue
+            if (start_value, length_value) in self._wrapper_fixed_spans(callee):
+                spans.add((start_value, length_value))
+        return spans
 
     def _integer_helper_span(
         self, text: str, depth: int = 2
@@ -470,6 +519,32 @@ class ProtocolExtractor:
         if index is not None and size is not None:
             return index.value, size.value
         return None
+
+    @staticmethod
+    def _string_field_is_length_prefixed(
+        serializer_text: str, getter_selector: str
+    ) -> bool:
+        """Return True when the serializer writes an NSString field as a
+        length-prefixed (dynamic) string rather than a fixed byte slice.
+
+        J2ObjC serializes a dynamic string as a ``java_length`` write followed
+        by a ``java_getBytes`` write of the same getter result, while a fixed
+        byte array is written with ``java_getBytes`` alone. Matching the
+        getter selector to the local variable it is assigned to isolates the
+        field from unrelated writes in the same serializer.
+        """
+        for variable in re.findall(
+            r"\b([A-Za-z_]\w*)\s*=\s*objc_msgSend\([^;]*?"
+            rf"\"{re.escape(getter_selector)}\"\)",
+            serializer_text,
+        ):
+            if re.search(
+                rf"objc_msgSend\(\s*{re.escape(variable)}\s*,\s*"
+                r"\"java_length\"\)",
+                serializer_text,
+            ):
+                return True
+        return False
 
     def _getter_span(
         self, class_name: str, getter: JavaMethod
@@ -2697,6 +2772,23 @@ class ProtocolExtractor:
                     if sized is not None:
                         cpp_type = sized
                         wire_kind = "pod"
+                    elif (
+                        cpp_type == "MDRPrefixedString"
+                        and 6 <= span[1] <= 64
+                        and not (
+                            serializer_text is not None
+                            and self._string_field_is_length_prefixed(
+                                serializer_text, getter.selector
+                            )
+                        )
+                    ):
+                        cpp_type = f"Array<UInt8, {span[1]}>"
+                        wire_kind = "helper"
+                        field_evidence.append(
+                            f"0x{getter.source_address:X} {getter.selector} "
+                            f"reads fixed {span[1]}-byte slice "
+                            f"{span[0]}..{span[0] + span[1] - 1}"
+                        )
                 fixed_count = self._fixed_count_from_getter(getter)
                 if (
                     fixed_count is not None
@@ -2971,6 +3063,23 @@ class ProtocolExtractor:
                     if sized is not None:
                         cpp_type = sized
                         wire_kind = "pod"
+                    elif (
+                        cpp_type == "MDRPrefixedString"
+                        and 6 <= span[1] <= 64
+                        and not (
+                            serializer_text is not None
+                            and self._string_field_is_length_prefixed(
+                                serializer_text, getter.selector
+                            )
+                        )
+                    ):
+                        cpp_type = f"Array<UInt8, {span[1]}>"
+                        wire_kind = "helper"
+                        field_evidence.append(
+                            f"0x{getter.source_address:X} {getter.selector} "
+                            f"reads fixed {span[1]}-byte slice "
+                            f"{span[0]}..{span[0] + span[1] - 1}"
+                        )
                 fixed_count = self._fixed_count_from_getter(getter)
                 if (
                     fixed_count is not None
@@ -3072,10 +3181,11 @@ class ProtocolExtractor:
                 for name in requested_order:
                     field = by_name[name]
                     lowered = name.lower()
-                    if (
-                        field.cpp_type == "MDRPrefixedString"
-                        and lowered.endswith("deviceaddress")
-                    ):
+                    if field.cpp_type == "MDRPrefixedString":
+                        # Evidence-driven, fail-closed: only rewrite to a
+                        # fixed-width byte array when the serializer text
+                        # proves exactly one fixed width (6..64 bytes). Any
+                        # ambiguity or absence keeps the dynamic string.
                         lengths = {
                             int(value, 0)
                             for value in re.findall(
@@ -3084,20 +3194,26 @@ class ProtocolExtractor:
                                 r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*\)",
                                 external_text,
                             )
-                            if 8 <= int(value, 0) <= 64
+                            if 6 <= int(value, 0) <= 64
                         }
-                        if len(lengths) != 1:
-                            raise ExtractionError(
-                                f"cannot prove fixed address width for "
-                                f"{class_name}.{name}: {sorted(lengths)}"
-                            )
-                        length = next(iter(lengths))
-                        fixed_address_length = length
-                        field = replace(
-                            field,
-                            cpp_type=f"Array<UInt8, {length}>",
-                            wire_kind="helper",
-                        )
+                        if len(lengths) == 1:
+                            length = next(iter(lengths))
+                            # Per-field check: the same serializer/processor
+                            # text aggregates many fields, so the recovered
+                            # fixed width may belong to a different (e.g.
+                            # fixed-address) field. A string that is written
+                            # with a length prefix in that text is variable and
+                            # must stay dynamic even when a fixed width is seen.
+                            selector = "get" + name[:1].upper() + name[1:]
+                            if not self._string_field_is_length_prefixed(
+                                external_text, selector
+                            ):
+                                fixed_address_length = length
+                                field = replace(
+                                    field,
+                                    cpp_type=f"Array<UInt8, {length}>",
+                                    wire_kind="helper",
+                                )
                     elif (
                         field.source_type == "I"
                         and lowered.endswith("classofdevice")

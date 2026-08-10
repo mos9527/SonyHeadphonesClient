@@ -1479,11 +1479,20 @@ MDRResult mdrHeadphonesGetPairedDevices(
     }
     for (uint32_t i = 0; i < required; ++i)
     {
+        const auto& dev = h.mPairedDevices[i];
         devices[i] = {
-            .index = i,
-            .connected = static_cast<MDRBoolean>(h.mPairedDevices[i].connected),
-            .playback_device = static_cast<MDRBoolean>(i == h.mPairedDevicesPlaybackDeviceID)
+            .connected = static_cast<MDRBoolean>(dev.connected),
+            .playback_device = static_cast<MDRBoolean>(dev.playbackDevice),
         };
+        const auto& mac = dev.macAddress;
+        const size_t macLen = mac.size() < 17 ? mac.size() : 17;
+        std::memcpy(devices[i].macAddress, mac.data(), macLen);
+        devices[i].macAddress[macLen] = '\0';
+        const auto& nm = dev.name;
+        const size_t nameLen = nm.size() < (sizeof(devices[i].name) - 1)
+            ? nm.size() : (sizeof(devices[i].name) - 1);
+        std::memcpy(devices[i].name, nm.data(), nameLen);
+        devices[i].name[nameLen] = '\0';
     }
     *inoutCount = required;
     return MDR_RESULT_OK;

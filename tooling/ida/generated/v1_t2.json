@@ -2249,8 +2249,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2GetPeripheralCapability_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetPeripheralCapability_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
       "fields": [
@@ -2311,8 +2311,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV1T2GetPeripheralParam_Factory parseBytesWithByteArray:]"
+        "-[THMSGV1T2GetPeripheralParam_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
       "fields": [
@@ -2373,8 +2373,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2GetPeripheralStatus_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetPeripheralStatus_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
       "fields": [
@@ -2435,8 +2435,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV1T2GetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]"
+        "-[THMSGV1T2GetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
       "fields": [
@@ -2501,8 +2501,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;LTHMSGV1T2DetailedDataType;",
       "fields": [
@@ -2931,8 +2931,8 @@
         "_memset",
         "_objc_enumerationMutation",
         "writeWithByteArray:",
-        "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2NotifyPeripheralParam"
       ],
       "factory_signature": "(Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/NotifyPeripheralParamPairingDeviceManagementClassicBt;",
@@ -3079,8 +3079,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2NotifyPeripheralStatus"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
@@ -3223,8 +3223,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceParam"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
@@ -3831,8 +3831,8 @@
         "_memset",
         "_objc_enumerationMutation",
         "writeWithByteArray:",
-        "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetPeripheralParam"
       ],
       "factory_signature": "(Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/RetPeripheralParamPairingDeviceManagementClassicBt;",
@@ -4162,8 +4162,8 @@
         "sub_1025E7290",
         "_memset",
         "_objc_enumerationMutation",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;Ljava/lang/String;Ljava/lang/String;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic$ServiceInformation;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic;",
@@ -4304,8 +4304,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceLanguage;",
@@ -4455,8 +4455,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1025E7078",
-        "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
       ],
       "factory_signature": "I",
@@ -4583,8 +4583,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1025E7078",
-        "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
       ],
       "factory_signature": "LTHMUpdateMethod;II",
@@ -4841,8 +4841,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus"
       ],
       "factory_signature": "LTHMCommonStatus;",
@@ -4916,8 +4916,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus"
       ],
       "factory_signature": "LTHMCommonStatus;",
@@ -5350,8 +5350,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2SetVoiceGuidanceParam"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
@@ -5632,8 +5632,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV1T2UnknownCommand_Factory parseBytesWithByteArray:]"
+        "-[THMSGV1T2UnknownCommand_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": null,
       "fields": [

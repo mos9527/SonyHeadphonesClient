@@ -5108,7 +5108,7 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__CommonInquiredType);
             changed |= DrawEnum("requestType", value.requestType, kEnum_mdr__v2__t1__RequestType);
-            changed |= DrawPrefixedString("targetDeviceBdAddressOfAccessory", value.targetDeviceBdAddressOfAccessory);
+            changed |= DrawScalar("targetDeviceBdAddressOfAccessory", value.targetDeviceBdAddressOfAccessory);
             return changed;
         }
         mdr::MDRResult<void> Decode_CommonNotifyParamTandemReconnectionRequest(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -5119,7 +5119,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.requestType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.targetDeviceBdAddressOfAccessory, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.targetDeviceBdAddressOfAccessory, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -5131,7 +5131,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.requestType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.targetDeviceBdAddressOfAccessory, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.targetDeviceBdAddressOfAccessory, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_CommonNotifyParamTandemReconnectionRequest() { return Construct<CommonNotifyParamTandemReconnectionRequest>(); }
@@ -5376,7 +5376,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__CommonInquiredType);
-            changed |= DrawPrefixedString("btAddress", value.btAddress);
+            changed |= DrawScalar("btAddress", value.btAddress);
             changed |= DrawPrefixedString("bleHash", value.bleHash);
             return changed;
         }
@@ -5387,7 +5387,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.btAddress, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.btAddress, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.bleHash, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -5399,7 +5399,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.btAddress, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.btAddress, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.bleHash, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -5453,7 +5453,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__CommonInquiredType);
-            changed |= DrawPrefixedString("smartPhoneBDAddress", value.smartPhoneBDAddress);
+            changed |= DrawScalar("smartPhoneBDAddress", value.smartPhoneBDAddress);
             changed |= DrawPrefixedString("deviceBDAddress", value.deviceBDAddress);
             return changed;
         }
@@ -5464,7 +5464,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.smartPhoneBDAddress, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartPhoneBDAddress, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.deviceBDAddress, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -5476,7 +5476,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.smartPhoneBDAddress, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartPhoneBDAddress, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.deviceBDAddress, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -8634,7 +8634,7 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__LEAInquiredType);
             changed |= DrawEnum("connectionType", value.connectionType, kEnum_mdr__v2__t1__ConnectionType);
-            changed |= DrawPrefixedString("targetDeviceBdAddressOfAccessory", value.targetDeviceBdAddressOfAccessory);
+            changed |= DrawScalar("targetDeviceBdAddressOfAccessory", value.targetDeviceBdAddressOfAccessory);
             return changed;
         }
         mdr::MDRResult<void> Decode_LEANotifyParamChangeTandemConnectionProfileForAndroid(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -8645,7 +8645,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.connectionType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.targetDeviceBdAddressOfAccessory, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.targetDeviceBdAddressOfAccessory, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -8657,7 +8657,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.connectionType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.targetDeviceBdAddressOfAccessory, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.targetDeviceBdAddressOfAccessory, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_LEANotifyParamChangeTandemConnectionProfileForAndroid() { return Construct<LEANotifyParamChangeTandemConnectionProfileForAndroid>(); }
@@ -8969,7 +8969,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__LEAInquiredType);
-            changed |= DrawPrefixedString("deviceUniqueId", value.deviceUniqueId);
+            changed |= DrawScalar("deviceUniqueId", value.deviceUniqueId);
             changed |= DrawPrefixedString("bdAddressLE", value.bdAddressLE);
             return changed;
         }
@@ -8980,7 +8980,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.deviceUniqueId, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.deviceUniqueId, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.bdAddressLE, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -8992,7 +8992,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.deviceUniqueId, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.deviceUniqueId, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.bdAddressLE, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -9059,7 +9059,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__LEAInquiredType);
-            changed |= DrawPrefixedString("deviceUniqueId", value.deviceUniqueId);
+            changed |= DrawScalar("deviceUniqueId", value.deviceUniqueId);
             changed |= DrawPrefixedString("bdAddressLELeft", value.bdAddressLELeft);
             changed |= DrawPrefixedString("bdAddressLERight", value.bdAddressLERight);
             return changed;
@@ -9071,7 +9071,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.deviceUniqueId, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.deviceUniqueId, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.bdAddressLELeft, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.bdAddressLERight, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
@@ -9084,7 +9084,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.deviceUniqueId, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.deviceUniqueId, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.bdAddressLELeft, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.bdAddressLERight, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
@@ -9102,7 +9102,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v2__t1__LEAInquiredType);
-            changed |= DrawPrefixedString("deviceUniqueId", value.deviceUniqueId);
+            changed |= DrawScalar("deviceUniqueId", value.deviceUniqueId);
             changed |= DrawPrefixedString("bdAddressLELeft", value.bdAddressLELeft);
             changed |= DrawPrefixedString("bdAddressLERight", value.bdAddressLERight);
             return changed;
@@ -9114,7 +9114,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.deviceUniqueId, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.deviceUniqueId, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.bdAddressLELeft, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.bdAddressLERight, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
@@ -9127,7 +9127,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.deviceUniqueId, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.deviceUniqueId, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.bdAddressLELeft, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.bdAddressLERight, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);

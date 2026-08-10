@@ -3220,7 +3220,7 @@ namespace mdr::v2::t1
         CommonInquiredType inquiredType{CommonInquiredType::TANDEM_RECONNECTION_REQUEST}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         RequestType requestType{RequestType::UNDER_CONFIRMATION}; // 0x2
-        MDRPrefixedString targetDeviceBdAddressOfAccessory; // 0x3
+        Array<UInt8, 17> targetDeviceBdAddressOfAccessory{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(CommonNotifyParamTandemReconnectionRequest);
     };
@@ -3309,7 +3309,7 @@ namespace mdr::v2::t1
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
         // CODEGEN EnumRange CommonInquiredType::BLE_SETUP
         CommonInquiredType inquiredType{CommonInquiredType::BLE_SETUP}; // 0x1
-        MDRPrefixedString btAddress; // 0x2
+        Array<UInt8, 17> btAddress{}; // 0x2
         MDRPrefixedString bleHash;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(CommonRetCapabilityBLESetup);
@@ -3334,7 +3334,7 @@ namespace mdr::v2::t1
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
         // CODEGEN EnumRange CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION
         CommonInquiredType inquiredType{CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION}; // 0x1
-        MDRPrefixedString smartPhoneBDAddress; // 0x2
+        Array<UInt8, 17> smartPhoneBDAddress{}; // 0x2
         MDRPrefixedString deviceBDAddress;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(CommonRetCapabilitySmartPhoneAndDeviceInformation);
@@ -4448,7 +4448,7 @@ namespace mdr::v2::t1
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionType connectionType{ConnectionType::SPP}; // 0x2
-        MDRPrefixedString targetDeviceBdAddressOfAccessory; // 0x3
+        Array<UInt8, 17> targetDeviceBdAddressOfAccessory{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEANotifyParamChangeTandemConnectionProfileForAndroid);
     };
@@ -4564,7 +4564,7 @@ namespace mdr::v2::t1
         Command command{Command::LEA_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
-        MDRPrefixedString deviceUniqueId; // 0x2
+        Array<UInt8, 17> deviceUniqueId{}; // 0x2
         MDRPrefixedString bdAddressLE;
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEARetCapabilityHbsSupportsA2dpLeaUniLeaBroad);
@@ -4593,7 +4593,7 @@ namespace mdr::v2::t1
         Command command{Command::LEA_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
-        MDRPrefixedString deviceUniqueId; // 0x2
+        Array<UInt8, 17> deviceUniqueId{}; // 0x2
         MDRPrefixedString bdAddressLELeft;
         MDRPrefixedString bdAddressLERight;
 
@@ -4607,7 +4607,7 @@ namespace mdr::v2::t1
         Command command{Command::LEA_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
-        MDRPrefixedString deviceUniqueId; // 0x2
+        Array<UInt8, 17> deviceUniqueId{}; // 0x2
         MDRPrefixedString bdAddressLELeft;
         MDRPrefixedString bdAddressLERight;
 

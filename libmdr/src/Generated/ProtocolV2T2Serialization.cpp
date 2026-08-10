@@ -44,7 +44,7 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.deviceUniqueId, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.deviceUniqueId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bdAddressLE, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -53,7 +53,7 @@ namespace mdr::v2::t2 {
         LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad out{};
         MDR_TRY_SIZE(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.deviceUniqueId, maxSize));
+        MDR_TRY_SIZE(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad, MDRPod::Read(&data, out.deviceUniqueId, maxSize));
         MDR_TRY_SIZE(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad, (MDRPrefixedString::Read)(&data, out.bdAddressLE, maxSize));
         MDR_TRY(LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad, Validate(out));
         return MDRResult<LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad>::Success(std::move(out));
@@ -83,7 +83,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectionState, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.targetDeviceBdAddressOfAccessory, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.targetDeviceBdAddressOfAccessory, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<LEASetParamLeAudioConnectionStateNotification> LEASetParamLeAudioConnectionStateNotification::Deserialize(const UInt8* data, size_t maxSize)
@@ -92,7 +92,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(LEASetParamLeAudioConnectionStateNotification, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(LEASetParamLeAudioConnectionStateNotification, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(LEASetParamLeAudioConnectionStateNotification, MDRPod::Read(&data, out.connectionState, maxSize));
-        MDR_TRY_SIZE(LEASetParamLeAudioConnectionStateNotification, (MDRPrefixedString::Read)(&data, out.targetDeviceBdAddressOfAccessory, maxSize));
+        MDR_TRY_SIZE(LEASetParamLeAudioConnectionStateNotification, MDRPod::Read(&data, out.targetDeviceBdAddressOfAccessory, maxSize));
         MDR_TRY(LEASetParamLeAudioConnectionStateNotification, Validate(out));
         return MDRResult<LEASetParamLeAudioConnectionStateNotification>::Success(std::move(out));
     }
@@ -418,7 +418,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectivityActionType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.peripheralResult, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btDeviceAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<PeripheralNotifyExtendedParamParingDeviceManagementCommon> PeripheralNotifyExtendedParamParingDeviceManagementCommon::Deserialize(const UInt8* data, size_t maxSize)
@@ -428,7 +428,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(PeripheralNotifyExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(PeripheralNotifyExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.connectivityActionType, maxSize));
         MDR_TRY_SIZE(PeripheralNotifyExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.peripheralResult, maxSize));
-        MDR_TRY_SIZE(PeripheralNotifyExtendedParamParingDeviceManagementCommon, (MDRPrefixedString::Read)(&data, out.btDeviceAddress, maxSize));
+        MDR_TRY_SIZE(PeripheralNotifyExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.btDeviceAddress, maxSize));
         MDR_TRY(PeripheralNotifyExtendedParamParingDeviceManagementCommon, Validate(out));
         return MDRResult<PeripheralNotifyExtendedParamParingDeviceManagementCommon>::Success(std::move(out));
     }
@@ -439,7 +439,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.result, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.targetBdAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.targetBdAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<PeripheralNotifyExtendedParamSourceSwitchControl> PeripheralNotifyExtendedParamSourceSwitchControl::Deserialize(const UInt8* data, size_t maxSize)
@@ -448,7 +448,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(PeripheralNotifyExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(PeripheralNotifyExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(PeripheralNotifyExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.result, maxSize));
-        MDR_TRY_SIZE(PeripheralNotifyExtendedParamSourceSwitchControl, (MDRPrefixedString::Read)(&data, out.targetBdAddress, maxSize));
+        MDR_TRY_SIZE(PeripheralNotifyExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.targetBdAddress, maxSize));
         MDR_TRY(PeripheralNotifyExtendedParamSourceSwitchControl, Validate(out));
         return MDRResult<PeripheralNotifyExtendedParamSourceSwitchControl>::Success(std::move(out));
     }
@@ -459,7 +459,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectivityActionType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btDeviceAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<PeripheralSetExtendedParamParingDeviceManagementCommon> PeripheralSetExtendedParamParingDeviceManagementCommon::Deserialize(const UInt8* data, size_t maxSize)
@@ -468,7 +468,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(PeripheralSetExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(PeripheralSetExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.inquiredType, maxSize));
         MDR_TRY_SIZE(PeripheralSetExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.connectivityActionType, maxSize));
-        MDR_TRY_SIZE(PeripheralSetExtendedParamParingDeviceManagementCommon, (MDRPrefixedString::Read)(&data, out.btDeviceAddress, maxSize));
+        MDR_TRY_SIZE(PeripheralSetExtendedParamParingDeviceManagementCommon, MDRPod::Read(&data, out.btDeviceAddress, maxSize));
         MDR_TRY(PeripheralSetExtendedParamParingDeviceManagementCommon, Validate(out));
         return MDRResult<PeripheralSetExtendedParamParingDeviceManagementCommon>::Success(std::move(out));
     }
@@ -478,7 +478,7 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.targetBdAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.targetBdAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<PeripheralSetExtendedParamSourceSwitchControl> PeripheralSetExtendedParamSourceSwitchControl::Deserialize(const UInt8* data, size_t maxSize)
@@ -486,7 +486,7 @@ namespace mdr::v2::t2 {
         PeripheralSetExtendedParamSourceSwitchControl out{};
         MDR_TRY_SIZE(PeripheralSetExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(PeripheralSetExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(PeripheralSetExtendedParamSourceSwitchControl, (MDRPrefixedString::Read)(&data, out.targetBdAddress, maxSize));
+        MDR_TRY_SIZE(PeripheralSetExtendedParamSourceSwitchControl, MDRPod::Read(&data, out.targetBdAddress, maxSize));
         MDR_TRY(PeripheralSetExtendedParamSourceSwitchControl, Validate(out));
         return MDRResult<PeripheralSetExtendedParamSourceSwitchControl>::Success(std::move(out));
     }
@@ -686,7 +686,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.linkAutoSwitchStatus, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.speakerIdentifier, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.smartPhoneBtAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartPhoneBtAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<SystemNotifyParamLinkAutoSwitchForHeadsets> SystemNotifyParamLinkAutoSwitchForHeadsets::Deserialize(const UInt8* data, size_t maxSize)
@@ -696,7 +696,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(SystemNotifyParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(SystemNotifyParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.linkAutoSwitchStatus, maxSize));
         MDR_TRY_SIZE(SystemNotifyParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.speakerIdentifier, maxSize));
-        MDR_TRY_SIZE(SystemNotifyParamLinkAutoSwitchForHeadsets, (MDRPrefixedString::Read)(&data, out.smartPhoneBtAddress, maxSize));
+        MDR_TRY_SIZE(SystemNotifyParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.smartPhoneBtAddress, maxSize));
         MDR_TRY(SystemNotifyParamLinkAutoSwitchForHeadsets, Validate(out));
         return MDRResult<SystemNotifyParamLinkAutoSwitchForHeadsets>::Success(std::move(out));
     }
@@ -828,7 +828,7 @@ namespace mdr::v2::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.bluetoothAddressForVASetupLink, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.bluetoothAddressForVASetupLink, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport> SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport::Deserialize(const UInt8* data, size_t maxSize)
@@ -836,7 +836,7 @@ namespace mdr::v2::t2 {
         SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport out{};
         MDR_TRY_SIZE(SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport, (MDRPrefixedString::Read)(&data, out.bluetoothAddressForVASetupLink, maxSize));
+        MDR_TRY_SIZE(SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport, MDRPod::Read(&data, out.bluetoothAddressForVASetupLink, maxSize));
         MDR_TRY(SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport, Validate(out));
         return MDRResult<SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport>::Success(std::move(out));
     }
@@ -882,7 +882,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.linkAutoSwitchStatus, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.speakerIdentifier, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.smartPhoneBtAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartPhoneBtAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<SystemRetParamLinkAutoSwitchForHeadsets> SystemRetParamLinkAutoSwitchForHeadsets::Deserialize(const UInt8* data, size_t maxSize)
@@ -892,7 +892,7 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(SystemRetParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(SystemRetParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.linkAutoSwitchStatus, maxSize));
         MDR_TRY_SIZE(SystemRetParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.speakerIdentifier, maxSize));
-        MDR_TRY_SIZE(SystemRetParamLinkAutoSwitchForHeadsets, (MDRPrefixedString::Read)(&data, out.smartPhoneBtAddress, maxSize));
+        MDR_TRY_SIZE(SystemRetParamLinkAutoSwitchForHeadsets, MDRPod::Read(&data, out.smartPhoneBtAddress, maxSize));
         MDR_TRY(SystemRetParamLinkAutoSwitchForHeadsets, Validate(out));
         return MDRResult<SystemRetParamLinkAutoSwitchForHeadsets>::Success(std::move(out));
     }

@@ -361,6 +361,7 @@ namespace mdr
             String macAddress;
             String name;
             bool connected;
+            bool playbackDevice{};
         };
 
         Vector<PeripheralDevice> mPairedDevices;

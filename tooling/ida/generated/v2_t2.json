@@ -11974,8 +11974,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV2T2ConnectGetSupportFunction_Factory parseBytesWithByteArray:]"
+        "-[THMSGV2T2ConnectGetSupportFunction_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": null,
       "fields": [
@@ -12113,8 +12113,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2LEAGetCapability_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV2T2LEAGetCapability_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV2T2LEAInquiredType;",
       "fields": [
@@ -12573,8 +12573,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1017FBC10",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2LEANotifyStatusCommonUnavailableReason_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2LEANotifyStatus"
       ],
       "factory_signature": "LTHMSGV2T2LEAInquiredType;LComSonySongpalTandemfamilyMessageMdrV2UnavailableReason;",
@@ -12929,6 +12929,8 @@
       "discriminator_field": null,
       "discriminator_value": null,
       "evidence": [
+        "0x101805EE4 getDeviceUniqueId reads bytes 2..18",
+        "0x101805EE4 getDeviceUniqueId reads fixed 17-byte slice 2..18",
         "sub_1012C2504",
         "_JreStrcat",
         "_create_JavaLangIllegalArgumentException_initWithNSString_",
@@ -12968,13 +12970,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "deviceUniqueId",
           "offset": 2,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         },
         {
           "cpp_type": "MDRPrefixedString",
@@ -13083,8 +13085,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2LEARetParamGetIdentityResolvingKey_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2LEARetParam"
       ],
       "factory_signature": "[B",
@@ -13157,8 +13159,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2LEARetParamLEAudioConnectionModeWithBTReconnection_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2LEARetParam"
       ],
       "factory_signature": "LTHMSGV2T2ConnectionMode;",
@@ -13231,8 +13233,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2LEARetParamPasSupportsA2dpLeaUniLeaBroad_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2LEARetParamPasSupportsA2dpLeaUniLeaBroad_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2LEARetParam"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2PairedHistory;",
@@ -13654,8 +13656,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2LEASetParamLEAudioConnectionModeWithBTReconnection_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2LEASetParam"
       ],
       "factory_signature": "LTHMSGV2T2ConnectionMode;",
@@ -13723,6 +13725,8 @@
       "discriminator_value": null,
       "evidence": [
         "0x1017F98F0 getConnectionState reads bytes 2..2",
+        "0x1017F99C8 getTargetDeviceBdAddressOfAccessory reads bytes 3..19",
+        "0x1017F99C8 getTargetDeviceBdAddressOfAccessory reads fixed 17-byte slice 3..19",
         "0x103199620 THMSGV2T2LEASetParamLeAudioConnectionStateNotification.INDEX_CONNECTION_STATE=2",
         "sub_1012C2504",
         "_JreStrcat",
@@ -13734,8 +13738,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "-[THMSGV2T2LEASetParamLeAudioConnectionStateNotification_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2LEASetParamLeAudioConnectionStateNotification_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2LEASetParam"
       ],
       "factory_signature": "LTHMSGV2T2ConnectionState;LNSString;",
@@ -13770,13 +13774,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "targetDeviceBdAddressOfAccessory",
           "offset": 3,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2LEASetParamLeAudioConnectionStateNotification",
@@ -13814,8 +13818,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PartyGetCapability_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV2T2PartyGetCapability_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV2T2PartyInquiredType;",
       "fields": [
@@ -14186,8 +14190,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1017279B4",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartyNotifyParamIllumination_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartyNotifyParam"
       ],
       "factory_signature": "LTHMSGV2T2IlluminationItem;",
@@ -14552,8 +14556,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1017256D4",
-        "-[THMSGV2T2PartyNotifyStatusDjControl_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PartyNotifyStatusDjControl_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PartyNotifyStatus"
       ],
       "factory_signature": "ZZ",
@@ -14633,8 +14637,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_101726894",
-        "-[THMSGV2T2PartyNotifyStatusDjControlWithStatusDisableReason_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PartyNotifyStatusDjControlWithStatusDisableReason_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PartyNotifyStatus"
       ],
       "factory_signature": "(ZZLjava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/StatusDisableReason;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartyNotifyStatusDjControlWithStatusDisableReason;",
@@ -14980,8 +14984,8 @@
         "_memset",
         "_objc_enumerationMutation",
         "sub_1012CA5A4",
-        "-[THMSGV2T2PartyRetCapabilityDjControl_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PartyRetCapabilityDjControl_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PartyRetCapability"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/PartyInquiredType;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/DjControlEffectItem;>;II)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartyRetCapabilityDjControl;",
@@ -15147,8 +15151,8 @@
         "writeWithInt:",
         "_memset",
         "_objc_enumerationMutation",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartyRetCapabilityKaraoke_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartyRetCapability"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/PartyInquiredType;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/KaraokeItem;>;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/SamplerItem;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartyRetCapabilityKaraoke;",
@@ -15289,8 +15293,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_10172B038",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartyRetParamDjControl_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartyRetParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/PartyInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/DjControlEffectItem;Ljava/util/List<Ljava/lang/Integer;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartyRetParamDjControl;",
@@ -15446,8 +15450,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_10172C1F0",
-        "-[THMSGV2T2PartyRetParamKaraoke_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PartyRetParamKaraoke_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PartyRetParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/PartyInquiredType;Ljava/util/List<Ljava/lang/Byte;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartyRetParamKaraoke;",
@@ -15736,8 +15740,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1017256D4",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartyRetStatusDjControl_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartyRetStatus"
       ],
       "factory_signature": "ZZ",
@@ -15817,8 +15821,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_101726894",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartyRetStatusDjControlWithStatusDisableReason_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartyRetStatus"
       ],
       "factory_signature": "(ZZLjava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/StatusDisableReason;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartyRetStatusDjControlWithStatusDisableReason;",
@@ -16166,8 +16170,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartySetExtParamDjControl_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartySetExtParam"
       ],
       "factory_signature": "LTHMSGV2T2PartyInquiredType;LTHMSGV2T2TouchPadOperation;II",
@@ -16267,8 +16271,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PartySetExtParamIllumination_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PartySetExtParam"
       ],
       "factory_signature": "LTHMSGV2T2TouchPadOperation;IIIII",
@@ -16520,8 +16524,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_10172B038",
-        "-[THMSGV2T2PartySetParamDjControl_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PartySetParamDjControl_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PartySetParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/PartyInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/param/DjControlEffectItem;Ljava/util/List<Ljava/lang/Integer;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/party/PartySetParamDjControl;",
@@ -17122,8 +17126,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PeripheralGetCapability_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralGetCapability_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV2T2PeripheralInquiredType;",
       "fields": [
@@ -17184,8 +17188,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PeripheralGetParam_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralGetParam_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV2T2PeripheralInquiredType;",
       "fields": [
@@ -17364,6 +17368,8 @@
       "evidence": [
         "0x101823424 getConnectivityActionType reads bytes 2..2",
         "0x1018234FC getPeripheralResult reads bytes 3..3",
+        "0x1018235D4 getBtDeviceAddress reads bytes 4..20",
+        "0x1018235D4 getBtDeviceAddress reads fixed 17-byte slice 4..20",
         "0x10319C888 THMSGV2T2PeripheralNotifyExtendedParamParingDeviceManagementCommon.INDEX_CONNECTIVITY_ACTION_TYPE=2",
         "0x10319C8B0 THMSGV2T2PeripheralNotifyExtendedParamParingDeviceManagementCommon.INDEX_PERIPHERAL_RESULT=3",
         "-[THMSGV2T2PeripheralNotifyExtendedParam_Factory toStreamWithTHMSGV2T2PeripheralInquiredType:]",
@@ -17372,8 +17378,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "-[THMSGV2T2PeripheralNotifyExtendedParamParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralNotifyExtendedParamParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PeripheralNotifyExtendedParam"
       ],
       "factory_signature": "LTHMSGV2T2PeripheralInquiredType;LTHMSGV2T2ConnectivityActionType;LTHMSGV2T2PeripheralResult;LNSString;",
@@ -17417,13 +17423,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "btDeviceAddress",
           "offset": 4,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2PeripheralNotifyExtendedParamParingDeviceManagementCommon",
@@ -17457,6 +17463,8 @@
       "discriminator_value": null,
       "evidence": [
         "0x1018272EC getResult reads bytes 2..2",
+        "0x1018273C4 getTargetBdAddress reads bytes 3..19",
+        "0x1018273C4 getTargetBdAddress reads fixed 17-byte slice 3..19",
         "_JreThrowNullPointerException",
         "_create_JavaLangIllegalArgumentException_initWithNSString_",
         "_objc_exception_throw",
@@ -17465,8 +17473,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PeripheralNotifyExtendedParamSourceSwitchControl_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PeripheralNotifyExtendedParam"
       ],
       "factory_signature": "LTHMSGV2T2SourceSwitchControlResult;LNSString;",
@@ -17503,13 +17511,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "targetBdAddress",
           "offset": 3,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2PeripheralNotifyExtendedParamSourceSwitchControl",
@@ -17608,8 +17616,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1018188BC",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PeripheralNotifyParamMusicHandOverSetting_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PeripheralNotifyParam"
       ],
       "factory_signature": "Z",
@@ -17859,8 +17867,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PeripheralNotifyParamSourceSwitchControl_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PeripheralNotifyParam"
       ],
       "factory_signature": "ZLTHMSGV2T2SourceSwitchControlResult;",
@@ -18151,8 +18159,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PeripheralRetCapabilityParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralRetCapabilityParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PeripheralRetCapability"
       ],
       "factory_signature": "LTHMSGV2T2PeripheralInquiredType;IILTHMSGV2T2FileTransferInMultiConnection;",
@@ -18305,8 +18313,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1018188BC",
-        "-[THMSGV2T2PeripheralRetParamMusicHandOverSetting_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralRetParamMusicHandOverSetting_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PeripheralRetParam"
       ],
       "factory_signature": "Z",
@@ -18555,8 +18563,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PeripheralRetParamSourceSwitchControl_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralRetParamSourceSwitchControl_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PeripheralRetParam"
       ],
       "factory_signature": "Z",
@@ -18826,6 +18834,8 @@
       "discriminator_value": null,
       "evidence": [
         "0x10180E28C getConnectivityActionType reads bytes 2..2",
+        "0x10180E364 getBtDeviceAddress reads bytes 3..19",
+        "0x10180E364 getBtDeviceAddress reads fixed 17-byte slice 3..19",
         "0x10319AE68 THMSGV2T2PeripheralSetExtendedParamParingDeviceManagementCommon.INDEX_CONNECTIVITY_ACTION_TYPE=2",
         "-[THMSGV2T2PeripheralSetExtendedParam_Factory toStreamWithTHMSGV2T2PeripheralInquiredType:]",
         "-[THMSGV2T2Payload_Factory toStreamWithTHMSGV2T2Command:]",
@@ -18833,8 +18843,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "-[THMSGV2T2PeripheralSetExtendedParamParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PeripheralSetExtendedParamParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PeripheralSetExtendedParam"
       ],
       "factory_signature": "LTHMSGV2T2PeripheralInquiredType;LTHMSGV2T2ConnectivityActionType;LNSString;",
@@ -18869,13 +18879,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "btDeviceAddress",
           "offset": 3,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2PeripheralSetExtendedParamParingDeviceManagementCommon",
@@ -18908,6 +18918,8 @@
       "discriminator_field": null,
       "discriminator_value": null,
       "evidence": [
+        "0x10182BFA8 getTargetBdAddress reads bytes 2..18",
+        "0x10182BFA8 getTargetBdAddress reads fixed 17-byte slice 2..18",
         "_JreThrowNullPointerException",
         "_create_JavaLangIllegalArgumentException_initWithNSString_",
         "_objc_exception_throw",
@@ -18945,13 +18957,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "targetBdAddress",
           "offset": 2,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2PeripheralSetExtendedParamSourceSwitchControl",
@@ -19258,8 +19270,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PeripheralSetStatusParingDeviceManagementCommon_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PeripheralSetStatus"
       ],
       "factory_signature": "LTHMSGV2T2PeripheralInquiredType;LTHMSGV2T2PeripheralBluetoothMode;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;",
@@ -19338,8 +19350,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PowerGetCapability_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV2T2PowerGetCapability_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV2T2PowerInquiredType;",
       "fields": [
@@ -19581,8 +19593,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PowerNotifyParamSettingOnOff_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PowerNotifyParam"
       ],
       "factory_signature": "LTHMSGV2T2PowerInquiredType;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -19870,8 +19882,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PowerNotifyStatusCommon_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PowerNotifyStatusCommon_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PowerNotifyStatus"
       ],
       "factory_signature": "LTHMSGV2T2PowerInquiredType;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;",
@@ -19942,8 +19954,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PowerNotifyStatusUsbSubmersion_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PowerNotifyStatus"
       ],
       "factory_signature": "LTHMSGV2T2UsbSubmersionStatus;",
@@ -20485,8 +20497,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2PowerRetStatusCaringChargeWithThreshold_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2PowerRetStatusCaringChargeWithThreshold_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2PowerRetStatus"
       ],
       "factory_signature": "LTHMSGV2T2PowerInquiredType;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;LTHMSGV2T2NoticeForBatteryNecessity;",
@@ -20568,8 +20580,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PowerRetStatusCommon_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PowerRetStatus"
       ],
       "factory_signature": "LTHMSGV2T2PowerInquiredType;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;",
@@ -20640,8 +20652,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PowerRetStatusUsbSubmersion_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PowerRetStatus"
       ],
       "factory_signature": "LTHMSGV2T2UsbSubmersionStatus;",
@@ -20773,8 +20785,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2PowerSetParamSettingOnOff_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2PowerSetParam"
       ],
       "factory_signature": "LTHMSGV2T2PowerInquiredType;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -21246,8 +21258,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV2T2SafeListeningGetExtendedParam_Factory parseBytesWithByteArray:]"
+        "-[THMSGV2T2SafeListeningGetExtendedParam_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV2T2SafeListeningInquiredType;",
       "fields": [
@@ -21308,8 +21320,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SafeListeningGetParam_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningGetParam_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV2T2SafeListeningInquiredType;",
       "fields": [
@@ -21492,8 +21504,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SafeListeningNotifyParamMaxVolLvLimit_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningNotifyParamMaxVolLvLimit_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningNotifyParam"
       ],
       "factory_signature": "I",
@@ -21971,8 +21983,8 @@
         "_memset",
         "_objc_enumerationMutation",
         "writeWithByteArray:",
-        "-[THMSGV2T2SafeListeningNotifyStatusHbs2_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningNotifyStatusHbs2_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningNotifyStatusHbs"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/safelistening/type/SafeListeningLogDataStatus;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/safelistening/type/SafeListeningData2;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/safelistening/status/SafeListeningNotifyStatusHbs2;",
@@ -22053,8 +22065,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SafeListeningNotifyStatusMaxVolLvLimit_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningNotifyStatusMaxVolLvLimit_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningNotifyStatus"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -22165,8 +22177,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SafeListeningNotifyStatusSVC_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningNotifyStatusSVC_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningNotifyStatus"
       ],
       "factory_signature": "LTHMSGV2T2SafeListeningWHOStandardLevel;",
@@ -22919,8 +22931,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SafeListeningRetParamMaxVolLvLimit_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SafeListeningRetParam"
       ],
       "factory_signature": "I",
@@ -23372,8 +23384,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SafeListeningRetStatusMaxVolLvLimit_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningRetStatusMaxVolLvLimit_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningRetStatus"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -23684,8 +23696,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SafeListeningRetStatusTws2_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SafeListeningRetStatusTws"
       ],
       "factory_signature": "LTHMSGV2T2SafeListeningLogDataStatus;LTHMSGV2T2SafeListeningLogDataStatus;LTHMSGV2T2SafeListeningData2;LTHMSGV2T2SafeListeningData2;",
@@ -23844,8 +23856,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SafeListeningSetParamMaxVolLvLimit_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SafeListeningSetParam"
       ],
       "factory_signature": "I",
@@ -24003,8 +24015,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SafeListeningSetParamSVC_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SafeListeningSetParam"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -24229,8 +24241,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SafeListeningSetStatusMaxVolLvLimit_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SafeListeningSetStatus"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -24341,8 +24353,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SafeListeningSetStatusSVC_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningSetStatusSVC_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningSetStatus"
       ],
       "factory_signature": "LTHMSGV2T2SafeListeningWHOStandardLevel;",
@@ -24419,8 +24431,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "-[THMSGV2T2SafeListeningSetStatusTws_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SafeListeningSetStatusTws_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SafeListeningSetStatus"
       ],
       "factory_signature": "LTHMSGV2T2SafeListeningInquiredType;LTHMSGV2T2SafeListeningLogDataStatus;LTHMSGV2T2SafeListeningLogDataStatus;LTHMSGV2T2SafeListeningStatus;LTHMSGV2T2SafeListeningStatus;",
@@ -24645,8 +24657,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemGetCapabilityCommon_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemGetCapability"
       ],
       "factory_signature": "LTHMSGV2T2SystemInquiredType;",
@@ -24847,8 +24859,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemGetExtendedParamCommon_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemGetExtendedParam"
       ],
       "factory_signature": "LTHMSGV2T2SystemInquiredType;",
@@ -24910,8 +24922,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemGetExtendedParamUsbBrowser_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemGetExtendedParamUsbBrowser_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemGetExtendedParam"
       ],
       "factory_signature": "LTHMSGV2T2UsbInformationType;",
@@ -24983,8 +24995,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV2T2SystemGetParam_Factory parseBytesWithByteArray:]"
+        "-[THMSGV2T2SystemGetParam_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV2T2SystemInquiredType;",
       "fields": [
@@ -25044,8 +25056,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV2T2SystemGetStatus_Factory parseBytesWithByteArray:]"
+        "-[THMSGV2T2SystemGetStatus_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV2T2SystemInquiredType;",
       "fields": [
@@ -25245,8 +25257,8 @@
         "_JreRetainedLocalValue",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemNotifyExtendedParamUsbBrowserForDirectoryStatus_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemNotifyExtendedParamUsbBrowser"
       ],
       "factory_signature": "LTHMSGV2T2UsbLayerStatus;I",
@@ -25338,13 +25350,13 @@
         "0x1031925D0 THMSGV2T2SystemNotifyExtendedParamUsbBrowserForFileStatus.INDEX_CURRENT_LAYER_STATUS=3",
         "0x1031925F8 THMSGV2T2SystemNotifyExtendedParamUsbBrowserForFileStatus.INDEX_CURRENT_DIRECTORY_INDEX=4",
         "0x103192620 THMSGV2T2SystemNotifyExtendedParamUsbBrowserForFileStatus.INDEX_FILE_INDEX=6",
+        "toStreamWithTHMSGV2T2UsbInformationType:",
         "-[THMSGV2T2SystemNotifyExtendedParamUsbBrowser_Factory toStreamWithTHMSGV2T2UsbInformationType:]",
         "-[THMSGV2T2SystemNotifyExtendedParam_Factory toStreamWithTHMSGV2T2SystemInquiredType:]",
         "-[THMSGV2T2Payload_Factory toStreamWithTHMSGV2T2Command:]",
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "toStreamWithTHMSGV2T2UsbInformationType:",
         "_JreRetainedLocalValue",
         "sub_1012CC3A4",
         "writeWithByteArray:",
@@ -25665,8 +25677,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemNotifyParamFunctionChange_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyParamFunctionChange_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyParam"
       ],
       "factory_signature": "LTHMSGV2T2PlaybackFunction;",
@@ -25739,8 +25751,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemNotifyParamLightingDefaultColorColorType_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyParamLightingDefaultColorColorType_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyParam"
       ],
       "factory_signature": "LTHMSGV2T2LightingColorType;",
@@ -25986,6 +25998,8 @@
       "evidence": [
         "0x1017A8078 getLinkAutoSwitchStatus reads bytes 2..2",
         "0x1017A8150 getSpeakerIdentifier reads bytes 3..4",
+        "0x1017A8184 getSmartPhoneBtAddress reads bytes 5..21",
+        "0x1017A8184 getSmartPhoneBtAddress reads fixed 17-byte slice 5..21",
         "-[THMSGV2T2SystemNotifyParam_Factory toStreamWithTHMSGV2T2SystemInquiredType:]",
         "-[THMSGV2T2Payload_Factory toStreamWithTHMSGV2T2Command:]",
         "_create_JavaIoByteArrayOutputStream_init",
@@ -26040,13 +26054,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "smartPhoneBtAddress",
           "offset": 5,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2SystemNotifyParamLinkAutoSwitchForHeadsets",
@@ -26162,8 +26176,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemNotifyParamMicOnOffByHeadphoneOperation_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemNotifyParam"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -26320,8 +26334,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemNotifyParamRepeatTapTrainingMode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyParamRepeatTapTrainingMode_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyParam"
       ],
       "factory_signature": "LTHMSGV2T1Key;LTHMSGV2T2RepeatTapAction;",
@@ -26589,8 +26603,8 @@
         "writeWithInt:",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "-[THMSGV2T2SystemNotifyParamUsbBrowserWithIndex_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyParamUsbBrowserWithIndex_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyParamUsbBrowser"
       ],
       "factory_signature": "LTHMSGV2T2UsbBrowserCommand;LComSonySongpalTandemfamilyMessageMdrV2RequestResult;I",
@@ -26681,8 +26695,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemNotifyParamUsbBrowserWithoutIndex_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyParamUsbBrowserWithoutIndex_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyParamUsbBrowser"
       ],
       "factory_signature": "LTHMSGV2T2UsbBrowserCommand;LComSonySongpalTandemfamilyMessageMdrV2RequestResult;",
@@ -26765,8 +26779,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1017D3464",
-        "-[THMSGV2T2SystemNotifyParamWearingPositionJudgmentBySensor_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyParamWearingPositionJudgmentBySensor_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/WearingPositionOperationStatus;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/WearingPositionJudgmentBySensorResultSet;>;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/WearingPositionAccelerometerData;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/SystemNotifyParamWearingPositionJudgmentBySensor;",
@@ -26916,8 +26930,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemNotifyStatusCommon_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemNotifyStatusCommon_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemNotifyStatus"
       ],
       "factory_signature": "LTHMSGV2T2SystemInquiredType;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;",
@@ -27601,15 +27615,15 @@
       "discriminator_value": null,
       "evidence": [
         "0x10178760C getKeyType reads bytes 2..2",
-        "toStreamWithTHMSGV2T2SystemInquiredType:",
         "-[THMSGV2T2SystemRetCapability_Factory toStreamWithTHMSGV2T2SystemInquiredType:]",
         "-[THMSGV2T2Payload_Factory toStreamWithTHMSGV2T2Command:]",
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
+        "toStreamWithTHMSGV2T2SystemInquiredType:",
         "_JreRetainedLocalValue",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetCapabilityMicOnOffByHeadphoneOperation_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetCapability"
       ],
       "factory_signature": "LTHMSGV2T1Type;",
@@ -27874,8 +27888,8 @@
         "sub_1012CA5A4",
         "_memset",
         "_objc_enumerationMutation",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetCapability"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/SystemInquiredType;ILcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/SonyVoiceAssistantLanguage;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch;",
@@ -27988,8 +28002,8 @@
         "writeWithInt:",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "-[THMSGV2T2SystemRetCapabilityUsbBrowser_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemRetCapabilityUsbBrowser_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemRetCapability"
       ],
       "factory_signature": "I",
@@ -28056,6 +28070,8 @@
       "discriminator_field": null,
       "discriminator_value": null,
       "evidence": [
+        "0x1017C2F28 getBluetoothAddressForVASetupLink reads bytes 2..18",
+        "0x1017C2F28 getBluetoothAddressForVASetupLink reads fixed 17-byte slice 2..18",
         "-[THMSGV2T2SystemRetCapability_Factory toStreamWithTHMSGV2T2SystemInquiredType:]",
         "-[THMSGV2T2Payload_Factory toStreamWithTHMSGV2T2Command:]",
         "_create_JavaIoByteArrayOutputStream_init",
@@ -28091,13 +28107,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "bluetoothAddressForVASetupLink",
           "offset": 2,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport",
@@ -28295,8 +28311,8 @@
         "_objc_exception_throw",
         "_memset",
         "_objc_enumerationMutation",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetExtendedParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/SystemInquiredType;ILjava/lang/String;Ljava/lang/String;IILjava/lang/String;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch$ServiceInformation;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch;",
@@ -28644,8 +28660,8 @@
         "_JreRetainedLocalValue",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "-[THMSGV2T2SystemRetExtendedParamUsbBrowserForFileStatus_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemRetExtendedParamUsbBrowserForFileStatus_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemRetExtendedParamUsbBrowser"
       ],
       "factory_signature": "LTHMSGV2T2UsbLayerStatus;II",
@@ -28753,8 +28769,8 @@
         "_JreRetainedLocalValue",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetExtendedParamUsbBrowserForSize_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetExtendedParamUsbBrowser"
       ],
       "factory_signature": "I",
@@ -28895,8 +28911,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1017A4AF8",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetParamAutoVolumeWithLimitation_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/OnOffSettingValue;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/param/LimitationType;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/system/SystemRetParamAutoVolumeWithLimitation;",
@@ -29203,8 +29219,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetParamLightingDefaultColorCustomColor_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetParam"
       ],
       "factory_signature": "III",
@@ -29301,8 +29317,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetParamLightingMode_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetParam"
       ],
       "factory_signature": "LTHMSGV2T2LightingMode;",
@@ -29371,6 +29387,8 @@
       "evidence": [
         "0x1017DEE04 getLinkAutoSwitchStatus reads bytes 2..2",
         "0x1017DEEDC getSpeakerIdentifier reads bytes 3..4",
+        "0x1017DEF10 getSmartPhoneBtAddress reads bytes 5..21",
+        "0x1017DEF10 getSmartPhoneBtAddress reads fixed 17-byte slice 5..21",
         "-[THMSGV2T2SystemRetParam_Factory toStreamWithTHMSGV2T2SystemInquiredType:]",
         "-[THMSGV2T2Payload_Factory toStreamWithTHMSGV2T2Command:]",
         "_create_JavaIoByteArrayOutputStream_init",
@@ -29378,8 +29396,8 @@
         "writeWithInt:",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemRetParamLinkAutoSwitchForHeadsets_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemRetParam"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;ILNSString;",
@@ -29425,13 +29443,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "smartPhoneBtAddress",
           "offset": 5,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV2T2SystemRetParamLinkAutoSwitchForHeadsets",
@@ -29934,8 +29952,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemRetStatusRepeatTapTrainingMode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemRetStatusRepeatTapTrainingMode_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemRetStatus"
       ],
       "factory_signature": "LTHMSGV2T2RepeatTapTrainingModeStatus;",
@@ -30423,8 +30441,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemSetParamLightingDefaultColorColorType_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemSetParamLightingDefaultColorColorType_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemSetParam"
       ],
       "factory_signature": "LTHMSGV2T2LightingColorType;",
@@ -30504,8 +30522,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1016D8014",
-        "-[THMSGV2T2SystemSetParamLightingDefaultColorCustomColor_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemSetParamLightingDefaultColorCustomColor_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemSetParam"
       ],
       "factory_signature": "ZIII",
@@ -30611,8 +30629,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemSetParamLightingMode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemSetParamLightingMode_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemSetParam"
       ],
       "factory_signature": "LTHMSGV2T2LightingMode;",
@@ -30771,8 +30789,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemSetParamLinkAutoSwitchForSpeaker_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemSetParam"
       ],
       "factory_signature": "LTHMSGV2T2LinkAutoSwitchAction;",
@@ -30846,8 +30864,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemSetParamMicOnOffByHeadphoneOperation_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemSetParam"
       ],
       "factory_signature": "LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -31173,8 +31191,8 @@
         "writeWithInt:",
         "sub_1012CC3A4",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemSetParamUsbBrowserWithIndex_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemSetParamUsbBrowser"
       ],
       "factory_signature": "LTHMSGV2T2UsbBrowserCommand;I",
@@ -31256,8 +31274,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2SystemSetParamUsbBrowserWithoutIndex_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2SystemSetParamUsbBrowserWithoutIndex_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2SystemSetParamUsbBrowser"
       ],
       "factory_signature": "LTHMSGV2T2UsbBrowserCommand;",
@@ -31329,8 +31347,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemSetParamWearingPositionJudgmentBySensor_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemSetParam"
       ],
       "factory_signature": "LTHMSGV2T2SystemInquiredType;LTHMSGV2T2JudgmentModeOperation;",
@@ -31463,8 +31481,8 @@
         "writeWithInt:",
         "toStreamWithTHMSGV2T2SystemInquiredType:",
         "_JreRetainedLocalValue",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2SystemSetStatusRepeatTapTrainingMode_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2SystemSetStatus"
       ],
       "factory_signature": "LTHMSGV2T2RepeatTapTrainingModeOperation;",
@@ -31612,8 +31630,8 @@
         "sub_1012CC3A4",
         "writeWithByteArray:",
         "writeWithInt:",
-        "-[THMSGV2T2UsbItemDirectoryInfo_Factory parseBytesWithByteArray:withInt:]",
-        "parseBytesWithByteArray:withInt:"
+        "parseBytesWithByteArray:withInt:",
+        "-[THMSGV2T2UsbItemDirectoryInfo_Factory parseBytesWithByteArray:withInt:]"
       ],
       "factory_signature": "ILNSString;",
       "fields": [
@@ -32301,8 +32319,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2VoiceGuidanceNotifyParamSettingSupportLangSwitch_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2VoiceGuidanceNotifyParam"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;LTHMSGV2T2VoiceGuidanceLanguage;",
@@ -32980,8 +32998,8 @@
         "_create_JavaLangIllegalArgumentException_initWithNSString_",
         "_objc_exception_throw",
         "sub_1012CA5A4",
-        "-[THMSGV2T2VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2VoiceGuidanceRetCapabilitySettingMtk"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;ILComSonySongpalTandemfamilyMessageMdrV2EnableDisable;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;LTHMSGV2T2VoiceGuidanceSupportsSwitch;",
@@ -33096,8 +33114,8 @@
         "sub_1012CA5A4",
         "_memset",
         "_objc_enumerationMutation",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2VoiceGuidanceRetCapabilitySettingMtk"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/param/VoiceGuidanceInquiredType;ILcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/param/VoiceGuidanceSupportsSwitch;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/param/VoiceGuidanceLanguage;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch;",
@@ -33221,8 +33239,8 @@
         "_objc_exception_throw",
         "_memset",
         "_objc_enumerationMutation",
-        "-[THMSGV2T2VoiceGuidanceRetCapabilitySettingSupportLangSwitch_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2VoiceGuidanceRetCapabilitySettingSupportLangSwitch_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2VoiceGuidanceRetCapability"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/param/VoiceGuidanceInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/param/VoiceGuidanceSupportsSwitch;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/param/VoiceGuidanceLanguage;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table2/voiceguidance/VoiceGuidanceRetCapabilitySettingSupportLangSwitch;",
@@ -33671,8 +33689,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV2T2VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T2VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T2VoiceGuidanceRetParam"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;LTHMSGV2T2VoiceGuidanceLanguage;",
@@ -33753,8 +33771,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2VoiceGuidanceRetParamSettingOnOff_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2VoiceGuidanceRetParam"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -33832,8 +33850,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1012CA5A4",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2VoiceGuidanceRetParamVolume_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2VoiceGuidanceRetParam"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;I",
@@ -34108,8 +34126,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_101701EC8",
-        "parseBytesWithByteArray:",
-        "-[THMSGV2T2VoiceGuidanceRetStatusSettingMtkSupportLangSwitch_Factory parseBytesWithByteArray:]"
+        "-[THMSGV2T2VoiceGuidanceRetStatusSettingMtkSupportLangSwitch_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;LTHMSGV2T2VoiceGuidanceStatusType;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;",
       "fields": [
@@ -34328,8 +34346,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2VoiceGuidanceSetParamSettingMtk_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2VoiceGuidanceSetParam"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;LComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -34563,8 +34581,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1012CA5A4",
-        "parseBytesWithByteArray:",
         "-[THMSGV2T2VoiceGuidanceSetParamVolume_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV2T2VoiceGuidanceSetParam"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;ILComSonySongpalTandemfamilyMessageMdrV2OnOffSettingValue;",
@@ -34778,8 +34796,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_101701EC8",
-        "parseBytesWithByteArray:",
-        "-[THMSGV2T2VoiceGuidanceSetStatusSettingMtkSupportLangSwitch_Factory parseBytesWithByteArray:]"
+        "-[THMSGV2T2VoiceGuidanceSetStatusSettingMtkSupportLangSwitch_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV2T2VoiceGuidanceInquiredType;LTHMSGV2T2VoiceGuidanceStatusType;LComSonySongpalTandemfamilyMessageMdrV2EnableDisable;",
       "fields": [

@@ -17,9 +17,10 @@ namespace mdr
                 MDRHeadphones::PeripheralDevice state{
                     .macAddress = device.btDeviceAddress.value,
                     .name = device.btFriendlyName.value,
-                    .connected = device.connectedStatus != 0
+                    .connected = device.connectedStatus != 0,
+                    .playbackDevice = device.connectedStatus == payload.playbackrightDevice
                 };
-                if (device.connectedStatus == payload.playbackrightDevice)
+                if (state.playbackDevice)
                     self->mMultipointDeviceMac.overwrite(state.macAddress);
                 self->mPairedDevices.push_back(std::move(state));
             }
