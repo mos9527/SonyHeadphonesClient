@@ -135,7 +135,7 @@ namespace mdr
         }
 
         [[nodiscard]] constexpr bool dirty() const noexcept { return desired != current; }
-        [[nodiscard]] constexpr bool submittedDirty() const noexcept { return submitted != current; }
+        [[nodiscard]] constexpr bool pending() const noexcept { return submitted != current; }
 
         void commit()
         {
@@ -144,12 +144,12 @@ namespace mdr
                 desired = submitted;
         }
 
-        void commitOneShot(T const& resetValue)
+        void override(T const& v)
         {
-            current = resetValue;
+            current = v;
             if (revision == submittedRevision)
-                desired = resetValue;
-            submitted = resetValue;
+                desired = v;
+            submitted = v;
         }
     };
 

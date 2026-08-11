@@ -343,21 +343,21 @@ namespace mdr
         SnapshotProperties();
 
         /* Shutdown */
-        if (mShutdown.submittedDirty())
+        if (mShutdown.pending())
         {
             using namespace t1;
             if (mSupport.contains(t1::FunctionType::POWER_OFF) && mShutdown.submitted)
             {
                 SendCommandACK(PowerSetStatusPowerOff);
-                mShutdown.commitOneShot(false);
+                mShutdown.override(false);
             }
             else
-                mShutdown.commitOneShot(false);
+                mShutdown.override(false);
         }
         /* NC/ASM */
-        if (mNcAsmAmbientLevel.submittedDirty() || mNcAsmEnabled.submittedDirty() ||
-            mNcAsmMode.submittedDirty() || mNcAsmFocusOnVoice.submittedDirty() ||
-            mNcAsmAutoAsmEnabled.submittedDirty() || mNcAsmNoiseAdaptiveSensitivity.submittedDirty())
+        if (mNcAsmAmbientLevel.pending() || mNcAsmEnabled.pending() ||
+            mNcAsmMode.pending() || mNcAsmFocusOnVoice.pending() ||
+            mNcAsmAutoAsmEnabled.pending() || mNcAsmNoiseAdaptiveSensitivity.pending())
         {
             using namespace t1;
             if (mSupport.contains(
@@ -409,7 +409,7 @@ namespace mdr
         if (mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
         {
             using namespace t1;
-            if (mNcAsmButtonFunction.submittedDirty())
+            if (mNcAsmButtonFunction.pending())
             {
                 NcAsmSetParamNcAmbToggle res;
                 res.command = Command::NCASM_SET_PARAM;
@@ -419,7 +419,7 @@ namespace mdr
             }
         }
         /* Volume */
-        if (mPlayVolume.submittedDirty())
+        if (mPlayVolume.pending())
         {
             using namespace t1;
             SetPlayParamPlaybackControllerVolume res;
@@ -432,7 +432,7 @@ namespace mdr
         /* Play Control */
         // A bit of a special case. We reset the value to something else
         // so simply setting 'desired' repeatedly works as intended
-        if (mPlayControl.submittedDirty())
+        if (mPlayControl.pending())
         {
             using namespace t1;
             SetPlayStatusPlaybackController res;
@@ -441,16 +441,16 @@ namespace mdr
             res.status = EnableDisable::ENABLE;
             res.control = mPlayControl.submitted;
             SendCommandACK(SetPlayStatusPlaybackController, res);
-            mPlayControl.commitOneShot(PlaybackControl::KEY_OFF);
+            mPlayControl.override(PlaybackControl::KEY_OFF);
         }
 
         /* Multipoint Switch */
-        if (mMultipointDeviceMac.submittedDirty())
+        if (mMultipointDeviceMac.pending())
         {
             using namespace t2;
             PeripheralSetExtendedParamSourceSwitchControl res;
             if (mMultipointDeviceMac.submitted.length() != 17)
-                mMultipointDeviceMac.commitOneShot("");
+                mMultipointDeviceMac.override("");
             else
             {
                 std::copy_n(mMultipointDeviceMac.submitted.begin(), 17, res.targetBdAddress.begin());
@@ -480,52 +480,52 @@ namespace mdr
             else
             {
                 // Unsupported. Ignore the rest.
-                mPairedDeviceConnectMac.commitOneShot("");
-                mPairedDeviceDisconnectMac.commitOneShot("");
-                mPairedDeviceUnpairMac.commitOneShot("");
+                mPairedDeviceConnectMac.override("");
+                mPairedDeviceDisconnectMac.override("");
+                mPairedDeviceUnpairMac.override("");
             }
             PeripheralSetExtendedParamParingDeviceManagementCommon res;
             res.inquiredType = type;
-            if (mPairedDeviceConnectMac.submittedDirty())
+            if (mPairedDeviceConnectMac.pending())
             {
                 if (mPairedDeviceConnectMac.submitted.length() != 17)
-                    mPairedDeviceConnectMac.commitOneShot("");
+                    mPairedDeviceConnectMac.override("");
                 else
                 {
                     res.connectivityActionType = ConnectivityActionType::CONNECT;
                     std::copy_n(mPairedDeviceConnectMac.submitted.begin(), 17, res.btDeviceAddress.begin());
                     SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                    mPairedDeviceConnectMac.commitOneShot("");
+                    mPairedDeviceConnectMac.override("");
                 }
             }
-            if (mPairedDeviceDisconnectMac.submittedDirty())
+            if (mPairedDeviceDisconnectMac.pending())
             {
                 if (mPairedDeviceDisconnectMac.submitted.length() != 17)
-                    mPairedDeviceDisconnectMac.commitOneShot("");
+                    mPairedDeviceDisconnectMac.override("");
                 else
                 {
                     res.connectivityActionType = ConnectivityActionType::DISCONNECT;
                     std::copy_n(mPairedDeviceDisconnectMac.submitted.begin(), 17, res.btDeviceAddress.begin());
                     SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                    mPairedDeviceDisconnectMac.commitOneShot("");
+                    mPairedDeviceDisconnectMac.override("");
                 }
             }
-            if (mPairedDeviceUnpairMac.submittedDirty())
+            if (mPairedDeviceUnpairMac.pending())
             {
                 if (mPairedDeviceUnpairMac.submitted.length() != 17)
-                    mPairedDeviceUnpairMac.commitOneShot("");
+                    mPairedDeviceUnpairMac.override("");
                 else
                 {
                     res.connectivityActionType = ConnectivityActionType::UNPAIR;
                     std::copy_n(mPairedDeviceUnpairMac.submitted.begin(), 17, res.btDeviceAddress.begin());
                     SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                    mPairedDeviceUnpairMac.commitOneShot("");
+                    mPairedDeviceUnpairMac.override("");
                 }
             }
         
 
             /* Pairing Mode */
-            if (mPairingMode.submittedDirty())
+            if (mPairingMode.pending())
             {
                 using namespace t2;
                 PeripheralSetStatusParingDeviceManagementCommon res;
@@ -543,7 +543,7 @@ namespace mdr
         if (mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
         {
             using namespace t1;
-            if (mSpeakToChatEnabled.submittedDirty())
+            if (mSpeakToChatEnabled.pending())
             {
                 SystemSetParamSmartTalking res;
                 res.command = Command::SYSTEM_SET_PARAM;
@@ -556,7 +556,7 @@ namespace mdr
                 mSpeakToChatEnabled.commit();
             }
 
-            if (mSpeakToChatDetectSensitivity.submittedDirty() || mSpeakToModeOutTime.submittedDirty())
+            if (mSpeakToChatDetectSensitivity.pending() || mSpeakToModeOutTime.pending())
             {
                 SystemSetExtParamSmartTalkingModeType2 res;
                 res.command = Command::SYSTEM_SET_EXT_PARAM;
@@ -571,7 +571,7 @@ namespace mdr
         if (mSupport.contains(t1::FunctionType::LISTENING_OPTION))
         {
             using namespace t1;
-            if (mBGMModeEnabled.submittedDirty() || mBGMModeRoomSize.submittedDirty())
+            if (mBGMModeEnabled.pending() || mBGMModeRoomSize.pending())
             {
                 AudioSetParamBGMMode res;
                 res.command = Command::AUDIO_SET_PARAM;
@@ -584,7 +584,7 @@ namespace mdr
                 mBGMModeEnabled.commit(), mBGMModeRoomSize.commit();
                 MDR_LOG("S/W BGM BGM {} ROOM {} UPMIX {}", mBGMModeEnabled.desired, mBGMModeRoomSize.desired, mUpmixCinemaEnabled.desired);
             }
-            if (mUpmixCinemaEnabled.submittedDirty())
+            if (mUpmixCinemaEnabled.pending())
             {
                 AudioSetParamUpmixCinema res;
                 res.command = Command::AUDIO_SET_PARAM;
@@ -598,7 +598,7 @@ namespace mdr
         }
 
         /* EQ */
-        if (mEqPresetId.submittedDirty())
+        if (mEqPresetId.pending())
         {
             using namespace t1;
             EqEbbSetParamEq res;
@@ -610,7 +610,7 @@ namespace mdr
             // Ask for a equalizer param update afterwards
             SendCommandACK(EqEbbGetParam);
         }
-        if (mEqConfig.submittedDirty() || mEqClearBass.submittedDirty())
+        if (mEqConfig.pending() || mEqClearBass.pending())
         {
             using namespace t1;
             EqEbbSetParamEq res;
@@ -663,7 +663,7 @@ namespace mdr
         if (mSupport.
             contains(t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
         {
-            if (mAudioPriorityMode.submittedDirty())
+            if (mAudioPriorityMode.pending())
             {
                 using namespace t1;
                 AudioSetParamConnection res;
@@ -677,7 +677,7 @@ namespace mdr
         /* DSEE */
         if (mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
         {
-            if (mUpscalingEnabled.submittedDirty())
+            if (mUpscalingEnabled.pending())
             {
                 using namespace t1;
                 AudioSetParamUpscaling res;
@@ -693,7 +693,7 @@ namespace mdr
         /* Touch Functions */
         if (mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
         {
-            if (mTouchFunctionLeft.submittedDirty() || mTouchFunctionRight.submittedDirty())
+            if (mTouchFunctionLeft.pending() || mTouchFunctionRight.pending())
             {
                 using namespace t1;
                 SystemSetParamAssignableSettings res;
@@ -707,7 +707,7 @@ namespace mdr
         /* Head Gesture */
         if (mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
         {
-            if (mHeadGestureEnabled.submittedDirty())
+            if (mHeadGestureEnabled.pending())
             {
                 using namespace t1;
                 SystemSetParamCommon res;
@@ -725,7 +725,7 @@ namespace mdr
         if (mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
         {
             using namespace t1;
-            if (mPowerAutoOff.submittedDirty())
+            if (mPowerAutoOff.pending())
             {
                 PowerSetParamAutoPowerOff res;
                 res.command = Command::POWER_SET_PARAM;
@@ -738,7 +738,7 @@ namespace mdr
         else if (mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
             using namespace t1;
-            if (mPowerAutoOffWearingDetection.submittedDirty())
+            if (mPowerAutoOffWearingDetection.pending())
             {
                 PowerSetParamAutoPowerOffWithWearingDetection res;
                 res.command = Command::POWER_SET_PARAM;
@@ -754,7 +754,7 @@ namespace mdr
             t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
         {
             using namespace t1;
-            if (mAutoPauseEnabled.submittedDirty())
+            if (mAutoPauseEnabled.pending())
             {
                 SystemSetParamCommon res;
                 res.command = Command::SYSTEM_SET_PARAM;
@@ -768,7 +768,7 @@ namespace mdr
         }
 
         /* Voice Guidance */
-        if (mVoiceGuidanceEnabled.submittedDirty())
+        if (mVoiceGuidanceEnabled.pending())
         {
             using namespace t2;
             VoiceGuidanceSetParamSettingMtk res;
@@ -784,7 +784,7 @@ namespace mdr
         if (mSupport.contains(
             t2::FunctionType::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
         {
-            if (mVoiceGuidanceVolume.submittedDirty())
+            if (mVoiceGuidanceVolume.pending())
             {
                 using namespace t2;
                 VoiceGuidanceSetParamVolume res;
@@ -801,7 +801,7 @@ namespace mdr
             using namespace t1;
             if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_1))
             {
-                if (mGsParamBool1.submittedDirty())
+                if (mGsParamBool1.pending())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
@@ -813,7 +813,7 @@ namespace mdr
             }
             if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_2))
             {
-                if (mGsParamBool2.submittedDirty())
+                if (mGsParamBool2.pending())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
@@ -825,7 +825,7 @@ namespace mdr
             }
             if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_3))
             {
-                if (mGsParamBool3.submittedDirty())
+                if (mGsParamBool3.pending())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
@@ -837,7 +837,7 @@ namespace mdr
             }
             if (mSupport.contains(t1::FunctionType::GENERAL_SETTING_4))
             {
-                if (mGsParamBool4.submittedDirty())
+                if (mGsParamBool4.pending())
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
@@ -850,7 +850,7 @@ namespace mdr
         }
 
         /* Safe Listening */
-        if (mSafeListeningPreviewMode.submittedDirty())
+        if (mSafeListeningPreviewMode.pending())
         {
             using namespace t2;
             if (mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_1))

@@ -363,15 +363,15 @@ namespace mdr
         SnapshotProperties();
         using F = t1::FunctionType;
 
-        if (mShutdown.submittedDirty())
+        if (mShutdown.pending())
         {
             if (mShutdown.submitted && mSupport.contains(F::POWER_OFF))
                 SendCommandACK(t1::SetPowerOff);
-            mShutdown.commitOneShot(false);
+            mShutdown.override(false);
         }
 
-        if (mNcAsmEnabled.submittedDirty() || mNcAsmMode.submittedDirty() ||
-            mNcAsmFocusOnVoice.submittedDirty() || mNcAsmAmbientLevel.submittedDirty())
+        if (mNcAsmEnabled.pending() || mNcAsmMode.pending() ||
+            mNcAsmFocusOnVoice.pending() || mNcAsmAmbientLevel.pending())
         {
             if (mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
@@ -393,7 +393,7 @@ namespace mdr
             mNcAsmAmbientLevel.commit();
         }
 
-        if (mPlayVolume.submittedDirty())
+        if (mPlayVolume.pending())
         {
             if (mSupport.contains(F::PLAYBACK_CONTROLLER))
             {
@@ -403,7 +403,7 @@ namespace mdr
             }
             mPlayVolume.commit();
         }
-        if (mPlayControl.submittedDirty())
+        if (mPlayControl.pending())
         {
             if (mSupport.contains(F::PLAYBACK_CONTROLLER))
             {
@@ -412,10 +412,10 @@ namespace mdr
                     .control = ToV1(mPlayControl.submitted)
                 });
             }
-            mPlayControl.commitOneShot(v2::t1::PlaybackControl::KEY_OFF);
+            mPlayControl.override(v2::t1::PlaybackControl::KEY_OFF);
         }
 
-        if (mEqPresetId.submittedDirty() || mEqConfig.submittedDirty() || mEqClearBass.submittedDirty())
+        if (mEqPresetId.pending() || mEqConfig.pending() || mEqClearBass.pending())
         {
             if (mSupport.contains(F::PRESET_EQ))
             {
@@ -432,7 +432,7 @@ namespace mdr
             mEqClearBass.commit();
         }
 
-        if (mUpscalingEnabled.submittedDirty())
+        if (mUpscalingEnabled.pending())
         {
             if (mSupport.contains(F::UPSCALING))
             {
@@ -445,7 +445,7 @@ namespace mdr
             mUpscalingEnabled.commit();
         }
 
-        if (mAudioPriorityMode.submittedDirty())
+        if (mAudioPriorityMode.pending())
         {
             if (mSupport.contains(F::CONNECTION_MODE))
             {
@@ -459,7 +459,7 @@ namespace mdr
             mAudioPriorityMode.commit();
         }
 
-        if (mPowerAutoOff.submittedDirty())
+        if (mPowerAutoOff.pending())
         {
             if (mSupport.contains(F::AUTO_POWER_OFF))
             {
@@ -472,7 +472,7 @@ namespace mdr
             mPowerAutoOff.commit();
         }
 
-        if (mAutoPauseEnabled.submittedDirty())
+        if (mAutoPauseEnabled.pending())
         {
             if (mSupport.contains(F::CONTROL_BY_WEARING))
             {
@@ -485,7 +485,7 @@ namespace mdr
             mAutoPauseEnabled.commit();
         }
 
-        if (mTouchFunctionLeft.submittedDirty() || mTouchFunctionRight.submittedDirty())
+        if (mTouchFunctionLeft.pending() || mTouchFunctionRight.pending())
         {
             if (mSupport.contains(F::ASSIGNABLE_SETTINGS))
             {
@@ -500,7 +500,7 @@ namespace mdr
             mTouchFunctionRight.commit();
         }
 
-        if (mSpeakToChatEnabled.submittedDirty())
+        if (mSpeakToChatEnabled.pending())
         {
             if (mSupport.contains(F::SMART_TALKING_MODE))
             {
@@ -512,7 +512,7 @@ namespace mdr
             }
             mSpeakToChatEnabled.commit();
         }
-        if (mSpeakToChatDetectSensitivity.submittedDirty() || mSpeakToModeOutTime.submittedDirty())
+        if (mSpeakToChatDetectSensitivity.pending() || mSpeakToModeOutTime.pending())
         {
             if (mSupport.contains(F::SMART_TALKING_MODE))
             {
@@ -533,7 +533,7 @@ namespace mdr
             mSpeakToModeOutTime.commit();
         }
 
-        if (mPairingMode.submittedDirty())
+        if (mPairingMode.pending())
         {
             if (mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
@@ -548,7 +548,7 @@ namespace mdr
             mPairingMode.commit();
         }
 
-        if (mVoiceGuidanceEnabled.submittedDirty())
+        if (mVoiceGuidanceEnabled.pending())
         {
             if (mSupport.contains(F::VOICE_GUIDANCE))
             {
@@ -561,9 +561,9 @@ namespace mdr
             mVoiceGuidanceEnabled.commit();
         }
 
-        if (mPairedDeviceConnectMac.submittedDirty() ||
-            mPairedDeviceDisconnectMac.submittedDirty() ||
-            mPairedDeviceUnpairMac.submittedDirty())
+        if (mPairedDeviceConnectMac.pending() ||
+            mPairedDeviceDisconnectMac.pending() ||
+            mPairedDeviceUnpairMac.pending())
         {
             co_return SetLastError(
                 MDR_RESULT_ERROR_NOT_SUPPORTED,
