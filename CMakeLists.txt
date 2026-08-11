@@ -37,19 +37,14 @@ endif()
 if (MSVC)
     add_compile_options(/EHs-c-)
     add_compile_definitions(_HAS_EXCEPTIONS=0 _CRT_SECURE_NO_WARNINGS)
-    # You might be surprised that even with enabling these flags, the final PE
-    # would *still* contain Exception Unwind tables. And no - there's no way to remove them
-    # from MSVC by itself.
-    # Of course, you can always...
 else()
-    # ...Use Clang/LLVM instead. Or Cl-Clang if you must stick with MS toolchains.
     add_compile_options(
         -fno-exceptions
         -fno-unwind-tables
         -fno-asynchronous-unwind-tables
     )
 endif()
-# On FMT_USE_LOCALE - these usually allocates with operator new(), which we do not use.
+# On FMT_USE_LOCALE - these allocate with operator new(), which we do not use.
 # We don't even use chrono either, hence the disablement.
 add_compile_definitions(FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0)
 
@@ -67,23 +62,20 @@ else()
 endif()
 
 # LTO
-if (NOT MSVC)
-    # https://developercommunity.visualstudio.com/t/Coroutines-emit-warning-C4737-without-/11131702?ftype=problem&q=error+C4737
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
-    if (ipo_ok)
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-    else()
-        message(STATUS "LTO not supported: ${ipo_msg}")
-    endif()
+# https://developercommunity.visualstudio.com/t/Coroutines-emit-warning-C4737-without-/11131702?ftype=problem&q=error+C4737
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
+if (ipo_ok)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
 else()
-    message(STATUS "FIXME-LTO disabled on MSVC for now")
+    message(STATUS "LTO not supported: ${ipo_msg}")
 endif()
+
 option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
     if (MSVC)
-        message(WARNING "ASAN not enabled on MSVC by *us*. You're on your own.")
+        add_compile_options("/fsanitize=address")
     else ()
         add_compile_options("-fsanitize=address")
         add_link_options("-fsanitize=address")
@@ -107,9 +99,7 @@ add_compile_definitions(
     $<$<AND:$<BOOL:${MDR_DEBUG_TRAPS}>,$<CONFIG:Debug>>:MDR_DEBUG_TRAPS>
 )
 if (MDR_DEBUG)
-    message(STATUS "Debugging features *ON*. Enjoy the logs.")
-elseif (CMAKE_CONFIGURATION_TYPES)
-    message(STATUS "Debugging features enabled for Debug configuration.")
+    message(STATUS "Debugging features enabled.")
 endif ()
 
 option(MDR_BLE "Build with BLE Backend support" ON)
