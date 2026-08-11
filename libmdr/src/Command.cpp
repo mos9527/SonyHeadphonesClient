@@ -1,5 +1,5 @@
-#include <mdr/Command.hpp>
 #include <algorithm>
+#include <mdr/Command.hpp>
 
 namespace mdr
 {
@@ -107,6 +107,11 @@ namespace mdr
         command = command.subspan(1, command.size() - 2);
         MDRBuffer unescaped = Unescape(command);
         command = unescaped;
+        // Type,seq,size,checksum - the fixed part every frame carries, empty payload or not.
+        // Unescape also reports failure as an empty buffer, which this rejects along the way.
+        constexpr size_t kFrameOverhead = 1u + 1u + 4u + 1u;
+        if (command.size() < kFrameOverhead) [[unlikely]]
+            return MDRUnpackResult::MALFORMED;
         // Type,seq
         outType = static_cast<MDRDataType>(command[0]);
         outSeq = command[1];
@@ -124,10 +129,12 @@ namespace mdr
             return MDRUnpackResult::BAD_CHECKSUM;
         // Data...
         data = data.subspan(0, data.size() - 1);
+        // The markers already bound the frame, so a length that disagrees with them will not be
+        // fixed by more bytes - something ate a marker or an escape sequence.
         if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
-            return MDRUnpackResult::INCOMPLETE;
+            return MDRUnpackResult::MALFORMED;
         outData.resize(data.size());
         std::ranges::copy(data, outData.begin());
         return MDRUnpackResult::OK;
     }
-}
+} // namespace mdr

@@ -416,9 +416,11 @@ namespace mdr
             // Incomplete. Nop.
             break;
         case MDRUnpackResult::BAD_MARKER: [[unlikely]]
-        case MDRUnpackResult::BAD_CHECKSUM:
+        case MDRUnpackResult::BAD_CHECKSUM: [[unlikely]]
+        case MDRUnpackResult::MALFORMED:
             [[unlikely]]
-                // Unlikely. What we have now makes no sense yet markers are intact.
+                // Unlikely. What we have now makes no sense yet markers are intact. Dropping it is
+                // what keeps the buffer moving - anything left in place would be re-parsed forever.
                 mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
             break;
         }

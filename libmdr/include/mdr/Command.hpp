@@ -29,16 +29,20 @@ namespace mdr
     enum class MDRUnpackResult
     {
         OK = 0,
+        /// Too few bytes to tell anything yet - the caller should wait for more.
         INCOMPLETE = 1,
         BAD_MARKER = 2,
         BAD_CHECKSUM = 3,
+        /// Markers are in place but what they delimit cannot be a frame, so waiting will not
+        /// help; the caller has to discard it and resynchronise on the next start marker.
+        MALFORMED = 4,
     };
 
     /**
      * @brief Unpacks an MDR packet, returning the contained data and outputting the type and sequence number
      **/
     MDRUnpackResult MDRUnpackCommand(Span<const UInt8> packedCommand, MDRBuffer& outData, MDRDataType& outType,
-                           MDRCommandSeqNumber& outSeq) noexcept;
+                                     MDRCommandSeqNumber& outSeq) noexcept;
 } // namespace mdr
 
 #include "Generated/Command.hpp"

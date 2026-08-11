@@ -32,6 +32,7 @@ namespace mdr {
             case INCOMPLETE: return "INCOMPLETE";
             case BAD_MARKER: return "BAD_MARKER";
             case BAD_CHECKSUM: return "BAD_CHECKSUM";
+            case MALFORMED: return "MALFORMED";
             default: return "Unknown";
         }
     }
@@ -67,6 +68,7 @@ namespace mdr {
             case INCOMPLETE:
             case BAD_MARKER:
             case BAD_CHECKSUM:
+            case MALFORMED:
             return true;
         default:
            return false;
