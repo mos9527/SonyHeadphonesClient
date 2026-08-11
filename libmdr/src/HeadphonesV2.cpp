@@ -157,6 +157,13 @@ namespace mdr
                            });
         }
 
+        /* Source Switch Control */
+        if (mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
+        {
+            SendCommandACK(t2::PeripheralGetParam,
+                           {.inquiredType = t2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL});
+        }
+
         /* Speak To Chat */
         if (mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
         {
@@ -332,6 +339,7 @@ namespace mdr
         mVoiceGuidanceVolume.submit();
         mPairingMode.submit();
         mMultipointDeviceMac.submit();
+        mPlaybackDeviceFixed.submit();
         mPairedDeviceDisconnectMac.submit();
         mPairedDeviceConnectMac.submit();
         mPairedDeviceUnpairMac.submit();
@@ -457,6 +465,22 @@ namespace mdr
                 SendCommandACK(PeripheralSetExtendedParamSourceSwitchControl, res);
                 mMultipointDeviceMac.commit();
             }
+        }
+
+        /* Playback Device Fixation */
+        if (mPlaybackDeviceFixed.submittedDirty())
+        {
+            using namespace t2;
+            if (mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
+            {
+                PeripheralSetParamSourceSwitchControl res;
+                // Inverted: the wire flag says "switching is free", we track "device is fixed".
+                res.value = mPlaybackDeviceFixed.submitted ? 0 : 1;
+                SendCommandACK(PeripheralSetParamSourceSwitchControl, res);
+                mPlaybackDeviceFixed.commit();
+            }
+            else
+                mPlaybackDeviceFixed.commitOneShot(false);
         }
 
         /* Connection Ops */

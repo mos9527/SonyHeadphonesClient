@@ -136,6 +136,21 @@ const char* FormatSpeakTimeout(MDRSpeakTimeout status)
     }
 }
 
+const char* FormatPlaybackFixResult(MDRPlaybackFixResult result)
+{
+    switch (result)
+    {
+    case MDR_PLAYBACK_FIX_FAILED_ON_CALL:
+        return "The headphones refused: a call is in progress.";
+    case MDR_PLAYBACK_FIX_FAILED_NOT_CONNECTED:
+        return "The headphones refused: the device has no audio connection.";
+    case MDR_PLAYBACK_FIX_FAILED_VOICE_ASSISTANT:
+        return "The headphones refused: the voice assistant has priority.";
+    default:
+        return "The headphones refused the request.";
+    }
+}
+
 const char* FormatEqualizerPreset(MDREqualizerPreset id)
 {
     switch (id)
@@ -1328,12 +1343,20 @@ void DrawDeviceControlsDevices()
         action.device_id_size = static_cast<uint32_t>(std::strlen(mac));
         mdrHeadphonesSetPairedDevice(gDevice, &action);
     };
+    const bool supportFix = FeatureAvailable(MDR_FEATURE_PLAYBACK_DEVICE_FIX);
+    MDRBoolean playbackFixed = MDR_FALSE;
+    if (supportFix)
+        mdrHeadphonesGetPlaybackDeviceFixed(gDevice, &playbackFixed);
     auto DrawDeviceElement = [&](const DeviceView& device, bool selected) -> bool
     {
         ImGui::PushID(device.mac.c_str());
         ImGui::BeginGroup();
         if (device.state.playback_device)
+        {
             ImGui::Text(PSI_VOLUME_DOWN " "), ImGui::SameLine();
+            if (playbackFixed)
+                ImGui::Text(PSI_LOCK " "), ImGui::SameLine();
+        }
         bool res = ImGui::Selectable(device.name.c_str(), selected);
         if (device.state.connected && ImGui::IsItemHovered() &&
             ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -1343,10 +1366,15 @@ void DrawDeviceControlsDevices()
             ImGui::Separator();
             if (device.state.connected)
             {
-                if (ImModalButton(PSI_UNLINK " Disconnect", 0, 2))
+                const bool canFix = supportFix && device.state.playback_device;
+                const int columns = canFix ? 3 : 2;
+                if (ImModalButton(PSI_UNLINK " Disconnect", 0, columns))
                     StageDeviceAction(MDR_PAIRED_DEVICE_DISCONNECT, device.mac.c_str());
-                if (ImModalButton(PSI_VOLUME_DOWN " Switch Playback", 1, 2))
+                if (ImModalButton(PSI_VOLUME_DOWN " Switch Playback", 1, columns))
                     StageDeviceAction(MDR_PAIRED_DEVICE_SELECT_PLAYBACK, device.mac.c_str());
+                if (canFix &&
+                    ImModalButton(playbackFixed ? PSI_UNLOCK " Unfix Playback" : PSI_LOCK " Fix Playback", 2, columns))
+                    mdrHeadphonesSetPlaybackDeviceFixed(gDevice, playbackFixed ? MDR_FALSE : MDR_TRUE);
             }
             else
             {
@@ -1355,6 +1383,14 @@ void DrawDeviceControlsDevices()
             }
             if (ImModalButton(PSI_BLUETOOTH_ALT " Unpair", 1, 2))
                 StageDeviceAction(MDR_PAIRED_DEVICE_UNPAIR, device.mac.c_str());
+            // After the button rows: Unpair shares a row, so an inline message would land beside it.
+            if (supportFix && device.state.connected && device.state.playback_device)
+            {
+                MDRPlaybackFixResult fixResult = MDR_PLAYBACK_FIX_SUCCESS;
+                mdrHeadphonesGetPlaybackDeviceFixResult(gDevice, &fixResult);
+                if (fixResult != MDR_PLAYBACK_FIX_SUCCESS)
+                    ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", FormatPlaybackFixResult(fixResult));
+            }
         }
         ImGui::EndGroup();
         ImGui::PopID();
