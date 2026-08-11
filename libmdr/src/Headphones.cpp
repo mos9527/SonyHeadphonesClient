@@ -343,9 +343,14 @@ namespace mdr
                 command.front() == static_cast<UInt8>(v2::t1::Command::CONNECT_RET_PROTOCOL_INFO))
                 return HandleProtocolInfo(command);
             if (mProtocolFamily == ProtocolFamily::UNKNOWN)
-                return SetLastError(
-                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
-                    "Received MDR Table 1 data before CONNECT_RET_PROTOCOL_INFO");
+            {
+                // A device whose state changed while unattended pushes the notify as soon as the
+                // socket opens, which can beat our CONNECT_GET_PROTOCOL_INFO round trip. Without a
+                // protocol family there is no table to parse it against, so drop it: the ACK above
+                // keeps the device happy and init reads every state we care about anyway.
+                MDR_LOG_DEBUG("Dropping MDR Table 1 data received before CONNECT_RET_PROTOCOL_INFO");
+                return MDR_EVENT_UNHANDLED;
+            }
             switch (mProtocolFamily)
             {
             case ProtocolFamily::V1: return HandleCommandV1T1(command, seq);
@@ -355,9 +360,12 @@ namespace mdr
         case DATA_MDR_NO2:
             SendACK(seq);
             if (mProtocolFamily == ProtocolFamily::UNKNOWN)
-                return SetLastError(
-                    MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
-                    "Received MDR Table 2 data before CONNECT_RET_PROTOCOL_INFO");
+            {
+                // Same race as Table 1 above - PERI_NTFY_PARAM is the one that reliably arrives
+                // early, right after another client released the link.
+                MDR_LOG_DEBUG("Dropping MDR Table 2 data received before CONNECT_RET_PROTOCOL_INFO");
+                return MDR_EVENT_UNHANDLED;
+            }
             switch (mProtocolFamily)
             {
             case ProtocolFamily::V1: return HandleCommandV1T2(command, seq);
