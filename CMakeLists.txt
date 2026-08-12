@@ -14,7 +14,6 @@ else()
 endif()
 
 option(MDR_NO_EXCEPTIONS "Do not use C++ exceptions" ON)
-set(MDR_MSVC_STL_NOEXCEPT_WORKAROUND OFF)
 if (MDR_NO_EXCEPTIONS)
     message(STATUS "C++ exceptions are disabled")
     # No exceptions.
@@ -24,26 +23,11 @@ if (MDR_NO_EXCEPTIONS)
     # - _HAS_EXCEPTIONS=0 barely works.
     # - With cases like these - in the end you'd be linking to MSVCP*.dll, VCRUNTIME*.dll 
     #   since _Xlen checks are always performed.
-    # - Though if asked like this - we'll be overriding these to avoid linking CRT. The end of this CMakeLists will do that
-    #   for all [shared] targets, and the Client itself.
-    #   for more info.
+    # - TODO Workarounds
     if (MSVC) # True for both MSVC and Clang-cl
-        set(target_vars
-                CMAKE_CXX_FLAGS
-                CMAKE_CXX_FLAGS_DEBUG
-                CMAKE_CXX_FLAGS_RELEASE
-                CMAKE_CXX_FLAGS_MINSIZEREL
-                CMAKE_CXX_FLAGS_RELWITHDEBINFO
-        )
-        foreach(var IN LISTS target_vars)
-            if(${var} MATCHES "/EHsc")
-                string(REPLACE "/EHsc" "" ${var} "${${var}}")
-            endif()
-        endforeach()
+        string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
         add_compile_options(/EHs-c-)
-        add_compile_definitions(_HAS_EXCEPTIONS=0 _CRT_SECURE_NO_WARNINGS)
-        set(MDR_MSVC_STL_NOEXCEPT_WORKAROUND ON)
-        add_library(__noexcept_msvc_workarounds OBJECT cmake/noexcept_msvc_workarounds.cc)
+        add_compile_definitions(_HAS_EXCEPTIONS=0 _CRT_SECURE_NO_WARNINGS)  
     else()
         # Other platforms are easier.
         add_compile_options(
@@ -56,9 +40,6 @@ if (MDR_NO_EXCEPTIONS)
     # On FMT_USE_LOCALE - these allocate with operator new(), which we do not use.
     # We don't even use chrono either, hence the disablement.
     add_compile_definitions(FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0)
-
-    # Override operator new/delete
-    add_library(__noexcept_allocators OBJECT cmake/noexcept_allocators.cc)
 endif()
 
 # Dead-code strip and no RTTI
@@ -195,19 +176,3 @@ if (BUILD_TESTING)
         endif()
     endforeach()
 endif()
-
-if (MDR_NO_EXCEPTIONS)
-    set(_mdr_noexcept_objlibs __noexcept_allocators)
-    # MSVC specific
-    if (MDR_MSVC_STL_NOEXCEPT_WORKAROUND)
-        # Don't do this at home.
-        list(APPEND _mdr_noexcept_objlibs __noexcept_msvc_workarounds)
-    endif ()
-    # ---
-    foreach (_mdr_noexcept_target
-            mdr mdr_shared mdr-bt mdr-bt_shared SonyHeadphonesClient)
-        if (TARGET ${_mdr_noexcept_target})
-            target_link_libraries(${_mdr_noexcept_target} PRIVATE ${_mdr_noexcept_objlibs})
-        endif ()
-    endforeach ()
-endif ()
