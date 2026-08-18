@@ -76,7 +76,7 @@ jobs:
     - name: Configure CMake (macOS)
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'macOS'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
     
     - name: Build
       working-directory: ${{github.workspace}}/build
