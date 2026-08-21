@@ -160,8 +160,7 @@ namespace mdr
         /* Source Switch Control */
         if (mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
         {
-            SendCommandACK(t2::PeripheralGetParam,
-                           {.inquiredType = t2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL});
+            SendCommandACK(t2::PeripheralGetParam, {.inquiredType = t2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL});
         }
 
         /* Speak To Chat */
@@ -339,7 +338,7 @@ namespace mdr
         mVoiceGuidanceVolume.submit();
         mPairingMode.submit();
         mMultipointDeviceMac.submit();
-        mPlaybackDeviceFixed.submit();
+        mSourceSwitchControlEnabled.submit();
         mPairedDeviceDisconnectMac.submit();
         mPairedDeviceConnectMac.submit();
         mPairedDeviceUnpairMac.submit();
@@ -467,20 +466,19 @@ namespace mdr
             }
         }
 
-        /* Playback Device Fixation */
-        if (mPlaybackDeviceFixed.submittedDirty())
+        /* Source Switch Control */
+        if (mSourceSwitchControlEnabled.pending())
         {
             using namespace t2;
             if (mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
             {
                 PeripheralSetParamSourceSwitchControl res;
-                // Inverted: the wire flag says "switching is free", we track "device is fixed".
-                res.value = mPlaybackDeviceFixed.submitted ? 0 : 1;
+                res.value = mSourceSwitchControlEnabled.submitted ? 1 : 0;
                 SendCommandACK(PeripheralSetParamSourceSwitchControl, res);
-                mPlaybackDeviceFixed.commit();
+                mSourceSwitchControlEnabled.commit();
             }
             else
-                mPlaybackDeviceFixed.commitOneShot(false);
+                mSourceSwitchControlEnabled.override(true);
         }
 
         /* Connection Ops */

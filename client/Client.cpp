@@ -136,15 +136,15 @@ const char* FormatSpeakTimeout(MDRSpeakTimeout status)
     }
 }
 
-const char* FormatPlaybackFixResult(MDRPlaybackFixResult result)
+const char* FormatSourceSwitchControlResult(MDRSourceSwitchControlResult result)
 {
     switch (result)
     {
-    case MDR_PLAYBACK_FIX_FAILED_ON_CALL:
+    case MDR_SOURCE_SWITCH_CONTROL_FAILED_ON_CALL:
         return "The headphones refused: a call is in progress.";
-    case MDR_PLAYBACK_FIX_FAILED_NOT_CONNECTED:
+    case MDR_SOURCE_SWITCH_CONTROL_FAILED_NOT_CONNECTED:
         return "The headphones refused: the device has no audio connection.";
-    case MDR_PLAYBACK_FIX_FAILED_VOICE_ASSISTANT:
+    case MDR_SOURCE_SWITCH_CONTROL_FAILED_VOICE_ASSISTANT:
         return "The headphones refused: the voice assistant has priority.";
     default:
         return "The headphones refused the request.";
@@ -1343,10 +1343,12 @@ void DrawDeviceControlsDevices()
         action.device_id_size = static_cast<uint32_t>(std::strlen(mac));
         mdrHeadphonesSetPairedDevice(gDevice, &action);
     };
-    const bool supportFix = FeatureAvailable(MDR_FEATURE_PLAYBACK_DEVICE_FIX);
-    MDRBoolean playbackFixed = MDR_FALSE;
+    const bool supportFix = FeatureAvailable(MDR_FEATURE_SOURCE_SWITCH_CONTROL);
+    MDRBoolean switchControlEnabled = MDR_TRUE;
     if (supportFix)
-        mdrHeadphonesGetPlaybackDeviceFixed(gDevice, &playbackFixed);
+        mdrHeadphonesGetSourceSwitchControl(gDevice, &switchControlEnabled);
+    // Sound Connect's "Fixing playback device" is the negation of source switch control.
+    const bool playbackFixed = switchControlEnabled == MDR_FALSE;
     auto DrawDeviceElement = [&](const DeviceView& device, bool selected) -> bool
     {
         ImGui::PushID(device.mac.c_str());
@@ -1374,7 +1376,7 @@ void DrawDeviceControlsDevices()
                     StageDeviceAction(MDR_PAIRED_DEVICE_SELECT_PLAYBACK, device.mac.c_str());
                 if (canFix &&
                     ImModalButton(playbackFixed ? PSI_UNLOCK " Unfix Playback" : PSI_LOCK " Fix Playback", 2, columns))
-                    mdrHeadphonesSetPlaybackDeviceFixed(gDevice, playbackFixed ? MDR_FALSE : MDR_TRUE);
+                    mdrHeadphonesSetSourceSwitchControl(gDevice, playbackFixed ? MDR_TRUE : MDR_FALSE);
             }
             else
             {
@@ -1386,10 +1388,10 @@ void DrawDeviceControlsDevices()
             // After the button rows: Unpair shares a row, so an inline message would land beside it.
             if (supportFix && device.state.connected && device.state.playback_device)
             {
-                MDRPlaybackFixResult fixResult = MDR_PLAYBACK_FIX_SUCCESS;
-                mdrHeadphonesGetPlaybackDeviceFixResult(gDevice, &fixResult);
-                if (fixResult != MDR_PLAYBACK_FIX_SUCCESS)
-                    ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", FormatPlaybackFixResult(fixResult));
+                MDRSourceSwitchControlResult fixResult = MDR_SOURCE_SWITCH_CONTROL_SUCCESS;
+                mdrHeadphonesGetSourceSwitchControlResult(gDevice, &fixResult);
+                if (fixResult != MDR_SOURCE_SWITCH_CONTROL_SUCCESS)
+                    ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", FormatSourceSwitchControlResult(fixResult));
             }
         }
         ImGui::EndGroup();

@@ -150,21 +150,19 @@ namespace mdr
             return MDR_EVENT_PAIRED_DEVICES_CHANGED;
         }
         case SOURCE_SWITCH_CONTROL:
-        {
-            const auto command = static_cast<Command>(cmd[0]);
-            if (command == Command::PERI_NTFY_PARAM)
             {
-                Deserialize(PeripheralNotifyParamSourceSwitchControl, res, cmd);
-                self->mPlaybackDeviceFixed.overwrite(res.value1 == 0);
-                self->mSourceSwitchControlResult = res.result;
-                MDR_LOG_DEBUG("SourceSwitchControl notify: value1={} result={}", res.value1, res.result);
+                const auto command = static_cast<Command>(cmd[0]);
+                if (command == Command::PERI_NTFY_PARAM)
+                {
+                    Deserialize(PeripheralNotifyParamSourceSwitchControl, res, cmd);
+                    self->mSourceSwitchControlEnabled.overwrite(res.value1 != 0);
+                    self->mSourceSwitchControlResult = res.result;
+                    return MDR_EVENT_PAIRED_DEVICES_CHANGED;
+                }
+                Deserialize(PeripheralRetParamSourceSwitchControl, res, cmd);
+                self->mSourceSwitchControlEnabled.overwrite(res.value != 0);
                 return MDR_EVENT_PAIRED_DEVICES_CHANGED;
             }
-            Deserialize(PeripheralRetParamSourceSwitchControl, res, cmd);
-            self->mPlaybackDeviceFixed.overwrite(res.value == 0);
-            MDR_LOG_DEBUG("SourceSwitchControl param: value={}", res.value);
-            return MDR_EVENT_PAIRED_DEVICES_CHANGED;
-        }
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
             const auto command = static_cast<Command>(cmd[0]);

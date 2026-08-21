@@ -450,14 +450,12 @@ namespace mdr
         MDRProperty<String> mMultipointDeviceMac;
         MDRProperty<String> mPairedDeviceDisconnectMac, mPairedDeviceConnectMac, mPairedDeviceUnpairMac;
 
-        // Sound Connect's "Fixing playback device": pins playback to the current playback device so the
-        // headphones stop handing audio over to the other multipoint device. Carried by
-        // SOURCE_SWITCH_CONTROL's param byte, which is inverted against this flag - the wire value is 1
-        // while switching is free and 0 once the device is fixed (verified on WF-1000XM5).
-        MDRProperty<bool> mPlaybackDeviceFixed;
-        // Outcome of the last fix/switch attempt the headphones reported.
-        v2::t2::SourceSwitchControlResult mSourceSwitchControlResult{
-            v2::t2::SourceSwitchControlResult::SUCCESS};
+        // SOURCE_SWITCH_CONTROL's param byte: 1 while playback may switch to the other multipoint
+        // device on its own, 0 once it's pinned to the current device (verified on WF-1000XM5). This
+        // is Sound Connect's "Fixing playback device", inverted.
+        MDRProperty<bool> mSourceSwitchControlEnabled;
+        // Outcome of the last source switch control request the headphones reported.
+        v2::t2::SourceSwitchControlResult mSourceSwitchControlResult{v2::t2::SourceSwitchControlResult::SUCCESS};
 
         MDRProperty<bool> mSafeListeningPreviewMode;
 #pragma endregion

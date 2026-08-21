@@ -80,7 +80,7 @@ namespace mdr
             mSupport.contains(T2::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE);
         features[MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT] = pairing;
         features[MDR_FEATURE_PAIRING_MODE] = pairing;
-        features[MDR_FEATURE_PLAYBACK_DEVICE_FIX] = mSupport.contains(T2::SOURCE_SWITCH_CONTROL);
+        features[MDR_FEATURE_SOURCE_SWITCH_CONTROL] = mSupport.contains(T2::SOURCE_SWITCH_CONTROL);
         features[MDR_FEATURE_GENERAL_SETTINGS] =
             mSupport.contains(T1::GENERAL_SETTING_1) || mSupport.contains(T1::GENERAL_SETTING_2) ||
             mSupport.contains(T1::GENERAL_SETTING_3) || mSupport.contains(T1::GENERAL_SETTING_4);
@@ -235,7 +235,7 @@ namespace mdr
         dirty |= mEqPresetId.dirty() || mEqClearBass.dirty() || mEqConfig.dirty();
         dirty |= mVoiceGuidanceEnabled.dirty() || mVoiceGuidanceVolume.dirty() || mPairingMode.dirty();
         dirty |= mMultipointDeviceMac.dirty() || mSafeListeningPreviewMode.dirty();
-        dirty |= mPlaybackDeviceFixed.dirty();
+        dirty |= mSourceSwitchControlEnabled.dirty();
         dirty |= mPairedDeviceConnectMac.dirty() || mPairedDeviceDisconnectMac.dirty() || mPairedDeviceUnpairMac.
             dirty();
         return dirty;
@@ -1084,7 +1084,7 @@ MDRResult mdrHeadphonesGetFeature(
     if (!headphones || !outAvailability)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     // Keep the upper bound on the last MDR_FEATURE_* id, or newly added features read as invalid.
-    if (feature < MDR_FEATURE_IDENTITY || feature > MDR_FEATURE_PLAYBACK_DEVICE_FIX)
+    if (feature < MDR_FEATURE_IDENTITY || feature > MDR_FEATURE_SOURCE_SWITCH_CONTROL)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
     if (!h.mNeutralInitialized)
@@ -1549,27 +1549,27 @@ MDRResult mdrHeadphonesSetPairing(MDRHeadphones* headphones, const MDRPairing* p
     return MDR_RESULT_OK;
 }
 
-MDRResult mdrHeadphonesGetPlaybackDeviceFixed(MDRHeadphones* headphones, MDRBoolean* outFixed)
+MDRResult mdrHeadphonesGetSourceSwitchControl(MDRHeadphones* headphones, MDRBoolean* outEnabled)
 {
-    if (!headphones || !outFixed)
+    if (!headphones || !outEnabled)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    *outFixed = static_cast<MDRBoolean>(Impl(headphones)->mPlaybackDeviceFixed.current);
+    *outEnabled = static_cast<MDRBoolean>(Impl(headphones)->mSourceSwitchControlEnabled.current);
     return MDR_RESULT_OK;
 }
 
-MDRResult mdrHeadphonesSetPlaybackDeviceFixed(MDRHeadphones* headphones, MDRBoolean fixed)
+MDRResult mdrHeadphonesSetSourceSwitchControl(MDRHeadphones* headphones, MDRBoolean enabled)
 {
-    if (!headphones || !ValidBoolean(fixed))
+    if (!headphones || !ValidBoolean(enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
-    if (!h->mSupport.contains(MDR_FEATURE_PLAYBACK_DEVICE_FIX))
+    if (!h->mSupport.contains(MDR_FEATURE_SOURCE_SWITCH_CONTROL))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     h->mSourceSwitchControlResult = mdr::v2::t2::SourceSwitchControlResult::SUCCESS;
-    h->mPlaybackDeviceFixed.stage(fixed != MDR_FALSE);
+    h->mSourceSwitchControlEnabled.stage(enabled != MDR_FALSE);
     return MDR_RESULT_OK;
 }
 
-MDRResult mdrHeadphonesGetPlaybackDeviceFixResult(MDRHeadphones* headphones, MDRPlaybackFixResult* outResult)
+MDRResult mdrHeadphonesGetSourceSwitchControlResult(MDRHeadphones* headphones, MDRSourceSwitchControlResult* outResult)
 {
     if (!headphones || !outResult)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -1577,19 +1577,19 @@ MDRResult mdrHeadphonesGetPlaybackDeviceFixResult(MDRHeadphones* headphones, MDR
     switch (Impl(headphones)->mSourceSwitchControlResult)
     {
     case SUCCESS:
-        *outResult = MDR_PLAYBACK_FIX_SUCCESS;
+        *outResult = MDR_SOURCE_SWITCH_CONTROL_SUCCESS;
         break;
     case FAIL_CALLING:
-        *outResult = MDR_PLAYBACK_FIX_FAILED_ON_CALL;
+        *outResult = MDR_SOURCE_SWITCH_CONTROL_FAILED_ON_CALL;
         break;
     case FAIL_A2DP_NOT_CONNECT:
-        *outResult = MDR_PLAYBACK_FIX_FAILED_NOT_CONNECTED;
+        *outResult = MDR_SOURCE_SWITCH_CONTROL_FAILED_NOT_CONNECTED;
         break;
     case FAIL_GIVE_PRIORITY_TO_VOICE_ASSISTANT:
-        *outResult = MDR_PLAYBACK_FIX_FAILED_VOICE_ASSISTANT;
+        *outResult = MDR_SOURCE_SWITCH_CONTROL_FAILED_VOICE_ASSISTANT;
         break;
     default:
-        *outResult = MDR_PLAYBACK_FIX_FAILED;
+        *outResult = MDR_SOURCE_SWITCH_CONTROL_FAILED;
         break;
     }
     return MDR_RESULT_OK;
