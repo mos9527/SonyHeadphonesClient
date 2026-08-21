@@ -91,6 +91,7 @@ namespace mdr
         case SOURCE_SWITCH_CONTROL:
         {
             Deserialize(PeripheralNotifyExtendedParamSourceSwitchControl, res, cmd);
+            self->mSourceSwitchControlResult = res.result;
             const String target{res.targetBdAddress.begin(), res.targetBdAddress.end()};
             self->mMultipointDeviceMac.overwrite(target);
             for (auto& dev : self->mPairedDevices)
@@ -148,6 +149,20 @@ namespace mdr
             }
             return MDR_EVENT_PAIRED_DEVICES_CHANGED;
         }
+        case SOURCE_SWITCH_CONTROL:
+            {
+                const auto command = static_cast<Command>(cmd[0]);
+                if (command == Command::PERI_NTFY_PARAM)
+                {
+                    Deserialize(PeripheralNotifyParamSourceSwitchControl, res, cmd);
+                    self->mSourceSwitchControlEnabled.overwrite(res.value1 != 0);
+                    self->mSourceSwitchControlResult = res.result;
+                    return MDR_EVENT_PAIRED_DEVICES_CHANGED;
+                }
+                Deserialize(PeripheralRetParamSourceSwitchControl, res, cmd);
+                self->mSourceSwitchControlEnabled.overwrite(res.value != 0);
+                return MDR_EVENT_PAIRED_DEVICES_CHANGED;
+            }
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
             const auto command = static_cast<Command>(cmd[0]);

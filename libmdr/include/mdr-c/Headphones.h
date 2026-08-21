@@ -45,6 +45,7 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_SHUTDOWN ((MDRFeature)26u)
 #define MDR_FEATURE_CONNECTION_MODE ((MDRFeature)27u)
 #define MDR_FEATURE_SAFE_LISTENING ((MDRFeature)28u)
+#define MDR_FEATURE_SOURCE_SWITCH_CONTROL ((MDRFeature)29u)
 
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
@@ -126,6 +127,13 @@ typedef uint32_t MDRPlaybackAction;
 #define MDR_PLAYBACK_PAUSE ((MDRPlaybackAction)2u)
 #define MDR_PLAYBACK_NEXT ((MDRPlaybackAction)3u)
 #define MDR_PLAYBACK_PREVIOUS ((MDRPlaybackAction)4u)
+
+typedef uint32_t MDRSourceSwitchControlResult;
+#define MDR_SOURCE_SWITCH_CONTROL_SUCCESS ((MDRSourceSwitchControlResult)0u)
+#define MDR_SOURCE_SWITCH_CONTROL_FAILED ((MDRSourceSwitchControlResult)1u)
+#define MDR_SOURCE_SWITCH_CONTROL_FAILED_ON_CALL ((MDRSourceSwitchControlResult)2u)
+#define MDR_SOURCE_SWITCH_CONTROL_FAILED_NOT_CONNECTED ((MDRSourceSwitchControlResult)3u)
+#define MDR_SOURCE_SWITCH_CONTROL_FAILED_VOICE_ASSISTANT ((MDRSourceSwitchControlResult)4u)
 
 typedef uint32_t MDRNoiseMode;
 #define MDR_NOISE_MODE_OFF ((MDRNoiseMode)0u)
@@ -531,6 +539,28 @@ MDR_API MDRResult mdrHeadphonesGetPairing(
     MDRPairing* out_pairing
 );
 MDR_API MDRResult mdrHeadphonesSetPairing(MDRHeadphones* headphones, const MDRPairing* pairing);
+
+/**
+ * @brief Whether the headphones may switch playback to the other multipoint device on their own.
+ *
+ * Mirrors Sound Connect's "Fixing playback device", inverted: while enabled, switching is free and
+ * the headphones may hand audio over to the other multipoint device. While disabled, playback stays
+ * pinned to the device that currently holds the playback right - Sound Connect shows this as a
+ * padlock. The headphones re-enable switching on their own once that device disconnects.
+ * Requires @ref MDR_FEATURE_SOURCE_SWITCH_CONTROL.
+ */
+MDR_API MDRResult mdrHeadphonesGetSourceSwitchControl(MDRHeadphones* headphones, MDRBoolean* out_enabled);
+MDR_API MDRResult mdrHeadphonesSetSourceSwitchControl(MDRHeadphones* headphones, MDRBoolean enabled);
+
+/**
+ * @brief Outcome the headphones reported for the last source switch control request.
+ *
+ * A refused request leaves the previous state in place, so a caller watching only
+ * @ref mdrHeadphonesGetSourceSwitchControl cannot tell a refusal from a no-op. Staging a new
+ * request resets this to @ref MDR_SOURCE_SWITCH_CONTROL_SUCCESS.
+ */
+MDR_API MDRResult mdrHeadphonesGetSourceSwitchControlResult(MDRHeadphones* headphones,
+                                                            MDRSourceSwitchControlResult* out_result);
 
 /* General settings and assignable controls. */
 MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(

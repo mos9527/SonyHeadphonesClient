@@ -157,6 +157,12 @@ namespace mdr
                            });
         }
 
+        /* Source Switch Control */
+        if (mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
+        {
+            SendCommandACK(t2::PeripheralGetParam, {.inquiredType = t2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL});
+        }
+
         /* Speak To Chat */
         if (mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
         {
@@ -332,6 +338,7 @@ namespace mdr
         mVoiceGuidanceVolume.submit();
         mPairingMode.submit();
         mMultipointDeviceMac.submit();
+        mSourceSwitchControlEnabled.submit();
         mPairedDeviceDisconnectMac.submit();
         mPairedDeviceConnectMac.submit();
         mPairedDeviceUnpairMac.submit();
@@ -457,6 +464,21 @@ namespace mdr
                 SendCommandACK(PeripheralSetExtendedParamSourceSwitchControl, res);
                 mMultipointDeviceMac.commit();
             }
+        }
+
+        /* Source Switch Control */
+        if (mSourceSwitchControlEnabled.pending())
+        {
+            using namespace t2;
+            if (mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
+            {
+                PeripheralSetParamSourceSwitchControl res;
+                res.value = mSourceSwitchControlEnabled.submitted ? 1 : 0;
+                SendCommandACK(PeripheralSetParamSourceSwitchControl, res);
+                mSourceSwitchControlEnabled.commit();
+            }
+            else
+                mSourceSwitchControlEnabled.override(true);
         }
 
         /* Connection Ops */
