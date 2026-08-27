@@ -196,11 +196,9 @@ static int session_open(Session* session)
 {
     memset(session, 0, sizeof(*session));
     mock_init(&session->transport);
-    check_result(
-        mdrHeadphonesCreate(MDR_ABI_VERSION, &session->transport.connection, &session->headphones),
-        MDR_RESULT_OK,
-        "opaque headphones session opens"
-    );
+    check_result(mdrHeadphonesCreate(MDR_ABI_VERSION, &session->transport.connection, MDR_PROTOCOL_FAMILY_UNKNOWN,
+                                     &session->headphones),
+                 MDR_RESULT_OK, "opaque headphones session opens");
     return session->headphones != NULL;
 }
 
@@ -335,23 +333,18 @@ static void test_abi_version_handshake(void)
 
     mock_init(&transport);
     check_result(
-        mdrHeadphonesCreate(MDR_ABI_VERSION + 1u, &transport.connection, &headphones),
-        MDR_RESULT_ERROR_ABI_MISMATCH,
-        "a newer header is refused by an older library"
-    );
-    check(headphones == NULL, "a refused handshake leaves no instance behind");
+        mdrHeadphonesCreate(MDR_ABI_VERSION + 1u, &transport.connection, MDR_PROTOCOL_FAMILY_UNKNOWN, &headphones),
+        MDR_RESULT_ERROR_ABI_MISMATCH, "a newer header is refused by an older library");
+    // The version check runs before the out-param is touched at all - a caller built against a
+    // different argument layout may not have populated this slot the way we'd expect, so a
+    // rejected handshake makes no promise about it either way.
+    check(headphones == (MDRHeadphones*)0x1, "a rejected handshake leaves the out-param untouched");
 
-    check_result(
-        mdrHeadphonesCreate(0u, &transport.connection, &headphones),
-        MDR_RESULT_ERROR_ABI_MISMATCH,
-        "an unversioned caller is refused"
-    );
+    check_result(mdrHeadphonesCreate(0u, &transport.connection, MDR_PROTOCOL_FAMILY_UNKNOWN, &headphones),
+                 MDR_RESULT_ERROR_ABI_MISMATCH, "an unversioned caller is refused");
 
-    check_result(
-        mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones),
-        MDR_RESULT_OK,
-        "the matching version is accepted"
-    );
+    check_result(mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, MDR_PROTOCOL_FAMILY_UNKNOWN, &headphones),
+                 MDR_RESULT_OK, "the matching version is accepted");
     check(headphones != NULL, "an accepted handshake yields an instance");
     mdrHeadphonesDestroy(headphones);
 }

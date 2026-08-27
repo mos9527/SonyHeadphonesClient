@@ -902,7 +902,7 @@ void DrawDeviceConnecting()
         connState = CONN_STATE_CONNECTED;
         connectionAttempt.lastError.clear();
         CloseDevice();
-        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, &gDevice) != MDR_RESULT_OK)
+        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, MDR_PROTOCOL_FAMILY_UNKNOWN, &gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;

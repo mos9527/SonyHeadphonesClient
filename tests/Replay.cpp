@@ -90,10 +90,9 @@ namespace
 
         MockTransport transport;
         MDRHeadphones* headphones = nullptr;
-        Check(
-            mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones) == MDR_RESULT_OK,
-            "opaque headphones session opens"
-        );
+        Check(mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, MDR_PROTOCOL_FAMILY_UNKNOWN, &headphones) ==
+                  MDR_RESULT_OK,
+              "opaque headphones session opens");
         if (headphones == nullptr)
             return;
 

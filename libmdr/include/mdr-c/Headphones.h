@@ -388,14 +388,17 @@ extern "C" {
  * @param abiVersion Always pass @ref MDR_ABI_VERSION. This is the one handshake between the header
  *                   you compiled against and the library you ended up linked to; every struct in
  *                   this header is fixed layout for a given value of it.
+ * @param family The protocol family implied by the service UUID you connected to, or
+ *               @ref MDR_PROTOCOL_FAMILY_UNKNOWN to have it detected from the device's
+ *               protocol-info reply. Declaring it lets the library parse notifications that
+ *               arrive before the protocol handshake completes.
  * @return @ref MDR_RESULT_ERROR_ABI_MISMATCH if this library does not implement @p abiVersion, in
- *         which case no instance is created and every other entry point is unsafe to call.
+ *         which case no instance is created, *@p ppHeadphones is left untouched, and every other
+ *         entry point is unsafe to call. The version check runs before anything else, so a caller
+ *         built against a different argument layout is rejected before that layout matters.
  */
-MDR_API MDRResult mdrHeadphonesCreate(
-    uint32_t abiVersion,
-    MDRConnection* connection,
-    MDRHeadphones** ppHeadphones
-);
+MDR_API MDRResult mdrHeadphonesCreate(uint32_t abiVersion, MDRConnection* connection, MDRProtocolFamily family,
+                                      MDRHeadphones** ppHeadphones);
 /**
  * @brief Frees the @ref MDRHeadphones instance. 
  */

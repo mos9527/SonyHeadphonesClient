@@ -338,39 +338,51 @@ namespace mdr
             HandleAck(seq);
             break;
         case DATA_MDR:
-            SendACK(seq);
-            if (!command.empty() &&
-                command.front() == static_cast<UInt8>(v2::t1::Command::CONNECT_RET_PROTOCOL_INFO))
-                return HandleProtocolInfo(command);
-            if (mProtocolFamily == ProtocolFamily::UNKNOWN)
             {
-                // A device whose state changed while unattended pushes the notify as soon as the
-                // socket opens, which can beat our CONNECT_GET_PROTOCOL_INFO round trip. Without a
-                // protocol family there is no table to parse it against, so drop it: the ACK above
-                // keeps the device happy and init reads every state we care about anyway.
-                MDR_LOG_DEBUG("Dropping MDR Table 1 data received before CONNECT_RET_PROTOCOL_INFO");
-                return MDR_EVENT_UNHANDLED;
-            }
-            switch (mProtocolFamily)
-            {
-            case ProtocolFamily::V1: return HandleCommandV1T1(command, seq);
-            case ProtocolFamily::V2: return HandleCommandV2T1(command, seq);
-            default: return MDR_EVENT_UNHANDLED;
+                SendACK(seq);
+                if (!command.empty() &&
+                    command.front() == static_cast<UInt8>(v2::t1::Command::CONNECT_RET_PROTOCOL_INFO))
+                    return HandleProtocolInfo(command);
+                const ProtocolFamily family = EffectiveFamily();
+                if (family == ProtocolFamily::UNKNOWN)
+                {
+                    // No declared family and no handshake reply yet: there is no table to parse
+                    // this against. The ACK above keeps the device happy and init reads every
+                    // state we care about anyway. Callers that declared a family at
+                    // mdrHeadphonesCreate never land here.
+                    MDR_LOG_DEBUG("Dropping MDR Table 1 data received before CONNECT_RET_PROTOCOL_INFO");
+                    return MDR_EVENT_UNHANDLED;
+                }
+                switch (family)
+                {
+                case ProtocolFamily::V1:
+                    return HandleCommandV1T1(command, seq);
+                case ProtocolFamily::V2:
+                    return HandleCommandV2T1(command, seq);
+                default:
+                    return MDR_EVENT_UNHANDLED;
+                }
             }
         case DATA_MDR_NO2:
-            SendACK(seq);
-            if (mProtocolFamily == ProtocolFamily::UNKNOWN)
             {
-                // Same race as Table 1 above - PERI_NTFY_PARAM is the one that reliably arrives
-                // early, right after another client released the link.
-                MDR_LOG_DEBUG("Dropping MDR Table 2 data received before CONNECT_RET_PROTOCOL_INFO");
-                return MDR_EVENT_UNHANDLED;
-            }
-            switch (mProtocolFamily)
-            {
-            case ProtocolFamily::V1: return HandleCommandV1T2(command, seq);
-            case ProtocolFamily::V2: return HandleCommandV2T2(command, seq);
-            default: return MDR_EVENT_UNHANDLED;
+                SendACK(seq);
+                const ProtocolFamily family = EffectiveFamily();
+                if (family == ProtocolFamily::UNKNOWN)
+                {
+                    // Same race as Table 1 above - PERI_NTFY_PARAM is the one that reliably arrives
+                    // early, right after another client released the link.
+                    MDR_LOG_DEBUG("Dropping MDR Table 2 data received before CONNECT_RET_PROTOCOL_INFO");
+                    return MDR_EVENT_UNHANDLED;
+                }
+                switch (family)
+                {
+                case ProtocolFamily::V1:
+                    return HandleCommandV1T2(command, seq);
+                case ProtocolFamily::V2:
+                    return HandleCommandV2T2(command, seq);
+                default:
+                    return MDR_EVENT_UNHANDLED;
+                }
             }
         default:
             break;
@@ -1006,20 +1018,29 @@ const char* mdrConnectionGetLastError(MDRConnection* conn)
     return conn->getLastError(conn->user);
 }
 
-MDRResult mdrHeadphonesCreate(
-    uint32_t abiVersion, MDRConnection* connection, MDRHeadphones** outHeadphones)
+// The private enum backs the public MDRProtocolFamily wire values one-for-one, so a future
+// reorder of the former breaks the build here rather than silently changing the latter's ABI.
+static_assert(static_cast<uint32_t>(Headphones::ProtocolFamily::UNKNOWN) == MDR_PROTOCOL_FAMILY_UNKNOWN);
+static_assert(static_cast<uint32_t>(Headphones::ProtocolFamily::V1) == MDR_PROTOCOL_FAMILY_V1);
+static_assert(static_cast<uint32_t>(Headphones::ProtocolFamily::V2) == MDR_PROTOCOL_FAMILY_V2);
+
+MDRResult mdrHeadphonesCreate(uint32_t abiVersion, MDRConnection* connection, MDRProtocolFamily family,
+                              MDRHeadphones** outHeadphones)
 {
+    // Ahead of everything else, including the defensive out-param clear below: a caller built
+    // against a header with a different argument layout must be rejected before we touch
+    // outHeadphones at all, since its slot may not even be the one that caller populated.
+    if (abiVersion != MDR_ABI_VERSION)
+        return MDR_RESULT_ERROR_ABI_MISMATCH;
     // Clear the handle before anything else, so a caller that ignores the result is not left
     // holding whatever was in the variable to begin with.
     if (outHeadphones)
         *outHeadphones = nullptr;
-    // Ahead of the argument checks: reading MDRConnection at all assumes we agree on its layout,
-    // which is exactly what this version stands for.
-    if (abiVersion != MDR_ABI_VERSION)
-        return MDR_RESULT_ERROR_ABI_MISMATCH;
     if (!connection || !outHeadphones || !connection->recv || !connection->send || !connection->poll)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    auto* headphones = mdr::Construct<Headphones>(connection);
+    if (family > MDR_PROTOCOL_FAMILY_V2)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    auto* headphones = mdr::Construct<Headphones>(connection, static_cast<Headphones::ProtocolFamily>(family));
     if (!headphones)
         return MDR_RESULT_ERROR_GENERAL;
     *outHeadphones = mdr::detail::HeadphonesHandle(headphones);

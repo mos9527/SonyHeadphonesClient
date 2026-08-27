@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-#define MDR_ABI_VERSION 1u
+#define MDR_ABI_VERSION 2u
 
 #if !defined(MDR_API)
 #if defined(_WIN32)
@@ -49,6 +49,16 @@ typedef uint32_t MDRResult;
 // BLE GATT service UUID for TANDEM_OVER_BLE_HPC_SERVICE
 // See: Sony SongPal smali ServiceUuid.TANDEM_OVER_BLE_HPC_SERVICE
 #define MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC "5B833E20-6BC7-4802-8E9A-723CECA4BD8F"
+/**
+ * @brief Which MDR protocol family a device speaks. Implied by the service UUID you connect
+ *        to: MDR_SERVICE_UUID_XM5 is V2, MDR_SERVICE_UUID_LEGACY is V1. Pass UNKNOWN if you
+ *        cannot tell (BLE, or a transport that does not expose the UUID) and the library will
+ *        fall back to detecting the family from the CONNECT_RET_PROTOCOL_INFO reply.
+ */
+typedef uint32_t MDRProtocolFamily;
+#define MDR_PROTOCOL_FAMILY_UNKNOWN ((MDRProtocolFamily)0u)
+#define MDR_PROTOCOL_FAMILY_V1 ((MDRProtocolFamily)1u)
+#define MDR_PROTOCOL_FAMILY_V2 ((MDRProtocolFamily)2u)
 #ifdef __cplusplus
 extern "C" {
 #endif

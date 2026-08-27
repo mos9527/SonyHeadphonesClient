@@ -44,7 +44,10 @@ namespace
         MockTransport transport;
         MDRHeadphones* headphones{};
 
-        Session() { mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones); }
+        explicit Session(MDRProtocolFamily family = MDR_PROTOCOL_FAMILY_UNKNOWN)
+        {
+            mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, family, &headphones);
+        }
 
         ~Session()
         {

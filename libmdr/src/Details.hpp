@@ -216,7 +216,8 @@ namespace mdr
 
         // NOLINTEND
 
-        explicit MDRHeadphones(MDRConnection* conn) : mConn(conn)
+        explicit MDRHeadphones(MDRConnection* conn, ProtocolFamily declared = ProtocolFamily::UNKNOWN) :
+            mConn(conn), mDeclaredFamily(declared)
         {
             for (size_t i = 0; i < AWAIT_NUM_TYPES; ++i)
                 mAwaiters[i] = Awaiter{this, static_cast<AwaitType>(i)};
@@ -300,6 +301,16 @@ namespace mdr
             int hasTable2;
         } mProtocol{};
         ProtocolFamily mProtocolFamily{ProtocolFamily::UNKNOWN};
+        // What the caller declared at construction, from the service UUID it connected to.
+        // Immutable for the object's life - unlike mProtocolFamily, never reset by RequestInit.
+        const ProtocolFamily mDeclaredFamily{ProtocolFamily::UNKNOWN};
+
+        // The family to dispatch against: the wire-confirmed one if we have it, otherwise
+        // whatever the caller declared (which may itself be UNKNOWN).
+        [[nodiscard]] ProtocolFamily EffectiveFamily() const noexcept
+        {
+            return mProtocolFamily != ProtocolFamily::UNKNOWN ? mProtocolFamily : mDeclaredFamily;
+        }
 
         // @ref HandleSupportFunctionT1
         // Q: Why not std::bitset?
@@ -492,7 +503,6 @@ namespace mdr
          * @note  To be used with @ref Invoke.
          * @return @ref MDR_EVENT_INITIALIZE_COMPLETE on completion (returned in @ref PollEvents)
          **/
-        MDRTask RequestInitV2();
         MDRTask RequestInitV2Selected();
         /**
          * @brief Requests states that the device won't send automatically. (e.g. Battery levels)
