@@ -28,11 +28,13 @@ namespace
     // CONNECT_RET_PROTOCOL_INFO as a WF-1000XM5 answers it: MDR V2, both tables enabled.
     constexpr uint8_t kProtocolInfo[]{0x3E, 0x0C, 0x01, 0x00, 0x00, 0x00, 0x08, 0x01, 0x00,
                                       0x03, 0x00, 0x30, 0x18, 0x00, 0x00, 0x61, 0x3C};
-    // Table 1 payload carrying an arbitrary non-handshake command (NCASM_RET_PARAM).
-    constexpr uint8_t kTable1Frame[]{0x3E, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x01, 0x67, 0x74, 0x3C};
-    // Table 2 payload carrying PERI_RET_PARAM - the notify a device pushes when its
-    // paired-device state changed while nobody was listening.
-    constexpr uint8_t kTable2Frame[]{0x3E, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x01, 0x37, 0x46, 0x3C};
+    // CONNECT_RET_DEVICE_INFO/FW_VERSION as a WF-1000XM5 answers it - captured from the same
+    // session as kProtocolInfo. Its handler (HandleDeviceInfoT1) doesn't consult mSupport or
+    // mProtocol, so it's safe to dispatch before either is populated by RequestInit - unlike
+    // most V2 table 1/2 commands, which gate on advertised support and would misreport an
+    // early frame as unhandled regardless of whether the family was known.
+    constexpr uint8_t kDeviceInfoFrame[]{0x3E, 0x0C, 0x01, 0x00, 0x00, 0x00, 0x08, 0x05, 0x02,
+                                         0x05, '6',  '.',  '1',  '.',  '0',  0x14, 0x3C};
     // Both markers, nothing in between: shortest input that clears MDRUnpackCommand's
     // size check while carrying no header at all.
     constexpr uint8_t kEmptyFrame[]{0x3E, 0x3C};
@@ -78,28 +80,32 @@ namespace
         }
     };
 
-    // A device whose paired-device state changed while it was unattended pushes the
-    // notify as soon as we open the socket - possibly before our protocol handshake
-    // completes. That is a race, not a broken device, so the session has to survive it.
-    void TestFrameBeforeProtocolInfo(std::span<const uint8_t> frame, std::string_view what)
+    // Declaring the family at mdrHeadphonesCreate is what lets an early notify actually be
+    // parsed instead of dropped - the fallback (unknown family) path is covered separately as
+    // a regression fixture in tests/WF-1000XM5-6.1.0. This is the only place that exercises the
+    // declared-family path: it must see a real dispatch event, not MDR_EVENT_UNHANDLED, or the
+    // whole point of the ctor parameter is unverified.
+    void TestDeclaredFamilyParsesEarlyFrame()
     {
-        Session session;
+        Session session(MDR_PROTOCOL_FAMILY_V2);
         Check(session.headphones != nullptr, "opaque headphones session opens");
         if (!session.headphones)
             return;
 
         MDREvent event = MDR_EVENT_NONE;
-        const MDRResult result = session.Pump(frame, event);
+        const MDRResult result = session.Pump(kDeviceInfoFrame, event);
         Check(result == MDR_RESULT_OK,
-              std::string(what) + " before protocol info keeps the session alive, last error: " +
+              "device info before protocol info keeps the session alive with a declared family, last error: " +
                   mdrtest::GetLastError(session.headphones));
-        Check(!session.transport.tx.empty(), std::string(what) + " before protocol info is still ACKed");
+        Check(event == MDR_EVENT_IDENTITY_CHANGED,
+              "device info before protocol info actually dispatches with a declared family, got event " +
+                  std::to_string(event));
 
         // The handshake still has to land afterwards, otherwise we only survived by
         // wedging the receive buffer.
         const MDRResult handshake = session.Pump(kProtocolInfo, event);
-        Check(handshake == MDR_RESULT_OK, "protocol info is accepted after " + std::string(what));
-        Check(event == MDR_EVENT_IDENTITY_CHANGED, "protocol info dispatches after " + std::string(what));
+        Check(handshake == MDR_RESULT_OK, "protocol info is accepted after a declared-family early dispatch");
+        Check(event == MDR_EVENT_IDENTITY_CHANGED, "protocol info dispatches after a declared-family early dispatch");
     }
 
     // Nothing a device can put on the wire may push the parser past the frame it is
@@ -155,8 +161,7 @@ namespace
 
 int main()
 {
-    TestFrameBeforeProtocolInfo(kTable1Frame, "table 1 data");
-    TestFrameBeforeProtocolInfo(kTable2Frame, "table 2 data");
+    TestDeclaredFamilyParsesEarlyFrame();
     TestDegenerateFrame(kEmptyFrame, "a frame with no header");
     TestDegenerateFrame(kDanglingEscape, "a frame ending in an escape sentry");
     TestFragmentedFrame(1);
