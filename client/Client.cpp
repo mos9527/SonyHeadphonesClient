@@ -654,13 +654,24 @@ struct ConnectionAttemptState
 
 ConnectionAttemptState connectionAttempt;
 
+// The service UUID a successful connect used, translated to the family libmdr expects. BLE's
+// UUID maps to neither V1 nor V2 in this table, so it stays unknown - nothing in this repo
+// establishes it as a V2 transport, and mdrHeadphonesCreate falls back to size-based detection
+// for any caller that passes unknown anyway.
+MDRProtocolFamily ConnectionAttemptFamily()
+{
+    if (connectionAttempt.ble || connectionAttempt.serviceIndex >= connectionAttempt.serviceCount)
+        return MDR_PROTOCOL_FAMILY_UNKNOWN;
+    return std::strcmp(connectionAttempt.services[connectionAttempt.serviceIndex], MDR_SERVICE_UUID_LEGACY) == 0
+        ? MDR_PROTOCOL_FAMILY_V1
+        : MDR_PROTOCOL_FAMILY_V2;
+}
+
 const char* ConnectionAttemptName()
 {
     if (connectionAttempt.ble)
         return "BLE";
-    if (connectionAttempt.serviceCount == 1)
-        return std::strcmp(connectionAttempt.services[0], MDR_SERVICE_UUID_LEGACY) == 0 ? "V1" : "V2";
-    return connectionAttempt.serviceIndex == 0 ? "V2" : "V1";
+    return ConnectionAttemptFamily() == MDR_PROTOCOL_FAMILY_V1 ? "V1" : "V2";
 }
 
 void CaptureConnectionError(MDRConnection* conn, MDRResult result)
@@ -902,7 +913,7 @@ void DrawDeviceConnecting()
         connState = CONN_STATE_CONNECTED;
         connectionAttempt.lastError.clear();
         CloseDevice();
-        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, MDR_PROTOCOL_FAMILY_UNKNOWN, &gDevice) != MDR_RESULT_OK)
+        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, ConnectionAttemptFamily(), &gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;

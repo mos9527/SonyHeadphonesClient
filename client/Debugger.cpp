@@ -129,7 +129,7 @@ namespace
         if (!gHeadphones)
             return true;
 
-        switch (mdr::detail::HeadphonesImpl(gHeadphones)->mProtocolFamily)
+        switch (mdr::detail::HeadphonesImpl(gHeadphones)->EffectiveFamily())
         {
         case mdr::MDRHeadphones::ProtocolFamily::V1:
             return descriptor.family == ProtocolFamily::V1;
