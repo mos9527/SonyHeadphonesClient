@@ -292,6 +292,10 @@ namespace mdr
                 return SetLastError(
                     MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
                     "MDR protocol family changed from V2 to V1");
+            // A declared family is an inference from the connected UUID, not a guarantee - trust
+            // the device's actual reply rather than failing a session that demonstrably works.
+            if (mDeclaredFamily != ProtocolFamily::UNKNOWN && mDeclaredFamily != ProtocolFamily::V1)
+                MDR_LOG("Device declared as MDR V2 answered with a V1 protocol info; trusting the device");
             mProtocolFamily = ProtocolFamily::V1;
             mProtocol = {
                 .version = result.value.protocolVersion,
@@ -310,6 +314,8 @@ namespace mdr
                 return SetLastError(
                     MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
                     "MDR protocol family changed from V1 to V2");
+            if (mDeclaredFamily != ProtocolFamily::UNKNOWN && mDeclaredFamily != ProtocolFamily::V2)
+                MDR_LOG("Device declared as MDR V1 answered with a V2 protocol info; trusting the device");
             mProtocolFamily = ProtocolFamily::V2;
             mProtocol = {
                 .version = result.value.protocolVersion,

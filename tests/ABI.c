@@ -349,6 +349,22 @@ static void test_abi_version_handshake(void)
     mdrHeadphonesDestroy(headphones);
 }
 
+static void test_protocol_family_validation(void)
+{
+    MockTransport transport;
+    MDRHeadphones* headphones = (MDRHeadphones*)0x1;
+
+    mock_init(&transport);
+    check_result(mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, 3u, &headphones),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "a family past MDR_PROTOCOL_FAMILY_V2 is rejected");
+    check(headphones == NULL, "a rejected family leaves no instance behind");
+
+    check_result(mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, MDR_PROTOCOL_FAMILY_V2, &headphones),
+                 MDR_RESULT_OK, "a declared family is accepted");
+    check(headphones != NULL, "a declared family still yields an instance");
+    mdrHeadphonesDestroy(headphones);
+}
+
 static void test_struct_and_buffer_contracts(void)
 {
     Session session;
@@ -702,6 +718,7 @@ static void test_newer_staging_survives_apply(void)
 int main(void)
 {
     test_abi_version_handshake();
+    test_protocol_family_validation();
     test_struct_and_buffer_contracts();
     test_one_operation_at_a_time();
     test_committed_state_staging();
