@@ -216,13 +216,13 @@ namespace mdr
 
         // NOLINTEND
 
-        explicit MDRHeadphones(MDRConnection* conn) : mConn(conn)
+        explicit MDRHeadphones(MDRConnection* conn, ProtocolFamily family) : mConn(conn), mProtocolFamily(family)
         {
             for (size_t i = 0; i < AWAIT_NUM_TYPES; ++i)
                 mAwaiters[i] = Awaiter{this, static_cast<AwaitType>(i)};
         }
 
-        MDRHeadphones() : MDRHeadphones(nullptr) {}
+        MDRHeadphones() : MDRHeadphones(nullptr, ProtocolFamily::UNKNOWN) {}
 
 
         // Move-only ctor
@@ -450,11 +450,7 @@ namespace mdr
         MDRProperty<String> mMultipointDeviceMac;
         MDRProperty<String> mPairedDeviceDisconnectMac, mPairedDeviceConnectMac, mPairedDeviceUnpairMac;
 
-        // SOURCE_SWITCH_CONTROL's param byte: 1 while playback may switch to the other multipoint
-        // device on its own, 0 once it's pinned to the current device (verified on WF-1000XM5). This
-        // is Sound Connect's "Fixing playback device", inverted.
         MDRProperty<bool> mSourceSwitchControlEnabled;
-        // Outcome of the last source switch control request the headphones reported.
         v2::t2::SourceSwitchControlResult mSourceSwitchControlResult{v2::t2::SourceSwitchControlResult::SUCCESS};
 
         MDRProperty<bool> mSafeListeningPreviewMode;

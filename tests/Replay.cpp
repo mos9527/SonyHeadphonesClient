@@ -160,6 +160,67 @@ namespace
         return false;
     }
 
+    // The library now requires the protocol family at construction time, so infer it from the
+    // capture: the CONNECT_RET_PROTOCOL_INFO reply (V1 payload = 4 bytes, V2 payload = 8 bytes).
+    MDRProtocolVersion DetectProtocolVersion(const std::vector<std::filesystem::path>& packets)
+    {
+        for (const auto& path : packets)
+        {
+            const auto frame = ReadPacket(path);
+            // Frames are bounded by '>' (SOF) ... '<' (EOF).
+            const auto sof = std::ranges::find(frame, static_cast<uint8_t>(0x3Eu));
+            if (sof == frame.end())
+                continue;
+            const auto eof = std::ranges::find(sof + 1, frame.end(), static_cast<uint8_t>(0x3Cu));
+            if (eof == frame.end() || sof + 1 >= eof)
+                continue;
+            // Unescape the framed payload ('=' sentinel introduces 0x2C/0x2D/0x2E for <, =, >).
+            std::vector<uint8_t> inner;
+            for (auto it = sof + 1; it != eof; ++it)
+            {
+                if (*it == 0x3Du)
+                {
+                    if (++it == eof) break;
+                    switch (*it)
+                    {
+                    case 0x2Cu: inner.push_back(0x3Cu); break;
+                    case 0x2Du: inner.push_back(0x3Du); break;
+                    case 0x2Eu: inner.push_back(0x3Eu); break;
+                    default: inner.push_back(*it); break;
+                    }
+                }
+                else
+                    inner.push_back(*it);
+            }
+            // inner = [type, seq, sizeBE(4), data..., checksum]
+            if (inner.size() < 7)
+                continue;
+            if (inner[0] != 0x0Cu) // MDRDataType::DATA_MDR
+                continue;
+            const int32_t size = (inner[2] << 24u) | (inner[3] << 16u) |
+                                 (inner[4] << 8u) | inner[5];
+            if (size < 1)
+                continue;
+            const size_t dataOffset = 6;
+            const size_t dataEnd = dataOffset + static_cast<size_t>(size);
+            if (dataEnd + 1 > inner.size())
+                continue;
+            uint8_t sum = 0;
+            for (size_t i = 0; i < dataEnd; ++i)
+                sum += inner[i];
+            if (sum != inner[dataEnd])
+                continue;
+            if (inner[dataOffset] != 0x01u) // Command::CONNECT_RET_PROTOCOL_INFO
+                continue;
+            const size_t payloadSize = dataEnd - dataOffset;
+            if (payloadSize == 8u)
+                return MDR_PROTOCOL_V2;
+            if (payloadSize == 4u)
+                return MDR_PROTOCOL_V1;
+        }
+        return MDR_PROTOCOL_V2;
+    }
+
     void ReplayDirectory(const std::filesystem::path& root)
     {
         std::error_code error;
@@ -195,7 +256,9 @@ namespace
         MockTransport transport;
         MDRHeadphones* headphones = nullptr;
         Check(
-            mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones) == MDR_RESULT_OK,
+            mdrHeadphonesCreate(
+                MDR_ABI_VERSION, &transport.connection, DetectProtocolVersion(packets), &headphones
+            ) == MDR_RESULT_OK,
             "opaque headphones session opens"
         );
         if (headphones == nullptr)

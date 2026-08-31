@@ -663,6 +663,16 @@ const char* ConnectionAttemptName()
     return connectionAttempt.serviceIndex == 0 ? "V2" : "V1";
 }
 
+MDRProtocolVersion ConnectionProtocolVersion()
+{
+    if (connectionAttempt.ble)
+        return MDR_PROTOCOL_V2;
+    const char* service = connectionAttempt.services[connectionAttempt.serviceIndex];
+    if (std::strcmp(service, MDR_SERVICE_UUID_LEGACY) == 0)
+        return MDR_PROTOCOL_V1;
+    return MDR_PROTOCOL_V2;
+}
+
 void CaptureConnectionError(MDRConnection* conn, MDRResult result)
 {
     const char* error = mdrConnectionGetLastError(conn);
@@ -776,6 +786,11 @@ void DrawDeviceDiscovery()
             styles.PushVar(ImGuiStyleVar_FramePadding, ImVec2{});
             styles.PushVar(ImGuiStyleVar_FrameRounding, 0.0f);
             constexpr std::array labels{PSI_PLUS_SIGN " Auto", PSI_FAST_FORWARD " V2", PSI_FORWARD " V1"};
+            constexpr std::array tooltips{
+                "Auto-detect: tries the V2 (XM5+) service first and falls back to the legacy V1 service if it can't connect.",
+                "V2 only: connects to devices exposing the V2 MDR service (XM5+) - newer models like WH/WF-1000XM5.",
+                "V1 only: connects to devices exposing the legacy V1 MDR service - older models.",
+            };
             for (int i = 0; i < static_cast<int>(labels.size()); ++i)
             {
                 ImStylesRAII buttonStyles;
@@ -783,6 +798,12 @@ void DrawDeviceDiscovery()
                     buttonStyles.PushCol(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
                 if (ImModalButton(labels[i], i, static_cast<int>(labels.size())))
                     deviceType = static_cast<DEVICE_TYPE>(i);
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::TextUnformatted(tooltips[i]);
+                    ImGui::EndTooltip();
+                }
             }
         }
         ImGui::EndDisabled();
@@ -902,7 +923,7 @@ void DrawDeviceConnecting()
         connState = CONN_STATE_CONNECTED;
         connectionAttempt.lastError.clear();
         CloseDevice();
-        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, &gDevice) != MDR_RESULT_OK)
+        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, ConnectionProtocolVersion(), &gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;

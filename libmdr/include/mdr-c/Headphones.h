@@ -7,6 +7,10 @@
 
 typedef struct MDRHeadphones MDRHeadphones;
 
+typedef uint32_t MDRProtocolVersion;
+#define MDR_PROTOCOL_V1 ((MDRProtocolVersion)1u)
+#define MDR_PROTOCOL_V2 ((MDRProtocolVersion)2u)
+
 typedef uint32_t MDRBoolean;
 #define MDR_FALSE ((MDRBoolean)0u)
 #define MDR_TRUE ((MDRBoolean)1u)
@@ -394,6 +398,7 @@ extern "C" {
 MDR_API MDRResult mdrHeadphonesCreate(
     uint32_t abiVersion,
     MDRConnection* connection,
+    MDRProtocolVersion protocolVersion,
     MDRHeadphones** ppHeadphones
 );
 /**
@@ -543,11 +548,11 @@ MDR_API MDRResult mdrHeadphonesSetPairing(MDRHeadphones* headphones, const MDRPa
 /**
  * @brief Whether the headphones may switch playback to the other multipoint device on their own.
  *
- * Mirrors Sound Connect's "Fixing playback device", inverted: while enabled, switching is free and
- * the headphones may hand audio over to the other multipoint device. While disabled, playback stays
- * pinned to the device that currently holds the playback right - Sound Connect shows this as a
- * padlock. The headphones re-enable switching on their own once that device disconnects.
+ * When enabled, switching in-between multipoint devices is allowed. Otherwise active playback changes
+ * will NOT cause the headphones to switch to the other multipoint device.
  * Requires @ref MDR_FEATURE_SOURCE_SWITCH_CONTROL.
+ *
+ * @note Contribution by @jkolo in https://github.com/mos9527/SonyHeadphonesClient/pull/57
  */
 MDR_API MDRResult mdrHeadphonesGetSourceSwitchControl(MDRHeadphones* headphones, MDRBoolean* out_enabled);
 MDR_API MDRResult mdrHeadphonesSetSourceSwitchControl(MDRHeadphones* headphones, MDRBoolean enabled);
@@ -555,9 +560,12 @@ MDR_API MDRResult mdrHeadphonesSetSourceSwitchControl(MDRHeadphones* headphones,
 /**
  * @brief Outcome the headphones reported for the last source switch control request.
  *
- * A refused request leaves the previous state in place, so a caller watching only
- * @ref mdrHeadphonesGetSourceSwitchControl cannot tell a refusal from a no-op. Staging a new
- * request resets this to @ref MDR_SOURCE_SWITCH_CONTROL_SUCCESS.
+ * This is only guaranteed to be valid after a @ref mdrHeadphonesSetSourceSwitchControl call AND a
+ * @ref MDR_EVENT_PAIRED_DEVICES_CHANGED event.
+ * 
+ * The result is otherwise undefined.
+ * 
+ * @note Contribution by @jkolo in https://github.com/mos9527/SonyHeadphonesClient/pull/57
  */
 MDR_API MDRResult mdrHeadphonesGetSourceSwitchControlResult(MDRHeadphones* headphones,
                                                             MDRSourceSwitchControlResult* out_result);

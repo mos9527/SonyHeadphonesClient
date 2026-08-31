@@ -6,15 +6,15 @@ namespace mdr
     using namespace v2;
     MDRTask MDRHeadphones::RequestInitV2()
     {
-        mProtocolFamily = ProtocolFamily::UNKNOWN;
+        if (mProtocolFamily != ProtocolFamily::V2)
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V2");
+
         mProtocol = {};
 
         SendCommandACK(t1::ConnectGetProtocolInfo);
         const int result = co_await Await(AWAIT_PROTOCOL_INFO);
         if (result != MDR_RESULT_OK)
             co_return SetLastError(result, "Unable to initialize MDR V2");
-        if (mProtocolFamily != ProtocolFamily::V2)
-            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V2");
         co_return co_await RequestInitV2Selected();
     }
 

@@ -123,13 +123,12 @@ namespace mdr
 
     MDRTask MDRHeadphones::RequestInit()
     {
-        mProtocolFamily = ProtocolFamily::UNKNOWN;
         mProtocol = {};
 
         SendCommandACK(v2::t1::ConnectGetProtocolInfo);
         const int result = co_await Await(AWAIT_PROTOCOL_INFO);
         if (result != MDR_RESULT_OK)
-            co_return SetLastError(result, "Unable to select MDR protocol");
+            co_return SetLastError(result, "Unable to initialize MDR");
 
         switch (mProtocolFamily)
         {
@@ -138,7 +137,7 @@ namespace mdr
         case ProtocolFamily::V2:
             co_return co_await RequestInitV2Selected();
         default:
-            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Unsupported MDR protocol-info reply");
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "MDR protocol family has not been selected");
         }
     }
 
@@ -281,47 +280,50 @@ namespace mdr
 
     int MDRHeadphones::HandleProtocolInfo(Span<const UInt8> command)
     {
-        if (command.size() == sizeof(v1::t1::RetProtocolInfo))
+        // The protocol family is fixed at construction time; here we only parse the
+        // advertised version and table support, validating the reply matches it.
+        switch (mProtocolFamily)
         {
-            const auto result = (v1::t1::RetProtocolInfo::Deserialize)(command.data(), command.size());
-            if (!result)
-                return SetLastError(
-                    result.error,
-                    result.errMessage ? result.errMessage : "Unable to deserialize MDR V1 protocol info");
-            if (mProtocolFamily != ProtocolFamily::UNKNOWN && mProtocolFamily != ProtocolFamily::V1)
+        case ProtocolFamily::V1:
+            if (command.size() != sizeof(v1::t1::RetProtocolInfo))
                 return SetLastError(
                     MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
-                    "MDR protocol family changed from V2 to V1");
-            mProtocolFamily = ProtocolFamily::V1;
-            mProtocol = {
-                .version = result.value.protocolVersion,
-                .hasTable1 = true,
-                .hasTable2 = false
-            };
-        }
-        else if (command.size() == sizeof(v2::t1::ConnectRetProtocolInfo))
-        {
-            const auto result = (v2::t1::ConnectRetProtocolInfo::Deserialize)(command.data(), command.size());
-            if (!result)
-                return SetLastError(
-                    result.error,
-                    result.errMessage ? result.errMessage : "Unable to deserialize MDR V2 protocol info");
-            if (mProtocolFamily != ProtocolFamily::UNKNOWN && mProtocolFamily != ProtocolFamily::V2)
+                    "MDR V1 protocol info size is not valid");
+            {
+                const auto result = (v1::t1::RetProtocolInfo::Deserialize)(command.data(), command.size());
+                if (!result)
+                    return SetLastError(
+                        result.error,
+                        result.errMessage ? result.errMessage : "Unable to deserialize MDR V1 protocol info");
+                mProtocol = {
+                    .version = result.value.protocolVersion,
+                    .hasTable1 = true,
+                    .hasTable2 = false
+                };
+            }
+            break;
+        case ProtocolFamily::V2:
+            if (command.size() != sizeof(v2::t1::ConnectRetProtocolInfo))
                 return SetLastError(
                     MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
-                    "MDR protocol family changed from V1 to V2");
-            mProtocolFamily = ProtocolFamily::V2;
-            mProtocol = {
-                .version = result.value.protocolVersion,
-                .hasTable1 = result.value.supportTable1Value == v2::EnableDisable::ENABLE,
-                .hasTable2 = result.value.supportTable2Value == v2::EnableDisable::ENABLE
-            };
-        }
-        else
-        {
+                    "MDR V2 protocol info size is not valid");
+            {
+                const auto result = (v2::t1::ConnectRetProtocolInfo::Deserialize)(command.data(), command.size());
+                if (!result)
+                    return SetLastError(
+                        result.error,
+                        result.errMessage ? result.errMessage : "Unable to deserialize MDR V2 protocol info");
+                mProtocol = {
+                    .version = result.value.protocolVersion,
+                    .hasTable1 = result.value.supportTable1Value == v2::EnableDisable::ENABLE,
+                    .hasTable2 = result.value.supportTable2Value == v2::EnableDisable::ENABLE
+                };
+            }
+            break;
+        default:
             return SetLastError(
-                MDR_RESULT_ERROR_MALFORMED_PAYLOAD,
-                "CONNECT_RET_PROTOCOL_INFO size is not valid");
+                MDR_RESULT_ERROR_NOT_SUPPORTED,
+                "MDR protocol family is not supported");
         }
 
         Awake(AWAIT_PROTOCOL_INFO);
@@ -995,7 +997,7 @@ const char* mdrConnectionGetLastError(MDRConnection* conn)
 }
 
 MDRResult mdrHeadphonesCreate(
-    uint32_t abiVersion, MDRConnection* connection, MDRHeadphones** outHeadphones)
+    uint32_t abiVersion, MDRConnection* connection, MDRProtocolVersion protocolVersion, MDRHeadphones** outHeadphones)
 {
     // Clear the handle before anything else, so a caller that ignores the result is not left
     // holding whatever was in the variable to begin with.
@@ -1007,7 +1009,16 @@ MDRResult mdrHeadphonesCreate(
         return MDR_RESULT_ERROR_ABI_MISMATCH;
     if (!connection || !outHeadphones || !connection->recv || !connection->send || !connection->poll)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    auto* headphones = mdr::Construct<Headphones>(connection);
+
+    Headphones::ProtocolFamily family;
+    switch (protocolVersion)
+    {
+    case MDR_PROTOCOL_V1: family = Headphones::ProtocolFamily::V1; break;
+    case MDR_PROTOCOL_V2: family = Headphones::ProtocolFamily::V2; break;
+    default: return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    }
+
+    auto* headphones = mdr::Construct<Headphones>(connection, family);
     if (!headphones)
         return MDR_RESULT_ERROR_GENERAL;
     *outHeadphones = mdr::detail::HeadphonesHandle(headphones);

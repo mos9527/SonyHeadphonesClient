@@ -197,7 +197,7 @@ static int session_open(Session* session)
     memset(session, 0, sizeof(*session));
     mock_init(&session->transport);
     check_result(
-        mdrHeadphonesCreate(MDR_ABI_VERSION, &session->transport.connection, &session->headphones),
+        mdrHeadphonesCreate(MDR_ABI_VERSION, &session->transport.connection, MDR_PROTOCOL_V2, &session->headphones),
         MDR_RESULT_OK,
         "opaque headphones session opens"
     );
@@ -335,20 +335,20 @@ static void test_abi_version_handshake(void)
 
     mock_init(&transport);
     check_result(
-        mdrHeadphonesCreate(MDR_ABI_VERSION + 1u, &transport.connection, &headphones),
+        mdrHeadphonesCreate(MDR_ABI_VERSION + 1u, &transport.connection, MDR_PROTOCOL_V2, &headphones),
         MDR_RESULT_ERROR_ABI_MISMATCH,
         "a newer header is refused by an older library"
     );
     check(headphones == NULL, "a refused handshake leaves no instance behind");
 
     check_result(
-        mdrHeadphonesCreate(0u, &transport.connection, &headphones),
+        mdrHeadphonesCreate(0u, &transport.connection, MDR_PROTOCOL_V2, &headphones),
         MDR_RESULT_ERROR_ABI_MISMATCH,
         "an unversioned caller is refused"
     );
 
     check_result(
-        mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, &headphones),
+        mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, MDR_PROTOCOL_V2, &headphones),
         MDR_RESULT_OK,
         "the matching version is accepted"
     );
