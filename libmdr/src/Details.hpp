@@ -177,7 +177,7 @@ namespace mdr
         };
 
         static constexpr int kAwaitAckRetries = 10;
-        static constexpr int kAwaitTimeout = 3; // Seconds
+        static constexpr int kAwaitTimeout = 1; // Seconds
 
         // NOLINTBEGIN
         struct Awaiter

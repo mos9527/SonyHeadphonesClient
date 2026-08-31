@@ -1002,7 +1002,7 @@ namespace mdr
         if (cmd.empty())
             return MDR_EVENT_UNHANDLED;
         const auto command = static_cast<Command>(cmd[0]);
-        MDR_LOG_DEBUG("<< {}", command);
+        MDR_LOG_DEBUG(">> {}", command);
         switch (command)
         {
         case CONNECT_RET_SUPPORT_FUNCTION:

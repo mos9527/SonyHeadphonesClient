@@ -250,7 +250,7 @@ namespace mdr
 #ifdef MDR_DEBUG
         mdr::String dump = "<< ";
         for (char* p = buf; p != buf + recvd; p++)
-            dump += mdr::Format("{:X} ", static_cast<UInt8>(*p));
+            dump += mdr::Format("{:02X} ", static_cast<UInt8>(*p));
         MDR_LOG("{}", dump);
 #endif
         mRecvBuf.insert(mRecvBuf.end(), buf, buf + recvd);
@@ -268,9 +268,9 @@ namespace mdr
         if (r != MDR_RESULT_OK)
             return r;
 #ifdef MDR_DEBUG
-        mdr::String dump = "<< ";
+        mdr::String dump = ">> ";
         for (char* p = buf; p != buf + sent; p++)
-            dump += mdr::Format("{:X} ", static_cast<UInt8>(*p));
+            dump += mdr::Format("{:02X} ", static_cast<UInt8>(*p));
         MDR_LOG("{}", dump);
 #endif
         mSendBuf.erase(mSendBuf.begin(), mSendBuf.begin() + sent);
