@@ -622,6 +622,12 @@ namespace mdr::detail
  * while all we need is merely a `co_await`...
  *
  * TL;DR, this helps with compiler bloats. Use it well.
+ * 
+ * @note On bumping mSeqNumber. Ignoring transport issues (which is not a thing with RFCOMM backends at least), a timeout 
+ *       can only occur when:
+ *       - The device is shutting down
+ *       - Or when we actually _missed_ a packet. Which can happen as chunked packets are discared by us _currently_
+ *         We should handle this (hence the FIXME). For now retrying by assuming we got another ACK works despite the lack thereof.
  */
 #define SendCommandACK(Type, ...)                                                                                      \
     {                                                                                                                  \
@@ -636,6 +642,7 @@ namespace mdr::detail
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
             MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, _maxRetries);                                          \
+            mSeqNumber = (mSeqNumber + 1) & 0x01;                                                                      \
         }                                                                                                              \
         if (_retries == _maxRetries)                                                                                   \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \

@@ -418,10 +418,13 @@ namespace mdr
             // Incomplete. Nop.
             break;
         case MDRUnpackResult::BAD_MARKER: [[unlikely]]
-        case MDRUnpackResult::BAD_CHECKSUM:
-            [[unlikely]]
-                // Unlikely. What we have now makes no sense yet markers are intact.
-                mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
+            // FIXME Consider chunked transport.
+            // This can happen and should not be handled this way. See also @ref SendCommandACK
+        case MDRUnpackResult::BAD_CHECKSUM: [[unlikely]]
+        case MDRUnpackResult::BAD_OTHER: [[unlikely]]
+            // Unlikely. What we have now makes no sense yet markers are intact.
+            MDR_LOG("FIXME-MDR packet malformed, discarding {} bytes", std::distance(mRecvBuf.begin(), commandEnd));
+            mRecvBuf.erase(mRecvBuf.begin(), commandEnd);
             break;
         }
         return idleCode;
