@@ -20,8 +20,9 @@ Replay mode exposes only the protocol debugger. It is available in Debug builds 
 in other configurations built with `-DMDR_CLIENT_DEBUGGER=ON`; clients built without
 the debugger reject replay arguments. Debugger exports use native save dialogs on
 desktop platforms with `.bin` and `.zip` default filenames. A ZIP export stores the
-complete packet history without compression. When dialogs are unavailable, exports
-fall back to their default filenames in the current directory.
+complete packet history without compression. Emscripten exports start a browser
+download directly. On other platforms where dialogs are unavailable, exports fall
+back to their default filenames in the current directory.
 
 ## Credits
 The following third-party libraries are used in the implementation.

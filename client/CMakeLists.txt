@@ -137,6 +137,9 @@ set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory(Platform)
 
 target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3-static)
+if (MDR_CLIENT_DEBUGGER_TARGET AND MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+    target_link_libraries(Client_Debugger PUBLIC Client_Platform)
+endif ()
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform mdr::bt)
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE

@@ -50,10 +50,10 @@ packet files in filename order and exposes only the debugger interface. Use
 
 The debugger's export actions open native save dialogs on desktop platforms with
 `.bin` and `.zip` default filenames. **Export ZIP** stores the complete packet
-history without compression. If dialogs are unavailable, exports use their default
-filenames in the current directory. The disconnect error dialog can export either
-the latest packet or the complete ZIP for a bug report; packet captures may contain
-private device information.
+history without compression. Emscripten starts a browser download directly; other
+platforms without dialog support use the default filename in the current directory.
+The disconnect error dialog can export either the latest packet or the complete ZIP
+for a bug report; packet captures may contain private device information.
 
 ### Submitting the data
 

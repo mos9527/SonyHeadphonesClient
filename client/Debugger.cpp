@@ -4,6 +4,7 @@
 #include "Details.hpp"
 
 #include "Fonts/PlexSansIcon.h"
+#include "Platform/Platform.hpp"
 
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_dialog.h>
@@ -66,6 +67,7 @@ namespace
 
     SDL_Window* gWindow{};
     constexpr const char* kDefaultPacketExportPath = "mdr-debugger-packet.bin";
+#ifndef __EMSCRIPTEN__
     constexpr SDL_DialogFileFilter kPacketFileFilter{"MDR packet", "bin"};
     constexpr SDL_DialogFileFilter kZipFileFilter{"ZIP archive", "zip"};
 
@@ -75,6 +77,7 @@ namespace
         mdr::String defaultPath;
         mdr::String extension;
     };
+#endif
 
     std::mutex gExportMutex;
     bool gExportDialogActive{};
@@ -84,6 +87,7 @@ namespace
 
     bool WriteCaptureFile(const char* path, mdr::Span<const mdr::UInt8> frame);
 
+#ifndef __EMSCRIPTEN__
     bool EndsWithCaseInsensitive(std::string_view value, std::string_view suffix)
     {
         return value.size() >= suffix.size() &&
@@ -104,6 +108,7 @@ namespace
             result += extension;
         return result;
     }
+#endif
 
     void SetExportResult(mdr::String result)
     {
@@ -128,6 +133,7 @@ namespace
         gStatus = std::move(result);
     }
 
+#ifndef __EMSCRIPTEN__
     void SDLCALL ExportDialogCallback(void* userdata, const char* const* filelist, int)
     {
         auto* request = static_cast<ExportRequest*>(userdata);
@@ -156,12 +162,12 @@ namespace
         delete request;
         SetExportResult(std::move(result));
     }
+#endif
 
     bool RequestExport(
         mdr::Span<const mdr::UInt8> data,
         const char* defaultPath,
-        const char* extension,
-        const SDL_DialogFileFilter& filter)
+        const char* filterExtension)
     {
         PollExportResult();
         {
@@ -173,6 +179,20 @@ namespace
             }
         }
 
+#ifdef __EMSCRIPTEN__
+        {
+            std::scoped_lock lock(gExportMutex);
+            gExportDialogActive = true;
+        }
+        gExportStatus = gStatus = "Starting browser download";
+        const char* mimeType =
+            std::string_view(filterExtension) == "zip" ? "application/zip" : "application/octet-stream";
+        const bool started =
+            clientPlatformDownloadFile(defaultPath, data.data(), data.size(), mimeType) != 0;
+        SetExportResult(
+            started ? mdr::Format("Downloaded {}", defaultPath) : "Browser download could not be started");
+        return started;
+#else
         if (!gWindow)
         {
             if (WriteCaptureFile(defaultPath, data))
@@ -185,15 +205,18 @@ namespace
         auto* request = new ExportRequest;
         request->data.assign(data.begin(), data.end());
         request->defaultPath = defaultPath;
-        request->extension = extension;
+        request->extension = mdr::Format(".{}", filterExtension);
         {
             std::scoped_lock lock(gExportMutex);
             gExportDialogActive = true;
         }
         gExportStatus = gStatus = "Choose an export destination";
+        const SDL_DialogFileFilter& filter =
+            std::string_view(filterExtension) == "zip" ? kZipFileFilter : kPacketFileFilter;
         SDL_ShowSaveFileDialog(
             ExportDialogCallback, request, gWindow, &filter, 1, request->defaultPath.c_str());
         return true;
+#endif
     }
 
     template <typename Function>
@@ -632,7 +655,7 @@ namespace
 
     void ExportPacket(const mdr::MDRBuffer& frame)
     {
-        RequestExport(frame, kDefaultPacketExportPath, ".bin", kPacketFileFilter);
+        RequestExport(frame, kDefaultPacketExportPath, "bin");
     }
 
     void DrawPacketEditor()
@@ -1110,7 +1133,7 @@ bool clientDebuggerExportLatestPacket()
         return false;
     }
     return RequestExport(
-        gHistory.back().frame, kDefaultPacketExportPath, ".bin", kPacketFileFilter);
+        gHistory.back().frame, kDefaultPacketExportPath, "bin");
 }
 
 bool clientDebuggerExportPacketCollection()
@@ -1123,7 +1146,7 @@ bool clientDebuggerExportPacketCollection()
     const std::int64_t timestamp = ExportTimestamp();
     const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
     const mdr::String defaultPath = mdr::Format("mdr-debugger-packets-{}.zip", timestamp);
-    return RequestExport(archive, defaultPath.c_str(), ".zip", kZipFileFilter);
+    return RequestExport(archive, defaultPath.c_str(), "zip");
 }
 
 bool clientDebuggerWritePacketCollectionFile(const char* path)

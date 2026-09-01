@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <mdr-c/Connection.h>
 
 extern "C" {
@@ -21,6 +22,17 @@ extern "C" {
      * @return Size of font data in bytes, 0 if not available - can be retried.
      */
     extern int clientPlatformLocateFontBinary(const char** outData);
+#ifdef __EMSCRIPTEN__
+    /**
+     * @brief Download bytes through the browser.
+     * @return Non-zero when the browser download was started.
+     */
+    extern int clientPlatformDownloadFile(
+        const char* filename,
+        const unsigned char* data,
+        size_t dataSize,
+        const char* mimeType);
+#endif
     /**
      * @brief Master clean up function.
      * This will destroy all connections, and ensures the client is quit without leaking resources.
