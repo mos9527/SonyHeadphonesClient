@@ -2633,7 +2633,6 @@ MDRResult<void> NotifyPlayParamPlaybackControllerNameData::Validate(const Notify
     MDR_VALIDATE(is_valid(data.dataType));
     MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifySportsExParamTrainingModeExParam::Validate(const NotifySportsExParamTrainingModeExParam& data) {
@@ -2854,7 +2853,6 @@ MDRResult<void> RetPlayCapabilityPlaybackControllerNameData::Validate(const RetP
     MDR_VALIDATE(is_valid(data.dataType));
     MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetPlayParamPlaybackControllerNameData::Validate(const RetPlayParamPlaybackControllerNameData& data) {
@@ -2865,7 +2863,6 @@ MDRResult<void> RetPlayParamPlaybackControllerNameData::Validate(const RetPlayPa
     MDR_VALIDATE(is_valid(data.dataType));
     MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetSportsCapability::Validate(const RetSportsCapability& data) {
@@ -3069,7 +3066,6 @@ MDRResult<void> SetPlayParamPlaybackControllerNameData::Validate(const SetPlayPa
     MDR_VALIDATE(is_valid(data.dataType));
     MDR_VALIDATE(data.dataType == PlaybackDetailedDataType::TRACK_NAME);
     MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
-    MDR_VALIDATE(is_valid(data.playbackName2.nameStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> SetSportsParam::Validate(const SetSportsParam& data) {

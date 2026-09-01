@@ -3163,9 +3163,9 @@ namespace mdr::v1::t1
     // THMSGV1T1PlaybackName
     struct PlaybackName
     {
-        MDRPrefixedString name; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED};
+        PlaybackNameStatus nameStatus{PlaybackNameStatus::UNSETTLED}; // 0x0
+        MDRPrefixedString name; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackName);
     };
@@ -5838,7 +5838,6 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
         PlaybackName playbackName{}; // 0x3
-        PlaybackName playbackName2{};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(NotifyPlayParamPlaybackControllerNameData);
     };
@@ -5897,7 +5896,6 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x0
         PlaybackName playbackName{}; // 0x1
-        PlaybackName playbackName2{};
 
         MDR_DEFINE_EXTERN_READ_WRITE(PlaybackControllerNameData);
     };
@@ -6158,7 +6156,6 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x4
         PlaybackName playbackName{}; // 0x5
-        PlaybackName playbackName2{};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(RetPlayCapabilityPlaybackControllerNameData);
     };
@@ -6173,7 +6170,6 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
         PlaybackName playbackName{}; // 0x3
-        PlaybackName playbackName2{};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(RetPlayParamPlaybackControllerNameData);
     };
@@ -6459,7 +6455,6 @@ namespace mdr::v1::t1
         // CODEGEN EnumRange PlaybackDetailedDataType::TRACK_NAME
         PlaybackDetailedDataType dataType{PlaybackDetailedDataType::TRACK_NAME}; // 0x2
         PlaybackName playbackName{}; // 0x3
-        PlaybackName playbackName2{};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SetPlayParamPlaybackControllerNameData);
     };

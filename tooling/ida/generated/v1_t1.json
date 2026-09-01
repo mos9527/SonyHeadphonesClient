@@ -14524,15 +14524,6 @@
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackName;",
           "wire_kind": "helper"
-        },
-        {
-          "cpp_type": "PlaybackName",
-          "default": "{}",
-          "name": "playbackName2",
-          "offset": null,
-          "semantic_rules": [],
-          "source_type": "LTHMSGV1T1PlaybackName;",
-          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV1T1NotifyPlayParam",
@@ -20242,15 +20233,6 @@
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackName;",
           "wire_kind": "helper"
-        },
-        {
-          "cpp_type": "PlaybackName",
-          "default": "{}",
-          "name": "playbackName2",
-          "offset": null,
-          "semantic_rules": [],
-          "source_type": "LTHMSGV1T1PlaybackName;",
-          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV1T1PlaybackControllerNameData",
@@ -20353,26 +20335,28 @@
       "cpp_name": "PlaybackName",
       "discriminator_field": null,
       "discriminator_value": null,
-      "evidence": [],
+      "evidence": [
+        "external serializer getter order: nameStatus, name"
+      ],
       "factory_signature": null,
       "fields": [
-        {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
-          "name": "name",
-          "offset": 0,
-          "semantic_rules": [],
-          "source_type": "LNSString;",
-          "wire_kind": "string"
-        },
         {
           "cpp_type": "PlaybackNameStatus",
           "default": "PlaybackNameStatus::UNSETTLED",
           "name": "nameStatus",
-          "offset": null,
+          "offset": 0,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackNameStatus;",
           "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRPrefixedString",
+          "default": null,
+          "name": "name",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "string"
         }
       ],
       "objc_name": "THMSGV1T1PlaybackName",
@@ -24470,15 +24454,6 @@
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackName;",
           "wire_kind": "helper"
-        },
-        {
-          "cpp_type": "PlaybackName",
-          "default": "{}",
-          "name": "playbackName2",
-          "offset": null,
-          "semantic_rules": [],
-          "source_type": "LTHMSGV1T1PlaybackName;",
-          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV1T1RetPlayCapability",
@@ -24662,15 +24637,6 @@
           "default": "{}",
           "name": "playbackName",
           "offset": 3,
-          "semantic_rules": [],
-          "source_type": "LTHMSGV1T1PlaybackName;",
-          "wire_kind": "helper"
-        },
-        {
-          "cpp_type": "PlaybackName",
-          "default": "{}",
-          "name": "playbackName2",
-          "offset": null,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackName;",
           "wire_kind": "helper"
@@ -33509,15 +33475,6 @@
           "default": "{}",
           "name": "playbackName",
           "offset": 3,
-          "semantic_rules": [],
-          "source_type": "LTHMSGV1T1PlaybackName;",
-          "wire_kind": "helper"
-        },
-        {
-          "cpp_type": "PlaybackName",
-          "default": "{}",
-          "name": "playbackName2",
-          "offset": null,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackName;",
           "wire_kind": "helper"

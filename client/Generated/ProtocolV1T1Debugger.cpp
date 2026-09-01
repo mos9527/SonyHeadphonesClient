@@ -13044,14 +13044,8 @@ namespace client::debugger {
             changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
             changed |= DrawTree("playbackName", [&]() {
                 bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName.name);
                 changed |= DrawEnum("nameStatus", value.playbackName.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
-                return changed;
-            });
-            changed |= DrawTree("playbackName2", [&]() {
-                bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName2.name);
-                changed |= DrawEnum("nameStatus", value.playbackName2.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
+                changed |= DrawPrefixedString("name", value.playbackName.name);
                 return changed;
             });
             return changed;
@@ -13065,7 +13059,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playInquiredType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName2, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -13078,7 +13071,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playInquiredType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName2, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_NotifyPlayParamPlaybackControllerNameData() { return Construct<NotifyPlayParamPlaybackControllerNameData>(); }
@@ -14174,14 +14166,8 @@ namespace client::debugger {
             changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
             changed |= DrawTree("playbackName", [&]() {
                 bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName.name);
                 changed |= DrawEnum("nameStatus", value.playbackName.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
-                return changed;
-            });
-            changed |= DrawTree("playbackName2", [&]() {
-                bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName2.name);
-                changed |= DrawEnum("nameStatus", value.playbackName2.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
+                changed |= DrawPrefixedString("name", value.playbackName.name);
                 return changed;
             });
             return changed;
@@ -14197,7 +14183,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playbackControlType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName2, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -14212,7 +14197,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playbackControlType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName2, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_RetPlayCapabilityPlaybackControllerNameData() { return Construct<RetPlayCapabilityPlaybackControllerNameData>(); }
@@ -14231,14 +14215,8 @@ namespace client::debugger {
             changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
             changed |= DrawTree("playbackName", [&]() {
                 bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName.name);
                 changed |= DrawEnum("nameStatus", value.playbackName.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
-                return changed;
-            });
-            changed |= DrawTree("playbackName2", [&]() {
-                bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName2.name);
-                changed |= DrawEnum("nameStatus", value.playbackName2.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
+                changed |= DrawPrefixedString("name", value.playbackName.name);
                 return changed;
             });
             return changed;
@@ -14252,7 +14230,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playInquiredType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName2, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -14265,7 +14242,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playInquiredType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName2, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_RetPlayParamPlaybackControllerNameData() { return Construct<RetPlayParamPlaybackControllerNameData>(); }
@@ -15234,14 +15210,8 @@ namespace client::debugger {
             changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
             changed |= DrawTree("playbackName", [&]() {
                 bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName.name);
                 changed |= DrawEnum("nameStatus", value.playbackName.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
-                return changed;
-            });
-            changed |= DrawTree("playbackName2", [&]() {
-                bool changed = false;
-                changed |= DrawPrefixedString("name", value.playbackName2.name);
-                changed |= DrawEnum("nameStatus", value.playbackName2.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
+                changed |= DrawPrefixedString("name", value.playbackName.name);
                 return changed;
             });
             return changed;
@@ -15255,7 +15225,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName2, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -15268,7 +15237,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName2, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_SetPlayParamPlaybackControllerNameData() { return Construct<SetPlayParamPlaybackControllerNameData>(); }

@@ -327,11 +327,41 @@ class ProtocolExtractor:
         }
         orders: set[tuple[str, ...]] = set()
         evidence: list[str] = []
+        target_descriptor = f"L{class_name};"
         for candidate_class in self.database.protocol_classes():
-            if (
-                not candidate_class.startswith(prefix)
-                or token not in candidate_class.lower()
-            ):
+            if not candidate_class.startswith(prefix):
+                continue
+            related_by_name = token in candidate_class.lower()
+            related_by_type = False
+            if not related_by_name:
+                try:
+                    candidate_metadata = self.metadata(candidate_class)
+                except ExtractionError:
+                    continue
+                descriptors = [
+                    descriptor
+                    for field in candidate_metadata.fields
+                    for descriptor in (
+                        field.type_descriptor,
+                        field.generic_signature,
+                    )
+                    if descriptor is not None
+                ]
+                descriptors.extend(
+                    descriptor
+                    for method in candidate_metadata.methods
+                    for descriptor in (
+                        method.return_type,
+                        method.parameter_types,
+                        method.generic_signature,
+                    )
+                    if descriptor is not None
+                )
+                related_by_type = any(
+                    target_descriptor in descriptor
+                    for descriptor in descriptors
+                )
+            if not related_by_name and not related_by_type:
                 continue
             for method in self.database.methods(candidate_class):
                 if not (
@@ -3027,6 +3057,34 @@ class ProtocolExtractor:
                 except ExtractionError:
                     continue
                 references.update(referenced)
+                if not has_command_stream and not factory_methods:
+                    matching_getters = [
+                        getter
+                        for getter in getter_methods
+                        if self._getter_field_name(getter) == name
+                    ]
+                    if len(matching_getters) > 1:
+                        raise ExtractionError(
+                            f"multiple getters for metadata field "
+                            f"{class_name}.{name}"
+                        )
+                    if matching_getters:
+                        getter = matching_getters[0]
+                        getter_cpp_type, getter_wire_kind, _ = self._cpp_type(
+                            getter.return_type or "",
+                            getter.generic_signature,
+                        )
+                        if (getter_cpp_type, getter_wire_kind) != (
+                            cpp_type,
+                            wire_kind,
+                        ):
+                            raise ExtractionError(
+                                f"metadata/getter type mismatch for "
+                                f"{class_name}.{name}: metadata="
+                                f"{cpp_type}/{wire_kind}, getter="
+                                f"{getter_cpp_type}/{getter_wire_kind}"
+                            )
+                        continue
                 metadata_fields.append(
                     FieldDecl(
                         name=self._unique_name(name, used_names),
@@ -3166,13 +3224,17 @@ class ProtocolExtractor:
         if (
             serializer_method is None
             and not has_command_stream
-            and len(raw_fields) >= 3
+            and len(raw_fields) >= 2
         ):
             external = self._external_field_evidence(
                 class_name, [field.name for field in raw_fields]
             )
             if external is not None:
                 requested_order, external_text = external
+                field_evidence.append(
+                    "external serializer getter order: "
+                    + ", ".join(requested_order)
+                )
                 by_name = {field.name: field for field in raw_fields}
                 ordered_fields: list[FieldDecl] = []
                 cursor_constants = sorted(

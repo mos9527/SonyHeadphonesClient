@@ -2,6 +2,7 @@
 #include "DebuggerDetails.hpp"
 
 #include <mdr/Command.hpp>
+#include <mdr/ProtocolV1T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
 #include <algorithm>
@@ -110,6 +111,41 @@ namespace
         const auto invalidEncoded = selected->encode(invalid.Value(), roundTrip, sizeof(roundTrip));
         return invalidEncoded && invalidEncoded.value == encoded.value &&
             std::memcmp(bytes, roundTrip, encoded.value) == 0;
+    }
+
+    bool CheckV1PlaybackNameWireLayout()
+    {
+        using namespace mdr;
+        using namespace mdr::v1::t1;
+
+        constexpr UInt8 payload[]{
+            0xA7,
+            0x01,
+            0x00,
+            0x02,
+            0x00,
+        };
+        const auto decoded = RetPlayParamPlaybackControllerNameData::Deserialize(
+            payload, sizeof(payload)
+        );
+        if (
+            !decoded
+            || decoded.value.playbackName.nameStatus
+                != PlaybackNameStatus::SETTLED
+            || !decoded.value.playbackName.name.value.empty()
+        )
+        {
+            MDR_LOG("V1 playback name response wire layout is incorrect");
+            return false;
+        }
+
+        UInt8 encoded[sizeof(payload)]{};
+        const auto serialized =
+            RetPlayParamPlaybackControllerNameData::Serialize(
+                decoded.value, encoded, sizeof(encoded)
+            );
+        return serialized && serialized.value == sizeof(payload)
+            && std::memcmp(payload, encoded, sizeof(payload)) == 0;
     }
 
     bool CheckPeripheralDeviceInfoWireLayouts()
@@ -306,11 +342,13 @@ int main()
         return 1;
     if (!CheckInvalidValuesRemainEditable())
         return 2;
-    if (!CheckPeripheralDeviceInfoWireLayouts())
+    if (!CheckV1PlaybackNameWireLayout())
         return 3;
-    if (!CheckSingleFileReplay())
+    if (!CheckPeripheralDeviceInfoWireLayouts())
         return 4;
-    if (!CheckPacketCollectionZip())
+    if (!CheckSingleFileReplay())
         return 5;
+    if (!CheckPacketCollectionZip())
+        return 6;
     return 0;
 }
