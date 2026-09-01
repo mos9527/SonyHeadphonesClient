@@ -6,15 +6,15 @@ Reference client interface implementation for every platform `libmdr` supports.
 
 ```text
 SonyHeadphonesClient [-con] [--record <capture-folder>]
-SonyHeadphonesClient [-con] [--replay <packet-folder>]
+SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]
 ```
 
 - `-con` opens a console on Windows so diagnostic logs are visible, including in release builds.
 - `--record <capture-folder>` records MDR packets for replay tests. See the
   [capture guide](../tests/README.md#capturing--contributing) for privacy considerations.
-- `--replay <packet-folder>` opens the protocol debugger without initializing a
-  headphones connection and loads the folder's recorded TX/RX packets in filename order.
-  A folder can also be dropped onto a running client window.
+- `--replay <packet-file-or-folder>` opens the protocol debugger without initializing a
+  headphones connection. It loads either one `.bin` MDR packet or a folder's recorded
+  TX/RX packets in filename order. Either can also be dropped onto a running client window.
 
 Replay mode exposes only the protocol debugger. It is available in Debug builds and
 in other configurations built with `-DMDR_CLIENT_DEBUGGER=ON`; clients built without

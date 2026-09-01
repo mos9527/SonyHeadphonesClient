@@ -736,6 +736,28 @@ namespace
         return false;
     }
 
+    std::string_view ReplayFilename(std::string_view path)
+    {
+        const size_t separator = path.find_last_of("/\\");
+        return separator == std::string_view::npos ? path : path.substr(separator + 1);
+    }
+
+    bool IsBinPath(std::string_view path)
+    {
+        constexpr std::string_view extension = ".bin";
+        if (path.size() < extension.size())
+            return false;
+        const std::string_view suffix = path.substr(path.size() - extension.size());
+        return std::ranges::equal(
+            suffix,
+            extension,
+            [](char lhs, char rhs)
+            {
+                return std::tolower(static_cast<unsigned char>(lhs)) ==
+                    std::tolower(static_cast<unsigned char>(rhs));
+            });
+    }
+
     void DrawHistoryToolbar(bool* open)
     {
         ImGui::AlignTextToFramePadding();
@@ -812,6 +834,48 @@ void clientDebuggerObservePacket(MDRPacketDirection direction, const unsigned ch
         if (!IsAck(gHistory.back()))
             SelectCapture(gHistory.back());
     }
+}
+
+bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
+{
+    if (packetCount)
+        *packetCount = 0;
+    if (!path || !*path)
+        return SDL_SetError("Replay path is empty");
+
+    SDL_PathInfo pathInfo{};
+    if (!SDL_GetPathInfo(path, &pathInfo))
+        return false;
+    if (pathInfo.type == SDL_PATHTYPE_DIRECTORY)
+        return clientDebuggerReplayDirectory(path, packetCount);
+    if (pathInfo.type != SDL_PATHTYPE_FILE)
+        return SDL_SetError("Replay path is not a file or folder: %s", path);
+    if (!IsBinPath(path))
+        return SDL_SetError("Replay file is not a .bin payload: %s", path);
+
+    size_t frameSize{};
+    void* frame = SDL_LoadFile(path, &frameSize);
+    if (!frame)
+        return false;
+    if (frameSize == 0 || frameSize > static_cast<size_t>(std::numeric_limits<int>::max()))
+    {
+        SDL_free(frame);
+        return SDL_SetError("Invalid packet size in %s", path);
+    }
+
+    MDRPacketDirection direction = MDR_PACKET_DIRECTION_RX;
+    ReplayDirection(ReplayFilename(path), direction);
+    ClearHistory();
+    MDRHeadphones* attachedHeadphones = gHeadphones;
+    gHeadphones = nullptr;
+    clientDebuggerObservePacket(direction, static_cast<const unsigned char*>(frame), static_cast<int>(frameSize));
+    gHeadphones = attachedHeadphones;
+    SDL_free(frame);
+
+    if (packetCount)
+        *packetCount = 1;
+    gStatus = mdr::Format("Replayed 1 packet from {}", path);
+    return true;
 }
 
 bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)

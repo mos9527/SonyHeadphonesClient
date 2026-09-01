@@ -1,10 +1,14 @@
+#include "Debugger.hpp"
 #include "DebuggerDetails.hpp"
 
+#include <mdr/Command.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 
 namespace
 {
@@ -170,6 +174,41 @@ namespace
         }
         return true;
     }
+
+    bool CheckSingleFileReplay()
+    {
+        using namespace mdr;
+        using namespace mdr::v2::t2;
+
+        ConnectGetSupportFunction packet{};
+        UInt8 payload[kMDRMaxPacketSize];
+        const auto serialized =
+            ConnectGetSupportFunction::Serialize(packet, payload, sizeof(payload));
+        if (!serialized)
+            return false;
+
+        const MDRBuffer frame = MDRPackCommand(
+            MDRDataType::DATA_MDR_NO2,
+            0,
+            {payload, serialized.value});
+        const std::filesystem::path path =
+            std::filesystem::temp_directory_path() / "mdr-debugger-single-packet-test.bin";
+        {
+            std::ofstream output(path, std::ios::binary | std::ios::trunc);
+            output.write(
+                reinterpret_cast<const char*>(frame.data()),
+                static_cast<std::streamsize>(frame.size()));
+            if (!output)
+                return false;
+        }
+
+        size_t packetCount{};
+        const std::string pathString = path.string();
+        const bool replayed = clientDebuggerReplayPath(pathString.c_str(), &packetCount);
+        std::error_code removeError;
+        std::filesystem::remove(path, removeError);
+        return replayed && packetCount == 1 && !removeError;
+    }
 } // namespace
 
 int main()
@@ -180,5 +219,7 @@ int main()
         return 2;
     if (!CheckPeripheralDeviceInfoWireLayouts())
         return 3;
+    if (!CheckSingleFileReplay())
+        return 4;
     return 0;
 }

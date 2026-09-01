@@ -52,7 +52,7 @@ void mainLoop()
         if (event.type == SDL_EVENT_DROP_FILE && event.drop.windowID == SDL_GetWindowID(gWindow))
         {
             size_t replayed{};
-            if (clientDebuggerReplayDirectory(event.drop.data, &replayed))
+            if (clientDebuggerReplayPath(event.drop.data, &replayed))
             {
                 clientEnterDebuggerReplayMode();
                 SDL_Log("Replayed %zu packet(s) from %s", replayed, event.drop.data);
@@ -131,7 +131,7 @@ namespace
     struct ClientOptions
     {
         const char* recordDirectory{};
-        const char* replayDirectory{};
+        const char* replayPath{};
         bool showHelp{};
     };
 
@@ -139,7 +139,7 @@ namespace
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [-con] [--record <capture-folder>]\n"
-            "       SonyHeadphonesClient [-con] [--replay <packet-folder>]\n"
+            "       SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]\n"
             "\n"
             "-con opens a diagnostic console on Windows.\n"
             "Packet replay requires a client build with the debugger enabled."
@@ -170,17 +170,17 @@ namespace
             {
                 if (index + 1 >= argc)
                 {
-                    MDR_LOG("Missing folder after {}.", argument);
+                    MDR_LOG("Missing path after {}.", argument);
                     return false;
                 }
-                const char* directory = argv[++index];
-                const char*& destination = record ? options.recordDirectory : options.replayDirectory;
+                const char* path = argv[++index];
+                const char*& destination = record ? options.recordDirectory : options.replayPath;
                 if (destination)
                 {
                     MDR_LOG("{} may only be specified once.", argument);
                     return false;
                 }
-                destination = directory;
+                destination = path;
                 continue;
             }
 
@@ -188,7 +188,7 @@ namespace
             return false;
         }
 
-        if (options.recordDirectory && options.replayDirectory)
+        if (options.recordDirectory && options.replayPath)
         {
             MDR_LOG("--record and --replay cannot be used together.");
             return false;
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
         return 0;
     }
 #ifndef MDR_CLIENT_DEBUGGER
-    if (options.replayDirectory)
+    if (options.replayPath)
     {
         MDR_LOG("Packet replay is unavailable because this client was built without the debugger.");
         return 2;
@@ -234,17 +234,17 @@ int main(int argc, char** argv)
         MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain device addresses, names, and playback metadata.", options.recordDirectory);
     }
 #ifdef MDR_CLIENT_DEBUGGER
-    if (options.replayDirectory)
+    if (options.replayPath)
     {
         size_t replayed{};
-        if (!clientDebuggerReplayDirectory(options.replayDirectory, &replayed))
+        if (!clientDebuggerReplayPath(options.replayPath, &replayed))
         {
-            MDR_LOG("Unable to replay packet folder {}: {}", options.replayDirectory, SDL_GetError());
+            MDR_LOG("Unable to replay packet path {}: {}", options.replayPath, SDL_GetError());
             SDL_Quit();
             return 1;
         }
         clientEnterDebuggerReplayMode();
-        MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayDirectory);
+        MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayPath);
     }
 #endif
     // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md#numeric-example
