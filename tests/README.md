@@ -48,10 +48,12 @@ also be dropped onto a running client window. Replay mode loads both TX and RX
 packet files in filename order and exposes only the debugger interface. Use
 **Quit replay** to return to the device-selection panel.
 
-The debugger's **Export** action opens a native save dialog on desktop platforms.
-If dialogs are unavailable, it falls back to `mdr-debugger-packet.bin` in the
-current directory. The disconnect error dialog can export the latest captured
-packet for a bug report; packet captures may contain private device information.
+The debugger's export actions open native save dialogs on desktop platforms with
+`.bin` and `.zip` default filenames. **Export ZIP** stores the complete packet
+history without compression. If dialogs are unavailable, exports use their default
+filenames in the current directory. The disconnect error dialog can export either
+the latest packet or the complete ZIP for a bug report; packet captures may contain
+private device information.
 
 ### Submitting the data
 

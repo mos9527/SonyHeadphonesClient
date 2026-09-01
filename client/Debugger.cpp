@@ -61,17 +61,19 @@ namespace
     std::array<char, 128> gTypeFilter{};
     std::array<char, 128> gHistoryFilter{};
     mdr::String gStatus;
-    mdr::String gHistoryStatus;
     bool gFollowMessages{true};
     bool gScrollToLatest{};
 
     SDL_Window* gWindow{};
-    constexpr const char* kFallbackExportPath = "mdr-debugger-packet.bin";
+    constexpr const char* kDefaultPacketExportPath = "mdr-debugger-packet.bin";
     constexpr SDL_DialogFileFilter kPacketFileFilter{"MDR packet", "bin"};
+    constexpr SDL_DialogFileFilter kZipFileFilter{"ZIP archive", "zip"};
 
     struct ExportRequest
     {
-        mdr::MDRBuffer frame;
+        mdr::MDRBuffer data;
+        mdr::String defaultPath;
+        mdr::String extension;
     };
 
     std::mutex gExportMutex;
@@ -81,6 +83,27 @@ namespace
     mdr::String gExportStatus;
 
     bool WriteCaptureFile(const char* path, mdr::Span<const mdr::UInt8> frame);
+
+    bool EndsWithCaseInsensitive(std::string_view value, std::string_view suffix)
+    {
+        return value.size() >= suffix.size() &&
+            std::ranges::equal(
+                value.substr(value.size() - suffix.size()),
+                suffix,
+                [](char lhs, char rhs)
+                {
+                    return std::tolower(static_cast<unsigned char>(lhs)) ==
+                        std::tolower(static_cast<unsigned char>(rhs));
+                });
+    }
+
+    mdr::String ExportPathWithExtension(const char* path, std::string_view extension)
+    {
+        mdr::String result = path;
+        if (!EndsWithCaseInsensitive(result, extension))
+            result += extension;
+        return result;
+    }
 
     void SetExportResult(mdr::String result)
     {
@@ -112,28 +135,33 @@ namespace
         if (!filelist)
         {
             const mdr::String dialogError = SDL_GetError();
-            if (WriteCaptureFile(kFallbackExportPath, request->frame))
-                result = mdr::Format("Exported {} (file dialog unavailable: {})", kFallbackExportPath, dialogError);
+            if (WriteCaptureFile(request->defaultPath.c_str(), request->data))
+                result = mdr::Format(
+                    "Exported {} (file dialog unavailable: {})", request->defaultPath, dialogError);
             else
-                result = mdr::Format("Unable to export {}: {}", kFallbackExportPath, SDL_GetError());
+                result = mdr::Format("Unable to export {}: {}", request->defaultPath, SDL_GetError());
         }
         else if (!filelist[0])
         {
             result = "Export cancelled";
         }
-        else if (WriteCaptureFile(filelist[0], request->frame))
-        {
-            result = mdr::Format("Exported {}", filelist[0]);
-        }
         else
         {
-            result = SDL_GetError();
+            const mdr::String path = ExportPathWithExtension(filelist[0], request->extension);
+            if (WriteCaptureFile(path.c_str(), request->data))
+                result = mdr::Format("Exported {}", path);
+            else
+                result = SDL_GetError();
         }
         delete request;
         SetExportResult(std::move(result));
     }
 
-    bool RequestExport(mdr::Span<const mdr::UInt8> frame)
+    bool RequestExport(
+        mdr::Span<const mdr::UInt8> data,
+        const char* defaultPath,
+        const char* extension,
+        const SDL_DialogFileFilter& filter)
     {
         PollExportResult();
         {
@@ -147,21 +175,24 @@ namespace
 
         if (!gWindow)
         {
-            if (WriteCaptureFile(kFallbackExportPath, frame))
-                gExportStatus = gStatus = mdr::Format("Exported {}", kFallbackExportPath);
+            if (WriteCaptureFile(defaultPath, data))
+                gExportStatus = gStatus = mdr::Format("Exported {}", defaultPath);
             else
                 gExportStatus = gStatus = SDL_GetError();
             return true;
         }
 
         auto* request = new ExportRequest;
-        request->frame.assign(frame.begin(), frame.end());
+        request->data.assign(data.begin(), data.end());
+        request->defaultPath = defaultPath;
+        request->extension = extension;
         {
             std::scoped_lock lock(gExportMutex);
             gExportDialogActive = true;
         }
-        gExportStatus = gStatus = "Choose a destination for the packet";
-        SDL_ShowSaveFileDialog(ExportDialogCallback, request, gWindow, &kPacketFileFilter, 1, nullptr);
+        gExportStatus = gStatus = "Choose an export destination";
+        SDL_ShowSaveFileDialog(
+            ExportDialogCallback, request, gWindow, &filter, 1, request->defaultPath.c_str());
         return true;
     }
 
@@ -601,7 +632,7 @@ namespace
 
     void ExportPacket(const mdr::MDRBuffer& frame)
     {
-        RequestExport(frame);
+        RequestExport(frame, kDefaultPacketExportPath, ".bin", kPacketFileFilter);
     }
 
     void DrawPacketEditor()
@@ -764,44 +795,128 @@ namespace
         return written == frame.size() && closed;
     }
 
-    void DumpHistory()
+    void AppendUInt16LE(mdr::MDRBuffer& output, std::uint16_t value)
     {
-        if (gHistory.empty())
-        {
-            gHistoryStatus = "No packets to dump";
-            return;
-        }
+        output.push_back(static_cast<mdr::UInt8>(value));
+        output.push_back(static_cast<mdr::UInt8>(value >> 8));
+    }
 
-        const auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                   std::chrono::system_clock::now().time_since_epoch())
-                                   .count();
-        const mdr::String directory = mdr::Format("mdr-debugger-dump-{}", timestamp);
-        if (!SDL_CreateDirectory(directory.c_str()))
-        {
-            gHistoryStatus = SDL_GetError();
-            return;
-        }
+    void AppendUInt32LE(mdr::MDRBuffer& output, std::uint32_t value)
+    {
+        for (unsigned int shift = 0; shift < 32; shift += 8)
+            output.push_back(static_cast<mdr::UInt8>(value >> shift));
+    }
 
-        size_t dumped = 0;
+    void AppendBytes(mdr::MDRBuffer& output, std::string_view value)
+    {
+        output.insert(output.end(), value.begin(), value.end());
+    }
+
+    std::uint32_t Crc32(mdr::Span<const mdr::UInt8> data)
+    {
+        std::uint32_t crc = 0xffffffffu;
+        for (const mdr::UInt8 byte : data)
+        {
+            crc ^= byte;
+            for (int bit = 0; bit < 8; ++bit)
+                crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1u)));
+        }
+        return ~crc;
+    }
+
+    struct ZipEntry
+    {
+        mdr::String filename;
+        std::uint32_t crc{};
+        std::uint32_t size{};
+        std::uint32_t localHeaderOffset{};
+    };
+
+    mdr::String CaptureFilename(const CapturedPacket& packet, std::int64_t timestamp)
+    {
+        const char* directionName = packet.direction == MDR_PACKET_DIRECTION_RX ? "rx" : "tx";
+        const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
+        return mdr::Format(
+            "mdr-packet-{}-{:06}-{}.type-{}-{:02x}.seq-{:02x}.cmd-{}-{:02x}.bin",
+            timestamp,
+            packet.id,
+            directionName,
+            packet.unpacked ? mdr::format_as(packet.type) : "INVALID",
+            static_cast<mdr::UInt8>(packet.type),
+            packet.sequence,
+            DumpCommandName(packet),
+            command);
+    }
+
+    mdr::MDRBuffer BuildHistoryZip(std::int64_t timestamp)
+    {
+        mdr::MDRBuffer archive;
+        mdr::Vector<ZipEntry> entries;
+        entries.reserve(gHistory.size());
         for (const CapturedPacket& packet : gHistory)
         {
-            const char* directionName = packet.direction == MDR_PACKET_DIRECTION_RX ? "rx" : "tx";
-            const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
-            const mdr::String filename =
-                mdr::Format("{}-{:06}-{}.type-{}-{:02x}.seq-{:02x}.cmd-{}-{:02x}.bin", timestamp, packet.id,
-                            directionName, packet.unpacked ? mdr::format_as(packet.type) : "INVALID",
-                            static_cast<mdr::UInt8>(packet.type), packet.sequence, DumpCommandName(packet), command);
-            const mdr::String path = directory + "/mdr-packet-" + filename;
-            if (!WriteCaptureFile(path.c_str(), packet.frame))
-            {
-                gHistoryStatus = mdr::Format("Failed dumping {}: {}", path, SDL_GetError());
-                return;
-            }
-            ++dumped;
+            ZipEntry& entry = entries.emplace_back();
+            entry.filename = CaptureFilename(packet, timestamp);
+            entry.crc = Crc32(packet.frame);
+            entry.size = static_cast<std::uint32_t>(packet.frame.size());
+            entry.localHeaderOffset = static_cast<std::uint32_t>(archive.size());
+
+            AppendUInt32LE(archive, 0x04034b50u);
+            AppendUInt16LE(archive, 20);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt32LE(archive, entry.crc);
+            AppendUInt32LE(archive, entry.size);
+            AppendUInt32LE(archive, entry.size);
+            AppendUInt16LE(archive, static_cast<std::uint16_t>(entry.filename.size()));
+            AppendUInt16LE(archive, 0);
+            AppendBytes(archive, entry.filename);
+            archive.insert(archive.end(), packet.frame.begin(), packet.frame.end());
         }
 
-        gHistoryStatus = mdr::Format("Dumped {} packet(s) to {}", dumped, directory);
-        SDL_Log("%s", gHistoryStatus.c_str());
+        const std::uint32_t centralDirectoryOffset = static_cast<std::uint32_t>(archive.size());
+        for (const ZipEntry& entry : entries)
+        {
+            AppendUInt32LE(archive, 0x02014b50u);
+            AppendUInt16LE(archive, 20);
+            AppendUInt16LE(archive, 20);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt32LE(archive, entry.crc);
+            AppendUInt32LE(archive, entry.size);
+            AppendUInt32LE(archive, entry.size);
+            AppendUInt16LE(archive, static_cast<std::uint16_t>(entry.filename.size()));
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt16LE(archive, 0);
+            AppendUInt32LE(archive, 0);
+            AppendUInt32LE(archive, entry.localHeaderOffset);
+            AppendBytes(archive, entry.filename);
+        }
+
+        const std::uint32_t centralDirectorySize =
+            static_cast<std::uint32_t>(archive.size()) - centralDirectoryOffset;
+        AppendUInt32LE(archive, 0x06054b50u);
+        AppendUInt16LE(archive, 0);
+        AppendUInt16LE(archive, 0);
+        AppendUInt16LE(archive, static_cast<std::uint16_t>(entries.size()));
+        AppendUInt16LE(archive, static_cast<std::uint16_t>(entries.size()));
+        AppendUInt32LE(archive, centralDirectorySize);
+        AppendUInt32LE(archive, centralDirectoryOffset);
+        AppendUInt16LE(archive, 0);
+        return archive;
+    }
+
+    std::int64_t ExportTimestamp()
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+            .count();
     }
 
     struct ReplayCapture
@@ -858,7 +973,7 @@ namespace
             gFollowMessages = !gFollowMessages;
 
         const float dumpWidth =
-            ImGui::CalcTextSize(PSI_SAVE " Dump").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+            ImGui::CalcTextSize(PSI_SAVE " Export ZIP").x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const float clearWidth =
             ImGui::CalcTextSize(PSI_TRASH " Clear").x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const char* closeLabel = replayMode ? "Quit replay" : "Close";
@@ -868,9 +983,9 @@ namespace
         const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
         const float rightButtons = dumpWidth + buttonSpacing + clearWidth + (open ? buttonSpacing + closeWidth : 0.0f);
         ImGui::SameLine(std::max(ImGui::GetCursorPosX(), rightEdge - rightButtons));
-        ImGui::BeginDisabled(gHistory.empty());
-        if (ImGui::Button(PSI_SAVE " Dump"))
-            DumpHistory();
+        ImGui::BeginDisabled(gHistory.empty() || clientDebuggerExportInProgress());
+        if (ImGui::Button(PSI_SAVE " Export ZIP"))
+            clientDebuggerExportPacketCollection();
         ImGui::EndDisabled();
         ImGui::SameLine();
         if (ImGui::Button(PSI_TRASH " Clear"))
@@ -890,8 +1005,8 @@ namespace
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::InputTextWithHint("##history-filter", PSI_FILTER " Filter packets (space-separated)",
                                  gHistoryFilter.data(), gHistoryFilter.size());
-        if (!gHistoryStatus.empty())
-            ImGui::TextWrapped("%s", gHistoryStatus.c_str());
+        if (!gExportStatus.empty())
+            ImGui::TextWrapped("%s", gExportStatus.c_str());
     }
 } // namespace
 
@@ -994,7 +1109,37 @@ bool clientDebuggerExportLatestPacket()
         gExportStatus = gStatus = "No packets available to export";
         return false;
     }
-    return RequestExport(gHistory.back().frame);
+    return RequestExport(
+        gHistory.back().frame, kDefaultPacketExportPath, ".bin", kPacketFileFilter);
+}
+
+bool clientDebuggerExportPacketCollection()
+{
+    if (gHistory.empty())
+    {
+        gExportStatus = gStatus = "No packets available to export";
+        return false;
+    }
+    const std::int64_t timestamp = ExportTimestamp();
+    const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
+    const mdr::String defaultPath = mdr::Format("mdr-debugger-packets-{}.zip", timestamp);
+    return RequestExport(archive, defaultPath.c_str(), ".zip", kZipFileFilter);
+}
+
+bool clientDebuggerWritePacketCollectionFile(const char* path)
+{
+    if (!path || !*path)
+        return SDL_SetError("Packet collection export path is empty");
+    if (gHistory.empty())
+        return SDL_SetError("No packets available to export");
+    const mdr::MDRBuffer archive = BuildHistoryZip(ExportTimestamp());
+    return WriteCaptureFile(path, archive);
+}
+
+void clientDebuggerClearExportStatus()
+{
+    PollExportResult();
+    gExportStatus.clear();
 }
 
 const char* clientDebuggerGetExportStatus()

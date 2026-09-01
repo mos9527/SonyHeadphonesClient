@@ -883,11 +883,13 @@ void DrawDeviceDiscovery()
 }
 
 // NOTE: Only CONN_STATE_DISCONNECTED state shows the modal
-void DisconnectWithModal()
+void DisconnectWithModal(const char* manualError = nullptr)
 {
     MDRConnection* conn = clientPlatformConnectionGet();
     connState = CONN_STATE_DISCONNECTED;
     CloseDevice();
+    if (manualError)
+        gHeadphonesError = manualError;
     mdrConnectionDisconnect(conn);
 }
 
@@ -1007,6 +1009,8 @@ void DrawDeviceControlsHeader()
 #ifdef MDR_CLIENT_DEBUGGER
             ImGui::Separator();
             ImGui::MenuItem("Protocol Debugger", nullptr, &gDebuggerOpen);
+            if (ImGui::MenuItem(PSI_BUG " Trigger disconnect error"))
+                DisconnectWithModal("Disconnect error manually triggered from the debug menu");
 #endif
             ImGui::EndMenu();
         }
@@ -1791,6 +1795,9 @@ void DrawDeviceDisconnect()
     static bool popup = false;
     if (!popup)
     {
+#ifdef MDR_CLIENT_DEBUGGER
+        clientDebuggerClearExportStatus();
+#endif
         MDR_LOG("[Client] Device disconnected")
         if (!connectionAttempt.lastError.empty())
             MDR_LOG("[Client] Connection: {}", connectionAttempt.lastError)
@@ -1834,13 +1841,15 @@ void DrawDeviceDisconnect()
 #endif
         );
 #ifdef MDR_CLIENT_DEBUGGER
-        if (ImModalButton(PSI_SAVE " Export latest packet", 0, 2))
+        if (ImModalButton(PSI_SAVE " Export latest", 0, 3))
             clientDebuggerExportLatestPacket();
+        if (ImModalButton(PSI_SAVE " Export ZIP", 1, 3))
+            clientDebuggerExportPacketCollection();
 #endif
         ImGui::EndDisabled();
         if (ImModalButton(PSI_LINK " Reconnect",
 #ifdef MDR_CLIENT_DEBUGGER
-                          1, 2
+                          2, 3
 #else
                           0, 1
 #endif

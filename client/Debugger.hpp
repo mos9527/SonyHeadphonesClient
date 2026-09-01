@@ -18,5 +18,8 @@ bool clientDebuggerWritePacketFile(const char* path, const unsigned char* frame,
 bool clientDebuggerHasPackets();
 bool clientDebuggerExportInProgress();
 bool clientDebuggerExportLatestPacket();
+bool clientDebuggerExportPacketCollection();
+bool clientDebuggerWritePacketCollectionFile(const char* path);
+void clientDebuggerClearExportStatus();
 const char* clientDebuggerGetExportStatus();
 void clientDebuggerDraw(bool* open, bool replayMode = false);

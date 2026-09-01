@@ -18,9 +18,10 @@ SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]
 
 Replay mode exposes only the protocol debugger. It is available in Debug builds and
 in other configurations built with `-DMDR_CLIENT_DEBUGGER=ON`; clients built without
-the debugger reject replay arguments. The debugger's packet Export action uses a
-native save dialog on desktop platforms and falls back to `mdr-debugger-packet.bin`
-when dialogs are unavailable.
+the debugger reject replay arguments. Debugger exports use native save dialogs on
+desktop platforms with `.bin` and `.zip` default filenames. A ZIP export stores the
+complete packet history without compression. When dialogs are unavailable, exports
+fall back to their default filenames in the current directory.
 
 ## Credits
 The following third-party libraries are used in the implementation.

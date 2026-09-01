@@ -9,6 +9,8 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <vector>
 
 namespace
 {
@@ -245,6 +247,57 @@ namespace
         std::filesystem::remove(invalidPath, removeError);
         return invalidReplayed && packetCount == 1 && clientDebuggerHasPackets();
     }
+
+    bool CheckPacketCollectionZip()
+    {
+        using namespace mdr;
+
+        const UInt8 payload[]{0x01};
+        const MDRBuffer additionalFrame =
+            MDRPackCommand(MDRDataType::DATA_MDR, 1, payload);
+        clientDebuggerObservePacket(
+            MDR_PACKET_DIRECTION_TX,
+            additionalFrame.data(),
+            static_cast<int>(additionalFrame.size()));
+
+        const std::filesystem::path path =
+            std::filesystem::temp_directory_path() / "mdr-debugger-packets-test.zip";
+        const std::string pathString = path.string();
+        if (!clientDebuggerWritePacketCollectionFile(pathString.c_str()))
+            return false;
+
+        std::ifstream input(path, std::ios::binary);
+        const std::vector<UInt8> bytes{
+            std::istreambuf_iterator<char>(input),
+            std::istreambuf_iterator<char>()};
+        input.close();
+        std::error_code removeError;
+        std::filesystem::remove(path, removeError);
+        if (bytes.size() < 52 || removeError)
+            return false;
+
+        const auto read16 = [&](size_t offset)
+        {
+            return static_cast<std::uint16_t>(bytes[offset] | (bytes[offset + 1] << 8));
+        };
+        const auto read32 = [&](size_t offset)
+        {
+            return static_cast<std::uint32_t>(
+                bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) |
+                (bytes[offset + 3] << 24));
+        };
+
+        const size_t endOffset = bytes.size() - 22;
+        if (read32(0) != 0x04034b50u || read16(8) != 0 ||
+            read32(endOffset) != 0x06054b50u || read16(endOffset + 10) != 2)
+        {
+            return false;
+        }
+        const std::uint32_t centralOffset = read32(endOffset + 16);
+        return centralOffset + 46 <= endOffset &&
+            read32(centralOffset) == 0x02014b50u &&
+            read16(centralOffset + 10) == 0;
+    }
 } // namespace
 
 int main()
@@ -257,5 +310,7 @@ int main()
         return 3;
     if (!CheckSingleFileReplay())
         return 4;
+    if (!CheckPacketCollectionZip())
+        return 5;
     return 0;
 }
