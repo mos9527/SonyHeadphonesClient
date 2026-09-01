@@ -646,7 +646,7 @@ namespace mdr::detail
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
             MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetriesCount);                                     \
-            mSeqNumber = (mSeqNumber + 1) & 0x01;                                                                      \
+            mSeqNumber ^= 1;                                                                                           \
         }                                                                                                              \
         if (_retries == mACKRetriesCount)                                                                              \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \

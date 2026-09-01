@@ -750,8 +750,7 @@ void DrawDeviceDiscovery()
         ImGui::PushFont(nullptr, ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered("SonyHeadphonesClient");
         ImGui::PopFont();
-        ImTextCentered(mdr::Format("Version: {}, Branch: {}, Commit: {}, On {}", CLIENT_VERSION, MDR_GIT_BRANCH_NAME,
-                                   MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS)
+        ImTextCentered(mdr::Format("Version: {}, Branch: {}, Commit: {}, On {} ({})", CLIENT_VERSION, MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS, MDR_PLATFORM_PROCESSOR)
                            .c_str());
         // Chose, and have the GATT backend active
         static bool usingBLE = false;
