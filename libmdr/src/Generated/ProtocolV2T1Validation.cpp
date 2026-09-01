@@ -312,8 +312,7 @@ MDRResult<void> AudioNotifyStatusUpscalingAutoOffWithStatusDisableReason::Valida
     MDR_VALIDATE(data.command == Command::AUDIO_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON);
-    MDR_VALIDATE(is_valid(data.status));
-    MDR_VALIDATE(data.status == EnableDisable::DISABLE);
+    // data.status ignored: OUT_OF_RANGE is expected
     for (const auto& disableReasonList_elem : data.disableReasonList) {
         MDR_VALIDATE(is_valid(disableReasonList_elem));
     }
@@ -330,8 +329,7 @@ MDRResult<void> AudioNtfyParamConnection::Validate(const AudioNtfyParamConnectio
     MDR_VALIDATE(data.command == Command::AUDIO_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const AudioNtfyParamConnectionModeClassicAudioLeAudio& data) {
@@ -339,8 +337,7 @@ MDRResult<void> AudioNtfyParamConnectionModeClassicAudioLeAudio::Validate(const 
     MDR_VALIDATE(data.command == Command::AUDIO_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     // data.switchingStream ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -349,8 +346,7 @@ MDRResult<void> AudioNtfyParamConnectionWithLdacStatus::Validate(const AudioNtfy
     MDR_VALIDATE(data.command == Command::AUDIO_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> AudioNtfyParamUpscaling::Validate(const AudioNtfyParamUpscaling& data) {
@@ -466,8 +462,7 @@ MDRResult<void> AudioRetParamConnection::Validate(const AudioRetParamConnection&
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::AUDIO_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> AudioRetParamConnectionWithLdacStatus::Validate(const AudioRetParamConnectionWithLdacStatus& data) {
@@ -475,8 +470,7 @@ MDRResult<void> AudioRetParamConnectionWithLdacStatus::Validate(const AudioRetPa
     MDR_VALIDATE(data.command == Command::AUDIO_RET_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> AudioRetParamListeningOptionAssignCustomizable::Validate(const AudioRetParamListeningOptionAssignCustomizable& data) {
@@ -601,8 +595,7 @@ MDRResult<void> AudioRetStatusUpscalingAutoOffWithStatusDisableReason::Validate(
     MDR_VALIDATE(data.command == Command::AUDIO_RET_STATUS);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON);
-    MDR_VALIDATE(is_valid(data.status));
-    MDR_VALIDATE(data.status == EnableDisable::DISABLE);
+    // data.status ignored: OUT_OF_RANGE is expected
     for (const auto& disableReasonList_elem : data.disableReasonList) {
         MDR_VALIDATE(is_valid(disableReasonList_elem));
     }
@@ -627,8 +620,7 @@ MDRResult<void> AudioSetParamConnection::Validate(const AudioSetParamConnection&
     MDR_VALIDATE(data.command == Command::AUDIO_SET_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const AudioSetParamConnectionModeClassicAudioLeAudio& data) {
@@ -636,8 +628,7 @@ MDRResult<void> AudioSetParamConnectionModeClassicAudioLeAudio::Validate(const A
     MDR_VALIDATE(data.command == Command::AUDIO_SET_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     // data.value2 ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -646,8 +637,7 @@ MDRResult<void> AudioSetParamConnectionWithLdacStatus::Validate(const AudioSetPa
     MDR_VALIDATE(data.command == Command::AUDIO_SET_PARAM);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS);
-    MDR_VALIDATE(is_valid(data.settingValue));
-    MDR_VALIDATE(data.settingValue == PriorMode::CONNECTION_QUALITY_PRIOR);
+    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> AudioSetParamListeningOptionAssignCustomizable::Validate(const AudioSetParamListeningOptionAssignCustomizable& data) {
@@ -1459,8 +1449,7 @@ MDRResult<void> LEANotifyStatusHbsSupportsA2dpLeaUniLeaBroad::Validate(const LEA
     MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.streamingStatus));
-    MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
+    // data.streamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEANotifyStatusTwsSupportsA2dpLeaUniLeaBroad::Validate(const LEANotifyStatusTwsSupportsA2dpLeaUniLeaBroad& data) {
@@ -1468,10 +1457,8 @@ MDRResult<void> LEANotifyStatusTwsSupportsA2dpLeaUniLeaBroad::Validate(const LEA
     MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.leftStreamingStatus));
-    MDR_VALIDATE(data.leftStreamingStatus == StreamingStatus::VIA_A2DP);
-    MDR_VALIDATE(is_valid(data.rightStreamingStatus));
-    MDR_VALIDATE(data.rightStreamingStatus == StreamingStatus::VIA_A2DP);
+    // data.leftStreamingStatus ignored: OUT_OF_RANGE is expected
+    // data.rightStreamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEARetCapability::Validate(const LEARetCapability& data) {
@@ -1490,8 +1477,7 @@ MDRResult<void> LEARetCapabilityQuickAccessCantBeUsedWithLEAConnection::Validate
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.key));
-    MDR_VALIDATE(data.key == QuickAccessKey::FIXED_QUICK_ACCESS_KEY);
+    // data.key ignored: OUT_OF_RANGE is expected
     // data.keyType ignored: OUT_OF_RANGE is expected
     for (const auto& quickAccessFunctionList_elem : data.quickAccessFunctionList) {
     }
@@ -1592,8 +1578,7 @@ MDRResult<void> LEARetStatusHbsSupportsA2dpLeaUniLeaBroad::Validate(const LEARet
     MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.streamingStatus));
-    MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
+    // data.streamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEARetStatusTwsSupportsA2dpLeaUniLeaBroad::Validate(const LEARetStatusTwsSupportsA2dpLeaUniLeaBroad& data) {
@@ -1601,10 +1586,8 @@ MDRResult<void> LEARetStatusTwsSupportsA2dpLeaUniLeaBroad::Validate(const LEARet
     MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.leftStreamingStatus));
-    MDR_VALIDATE(data.leftStreamingStatus == StreamingStatus::VIA_A2DP);
-    MDR_VALIDATE(is_valid(data.rightStreamingStatus));
-    MDR_VALIDATE(data.rightStreamingStatus == StreamingStatus::VIA_A2DP);
+    // data.leftStreamingStatus ignored: OUT_OF_RANGE is expected
+    // data.rightStreamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEASetExtParam::Validate(const LEASetExtParam& data) {
@@ -1843,8 +1826,7 @@ MDRResult<void> NcAsmRetCapabilityNcAmbToggle::Validate(const NcAsmRetCapability
     MDR_VALIDATE(data.command == Command::NCASM_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == NcAsmInquiredType::NC_AMB_TOGGLE);
-    MDR_VALIDATE(is_valid(data.key));
-    MDR_VALIDATE(data.key == Key::NC_AMB_KEY);
+    // data.key ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> NcAsmRetCapabilityNcModeSwitchAsmOnOff::Validate(const NcAsmRetCapabilityNcModeSwitchAsmOnOff& data) {
@@ -2382,8 +2364,7 @@ MDRResult<void> OptNtfyStatusSoundFieldOptimization::Validate(const OptNtfyStatu
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == OptInquiredType::SOUND_FIELD_OPTIMIZATION);
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.desctiption));
-    MDR_VALIDATE(data.desctiption == OptExclusiveFunctionType::SOUND_FIELD_OPTIMIZATION);
+    // data.desctiption ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> OptNtfyStatusTvSoundBooster::Validate(const OptNtfyStatusTvSoundBooster& data) {
@@ -2514,8 +2495,7 @@ MDRResult<void> OptRetStatusSoundFieldOptimization::Validate(const OptRetStatusS
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == OptInquiredType::SOUND_FIELD_OPTIMIZATION);
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.desctiption));
-    MDR_VALIDATE(data.desctiption == OptExclusiveFunctionType::SOUND_FIELD_OPTIMIZATION);
+    // data.desctiption ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> OptRetStatusTvSoundBooster::Validate(const OptRetStatusTvSoundBooster& data) {
@@ -3408,8 +3388,7 @@ MDRResult<void> SenseRetExtInfoAdaptiveControlEqPreset::Validate(const SenseRetE
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SENSE_RET_EXT_INFO);
     // data.senseInquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.senseApplicableFunction));
-    MDR_VALIDATE(data.senseApplicableFunction == SenseApplicableFunction::EQ_PRESET_ID);
+    // data.senseApplicableFunction ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.eqPresetId));
     MDR_VALIDATE(data.eqPresetId == EqPresetId::GAMING_EQ);
     for (const auto& value3_elem : data.value3) {
@@ -3490,8 +3469,7 @@ MDRResult<void> SetPlayStatusPlaybackController::Validate(const SetPlayStatusPla
     MDR_VALIDATE(data.command == Command::PLAY_SET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.control));
-    MDR_VALIDATE(data.control == PlaybackControl::PAUSE || data.control == PlaybackControl::TRACK_UP || data.control == PlaybackControl::TRACK_DOWN || data.control == PlaybackControl::PLAY);
+    // data.control ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemGetCapability::Validate(const SystemGetCapability& data) {
@@ -4232,8 +4210,7 @@ MDRResult<void> UpdtNtfyParamTandemStartTransfer::Validate(const UpdtNtfyParamTa
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::UPDT_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.result));
-    MDR_VALIDATE(data.result == TandemFotaResult::ERROR_FIRMWARE_TRANSFER_INCOMPLETED);
+    // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> UpdtNtfyStatus::Validate(const UpdtNtfyStatus& data) {

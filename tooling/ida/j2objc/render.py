@@ -150,6 +150,16 @@ def _enum_has_out_of_range(enum: EnumDecl) -> bool:
     return any(value.name == "OUT_OF_RANGE" for value in enum.values)
 
 
+def _is_discriminator_field(field: FieldDecl) -> bool:
+    return (
+        field.name in {"command", "type", "dataType", "inquiredType"}
+        or field.name.endswith("Type")
+        or field.name.endswith("InquiredType")
+        or field.cpp_type == "Command"
+        or field.cpp_type.endswith("InquiredType")
+    )
+
+
 def _name_tokens(value: str) -> set[str]:
     value = value.replace("_", " ")
     words = re.findall(
@@ -164,12 +174,12 @@ def _name_tokens(value: str) -> set[str]:
 
 
 def _enum_range_is_well_formed(payload: PayloadDecl, member: str) -> bool:
-    """Reject EnumRange inferred from generic name tokens such as INFO.
+    """Reject discriminator EnumRange inferred from generic name tokens.
 
-    Open enums with an OUT_OF_RANGE sentinel must not be pinned to one
-    member because the payload name overlaps INFO/PARAM/etc. Empty overlap
-    is treated as evidence-based (getter or parser), not name inference.
-    Distinctive overlap keeps the pin, including type-specific helpers.
+    Open enums with an OUT_OF_RANGE sentinel must not be pinned because the
+    payload name overlaps INFO/PARAM/etc. Empty overlap is treated as
+    evidence-based. Distinctive overlap keeps type-specific helpers.
+    Value fields such as settingValue never use this path.
     """
     name_tokens = _name_tokens(payload.cpp_name) - _COMMAND_WORDS
     member_tokens = _name_tokens(member)
@@ -188,9 +198,12 @@ def _field_semantic_rules(
     enum = enums_by_name.get(field.cpp_type)
     has_out_of_range = enum is not None and _enum_has_out_of_range(enum)
     if has_out_of_range:
+        keep_range = _is_discriminator_field(field)
         kept: list[str] = []
         for rule in rules:
             if rule.startswith("EnumRange "):
+                if not keep_range:
+                    continue
                 members = rule.split()[1:]
                 if any(
                     not _enum_range_is_well_formed(

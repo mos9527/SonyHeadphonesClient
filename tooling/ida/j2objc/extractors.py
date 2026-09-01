@@ -1956,6 +1956,15 @@ class ProtocolExtractor:
             )
             fields: list[FieldDecl] = []
             for field in payload.fields:
+                if not (
+                    field.name
+                    in {"type", "dataType", "inquiredType", "command"}
+                    or field.name.endswith("Type")
+                    or field.name.endswith("InquiredType")
+                    or field.cpp_type.endswith("InquiredType")
+                ):
+                    fields.append(field)
+                    continue
                 current_member = (
                     field.default.split("::", 1)[1]
                     if field.default and "::" in field.default

@@ -757,7 +757,7 @@ namespace mdr::v2::t2
         Command command{Command::LEA_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
-        // CODEGEN EnumRange ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionMode connectionMode{ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionResult connectionResult{ConnectionResult::SUCCESS}; // 0x3
@@ -811,7 +811,7 @@ namespace mdr::v2::t2
         LEAInquiredType type{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
-        // CODEGEN EnumRange StreamingStatus::VIA_A2DP
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         StreamingStatus streamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad);
@@ -895,7 +895,7 @@ namespace mdr::v2::t2
         Command command{Command::LEA_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
-        // CODEGEN EnumRange ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionMode connectionMode{ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEARetParamLEAudioConnectionModeWithBTReconnection);
@@ -960,7 +960,7 @@ namespace mdr::v2::t2
         LEAInquiredType type{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
-        // CODEGEN EnumRange StreamingStatus::VIA_A2DP
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         StreamingStatus streamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEARetStatusPasSupportsA2dpLeaUniLeaBroad);
@@ -984,7 +984,7 @@ namespace mdr::v2::t2
         Command command{Command::LEA_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
-        // CODEGEN EnumRange ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionMode connectionMode{ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEASetParamLEAudioConnectionModeWithBTReconnection);
@@ -1082,7 +1082,7 @@ namespace mdr::v2::t2
         Command command{Command::PARTY_NTFY_PARAM}; // 0x0
         // CODEGEN EnumRange PartyInquiredType::ILLUMINATION
         PartyInquiredType inquiredType{PartyInquiredType::ILLUMINATION}; // 0x1
-        // CODEGEN EnumRange IlluminationItem::PARTY_FLASH
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         IlluminationItem illuminationItem{IlluminationItem::PARTY_FLASH}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PartyNotifyParamIllumination);
@@ -1188,7 +1188,7 @@ namespace mdr::v2::t2
         Command command{Command::PARTY_NTFY_STATUS}; // 0x0
         // CODEGEN EnumRange PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON
         PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
-        // CODEGEN EnumRange KaraokeItemsSamplersStatus::DISABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         KaraokeItemsSamplersStatus status{KaraokeItemsSamplersStatus::DISABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         MicPluggedStatus pluggedStatus{MicPluggedStatus::PLUG_IN}; // 0x3
@@ -1269,7 +1269,7 @@ namespace mdr::v2::t2
         Command command{Command::PARTY_RET_PARAM}; // 0x0
         // CODEGEN EnumRange PartyInquiredType::ILLUMINATION
         PartyInquiredType inquiredType{PartyInquiredType::ILLUMINATION}; // 0x1
-        // CODEGEN EnumRange IlluminationItem::PARTY_FLASH
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         IlluminationItem illuminationItem{IlluminationItem::PARTY_FLASH}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PartyRetParamIllumination);
@@ -1375,7 +1375,7 @@ namespace mdr::v2::t2
         Command command{Command::PARTY_RET_STATUS}; // 0x0
         // CODEGEN EnumRange PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON
         PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
-        // CODEGEN EnumRange KaraokeItemsSamplersStatus::DISABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         KaraokeItemsSamplersStatus status{KaraokeItemsSamplersStatus::DISABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         MicPluggedStatus pluggedStatus{MicPluggedStatus::PLUG_IN}; // 0x3
@@ -1475,7 +1475,7 @@ namespace mdr::v2::t2
         Command command{Command::PARTY_SET_PARAM}; // 0x0
         // CODEGEN EnumRange PartyInquiredType::ILLUMINATION
         PartyInquiredType inquiredType{PartyInquiredType::ILLUMINATION}; // 0x1
-        // CODEGEN EnumRange IlluminationItem::PARTY_FLASH
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         IlluminationItem illumination{IlluminationItem::PARTY_FLASH}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PartySetParamIllumination);

@@ -48,8 +48,7 @@ MDRResult<void> LEANotifyParamLEAudioConnectionModeWithBTReconnection::Validate(
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_NTFY_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.connectionMode));
-    MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
+    // data.connectionMode ignored: OUT_OF_RANGE is expected
     // data.connectionResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -80,8 +79,7 @@ MDRResult<void> LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEA
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.streamingStatus));
-    MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
+    // data.streamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEARetCapability::Validate(const LEARetCapability& data) {
@@ -131,8 +129,7 @@ MDRResult<void> LEARetParamLEAudioConnectionModeWithBTReconnection::Validate(con
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.connectionMode));
-    MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
+    // data.connectionMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEARetParamPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetParamPasSupportsA2dpLeaUniLeaBroad& data) {
@@ -170,8 +167,7 @@ MDRResult<void> LEARetStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARet
     MDR_VALIDATE(is_valid(data.type));
     MDR_VALIDATE(data.type == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
     // data.status ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.streamingStatus));
-    MDR_VALIDATE(data.streamingStatus == StreamingStatus::VIA_A2DP);
+    // data.streamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEASetParam::Validate(const LEASetParam& data) {
@@ -184,8 +180,7 @@ MDRResult<void> LEASetParamLEAudioConnectionModeWithBTReconnection::Validate(con
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_SET_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.connectionMode));
-    MDR_VALIDATE(data.connectionMode == ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION);
+    // data.connectionMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEASetParamLeAudioConnectionStateNotification::Validate(const LEASetParamLeAudioConnectionStateNotification& data) {
@@ -233,8 +228,7 @@ MDRResult<void> PartyNotifyParamIllumination::Validate(const PartyNotifyParamIll
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
-    MDR_VALIDATE(is_valid(data.illuminationItem));
-    MDR_VALIDATE(data.illuminationItem == IlluminationItem::PARTY_FLASH);
+    // data.illuminationItem ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartyNotifyParamKaraoke::Validate(const PartyNotifyParamKaraoke& data) {
@@ -296,8 +290,7 @@ MDRResult<void> PartyNotifyStatusKaraokeWithStatusDisableReason::Validate(const 
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
-    MDR_VALIDATE(is_valid(data.status));
-    MDR_VALIDATE(data.status == KaraokeItemsSamplersStatus::DISABLE);
+    // data.status ignored: OUT_OF_RANGE is expected
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     for (const auto& disableReasonList_elem : data.disableReasonList) {
@@ -353,8 +346,7 @@ MDRResult<void> PartyRetParamIllumination::Validate(const PartyRetParamIlluminat
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
-    MDR_VALIDATE(is_valid(data.illuminationItem));
-    MDR_VALIDATE(data.illuminationItem == IlluminationItem::PARTY_FLASH);
+    // data.illuminationItem ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartyRetParamKaraoke::Validate(const PartyRetParamKaraoke& data) {
@@ -416,8 +408,7 @@ MDRResult<void> PartyRetStatusKaraokeWithStatusDisableReason::Validate(const Par
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
-    MDR_VALIDATE(is_valid(data.status));
-    MDR_VALIDATE(data.status == KaraokeItemsSamplersStatus::DISABLE);
+    // data.status ignored: OUT_OF_RANGE is expected
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     for (const auto& disableReasonList_elem : data.disableReasonList) {
@@ -474,8 +465,7 @@ MDRResult<void> PartySetParamIllumination::Validate(const PartySetParamIlluminat
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
     MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
-    MDR_VALIDATE(is_valid(data.illumination));
-    MDR_VALIDATE(data.illumination == IlluminationItem::PARTY_FLASH);
+    // data.illumination ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartySetParamKaraoke::Validate(const PartySetParamKaraoke& data) {
