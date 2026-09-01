@@ -10,9 +10,11 @@
 
 namespace mdr
 {
-    MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type)
+    MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type, int timeoutMS)
     {
-        return mAwaiters[type];
+        auto& awaiter = mAwaiters[type];
+        awaiter.timeout = timeoutMS > 0 ? timeoutMS : mDefaultTimeout;
+        return awaiter;
     }
 
     void MDRHeadphones::Awake(AwaitType type)
@@ -377,12 +379,12 @@ namespace mdr
         // Awaiter timeouts
         {
             using namespace std::literals;
-            time_t now = time(nullptr);
+            clock_t now = clock();            
             for (auto& awaiter : mAwaiters)
             {
                 if (!awaiter) continue;
                 auto duration = now - awaiter.tick;
-                if (duration > kAwaitTimeout)
+                if (duration > awaiter.timeout)
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;

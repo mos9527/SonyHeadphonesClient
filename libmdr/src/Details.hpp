@@ -158,6 +158,10 @@ namespace mdr
     private:
         MDRConnection* mConn;
 
+        // TODO Make these configurable
+        int mACKRetriesCount = 10u;
+        int mACKRetriesTimeout = 1000u;
+        int mDefaultTimeout = 5000u;
     public:
         enum AwaitType
         {
@@ -176,9 +180,6 @@ namespace mdr
             V2
         };
 
-        static constexpr int kAwaitAckRetries = 10;
-        static constexpr int kAwaitTimeout = 1; // Seconds
-
         // NOLINTBEGIN
         struct Awaiter
         {
@@ -186,8 +187,10 @@ namespace mdr
             AwaitType type;
 
             std::coroutine_handle<> h = nullptr;
-            // Timepoint when Awaiter is invoked in NS
-            time_t tick;
+            // Timepoint when Awaiter is invoked in milliseconds
+            clock_t tick;
+            // Timeout in milliseconds
+            int timeout;
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
 
@@ -198,7 +201,7 @@ namespace mdr
                 if (h) [[unlikely]]
                     std::terminate(); // Misuse. Only _one_ task is allowed at a time
                 if (handle)
-                    h = std::move(handle), tick = time(nullptr);
+                    h = std::move(handle), tick = clock();
             }
 
             int await_resume() noexcept { return result; }
@@ -267,9 +270,13 @@ namespace mdr
          * @brief This does what you think it does.
          *        Schedules the calling coroutine to be executed once the next @ref AwaitType
          *        event has arrived through @ref MoveNext
+         * @param type The type of event to wait for.
+         * @param timeoutMS The timeout in milliseconds. If the event does not arrive within this time, the coroutine
+         *                  will be resumed with @ref MDR_RESULT_ERROR_TIMEOUT.
+         *                  Defaults to -1, which means @ref mDefaultTimeout is used instead.
          * @note  As always, needs @ref PollEvents
          */
-        Awaiter& Await(AwaitType type);
+        Awaiter& Await(AwaitType type, int timeoutMS = -1);
         /**
          * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
          */
@@ -280,15 +287,12 @@ namespace mdr
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
         /**
          * @brief Record @p error against @p context and signal it on the event channel.
-         * @return -1, the channel's failure marker. The code itself is kept on the instance rather
-         *         than encoded here, so the channel stays a plain @ref MDREvent. @ref PollEvents
-         *         turns the marker back into the code.
          */
         int SetLastError(int error, const char* context)
         {
             mLastError = mdr::Format("{} ({})", context, mdrResultString(error));
             mLastErrorCode = static_cast<::MDRResult>(error);
-            return -1;
+            return -1; // NOTE: convenience only for co_return SetLastError(...);
         }
 
 #pragma region States
@@ -622,29 +626,29 @@ namespace mdr::detail
  * while all we need is merely a `co_await`...
  *
  * TL;DR, this helps with compiler bloats. Use it well.
- * 
- * @note On bumping mSeqNumber. Ignoring transport issues (which is not a thing with RFCOMM backends at least), a timeout 
- *       can only occur when:
+ *
+ * @note On bumping mSeqNumber. Ignoring transport issues (which is not a thing with RFCOMM backends at least), a
+ * timeout can only occur when:
  *       - The device is shutting down
  *       - Or when we actually _missed_ a packet. Which can happen as chunked packets are discared by us _currently_
- *         We should handle this (hence the FIXME). For now retrying by assuming we got another ACK works despite the lack thereof.
+ *         We should handle this (hence the FIXME). For now retrying by assuming we got another ACK works despite the
+ * lack thereof.
  */
 #define SendCommandACK(Type, ...)                                                                                      \
     {                                                                                                                  \
         int _retries;                                                                                                  \
-        const int _maxRetries = kAwaitAckRetries;                                                                      \
-        for (_retries = 0; _retries < _maxRetries; _retries++)                                                         \
+        for (_retries = 0; _retries < mACKRetriesCount; _retries++)                                                    \
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
             if (_sendResult != MDR_RESULT_OK)                                                                          \
                 co_return SetLastError(_sendResult, "Unable to serialize command");                                    \
-            int res = co_await Await(AWAIT_ACK);                                                                       \
+            int res = co_await Await(AWAIT_ACK, mACKRetriesTimeout);                                                   \
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
-            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, _maxRetries);                                          \
+            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetriesCount);                                     \
             mSeqNumber = (mSeqNumber + 1) & 0x01;                                                                      \
         }                                                                                                              \
-        if (_retries == _maxRetries)                                                                                   \
+        if (_retries == mACKRetriesCount)                                                                              \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \
     }
 
