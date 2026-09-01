@@ -43,8 +43,15 @@ with `-DMDR_CLIENT_DEBUGGER=ON`), replay a capture without connecting to headpho
 .\SonyHeadphonesClient.exe --replay capture-folder
 ```
 
-A folder can also be dropped onto a running client window. Replay mode loads both TX
-and RX packet files in filename order and exposes only the debugger interface.
+A single `.bin` packet can be supplied instead of the folder, and either path can
+also be dropped onto a running client window. Replay mode loads both TX and RX
+packet files in filename order and exposes only the debugger interface. Use
+**Quit replay** to return to the device-selection panel.
+
+The debugger's **Export** action opens a native save dialog on desktop platforms.
+If dialogs are unavailable, it falls back to `mdr-debugger-packet.bin` in the
+current directory. The disconnect error dialog can export the latest captured
+packet for a bug report; packet captures may contain private device information.
 
 ### Submitting the data
 

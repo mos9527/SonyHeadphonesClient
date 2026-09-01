@@ -6,6 +6,7 @@
 #include "Fonts/PlexSansIcon.h"
 
 #include <SDL3/SDL_error.h>
+#include <SDL3/SDL_dialog.h>
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
@@ -20,7 +21,9 @@
 #include <cstdio>
 #include <iterator>
 #include <limits>
+#include <mutex>
 #include <string_view>
+#include <utility>
 
 namespace
 {
@@ -61,6 +64,106 @@ namespace
     mdr::String gHistoryStatus;
     bool gFollowMessages{true};
     bool gScrollToLatest{};
+
+    SDL_Window* gWindow{};
+    constexpr const char* kFallbackExportPath = "mdr-debugger-packet.bin";
+    constexpr SDL_DialogFileFilter kPacketFileFilter{"MDR packet", "bin"};
+
+    struct ExportRequest
+    {
+        mdr::MDRBuffer frame;
+    };
+
+    std::mutex gExportMutex;
+    bool gExportDialogActive{};
+    bool gExportResultReady{};
+    mdr::String gExportResult;
+    mdr::String gExportStatus;
+
+    bool WriteCaptureFile(const char* path, mdr::Span<const mdr::UInt8> frame);
+
+    void SetExportResult(mdr::String result)
+    {
+        std::scoped_lock lock(gExportMutex);
+        gExportResult = std::move(result);
+        gExportResultReady = true;
+        gExportDialogActive = false;
+    }
+
+    void PollExportResult()
+    {
+        mdr::String result;
+        {
+            std::scoped_lock lock(gExportMutex);
+            if (!gExportResultReady)
+                return;
+            result = std::move(gExportResult);
+            gExportResult.clear();
+            gExportResultReady = false;
+        }
+        gExportStatus = result;
+        gStatus = std::move(result);
+    }
+
+    void SDLCALL ExportDialogCallback(void* userdata, const char* const* filelist, int)
+    {
+        auto* request = static_cast<ExportRequest*>(userdata);
+        mdr::String result;
+        if (!filelist)
+        {
+            const mdr::String dialogError = SDL_GetError();
+            if (WriteCaptureFile(kFallbackExportPath, request->frame))
+                result = mdr::Format("Exported {} (file dialog unavailable: {})", kFallbackExportPath, dialogError);
+            else
+                result = mdr::Format("Unable to export {}: {}", kFallbackExportPath, SDL_GetError());
+        }
+        else if (!filelist[0])
+        {
+            result = "Export cancelled";
+        }
+        else if (WriteCaptureFile(filelist[0], request->frame))
+        {
+            result = mdr::Format("Exported {}", filelist[0]);
+        }
+        else
+        {
+            result = SDL_GetError();
+        }
+        delete request;
+        SetExportResult(std::move(result));
+    }
+
+    bool RequestExport(mdr::Span<const mdr::UInt8> frame)
+    {
+        PollExportResult();
+        {
+            std::scoped_lock lock(gExportMutex);
+            if (gExportDialogActive)
+            {
+                gStatus = "An export dialog is already open";
+                return false;
+            }
+        }
+
+        if (!gWindow)
+        {
+            if (WriteCaptureFile(kFallbackExportPath, frame))
+                gExportStatus = gStatus = mdr::Format("Exported {}", kFallbackExportPath);
+            else
+                gExportStatus = gStatus = SDL_GetError();
+            return true;
+        }
+
+        auto* request = new ExportRequest;
+        request->frame.assign(frame.begin(), frame.end());
+        {
+            std::scoped_lock lock(gExportMutex);
+            gExportDialogActive = true;
+        }
+        gExportStatus = gStatus = "Choose a destination for the packet";
+        SDL_ShowSaveFileDialog(ExportDialogCallback, request, gWindow, &kPacketFileFilter, 1, nullptr);
+        return true;
+    }
 
     template <typename Function>
     void ForEachDescriptor(Function&& function)
@@ -498,19 +601,7 @@ namespace
 
     void ExportPacket(const mdr::MDRBuffer& frame)
     {
-        constexpr const char* path = "mdr-debugger-packet.bin";
-        SDL_IOStream* output = SDL_IOFromFile(path, "wb");
-        if (!output)
-        {
-            gStatus = SDL_GetError();
-            return;
-        }
-        const size_t written = SDL_WriteIO(output, frame.data(), frame.size());
-        const bool closed = SDL_CloseIO(output);
-        if (written != frame.size() || !closed)
-            gStatus = SDL_GetError();
-        else
-            gStatus = mdr::Format("Exported {}", path);
+        RequestExport(frame);
     }
 
     void DrawPacketEditor()
@@ -622,7 +713,7 @@ namespace
             ImGui::SameLine();
 
             const bool encoded = UpdateEncodedPayload();
-            ImGui::BeginDisabled(!encoded);
+            ImGui::BeginDisabled(!encoded || clientDebuggerExportInProgress());
             if (ImGui::Button("Export"))
             {
                 ExportPacket(mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload));
@@ -758,7 +849,7 @@ namespace
             });
     }
 
-    void DrawHistoryToolbar(bool* open)
+    void DrawHistoryToolbar(bool* open, bool replayMode)
     {
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted("Packets");
@@ -770,8 +861,9 @@ namespace
             ImGui::CalcTextSize(PSI_SAVE " Dump").x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const float clearWidth =
             ImGui::CalcTextSize(PSI_TRASH " Clear").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        const char* closeLabel = replayMode ? "Quit replay" : "Close";
         const float closeWidth =
-            open ? ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
+            open ? ImGui::CalcTextSize(closeLabel).x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
         const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
         const float rightButtons = dumpWidth + buttonSpacing + clearWidth + (open ? buttonSpacing + closeWidth : 0.0f);
@@ -787,7 +879,7 @@ namespace
         {
             ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(200, 0, 0, 255));
-            if (ImGui::Button("Close"))
+            if (ImGui::Button(closeLabel))
             {
                 *open = false;
                 ImGui::CloseCurrentPopup();
@@ -803,7 +895,16 @@ namespace
     }
 } // namespace
 
+bool clientDebuggerWritePacketFile(const char* path, const unsigned char* frame, size_t frameSize)
+{
+    if (!path || !*path || !frame || frameSize == 0)
+        return SDL_SetError("Invalid packet file export arguments");
+    return WriteCaptureFile(path, {frame, frameSize});
+}
+
 void clientDebuggerSetMonospaceFont(ImFont* font) { gMonospaceFont = font; }
+
+void clientDebuggerSetWindow(SDL_Window* window) { gWindow = window; }
 
 void clientDebuggerAttach(MDRHeadphones* headphones) { gHeadphones = headphones; }
 
@@ -878,6 +979,30 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
     return true;
 }
 
+bool clientDebuggerHasPackets() { return !gHistory.empty(); }
+
+bool clientDebuggerExportInProgress()
+{
+    std::scoped_lock lock(gExportMutex);
+    return gExportDialogActive;
+}
+
+bool clientDebuggerExportLatestPacket()
+{
+    if (gHistory.empty())
+    {
+        gExportStatus = gStatus = "No packets available to export";
+        return false;
+    }
+    return RequestExport(gHistory.back().frame);
+}
+
+const char* clientDebuggerGetExportStatus()
+{
+    PollExportResult();
+    return gExportStatus.c_str();
+}
+
 bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
 {
     if (packetCount)
@@ -945,8 +1070,9 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
     return true;
 }
 
-void clientDebuggerDraw(bool* open)
+void clientDebuggerDraw(bool* open, bool replayMode)
 {
+    PollExportResult();
     const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
     if (!ImGui::IsPopupOpen("Debugger"))
         ImGui::OpenPopup("Debugger");
@@ -974,7 +1100,7 @@ void clientDebuggerDraw(bool* open)
         ImGui::TableSetupColumn("Controls", ImGuiTableColumnFlags_WidthStretch, 0.58f);
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        DrawHistoryToolbar(open);
+        DrawHistoryToolbar(open, replayMode);
         ImGui::Separator();
         if (ImGui::BeginChild("##command-history", {-1.0f, -1.0f}))
             DrawHistory();

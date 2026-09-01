@@ -205,9 +205,45 @@ namespace
         size_t packetCount{};
         const std::string pathString = path.string();
         const bool replayed = clientDebuggerReplayPath(pathString.c_str(), &packetCount);
+        const std::filesystem::path exportPath =
+            std::filesystem::temp_directory_path() / "mdr-debugger-export-test.bin";
+        const bool exported = clientDebuggerWritePacketFile(
+            exportPath.string().c_str(), frame.data(), frame.size());
+        const std::vector<char> exportedBytes = [&]
+        {
+            std::ifstream input(exportPath, std::ios::binary);
+            return std::vector<char>(
+                std::istreambuf_iterator<char>(input),
+                std::istreambuf_iterator<char>());
+        }();
         std::error_code removeError;
         std::filesystem::remove(path, removeError);
-        return replayed && packetCount == 1 && !removeError;
+        std::filesystem::remove(exportPath, removeError);
+        if (!replayed || packetCount != 1 || !exported ||
+            !(exportedBytes.size() == frame.size() &&
+              std::memcmp(exportedBytes.data(), frame.data(), frame.size()) == 0))
+        {
+            return false;
+        }
+
+        const std::filesystem::path invalidPath =
+            std::filesystem::temp_directory_path() / "mdr-debugger-invalid-packet-test.bin";
+        MDRBuffer invalidFrame = frame;
+        invalidFrame.back() ^= 0x01;
+        {
+            std::ofstream output(invalidPath, std::ios::binary | std::ios::trunc);
+            output.write(
+                reinterpret_cast<const char*>(invalidFrame.data()),
+                static_cast<std::streamsize>(invalidFrame.size()));
+            if (!output)
+                return false;
+        }
+        packetCount = 0;
+        const std::string invalidPathString = invalidPath.string();
+        const bool invalidReplayed =
+            clientDebuggerReplayPath(invalidPathString.c_str(), &packetCount);
+        std::filesystem::remove(invalidPath, removeError);
+        return invalidReplayed && packetCount == 1 && clientDebuggerHasPackets();
     }
 } // namespace
 

@@ -260,6 +260,9 @@ int main(int argc, char** argv)
         SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return 1;
     }
+#ifdef MDR_CLIENT_DEBUGGER
+    clientDebuggerSetWindow(gWindow);
+#endif
     gRenderer = SDL_CreateRenderer(gWindow, nullptr);
     SDL_SetRenderVSync(gRenderer, 1);
     if (!gRenderer)

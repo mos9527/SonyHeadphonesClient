@@ -1820,10 +1820,31 @@ void DrawDeviceDisconnect()
 #ifdef MDR_CLIENT_DEBUGGER
         ImGui::Separator();
         ImTextCentered(PSI_INFO_SIGN " NOTE: Use the Protocol Debugger for more info. This is available from the Device Selection menu");
+        const char* exportStatus = clientDebuggerGetExportStatus();
+        if (*exportStatus)
+            ImGui::TextWrapped("Packet export: %s", exportStatus);
 #endif
         ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        if (ImModalButton(PSI_LINK " Reconnect"))
+        ImGui::BeginDisabled(
+#ifdef MDR_CLIENT_DEBUGGER
+            !clientDebuggerHasPackets() || clientDebuggerExportInProgress()
+#else
+            false
+#endif
+        );
+#ifdef MDR_CLIENT_DEBUGGER
+        if (ImModalButton(PSI_SAVE " Export latest packet", 0, 2))
+            clientDebuggerExportLatestPacket();
+#endif
+        ImGui::EndDisabled();
+        if (ImModalButton(PSI_LINK " Reconnect",
+#ifdef MDR_CLIENT_DEBUGGER
+                          1, 2
+#else
+                          0, 1
+#endif
+                          ))
         {
             CloseDevice();
             mdrConnectionDisconnect(conn);
@@ -1849,7 +1870,9 @@ void DrawApp()
         if (ImGui::Begin("SonyHeadphonesClient", nullptr, kImWindowFlagsTopMost))
             ImGui::TextDisabled("Packet replay mode");
         ImGui::End();
-        clientDebuggerDraw(nullptr);
+        clientDebuggerDraw(&gDebuggerOpen, true);
+        if (!gDebuggerOpen)
+            gDebuggerOnlyMode = false;
         return;
     }
 #endif
