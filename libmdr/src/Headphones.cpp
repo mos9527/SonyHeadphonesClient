@@ -383,7 +383,7 @@ namespace mdr
             for (auto& awaiter : mAwaiters)
             {
                 if (!awaiter) continue;
-                auto duration = now - awaiter.tick;
+                auto duration = (now - awaiter.tick) / (CLOCKS_PER_SEC / 1000u);
                 if (duration > awaiter.timeout)
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
