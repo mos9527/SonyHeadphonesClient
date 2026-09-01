@@ -37,6 +37,15 @@ from .model import (
 _ENUM_MEMBER_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 _GETTER_RE = re.compile(r"^(?:get|is)(?P<name>[A-Z][A-Za-z0-9_]*)$")
 _COMMAND_WORDS = {"GET", "RET", "SET", "NTFY"}
+_GENERIC_NAME_TOKENS = {
+    "TYPE",
+    "STATUS",
+    "DATA",
+    "PARAM",
+    "CAPABILITY",
+    "INFO",
+    "AND",
+}
 _FIXED_SIZES = {
     "UInt8": 1,
     "Int8": 1,
@@ -1935,13 +1944,12 @@ class ProtocolExtractor:
         }
         output: list[PayloadDecl] = []
         for payload in payloads:
-            name_tokens = set(cls._camel_tokens(payload.cpp_name)) - {
-                "GET",
-                "RET",
-                "SET",
-                "NTFY",
-                "NOTIFY",
-            }
+            name_tokens = (
+                set(cls._camel_tokens(payload.cpp_name))
+                - _COMMAND_WORDS
+                - {"NOTIFY"}
+                - _GENERIC_NAME_TOKENS
+            )
             inherited_layout = any(
                 evidence.startswith("inherited wire layout from ")
                 for evidence in payload.evidence
@@ -1968,15 +1976,7 @@ class ProtocolExtractor:
                             inherited_layout
                             and current_tokens
                             and not (
-                                current_tokens
-                                - {
-                                    "TYPE",
-                                    "STATUS",
-                                    "DATA",
-                                    "PARAM",
-                                    "CAPABILITY",
-                                    "INFO",
-                                }
+                                current_tokens - _GENERIC_NAME_TOKENS
                             )
                             & name_tokens
                         )
@@ -1987,10 +1987,14 @@ class ProtocolExtractor:
                     continue
                 scores = []
                 for member in enum_values[field.cpp_type]:
-                    member_tokens = set(cls._camel_tokens(member))
-                    score = len(member_tokens & name_tokens)
-                    if score:
-                        scores.append((score, member))
+                    member_tokens = (
+                        set(cls._camel_tokens(member)) - _GENERIC_NAME_TOKENS
+                    )
+                    if not member_tokens or not (
+                        member_tokens <= name_tokens
+                    ):
+                        continue
+                    scores.append((len(member_tokens), member))
                 if not scores:
                     fields.append(field)
                     continue

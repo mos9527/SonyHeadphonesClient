@@ -1130,7 +1130,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN EnumRange Command::PARTY_NTFY_STATUS
         Command command{Command::PARTY_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value2{}; // 0x2
@@ -1317,7 +1317,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN EnumRange Command::PARTY_RET_STATUS
         Command command{Command::PARTY_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value2{}; // 0x2
@@ -2978,7 +2978,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_CHECKER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -3421,7 +3421,7 @@ namespace mdr::v2::t2
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_CHECKER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2

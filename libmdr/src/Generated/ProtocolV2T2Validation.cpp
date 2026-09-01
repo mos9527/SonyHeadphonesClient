@@ -263,8 +263,7 @@ MDRResult<void> PartyNotifyStatus::Validate(const PartyNotifyStatus& data) {
 MDRResult<void> PartyNotifyStatusCommon::Validate(const PartyNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.value2 ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -384,8 +383,7 @@ MDRResult<void> PartyRetStatus::Validate(const PartyRetStatus& data) {
 MDRResult<void> PartyRetStatusCommon::Validate(const PartyRetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.value2 ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1245,8 +1243,7 @@ MDRResult<void> SystemNotifyStatus::Validate(const SystemNotifyStatus& data) {
 MDRResult<void> SystemNotifyStatusCommon::Validate(const SystemNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1526,8 +1523,7 @@ MDRResult<void> SystemRetStatus::Validate(const SystemRetStatus& data) {
 MDRResult<void> SystemRetStatusCommon::Validate(const SystemRetStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }

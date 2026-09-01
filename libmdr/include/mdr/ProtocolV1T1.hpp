@@ -1320,7 +1320,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_DEVICE_INFO
         Command command{Command::CONNECT_GET_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoInquiredType inquiredType{DeviceInfoInquiredType::SERIES_AND_COLOR_INFO}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetDeviceInfo);
@@ -3394,7 +3394,7 @@ namespace mdr::v1::t1
     // THMSGV1T1RetDeviceInfo_DeviceInfoBase
     struct RetDeviceInfo_DeviceInfoBase
     {
-        // CODEGEN EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoInquiredType type{DeviceInfoInquiredType::SERIES_AND_COLOR_INFO}; // 0x0
 
         MDR_DEFINE_EXTERN_READ_WRITE(RetDeviceInfo_DeviceInfoBase);
@@ -5944,7 +5944,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoInquiredType type{DeviceInfoInquiredType::SERIES_AND_COLOR_INFO}; // 0x1
         RetDeviceInfo_DeviceInfoBase deviceInfo{}; // 0x2
 

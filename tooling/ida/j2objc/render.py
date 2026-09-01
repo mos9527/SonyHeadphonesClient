@@ -17,6 +17,18 @@ GENERATED_BANNER = (
 OUT_OF_RANGE_IGNORE_REASON = (
     "OUT_OF_RANGE is expected"
 )
+_COMMAND_WORDS = frozenset({"GET", "RET", "SET", "NTFY", "NOTIFY"})
+_GENERIC_NAME_TOKENS = frozenset(
+    {
+        "TYPE",
+        "STATUS",
+        "DATA",
+        "PARAM",
+        "CAPABILITY",
+        "INFO",
+        "AND",
+    }
+)
 
 V2_FUNCTION_TYPE_CLASS = (
     "ComSonySongpalTandemfamilyMessageMdrV2FunctionType"
@@ -138,10 +150,57 @@ def _enum_has_out_of_range(enum: EnumDecl) -> bool:
     return any(value.name == "OUT_OF_RANGE" for value in enum.values)
 
 
+def _name_tokens(value: str) -> set[str]:
+    value = value.replace("_", " ")
+    words = re.findall(
+        r"[A-Z]+(?=[A-Z][a-z]|\d|\b)|[A-Z]?[a-z]+|\d+", value
+    )
+    aliases = {
+        "NOTIFY": "NTFY",
+        "NOTIFICATION": "NTFY",
+        "RETURN": "RET",
+    }
+    return {aliases.get(word.upper(), word.upper()) for word in words}
+
+
+def _enum_range_is_well_formed(payload: PayloadDecl, member: str) -> bool:
+    """Reject EnumRange inferred from generic name tokens such as INFO.
+
+    Open enums with an OUT_OF_RANGE sentinel must not be pinned to one
+    member because the payload name overlaps INFO/PARAM/etc. Empty overlap
+    is treated as evidence-based (getter or parser), not name inference.
+    Distinctive overlap keeps the pin, including type-specific helpers.
+    """
+    name_tokens = _name_tokens(payload.cpp_name) - _COMMAND_WORDS
+    member_tokens = _name_tokens(member)
+    overlap = name_tokens & member_tokens
+    if not overlap:
+        return True
+    return bool(overlap - _GENERIC_NAME_TOKENS)
+
+
 def _field_semantic_rules(
-    field: FieldDecl, enums_by_name: dict[str, EnumDecl]
+    field: FieldDecl,
+    enums_by_name: dict[str, EnumDecl],
+    payload: PayloadDecl,
 ) -> tuple[str, ...]:
     rules = list(field.semantic_rules)
+    enum = enums_by_name.get(field.cpp_type)
+    has_out_of_range = enum is not None and _enum_has_out_of_range(enum)
+    if has_out_of_range:
+        kept: list[str] = []
+        for rule in rules:
+            if rule.startswith("EnumRange "):
+                members = rule.split()[1:]
+                if any(
+                    not _enum_range_is_well_formed(
+                        payload, member.split("::", 1)[-1]
+                    )
+                    for member in members
+                ):
+                    continue
+            kept.append(rule)
+        rules = kept
     if any(
         rule == "Ignore"
         or rule.startswith("Ignore ")
@@ -149,8 +208,7 @@ def _field_semantic_rules(
         for rule in rules
     ):
         return tuple(rules)
-    enum = enums_by_name.get(field.cpp_type)
-    if enum is not None and _enum_has_out_of_range(enum):
+    if has_out_of_range:
         rules.append(f"Ignore {OUT_OF_RANGE_IGNORE_REASON}")
     return tuple(rules)
 
@@ -233,7 +291,7 @@ def _render_struct(
         ]
 
     for field in fields:
-        for rule in _field_semantic_rules(field, enums_by_name):
+        for rule in _field_semantic_rules(field, enums_by_name, payload):
             lines.append(f"        // CODEGEN {rule}")
         lines.append(
             f"        {field.cpp_type} {field.name}"

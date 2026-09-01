@@ -8399,7 +8399,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -8812,7 +8812,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2

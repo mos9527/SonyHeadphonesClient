@@ -3713,8 +3713,7 @@ MDRResult<void> SystemNotifyStatusCallSettings::Validate(const SystemNotifyStatu
 MDRResult<void> SystemNotifyStatusCommon::Validate(const SystemNotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_DETECTOR);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -3973,8 +3972,7 @@ MDRResult<void> SystemRetStatusCallSettings::Validate(const SystemRetStatusCallS
 MDRResult<void> SystemRetStatusCommonStatus::Validate(const SystemRetStatusCommonStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_DETECTOR);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }

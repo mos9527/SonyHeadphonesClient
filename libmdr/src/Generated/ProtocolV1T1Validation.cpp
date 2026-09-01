@@ -68,8 +68,7 @@ MDRResult<void> GetConnectionStatus::Validate(const GetConnectionStatus& data) {
 MDRResult<void> GetDeviceInfo::Validate(const GetDeviceInfo& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_GET_DEVICE_INFO);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == DeviceInfoInquiredType::SERIES_AND_COLOR_INFO);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> GetEqEbbCapability::Validate(const GetEqEbbCapability& data) {
@@ -2705,9 +2704,8 @@ MDRResult<void> RetAudioCapability_UpscalingCapability::Validate(const RetAudioC
 MDRResult<void> RetDeviceInfo::Validate(const RetDeviceInfo& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_RET_DEVICE_INFO);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == DeviceInfoInquiredType::SERIES_AND_COLOR_INFO);
-    MDR_VALIDATE(is_valid(data.deviceInfo.type));
+    // data.type ignored: OUT_OF_RANGE is expected
+    // data.deviceInfo.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetDeviceInfo_DeviceInfoFwVersion::Validate(const RetDeviceInfo_DeviceInfoFwVersion& data) {
