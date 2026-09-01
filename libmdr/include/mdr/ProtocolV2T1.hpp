@@ -2066,9 +2066,9 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_NTFY_PARAM
         Command command{Command::ALERT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::APP_BECOMES_FOREGROUND
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
-        // CODEGEN EnumRange AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertMessageType messageType{AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertActionType actionType{AlertActionType::CONFIRMATION_ONLY}; // 0x3
@@ -2081,7 +2081,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_NTFY_PARAM
         Command command{Command::ALERT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FIXED_MESSAGE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FIXED_MESSAGE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertMessageType messageType{AlertMessageType::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE}; // 0x2
@@ -2096,7 +2096,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_NTFY_PARAM
         Command command{Command::ALERT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertMessageTypeWithLeftRightSelection messageType{AlertMessageTypeWithLeftRightSelection::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON}; // 0x2
@@ -2111,7 +2111,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_NTFY_PARAM
         Command command{Command::ALERT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FLEXIBLE_MESSAGE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FLEXIBLE_MESSAGE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertFlexibleMessageType messageType{AlertFlexibleMessageType::BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS}; // 0x2
@@ -2138,7 +2138,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_NTFY_STATUS
         Command command{Command::ALERT_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION}; // 0x1
         UInt8 value{}; // 0x2
 
@@ -2161,7 +2161,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_RET_STATUS
         Command command{Command::ALERT_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION}; // 0x1
         UInt8 value{}; // 0x2
 
@@ -2173,7 +2173,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_RET_STATUS
         Command command{Command::ALERT_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::VOICE_ASSISTANT_ALERT_NOTIFICATION}; // 0x1
         MDRPodArray<VoiceAssistantType> voiceAssistants; // 0x2
 
@@ -2196,9 +2196,9 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
         Command command{Command::ALERT_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::APP_BECOMES_FOREGROUND
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
-        // CODEGEN EnumRange AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertMessageType messageType{AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertAction actionType{AlertAction::NEGATIVE}; // 0x3
@@ -2211,7 +2211,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
         Command command{Command::ALERT_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FIXED_MESSAGE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FIXED_MESSAGE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertMessageType messageType{AlertMessageType::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE}; // 0x2
@@ -2226,7 +2226,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
         Command command{Command::ALERT_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FIXED_MESSAGE_WITH_LEFT_RIGHT_SELECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertMessageTypeWithLeftRightSelection messageType{AlertMessageTypeWithLeftRightSelection::CAUTION_FOR_CHANGE_VOICE_ASSISTANT_ASSIGNABLE_BUTTON}; // 0x2
@@ -2241,7 +2241,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
         Command command{Command::ALERT_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FLEXIBLE_MESSAGE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FLEXIBLE_MESSAGE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertFlexibleMessageType messageType{AlertFlexibleMessageType::BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS}; // 0x2
@@ -2256,7 +2256,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
         Command command{Command::ALERT_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION}; // 0x1
         VibrationType vibrationType{VibrationType::NO_PATTERN_SPECIFIED}; // 0x2
 
@@ -2279,7 +2279,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_STATUS
         Command command{Command::ALERT_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::APP_BECOMES_FOREGROUND
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2292,7 +2292,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_STATUS
         Command command{Command::ALERT_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::FIXED_MESSAGE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::FIXED_MESSAGE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2305,7 +2305,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::ALERT_SET_STATUS
         Command command{Command::ALERT_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::LE_AUDIO_ALERT_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConfirmationType confirmationType{ConfirmationType::CONFIRMED}; // 0x2
@@ -2409,7 +2409,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE}; // 0x1
         MDRPodArray<ListeningOptionAssignCustomizableItem> assignedItems; // 0x2
 
@@ -2421,7 +2421,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::SOUND_LEAKAGE_REDUCTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::SOUND_LEAKAGE_REDUCTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -2434,7 +2434,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_CINEMA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_CINEMA}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -2447,7 +2447,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_SERIES
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_SERIES}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpmixItemId upmixItemId{UpmixItemId::NONE}; // 0x2
@@ -2460,7 +2460,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::VOICE_CONTENTS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::VOICE_CONTENTS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -2512,7 +2512,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2525,7 +2525,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value1{}; // 0x2
@@ -2540,7 +2540,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2555,7 +2555,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2570,7 +2570,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_SERIES
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_SERIES}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2585,7 +2585,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
         Command command{Command::AUDIO_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::DISABLE}; // 0x2
@@ -2610,7 +2610,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -2623,7 +2623,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -2638,7 +2638,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -2651,7 +2651,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
         Command command{Command::AUDIO_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPSCALING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpscalingTypeAutoOff settingValue{UpscalingTypeAutoOff::OFF}; // 0x2
@@ -2687,7 +2687,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         MDRPodArray<PriorMode> priorModeList; // 0x2
         MDRPodArray<LDACExclusiveFeature> lDACExclusiveFeatureList;
@@ -2700,7 +2700,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ListeningOptionAssignFlexibility listeningOptionAssignFlexibility{ListeningOptionAssignFlexibility::FIXED}; // 0x2
@@ -2714,7 +2714,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::SOUND_LEAKAGE_REDUCTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::SOUND_LEAKAGE_REDUCTION}; // 0x1
         MDRPodArray<AudioExclusiveFunctionType> exclusiveFunctions; // 0x2
 
@@ -2726,7 +2726,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_CINEMA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_CINEMA}; // 0x1
         MDRPodArray<AudioExclusiveFunctionType> exclusiveFunctions; // 0x2
 
@@ -2738,7 +2738,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_SERIES
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_SERIES}; // 0x1
         MDRPodArray<UpmixItemId> upmixItemIdList; // 0x2
         MDRPodArray<AudioExclusiveFunctionType> exclusiveFunctions;
@@ -2751,7 +2751,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPSCALING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpscalingType upscalingType{UpscalingType::DSEE_HX}; // 0x2
@@ -2764,7 +2764,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
         Command command{Command::AUDIO_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::VOICE_CONTENTS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::VOICE_CONTENTS}; // 0x1
         MDRPodArray<AudioExclusiveFunctionType> exclusiveFunctions; // 0x2
 
@@ -2815,7 +2815,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -2828,7 +2828,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE}; // 0x1
         MDRPodArray<ListeningOptionAssignCustomizableItem> assignedItems; // 0x2
 
@@ -2840,7 +2840,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::SOUND_LEAKAGE_REDUCTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::SOUND_LEAKAGE_REDUCTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -2853,7 +2853,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_CINEMA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_CINEMA}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -2866,7 +2866,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_SERIES
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_SERIES}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpmixItemId upmixItemId{UpmixItemId::NONE}; // 0x2
@@ -2879,7 +2879,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPSCALING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpscalingTypeAutoOff settingValue{UpscalingTypeAutoOff::OFF}; // 0x2
@@ -2892,7 +2892,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
         Command command{Command::AUDIO_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::VOICE_CONTENTS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::VOICE_CONTENTS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -2944,7 +2944,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2957,7 +2957,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value1{}; // 0x2
@@ -2972,7 +2972,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -2987,7 +2987,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -3002,7 +3002,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_SERIES
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_SERIES}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -3017,7 +3017,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
         Command command{Command::AUDIO_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::DISABLE}; // 0x2
@@ -3057,7 +3057,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -3070,7 +3070,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -3085,7 +3085,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
@@ -3098,7 +3098,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::LISTENING_OPTION_ASSIGN_CUSTOMIZABLE}; // 0x1
         MDRPodArray<ListeningOptionAssignCustomizableItem> assignedItems; // 0x2
 
@@ -3110,7 +3110,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::SOUND_LEAKAGE_REDUCTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::SOUND_LEAKAGE_REDUCTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -3123,7 +3123,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_CINEMA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_CINEMA}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -3136,7 +3136,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPMIX_SERIES
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPMIX_SERIES}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpmixItemId upmixItemId{UpmixItemId::NONE}; // 0x2
@@ -3149,7 +3149,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::UPSCALING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpscalingTypeAutoOff settingValue{UpscalingTypeAutoOff::OFF}; // 0x2
@@ -3162,7 +3162,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
         Command command{Command::AUDIO_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange AudioInquiredType::VOICE_CONTENTS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::VOICE_CONTENTS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -3216,7 +3216,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_PARAM
         Command command{Command::COMMON_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::TANDEM_RECONNECTION_REQUEST
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::TANDEM_RECONNECTION_REQUEST}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         RequestType requestType{RequestType::UNDER_CONFIRMATION}; // 0x2
@@ -3230,7 +3230,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_STATUS
         Command command{Command::COMMON_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::AUDIO_CODEC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::AUDIO_CODEC}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioCodec audioCodec{AudioCodec::UNSETTLED}; // 0x2
@@ -3243,7 +3243,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_STATUS
         Command command{Command::COMMON_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::CONNECTION_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::CONNECTION_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonConnectionStatus leftConnectionStatus{CommonConnectionStatus::NOT_CONNECTED}; // 0x2
@@ -3258,7 +3258,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_STATUS
         Command command{Command::COMMON_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::DEVICE_SPECIAL_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::DEVICE_SPECIAL_MODE}; // 0x1
         MDRPodArray<DeviceSpecialMode> deviceSpecialModeList; // 0x2
 
@@ -3270,7 +3270,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_STATUS
         Command command{Command::COMMON_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::UPSCALING_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::UPSCALING_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpscalingEffectType effectType{UpscalingEffectType::DSEE_HX}; // 0x2
@@ -3307,7 +3307,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_CAPABILITY
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::BLE_SETUP
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::BLE_SETUP}; // 0x1
         Array<UInt8, 17> btAddress{}; // 0x2
         MDRPrefixedString bleHash;
@@ -3320,7 +3320,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_CAPABILITY
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::DISPLAY_FW_VERSION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::DISPLAY_FW_VERSION}; // 0x1
         MDRPrefixedString displayFwVersion; // 0x2
 
@@ -3332,7 +3332,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_CAPABILITY
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION}; // 0x1
         Array<UInt8, 17> smartPhoneBDAddress{}; // 0x2
         MDRPrefixedString deviceBDAddress;
@@ -3356,7 +3356,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_STATUS
         Command command{Command::COMMON_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::AUDIO_CODEC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::AUDIO_CODEC}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioCodec audioCodec{AudioCodec::UNSETTLED}; // 0x2
@@ -3381,7 +3381,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_STATUS
         Command command{Command::COMMON_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::CONNECTION_STATUS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::CONNECTION_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonConnectionStatus leftConnectionStatus{CommonConnectionStatus::NOT_CONNECTED}; // 0x2
@@ -3396,7 +3396,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_STATUS
         Command command{Command::COMMON_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::DEVICE_SPECIAL_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::DEVICE_SPECIAL_MODE}; // 0x1
         MDRPodArray<DeviceSpecialMode> deviceSpecialModeList; // 0x2
 
@@ -3408,7 +3408,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_RET_STATUS
         Command command{Command::COMMON_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::UPSCALING_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::UPSCALING_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpscalingEffectType effectType{UpscalingEffectType::DSEE_HX}; // 0x2
@@ -3434,7 +3434,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::COMMON_SET_PARAM
         Command command{Command::COMMON_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange CommonInquiredType::CONNECTION_ESTABLISHED_TIME
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         CommonInquiredType inquiredType{CommonInquiredType::CONNECTION_ESTABLISHED_TIME}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionEstablishedTimeStatus timeValidation{ConnectionEstablishedTimeStatus::VALID}; // 0x2
@@ -3456,7 +3456,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_CAPABILITY_INFO
         Command command{Command::CONNECT_GET_CAPABILITY_INFO}; // 0x0
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectInquiredType type{ConnectInquiredType::FIXED_VALUE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetCapabilityInfo);
@@ -3478,7 +3478,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_PROTOCOL_INFO
         Command command{Command::CONNECT_GET_PROTOCOL_INFO}; // 0x0
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectInquiredType type{ConnectInquiredType::FIXED_VALUE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetProtocolInfo);
@@ -3489,7 +3489,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_GET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectInquiredType type{ConnectInquiredType::FIXED_VALUE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(ConnectGetSupportFunction);
@@ -3500,7 +3500,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_CAPABILITY_INFO
         Command command{Command::CONNECT_RET_CAPABILITY_INFO}; // 0x0
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectInquiredType type{ConnectInquiredType::FIXED_VALUE}; // 0x1
         UInt8 capabilityCounter{}; // 0x2
         MDRPrefixedString uniqueId; // 0x3
@@ -3524,7 +3524,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange DeviceInfoType::FW_VERSION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoType type{DeviceInfoType::FW_VERSION}; // 0x1
         MDRPrefixedString fwVersion; // 0x2
 
@@ -3536,7 +3536,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange DeviceInfoType::INSTRUCTION_GUIDE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoType type{DeviceInfoType::INSTRUCTION_GUIDE}; // 0x1
         MDRPodArray<GuidanceCategory> guidanceCategories; // 0x2
 
@@ -3548,7 +3548,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange DeviceInfoType::MODEL_NAME
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoType type{DeviceInfoType::MODEL_NAME}; // 0x1
         MDRPrefixedString modelName; // 0x2
 
@@ -3560,7 +3560,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
         Command command{Command::CONNECT_RET_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange DeviceInfoType::SERIES_AND_COLOR_INFO
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         DeviceInfoType type{DeviceInfoType::SERIES_AND_COLOR_INFO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ModelSeries modelSeries{ModelSeries::NO_SERIES}; // 0x2
@@ -3574,7 +3574,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_PROTOCOL_INFO
         Command command{Command::CONNECT_RET_PROTOCOL_INFO}; // 0x0
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectInquiredType type{ConnectInquiredType::FIXED_VALUE}; // 0x1
         Int32BE protocolVersion{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -3590,7 +3590,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::CONNECT_RET_SUPPORT_FUNCTION
         Command command{Command::CONNECT_RET_SUPPORT_FUNCTION}; // 0x0
-        // CODEGEN EnumRange ConnectInquiredType::FIXED_VALUE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectInquiredType type{ConnectInquiredType::FIXED_VALUE}; // 0x1
         MDRPodArray<SupportFunction> supportFunctions; // 0x2
 
@@ -3689,7 +3689,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -3703,7 +3703,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::EBB
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
         // CODEGEN Range -127 127
         Int8 level{}; // 0x2
@@ -3716,7 +3716,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::SOUND_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::SOUND_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -3729,7 +3729,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::TURN_KEY_EQ
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::TURN_KEY_EQ}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         TurnKeyEqResult result{TurnKeyEqResult::SUCCESS}; // 0x2
@@ -3783,7 +3783,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_STATUS
         Command command{Command::EQEBB_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::SOUND_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::SOUND_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -3823,7 +3823,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_CAPABILITY
         Command command{Command::EQEBB_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT}; // 0x1
         UInt8 band{}; // 0x2
         UInt8 step{}; // 0x3
@@ -3837,7 +3837,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_CAPABILITY
         Command command{Command::EQEBB_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::EBB
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
         // CODEGEN Range -127 127
         Int8 minValue{}; // 0x2
@@ -3852,7 +3852,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_CAPABILITY
         Command command{Command::EQEBB_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::SOUND_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::SOUND_EFFECT}; // 0x1
         MDRPodArray<SoundEffectType> soundEffectList; // 0x2
         MDRPodArray<ExclusiveFunctionId> exclusiveFunctionIdList;
@@ -3865,7 +3865,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_CAPABILITY
         Command command{Command::EQEBB_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN}; // 0x1
         // CODEGEN Range 0 127
         UInt8 minAssignableCnt{}; // 0x2
@@ -3902,7 +3902,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_PARAM
         Command command{Command::EQEBB_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::EBB
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
         // CODEGEN Range -127 127
         Int8 level{}; // 0x2
@@ -3915,7 +3915,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_PARAM
         Command command{Command::EQEBB_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::SOUND_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::SOUND_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -3969,7 +3969,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_STATUS
         Command command{Command::EQEBB_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::SOUND_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::SOUND_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -3994,7 +3994,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_RESET
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_RESET}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -4007,7 +4007,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -4020,7 +4020,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::EBB
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
         // CODEGEN Range -127 127
         Int8 level{}; // 0x2
@@ -4033,7 +4033,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::SOUND_EFFECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::SOUND_EFFECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -4046,7 +4046,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::TURN_KEY_EQ
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::TURN_KEY_EQ}; // 0x1
         MDRPrefixedString data; // 0x2
 
@@ -4195,7 +4195,7 @@ namespace mdr::v2::t1
         Command command{Command::GENERAL_SETTING_NTNY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        // CODEGEN EnumRange GsSettingType::LIST_TYPE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
         // CODEGEN Range 0 63
         UInt8 currentElementIndex{}; // 0x3
@@ -4285,7 +4285,7 @@ namespace mdr::v2::t1
         Command command{Command::GENERAL_SETTING_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        // CODEGEN EnumRange GsSettingType::LIST_TYPE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
         // CODEGEN Range 0 63
         UInt8 currentElementIndex{}; // 0x3
@@ -4341,7 +4341,7 @@ namespace mdr::v2::t1
         Command command{Command::GENERAL_SETTING_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        // CODEGEN EnumRange GsSettingType::LIST_TYPE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
         // CODEGEN Range 0 63
         UInt8 currentElementIndex{}; // 0x3
@@ -4891,7 +4891,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::ASM_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -4928,7 +4928,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -4948,7 +4948,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -4972,7 +4972,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5016,7 +5016,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_AMB_TOGGLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_AMB_TOGGLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         Function function{Function::NO_FUNCTION}; // 0x2
@@ -5029,7 +5029,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5070,7 +5070,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5090,7 +5090,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5107,7 +5107,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5128,7 +5128,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5172,7 +5172,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_STATUS
         Command command{Command::NCASM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         NcTestModeStatus status{NcTestModeStatus::IN_TEST_MODE}; // 0x2
@@ -5196,7 +5196,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::ASM_ON_OFF}; // 0x1
         MDRPodArray<AmbientSoundMode> ambientSoundModeList; // 0x2
 
@@ -5208,7 +5208,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_AMB_TOGGLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_AMB_TOGGLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         Key key{Key::NC_AMB_KEY}; // 0x2
@@ -5221,7 +5221,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF}; // 0x1
         MDRPodArray<AmbientSoundMode> ambientSoundModeList; // 0x2
 
@@ -5233,7 +5233,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmRetCapabilityNcOnOff);
@@ -5244,7 +5244,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         MDRPodArray<AmbientSoundMode> ambientSoundModeList; // 0x2
 
@@ -5271,7 +5271,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::ASM_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5308,7 +5308,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5328,7 +5328,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5352,7 +5352,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5396,7 +5396,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_AMB_TOGGLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_AMB_TOGGLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         Function function{Function::NO_FUNCTION}; // 0x2
@@ -5409,7 +5409,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5450,7 +5450,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5470,7 +5470,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5487,7 +5487,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5506,7 +5506,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5550,7 +5550,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_STATUS
         Command command{Command::NCASM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         NcTestModeStatus ncTestModeStatus{NcTestModeStatus::IN_TEST_MODE}; // 0x2
@@ -5578,7 +5578,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::ASM_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5615,7 +5615,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5635,7 +5635,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5659,7 +5659,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5703,7 +5703,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_AMB_TOGGLE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_AMB_TOGGLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         Function function{Function::NO_FUNCTION}; // 0x2
@@ -5716,7 +5716,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_MODE_SWITCH_AND_ASM_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5757,7 +5757,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5777,7 +5777,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5794,7 +5794,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5815,7 +5815,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
@@ -5846,7 +5846,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_SET_STATUS
         Command command{Command::NCASM_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         NcTestModeOperation ncTestModeOperation{NcTestModeOperation::TEST_MODE_START}; // 0x2
@@ -5906,7 +5906,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::PLAY_NTFY_PARAM
         Command command{Command::PLAY_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange PlayInquiredType::PLAY_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType playInquiredType{PlayInquiredType::PLAY_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayMode playMode{PlayMode::PLAY_MODE_OFF}; // 0x2
@@ -6077,7 +6077,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_PARAM
         Command command{Command::OPT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_BAROMETRIC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_BAROMETRIC}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         BarometricPressure barometricValue{BarometricPressure::UNMEASURED}; // 0x2
@@ -6090,7 +6090,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_PARAM
         Command command{Command::OPT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_PERSONAL
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_PERSONAL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalValue personalValue{PersonalValue::UNMEASURED}; // 0x2
@@ -6103,7 +6103,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_PARAM
         Command command{Command::OPT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_PERSONAL_BAROMETRIC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_PERSONAL_BAROMETRIC}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalValue personalValue{PersonalValue::UNMEASURED}; // 0x2
@@ -6118,7 +6118,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_PARAM
         Command command{Command::OPT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::SOUND_FIELD_OPTIMIZATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::SOUND_FIELD_OPTIMIZATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6131,7 +6131,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_PARAM
         Command command{Command::OPT_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::TV_SOUND_BOOSTER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::TV_SOUND_BOOSTER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6172,7 +6172,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_STATUS
         Command command{Command::OPT_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::SOUND_FIELD_OPTIMIZATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::SOUND_FIELD_OPTIMIZATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -6187,7 +6187,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_NTFY_STATUS
         Command command{Command::OPT_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::TV_SOUND_BOOSTER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::TV_SOUND_BOOSTER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -6213,7 +6213,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_CAPABILITY
         Command command{Command::OPT_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_BAROMETRIC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_BAROMETRIC}; // 0x1
         // CODEGEN Range 1 255
         UInt8 optimizationTime{}; // 0x2
@@ -6228,7 +6228,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_CAPABILITY
         Command command{Command::OPT_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_PERSONAL
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_PERSONAL}; // 0x1
         // CODEGEN Range 1 255
         UInt8 optimizationTime{}; // 0x2
@@ -6243,7 +6243,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_CAPABILITY
         Command command{Command::OPT_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_PERSONAL_BAROMETRIC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_PERSONAL_BAROMETRIC}; // 0x1
         // CODEGEN Range 1 255
         UInt8 optimizationTime{}; // 0x2
@@ -6260,7 +6260,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_CAPABILITY
         Command command{Command::OPT_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::TV_SOUND_BOOSTER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::TV_SOUND_BOOSTER}; // 0x1
         MDRPodArray<OptExclusiveFunctionType> exclusiveFunctions; // 0x2
 
@@ -6283,7 +6283,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_PARAM
         Command command{Command::OPT_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_BAROMETRIC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_BAROMETRIC}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         BarometricPressure barometricValue{BarometricPressure::UNMEASURED}; // 0x2
@@ -6296,7 +6296,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_PARAM
         Command command{Command::OPT_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_PERSONAL
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_PERSONAL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalValue personalValue{PersonalValue::UNMEASURED}; // 0x2
@@ -6309,7 +6309,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_PARAM
         Command command{Command::OPT_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::NC_OPTIMIZER_PERSONAL_BAROMETRIC
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::NC_OPTIMIZER_PERSONAL_BAROMETRIC}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PersonalValue personalValue{PersonalValue::UNMEASURED}; // 0x2
@@ -6324,7 +6324,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_PARAM
         Command command{Command::OPT_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::SOUND_FIELD_OPTIMIZATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::SOUND_FIELD_OPTIMIZATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6337,7 +6337,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_PARAM
         Command command{Command::OPT_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::TV_SOUND_BOOSTER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::TV_SOUND_BOOSTER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6378,7 +6378,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_STATUS
         Command command{Command::OPT_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::SOUND_FIELD_OPTIMIZATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::SOUND_FIELD_OPTIMIZATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -6393,7 +6393,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_RET_STATUS
         Command command{Command::OPT_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::TV_SOUND_BOOSTER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::TV_SOUND_BOOSTER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
@@ -6432,7 +6432,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::OPT_SET_PARAM
         Command command{Command::OPT_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange OptInquiredType::TV_SOUND_BOOSTER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         OptInquiredType type{OptInquiredType::TV_SOUND_BOOSTER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6524,7 +6524,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_PARAM
         Command command{Command::POWER_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffElements currentPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x2
@@ -6539,7 +6539,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_PARAM
         Command command{Command::POWER_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffWearingDetectionElements currentPowerOffElements{AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
@@ -6554,7 +6554,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_PARAM
         Command command{Command::POWER_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_SAFE_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_SAFE_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6569,7 +6569,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_PARAM
         Command command{Command::POWER_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6593,7 +6593,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6606,7 +6606,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6619,7 +6619,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -6634,7 +6634,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -6649,7 +6649,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_WITH_THRESHOLD}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -6665,7 +6665,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_WITH_THRESHOLD}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -6682,7 +6682,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6695,7 +6695,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::CRADLE_BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::CRADLE_BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -6710,7 +6710,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -6726,7 +6726,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LEFT_RIGHT_BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LEFT_RIGHT_BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 leftBatteryLevel{}; // 0x2
@@ -6745,7 +6745,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LEFT_RIGHT_BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LEFT_RIGHT_BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 leftBatteryLevel{}; // 0x2
@@ -6764,7 +6764,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LR_BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LR_BATTERY_WITH_THRESHOLD}; // 0x1
         // CODEGEN Range 0 100
         UInt8 leftBatteryLevel{}; // 0x2
@@ -6787,7 +6787,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LINK_CONTROL
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LINK_CONTROL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6800,7 +6800,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6824,7 +6824,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_CAPABILITY
         Command command{Command::POWER_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType inquiredType{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
         MDRPodArray<AutoPowerOffElements> candidateElements; // 0x2
 
@@ -6836,7 +6836,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_CAPABILITY
         Command command{Command::POWER_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType inquiredType{PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION}; // 0x1
         MDRPodArray<AutoPowerOffWearingDetectionElements> candidateElements; // 0x2
 
@@ -6863,7 +6863,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_CAPABILITY
         Command command{Command::POWER_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::STAMINA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType inquiredType{PowerInquiredType::STAMINA}; // 0x1
         MDRPodArray<PowerExclusiveFunctionType> exclusiveFunctions; // 0x2
 
@@ -6886,7 +6886,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_PARAM
         Command command{Command::POWER_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffElements currentPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x2
@@ -6901,7 +6901,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_PARAM
         Command command{Command::POWER_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffWearingDetectionElements currentPowerOffElements{AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
@@ -6916,7 +6916,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_PARAM
         Command command{Command::POWER_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_SAFE_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_SAFE_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6931,7 +6931,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_PARAM
         Command command{Command::POWER_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -6955,7 +6955,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6968,7 +6968,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -6981,7 +6981,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -6996,7 +6996,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -7011,7 +7011,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_WITH_THRESHOLD}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -7027,7 +7027,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_WITH_THRESHOLD}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -7044,7 +7044,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -7057,7 +7057,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::CRADLE_BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::CRADLE_BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 batteryLevel{}; // 0x2
@@ -7072,7 +7072,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -7088,7 +7088,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LEFT_RIGHT_BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LEFT_RIGHT_BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 leftBatteryLevel{}; // 0x2
@@ -7107,7 +7107,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LEFT_RIGHT_BATTERY
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LEFT_RIGHT_BATTERY}; // 0x1
         // CODEGEN Range 0 100
         UInt8 leftBatteryLevel{}; // 0x2
@@ -7126,7 +7126,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LR_BATTERY_WITH_THRESHOLD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LR_BATTERY_WITH_THRESHOLD}; // 0x1
         // CODEGEN Range 0 100
         UInt8 leftBatteryLevel{}; // 0x2
@@ -7149,7 +7149,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -7173,7 +7173,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_SET_PARAM
         Command command{Command::POWER_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffElements currentPowerOffElements{AutoPowerOffElements::POWER_OFF_IN_5_MIN}; // 0x2
@@ -7188,7 +7188,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_SET_PARAM
         Command command{Command::POWER_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AutoPowerOffWearingDetectionElements currentPowerOffElements{AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN}; // 0x2
@@ -7203,7 +7203,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_SET_PARAM
         Command command{Command::POWER_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::BATTERY_SAFE_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::BATTERY_SAFE_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -7218,7 +7218,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_SET_PARAM
         Command command{Command::POWER_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue onOffSettingValue{OnOffSettingValue::ON}; // 0x2
@@ -7242,7 +7242,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_SET_STATUS
         Command command{Command::POWER_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::LINK_CONTROL
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::LINK_CONTROL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable powerOffSettingValue{EnableDisable::ENABLE}; // 0x2
@@ -7255,7 +7255,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::POWER_SET_STATUS
         Command command{Command::POWER_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange PowerInquiredType::POWER_OFF
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PowerOffSettingValue powerOffSettingValue{PowerOffSettingValue::USER_POWER_OFF}; // 0x2
@@ -7300,7 +7300,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::PLAY_RET_CAPABILITY
         Command command{Command::PLAY_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange PlayInquiredType::PLAY_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType playInquiredType{PlayInquiredType::PLAY_MODE}; // 0x1
         MDRPodArray<PlayMode> playModes; // 0x2
 
@@ -7351,7 +7351,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::PLAY_RET_PARAM
         Command command{Command::PLAY_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange PlayInquiredType::PLAY_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType playInquiredType{PlayInquiredType::PLAY_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayMode playMode{PlayMode::PLAY_MODE_OFF}; // 0x2
@@ -7794,7 +7794,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SENSE_NTFY_PARAM
         Command command{Command::SENSE_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SenseInquiredType::ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseInquiredType type{SenseInquiredType::ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         RequestResult requestResult{RequestResult::ACCEPTED}; // 0x2
@@ -7940,7 +7940,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::LOG_SET_STATUS
         Command command{Command::LOG_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange LogInquiredType::ACTION_LOG_NOTIFIER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         LogInquiredType type{LogInquiredType::ACTION_LOG_NOTIFIER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -7953,7 +7953,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::LOG_SET_STATUS
         Command command{Command::LOG_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange LogInquiredType::TIME_SERIES_OPERATIONLOG_NOTIFIER
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         LogInquiredType type{LogInquiredType::TIME_SERIES_OPERATIONLOG_NOTIFIER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
@@ -7977,7 +7977,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::PLAY_SET_PARAM
         Command command{Command::PLAY_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange PlayInquiredType::PLAY_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayInquiredType type{PlayInquiredType::PLAY_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PlayMode playMode{PlayMode::PLAY_MODE_OFF}; // 0x2
@@ -8100,7 +8100,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXT_PARAM
         Command command{Command::SYSTEM_NTFY_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         CallSettingsTestSoundControlAck testSoundControlAck{CallSettingsTestSoundControlAck::ACK}; // 0x2
@@ -8113,7 +8113,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXT_PARAM
         Command command{Command::SYSTEM_NTFY_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE_TYPE1}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectSensitivity detectSensitivity{DetectSensitivity::AUTO}; // 0x2
@@ -8130,7 +8130,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXT_PARAM
         Command command{Command::SYSTEM_NTFY_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE_TYPE2}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectSensitivity detectSensitivity{DetectSensitivity::AUTO}; // 0x2
@@ -8145,7 +8145,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXT_PARAM
         Command command{Command::SYSTEM_NTFY_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceFittingDetectionResult fittingResultLeft{EarpieceFittingDetectionResult::GOOD}; // 0x2
@@ -8179,7 +8179,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<Preset> presetList; // 0x2
 
@@ -8191,7 +8191,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRPodArray<Preset> presetList; // 0x2
 
@@ -8203,7 +8203,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue selfVoiceOnOff{OnOffSettingValue::ON}; // 0x2
@@ -8231,7 +8231,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::EARPIECE_SELECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::EARPIECE_SELECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceSeries series{EarpieceSeries::OTHER}; // 0x2
@@ -8244,7 +8244,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::FACE_TAP_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::FACE_TAP_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         FaceTapKey key{FaceTapKey::LEFT_SIDE_KEY}; // 0x2
@@ -8259,7 +8259,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::HEAD_GESTURE_TRAINING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::HEAD_GESTURE_TRAINING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         HeadGestureAction headGestureAction{HeadGestureAction::NOD}; // 0x2
@@ -8272,7 +8272,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::QUICK_ACCESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::QUICK_ACCESS}; // 0x1
         MDRPodArray<UInt8> functionList; // 0x2
 
@@ -8284,7 +8284,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::RESET_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::RESET_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ResetResult resetResult{ResetResult::SUCCESS}; // 0x2
@@ -8312,7 +8312,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceAssistant voiceAssistant{VoiceAssistant::VOICE_RECOGNITION}; // 0x2
@@ -8325,7 +8325,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
         Command command{Command::SYSTEM_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceFittingDetectionOperationStatus operationStatus{EarpieceFittingDetectionOperationStatus::DETECTION_IS_NOT_STARTED}; // 0x2
@@ -8357,7 +8357,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<EnableDisable> statusOfKeys; // 0x2
 
@@ -8369,7 +8369,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRPodArray<EnableDisable> statusOfKeys; // 0x2
 
@@ -8381,7 +8381,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -8412,7 +8412,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::FACE_TAP_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::FACE_TAP_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         FaceTapTestModeStatus status{FaceTapTestModeStatus::IN_TEST_MODE}; // 0x2
@@ -8425,7 +8425,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::HEAD_GESTURE_TRAINING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::HEAD_GESTURE_TRAINING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         HeadGestureTrainingModeStatus trainingModeStatus{HeadGestureTrainingModeStatus::IN_TEST_MODE}; // 0x2
@@ -8455,7 +8455,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceAssistantWakeWordStatus status{VoiceAssistantWakeWordStatus::ENABLE}; // 0x2
@@ -8468,7 +8468,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -8496,7 +8496,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Range 2 255
         UInt8 maxSelfVoiceVolume{}; // 0x2
@@ -8511,7 +8511,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::EARPIECE_SELECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::EARPIECE_SELECTION}; // 0x1
         MDRPodArray<EarpieceSeries> earpieceSeriesList; // 0x2
 
@@ -8542,7 +8542,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceAssistantKeyType voiceAssistantKeyType{VoiceAssistantKeyType::FIXED_BUTTON}; // 0x2
@@ -8567,7 +8567,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_EXT_PARAM
         Command command{Command::SYSTEM_RET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE_TYPE1}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectSensitivity detectSensitivity{DetectSensitivity::AUTO}; // 0x2
@@ -8584,7 +8584,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_EXT_PARAM
         Command command{Command::SYSTEM_RET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE_TYPE2}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectSensitivity detectSensitivity{DetectSensitivity::AUTO}; // 0x2
@@ -8599,7 +8599,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_EXT_PARAM
         Command command{Command::SYSTEM_RET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceFittingDetectionResult fittingResultLeft{EarpieceFittingDetectionResult::GOOD}; // 0x2
@@ -8633,7 +8633,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<Preset> presetList; // 0x2
 
@@ -8645,7 +8645,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRPodArray<Preset> presetList; // 0x2
 
@@ -8657,7 +8657,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue selfVoiceOnOff{OnOffSettingValue::ON}; // 0x2
@@ -8685,7 +8685,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::EARPIECE_SELECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::EARPIECE_SELECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceSeries series{EarpieceSeries::OTHER}; // 0x2
@@ -8698,7 +8698,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::QUICK_ACCESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::QUICK_ACCESS}; // 0x1
         MDRPodArray<UInt8> functionList; // 0x2
 
@@ -8725,7 +8725,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceAssistant voiceAssistant{VoiceAssistant::VOICE_RECOGNITION}; // 0x2
@@ -8738,7 +8738,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
         Command command{Command::SYSTEM_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceFittingDetectionOperationStatus operationStatus{EarpieceFittingDetectionOperationStatus::DETECTION_IS_NOT_STARTED}; // 0x2
@@ -8770,7 +8770,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<EnableDisable> statusOfKeys; // 0x2
 
@@ -8782,7 +8782,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRPodArray<EnableDisable> statusOfKeys; // 0x2
 
@@ -8794,7 +8794,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -8825,7 +8825,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::FACE_TAP_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::FACE_TAP_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         FaceTapTestModeStatus status{FaceTapTestModeStatus::IN_TEST_MODE}; // 0x2
@@ -8853,7 +8853,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_WAKE_WORD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceAssistantWakeWordStatus status{VoiceAssistantWakeWordStatus::ENABLE}; // 0x2
@@ -8866,7 +8866,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -8894,7 +8894,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXT_PARAM
         Command command{Command::SYSTEM_SET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         CallSettingsTestSoundControl testSoundControl{CallSettingsTestSoundControl::START}; // 0x2
@@ -8907,7 +8907,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXT_PARAM
         Command command{Command::SYSTEM_SET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE1
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE_TYPE1}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectSensitivity detectSensitivity{DetectSensitivity::AUTO}; // 0x2
@@ -8924,7 +8924,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXT_PARAM
         Command command{Command::SYSTEM_SET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::SMART_TALKING_MODE_TYPE2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE_TYPE2}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DetectSensitivity detectSensitivity{DetectSensitivity::AUTO}; // 0x2
@@ -8950,7 +8950,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<Preset> presetList; // 0x2
 
@@ -8962,7 +8962,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRPodArray<Preset> presetList; // 0x2
 
@@ -8974,7 +8974,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue selfVoiceOnOff{OnOffSettingValue::ON}; // 0x2
@@ -9002,7 +9002,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::EARPIECE_SELECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::EARPIECE_SELECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceSeries series{EarpieceSeries::OTHER}; // 0x2
@@ -9015,7 +9015,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::QUICK_ACCESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::QUICK_ACCESS}; // 0x1
         MDRPodArray<UInt8> functionList; // 0x2
 
@@ -9027,7 +9027,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::RESET_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::RESET_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ResetType resetType{ResetType::SETTINGS_ONLY}; // 0x2
@@ -9055,7 +9055,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::VOICE_ASSISTANT_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VOICE_ASSISTANT_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceAssistant voiceAssistant{VoiceAssistant::VOICE_RECOGNITION}; // 0x2
@@ -9068,7 +9068,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceFittingDetectionOperation operation{EarpieceFittingDetectionOperation::DETECTION_START}; // 0x2
@@ -9098,7 +9098,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_STATUS
         Command command{Command::SYSTEM_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::CALL_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CALL_SETTINGS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         CallSettingsModeOperation modeOperation{CallSettingsModeOperation::MODE_START}; // 0x2
@@ -9111,7 +9111,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_STATUS
         Command command{Command::SYSTEM_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::FACE_TAP_TEST_MODE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::FACE_TAP_TEST_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         FaceTapTestModeOperation modeOperation{FaceTapTestModeOperation::TEST_MODE_START}; // 0x2
@@ -9124,7 +9124,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_STATUS
         Command command{Command::SYSTEM_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::HEAD_GESTURE_TRAINING
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::HEAD_GESTURE_TRAINING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         TrainingModeOperation trainingModeOperation{TrainingModeOperation::TRAINING_MODE_START}; // 0x2
@@ -9137,7 +9137,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_STATUS
         Command command{Command::SYSTEM_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EarpieceFittingDetectionModeStatus detectionModeStatus{EarpieceFittingDetectionModeStatus::MODE_OUT}; // 0x2
@@ -9553,7 +9553,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::UPDT_TRANSFER_DATA
         Command command{Command::UPDT_TRANSFER_DATA}; // 0x0
-        // CODEGEN EnumRange UpdtInquiredType::FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         UpdtInquiredType type{UpdtInquiredType::FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION}; // 0x1
         Int32BE offset{}; // 0x2
         MDRPodArray<UInt8> data; // 0x6
@@ -9610,7 +9610,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_CUSTOM
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_CUSTOM}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -9624,7 +9624,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_EXTERNAL_UPDATE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_EXTERNAL_UPDATE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -9639,7 +9639,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_RESET
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_RESET}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -9734,7 +9734,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_PARAM
         Command command{Command::EQEBB_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_SELECT}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SoundEffectType soundEffectValue{SoundEffectType::SOUND_EFFECT_OFF}; // 0x2
@@ -9773,7 +9773,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOM_EQ
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOM_EQ}; // 0x1
         BandStep parameter{}; // 0x2
 
@@ -9785,7 +9785,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_CUSTOM
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::CUSTOMIZABLE_SOUND_EFFECT_CUSTOM}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable ntfyRequired{EnableDisable::ENABLE}; // 0x2
@@ -9827,7 +9827,7 @@ namespace mdr::v2::t1
         Command command{Command::GENERAL_SETTING_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        // CODEGEN EnumRange GsSettingType::LIST_TYPE
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsStringFormat gsStringFormat{GsStringFormat::RAW_NAME}; // 0x3
@@ -9883,7 +9883,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         MDRPodArray<AmbientSoundModeLevelSet> ambientSoundModeLevelSetList; // 0x2
 
@@ -9895,7 +9895,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA}; // 0x1
         MDRPodArray<AmbientSoundModeLevelSet> ambientSoundModeLevelSetList; // 0x2
 
@@ -9907,7 +9907,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         MDRPodArray<AmbientSoundModeLevelSet> ambientSoundModeLevelSetList; // 0x2
 
@@ -9943,7 +9943,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS}; // 0x1
         MDRPodArray<AmbientSoundModeLevelSet> ambientSoundModeLevelSetList; // 0x2
 
@@ -9955,7 +9955,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF_AND_ASM_SEAMLESS}; // 0x1
         MDRPodArray<AmbientSoundModeLevelSet> ambientSoundModeLevelSetList; // 0x2
 
@@ -10031,7 +10031,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::WEARING_STATUS_DETECTOR
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
         // CODEGEN Range 1 255
         UInt8 detectionTime{}; // 0x2
@@ -10067,7 +10067,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN}; // 0x1
         UltBtnSoundEffectAssignList ultBtnSoundEffectAssignList{}; // 0x2
 
@@ -10079,7 +10079,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_PARAM
         Command command{Command::EQEBB_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN}; // 0x1
         UltBtnSoundEffectAssignList ultBtnSoundEffectAssignList{}; // 0x2
 
@@ -10091,7 +10091,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::ULT_BTN_SOUND_EFFECT_ASSIGN}; // 0x1
         UltBtnSoundEffectAssignList ultBtnSoundEffectAssignList{}; // 0x2
 
@@ -10103,7 +10103,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SENSE_NTFY_PARAM
         Command command{Command::SENSE_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange SenseInquiredType::ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseInquiredType type{SenseInquiredType::ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION}; // 0x1
         MDRArray<ApplicableFunctionResult> applyTargetFunctionsWithRequestResult; // 0x2
 
@@ -10115,7 +10115,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXT_PARAM
         Command command{Command::SYSTEM_NTFY_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRArray<AssignableSettingsPreset> presets; // 0x2
 
@@ -10127,7 +10127,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXT_PARAM
         Command command{Command::SYSTEM_NTFY_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRArray<AssignableSettingsPreset> presets; // 0x2
 
@@ -10139,7 +10139,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::QUICK_ACCESS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::QUICK_ACCESS}; // 0x1
         QuickAccessKeyInfo quickAccessKeyInfo{}; // 0x2
 
@@ -10151,7 +10151,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_EXT_PARAM
         Command command{Command::SYSTEM_RET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRArray<AssignableSettingsPreset> presets; // 0x2
 
@@ -10163,7 +10163,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_EXT_PARAM
         Command command{Command::SYSTEM_RET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRArray<AssignableSettingsPreset> presets; // 0x2
 
@@ -10175,7 +10175,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXT_PARAM
         Command command{Command::SYSTEM_SET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRArray<AssignableSettingsPreset> presets; // 0x2
 
@@ -10187,7 +10187,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXT_PARAM
         Command command{Command::SYSTEM_SET_EXT_PARAM}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         MDRArray<AssignableSettingsPreset> presets; // 0x2
 
@@ -10199,7 +10199,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRArray<AssignableSettingsKey> keys; // 0x2
 
@@ -10211,7 +10211,7 @@ namespace mdr::v2::t1
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION
+        // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LimitationType limitationType{LimitationType::NO_DESCRIPTION}; // 0x2

@@ -1203,6 +1203,9 @@ class ProtocolExtractor:
             result.payloads
         )
         result.payloads = self._correct_container_kinds(result.payloads)
+        result.payloads = self._strip_open_enum_range(
+            result.payloads, result.enums
+        )
         self._fail_on_unresolved_types(result)
         return result
 
@@ -2072,6 +2075,47 @@ class ProtocolExtractor:
                     )
                 )
             output.append(replace(payload, fields=tuple(fields)))
+        return output
+
+    @staticmethod
+    def _strip_open_enum_range(
+        payloads: list[PayloadDecl],
+        enums: list[EnumDecl],
+    ) -> list[PayloadDecl]:
+        """Drop field-level EnumRange on enums that declare OUT_OF_RANGE.
+
+        Sound Connect maps unknown wire bytes to that sentinel, so a pin
+        rejects values the official client accepts. Nested-variant tags live
+        on parent-linked CODEGEN Field rules, not on these field pins.
+        """
+        open_enums = {
+            enum.cpp_name
+            for enum in enums
+            if any(value.name == "OUT_OF_RANGE" for value in enum.values)
+        }
+        if not open_enums:
+            return payloads
+        output: list[PayloadDecl] = []
+        for payload in payloads:
+            fields = []
+            changed = False
+            for field in payload.fields:
+                if field.cpp_type not in open_enums:
+                    fields.append(field)
+                    continue
+                rules = tuple(
+                    rule
+                    for rule in field.semantic_rules
+                    if not rule.startswith("EnumRange ")
+                )
+                if rules != field.semantic_rules:
+                    changed = True
+                    fields.append(replace(field, semantic_rules=rules))
+                else:
+                    fields.append(field)
+            output.append(
+                replace(payload, fields=tuple(fields)) if changed else payload
+            )
         return output
 
     @staticmethod

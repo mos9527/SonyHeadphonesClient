@@ -116,6 +116,11 @@ MDRResult<ConnectRetSupportFunction> ConnectRetSupportFunction::Deserialize(cons
 - `CODEGEN EnumRange [Values...]`
 Declare that the field is an enum, and its value must be one of the specified values.
 Multiple values are seperated by spaces.
+Do not use field-level `EnumRange` when the enum type declares `OUT_OF_RANGE`.
+Those are open enums: Sound Connect maps unknown wire bytes to the sentinel,
+so a pin rejects values the official client accepts. Use `Ignore` instead.
+Nested `CODEGEN Field … EnumRange` on parent-linked variants is a variant tag,
+not a wire-closed set, and is the remaining exception.
 - `CODEGEN Range [Min] [Max]`
 Declare that the field is a numeric type, and its value must be within the specified range (inclusive).
 - `CODEGEN Field [Field Name] [Verb] [Arguments]`
@@ -125,8 +130,9 @@ with `Field field1 Field field2 ...` on the same line.
 - `CODEGEN Ignore [reason]`
 Skip automatic and explicit validation for the field. The reason is required and is echoed into
 generated validation sources as `// CODEGEN Ignore [reason]`.
-Use this for open enums that declare an `OUT_OF_RANGE` sentinel: Sound Connect maps unknown wire
-bytes to that sentinel, so strict `is_valid()` rejects values that the official client accepts.
+Use this for every field whose enum type declares `OUT_OF_RANGE`, including
+discriminators (`inquiredType`, `dataType`, `type`). Do not keep a per-payload
+ignore-list; the sentinel on the type is the rule.
 #### Array (Iterable) types
 Array type of objects of any type can have their validation code emitted through the codegen as well. This applies to:
 - `MDRArray<T>`

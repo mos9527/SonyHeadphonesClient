@@ -6,15 +6,13 @@ namespace mdr::v2::t2 {
 MDRResult<void> ConnectGetSupportFunction::Validate(const ConnectGetSupportFunction& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_GET_SUPPORT_FUNCTION);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == ConnectInquiredType::FIXED_VALUE);
+    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> ConnectRetSupportFunction::Validate(const ConnectRetSupportFunction& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::CONNECT_RET_SUPPORT_FUNCTION);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == ConnectInquiredType::FIXED_VALUE);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& supportFunctions_elem : data.supportFunctions) {
         MDR_VALIDATE(is_valid(supportFunctions_elem.functionType));
     }
@@ -61,8 +59,7 @@ MDRResult<void> LEANotifyStatus::Validate(const LEANotifyStatus& data) {
 MDRResult<void> LEANotifyStatusCommon::Validate(const LEANotifyStatusCommon& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -76,8 +73,7 @@ MDRResult<void> LEANotifyStatusCommonUnavailableReason::Validate(const LEANotify
 MDRResult<void> LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     // data.streamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -106,8 +102,7 @@ MDRResult<void> LEARetCapabilityLEAudioSwitchSupportedCompatibility::Validate(co
 MDRResult<void> LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEARetParam::Validate(const LEARetParam& data) {
@@ -119,8 +114,7 @@ MDRResult<void> LEARetParam::Validate(const LEARetParam& data) {
 MDRResult<void> LEARetParamGetIdentityResolvingKey::Validate(const LEARetParamGetIdentityResolvingKey& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == LEAInquiredType::GET_IDENTITY_RESOLVING_KEY);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& iRK_elem : data.iRK) {
     }
     return MDRResult<void>::Success();
@@ -135,8 +129,7 @@ MDRResult<void> LEARetParamLEAudioConnectionModeWithBTReconnection::Validate(con
 MDRResult<void> LEARetParamPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetParamPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.pairedHistory ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -156,16 +149,14 @@ MDRResult<void> LEARetStatusCommonUnavailableReason::Validate(const LEARetStatus
 MDRResult<void> LEARetStatusLEAudioConnectionModeWithBTReconnection::Validate(const LEARetStatusLEAudioConnectionModeWithBTReconnection& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == LEAInquiredType::LE_AUDIO_CONNECTION_MODE_WITH_BT_RECONNECTION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> LEARetStatusPasSupportsA2dpLeaUniLeaBroad::Validate(const LEARetStatusPasSupportsA2dpLeaUniLeaBroad& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LEA_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     // data.streamingStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -226,16 +217,14 @@ MDRResult<void> PartyNotifyParamDjControl::Validate(const PartyNotifyParamDjCont
 MDRResult<void> PartyNotifyParamIllumination::Validate(const PartyNotifyParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.illuminationItem ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartyNotifyParamKaraoke::Validate(const PartyNotifyParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& settings_elem : data.settings) {
     }
     return MDRResult<void>::Success();
@@ -243,8 +232,7 @@ MDRResult<void> PartyNotifyParamKaraoke::Validate(const PartyNotifyParamKaraoke&
 MDRResult<void> PartyNotifyParamLiveKaraoke::Validate(const PartyNotifyParamLiveKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::LIVE_KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.modeStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -279,8 +267,7 @@ MDRResult<void> PartyNotifyStatusDjControlWithStatusDisableReason::Validate(cons
 MDRResult<void> PartyNotifyStatusKaraoke::Validate(const PartyNotifyStatusKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -288,8 +275,7 @@ MDRResult<void> PartyNotifyStatusKaraoke::Validate(const PartyNotifyStatusKaraok
 MDRResult<void> PartyNotifyStatusKaraokeWithStatusDisableReason::Validate(const PartyNotifyStatusKaraokeWithStatusDisableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
@@ -316,8 +302,7 @@ MDRResult<void> PartyRetCapabilityDjControl::Validate(const PartyRetCapabilityDj
 MDRResult<void> PartyRetCapabilityKaraoke::Validate(const PartyRetCapabilityKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& karaokeItemList_elem : data.karaokeItemList) {
         MDR_VALIDATE(is_valid(karaokeItemList_elem));
     }
@@ -344,16 +329,14 @@ MDRResult<void> PartyRetParamDjControl::Validate(const PartyRetParamDjControl& d
 MDRResult<void> PartyRetParamIllumination::Validate(const PartyRetParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.illuminationItem ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartyRetParamKaraoke::Validate(const PartyRetParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& settings_elem : data.settings) {
     }
     return MDRResult<void>::Success();
@@ -361,8 +344,7 @@ MDRResult<void> PartyRetParamKaraoke::Validate(const PartyRetParamKaraoke& data)
 MDRResult<void> PartyRetParamLiveKaraoke::Validate(const PartyRetParamLiveKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::LIVE_KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.modeStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -397,8 +379,7 @@ MDRResult<void> PartyRetStatusDjControlWithStatusDisableReason::Validate(const P
 MDRResult<void> PartyRetStatusKaraoke::Validate(const PartyRetStatusKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -406,8 +387,7 @@ MDRResult<void> PartyRetStatusKaraoke::Validate(const PartyRetStatusKaraoke& dat
 MDRResult<void> PartyRetStatusKaraokeWithStatusDisableReason::Validate(const PartyRetStatusKaraokeWithStatusDisableReason& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     // data.pluggedStatus ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
@@ -432,16 +412,14 @@ MDRResult<void> PartySetExtParamDjControl::Validate(const PartySetExtParamDjCont
 MDRResult<void> PartySetExtParamIllumination::Validate(const PartySetExtParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.touchPadOperation ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartySetExtParamKaraoke::Validate(const PartySetExtParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.samplerItem ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -463,16 +441,14 @@ MDRResult<void> PartySetParamDjControl::Validate(const PartySetParamDjControl& d
 MDRResult<void> PartySetParamIllumination::Validate(const PartySetParamIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.illumination ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PartySetParamKaraoke::Validate(const PartySetParamKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& settings_elem : data.settings) {
     }
     return MDRResult<void>::Success();
@@ -480,8 +456,7 @@ MDRResult<void> PartySetParamKaraoke::Validate(const PartySetParamKaraoke& data)
 MDRResult<void> PartySetParamLiveKaraoke::Validate(const PartySetParamLiveKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::LIVE_KARAOKE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.modeStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -494,8 +469,7 @@ MDRResult<void> PartySetStatus::Validate(const PartySetStatus& data) {
 MDRResult<void> PartySetStatusKaraoke::Validate(const PartySetStatusKaraoke& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_SET_STATUS);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.scoringStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -534,8 +508,7 @@ MDRResult<void> PeripheralNotifyExtendedParamParingDeviceManagementCommon::Valid
 MDRResult<void> PeripheralNotifyExtendedParamSourceSwitchControl::Validate(const PeripheralNotifyExtendedParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -548,15 +521,13 @@ MDRResult<void> PeripheralNotifyParam::Validate(const PeripheralNotifyParam& dat
 MDRResult<void> PeripheralNotifyParamMusicHandOverSetting::Validate(const PeripheralNotifyParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralNotifyParamSourceSwitchControl::Validate(const PeripheralNotifyParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -600,15 +571,13 @@ MDRResult<void> PeripheralRetParam::Validate(const PeripheralRetParam& data) {
 MDRResult<void> PeripheralRetParamMusicHandOverSetting::Validate(const PeripheralRetParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralRetParamSourceSwitchControl::Validate(const PeripheralRetParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralRetStatus::Validate(const PeripheralRetStatus& data) {
@@ -641,8 +610,7 @@ MDRResult<void> PeripheralSetExtendedParamParingDeviceManagementCommon::Validate
 MDRResult<void> PeripheralSetExtendedParamSourceSwitchControl::Validate(const PeripheralSetExtendedParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralSetParam::Validate(const PeripheralSetParam& data) {
@@ -654,15 +622,13 @@ MDRResult<void> PeripheralSetParam::Validate(const PeripheralSetParam& data) {
 MDRResult<void> PeripheralSetParamMusicHandOverSetting::Validate(const PeripheralSetParamMusicHandOverSetting& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::MUSIC_HAND_OVER_SETTING);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralSetParamSourceSwitchControl::Validate(const PeripheralSetParamSourceSwitchControl& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::SOURCE_SWITCH_CONTROL);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PeripheralSetStatus::Validate(const PeripheralSetStatus& data) {
@@ -713,8 +679,7 @@ MDRResult<void> PowerNotifyParamSettingOnOff::Validate(const PowerNotifyParamSet
 MDRResult<void> PowerNotifyParamUsbSubmersion::Validate(const PowerNotifyParamUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == PowerInquiredType::USB_SUBMERSION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.userConfirmationStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -727,8 +692,7 @@ MDRResult<void> PowerNotifyStatus::Validate(const PowerNotifyStatus& data) {
 MDRResult<void> PowerNotifyStatusCaringChargeWithThreshold::Validate(const PowerNotifyStatusCaringChargeWithThreshold& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     // data.noticeForBatteryNecessity ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -743,8 +707,7 @@ MDRResult<void> PowerNotifyStatusCommon::Validate(const PowerNotifyStatusCommon&
 MDRResult<void> PowerNotifyStatusUsbSubmersion::Validate(const PowerNotifyStatusUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == PowerInquiredType::USB_SUBMERSION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbSubmersionStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -764,15 +727,13 @@ MDRResult<void> PowerRetCapabilityAutoStandby::Validate(const PowerRetCapability
 MDRResult<void> PowerRetCapabilityCaringChargeWithThreshold::Validate(const PowerRetCapabilityCaringChargeWithThreshold& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> PowerRetCapabilityUsbSubmersion::Validate(const PowerRetCapabilityUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PowerInquiredType::USB_SUBMERSION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.monitoringCapability ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -798,8 +759,7 @@ MDRResult<void> PowerRetStatus::Validate(const PowerRetStatus& data) {
 MDRResult<void> PowerRetStatusCaringChargeWithThreshold::Validate(const PowerRetStatusCaringChargeWithThreshold& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == PowerInquiredType::CARING_CHARGE_WITH_THRESHOLD);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.enableDisable ignored: OUT_OF_RANGE is expected
     // data.noticeForBatteryNecessity ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -814,8 +774,7 @@ MDRResult<void> PowerRetStatusCommon::Validate(const PowerRetStatusCommon& data)
 MDRResult<void> PowerRetStatusUsbSubmersion::Validate(const PowerRetStatusUsbSubmersion& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::POWER_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == PowerInquiredType::USB_SUBMERSION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbSubmersionStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1011,8 +970,7 @@ MDRResult<void> SystemGetCapabilityCommon::Validate(const SystemGetCapabilityCom
 MDRResult<void> SystemGetCapabilitySVACommand::Validate(const SystemGetCapabilitySVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemGetExtendedParam::Validate(const SystemGetExtendedParam& data) {
@@ -1030,8 +988,7 @@ MDRResult<void> SystemGetExtendedParamCommon::Validate(const SystemGetExtendedPa
 MDRResult<void> SystemGetExtendedParamUsbBrowser::Validate(const SystemGetExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_GET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1056,28 +1013,23 @@ MDRResult<void> SystemNotifyExtendedParam::Validate(const SystemNotifyExtendedPa
 MDRResult<void> SystemNotifyExtendedParamUsbBrowser::Validate(const SystemNotifyExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyExtendedParamUsbBrowserForDirectoryStatus::Validate(const SystemNotifyExtendedParamUsbBrowserForDirectoryStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
-    MDR_VALIDATE(is_valid(data.informationType));
-    MDR_VALIDATE(data.informationType == UsbInformationType::DIRECTORY_STATUS);
+    // data.type ignored: OUT_OF_RANGE is expected
+    // data.informationType ignored: OUT_OF_RANGE is expected
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyExtendedParamUsbBrowserForFileStatus::Validate(const SystemNotifyExtendedParamUsbBrowserForFileStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
-    MDR_VALIDATE(is_valid(data.informationType));
-    MDR_VALIDATE(data.informationType == UsbInformationType::FILE);
+    // data.type ignored: OUT_OF_RANGE is expected
+    // data.informationType ignored: OUT_OF_RANGE is expected
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1090,8 +1042,7 @@ MDRResult<void> SystemNotifyParam::Validate(const SystemNotifyParam& data) {
 MDRResult<void> SystemNotifyParamAutoVolumeWithLimitation::Validate(const SystemNotifyParamAutoVolumeWithLimitation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::AUTO_VOLUME_WITH_LIMITATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     for (const auto& limitationTypeList_elem : data.limitationTypeList) {
         MDR_VALIDATE(is_valid(limitationTypeList_elem));
@@ -1108,24 +1059,21 @@ MDRResult<void> SystemNotifyParamCommon::Validate(const SystemNotifyParamCommon&
 MDRResult<void> SystemNotifyParamFunctionChange::Validate(const SystemNotifyParamFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::FUNCTION_CHANGE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyParamLightingDefaultColorColorType::Validate(const SystemNotifyParamLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.colorType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyParamLightingDefaultColorCustomColor::Validate(const SystemNotifyParamLightingDefaultColorCustomColor& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_CUSTOM_COLOR);
+    // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.red >= 0 && data.red <= 255);
     MDR_VALIDATE(data.red >= 0 && data.red <= 255);
     MDR_VALIDATE(data.green >= 0 && data.green <= 255);
@@ -1137,24 +1085,21 @@ MDRResult<void> SystemNotifyParamLightingDefaultColorCustomColor::Validate(const
 MDRResult<void> SystemNotifyParamLightingMode::Validate(const SystemNotifyParamLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.lightingMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyParamLinkAutoSwitchForHeadsets::Validate(const SystemNotifyParamLinkAutoSwitchForHeadsets& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.linkAutoSwitchStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyParamLinkAutoSwitchForSpeaker::Validate(const SystemNotifyParamLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& smartPhoneBDAddressList_elem : data.smartPhoneBDAddressList) {
     }
     return MDRResult<void>::Success();
@@ -1162,8 +1107,7 @@ MDRResult<void> SystemNotifyParamLinkAutoSwitchForSpeaker::Validate(const System
 MDRResult<void> SystemNotifyParamMicOnOffByHeadphoneOperation::Validate(const SystemNotifyParamMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.micOnOffByHeadphoneOperation ignored: OUT_OF_RANGE is expected
     // data.micOffSoundEffect ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1171,16 +1115,14 @@ MDRResult<void> SystemNotifyParamMicOnOffByHeadphoneOperation::Validate(const Sy
 MDRResult<void> SystemNotifyParamQuickAccessEasySetting::Validate(const SystemNotifyParamQuickAccessEasySetting& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::QUICK_ACCESS_EASY_SETTING);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.result ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyParamRepeatTapTrainingMode::Validate(const SystemNotifyParamRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.key));
     // data.action ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1188,11 +1130,9 @@ MDRResult<void> SystemNotifyParamRepeatTapTrainingMode::Validate(const SystemNot
 MDRResult<void> SystemNotifyParamSVACommand::Validate(const SystemNotifyParamSVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.trainingModeOnOffValue ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.detectType));
-    MDR_VALIDATE(data.detectType == SVADetectType::COMMAND);
+    // data.detectType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.detectId >= 0 && data.detectId <= 255);
     MDR_VALIDATE(data.detectId >= 0 && data.detectId <= 255);
     return MDRResult<void>::Success();
@@ -1200,8 +1140,7 @@ MDRResult<void> SystemNotifyParamSVACommand::Validate(const SystemNotifyParamSVA
 MDRResult<void> SystemNotifyParamUsbBrowser::Validate(const SystemNotifyParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     // data.requestResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1209,8 +1148,7 @@ MDRResult<void> SystemNotifyParamUsbBrowser::Validate(const SystemNotifyParamUsb
 MDRResult<void> SystemNotifyParamUsbBrowserWithIndex::Validate(const SystemNotifyParamUsbBrowserWithIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     // data.requestResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1218,8 +1156,7 @@ MDRResult<void> SystemNotifyParamUsbBrowserWithIndex::Validate(const SystemNotif
 MDRResult<void> SystemNotifyParamUsbBrowserWithoutIndex::Validate(const SystemNotifyParamUsbBrowserWithoutIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     // data.requestResult ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1240,8 +1177,7 @@ MDRResult<void> SystemNotifyStatusCommon::Validate(const SystemNotifyStatusCommo
 MDRResult<void> SystemNotifyStatusLinkAutoSwitchForSpeaker::Validate(const SystemNotifyStatusLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     // data.stereoPairStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1249,16 +1185,14 @@ MDRResult<void> SystemNotifyStatusLinkAutoSwitchForSpeaker::Validate(const Syste
 MDRResult<void> SystemNotifyStatusRepeatTapTrainingMode::Validate(const SystemNotifyStatusRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemNotifyStatusWearingStatusChecker::Validate(const SystemNotifyStatusWearingStatusChecker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1271,8 +1205,7 @@ MDRResult<void> SystemRetCapability::Validate(const SystemRetCapability& data) {
 MDRResult<void> SystemRetCapabilityFunctionChange::Validate(const SystemRetCapabilityFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::FUNCTION_CHANGE);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& functions_elem : data.functions) {
         MDR_VALIDATE(is_valid(functions_elem));
     }
@@ -1281,8 +1214,7 @@ MDRResult<void> SystemRetCapabilityFunctionChange::Validate(const SystemRetCapab
 MDRResult<void> SystemRetCapabilityLightingDefaultColorColorType::Validate(const SystemRetCapabilityLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& colorTypeList_elem : data.colorTypeList) {
         MDR_VALIDATE(is_valid(colorTypeList_elem));
     }
@@ -1291,8 +1223,7 @@ MDRResult<void> SystemRetCapabilityLightingDefaultColorColorType::Validate(const
 MDRResult<void> SystemRetCapabilityLightingMode::Validate(const SystemRetCapabilityLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& lightingModeList_elem : data.lightingModeList) {
         MDR_VALIDATE(is_valid(lightingModeList_elem));
     }
@@ -1304,23 +1235,20 @@ MDRResult<void> SystemRetCapabilityLightingMode::Validate(const SystemRetCapabil
 MDRResult<void> SystemRetCapabilityLinkAutoSwitchForSpeaker::Validate(const SystemRetCapabilityLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetCapabilityMicOnOffByHeadphoneOperation::Validate(const SystemRetCapabilityMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.keyType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilitySVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.dataContinue ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
     MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
@@ -1331,8 +1259,7 @@ MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilit
 MDRResult<void> SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch::Validate(const SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
     MDR_VALIDATE(data.value2 >= 0 && data.value2 <= 255);
     // data.resumableStatus ignored: OUT_OF_RANGE is expected
@@ -1346,22 +1273,19 @@ MDRResult<void> SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch::V
 MDRResult<void> SystemRetCapabilityUsbBrowser::Validate(const SystemRetCapabilityUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport::Validate(const SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::VOICE_ASSISTANT_WITH_SPECIFIC_SETUP_LINK_SUPPORT);
+    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetCapabilityWearingDeviceInformation::Validate(const SystemRetCapabilityWearingDeviceInformation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_DEVICE_INFORMATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.earphoneShape ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.numOfDeviceSupporter >= 1 && data.numOfDeviceSupporter <= 255);
     MDR_VALIDATE(data.numOfDeviceSupporter >= 1 && data.numOfDeviceSupporter <= 255);
@@ -1376,36 +1300,30 @@ MDRResult<void> SystemRetExtendedParam::Validate(const SystemRetExtendedParam& d
 MDRResult<void> SystemRetExtendedParamUsbBrowser::Validate(const SystemRetExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetExtendedParamUsbBrowserForDirectoryStatus::Validate(const SystemRetExtendedParamUsbBrowserForDirectoryStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
-    MDR_VALIDATE(is_valid(data.informationType));
-    MDR_VALIDATE(data.informationType == UsbInformationType::DIRECTORY_STATUS);
+    // data.type ignored: OUT_OF_RANGE is expected
+    // data.informationType ignored: OUT_OF_RANGE is expected
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetExtendedParamUsbBrowserForFileStatus::Validate(const SystemRetExtendedParamUsbBrowserForFileStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
-    MDR_VALIDATE(is_valid(data.informationType));
-    MDR_VALIDATE(data.informationType == UsbInformationType::FILE);
+    // data.type ignored: OUT_OF_RANGE is expected
+    // data.informationType ignored: OUT_OF_RANGE is expected
     // data.currentLayerStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetExtendedParamUsbBrowserForSize::Validate(const SystemRetExtendedParamUsbBrowserForSize& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.informationType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1418,8 +1336,7 @@ MDRResult<void> SystemRetParam::Validate(const SystemRetParam& data) {
 MDRResult<void> SystemRetParamAutoVolumeWithLimitation::Validate(const SystemRetParamAutoVolumeWithLimitation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::AUTO_VOLUME_WITH_LIMITATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     for (const auto& limitationTypeList_elem : data.limitationTypeList) {
         MDR_VALIDATE(is_valid(limitationTypeList_elem));
@@ -1436,24 +1353,21 @@ MDRResult<void> SystemRetParamCommon::Validate(const SystemRetParamCommon& data)
 MDRResult<void> SystemRetParamFunctionChange::Validate(const SystemRetParamFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::FUNCTION_CHANGE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetParamLightingDefaultColorColorType::Validate(const SystemRetParamLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.colorType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetParamLightingDefaultColorCustomColor::Validate(const SystemRetParamLightingDefaultColorCustomColor& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_DEFAULT_COLOR_CUSTOM_COLOR);
+    // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.red >= 0 && data.red <= 255);
     MDR_VALIDATE(data.red >= 0 && data.red <= 255);
     MDR_VALIDATE(data.green >= 0 && data.green <= 255);
@@ -1465,24 +1379,21 @@ MDRResult<void> SystemRetParamLightingDefaultColorCustomColor::Validate(const Sy
 MDRResult<void> SystemRetParamLightingMode::Validate(const SystemRetParamLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LIGHTING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.lightingMode ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetParamLinkAutoSwitchForHeadsets::Validate(const SystemRetParamLinkAutoSwitchForHeadsets& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.linkAutoSwitchStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetParamLinkAutoSwitchForSpeaker::Validate(const SystemRetParamLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& smartPhoneBDAddressList_elem : data.smartPhoneBDAddressList) {
     }
     return MDRResult<void>::Success();
@@ -1490,8 +1401,7 @@ MDRResult<void> SystemRetParamLinkAutoSwitchForSpeaker::Validate(const SystemRet
 MDRResult<void> SystemRetParamMicOnOffByHeadphoneOperation::Validate(const SystemRetParamMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.micOnOffByHeadphoneOperation ignored: OUT_OF_RANGE is expected
     // data.micOffSoundEffect ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1499,8 +1409,7 @@ MDRResult<void> SystemRetParamMicOnOffByHeadphoneOperation::Validate(const Syste
 MDRResult<void> SystemRetParamSVASettingMtkTransferSupportLanguageSwitch::Validate(const SystemRetParamSVASettingMtkTransferSupportLanguageSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.currentLanguage ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1520,8 +1429,7 @@ MDRResult<void> SystemRetStatusCommon::Validate(const SystemRetStatusCommon& dat
 MDRResult<void> SystemRetStatusLinkAutoSwitchForSpeaker::Validate(const SystemRetStatusLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     // data.stereoPairStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1529,16 +1437,14 @@ MDRResult<void> SystemRetStatusLinkAutoSwitchForSpeaker::Validate(const SystemRe
 MDRResult<void> SystemRetStatusRepeatTapTrainingMode::Validate(const SystemRetStatusRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetStatusWearingStatusChecker::Validate(const SystemRetStatusWearingStatusChecker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_STATUS_CHECKER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1551,8 +1457,7 @@ MDRResult<void> SystemSetExtendedParam::Validate(const SystemSetExtendedParam& d
 MDRResult<void> SystemSetExtendedParamUsbBrowser::Validate(const SystemSetExtendedParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParam::Validate(const SystemSetParam& data) {
@@ -1571,24 +1476,21 @@ MDRResult<void> SystemSetParamCommon::Validate(const SystemSetParamCommon& data)
 MDRResult<void> SystemSetParamFunctionChange::Validate(const SystemSetParamFunctionChange& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::FUNCTION_CHANGE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamLightingDefaultColorColorType::Validate(const SystemSetParamLightingDefaultColorColorType& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_DEFAULT_COLOR_COLOR_TYPE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.colorType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamLightingDefaultColorCustomColor::Validate(const SystemSetParamLightingDefaultColorCustomColor& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_DEFAULT_COLOR_CUSTOM_COLOR);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.red >= 0 && data.red <= 255);
     MDR_VALIDATE(data.red >= 0 && data.red <= 255);
     MDR_VALIDATE(data.green >= 0 && data.green <= 255);
@@ -1600,32 +1502,28 @@ MDRResult<void> SystemSetParamLightingDefaultColorCustomColor::Validate(const Sy
 MDRResult<void> SystemSetParamLightingMode::Validate(const SystemSetParamLightingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LIGHTING_MODE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.function ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamLinkAutoSwitchForHeadsets::Validate(const SystemSetParamLinkAutoSwitchForHeadsets& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LINK_AUTO_SWITCH_FOR_HEADSETS);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.linkAutoSwitchStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamLinkAutoSwitchForSpeaker::Validate(const SystemSetParamLinkAutoSwitchForSpeaker& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::LINK_AUTO_SWITCH_FOR_SPEAKER);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.linkAutoSwitchAction ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamMicOnOffByHeadphoneOperation::Validate(const SystemSetParamMicOnOffByHeadphoneOperation& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::MIC_ON_OFF_BY_HEADPHONE_OPERATION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.micOnOffByHeadphoneOperation ignored: OUT_OF_RANGE is expected
     // data.micOffSoundEffect ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1633,8 +1531,7 @@ MDRResult<void> SystemSetParamMicOnOffByHeadphoneOperation::Validate(const Syste
 MDRResult<void> SystemSetParamQuickAccessEasySetting::Validate(const SystemSetParamQuickAccessEasySetting& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::QUICK_ACCESS_EASY_SETTING);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.gattSetting ignored: OUT_OF_RANGE is expected
     for (const auto& presetList_elem : data.presetList) {
         MDR_VALIDATE(is_valid(presetList_elem));
@@ -1646,32 +1543,28 @@ MDRResult<void> SystemSetParamQuickAccessEasySetting::Validate(const SystemSetPa
 MDRResult<void> SystemSetParamSVACommand::Validate(const SystemSetParamSVACommand& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.trainingModeOnOffValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamUsbBrowser::Validate(const SystemSetParamUsbBrowser& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::USB_BROWSER);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamUsbBrowserWithIndex::Validate(const SystemSetParamUsbBrowserWithIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetParamUsbBrowserWithoutIndex::Validate(const SystemSetParamUsbBrowserWithoutIndex& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::USB_BROWSER);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.usbBrowserCommand ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1691,16 +1584,14 @@ MDRResult<void> SystemSetStatus::Validate(const SystemSetStatus& data) {
 MDRResult<void> SystemSetStatusRepeatTapTrainingMode::Validate(const SystemSetStatusRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.modeOperation ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemSetStatusSVASettingMtkSupportLanguageSwitch::Validate(const SystemSetStatusSVASettingMtkSupportLanguageSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_STATUS);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1863,16 +1754,14 @@ MDRResult<void> VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSw
 MDRResult<void> VoiceGuidanceRetParamSettingOnOff::Validate(const VoiceGuidanceRetParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> VoiceGuidanceRetParamVolume::Validate(const VoiceGuidanceRetParamVolume& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOLUME);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     return MDRResult<void>::Success();
@@ -1930,8 +1819,7 @@ MDRResult<void> VoiceGuidanceSetParamSettingMtk::Validate(const VoiceGuidanceSet
 MDRResult<void> VoiceGuidanceSetParamSettingOnOff::Validate(const VoiceGuidanceSetParamSettingOnOff& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1946,8 +1834,7 @@ MDRResult<void> VoiceGuidanceSetParamSettingSupportLangSwitch::Validate(const Vo
 MDRResult<void> VoiceGuidanceSetParamVolume::Validate(const VoiceGuidanceSetParamVolume& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOLUME);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     MDR_VALIDATE(data.volumeValue >= -2 && data.volumeValue <= 2);
     // data.feedbackSound ignored: OUT_OF_RANGE is expected
@@ -1978,8 +1865,7 @@ MDRResult<void> VoiceGuidanceSetStatusSettingMtkSupportLangSwitch::Validate(cons
 MDRResult<void> PartyRetCapabilityIllumination::Validate(const PartyRetCapabilityIllumination& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PARTY_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PartyInquiredType::ILLUMINATION);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& partyIlluminationInfoList_elem : data.partyIlluminationInfoList) {
         MDR_VALIDATE(is_valid(partyIlluminationInfoList_elem.illuminationItem));
         MDR_VALIDATE(is_valid(partyIlluminationInfoList_elem.colorElement));
@@ -2000,8 +1886,7 @@ MDRResult<void> PeripheralNotifyParamPairingDeviceManagementClassicBt::Validate(
 MDRResult<void> PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& deviceInfo_elem : data.deviceInfo) {
     }
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
@@ -2021,8 +1906,7 @@ MDRResult<void> PeripheralRetParamPairingDeviceManagementClassicBt::Validate(con
 MDRResult<void> PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice::Validate(const PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PERI_RET_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& deviceInfo_elem : data.deviceInfo) {
     }
     MDR_VALIDATE(data.playbackrightDevice >= 0 && data.playbackrightDevice <= 255);
@@ -2164,8 +2048,7 @@ MDRResult<void> SafeListeningSetStatusTws::Validate(const SafeListeningSetStatus
 MDRResult<void> SystemNotifyParamWearingPositionJudgmentBySensor::Validate(const SystemNotifyParamWearingPositionJudgmentBySensor& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::WEARING_POSITION_JUDGMENT_BY_SENSOR);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.wearingPositionOperationStatus ignored: OUT_OF_RANGE is expected
     for (const auto& leftSideParameterList_elem : data.leftSideParameterList) {
         MDR_VALIDATE(is_valid(leftSideParameterList_elem.wearingPositionResultCode));
@@ -2184,19 +2067,17 @@ MDRResult<void> SystemNotifyParamWearingPositionJudgmentBySensor::Validate(const
 MDRResult<void> SystemRetCapabilityRepeatTapTrainingMode::Validate(const SystemRetCapabilityRepeatTapTrainingMode& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.type));
-    MDR_VALIDATE(data.type == SystemInquiredType::REPEAT_TAP_TRAINING_MODE);
+    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& keys_elem : data.keys) {
         MDR_VALIDATE(is_valid(keys_elem.key));
-        MDR_VALIDATE(is_valid(keys_elem.type));
+        // keys_elem.type ignored: OUT_OF_RANGE is expected
     }
     return MDRResult<void>::Success();
 }
 MDRResult<void> SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch::Validate(const SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
-    MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH);
+    // data.inquiredType ignored: OUT_OF_RANGE is expected
     for (const auto& serviceInformationList_elem : data.serviceInformationList) {
         MDR_VALIDATE(is_valid(serviceInformationList_elem.language));
     }
