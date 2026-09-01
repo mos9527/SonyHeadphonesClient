@@ -576,7 +576,11 @@ namespace mdr
             MDRDataType type = MDRTraits<T>::kDataType;
             const auto serialized = T::Serialize(command, buf, kMDRMaxPacketSize);
             if (!serialized)
+            {
+                SetLastError(serialized.error,
+                             serialized.errMessage ? serialized.errMessage : "Unable to serialize command");
                 return serialized.error;
+            }
             SendCommandImpl({buf, buf + serialized.value}, type, mSeqNumber);
             return MDR_RESULT_OK;
         }
@@ -641,7 +645,7 @@ namespace mdr::detail
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
             if (_sendResult != MDR_RESULT_OK)                                                                          \
-                co_return SetLastError(_sendResult, "Unable to serialize command");                                    \
+                co_return -1u;                                                                                         \
             int res = co_await Await(AWAIT_ACK, mACKRetriesTimeout);                                                   \
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
