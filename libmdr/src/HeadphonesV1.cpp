@@ -159,40 +159,7 @@ namespace mdr
             if (level == 1)
                 return static_cast<UInt8>(t1::NcDualSingleValue::SINGLE);
             return static_cast<UInt8>(t1::NcDualSingleValue::OFF);
-        }
-
-        void AddV1Profile(MDRHeadphones& headphones, bool xm4)
-        {
-            using F = t1::FunctionType;
-            constexpr F common[] = {
-                F::BATTERY_LEVEL,
-                F::CODEC_INDICATOR,
-                F::POWER_OFF,
-                F::PRESET_EQ,
-                F::EBB,
-                F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE,
-                F::PLAYBACK_CONTROLLER,
-                F::CONNECTION_MODE,
-                F::UPSCALING,
-                F::CONTROL_BY_WEARING,
-                F::AUTO_POWER_OFF,
-                F::ASSIGNABLE_SETTINGS,
-            };
-            for (const F function : common)
-                headphones.mSupport.v1Functions[static_cast<UInt8>(function)] = true;
-            if (xm4)
-            {
-                constexpr F xm4Only[] = {
-                    F::SMART_TALKING_MODE,
-                    F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
-                    F::VOICE_GUIDANCE,
-                };
-                for (const F function : xm4Only)
-                    headphones.mSupport.v1Functions[static_cast<UInt8>(function)] = true;
-            }
-            headphones.mSupport.provenance = MDRHeadphones::SupportStates::Provenance::LEGACY_PROFILE;
-            headphones.RefreshNeutralFeaturesV1();
-        }
+        }       
     }
 
     MDRTask MDRHeadphones::RequestInitV1()
@@ -208,22 +175,7 @@ namespace mdr
         SendCommandACK(t1::GetSupportFunction);
         const int supportResult = co_await Await(AWAIT_SUPPORT_FUNCTION);
         if (supportResult != MDR_RESULT_OK)
-        {
-            std::ranges::fill(mSupport.v1Functions, false);
-            if (mModelName.empty())
-                co_await Await(AWAIT_MODEL_INFO);
-            if (mModelName == "WH-1000XM4")
-                AddV1Profile(*this, true);
-            else if (mModelName == "WH-1000XM3")
-                AddV1Profile(*this, false);
-            else
-            {
-                mSupport.provenance = SupportStates::Provenance::UNKNOWN;
-                RefreshNeutralFeaturesV1();
-                mNeutralInitialized = true;
-                co_return MDR_EVENT_INITIALIZE_COMPLETE;
-            }
-        }
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device failed to respond to support function request");
 
         using F = t1::FunctionType;
         if (mSupport.contains(F::CODEC_INDICATOR))
