@@ -185,8 +185,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_CAPABILITY
         Command command{Command::VOICE_GUIDANCE_GET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVoiceGuidanceCapability);
     };
@@ -196,8 +195,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_PARAM
         Command command{Command::VOICE_GUIDANCE_GET_PARAM}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
         DetailedDataType detailedDataType{DetailedDataType::NO_USE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVoiceGuidanceParam);
@@ -208,8 +206,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_STATUS
         Command command{Command::VOICE_GUIDANCE_GET_STATUS}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
         StatusType statusType{StatusType::NO_USE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVoiceGuidanceStatus);
@@ -244,7 +241,7 @@ namespace mdr::v1::t2
         Command command{Command::PERIPHERAL_NTFY_EX_PARAM}; // 0x0
         PeripheralDetailDataType detailType{PeripheralDetailDataType::CONNECTION_CONTROL}; // 0x1
         ResultType resultType{ResultType::DISCONNECTION_SUCCESS}; // 0x2
-        MDRPrefixedString btDeviceAddress; // 0x3
+        Array<UInt8, 17> btDeviceAddress{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl);
     };
@@ -289,8 +286,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_PARAM
         Command command{Command::VOICE_GUIDANCE_NTFY_PARAM}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceParam);
     };
@@ -313,8 +309,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS
         Command command{Command::VOICE_GUIDANCE_NTFY_STATUS}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceStatus);
     };
@@ -356,7 +351,7 @@ namespace mdr::v1::t2
     // THMSGV1T2PeripheralDeviceInfo
     struct PeripheralDeviceInfo
     {
-        MDRPrefixedString btDeviceAddress; // 0x0
+        Array<UInt8, 17> btDeviceAddress; // 0x0
         UInt8 connectedStatus{};
         MDRPrefixedString btFriendlyName;
 
@@ -419,8 +414,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_CAPABILITY
         Command command{Command::VOICE_GUIDANCE_RET_CAPABILITY}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SupportsSwitch supportsOnOffSwitching{SupportsSwitch::NOT_SUPPORT}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -435,8 +429,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
         Command command{Command::VOICE_GUIDANCE_RET_PARAM}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParam);
     };
@@ -531,8 +524,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_STATUS
         Command command{Command::VOICE_GUIDANCE_RET_STATUS}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceStatus);
     };
@@ -592,7 +584,7 @@ namespace mdr::v1::t2
         Command command{Command::PERIPHERAL_SET_EX_PARAM}; // 0x0
         PeripheralDetailDataType detailType{PeripheralDetailDataType::CONNECTION_CONTROL}; // 0x1
         ActionType actionType{ActionType::DISCONNECT}; // 0x2
-        MDRPrefixedString btDeviceAddress; // 0x3
+        Array<UInt8, 17> btDeviceAddress{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl);
     };
@@ -616,8 +608,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_PARAM
         Command command{Command::VOICE_GUIDANCE_SET_PARAM}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceParam);
     };
@@ -640,8 +631,7 @@ namespace mdr::v1::t2
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_STATUS
         Command command{Command::VOICE_GUIDANCE_SET_STATUS}; // 0x0
-        // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
+        VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::NO_USE}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceStatus);
     };
@@ -716,8 +706,7 @@ namespace mdr::v1::t2
         Command command{Command::VOICE_GUIDANCE_RET_PARAM}; // 0x0
         // CODEGEN EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
         VoiceGuidanceInquiredType voiceGuidanceInquiredType{VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING}; // 0x1
-        // CODEGEN EnumRange DownloadServerMethod::AUTOMAGIC
-        DownloadServerMethod downloadServerMethod{DownloadServerMethod::AUTOMAGIC}; // 0x2
+        DownloadServerMethod downloadServerMethod{DownloadServerMethod::NO_USE}; // 0x2
         MDRPrefixedString categoryId; // 0x3
         MDRPrefixedString serialNumber;
         MDRArray<RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation> serviceInformationList;

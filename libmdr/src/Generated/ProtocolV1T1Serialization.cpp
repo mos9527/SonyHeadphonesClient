@@ -84,9 +84,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.messageType, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.commandLength, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.command2, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.messageType2, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.commandLength2, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.command3, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
     MDRResult<size_t> AtCommandParam::Read(const UInt8** ppSrcBuffer, AtCommandParam& out, size_t maxSize)
@@ -95,9 +92,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.messageType, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.commandLength, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.command2, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.messageType2, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.commandLength2, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.command3, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> AutoPowerOffParam::Write(const AutoPowerOffParam& data, UInt8** ppDstBuffer, size_t maxSize)

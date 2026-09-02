@@ -9,7 +9,7 @@ namespace mdr::v1::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.resultType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btDeviceAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl> NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl::Deserialize(const UInt8* data, size_t maxSize)
@@ -18,7 +18,7 @@ namespace mdr::v1::t2 {
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.detailType, maxSize));
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.resultType, maxSize));
-        MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, (MDRPrefixedString::Read)(&data, out.btDeviceAddress, maxSize));
+        MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.btDeviceAddress, maxSize));
         MDR_TRY(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, Validate(out));
         return MDRResult<NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl>::Success(std::move(out));
     }
@@ -37,7 +37,7 @@ namespace mdr::v1::t2 {
     MDRResult<size_t> PeripheralDeviceInfo::Write(const PeripheralDeviceInfo& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btDeviceAddress, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.connectedStatus, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btFriendlyName, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -45,7 +45,7 @@ namespace mdr::v1::t2 {
     MDRResult<size_t> PeripheralDeviceInfo::Read(const UInt8** ppSrcBuffer, PeripheralDeviceInfo& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.btDeviceAddress, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.btDeviceAddress, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.connectedStatus, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Read)(ppSrcBuffer, out.btFriendlyName, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
@@ -117,7 +117,7 @@ namespace mdr::v1::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.actionType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.btDeviceAddress, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl> SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl::Deserialize(const UInt8* data, size_t maxSize)
@@ -126,7 +126,7 @@ namespace mdr::v1::t2 {
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.detailType, maxSize));
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.actionType, maxSize));
-        MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, (MDRPrefixedString::Read)(&data, out.btDeviceAddress, maxSize));
+        MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.btDeviceAddress, maxSize));
         MDR_TRY(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, Validate(out));
         return MDRResult<SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl>::Success(std::move(out));
     }

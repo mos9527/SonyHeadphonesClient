@@ -425,7 +425,7 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("detailType", value.detailType, kEnum_mdr__v1__t2__PeripheralDetailDataType);
             changed |= DrawEnum("resultType", value.resultType, kEnum_mdr__v1__t2__ResultType);
-            changed |= DrawPrefixedString("btDeviceAddress", value.btDeviceAddress);
+            changed |= DrawScalar("btDeviceAddress", value.btDeviceAddress);
             return changed;
         }
         mdr::MDRResult<void> Decode_NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -436,7 +436,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.resultType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.btDeviceAddress, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.btDeviceAddress, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -448,7 +448,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.resultType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.btDeviceAddress, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.btDeviceAddress, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl() { return Construct<NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl>(); }
@@ -1400,7 +1400,7 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("detailType", value.detailType, kEnum_mdr__v1__t2__PeripheralDetailDataType);
             changed |= DrawEnum("actionType", value.actionType, kEnum_mdr__v1__t2__ActionType);
-            changed |= DrawPrefixedString("btDeviceAddress", value.btDeviceAddress);
+            changed |= DrawScalar("btDeviceAddress", value.btDeviceAddress);
             return changed;
         }
         mdr::MDRResult<void> Decode_SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -1411,7 +1411,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.actionType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.btDeviceAddress, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.btDeviceAddress, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -1423,7 +1423,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.actionType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.btDeviceAddress, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.btDeviceAddress, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl() { return Construct<SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl>(); }
@@ -1695,7 +1695,7 @@ namespace client::debugger {
                     bool& changed = elementChanged;
                     changed |= DrawTree(elementLabel, [&]() {
                         bool changed = false;
-                        changed |= DrawPrefixedString("btDeviceAddress", element.btDeviceAddress);
+                        changed |= DrawScalar("btDeviceAddress", element.btDeviceAddress);
                         changed |= DrawScalar("connectedStatus", element.connectedStatus);
                         changed |= DrawPrefixedString("btFriendlyName", element.btFriendlyName);
                         return changed;
@@ -1748,7 +1748,7 @@ namespace client::debugger {
                     bool& changed = elementChanged;
                     changed |= DrawTree(elementLabel, [&]() {
                         bool changed = false;
-                        changed |= DrawPrefixedString("btDeviceAddress", element.btDeviceAddress);
+                        changed |= DrawScalar("btDeviceAddress", element.btDeviceAddress);
                         changed |= DrawScalar("connectedStatus", element.connectedStatus);
                         changed |= DrawPrefixedString("btFriendlyName", element.btFriendlyName);
                         return changed;

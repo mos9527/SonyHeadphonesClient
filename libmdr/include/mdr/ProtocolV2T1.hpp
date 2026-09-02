@@ -2069,7 +2069,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        AlertMessageType messageType{AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD}; // 0x2
+        AlertMessageType messageType{AlertMessageType::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertActionType actionType{AlertActionType::CONFIRMATION_ONLY}; // 0x3
 
@@ -2199,7 +2199,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        AlertMessageType messageType{AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD}; // 0x2
+        AlertMessageType messageType{AlertMessageType::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertAction actionType{AlertAction::NEGATIVE}; // 0x3
 
@@ -2347,11 +2347,11 @@ namespace mdr::v2::t1
     // THMSGV2T1AssignableSettingsCustomizableAction
     struct AssignableSettingsCustomizableAction
     {
+        MDRPodArray<Function> functions; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        Action action{Action::SINGLE_TAP}; // 0x0
+        Action action{Action::SINGLE_TAP};
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        Function defaultFunction{Function::NO_FUNCTION}; // 0x1
-        MDRPodArray<Function> functions; // 0x2
+        Function defaultFunction{Function::NO_FUNCTION};
 
         MDR_DEFINE_EXTERN_READ_WRITE(AssignableSettingsCustomizableAction);
     };
@@ -2588,7 +2588,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        EnableDisable status{EnableDisable::DISABLE}; // 0x2
+        EnableDisable status{EnableDisable::ENABLE}; // 0x2
         MDRPodArray<StatusErrorCodeType> disableReasonList; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(AudioNotifyStatusUpscalingAutoOffWithStatusDisableReason);
@@ -2613,7 +2613,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioNtfyParamConnection);
     };
@@ -2626,7 +2626,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SwitchingStream switchingStream{SwitchingStream::NONE}; // 0x3
 
@@ -2641,7 +2641,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioNtfyParamConnectionWithLdacStatus);
     };
@@ -2805,7 +2805,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioRetParamConnection);
     };
@@ -2818,7 +2818,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioRetParamConnectionWithLdacStatus);
     };
@@ -3020,7 +3020,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        EnableDisable status{EnableDisable::DISABLE}; // 0x2
+        EnableDisable status{EnableDisable::ENABLE}; // 0x2
         MDRPodArray<StatusErrorCodeType> disableReasonList; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(AudioRetStatusUpscalingAutoOffWithStatusDisableReason);
@@ -3060,7 +3060,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioSetParamConnection);
     };
@@ -3073,7 +3073,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value2{}; // 0x3
 
@@ -3088,7 +3088,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE_WITH_LDAC_STATUS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PriorMode settingValue{PriorMode::CONNECTION_QUALITY_PRIOR}; // 0x2
+        PriorMode settingValue{PriorMode::SOUND_QUALITY_PRIOR}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(AudioSetParamConnectionWithLdacStatus);
     };
@@ -3333,7 +3333,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::COMMON_RET_CAPABILITY
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        CommonInquiredType inquiredType{CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION}; // 0x1
+        CommonInquiredType inquiredType{CommonInquiredType::CONCIERGE}; // 0x1
         Array<UInt8, 17> smartPhoneBDAddress{}; // 0x2
         MDRPrefixedString deviceBDAddress;
 
@@ -4524,7 +4524,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus streamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
+        StreamingStatus streamingStatus{StreamingStatus::POWER_OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEANotifyStatusHbsSupportsA2dpLeaUniLeaBroad);
     };
@@ -4539,9 +4539,9 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus leftStreamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
+        StreamingStatus leftStreamingStatus{StreamingStatus::POWER_OFF}; // 0x3
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus rightStreamingStatus{StreamingStatus::VIA_A2DP}; // 0x4
+        StreamingStatus rightStreamingStatus{StreamingStatus::POWER_OFF}; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEANotifyStatusTwsSupportsA2dpLeaUniLeaBroad);
     };
@@ -4578,7 +4578,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        QuickAccessKey key{QuickAccessKey::FIXED_QUICK_ACCESS_KEY}; // 0x2
+        QuickAccessKey key{QuickAccessKey::L_R_KEY}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         Type keyType{Type::TOUCH_SENSOR}; // 0x3
         MDRPodArray<UInt8> quickAccessFunctionList; // 0x4
@@ -4766,7 +4766,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus streamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
+        StreamingStatus streamingStatus{StreamingStatus::POWER_OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEARetStatusHbsSupportsA2dpLeaUniLeaBroad);
     };
@@ -4781,9 +4781,9 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus leftStreamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
+        StreamingStatus leftStreamingStatus{StreamingStatus::POWER_OFF}; // 0x3
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus rightStreamingStatus{StreamingStatus::VIA_A2DP}; // 0x4
+        StreamingStatus rightStreamingStatus{StreamingStatus::POWER_OFF}; // 0x4
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEARetStatusTwsSupportsA2dpLeaUniLeaBroad);
     };
@@ -4911,7 +4911,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
         Command command{Command::NCASM_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
+        NcAsmInquiredType type{NcAsmInquiredType::ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5211,7 +5211,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         NcAsmInquiredType type{NcAsmInquiredType::NC_AMB_TOGGLE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        Key key{Key::NC_AMB_KEY}; // 0x2
+        Key key{Key::LEFT_SIDE}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NcAsmRetCapabilityNcAmbToggle);
     };
@@ -5291,7 +5291,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
         Command command{Command::NCASM_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
+        NcAsmInquiredType type{NcAsmInquiredType::ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5598,7 +5598,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
         Command command{Command::NCASM_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
+        NcAsmInquiredType type{NcAsmInquiredType::ASM_SEAMLESS}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -6177,7 +6177,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        OptExclusiveFunctionType desctiption{OptExclusiveFunctionType::SOUND_FIELD_OPTIMIZATION}; // 0x3
+        OptExclusiveFunctionType desctiption{OptExclusiveFunctionType::NONE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(OptNtfyStatusSoundFieldOptimization);
     };
@@ -6383,7 +6383,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        OptExclusiveFunctionType desctiption{OptExclusiveFunctionType::SOUND_FIELD_OPTIMIZATION}; // 0x3
+        OptExclusiveFunctionType desctiption{OptExclusiveFunctionType::NONE}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(OptRetStatusSoundFieldOptimization);
     };
@@ -6683,7 +6683,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
+        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
 
@@ -7045,7 +7045,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
+        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
 
@@ -7881,9 +7881,8 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SenseInquiredType senseInquiredType{SenseInquiredType::ADAPTIVE_CONTROL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SenseApplicableFunction senseApplicableFunction{SenseApplicableFunction::EQ_PRESET_ID}; // 0x2
-        // CODEGEN EnumRange EqPresetId::GAMING_EQ
-        EqPresetId eqPresetId{EqPresetId::GAMING_EQ}; // 0x3
+        SenseApplicableFunction senseApplicableFunction{SenseApplicableFunction::NC_ON_OFF_AND_ASM_ON_OFF}; // 0x2
+        EqPresetId eqPresetId{EqPresetId::OFF}; // 0x3
         MDRPodArray<UInt8> value3; // 0x4
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SenseRetExtInfoAdaptiveControlEqPreset);
@@ -8019,7 +8018,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PlaybackControl control{PlaybackControl::PLAY}; // 0x3
+        PlaybackControl control{PlaybackControl::KEY_OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayStatusPlaybackController);
     };
@@ -8400,7 +8399,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
         Command command{Command::SYSTEM_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
+        SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
 
@@ -8813,7 +8812,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
         Command command{Command::SYSTEM_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType type{SystemInquiredType::WEARING_STATUS_DETECTOR}; // 0x1
+        SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
 
@@ -9264,7 +9263,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpdtInquiredType inquiredType{UpdtInquiredType::FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        TandemFotaResult result{TandemFotaResult::ERROR_FIRMWARE_TRANSFER_INCOMPLETED}; // 0x2
+        TandemFotaResult result{TandemFotaResult::OK}; // 0x2
         Int32BE maxPacketSize{}; // 0x3
         Int32BE offset{}; // 0x7
 
@@ -9872,7 +9871,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
         Command command{Command::NCASM_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        NcAsmInquiredType type{NcAsmInquiredType::NC_ON_OFF}; // 0x1
+        NcAsmInquiredType type{NcAsmInquiredType::ASM_SEAMLESS}; // 0x1
         MDRPodArray<AmbientSoundModeLevelSet> ambientSoundModeLevelSetList; // 0x2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(NcAsmRetCapabilityAsmSeamless);

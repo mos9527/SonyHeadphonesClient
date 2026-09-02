@@ -758,7 +758,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        ConnectionMode connectionMode{ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION}; // 0x2
+        ConnectionMode connectionMode{ConnectionMode::HIGH_RELIABILITY}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ConnectionResult connectionResult{ConnectionResult::SUCCESS}; // 0x3
 
@@ -812,7 +812,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus streamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
+        StreamingStatus streamingStatus{StreamingStatus::POWER_OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad);
     };
@@ -858,7 +858,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_CAPABILITY
         Command command{Command::LEA_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType inquiredType{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
+        LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         Array<UInt8, 17> deviceUniqueId{}; // 0x2
         MDRPrefixedString bdAddressLE;
 
@@ -882,7 +882,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_PARAM
         Command command{Command::LEA_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType inquiredType{LEAInquiredType::GET_IDENTITY_RESOLVING_KEY}; // 0x1
+        LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         MDRPodArray<UInt8> iRK; // 0x2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEARetParamGetIdentityResolvingKey);
@@ -896,7 +896,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        ConnectionMode connectionMode{ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION}; // 0x2
+        ConnectionMode connectionMode{ConnectionMode::HIGH_RELIABILITY}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEARetParamLEAudioConnectionModeWithBTReconnection);
     };
@@ -907,7 +907,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_PARAM
         Command command{Command::LEA_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType inquiredType{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
+        LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PairedHistory pairedHistory{PairedHistory::BOTH_CLASSIC_BT_BLE}; // 0x2
 
@@ -961,7 +961,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        StreamingStatus streamingStatus{StreamingStatus::VIA_A2DP}; // 0x3
+        StreamingStatus streamingStatus{StreamingStatus::POWER_OFF}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEARetStatusPasSupportsA2dpLeaUniLeaBroad);
     };
@@ -985,7 +985,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        ConnectionMode connectionMode{ConnectionMode::LOW_LATENCY_WITH_EQ_RESTRICTION}; // 0x2
+        ConnectionMode connectionMode{ConnectionMode::HIGH_RELIABILITY}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(LEASetParamLEAudioConnectionModeWithBTReconnection);
     };
@@ -1083,7 +1083,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::ILLUMINATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        IlluminationItem illuminationItem{IlluminationItem::PARTY_FLASH}; // 0x2
+        IlluminationItem illuminationItem{IlluminationItem::RESET}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PartyNotifyParamIllumination);
     };
@@ -1131,7 +1131,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::PARTY_NTFY_STATUS
         Command command{Command::PARTY_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
+        PartyInquiredType inquiredType{PartyInquiredType::DJ_CONTROL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value2{}; // 0x2
 
@@ -1171,7 +1171,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::PARTY_NTFY_STATUS
         Command command{Command::PARTY_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
+        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         MicPluggedStatus pluggedStatus{MicPluggedStatus::PLUG_IN}; // 0x3
@@ -1189,7 +1189,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        KaraokeItemsSamplersStatus status{KaraokeItemsSamplersStatus::DISABLE}; // 0x2
+        KaraokeItemsSamplersStatus status{KaraokeItemsSamplersStatus::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         MicPluggedStatus pluggedStatus{MicPluggedStatus::PLUG_IN}; // 0x3
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -1270,7 +1270,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::ILLUMINATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        IlluminationItem illuminationItem{IlluminationItem::PARTY_FLASH}; // 0x2
+        IlluminationItem illuminationItem{IlluminationItem::RESET}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PartyRetParamIllumination);
     };
@@ -1318,7 +1318,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::PARTY_RET_STATUS
         Command command{Command::PARTY_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
+        PartyInquiredType inquiredType{PartyInquiredType::DJ_CONTROL}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable value2{}; // 0x2
 
@@ -1358,7 +1358,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::PARTY_RET_STATUS
         Command command{Command::PARTY_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
+        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE}; // 0x1
         UInt8 value1{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         MicPluggedStatus pluggedStatus{MicPluggedStatus::PLUG_IN}; // 0x3
@@ -1376,7 +1376,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        KaraokeItemsSamplersStatus status{KaraokeItemsSamplersStatus::DISABLE}; // 0x2
+        KaraokeItemsSamplersStatus status{KaraokeItemsSamplersStatus::ENABLE}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         MicPluggedStatus pluggedStatus{MicPluggedStatus::PLUG_IN}; // 0x3
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -1476,7 +1476,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PartyInquiredType inquiredType{PartyInquiredType::ILLUMINATION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        IlluminationItem illumination{IlluminationItem::PARTY_FLASH}; // 0x2
+        IlluminationItem illumination{IlluminationItem::RESET}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(PartySetParamIllumination);
     };
@@ -1523,7 +1523,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::PARTY_SET_STATUS
         Command command{Command::PARTY_SET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE_WITH_STATUS_DISABLE_REASON}; // 0x1
+        PartyInquiredType inquiredType{PartyInquiredType::KARAOKE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         ScoringStatus scoringStatus{ScoringStatus::STOP}; // 0x2
 
@@ -2711,7 +2711,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::USB_BROWSER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        UsbInformationType informationType{UsbInformationType::DIRECTORY_STATUS}; // 0x2
+        UsbInformationType informationType{UsbInformationType::DIRECTORY}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UsbLayerStatus currentLayerStatus{UsbLayerStatus::SOME_ITEM_IS_PLAYING}; // 0x3
         Int16BE directoryIndex{}; // 0x4
@@ -3122,7 +3122,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType type{SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH}; // 0x1
+        SystemInquiredType type{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
         // CODEGEN Range 0 255
         UInt8 value2{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -3217,7 +3217,7 @@ namespace mdr::v2::t2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::USB_BROWSER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        UsbInformationType informationType{UsbInformationType::DIRECTORY_STATUS}; // 0x2
+        UsbInformationType informationType{UsbInformationType::DIRECTORY}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UsbLayerStatus currentLayerStatus{UsbLayerStatus::SOME_ITEM_IS_PLAYING}; // 0x3
         Int16BE directoryIndex{}; // 0x4
@@ -3638,7 +3638,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType inquiredType{SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND}; // 0x1
+        SystemInquiredType inquiredType{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue trainingModeOnOffValue{OnOffSettingValue::ON}; // 0x2
 
@@ -3826,7 +3826,7 @@ namespace mdr::v2::t2
     {
         Command command2{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::BATTERY_LV_VOICE}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(VoiceGuidanceNotifyParam);
     };
@@ -3846,7 +3846,7 @@ namespace mdr::v2::t2
     struct VoiceGuidanceNotifyParamSettingOnOff
     {
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING}; // 0x0
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue settingValue{OnOffSettingValue::ON}; // 0x1
 
@@ -4101,7 +4101,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
         Command command{Command::VOICE_GUIDANCE_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue settingValue{OnOffSettingValue::ON}; // 0x2
 
@@ -4220,7 +4220,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_PARAM
         Command command{Command::VOICE_GUIDANCE_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue settingValue{OnOffSettingValue::ON}; // 0x2
 
@@ -4637,7 +4637,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::SYSTEM_RET_EXTENDED_PARAM
         Command command{Command::SYSTEM_RET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType inquiredType{SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH}; // 0x1
+        SystemInquiredType inquiredType{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
         UInt8 requiredTime{}; // 0x2
         MDRPrefixedString categoryId; // 0x3
         MDRPrefixedString serialNumber;

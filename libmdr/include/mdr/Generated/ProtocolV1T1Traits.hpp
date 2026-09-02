@@ -212,6 +212,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::NotifyAudioParamConnectionModeParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::NotifyAudioParamRetAudioCapability_AudioCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::NotifyAudioParamRetAudioCapability_ConnectionModeCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -248,6 +251,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::NotifyEqEbbParamRetEqEbbCapability_EbbCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::NotifyEqEbbStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -270,6 +276,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifyNcAsmParamAsmParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifyNcAsmParamRetNcAsmCapability_NcCapability> {
@@ -338,6 +347,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -374,6 +386,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -408,6 +423,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::NotifySystemParamRetSystemCapability_SystemCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifySystemParamRetSystemCapability_VibratorCapability> {
@@ -453,6 +471,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::NotifySystemStatusRetSystemCapability_SystemCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifySystemStatusRetSystemCapability_VibratorCapability> {
@@ -515,6 +536,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::RetAudioCodec> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::RetAudioParamCapability_AudioCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::RetAudioParamCapability_ConnectionModeCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -563,6 +587,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::RetEqEbbParamCapability_EbbCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::RetEqEbbParamCapability_EqEbbCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::RetEqEbbParamEbbParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -585,6 +612,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetNcAsmParamAsmParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::RetNcAsmParamCapability_NcAsmCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetNcAsmParamCapability_NcCapability> {
@@ -665,6 +695,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::RetSystemExParamChildPayloadCapability_SystemCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::RetSystemExParamChildPayloadCapability_VibratorCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -701,6 +734,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -735,6 +771,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetSystemParamCapability_SmartTalkingModeCapabilityVariant2> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::RetSystemParamCapability_SystemCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetSystemParamCapability_VibratorCapability> {
@@ -780,6 +819,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::RetSystemStatusCapability_SystemCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetSystemStatusCapability_VibratorCapability> {
@@ -866,6 +908,9 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::SetEqEbbParamRetEqEbbCapability_EbbCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
+    template<> struct MDRTraits<v1::t1::SetEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
     template<> struct MDRTraits<v1::t1::SetLinkControlKeepAliveLinkControlNotifiedParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
@@ -882,6 +927,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::SetNcAsmParamNcParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::SetNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::SetNcAsmParamRetNcAsmCapability_NcCapability> {
@@ -927,6 +975,9 @@ namespace mdr {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
+    };
+    template<> struct MDRTraits<v1::t1::SetSystemExParamRetSystemCapability_SystemCapabilityBase> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::SetSystemExParamRetSystemCapability_VibratorCapability> {

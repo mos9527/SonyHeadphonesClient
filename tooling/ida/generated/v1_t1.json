@@ -8251,9 +8251,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -8323,9 +8321,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -8410,7 +8406,7 @@
       "fields": [
         {
           "cpp_type": "AtCommandMessageType",
-          "default": "{}",
+          "default": "AtCommandMessageType::REQUEST",
           "name": "messageType",
           "offset": 0,
           "semantic_rules": [],
@@ -8431,33 +8427,6 @@
           "default": null,
           "name": "command2",
           "offset": 3,
-          "semantic_rules": [],
-          "source_type": "LNSString;",
-          "wire_kind": "string"
-        },
-        {
-          "cpp_type": "AtCommandMessageType",
-          "default": "AtCommandMessageType::REQUEST",
-          "name": "messageType2",
-          "offset": null,
-          "semantic_rules": [],
-          "source_type": "LTHMSGV1T1AtCommandMessageType;",
-          "wire_kind": "pod"
-        },
-        {
-          "cpp_type": "UInt8",
-          "default": "{}",
-          "name": "commandLength2",
-          "offset": null,
-          "semantic_rules": [],
-          "source_type": "I",
-          "wire_kind": "pod"
-        },
-        {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
-          "name": "command3",
-          "offset": null,
           "semantic_rules": [],
           "source_type": "LNSString;",
           "wire_kind": "string"
@@ -8492,9 +8461,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -8555,9 +8522,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -8609,9 +8574,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -8663,9 +8626,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -8717,9 +8678,7 @@
           "default": "BatteryInquiredType::CRADLE_BATTERY",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::CRADLE_BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -8771,9 +8730,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -8861,12 +8818,10 @@
       "fields": [
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table1/param/EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -8906,12 +8861,10 @@
       "fields": [
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -9002,9 +8955,7 @@
           "default": "AlertInquiredType::FIXED_MESSAGE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::FIXED_MESSAGE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -9069,12 +9020,10 @@
         },
         {
           "cpp_type": "AlertInquiredType",
-          "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
+          "default": "AlertInquiredType::NO_USE",
           "name": "alertInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         }
@@ -9623,12 +9572,10 @@
         },
         {
           "cpp_type": "DeviceInfoInquiredType",
-          "default": "DeviceInfoInquiredType::SERIES_AND_COLOR_INFO",
+          "default": "DeviceInfoInquiredType::NO_USE",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         }
@@ -10239,12 +10186,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "optimizerInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         }
@@ -10295,12 +10240,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "optimizerInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         }
@@ -10351,12 +10294,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "optimizerInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         }
@@ -10746,9 +10687,7 @@
           "default": "SportsInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -11220,12 +11159,10 @@
         },
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "updateInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         }
@@ -11334,9 +11271,7 @@
           "default": "VptInquiredType::VPT",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -11399,9 +11334,7 @@
           "default": "VptInquiredType::VPT",
           "name": "vptInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         }
@@ -11455,9 +11388,7 @@
           "default": "VptInquiredType::VPT",
           "name": "vptInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         }
@@ -11651,9 +11582,7 @@
           "default": "LinkControlInquiredType::KEEP_ALIVE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange LinkControlInquiredType::KEEP_ALIVE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LinkControlInquiredType;",
           "wire_kind": "pod"
         },
@@ -11698,9 +11627,7 @@
           "default": "LinkControlInquiredType::KEEP_ALIVE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange LinkControlInquiredType::KEEP_ALIVE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LinkControlInquiredType;",
           "wire_kind": "pod"
         },
@@ -11752,9 +11679,7 @@
           "default": "BatteryInquiredType::LEFT_RIGHT_BATTERY",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::LEFT_RIGHT_BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -11824,9 +11749,7 @@
           "default": "ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1ConnectionStatusInquiredType;",
           "wire_kind": "pod"
         },
@@ -11878,9 +11801,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -11960,7 +11881,9 @@
       "cpp_name": "NcParam",
       "discriminator_field": null,
       "discriminator_value": null,
-      "evidence": [],
+      "evidence": [
+        "external serializer getter order: type, ncSettingType, ncSettingValue"
+      ],
       "factory_signature": null,
       "fields": [
         {
@@ -11968,9 +11891,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -12037,12 +11958,10 @@
         },
         {
           "cpp_type": "AlertInquiredType",
-          "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
+          "default": "AlertInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -12181,9 +12100,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -12203,6 +12120,62 @@
           "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1ConnectionModeSettingValue;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifyAudioParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315229212,
+          "symbol": "+[THMSGV1T1NotifyAudioParam __metadata]"
+        },
+        {
+          "address": 4315228988,
+          "symbol": "-[THMSGV1T1NotifyAudioParam getCommandStream]"
+        },
+        {
+          "address": 4315228556,
+          "symbol": "-[THMSGV1T1NotifyAudioParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "AUDIO_NTFY_PARAM",
+      "cpp_name": "NotifyAudioParamRetAudioCapability_AudioCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of AudioParamBase to RetAudioCapability_AudioCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::AUDIO_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::AUDIO_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "AudioInquiredType",
+          "default": "AudioInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         }
       ],
@@ -12257,9 +12230,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -12325,9 +12296,7 @@
           "default": "AudioInquiredType::UPSCALING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::UPSCALING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -12466,9 +12435,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -12543,9 +12510,7 @@
           "default": "BatteryInquiredType::CRADLE_BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::CRADLE_BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -12620,9 +12585,7 @@
           "default": "BatteryInquiredType::LEFT_RIGHT_BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::LEFT_RIGHT_BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -12714,9 +12677,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -12725,9 +12686,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE",
           "name": "updateInquiredType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -12792,9 +12751,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -12803,9 +12760,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD",
           "name": "updateInquiredType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -12871,9 +12826,7 @@
           "default": "ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1ConnectionStatusInquiredType;",
           "wire_kind": "pod"
         },
@@ -12948,9 +12901,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -13013,12 +12964,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -13092,9 +13041,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -13165,12 +13112,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -13206,6 +13151,62 @@
       "parent": null,
       "parser": "restoreFromPayloadWithByteArray:",
       "serialization": "external",
+      "sources": [
+        {
+          "address": 4315492852,
+          "symbol": "+[THMSGV1T1NotifyEqEbbParam __metadata]"
+        },
+        {
+          "address": 4315492628,
+          "symbol": "-[THMSGV1T1NotifyEqEbbParam getCommandStream]"
+        },
+        {
+          "address": 4315492204,
+          "symbol": "-[THMSGV1T1NotifyEqEbbParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "EQEBB_NTFY_PARAM",
+      "cpp_name": "NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of EqEbbParam to RetEqEbbCapability_EqEbbCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::EQEBB_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::EQEBB_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "EqEbbInquiredType",
+          "default": "EqEbbInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1EqEbbInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifyEqEbbParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
       "sources": [
         {
           "address": 4315492852,
@@ -13324,9 +13325,7 @@
           "default": "GsSettingType::BOOLEAN_TYPE",
           "name": "settingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange GsSettingType::BOOLEAN_TYPE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsSettingType;",
           "wire_kind": "pod"
         },
@@ -13398,9 +13397,7 @@
           "default": "GsSettingType::LIST_TYPE",
           "name": "settingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange GsSettingType::LIST_TYPE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsSettingType;",
           "wire_kind": "pod"
         },
@@ -13526,9 +13523,7 @@
           "default": "LinkControlInquiredType::KEEP_ALIVE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange LinkControlInquiredType::KEEP_ALIVE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LinkControlInquiredType;",
           "wire_kind": "pod"
         },
@@ -13593,9 +13588,7 @@
           "default": "LinkControlInquiredType::KEEP_ALIVE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange LinkControlInquiredType::KEEP_ALIVE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LinkControlInquiredType;",
           "wire_kind": "pod"
         },
@@ -13671,12 +13664,10 @@
         },
         {
           "cpp_type": "LogInquiredType",
-          "default": "LogInquiredType::ACTION_LOG_NOTIFIER",
+          "default": "LogInquiredType::NO_USE",
           "name": "logInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange LogInquiredType::ACTION_LOG_NOTIFIER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LogInquiredType;",
           "wire_kind": "pod"
         },
@@ -13742,9 +13733,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -13836,9 +13825,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -13912,9 +13899,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -13977,6 +13962,62 @@
     {
       "classification": "payload",
       "command": "NCASM_NTFY_PARAM",
+      "cpp_name": "NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of NcAsmParamBase to RetNcAsmCapability_NcAsmCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::NCASM_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::NCASM_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "NcAsmInquiredType",
+          "default": "NcAsmInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1NcAsmInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifyNcAsmParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315247624,
+          "symbol": "+[THMSGV1T1NotifyNcAsmParam __metadata]"
+        },
+        {
+          "address": 4315247400,
+          "symbol": "-[THMSGV1T1NotifyNcAsmParam getCommandStream]"
+        },
+        {
+          "address": 4315246884,
+          "symbol": "-[THMSGV1T1NotifyNcAsmParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "NCASM_NTFY_PARAM",
       "cpp_name": "NotifyNcAsmParamRetNcAsmCapability_NcCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -14006,9 +14047,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -14074,9 +14113,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -14187,9 +14224,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -14324,12 +14359,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         },
@@ -14418,12 +14451,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         },
@@ -14499,9 +14530,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "playInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -14510,9 +14539,7 @@
           "default": "PlaybackDetailedDataType::TRACK_NAME",
           "name": "dataType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::TRACK_NAME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -14579,9 +14606,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "playInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -14590,9 +14615,7 @@
           "default": "PlaybackDetailedDataType::VOLUME",
           "name": "dataType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::VOLUME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -14727,9 +14750,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -14790,9 +14811,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -14880,9 +14899,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -14952,9 +14969,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -15062,9 +15077,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -15208,9 +15221,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -15280,9 +15291,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -15343,9 +15352,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15406,9 +15413,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15487,9 +15492,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15559,9 +15562,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15631,9 +15632,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15694,9 +15693,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15757,9 +15754,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15820,9 +15815,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -15884,9 +15877,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16002,9 +15993,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16094,6 +16083,58 @@
     {
       "classification": "payload",
       "command": "SYSTEM_NTFY_PARAM",
+      "cpp_name": "NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "discriminator-aware expansion of ChildPayload to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifySystemExParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315326624,
+          "symbol": "+[THMSGV1T1NotifySystemExParam __metadata]"
+        },
+        {
+          "address": 4315326472,
+          "symbol": "-[THMSGV1T1NotifySystemExParam getCommandStream]"
+        },
+        {
+          "address": 4315326108,
+          "symbol": "-[THMSGV1T1NotifySystemExParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_NTFY_PARAM",
       "cpp_name": "NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -16119,9 +16160,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16183,9 +16222,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16265,9 +16302,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16338,20 +16373,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -16412,9 +16443,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16484,9 +16513,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16547,9 +16574,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16628,9 +16653,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16700,9 +16723,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16772,9 +16793,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16835,9 +16854,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16898,9 +16915,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16961,9 +16976,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -16974,6 +16987,58 @@
           "offset": 2,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PowerSavingModeSettingType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifySystemExParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315326624,
+          "symbol": "+[THMSGV1T1NotifySystemExParam __metadata]"
+        },
+        {
+          "address": 4315326472,
+          "symbol": "-[THMSGV1T1NotifySystemExParam getCommandStream]"
+        },
+        {
+          "address": 4315326108,
+          "symbol": "-[THMSGV1T1NotifySystemExParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_NTFY_PARAM",
+      "cpp_name": "NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "discriminator-aware expansion of SmartTalkingModeExParam to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         }
       ],
@@ -17024,9 +17089,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17088,9 +17151,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17099,9 +17160,7 @@
           "default": "SmartTalkingModeDetailSettingType::TYPE_1",
           "name": "detailSettingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeDetailSettingType::TYPE_1"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeDetailSettingType;",
           "wire_kind": "pod"
         },
@@ -17180,9 +17239,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17257,9 +17314,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17325,9 +17380,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17411,9 +17464,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17488,9 +17539,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17564,9 +17613,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17631,9 +17678,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17698,9 +17743,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17765,9 +17808,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17832,9 +17873,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -17953,9 +17992,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18045,6 +18082,62 @@
     {
       "classification": "payload",
       "command": "SYSTEM_NTFY_PARAM",
+      "cpp_name": "NotifySystemParamRetSystemCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of SystemParamBase to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifySystemParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315226672,
+          "symbol": "+[THMSGV1T1NotifySystemParam __metadata]"
+        },
+        {
+          "address": 4315226448,
+          "symbol": "-[THMSGV1T1NotifySystemParam getCommandStream]"
+        },
+        {
+          "address": 4315225688,
+          "symbol": "-[THMSGV1T1NotifySystemParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_NTFY_PARAM",
       "cpp_name": "NotifySystemParamRetSystemCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -18074,9 +18167,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18141,9 +18232,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18218,20 +18307,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -18296,9 +18381,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18307,9 +18390,7 @@
           "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
           "name": "alertInquiredType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -18375,9 +18456,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18452,9 +18531,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18521,9 +18598,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18598,9 +18673,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18684,9 +18757,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18761,9 +18832,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18838,9 +18907,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18906,9 +18973,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -18974,9 +19039,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19042,9 +19105,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19110,9 +19171,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19232,9 +19291,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19324,6 +19381,63 @@
     {
       "classification": "payload",
       "command": "SYSTEM_NTFY_STATUS",
+      "cpp_name": "NotifySystemStatusRetSystemCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "_JreThrowNullPointerException",
+        "-[THMSGV1T1SystemInquiredType byteCode]",
+        "sub_1012B7DF8",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of ChildPayload to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_NTFY_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_NTFY_STATUS"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1NotifySystemStatus",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315397600,
+          "symbol": "+[THMSGV1T1NotifySystemStatus __metadata]"
+        },
+        {
+          "address": 4315397280,
+          "symbol": "-[THMSGV1T1NotifySystemStatus getCommandStream]"
+        },
+        {
+          "address": 4315396756,
+          "symbol": "-[THMSGV1T1NotifySystemStatus restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_NTFY_STATUS",
       "cpp_name": "NotifySystemStatusRetSystemCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -19354,9 +19468,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19422,9 +19534,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19499,20 +19609,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -19579,9 +19685,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19656,9 +19760,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -19728,12 +19830,10 @@
         },
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -19872,9 +19972,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -19939,9 +20037,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         }
@@ -19998,9 +20094,7 @@
           "default": "VptInquiredType::SOUND_POSITION",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::SOUND_POSITION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -20066,9 +20160,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -20132,9 +20224,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -20219,9 +20309,7 @@
           "default": "PlaybackDetailedDataType::TRACK_NAME",
           "name": "dataType",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::TRACK_NAME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -20298,9 +20386,7 @@
           "default": "PlaybackDetailedDataType::VOLUME",
           "name": "dataType",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::VOLUME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -20384,9 +20470,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -20560,9 +20644,7 @@
           "default": "AudioInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -20660,9 +20742,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -20723,9 +20803,7 @@
           "default": "AudioInquiredType::UPSCALING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::UPSCALING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -20830,6 +20908,62 @@
     {
       "classification": "payload",
       "command": "AUDIO_RET_PARAM",
+      "cpp_name": "RetAudioParamCapability_AudioCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of AudioParamBase to RetAudioCapability_AudioCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::AUDIO_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::AUDIO_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "AudioInquiredType",
+          "default": "AudioInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1AudioInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetAudioParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315413020,
+          "symbol": "+[THMSGV1T1RetAudioParam __metadata]"
+        },
+        {
+          "address": 4315412796,
+          "symbol": "-[THMSGV1T1RetAudioParam getCommandStream]"
+        },
+        {
+          "address": 4315412364,
+          "symbol": "-[THMSGV1T1RetAudioParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "AUDIO_RET_PARAM",
       "cpp_name": "RetAudioParamCapability_ConnectionModeCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -20859,9 +20993,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -20927,9 +21059,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -21004,9 +21134,7 @@
           "default": "AudioInquiredType::UPSCALING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::UPSCALING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -21145,9 +21273,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -21222,9 +21348,7 @@
           "default": "BatteryInquiredType::CRADLE_BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::CRADLE_BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -21299,9 +21423,7 @@
           "default": "BatteryInquiredType::LEFT_RIGHT_BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::LEFT_RIGHT_BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -21393,9 +21515,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -21404,9 +21524,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE",
           "name": "updateInquiredType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -21471,9 +21589,7 @@
           "default": "BatteryInquiredType::BATTERY",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BatteryInquiredType::BATTERY"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BatteryInquiredType;",
           "wire_kind": "pod"
         },
@@ -21482,9 +21598,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD",
           "name": "updateInquiredType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -21751,9 +21865,7 @@
           "default": "ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange ConnectionStatusInquiredType::LEFT_RIGHT_CONNECTION_STATUS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1ConnectionStatusInquiredType;",
           "wire_kind": "pod"
         },
@@ -21819,12 +21931,10 @@
         },
         {
           "cpp_type": "DeviceInfoInquiredType",
-          "default": "DeviceInfoInquiredType::SERIES_AND_COLOR_INFO",
+          "default": "DeviceInfoInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         },
@@ -21872,12 +21982,10 @@
       "fields": [
         {
           "cpp_type": "DeviceInfoInquiredType",
-          "default": "DeviceInfoInquiredType::SERIES_AND_COLOR_INFO",
+          "default": "DeviceInfoInquiredType::NO_USE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         }
@@ -21925,9 +22033,7 @@
           "default": "DeviceInfoInquiredType::FW_VERSION",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::FW_VERSION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         },
@@ -21989,9 +22095,7 @@
           "default": "DeviceInfoInquiredType::INSTRUCTION_GUIDE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::INSTRUCTION_GUIDE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         },
@@ -22052,9 +22156,7 @@
           "default": "DeviceInfoInquiredType::MODEL_NAME",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::MODEL_NAME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         },
@@ -22115,9 +22217,7 @@
           "default": "DeviceInfoInquiredType::SERIES_AND_COLOR_INFO",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange DeviceInfoInquiredType::SERIES_AND_COLOR_INFO"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1DeviceInfoInquiredType;",
           "wire_kind": "pod"
         },
@@ -22182,9 +22282,7 @@
           "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22252,9 +22350,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22297,7 +22393,7 @@
       "command": "EQEBB_RET_CAPABILITY",
       "cpp_name": "RetEqEbbCapability_EqCapability",
       "discriminator_field": "type",
-      "discriminator_value": "EqEbbInquiredType::PRESET_EQ",
+      "discriminator_value": "EqEbbInquiredType::NO_USE",
       "evidence": [
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
@@ -22324,12 +22420,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22436,12 +22530,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22506,9 +22598,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22579,12 +22669,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22638,6 +22726,62 @@
     {
       "classification": "payload",
       "command": "EQEBB_RET_PARAM",
+      "cpp_name": "RetEqEbbParamCapability_EqEbbCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of EqEbbParam to RetEqEbbCapability_EqEbbCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::EQEBB_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::EQEBB_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "EqEbbInquiredType",
+          "default": "EqEbbInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1EqEbbInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetEqEbbParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315597880,
+          "symbol": "+[THMSGV1T1RetEqEbbParam __metadata]"
+        },
+        {
+          "address": 4315597656,
+          "symbol": "-[THMSGV1T1RetEqEbbParam getCommandStream]"
+        },
+        {
+          "address": 4315597232,
+          "symbol": "-[THMSGV1T1RetEqEbbParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "EQEBB_RET_PARAM",
       "cpp_name": "RetEqEbbParamEbbParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -22668,9 +22812,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -22733,12 +22875,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -23020,9 +23160,7 @@
           "default": "GsSettingType::BOOLEAN_TYPE",
           "name": "settingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange GsSettingType::BOOLEAN_TYPE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsSettingType;",
           "wire_kind": "pod"
         },
@@ -23094,9 +23232,7 @@
           "default": "GsSettingType::LIST_TYPE",
           "name": "settingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange GsSettingType::LIST_TYPE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsSettingType;",
           "wire_kind": "pod"
         },
@@ -23216,9 +23352,7 @@
           "default": "NcAsmInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23289,9 +23423,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23364,9 +23496,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23483,9 +23613,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23547,9 +23675,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23641,9 +23767,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23717,9 +23841,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23782,6 +23904,62 @@
     {
       "classification": "payload",
       "command": "NCASM_RET_PARAM",
+      "cpp_name": "RetNcAsmParamCapability_NcAsmCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of NcAsmParamBase to RetNcAsmCapability_NcAsmCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::NCASM_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::NCASM_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "NcAsmInquiredType",
+          "default": "NcAsmInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1NcAsmInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetNcAsmParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315371684,
+          "symbol": "+[THMSGV1T1RetNcAsmParam __metadata]"
+        },
+        {
+          "address": 4315371460,
+          "symbol": "-[THMSGV1T1RetNcAsmParam getCommandStream]"
+        },
+        {
+          "address": 4315370944,
+          "symbol": "-[THMSGV1T1RetNcAsmParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "NCASM_RET_PARAM",
       "cpp_name": "RetNcAsmParamCapability_NcCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -23811,9 +23989,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23879,9 +24055,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -23992,9 +24166,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -24129,12 +24301,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         },
@@ -24236,12 +24406,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         },
@@ -24330,12 +24498,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         },
@@ -24411,9 +24577,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -24440,9 +24604,7 @@
           "default": "PlaybackDetailedDataType::TRACK_NAME",
           "name": "dataType",
           "offset": 4,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::TRACK_NAME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -24512,9 +24674,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -24541,9 +24701,7 @@
           "default": "PlaybackDetailedDataType::VOLUME",
           "name": "dataType",
           "offset": 4,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::VOLUME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -24615,9 +24773,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "playInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -24626,9 +24782,7 @@
           "default": "PlaybackDetailedDataType::TRACK_NAME",
           "name": "dataType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::TRACK_NAME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -24695,9 +24849,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "playInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -24706,9 +24858,7 @@
           "default": "PlaybackDetailedDataType::VOLUME",
           "name": "dataType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::VOLUME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -24980,9 +25130,7 @@
           "default": "SportsInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25047,9 +25195,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25110,9 +25256,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25200,9 +25344,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25272,9 +25414,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25382,9 +25522,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25528,9 +25666,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25600,9 +25736,7 @@
           "default": "SportsInquiredType::TRAINING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::TRAINING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -25733,9 +25867,7 @@
           "default": "SystemInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -25806,9 +25938,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -25870,9 +26000,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -25932,9 +26060,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -25994,9 +26120,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26062,9 +26186,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26184,9 +26306,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26330,9 +26450,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26389,9 +26507,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26452,9 +26568,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26533,9 +26647,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26596,9 +26708,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26659,9 +26769,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26722,9 +26830,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26786,9 +26892,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26904,9 +27008,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -26996,6 +27098,58 @@
     {
       "classification": "payload",
       "command": "SYSTEM_RET_PARAM",
+      "cpp_name": "RetSystemExParamChildPayloadCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "discriminator-aware expansion of ChildPayload to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetSystemExParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315502012,
+          "symbol": "+[THMSGV1T1RetSystemExParam __metadata]"
+        },
+        {
+          "address": 4315501860,
+          "symbol": "-[THMSGV1T1RetSystemExParam getCommandStream]"
+        },
+        {
+          "address": 4315501496,
+          "symbol": "-[THMSGV1T1RetSystemExParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_RET_PARAM",
       "cpp_name": "RetSystemExParamChildPayloadCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -27021,9 +27175,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27084,9 +27236,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27156,9 +27306,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27229,9 +27377,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27311,9 +27457,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27384,20 +27528,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -27458,9 +27598,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27530,9 +27668,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27593,9 +27729,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27674,9 +27808,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27737,9 +27869,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27800,9 +27930,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27863,9 +27991,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27876,6 +28002,58 @@
           "offset": 2,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1PowerSavingModeSettingType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetSystemExParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315502012,
+          "symbol": "+[THMSGV1T1RetSystemExParam __metadata]"
+        },
+        {
+          "address": 4315501860,
+          "symbol": "-[THMSGV1T1RetSystemExParam getCommandStream]"
+        },
+        {
+          "address": 4315501496,
+          "symbol": "-[THMSGV1T1RetSystemExParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_RET_PARAM",
+      "cpp_name": "RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "discriminator-aware expansion of SmartTalkingModeExParam to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         }
       ],
@@ -27926,9 +28104,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -27989,9 +28165,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28061,9 +28235,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28134,9 +28306,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28145,9 +28315,7 @@
           "default": "SmartTalkingModeDetailSettingType::TYPE_1",
           "name": "detailSettingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeDetailSettingType::TYPE_1"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeDetailSettingType;",
           "wire_kind": "pod"
         },
@@ -28226,9 +28394,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28303,9 +28469,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28371,9 +28535,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28456,9 +28618,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28523,9 +28683,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28590,9 +28748,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28657,9 +28813,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28724,9 +28878,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28845,9 +28997,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -28937,6 +29087,62 @@
     {
       "classification": "payload",
       "command": "SYSTEM_RET_PARAM",
+      "cpp_name": "RetSystemParamCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1012B7DF8",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of SystemParamBase to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetSystemParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315258428,
+          "symbol": "+[THMSGV1T1RetSystemParam __metadata]"
+        },
+        {
+          "address": 4315258204,
+          "symbol": "-[THMSGV1T1RetSystemParam getCommandStream]"
+        },
+        {
+          "address": 4315257444,
+          "symbol": "-[THMSGV1T1RetSystemParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_RET_PARAM",
       "cpp_name": "RetSystemParamCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -28966,9 +29172,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29034,9 +29238,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29111,9 +29313,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29188,9 +29388,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29264,20 +29462,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -29342,9 +29536,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29353,9 +29545,7 @@
           "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
           "name": "alertInquiredType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -29421,9 +29611,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29498,9 +29686,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29567,9 +29753,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29644,9 +29828,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29730,9 +29912,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29798,9 +29978,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29866,9 +30044,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -29934,9 +30110,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30002,9 +30176,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30124,9 +30296,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30216,6 +30386,63 @@
     {
       "classification": "payload",
       "command": "SYSTEM_RET_STATUS",
+      "cpp_name": "RetSystemStatusCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "_JreThrowNullPointerException",
+        "-[THMSGV1T1SystemInquiredType byteCode]",
+        "sub_1012B7DF8",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of ChildPayload to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_RET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_RET_STATUS"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1RetSystemStatus",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315551444,
+          "symbol": "+[THMSGV1T1RetSystemStatus __metadata]"
+        },
+        {
+          "address": 4315551124,
+          "symbol": "-[THMSGV1T1RetSystemStatus getCommandStream]"
+        },
+        {
+          "address": 4315550600,
+          "symbol": "-[THMSGV1T1RetSystemStatus restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_RET_STATUS",
       "cpp_name": "RetSystemStatusCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -30246,9 +30473,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30314,9 +30539,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30391,9 +30614,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30468,9 +30689,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30545,20 +30764,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -30625,9 +30840,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30702,9 +30915,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -30779,9 +30990,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -30847,9 +31056,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -30915,9 +31122,7 @@
           "default": "UpdateInquiredType::BLE_TX_POWER",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BLE_TX_POWER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -30983,9 +31188,7 @@
           "default": "UpdateInquiredType::UPDATE_METHOD",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -31048,12 +31251,10 @@
         },
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -31116,12 +31317,10 @@
         },
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         }
@@ -31246,9 +31445,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31316,9 +31513,7 @@
           "default": "VptInquiredType::SOUND_POSITION",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::SOUND_POSITION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31382,9 +31577,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31427,9 +31620,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         }
@@ -31477,9 +31668,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31544,9 +31733,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         }
@@ -31603,9 +31790,7 @@
           "default": "VptInquiredType::SOUND_POSITION",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::SOUND_POSITION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31671,9 +31856,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31737,9 +31920,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -31805,9 +31986,7 @@
           "default": "AlertInquiredType::FIXED_MESSAGE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::FIXED_MESSAGE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -31882,9 +32061,7 @@
           "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -31945,12 +32122,10 @@
         },
         {
           "cpp_type": "AlertInquiredType",
-          "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
+          "default": "AlertInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -32016,9 +32191,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -32092,9 +32265,7 @@
           "default": "AudioInquiredType::CONNECTION_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::CONNECTION_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -32160,9 +32331,7 @@
           "default": "AudioInquiredType::UPSCALING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::UPSCALING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -32236,9 +32405,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -32300,12 +32467,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -32378,9 +32543,7 @@
           "default": "EqEbbInquiredType::EBB",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::EBB"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -32450,12 +32613,10 @@
         },
         {
           "cpp_type": "EqEbbInquiredType",
-          "default": "EqEbbInquiredType::PRESET_EQ",
+          "default": "EqEbbInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange EqEbbInquiredType::PRESET_EQ"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1EqEbbInquiredType;",
           "wire_kind": "pod"
         },
@@ -32491,6 +32652,61 @@
       "parent": null,
       "parser": "restoreFromPayloadWithByteArray:",
       "serialization": "external",
+      "sources": [
+        {
+          "address": 4315450680,
+          "symbol": "+[THMSGV1T1SetEqEbbParam __metadata]"
+        },
+        {
+          "address": 4315450300,
+          "symbol": "-[THMSGV1T1SetEqEbbParam getCommandStream]"
+        },
+        {
+          "address": 4315449892,
+          "symbol": "-[THMSGV1T1SetEqEbbParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "EQEBB_SET_PARAM",
+      "cpp_name": "SetEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of EqEbbParam to RetEqEbbCapability_EqEbbCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::EQEBB_SET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::EQEBB_SET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "EqEbbInquiredType",
+          "default": "EqEbbInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1EqEbbInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1SetEqEbbParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
       "sources": [
         {
           "address": 4315450680,
@@ -32669,9 +32885,7 @@
           "default": "LinkControlInquiredType::KEEP_ALIVE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange LinkControlInquiredType::KEEP_ALIVE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LinkControlInquiredType;",
           "wire_kind": "pod"
         },
@@ -32736,9 +32950,7 @@
           "default": "LinkControlInquiredType::KEEP_ALIVE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange LinkControlInquiredType::KEEP_ALIVE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LinkControlInquiredType;",
           "wire_kind": "pod"
         },
@@ -32808,12 +33020,10 @@
         },
         {
           "cpp_type": "LogInquiredType",
-          "default": "LogInquiredType::ACTION_LOG_NOTIFIER",
+          "default": "LogInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange LogInquiredType::ACTION_LOG_NOTIFIER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1LogInquiredType;",
           "wire_kind": "pod"
         }
@@ -32869,9 +33079,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -32963,9 +33171,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -33075,9 +33281,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -33150,9 +33354,7 @@
           "default": "NcAsmInquiredType::AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -33225,9 +33427,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -33290,6 +33490,61 @@
     {
       "classification": "payload",
       "command": "NCASM_SET_PARAM",
+      "cpp_name": "SetNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "_JreThrowNullPointerException",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of NcAsmParamBase to RetNcAsmCapability_NcAsmCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::NCASM_SET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::NCASM_SET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "NcAsmInquiredType",
+          "default": "NcAsmInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1NcAsmInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1SetNcAsmParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315280468,
+          "symbol": "+[THMSGV1T1SetNcAsmParam __metadata]"
+        },
+        {
+          "address": 4315280248,
+          "symbol": "-[THMSGV1T1SetNcAsmParam getCommandStream]"
+        },
+        {
+          "address": 4315279732,
+          "symbol": "-[THMSGV1T1SetNcAsmParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "NCASM_SET_PARAM",
       "cpp_name": "SetNcAsmParamRetNcAsmCapability_NcCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -33318,9 +33573,7 @@
           "default": "NcAsmInquiredType::NOISE_CANCELLING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange NcAsmInquiredType::NOISE_CANCELLING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1NcAsmInquiredType;",
           "wire_kind": "pod"
         },
@@ -33382,12 +33635,10 @@
         },
         {
           "cpp_type": "OptimizerInquiredType",
-          "default": "OptimizerInquiredType::NC_OPTIMIZER",
+          "default": "OptimizerInquiredType::NO_USE",
           "name": "optimizerInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange OptimizerInquiredType::NC_OPTIMIZER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1OptimizerInquiredType;",
           "wire_kind": "pod"
         },
@@ -33453,9 +33704,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -33464,9 +33713,7 @@
           "default": "PlaybackDetailedDataType::TRACK_NAME",
           "name": "dataType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::TRACK_NAME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -33532,9 +33779,7 @@
           "default": "PlayInquiredType::PLAYBACK_CONTROLLER",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PlayInquiredType::PLAYBACK_CONTROLLER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlayInquiredType;",
           "wire_kind": "pod"
         },
@@ -33543,9 +33788,7 @@
           "default": "PlaybackDetailedDataType::VOLUME",
           "name": "dataType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PlaybackDetailedDataType::VOLUME"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PlaybackDetailedDataType;",
           "wire_kind": "pod"
         },
@@ -33674,20 +33917,16 @@
           "default": "PowerOffInquiredType::FIXED_VALUE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange PowerOffInquiredType::FIXED_VALUE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PowerOffInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "PowerOffSettingValue",
-          "default": "PowerOffSettingValue::USER_POWER_OFF",
+          "default": "PowerOffSettingValue::NO_USE",
           "name": "settingValue",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange PowerOffSettingValue::USER_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1PowerOffSettingValue;",
           "wire_kind": "pod"
         }
@@ -33807,9 +34046,7 @@
           "default": "SportsInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -33873,9 +34110,7 @@
           "default": "SportsInquiredType::NO_USE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SportsInquiredType::NO_USE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SportsInquiredType;",
           "wire_kind": "pod"
         },
@@ -33940,9 +34175,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34007,9 +34240,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34092,9 +34323,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34168,9 +34397,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34244,9 +34471,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34311,9 +34536,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34378,9 +34601,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34445,9 +34666,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34512,9 +34731,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34633,9 +34850,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34725,6 +34940,62 @@
     {
       "classification": "payload",
       "command": "SYSTEM_SET_PARAM",
+      "cpp_name": "SetSystemExParamRetSystemCapability_SystemCapabilityBase",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "_JreThrowNullPointerException",
+        "-[THMSGV1T1SystemInquiredType byteCode]",
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "discriminator-aware expansion of SmartTalkingModeExParam to RetSystemCapability_SystemCapabilityBase"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::SYSTEM_SET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::SYSTEM_SET_PARAM"
+          ],
+          "source_type": "THMSGV1T1Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SystemInquiredType",
+          "default": "SystemInquiredType::NO_USE",
+          "name": "type",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1SystemInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T1SetSystemExParam",
+      "parent": null,
+      "parser": "restoreFromPayloadWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315481116,
+          "symbol": "+[THMSGV1T1SetSystemExParam __metadata]"
+        },
+        {
+          "address": 4315480800,
+          "symbol": "-[THMSGV1T1SetSystemExParam getCommandStream]"
+        },
+        {
+          "address": 4315480436,
+          "symbol": "-[THMSGV1T1SetSystemExParam restoreFromPayloadWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "SYSTEM_SET_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34754,9 +35025,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34821,9 +35090,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34897,9 +35164,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -34908,9 +35173,7 @@
           "default": "SmartTalkingModeDetailSettingType::TYPE_1",
           "name": "detailSettingType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeDetailSettingType::TYPE_1"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeDetailSettingType;",
           "wire_kind": "pod"
         },
@@ -34993,9 +35256,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35078,9 +35339,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35154,20 +35413,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -35233,9 +35488,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35301,9 +35554,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35387,9 +35638,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35464,9 +35713,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35540,9 +35787,7 @@
           "default": "SystemInquiredType::ASSIGNABLE_SETTINGS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::ASSIGNABLE_SETTINGS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35607,9 +35852,7 @@
           "default": "SystemInquiredType::AUTO_POWER_OFF",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::AUTO_POWER_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35674,9 +35917,7 @@
           "default": "SystemInquiredType::CONTROL_BY_WEARING",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::CONTROL_BY_WEARING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35741,9 +35982,7 @@
           "default": "SystemInquiredType::POWER_SAVING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::POWER_SAVING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35808,9 +36047,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -35929,9 +36166,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -36050,9 +36285,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -36118,9 +36351,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -36194,9 +36425,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -36271,20 +36500,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -36345,12 +36570,10 @@
         },
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "updateInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -36415,9 +36638,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -36482,9 +36703,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         }
@@ -36541,9 +36760,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -36674,9 +36891,7 @@
           "default": "VptInquiredType::SOUND_POSITION",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::SOUND_POSITION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -36726,9 +36941,7 @@
           "default": "SmartTalkingModeDetailSettingType::TYPE_1",
           "name": "detailSettingType",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeDetailSettingType::TYPE_1"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeDetailSettingType;",
           "wire_kind": "pod"
         },
@@ -36841,9 +37054,7 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -36895,20 +37106,16 @@
           "default": "SystemInquiredType::SMART_TALKING_MODE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::SMART_TALKING_MODE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
         {
           "cpp_type": "SmartTalkingModeParameterType",
-          "default": "SmartTalkingModeParameterType::MODE_ON_OFF",
+          "default": "SmartTalkingModeParameterType::NO_USE",
           "name": "parameterType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange SmartTalkingModeParameterType::MODE_ON_OFF"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SmartTalkingModeParameterType;",
           "wire_kind": "pod"
         },
@@ -36994,9 +37201,7 @@
           "default": "VptInquiredType::SOUND_POSITION",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::SOUND_POSITION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },
@@ -37633,9 +37838,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -37687,9 +37890,7 @@
           "default": "UpdateInquiredType::BATTERY_POWER_THRESHOLD",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BATTERY_POWER_THRESHOLD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -37741,9 +37942,7 @@
           "default": "UpdateInquiredType::BLE_TX_POWER",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::BLE_TX_POWER"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -37795,9 +37994,7 @@
           "default": "UpdateInquiredType::UPDATE_METHOD",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -37852,12 +38049,10 @@
       "fields": [
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         },
@@ -37916,12 +38111,10 @@
       "fields": [
         {
           "cpp_type": "UpdateInquiredType",
-          "default": "UpdateInquiredType::UPDATE_METHOD",
+          "default": "UpdateInquiredType::NO_USE",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange UpdateInquiredType::UPDATE_METHOD"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1UpdateInquiredType;",
           "wire_kind": "pod"
         }
@@ -37963,9 +38156,7 @@
           "default": "AudioInquiredType::UPSCALING",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange AudioInquiredType::UPSCALING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AudioInquiredType;",
           "wire_kind": "pod"
         },
@@ -38017,9 +38208,7 @@
           "default": "AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange AlertInquiredType::VIBRATOR_ALERT_NOTIFICATION"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1AlertInquiredType;",
           "wire_kind": "pod"
         },
@@ -38062,9 +38251,7 @@
           "default": "SystemInquiredType::VIBRATOR",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange SystemInquiredType::VIBRATOR"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1SystemInquiredType;",
           "wire_kind": "pod"
         },
@@ -38116,9 +38303,7 @@
           "default": "VptInquiredType::VPT",
           "name": "type",
           "offset": 0,
-          "semantic_rules": [
-            "EnumRange VptInquiredType::VPT"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1VptInquiredType;",
           "wire_kind": "pod"
         },

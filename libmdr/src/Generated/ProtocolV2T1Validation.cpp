@@ -3181,7 +3181,6 @@ MDRResult<void> SenseRetExtInfoAdaptiveControlEqPreset::Validate(const SenseRetE
     // data.senseInquiredType ignored: OUT_OF_RANGE is expected
     // data.senseApplicableFunction ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.eqPresetId));
-    MDR_VALIDATE(data.eqPresetId == EqPresetId::GAMING_EQ);
     for (const auto& value3_elem : data.value3) {
     }
     return MDRResult<void>::Success();
@@ -4571,11 +4570,11 @@ MDRResult<void> SystemRetCapabilityAssignableSettings::Validate(const SystemRetC
                 MDR_VALIDATE(is_valid(settingsActions_elem.function));
             }
             for (const auto& settingsCustomizableActions_elem : assignableSettingsPreset_elem.settingsCustomizableActions) {
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
                 for (const auto& functions_elem : settingsCustomizableActions_elem.functions) {
                     MDR_VALIDATE(is_valid(functions_elem));
                 }
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
             }
         }
     }
@@ -4597,11 +4596,11 @@ MDRResult<void> SystemRetCapabilityAssignableSettingsWithLimit::Validate(const S
                 MDR_VALIDATE(is_valid(settingsActions_elem.function));
             }
             for (const auto& settingsCustomizableActions_elem : assignableSettingsPreset_elem.settingsCustomizableActions) {
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
                 for (const auto& functions_elem : settingsCustomizableActions_elem.functions) {
                     MDR_VALIDATE(is_valid(functions_elem));
                 }
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
             }
         }
     }

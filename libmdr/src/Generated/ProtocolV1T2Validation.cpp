@@ -25,14 +25,12 @@ MDRResult<void> GetVoiceGuidanceCapability::Validate(const GetVoiceGuidanceCapab
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> GetVoiceGuidanceParam::Validate(const GetVoiceGuidanceParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_PARAM);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     MDR_VALIDATE(is_valid(data.detailedDataType));
     return MDRResult<void>::Success();
 }
@@ -40,7 +38,6 @@ MDRResult<void> GetVoiceGuidanceStatus::Validate(const GetVoiceGuidanceStatus& d
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_STATUS);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     MDR_VALIDATE(is_valid(data.statusType));
     return MDRResult<void>::Success();
 }
@@ -90,7 +87,6 @@ MDRResult<void> NotifyVoiceGuidanceParam::Validate(const NotifyVoiceGuidancePara
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
-    MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifyVoiceGuidanceParamSettingOnOff::Validate(const NotifyVoiceGuidanceParamSettingOnOff& data) {
@@ -105,7 +101,6 @@ MDRResult<void> NotifyVoiceGuidanceStatus::Validate(const NotifyVoiceGuidanceSta
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_NTFY_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
-    MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifyVoiceGuidanceStatusSettingLanguage::Validate(const NotifyVoiceGuidanceStatusSettingLanguage& data) {
@@ -160,7 +155,6 @@ MDRResult<void> RetVoiceGuidanceCapability::Validate(const RetVoiceGuidanceCapab
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.inquiredType));
-    MDR_VALIDATE(data.inquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     // data.supportsOnOffSwitching ignored: OUT_OF_RANGE is expected
     // data.supportsLanguageSwitching ignored: OUT_OF_RANGE is expected
     for (const auto& supportLanguages_elem : data.supportLanguages) {
@@ -172,7 +166,6 @@ MDRResult<void> RetVoiceGuidanceParam::Validate(const RetVoiceGuidanceParam& dat
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
-    MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetVoiceGuidanceParamSettingLanguage::Validate(const RetVoiceGuidanceParamSettingLanguage& data) {
@@ -224,7 +217,6 @@ MDRResult<void> RetVoiceGuidanceStatus::Validate(const RetVoiceGuidanceStatus& d
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_RET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
-    MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetVoiceGuidanceStatusSettingLanguage::Validate(const RetVoiceGuidanceStatusSettingLanguage& data) {
@@ -276,7 +268,6 @@ MDRResult<void> SetVoiceGuidanceParam::Validate(const SetVoiceGuidanceParam& dat
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_PARAM);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
-    MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> SetVoiceGuidanceParamSettingOnOff::Validate(const SetVoiceGuidanceParamSettingOnOff& data) {
@@ -291,7 +282,6 @@ MDRResult<void> SetVoiceGuidanceStatus::Validate(const SetVoiceGuidanceStatus& d
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_SET_STATUS);
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
-    MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     return MDRResult<void>::Success();
 }
 MDRResult<void> SetVoiceGuidanceStatusSettingLanguage::Validate(const SetVoiceGuidanceStatusSettingLanguage& data) {
@@ -343,7 +333,6 @@ MDRResult<void> RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic::Valid
     MDR_VALIDATE(is_valid(data.voiceGuidanceInquiredType));
     MDR_VALIDATE(data.voiceGuidanceInquiredType == VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING);
     MDR_VALIDATE(is_valid(data.downloadServerMethod));
-    MDR_VALIDATE(data.downloadServerMethod == DownloadServerMethod::AUTOMAGIC);
     for (const auto& serviceInformationList_elem : data.serviceInformationList) {
         MDR_VALIDATE(is_valid(serviceInformationList_elem.language));
     }

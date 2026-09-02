@@ -2453,12 +2453,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -2501,8 +2499,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
+        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;LTHMSGV1T2DetailedDataType;",
       "fields": [
@@ -2519,12 +2517,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         },
@@ -2594,12 +2590,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         },
@@ -2776,6 +2770,8 @@
       "discriminator_value": null,
       "evidence": [
         "0x1013F2740 getResultType reads bytes 3..3",
+        "0x1013F2818 getBtDeviceAddress reads bytes 4..20",
+        "0x1013F2818 getBtDeviceAddress reads fixed 17-byte slice 4..20",
         "0x10314A330 THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl.INDEX_RESULT_TYPE=3",
         "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory toStreamWithTHMSGV1T2PeripheralDetailDataType:]",
         "-[THMSGV1T2NotifyPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
@@ -2784,8 +2780,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt"
       ],
       "factory_signature": "LTHMSGV1T2ResultType;LNSString;",
@@ -2820,13 +2816,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "btDeviceAddress",
           "offset": 3,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
@@ -2931,8 +2927,8 @@
         "_memset",
         "_objc_enumerationMutation",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2NotifyPeripheralParam"
       ],
       "factory_signature": "(Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/NotifyPeripheralParamPairingDeviceManagementClassicBt;",
@@ -3079,8 +3075,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2NotifyPeripheralStatus"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
@@ -3176,12 +3172,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -3311,12 +3305,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -3358,8 +3350,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus"
       ],
       "factory_signature": "LTHMCommonStatus;",
@@ -3433,8 +3425,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus"
       ],
       "factory_signature": "LTHMCommonStatus;",
@@ -3546,17 +3538,19 @@
       "cpp_name": "PeripheralDeviceInfo",
       "discriminator_field": null,
       "discriminator_value": null,
-      "evidence": [],
+      "evidence": [
+        "external serializer getter order: btDeviceAddress, connectedStatus, btFriendlyName"
+      ],
       "factory_signature": null,
       "fields": [
         {
-          "cpp_type": "MDRPrefixedString",
+          "cpp_type": "Array<UInt8, 17>",
           "default": null,
           "name": "btDeviceAddress",
           "offset": 0,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         },
         {
           "cpp_type": "UInt8",
@@ -3669,8 +3663,8 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1025E7078",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2RetPeripheralCapability"
       ],
       "factory_signature": "IILTHMSGV1T2FileTransferInMultiConnection;",
@@ -3831,8 +3825,8 @@
         "_memset",
         "_objc_enumerationMutation",
         "writeWithByteArray:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2RetPeripheralParam"
       ],
       "factory_signature": "(Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/RetPeripheralParamPairingDeviceManagementClassicBt;",
@@ -4005,8 +3999,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2RetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]",
         "_memset",
         "_objc_enumerationMutation"
       ],
@@ -4025,12 +4019,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         },
@@ -4112,12 +4104,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -4162,8 +4152,8 @@
         "sub_1025E7290",
         "_memset",
         "_objc_enumerationMutation",
-        "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;Ljava/lang/String;Ljava/lang/String;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic$ServiceInformation;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic;",
@@ -4192,12 +4182,10 @@
         },
         {
           "cpp_type": "DownloadServerMethod",
-          "default": "DownloadServerMethod::AUTOMAGIC",
+          "default": "DownloadServerMethod::NO_USE",
           "name": "downloadServerMethod",
           "offset": 2,
-          "semantic_rules": [
-            "EnumRange DownloadServerMethod::AUTOMAGIC"
-          ],
+          "semantic_rules": [],
           "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;",
           "wire_kind": "pod"
         },
@@ -4679,8 +4667,8 @@
         "writeWithInt:",
         "sub_1025E7078",
         "sub_1025E7290",
-        "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
       ],
       "factory_signature": "LTHMUpdateMethod;IILNSString;",
@@ -4794,12 +4782,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -5117,6 +5103,8 @@
       "discriminator_value": null,
       "evidence": [
         "0x1013DF700 getActionType reads bytes 3..3",
+        "0x1013DF7D8 getBtDeviceAddress reads bytes 4..20",
+        "0x1013DF7D8 getBtDeviceAddress reads fixed 17-byte slice 4..20",
         "0x103148A58 THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl.INDEX_ACTION_TYPE=3",
         "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory toStreamWithTHMSGV1T2PeripheralDetailDataType:]",
         "-[THMSGV1T2SetPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
@@ -5161,13 +5149,13 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
-          "default": null,
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
           "name": "btDeviceAddress",
           "offset": 3,
           "semantic_rules": [],
           "source_type": "LNSString;",
-          "wire_kind": "string"
+          "wire_kind": "helper"
         }
       ],
       "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
@@ -5303,12 +5291,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -5438,12 +5424,10 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "default": "VoiceGuidanceInquiredType::NO_USE",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -5560,8 +5544,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
         "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus"
       ],
       "factory_signature": "LTHMCommonStatus;",

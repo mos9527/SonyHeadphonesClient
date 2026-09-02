@@ -15,7 +15,7 @@ namespace mdr
             for (const auto& device : payload.deviceInfo)
             {
                 MDRHeadphones::PeripheralDevice state{
-                    .macAddress = device.btDeviceAddress.value,
+                    .macAddress = {device.btDeviceAddress.begin(), device.btDeviceAddress.end()},
                     .name = device.btFriendlyName.value,
                     .connected = device.connectedStatus != 0,
                     .playbackDevice = device.connectedStatus == payload.playbackrightDevice

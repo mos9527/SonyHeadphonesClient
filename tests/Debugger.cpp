@@ -3,6 +3,7 @@
 
 #include <mdr/Command.hpp>
 #include <mdr/ProtocolV1T1.hpp>
+#include <mdr/ProtocolV1T2.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
 #include <algorithm>
@@ -151,6 +152,31 @@ namespace
     bool CheckPeripheralDeviceInfoWireLayouts()
     {
         using namespace mdr;
+
+        UInt8 v1Bytes[64]{};
+        v1::t2::NotifyPeripheralParamPairingDeviceManagementClassicBt v1Payload{};
+        auto& v1Device = v1Payload.deviceInfo.value.emplace_back();
+        v1Device.btDeviceAddress.fill(0xAA);
+        v1Device.connectedStatus = 1;
+        v1Payload.playbackrightDevice = 2;
+        const auto v1Result =
+            v1::t2::NotifyPeripheralParamPairingDeviceManagementClassicBt::Serialize(
+                v1Payload, v1Bytes, sizeof(v1Bytes)
+            );
+        if (
+            !v1Result
+            || v1Result.value != 23
+            || v1Bytes[1] != static_cast<UInt8>(
+                v1::t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+            )
+            || v1Bytes[21] != 0
+            || v1Bytes[22] != 2
+        )
+        {
+            MDR_LOG("V1 ClassicBt device info wire layout is incorrect");
+            return false;
+        }
+
         using namespace mdr::v2::t2;
 
         UInt8 classicBytes[64]{};

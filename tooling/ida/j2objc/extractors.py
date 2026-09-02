@@ -268,7 +268,8 @@ class ProtocolExtractor:
         self._current_coordinates: tuple[int, int] | None = None
         self._decompile_text_cache: dict[int, str] = {}
         self._external_field_cache: dict[
-            tuple[str, tuple[str, ...]], tuple[tuple[str, ...], str] | None
+            tuple[str, tuple[str, ...]],
+            tuple[tuple[str, ...], str, str] | None,
         ] = {}
 
     def metadata(self, class_name: str) -> JavaClassMetadata:
@@ -313,7 +314,7 @@ class ProtocolExtractor:
 
     def _external_field_evidence(
         self, class_name: str, field_names: list[str]
-    ) -> tuple[tuple[str, ...], str] | None:
+    ) -> tuple[tuple[str, ...], str, str] | None:
         key = (class_name, tuple(field_names))
         if key in self._external_field_cache:
             return self._external_field_cache[key]
@@ -326,7 +327,8 @@ class ProtocolExtractor:
             for field in field_names
         }
         orders: set[tuple[str, ...]] = set()
-        evidence: list[str] = []
+        serializer_texts: list[str] = []
+        layout_texts: list[str] = []
         target_descriptor = f"L{class_name};"
         for candidate_class in self.database.protocol_classes():
             if not candidate_class.startswith(prefix):
@@ -364,28 +366,38 @@ class ProtocolExtractor:
             if not related_by_name and not related_by_type:
                 continue
             for method in self.database.methods(candidate_class):
-                if not (
-                    method.selector.lower().startswith(("write", "get"))
-                    or "processor" in candidate_class.lower()
-                ):
+                selector = method.selector.lower()
+                # V2 helpers are serialized by Processor writeStream/get*
+                # methods. V1 inlines the same layout in factory valueOf.
+                is_layout = selector.startswith(("write", "get")) or (
+                    "processor" in candidate_class.lower()
+                )
+                is_serializer = is_layout or selector.startswith("valueof")
+                if not is_serializer:
                     continue
                 try:
                     text = self._expanded_method_text(method)
                 except ExtractionError:
                     continue
                 positions = {
-                    field: text.find(f'"{selector}"')
-                    for field, selector in selectors.items()
+                    field: text.find(f'"{name}"')
+                    for field, name in selectors.items()
                 }
                 present = {
                     field: position
                     for field, position in positions.items()
                     if position >= 0
                 }
-                if len(present) >= 2:
-                    evidence.append(text)
-                elif "deviceinfo" in method.selector.lower():
-                    evidence.append(text)
+                keep = len(present) >= 2 or "deviceinfo" in selector
+                if keep and is_layout:
+                    layout_texts.append(text)
+                # Length-prefix proof must come from writers, not getters.
+                # Parser/get* bodies may call java_length to validate a
+                # fixed MAC without that field being length-prefixed on wire.
+                if keep and (
+                    selector.startswith("valueof") or selector.startswith("write")
+                ):
+                    serializer_texts.append(text)
                 if len(present) == len(field_names):
                     orders.add(
                         tuple(
@@ -401,7 +413,11 @@ class ProtocolExtractor:
                 f"{sorted(orders)}"
             )
         result = (
-            (next(iter(orders)), "\n".join(evidence))
+            (
+                next(iter(orders)),
+                "\n".join(serializer_texts),
+                "\n".join(layout_texts),
+            )
             if len(orders) == 1
             else None
         )
@@ -422,6 +438,9 @@ class ProtocolExtractor:
         wrapper_spans = self._wrapper_fixed_spans(text)
         if len(wrapper_spans) == 1:
             return next(iter(wrapper_spans))
+        objc_spans = self._write_byte_array_spans(text)
+        if len(objc_spans) == 1:
+            return next(iter(objc_spans))
         constants = {
             name: int(value, 0)
             for name, value in re.findall(
@@ -452,6 +471,66 @@ class ProtocolExtractor:
         if ordered != list(range(ordered[0], ordered[-1] + 1)):
             return None
         return ordered[0], len(ordered)
+
+    @staticmethod
+    def _write_byte_array_slices(text: str) -> list[tuple[str, str]]:
+        """Return (offset, length) args from write(bytes, off, len) copies.
+
+        V1 MAC getters and list parsers copy a fixed ASCII address with
+        ``writeWithByteArray:withInt:withInt:`` rather than a sub_XXX
+        wrapper. The last two arguments are offset and length; length is
+        always a literal for a fixed slice, while offset may be a cursor.
+        """
+        slices: list[tuple[str, str]] = []
+        argument = (
+            r"(?:[A-Za-z_][A-Za-z0-9_]*|0x[0-9A-Fa-f]+|\d+)[uUlL]*"
+        )
+        integer = r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*"
+        for match in re.finditer(
+            r'"writeWithByteArray:withInt:withInt:"', text
+        ):
+            window = text[match.end() : match.end() + 500]
+            args = re.search(
+                rf",\s*({argument})\s*,\s*({integer})\s*\)",
+                window,
+            )
+            if args is not None:
+                slices.append((args.group(1), args.group(2)))
+        return slices
+
+    @classmethod
+    def _write_byte_array_spans(cls, text: str) -> set[tuple[int, int]]:
+        spans: set[tuple[int, int]] = set()
+        for start, length in cls._write_byte_array_slices(text):
+            try:
+                start_value = int(start, 0)
+                length_value = int(length, 0)
+            except ValueError:
+                continue
+            if 6 <= length_value <= 64:
+                spans.add((start_value, length_value))
+        return spans
+
+    @classmethod
+    def _fixed_string_slice_lengths(cls, text: str) -> set[int]:
+        lengths = {
+            int(value, 0)
+            for value in re.findall(
+                r"\bsub_[0-9A-Fa-f]+\("
+                r"[^,\n]+,\s*[^,\n]+,\s*"
+                r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*\)",
+                text,
+            )
+            if 6 <= int(value, 0) <= 64
+        }
+        for _, length in cls._write_byte_array_slices(text):
+            try:
+                length_value = int(length, 0)
+            except ValueError:
+                continue
+            if 6 <= length_value <= 64:
+                lengths.add(length_value)
+        return lengths
 
     @staticmethod
     def _copyof_range_spans(text: str) -> set[tuple[int, int]]:
@@ -570,17 +649,27 @@ class ProtocolExtractor:
         by a ``java_getBytes`` write of the same getter result, while a fixed
         byte array is written with ``java_getBytes`` alone. Matching the
         getter selector to the local variable it is assigned to isolates the
-        field from unrelated writes in the same serializer.
+        field from unrelated writes in the same serializer. Hex-Rays names
+        like ``v10`` collide across concatenated factory methods, so the
+        ``java_length`` check stays in the same decompiled function.
         """
-        for variable in re.findall(
+        pattern = re.compile(
             r"\b([A-Za-z_]\w*)\s*=\s*objc_msgSend\([^;]*?"
-            rf"\"{re.escape(getter_selector)}\"\)",
-            serializer_text,
-        ):
+            rf"\"{re.escape(getter_selector)}\"\)"
+        )
+        for match in pattern.finditer(serializer_text):
+            variable = match.group(1)
+            window = serializer_text[match.end() :]
+            next_function = re.search(
+                r"\n(?:id|void|bool)\s+__cdecl |\n(?:id|void|bool)\s+__fastcall ",
+                window,
+            )
+            if next_function is not None:
+                window = window[: next_function.start()]
             if re.search(
                 rf"objc_msgSend\(\s*{re.escape(variable)}\s*,\s*"
                 r"\"java_length\"\)",
-                serializer_text,
+                window,
             ):
                 return True
         return False
@@ -2347,10 +2436,13 @@ class ProtocolExtractor:
                         )
                     )
                     exact_tag = (
-                        not invalid_candidate_tag
-                        and tag_field is not None
-                        and
-                        candidate_tag.cpp_type == tag_field.cpp_type
+                        tag_field is not None
+                        and candidate_tag.default
+                        and "::" in candidate_tag.default
+                        and not candidate_tag.default.endswith(
+                            ("::OUT_OF_RANGE", "::UNKNOWN")
+                        )
+                        and candidate_tag.cpp_type == tag_field.cpp_type
                     )
                     if tag_field is None and not (
                         interface_tokens
@@ -3274,18 +3366,22 @@ class ProtocolExtractor:
                 class_name, [field.name for field in raw_fields]
             )
             if external is not None:
-                requested_order, external_text = external
+                requested_order, serializer_text, layout_text = external
                 field_evidence.append(
                     "external serializer getter order: "
                     + ", ".join(requested_order)
                 )
                 by_name = {field.name: field for field in raw_fields}
                 ordered_fields: list[FieldDecl] = []
+                # Width and cursor math must use parser/write-stream bodies.
+                # Factory valueOf texts are only for getter order and whether
+                # an NSString is length-prefixed; their stack temporaries
+                # otherwise collide with class-of-device cursor recovery.
                 cursor_constants = sorted(
                     {
                         int(value)
                         for value in re.findall(
-                            r"\+\s*(\d+)", external_text
+                            r"\+\s*(\d+)", layout_text
                         )
                         if int(value) <= 64
                     }
@@ -3293,9 +3389,10 @@ class ProtocolExtractor:
                 cursor_groups: dict[str, set[int]] = {}
                 for variable, value in re.findall(
                     r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\+\s*(\d+)",
-                    external_text,
+                    layout_text,
                 ):
                     cursor_groups.setdefault(variable, set()).add(int(value))
+                prefix_text = serializer_text or layout_text
                 fixed_address_length: int | None = None
                 for name in requested_order:
                     field = by_name[name]
@@ -3305,16 +3402,9 @@ class ProtocolExtractor:
                         # fixed-width byte array when the serializer text
                         # proves exactly one fixed width (6..64 bytes). Any
                         # ambiguity or absence keeps the dynamic string.
-                        lengths = {
-                            int(value, 0)
-                            for value in re.findall(
-                                r"\bsub_[0-9A-Fa-f]+\("
-                                r"[^,\n]+,\s*[^,\n]+,\s*"
-                                r"(0x[0-9A-Fa-f]+|\d+)[uUlL]*\s*\)",
-                                external_text,
-                            )
-                            if 6 <= int(value, 0) <= 64
-                        }
+                        lengths = self._fixed_string_slice_lengths(
+                            layout_text
+                        )
                         if len(lengths) == 1:
                             length = next(iter(lengths))
                             # Per-field check: the same serializer/processor
@@ -3325,7 +3415,7 @@ class ProtocolExtractor:
                             # must stay dynamic even when a fixed width is seen.
                             selector = "get" + name[:1].upper() + name[1:]
                             if not self._string_field_is_length_prefixed(
-                                external_text, selector
+                                prefix_text, selector
                             ):
                                 fixed_address_length = length
                                 field = replace(
