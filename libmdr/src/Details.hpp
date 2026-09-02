@@ -2,16 +2,28 @@
 
 #include <mdr-c/Headphones.h>
 #include <mdr/Command.hpp>
-#include <mdr/ProtocolV1T1.hpp>
-#include <mdr/ProtocolV1T2.hpp>
-#include <mdr/ProtocolV2T1.hpp>
-#include <mdr/ProtocolV2T2.hpp>
+#include <mdr/Protocol.hpp>
+#include "Property.hpp"
+#include "DetailsV1.hpp"
+#include "DetailsV2.hpp"
 
 #include <coroutine>
 #include <time.h>
 
 namespace mdr
 {
+    namespace detail
+    {
+        template <typename T>
+        bool ReadEnumTag(Span<const UInt8> command, T& out, size_t offset = 1)
+        {
+            if (command.size() <= offset)
+                return false;
+            out = static_cast<T>(command[offset]);
+            return true;
+        }
+    } // namespace detail
+
     // NOLINTBEGIN
     /**
      * @brief Coroutine task boilerplate from https://github.com/mos9527/coro
@@ -100,59 +112,6 @@ namespace mdr
     }
 
     // NOLINTEND
-    template <typename T>
-    struct MDRProperty
-    {
-        T desired{};
-        T current{};
-        T submitted{};
-        uint64_t revision{};
-        uint64_t submittedRevision{};
-
-        void stage(T const& value)
-        {
-            desired = value;
-            ++revision;
-        }
-
-        void stage(T&& value)
-        {
-            desired = std::move(value);
-            ++revision;
-        }
-
-        void overwrite(T const& value)
-        {
-            current = value;
-            if (revision == submittedRevision)
-                desired = value;
-        }
-
-        void submit()
-        {
-            submitted = desired;
-            submittedRevision = revision;
-        }
-
-        [[nodiscard]] constexpr bool dirty() const noexcept { return desired != current; }
-        [[nodiscard]] constexpr bool pending() const noexcept { return submitted != current; }
-
-        void commit()
-        {
-            current = submitted;
-            if (revision == submittedRevision)
-                desired = submitted;
-        }
-
-        void override(T const& v)
-        {
-            current = v;
-            if (revision == submittedRevision)
-                desired = v;
-            submitted = v;
-        }
-    };
-
     struct MDRHeadphones
     {
     private:
@@ -259,6 +218,8 @@ namespace mdr
          * @brief Check if there's any @ref MDRProperty that's dirty.
          */
         [[nodiscard]] bool IsDirty() const;
+        [[nodiscard]] bool IsDirtyV1() const;
+        [[nodiscard]] bool IsDirtyV2() const;
         /**
          * @brief Schedules the task to be run on the next @ref MoveNext call.
          * @return @ref MDR_RESULT_OK if task has been scheduled, @ref MDR_RESULT_INPROGRESS if _another_ task
@@ -295,170 +256,9 @@ namespace mdr
             return -1; // NOTE: convenience only for co_return SetLastError(...);
         }
 
-#pragma region States
-        // @ref HandleProtocolInfoT1
-        struct ProtocolStates
-        {
-            int version;
-            int hasTable1;
-            int hasTable2;
-        } mProtocol{};
         ProtocolFamily mProtocolFamily{ProtocolFamily::UNKNOWN};
-
-        // @ref HandleSupportFunctionT1
-        // Q: Why not std::bitset?
-        // A: They are not constexpr until C++23 - while std::array[] are since 14.
-        //    Since there's no other C++23 feature usage anywhere else in the lib,
-        //    we're sticking with C++20 as is.
-        struct SupportStates
-        {
-            enum class Provenance
-            {
-                UNKNOWN,
-                ADVERTISED,
-                LEGACY_PROFILE
-            };
-
-            Array<bool, 256> v1Functions;
-            Array<bool, 256> table1Functions;
-            Array<bool, 256> table2Functions;
-            Array<bool, 256> neutralFeatures;
-            Provenance provenance{Provenance::UNKNOWN};
-
-            [[nodiscard]] constexpr bool contains(v1::t1::FunctionType v) const
-            {
-                return v1Functions[static_cast<UInt8>(v)];
-            }
-
-            [[nodiscard]] constexpr bool contains(v2::t1::FunctionType v) const
-            {
-                return table1Functions[static_cast<UInt8>(v)];
-            }
-
-            [[nodiscard]] constexpr bool contains(v2::t2::FunctionType v) const
-            {
-                return table2Functions[static_cast<UInt8>(v)];
-            }
-
-            [[nodiscard]] constexpr bool contains(MDRFeature feature) const
-            {
-                return neutralFeatures[static_cast<UInt8>(feature)];
-            }
-        } mSupport{};
-
-        void RefreshNeutralFeaturesV1();
-        void RefreshNeutralFeaturesV2();
-
-        String mUniqueId; // MAC Address
-        String mFWVersion;
-        String mModelName;
-        v2::t1::ModelSeries mModelSeries{};
-        v2::ModelColor mModelColor{};
-        v2::t1::AudioCodec mAudioCodec{};
-
-        v2::t1::AlertMessageType mLastAlertMessage{};
-        String mLastInteractionMessage;
-        String mLastDeviceJSONMessage;
-
-        struct PeripheralDevice
-        {
-            String macAddress;
-            String name;
-            bool connected;
-            bool playbackDevice{};
-        };
-
-        Vector<PeripheralDevice> mPairedDevices;
-        UInt8 mPairedDevicesPlaybackDeviceID{};
-
-        int mSafeListeningSoundPressure{};
-
-        struct BatteryState
-        {
-            UInt8 level{}; // Percentage
-            UInt8 threshold{}; // Used in FW update check, see https://github.com/mos9527/SonyHeadphonesClient/issues/30
-            v2::t1::BatteryChargingStatus charging{};
-        };
-
-        BatteryState mBatteryL, mBatteryR, mBatteryCase;
-
-        String mPlayTrackTitle;
-        String mPlayTrackAlbum;
-        String mPlayTrackArtist;
-        v2::t1::PlaybackStatus mPlayPause{};
-
-        v2::t1::UpscalingType mUpscalingType{};
-        bool mUpscalingAvailable{};
-
-        struct GsCapability
-        {
-            v2::t1::GsSettingType type{};
-            v2::t1::GsSettingInfo value{};
-        };
-
-        GsCapability mGsCapability1, mGsCapability2, mGsCapability3, mGsCapability4;
-#pragma endregion
-
-#pragma region Properties
-        MDRProperty<bool> mShutdown;
-
-        MDRProperty<bool> mNcAsmEnabled;
-        MDRProperty<bool> mNcAsmFocusOnVoice;
-        MDRProperty<int> mNcAsmAmbientLevel; // [0,20] - 0 is not possible on the App.
-        MDRProperty<v2::t1::Function> mNcAsmButtonFunction;
-        MDRProperty<v2::t1::NcAsmMode> mNcAsmMode;
-        MDRProperty<bool> mNcAsmAutoAsmEnabled; // WH-1000XM6+
-        MDRProperty<v2::t1::NoiseAdaptiveSensitivity> mNcAsmNoiseAdaptiveSensitivity; // WH-1000XM6+
-
-        MDRProperty<v2::t1::AutoPowerOffElements> mPowerAutoOff;
-        MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPowerAutoOffWearingDetection;
-
-        MDRProperty<int> mPlayVolume; // [0,30]
-        MDRProperty<v2::t1::PlaybackControl> mPlayControl;
-
-        MDRProperty<bool> mGsParamBool1, mGsParamBool2, mGsParamBool3, mGsParamBool4;
-
-
-        MDRProperty<bool> mUpscalingEnabled;
-
-        MDRProperty<v2::t1::PriorMode> mAudioPriorityMode;
-
-        MDRProperty<bool> mBGMModeEnabled;
-        MDRProperty<v2::t1::RoomSize> mBGMModeRoomSize;
-        MDRProperty<bool> mUpmixCinemaEnabled;
-
-        MDRProperty<bool> mAutoPauseEnabled;
-
-        MDRProperty<v2::t1::Preset> mTouchFunctionLeft, mTouchFunctionRight;
-
-        MDRProperty<bool> mSpeakToChatEnabled;
-        MDRProperty<v2::t1::DetectSensitivity> mSpeakToChatDetectSensitivity;
-        MDRProperty<v2::t1::ModeOutTime> mSpeakToModeOutTime;
-        v1::t1::CommonOnOffSettingValue mV1SpeakToChatVoiceFocus{v1::t1::CommonOnOffSettingValue::OFF};
-
-        MDRProperty<bool> mHeadGestureEnabled;
-
-
-        MDRProperty<bool> mEqAvailable;
-        MDRProperty<v2::t1::EqPresetId> mEqPresetId;
-        MDRProperty<int> mEqClearBass;
-        // Non-zero band count of either 5: [400,1k,2.5k,6.3k,16k] or 10: [31,63,125,250,500,1k,2k,4k,8k,16k]
-        MDRProperty<Vector<int>> mEqConfig;
-
-        MDRProperty<bool> mVoiceGuidanceEnabled;
-        // Volume range [-2,2]
-        MDRProperty<int> mVoiceGuidanceVolume;
-
-        MDRProperty<bool> mPairingMode;
-
-        MDRProperty<String> mMultipointDeviceMac;
-        MDRProperty<String> mPairedDeviceDisconnectMac, mPairedDeviceConnectMac, mPairedDeviceUnpairMac;
-
-        MDRProperty<bool> mSourceSwitchControlEnabled;
-        v2::t2::SourceSwitchControlResult mSourceSwitchControlResult{v2::t2::SourceSwitchControlResult::SUCCESS};
-
-        MDRProperty<bool> mSafeListeningPreviewMode;
-#pragma endregion
+        DetailsV1 mDetailsV1;
+        DetailsV2 mDetailsV2;
 
 #pragma region Tasks
         /**
@@ -484,8 +284,8 @@ namespace mdr
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();
-
-        void SnapshotProperties();
+        void SnapshotPropertiesV1();
+        void RefreshSupportV1();
 
         /**
          * @brief Send initialization payloads to the headphones.
@@ -493,7 +293,6 @@ namespace mdr
          * @return @ref MDR_EVENT_INITIALIZE_COMPLETE on completion (returned in @ref PollEvents)
          **/
         MDRTask RequestInitV2();
-        MDRTask RequestInitV2Selected();
         /**
          * @brief Requests states that the device won't send automatically. (e.g. Battery levels)
          * @note  To be used with @ref Invoke.
@@ -506,13 +305,10 @@ namespace mdr
          * @return @ref MDR_EVENT_APPLY_COMPLETE on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommitV2();
+        void SnapshotPropertiesV2();
 #pragma endregion
 
-        /*
-         * Protocol-neutral C facade bookkeeping. These fields deliberately do
-         * not participate in wire handling; the existing V2 Headphones remains the
-         * temporary source of current/desired state.
-         */
+        // Common lifecycle state; family device state lives in DetailsV1/DetailsV2.
         bool mNeutralInitialized{};
 
     private:
@@ -591,12 +387,15 @@ namespace mdr
          */
         int Handle(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq);
         int HandleProtocolInfo(Span<const UInt8> command);
+        int HandleProtocolInfoV1(Span<const UInt8> command);
+        int HandleProtocolInfoV2(Span<const UInt8> command);
         int HandleCommandV1T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
         int HandleCommandV1T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
         int HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
         int HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
         void HandleAck(MDRCommandSeqNumber seq);
     };
+
 } // namespace mdr
 
 namespace mdr::detail

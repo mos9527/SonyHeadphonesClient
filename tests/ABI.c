@@ -354,6 +354,15 @@ static void test_abi_version_handshake(void)
     );
     check(headphones != NULL, "an accepted handshake yields an instance");
     mdrHeadphonesDestroy(headphones);
+
+    headphones = NULL;
+    check_result(
+        mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, MDR_PROTOCOL_V1, &headphones),
+        MDR_RESULT_OK,
+        "the matching version accepts a V1 implementation"
+    );
+    check(headphones != NULL, "a V1 handshake yields an opaque instance");
+    mdrHeadphonesDestroy(headphones);
 }
 
 static void test_struct_and_buffer_contracts(void)

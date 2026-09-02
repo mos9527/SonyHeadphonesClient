@@ -5,153 +5,17 @@ namespace mdr
 {
     using namespace v1;
 
-    void MDRHeadphones::RefreshNeutralFeaturesV1()
+    void MDRHeadphones::RefreshSupportV1()
     {
+        auto& state = mDetailsV1;
         using F = t1::FunctionType;
-        auto& features = mSupport.neutralFeatures;
-        std::ranges::fill(features, false);
-        features[MDR_FEATURE_IDENTITY] = true;
-        features[MDR_FEATURE_BATTERY_SINGLE] = mSupport.contains(F::BATTERY_LEVEL);
-        const bool playback = mSupport.contains(F::PLAYBACK_CONTROLLER);
-        features[MDR_FEATURE_PLAYBACK_METADATA] = playback;
-        features[MDR_FEATURE_PLAYBACK_CONTROL] = playback;
-        features[MDR_FEATURE_PLAYBACK_VOLUME] = playback;
-        features[MDR_FEATURE_NOISE_CANCELLING] =
-            mSupport.contains(F::NOISE_CANCELLING) ||
-            mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE);
-        features[MDR_FEATURE_AMBIENT_SOUND] =
-            mSupport.contains(F::AMBIENT_SOUND_MODE) ||
-            mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE);
-        features[MDR_FEATURE_SPEAK_TO_CHAT] = mSupport.contains(F::SMART_TALKING_MODE);
-        features[MDR_FEATURE_EQUALIZER] =
-            mSupport.contains(F::PRESET_EQ) ||
-            mSupport.contains(F::EBB) ||
-            mSupport.contains(F::PRESET_EQ_NONCUSTOMIZABLE);
-        features[MDR_FEATURE_DSEE] = mSupport.contains(F::UPSCALING);
-        const bool pairing = mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT);
-        features[MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT] = pairing;
-        features[MDR_FEATURE_PAIRING_MODE] = pairing;
-        features[MDR_FEATURE_GENERAL_SETTINGS] =
-            mSupport.contains(F::GENERAL_SETTING1) ||
-            mSupport.contains(F::GENERAL_SETTING2) ||
-            mSupport.contains(F::GENERAL_SETTING3);
-        features[MDR_FEATURE_ASSIGNABLE_CONTROLS] = mSupport.contains(F::ASSIGNABLE_SETTINGS);
-        features[MDR_FEATURE_AUTO_POWER_OFF] = mSupport.contains(F::AUTO_POWER_OFF);
-        features[MDR_FEATURE_WEARING_DETECTION] = mSupport.contains(F::CONTROL_BY_WEARING);
-        features[MDR_FEATURE_AUTO_PAUSE] = mSupport.contains(F::CONTROL_BY_WEARING);
-        features[MDR_FEATURE_VOICE_GUIDANCE] = mSupport.contains(F::VOICE_GUIDANCE);
-        features[MDR_FEATURE_SHUTDOWN] = mSupport.contains(F::POWER_OFF);
-        features[MDR_FEATURE_CONNECTION_MODE] = mSupport.contains(F::CONNECTION_MODE);
-        mProtocol.hasTable2 = pairing || mSupport.contains(F::VOICE_GUIDANCE);
+        state.mProtocol.hasTable2 =
+            state.mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
+            state.mSupport.contains(F::VOICE_GUIDANCE);
     }
 
     namespace
     {
-        t1::PlaybackControl ToV1(v2::t1::PlaybackControl value)
-        {
-            switch (value)
-            {
-            case v2::t1::PlaybackControl::PAUSE: return t1::PlaybackControl::PAUSE;
-            case v2::t1::PlaybackControl::TRACK_UP: return t1::PlaybackControl::TRACK_UP;
-            case v2::t1::PlaybackControl::TRACK_DOWN: return t1::PlaybackControl::TRACK_DOWN;
-            case v2::t1::PlaybackControl::STOP: return t1::PlaybackControl::STOP;
-            case v2::t1::PlaybackControl::PLAY: return t1::PlaybackControl::PLAY;
-            case v2::t1::PlaybackControl::FAST_FORWARD: return t1::PlaybackControl::FAST_FORWARD;
-            case v2::t1::PlaybackControl::FAST_REWIND: return t1::PlaybackControl::FAST_REWIND;
-            default: return t1::PlaybackControl::KEY_OFF;
-            }
-        }
-
-        t1::EqPresetId ToV1(v2::t1::EqPresetId value)
-        {
-            switch (value)
-            {
-            case v2::t1::EqPresetId::ROCK: return t1::EqPresetId::ROCK;
-            case v2::t1::EqPresetId::POP: return t1::EqPresetId::POP;
-            case v2::t1::EqPresetId::JAZZ: return t1::EqPresetId::JAZZ;
-            case v2::t1::EqPresetId::DANCE: return t1::EqPresetId::DANCE;
-            case v2::t1::EqPresetId::EDM: return t1::EqPresetId::EDM;
-            case v2::t1::EqPresetId::R_AND_B_HIP_HOP: return t1::EqPresetId::R_AND_B_HIP_HOP;
-            case v2::t1::EqPresetId::ACOUSTIC: return t1::EqPresetId::ACOUSTIC;
-            case v2::t1::EqPresetId::BRIGHT: return t1::EqPresetId::BRIGHT;
-            case v2::t1::EqPresetId::EXCITED: return t1::EqPresetId::EXCITED;
-            case v2::t1::EqPresetId::MELLOW: return t1::EqPresetId::MELLOW;
-            case v2::t1::EqPresetId::RELAXED: return t1::EqPresetId::RELAXED;
-            case v2::t1::EqPresetId::VOCAL: return t1::EqPresetId::VOCAL;
-            case v2::t1::EqPresetId::TREBLE: return t1::EqPresetId::TREBLE;
-            case v2::t1::EqPresetId::BASS: return t1::EqPresetId::BASS;
-            case v2::t1::EqPresetId::SPEECH: return t1::EqPresetId::SPEECH;
-            case v2::t1::EqPresetId::CUSTOM: return t1::EqPresetId::CUSTOM;
-            case v2::t1::EqPresetId::USER_SETTING1: return t1::EqPresetId::USER_SETTING1;
-            case v2::t1::EqPresetId::USER_SETTING2: return t1::EqPresetId::USER_SETTING2;
-            case v2::t1::EqPresetId::USER_SETTING3: return t1::EqPresetId::USER_SETTING3;
-            case v2::t1::EqPresetId::USER_SETTING4: return t1::EqPresetId::USER_SETTING4;
-            case v2::t1::EqPresetId::USER_SETTING5: return t1::EqPresetId::USER_SETTING5;
-            default: return t1::EqPresetId::OFF;
-            }
-        }
-
-        t1::DetectionSensitivity ToV1(v2::t1::DetectSensitivity value)
-        {
-            switch (value)
-            {
-            case v2::t1::DetectSensitivity::HIGH: return t1::DetectionSensitivity::HIGH;
-            case v2::t1::DetectSensitivity::LOW: return t1::DetectionSensitivity::LOW;
-            default: return t1::DetectionSensitivity::AUTO;
-            }
-        }
-
-        t1::ModeOutTime ToV1(v2::t1::ModeOutTime value)
-        {
-            switch (value)
-            {
-            case v2::t1::ModeOutTime::MID: return t1::ModeOutTime::MID;
-            case v2::t1::ModeOutTime::SLOW: return t1::ModeOutTime::SLOW;
-            case v2::t1::ModeOutTime::NONE: return t1::ModeOutTime::NONE;
-            default: return t1::ModeOutTime::FAST;
-            }
-        }
-
-        t1::AutoPowerOffElementId ToV1(v2::t1::AutoPowerOffElements value)
-        {
-            switch (value)
-            {
-            case v2::t1::AutoPowerOffElements::POWER_OFF_IN_30_MIN:
-                return t1::AutoPowerOffElementId::POWER_OFF_IN_30_MIN;
-            case v2::t1::AutoPowerOffElements::POWER_OFF_IN_60_MIN:
-                return t1::AutoPowerOffElementId::POWER_OFF_IN_60_MIN;
-            case v2::t1::AutoPowerOffElements::POWER_OFF_IN_180_MIN:
-                return t1::AutoPowerOffElementId::POWER_OFF_IN_180_MIN;
-            case v2::t1::AutoPowerOffElements::POWER_OFF_DISABLE:
-                return t1::AutoPowerOffElementId::POWER_OFF_DISABLE;
-            default:
-                return t1::AutoPowerOffElementId::POWER_OFF_IN_5_MIN;
-            }
-        }
-
-        t1::AssignableSettingsPreset ToV1(v2::t1::Preset value)
-        {
-            switch (value)
-            {
-            case v2::t1::Preset::AMBIENT_SOUND_CONTROL:
-                return t1::AssignableSettingsPreset::AMBIENT_SOUND_CONTROL;
-            case v2::t1::Preset::VOLUME_CONTROL:
-                return t1::AssignableSettingsPreset::VOLUME_CONTROL;
-            case v2::t1::Preset::PLAYBACK_CONTROL:
-                return t1::AssignableSettingsPreset::PLAYBACK_CONTROL;
-            case v2::t1::Preset::VOICE_RECOGNITION:
-                return t1::AssignableSettingsPreset::VOICE_RECOGNITION;
-            case v2::t1::Preset::GOOGLE_ASSIST:
-                return t1::AssignableSettingsPreset::GOOGLE_ASSISTANT;
-            case v2::t1::Preset::AMAZON_ALEXA:
-                return t1::AssignableSettingsPreset::AMAZON_ALEXA;
-            case v2::t1::Preset::TENCENT_XIAOWEI:
-                return t1::AssignableSettingsPreset::TENCENT_XIAOWEI;
-            default:
-                return t1::AssignableSettingsPreset::NO_FUNCTION;
-            }
-        }
-
         UInt8 V1NcValueForAmbientLevel(int level)
         {
             if (level <= 0)
@@ -164,7 +28,17 @@ namespace mdr
 
     MDRTask MDRHeadphones::RequestInitV1()
     {
-        if (!mProtocol.hasTable1)
+        auto& state = mDetailsV1;
+        if (mProtocolFamily != ProtocolFamily::V1)
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V1");
+
+        state.mProtocol = {};
+        SendCommandACK(t1::GetProtocolInfo);
+        const int protocolResult = co_await Await(AWAIT_PROTOCOL_INFO);
+        if (protocolResult != MDR_RESULT_OK)
+            co_return SetLastError(protocolResult, "Unable to initialize MDR V1");
+
+        if (!state.mProtocol.hasTable1)
             co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V1 Table 1");
 
         SendCommandACK(t1::GetCapabilityInfo);
@@ -178,9 +52,9 @@ namespace mdr
             co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device failed to respond to support function request");
 
         using F = t1::FunctionType;
-        if (mSupport.contains(F::CODEC_INDICATOR))
+        if (state.mSupport.contains(F::CODEC_INDICATOR))
             SendCommandACK(t1::GetAudioCodec);
-        if (mSupport.contains(F::PLAYBACK_CONTROLLER))
+        if (state.mSupport.contains(F::PLAYBACK_CONTROLLER))
         {
             SendCommandACK(t1::GetPlayParam, {
                 .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
@@ -200,7 +74,7 @@ namespace mdr
             });
             SendCommandACK(t1::GetPlayStatus, {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER});
         }
-        if (mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
+        if (state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
         {
             SendCommandACK(t1::GetNcAsmCapability, {
                 .type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
@@ -211,12 +85,12 @@ namespace mdr
         }
         else
         {
-            if (mSupport.contains(F::NOISE_CANCELLING))
+            if (state.mSupport.contains(F::NOISE_CANCELLING))
                 SendCommandACK(t1::GetNcAsmParam, {.type = t1::NcAsmInquiredType::NOISE_CANCELLING});
-            if (mSupport.contains(F::AMBIENT_SOUND_MODE))
+            if (state.mSupport.contains(F::AMBIENT_SOUND_MODE))
                 SendCommandACK(t1::GetNcAsmParam, {.type = t1::NcAsmInquiredType::AMBIENT_SOUND_MODE});
         }
-        if (mSupport.contains(F::PRESET_EQ))
+        if (state.mSupport.contains(F::PRESET_EQ))
         {
             SendCommandACK(t1::GetEqEbbCapability, {
                 .type = t1::EqEbbInquiredType::PRESET_EQ,
@@ -224,14 +98,14 @@ namespace mdr
             });
             SendCommandACK(t1::GetEqEbbParam, {.type = t1::EqEbbInquiredType::PRESET_EQ});
         }
-        if (mSupport.contains(F::UPSCALING))
+        if (state.mSupport.contains(F::UPSCALING))
         {
             SendCommandACK(t1::GetAudioCapability, {.inquiredType = t1::AudioInquiredType::UPSCALING});
             SendCommandACK(t1::GetAudioParam, {.audioInquiredType = t1::AudioInquiredType::UPSCALING});
         }
-        if (mSupport.contains(F::CONNECTION_MODE))
+        if (state.mSupport.contains(F::CONNECTION_MODE))
             SendCommandACK(t1::GetAudioParam, {.audioInquiredType = t1::AudioInquiredType::CONNECTION_MODE});
-        if (mSupport.contains(F::GENERAL_SETTING1))
+        if (state.mSupport.contains(F::GENERAL_SETTING1))
         {
             SendCommandACK(t1::GetGsCapability, {
                 .type = t1::GsInquiredType::GENERAL_SETTING1,
@@ -239,7 +113,7 @@ namespace mdr
             });
             SendCommandACK(t1::GetGsParam, {.type = t1::GsInquiredType::GENERAL_SETTING1});
         }
-        if (mSupport.contains(F::GENERAL_SETTING2))
+        if (state.mSupport.contains(F::GENERAL_SETTING2))
         {
             SendCommandACK(t1::GetGsCapability, {
                 .type = t1::GsInquiredType::GENERAL_SETTING2,
@@ -247,7 +121,7 @@ namespace mdr
             });
             SendCommandACK(t1::GetGsParam, {.type = t1::GsInquiredType::GENERAL_SETTING2});
         }
-        if (mSupport.contains(F::GENERAL_SETTING3))
+        if (state.mSupport.contains(F::GENERAL_SETTING3))
         {
             SendCommandACK(t1::GetGsCapability, {
                 .type = t1::GsInquiredType::GENERAL_SETTING3,
@@ -255,19 +129,19 @@ namespace mdr
             });
             SendCommandACK(t1::GetGsParam, {.type = t1::GsInquiredType::GENERAL_SETTING3});
         }
-        if (mSupport.contains(F::ASSIGNABLE_SETTINGS))
+        if (state.mSupport.contains(F::ASSIGNABLE_SETTINGS))
             SendCommandACK(t1::GetSystemParam, {
                 .systemInquiredType = t1::SystemInquiredType::ASSIGNABLE_SETTINGS
             });
-        if (mSupport.contains(F::AUTO_POWER_OFF))
+        if (state.mSupport.contains(F::AUTO_POWER_OFF))
             SendCommandACK(t1::GetSystemParam, {
                 .systemInquiredType = t1::SystemInquiredType::AUTO_POWER_OFF
             });
-        if (mSupport.contains(F::CONTROL_BY_WEARING))
+        if (state.mSupport.contains(F::CONTROL_BY_WEARING))
             SendCommandACK(t1::GetSystemParam, {
                 .systemInquiredType = t1::SystemInquiredType::CONTROL_BY_WEARING
             });
-        if (mSupport.contains(F::SMART_TALKING_MODE))
+        if (state.mSupport.contains(F::SMART_TALKING_MODE))
         {
             SendCommandACK(t1::GetSystemParam, {
                 .systemInquiredType = t1::SystemInquiredType::SMART_TALKING_MODE
@@ -276,9 +150,9 @@ namespace mdr
                 .systemInquiredType = t1::SystemInquiredType::SMART_TALKING_MODE
             });
         }
-        if (mProtocol.hasTable2)
+        if (state.mProtocol.hasTable2)
         {
-            if (mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+            if (state.mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
                 SendCommandACK(t2::GetPeripheralStatus, {
                     .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
@@ -287,7 +161,7 @@ namespace mdr
                     .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
                 });
             }
-            if (mSupport.contains(F::VOICE_GUIDANCE))
+            if (state.mSupport.contains(F::VOICE_GUIDANCE))
             {
                 SendCommandACK(t2::GetVoiceGuidanceStatus, {
                     .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
@@ -305,217 +179,261 @@ namespace mdr
 
     MDRTask MDRHeadphones::RequestSyncV1()
     {
-        if (mSupport.contains(t1::FunctionType::BATTERY_LEVEL))
+        auto& state = mDetailsV1;
+        if (state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL))
             SendCommandACK(t1::GetBatteryLevel, {.batteryInquiredType = t1::BatteryInquiredType::BATTERY});
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
+    void MDRHeadphones::SnapshotPropertiesV1()
+    {
+        auto& state = mDetailsV1;
+        state.mShutdown.submit();
+        state.mNcAsmEnabled.submit();
+        state.mNcAsmFocusOnVoice.submit();
+        state.mNcAsmAmbientLevel.submit();
+        state.mNcAsmButtonFunction.submit();
+        state.mNcAsmMode.submit();
+        state.mNcAsmAutoAsmEnabled.submit();
+        state.mNcAsmNoiseAdaptiveSensitivity.submit();
+        state.mPowerAutoOff.submit();
+        state.mPowerAutoOffWearingDetection.submit();
+        state.mPlayVolume.submit();
+        state.mPlayControl.submit();
+        state.mGsParamBool1.submit();
+        state.mGsParamBool2.submit();
+        state.mGsParamBool3.submit();
+        state.mGsParamBool4.submit();
+        state.mUpscalingEnabled.submit();
+        state.mAudioPriorityMode.submit();
+        state.mBGMModeEnabled.submit();
+        state.mBGMModeRoomSize.submit();
+        state.mUpmixCinemaEnabled.submit();
+        state.mAutoPauseEnabled.submit();
+        state.mTouchFunctionLeft.submit();
+        state.mTouchFunctionRight.submit();
+        state.mSpeakToChatEnabled.submit();
+        state.mSpeakToChatDetectSensitivity.submit();
+        state.mSpeakToModeOutTime.submit();
+        state.mHeadGestureEnabled.submit();
+        state.mEqAvailable.submit();
+        state.mEqPresetId.submit();
+        state.mEqClearBass.submit();
+        state.mEqConfig.submit();
+        state.mVoiceGuidanceEnabled.submit();
+        state.mVoiceGuidanceVolume.submit();
+        state.mPairingMode.submit();
+        state.mMultipointDeviceMac.submit();
+        state.mSourceSwitchControlEnabled.submit();
+        state.mPairedDeviceDisconnectMac.submit();
+        state.mPairedDeviceConnectMac.submit();
+        state.mPairedDeviceUnpairMac.submit();
+        state.mSafeListeningPreviewMode.submit();
+    }
+
     MDRTask MDRHeadphones::RequestCommitV1()
     {
-        SnapshotProperties();
+        auto& state = mDetailsV1;
+        SnapshotPropertiesV1();
         using F = t1::FunctionType;
 
-        if (mShutdown.pending())
+        if (state.mShutdown.pending())
         {
-            if (mShutdown.submitted && mSupport.contains(F::POWER_OFF))
+            if (state.mShutdown.submitted && state.mSupport.contains(F::POWER_OFF))
                 SendCommandACK(t1::SetPowerOff);
-            mShutdown.override(false);
+            state.mShutdown.override(false);
         }
 
-        if (mNcAsmEnabled.pending() || mNcAsmMode.pending() ||
-            mNcAsmFocusOnVoice.pending() || mNcAsmAmbientLevel.pending())
+        if (state.mNcAsmEnabled.pending() || state.mNcAsmMode.pending() ||
+            state.mNcAsmFocusOnVoice.pending() || state.mNcAsmAmbientLevel.pending())
         {
-            if (mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
+            if (state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
                 t1::SetNcAsmParamNcAsmParam payload;
                 payload.ncAsmEffect =
-                    mNcAsmEnabled.submitted ? t1::NcAsmEffect::ON : t1::NcAsmEffect::OFF;
+                    state.mNcAsmEnabled.submitted ? t1::NcAsmEffect::ON : t1::NcAsmEffect::OFF;
                 payload.ncType = t1::NcAsmSettingType::LEVEL_ADJUSTMENT;
-                payload.ncValue = V1NcValueForAmbientLevel(mNcAsmAmbientLevel.submitted);
+                payload.ncValue = V1NcValueForAmbientLevel(state.mNcAsmAmbientLevel.submitted);
                 payload.asmType = t1::AsmSettingType::LEVEL_ADJUSTMENT;
-                payload.asmId = mNcAsmFocusOnVoice.submitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
-                payload.asmValue = static_cast<UInt8>(std::clamp(mNcAsmAmbientLevel.submitted, 0, 20));
-                if (mNcAsmMode.submitted == v2::t1::NcAsmMode::NC)
+                payload.asmId = state.mNcAsmFocusOnVoice.submitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
+                payload.asmValue = static_cast<UInt8>(std::clamp(state.mNcAsmAmbientLevel.submitted, 0, 20));
+                if (state.mNcAsmMode.submitted == 0)
                     payload.asmValue = 0;
                 SendCommandACK(t1::SetNcAsmParamNcAsmParam, payload);
             }
-            mNcAsmEnabled.commit();
-            mNcAsmMode.commit();
-            mNcAsmFocusOnVoice.commit();
-            mNcAsmAmbientLevel.commit();
+            state.mNcAsmEnabled.commit();
+            state.mNcAsmMode.commit();
+            state.mNcAsmFocusOnVoice.commit();
+            state.mNcAsmAmbientLevel.commit();
         }
 
-        if (mPlayVolume.pending())
+        if (state.mPlayVolume.pending())
         {
-            if (mSupport.contains(F::PLAYBACK_CONTROLLER))
+            if (state.mSupport.contains(F::PLAYBACK_CONTROLLER))
             {
                 SendCommandACK(t1::SetPlayParamPlaybackControllerVolumeData, {
-                    .volumeValue = static_cast<UInt8>(std::clamp(mPlayVolume.submitted, 0, 30))
+                    .volumeValue = static_cast<UInt8>(std::clamp(state.mPlayVolume.submitted, 0, 30))
                 });
             }
-            mPlayVolume.commit();
+            state.mPlayVolume.commit();
         }
-        if (mPlayControl.pending())
+        if (state.mPlayControl.pending())
         {
-            if (mSupport.contains(F::PLAYBACK_CONTROLLER))
+            if (state.mSupport.contains(F::PLAYBACK_CONTROLLER))
             {
                 SendCommandACK(t1::SetPlayStatus, {
                     .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                    .control = ToV1(mPlayControl.submitted)
+                    .control = state.mPlayControl.submitted
                 });
             }
-            mPlayControl.override(v2::t1::PlaybackControl::KEY_OFF);
+            state.mPlayControl.override(t1::PlaybackControl::KEY_OFF);
         }
 
-        if (mEqPresetId.pending() || mEqConfig.pending() || mEqClearBass.pending())
+        if (state.mEqPresetId.pending() || state.mEqConfig.pending() || state.mEqClearBass.pending())
         {
-            if (mSupport.contains(F::PRESET_EQ))
+            if (state.mSupport.contains(F::PRESET_EQ))
             {
                 t1::SetEqEbbParamEqParam payload;
-                payload.presetId = ToV1(mEqPresetId.submitted);
+                payload.presetId = state.mEqPresetId.submitted;
                 payload.bandSteps.value.push_back(
-                    static_cast<UInt8>(std::clamp(mEqClearBass.submitted, -10, 10) + 10));
-                for (const int band : mEqConfig.submitted)
+                    static_cast<UInt8>(std::clamp(state.mEqClearBass.submitted, -10, 10) + 10));
+                for (const int band : state.mEqConfig.submitted)
                     payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
                 SendCommandACK(t1::SetEqEbbParamEqParam, payload);
             }
-            mEqPresetId.commit();
-            mEqConfig.commit();
-            mEqClearBass.commit();
+            state.mEqPresetId.commit();
+            state.mEqConfig.commit();
+            state.mEqClearBass.commit();
         }
 
-        if (mUpscalingEnabled.pending())
+        if (state.mUpscalingEnabled.pending())
         {
-            if (mSupport.contains(F::UPSCALING))
+            if (state.mSupport.contains(F::UPSCALING))
             {
                 SendCommandACK(t1::SetAudioParamUpscalingParam, {
-                    .settingValue = mUpscalingEnabled.submitted
+                    .settingValue = state.mUpscalingEnabled.submitted
                         ? t1::UpscalingSettingValue::AUTO
                         : t1::UpscalingSettingValue::OFF
                 });
             }
-            mUpscalingEnabled.commit();
+            state.mUpscalingEnabled.commit();
         }
 
-        if (mAudioPriorityMode.pending())
+        if (state.mAudioPriorityMode.pending())
         {
-            if (mSupport.contains(F::CONNECTION_MODE))
+            if (state.mSupport.contains(F::CONNECTION_MODE))
             {
                 SendCommandACK(t1::SetAudioParamConnectionModeParam, {
-                    .settingValue =
-                        mAudioPriorityMode.submitted == v2::t1::PriorMode::CONNECTION_QUALITY_PRIOR
-                            ? t1::ConnectionModeSettingValue::CONNECTION_QUALITY_PRIOR
-                            : t1::ConnectionModeSettingValue::SOUND_QUALITY_PRIOR
+                    .settingValue = state.mAudioPriorityMode.submitted
                 });
             }
-            mAudioPriorityMode.commit();
+            state.mAudioPriorityMode.commit();
         }
 
-        if (mPowerAutoOff.pending())
+        if (state.mPowerAutoOff.pending())
         {
-            if (mSupport.contains(F::AUTO_POWER_OFF))
+            if (state.mSupport.contains(F::AUTO_POWER_OFF))
             {
-                const auto value = ToV1(mPowerAutoOff.submitted);
                 SendCommandACK(t1::SetSystemExParamAutoPowerOffParam, {
-                    .activeElementId = value,
-                    .selectTimeElementId = value
+                    .activeElementId = state.mPowerAutoOff.submitted,
+                    .selectTimeElementId = state.mPowerAutoOff.submitted
                 });
             }
-            mPowerAutoOff.commit();
+            state.mPowerAutoOff.commit();
         }
 
-        if (mAutoPauseEnabled.pending())
+        if (state.mAutoPauseEnabled.pending())
         {
-            if (mSupport.contains(F::CONTROL_BY_WEARING))
+            if (state.mSupport.contains(F::CONTROL_BY_WEARING))
             {
                 SendCommandACK(t1::SetSystemExParamControlByWearingParam, {
-                    .settingValue = mAutoPauseEnabled.submitted
+                    .settingValue = state.mAutoPauseEnabled.submitted
                         ? t1::ControlByWearingSettingValue::ON
                         : t1::ControlByWearingSettingValue::OFF
                 });
             }
-            mAutoPauseEnabled.commit();
+            state.mAutoPauseEnabled.commit();
         }
 
-        if (mTouchFunctionLeft.pending() || mTouchFunctionRight.pending())
+        if (state.mTouchFunctionLeft.pending() || state.mTouchFunctionRight.pending())
         {
-            if (mSupport.contains(F::ASSIGNABLE_SETTINGS))
+            if (state.mSupport.contains(F::ASSIGNABLE_SETTINGS))
             {
                 t1::SetSystemParamAssignableSettingsParam payload;
                 payload.presets.value = {
-                    ToV1(mTouchFunctionLeft.submitted),
-                    ToV1(mTouchFunctionRight.submitted)
+                    state.mTouchFunctionLeft.submitted,
+                    state.mTouchFunctionRight.submitted
                 };
                 SendCommandACK(t1::SetSystemParamAssignableSettingsParam, payload);
             }
-            mTouchFunctionLeft.commit();
-            mTouchFunctionRight.commit();
+            state.mTouchFunctionLeft.commit();
+            state.mTouchFunctionRight.commit();
         }
 
-        if (mSpeakToChatEnabled.pending())
+        if (state.mSpeakToChatEnabled.pending())
         {
-            if (mSupport.contains(F::SMART_TALKING_MODE))
+            if (state.mSupport.contains(F::SMART_TALKING_MODE))
             {
                 SendCommandACK(t1::SetSystemParammartTalkingModeSetNtfyParam, {
-                    .settingValue = mSpeakToChatEnabled.submitted
+                    .settingValue = state.mSpeakToChatEnabled.submitted
                         ? t1::SmartTalkingModeSettingValue::ON
                         : t1::SmartTalkingModeSettingValue::OFF
                 });
             }
-            mSpeakToChatEnabled.commit();
+            state.mSpeakToChatEnabled.commit();
         }
-        if (mSpeakToChatDetectSensitivity.pending() || mSpeakToModeOutTime.pending())
+        if (state.mSpeakToChatDetectSensitivity.pending() || state.mSpeakToModeOutTime.pending())
         {
-            if (mSupport.contains(F::SMART_TALKING_MODE))
+            if (state.mSupport.contains(F::SMART_TALKING_MODE))
             {
                 const UInt8 payload[] = {
                     static_cast<UInt8>(t1::Command::SYSTEM_SET_EXTENDED_PARAM),
                     static_cast<UInt8>(t1::SystemInquiredType::SMART_TALKING_MODE),
                     0,
-                    static_cast<UInt8>(ToV1(mSpeakToChatDetectSensitivity.submitted)),
-                    static_cast<UInt8>(mV1SpeakToChatVoiceFocus),
-                    static_cast<UInt8>(ToV1(mSpeakToModeOutTime.submitted))
+                    static_cast<UInt8>(state.mSpeakToChatDetectSensitivity.submitted),
+                    static_cast<UInt8>(state.mSpeakToChatVoiceFocus),
+                    static_cast<UInt8>(state.mSpeakToModeOutTime.submitted)
                 };
                 SendCommandImpl(payload, MDRDataType::DATA_MDR, mSeqNumber);
                 const int result = co_await Await(AWAIT_ACK);
                 if (result != MDR_RESULT_OK)
                     co_return SetLastError(result, "Timeout waiting for V1 Speak-to-Chat options");
             }
-            mSpeakToChatDetectSensitivity.commit();
-            mSpeakToModeOutTime.commit();
+            state.mSpeakToChatDetectSensitivity.commit();
+            state.mSpeakToModeOutTime.commit();
         }
 
-        if (mPairingMode.pending())
+        if (state.mPairingMode.pending())
         {
-            if (mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+            if (state.mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
                 SendCommandACK(t2::SetPeripheralStatus, {
                     .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
-                    .bluetoothModeStatus = mPairingMode.submitted
+                    .bluetoothModeStatus = state.mPairingMode.submitted
                         ? t2::PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE
                         : t2::PeripheralBluetoothModeStatus::NORMAL_MODE,
                     .status = CommonStatus::ENABLE
                 });
             }
-            mPairingMode.commit();
+            state.mPairingMode.commit();
         }
 
-        if (mVoiceGuidanceEnabled.pending())
+        if (state.mVoiceGuidanceEnabled.pending())
         {
-            if (mSupport.contains(F::VOICE_GUIDANCE))
+            if (state.mSupport.contains(F::VOICE_GUIDANCE))
             {
                 SendCommandACK(t2::SetVoiceGuidanceParamSettingOnOff, {
-                    .settingValue = mVoiceGuidanceEnabled.submitted
+                    .settingValue = state.mVoiceGuidanceEnabled.submitted
                         ? t2::VoiceGuidanceSettingValue::ON
                         : t2::VoiceGuidanceSettingValue::OFF
                 });
             }
-            mVoiceGuidanceEnabled.commit();
+            state.mVoiceGuidanceEnabled.commit();
         }
 
-        if (mPairedDeviceConnectMac.pending() ||
-            mPairedDeviceDisconnectMac.pending() ||
-            mPairedDeviceUnpairMac.pending())
+        if (state.mPairedDeviceConnectMac.pending() ||
+            state.mPairedDeviceDisconnectMac.pending() ||
+            state.mPairedDeviceUnpairMac.pending())
         {
             co_return SetLastError(
                 MDR_RESULT_ERROR_NOT_SUPPORTED,
@@ -524,4 +442,50 @@ namespace mdr
 
         co_return MDR_EVENT_APPLY_COMPLETE;
     }
+
+    int MDRHeadphones::HandleProtocolInfoV1(Span<const UInt8> command)
+    {
+        auto& state = mDetailsV1;
+        if (command.size() != sizeof(t1::RetProtocolInfo))
+            return SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "MDR V1 protocol info size is not valid");
+        const auto result = (t1::RetProtocolInfo::Deserialize)(command.data(), command.size());
+        if (!result)
+            return SetLastError(
+                result.error,
+                result.errMessage ? result.errMessage : "Unable to deserialize MDR V1 protocol info");
+        state.mProtocol = {
+            .version = result.value.protocolVersion,
+            .hasTable1 = true,
+            .hasTable2 = false
+        };
+        Awake(AWAIT_PROTOCOL_INFO);
+        return MDR_EVENT_IDENTITY_CHANGED;
+    }
+
+    bool MDRHeadphones::IsDirtyV1() const
+    {
+        const auto& state = mDetailsV1;
+        return state.mShutdown.dirty() || state.mNcAsmEnabled.dirty() ||
+            state.mNcAsmFocusOnVoice.dirty() || state.mNcAsmAmbientLevel.dirty() ||
+            state.mNcAsmButtonFunction.dirty() || state.mNcAsmMode.dirty() ||
+            state.mNcAsmAutoAsmEnabled.dirty() || state.mNcAsmNoiseAdaptiveSensitivity.dirty() ||
+            state.mPowerAutoOff.dirty() || state.mPowerAutoOffWearingDetection.dirty() ||
+            state.mPlayVolume.dirty() || state.mPlayControl.dirty() ||
+            state.mGsParamBool1.dirty() || state.mGsParamBool2.dirty() ||
+            state.mGsParamBool3.dirty() || state.mGsParamBool4.dirty() ||
+            state.mUpscalingEnabled.dirty() || state.mAudioPriorityMode.dirty() ||
+            state.mBGMModeEnabled.dirty() || state.mBGMModeRoomSize.dirty() ||
+            state.mUpmixCinemaEnabled.dirty() || state.mAutoPauseEnabled.dirty() ||
+            state.mTouchFunctionLeft.dirty() || state.mTouchFunctionRight.dirty() ||
+            state.mSpeakToChatEnabled.dirty() || state.mSpeakToChatDetectSensitivity.dirty() ||
+            state.mSpeakToModeOutTime.dirty() || state.mHeadGestureEnabled.dirty() ||
+            state.mEqAvailable.dirty() || state.mEqPresetId.dirty() ||
+            state.mEqClearBass.dirty() || state.mEqConfig.dirty() ||
+            state.mVoiceGuidanceEnabled.dirty() || state.mVoiceGuidanceVolume.dirty() ||
+            state.mPairingMode.dirty() || state.mMultipointDeviceMac.dirty() ||
+            state.mSafeListeningPreviewMode.dirty() || state.mSourceSwitchControlEnabled.dirty() ||
+            state.mPairedDeviceConnectMac.dirty() || state.mPairedDeviceDisconnectMac.dirty() ||
+            state.mPairedDeviceUnpairMac.dirty();
+    }
+
 }

@@ -9,20 +9,20 @@ namespace mdr
         template <typename Payload>
         void ApplyPairedDevices(MDRHeadphones* self, const Payload& payload)
         {
-            self->mPairedDevicesPlaybackDeviceID = payload.playbackrightDevice;
-            self->mPairedDevices.clear();
-            self->mPairedDevices.reserve(payload.deviceInfo.size());
+            self->mDetailsV1.mPairedDevicesPlaybackDeviceID = payload.playbackrightDevice;
+            self->mDetailsV1.mPairedDevices.clear();
+            self->mDetailsV1.mPairedDevices.reserve(payload.deviceInfo.size());
             for (const auto& device : payload.deviceInfo)
             {
-                MDRHeadphones::PeripheralDevice state{
+                DetailsV1::PeripheralDevice state{
                     .macAddress = {device.btDeviceAddress.begin(), device.btDeviceAddress.end()},
                     .name = device.btFriendlyName.value,
                     .connected = device.connectedStatus != 0,
                     .playbackDevice = device.connectedStatus == payload.playbackrightDevice
                 };
                 if (state.playbackDevice)
-                    self->mMultipointDeviceMac.overwrite(state.macAddress);
-                self->mPairedDevices.push_back(std::move(state));
+                    self->mDetailsV1.mMultipointDeviceMac.overwrite(state.macAddress);
+                self->mDetailsV1.mPairedDevices.push_back(std::move(state));
             }
         }
 
@@ -35,14 +35,14 @@ namespace mdr
             if (static_cast<Command>(cmd[0]) == Command::PERIPHERAL_NTFY_STATUS)
             {
                 Deserialize(NotifyPeripheralStatusPairingDeviceManagementClassicBt, result, cmd);
-                self->mPairingMode.overwrite(
+                self->mDetailsV1.mPairingMode.overwrite(
                     result.status == v1::CommonStatus::ENABLE &&
                     result.bluetoothModeStatus == PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
             }
             else
             {
                 Deserialize(RetPeripheralStatus, result, cmd);
-                self->mPairingMode.overwrite(
+                self->mDetailsV1.mPairingMode.overwrite(
                     result.status == v1::CommonStatus::ENABLE &&
                     result.bluetoothModeStatus == PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
             }
@@ -74,24 +74,24 @@ namespace mdr
             if (command == Command::VOICE_GUIDANCE_NTFY_PARAM)
             {
                 Deserialize(NotifyVoiceGuidanceParamSettingOnOff, result, cmd);
-                self->mVoiceGuidanceEnabled.overwrite(
+                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(
                     result.settingValue == VoiceGuidanceSettingValue::ON);
             }
             else if (command == Command::VOICE_GUIDANCE_RET_PARAM)
             {
                 Deserialize(RetVoiceGuidanceParamSettingOnOff, result, cmd);
-                self->mVoiceGuidanceEnabled.overwrite(
+                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(
                     result.settingValue == VoiceGuidanceSettingValue::ON);
             }
             else if (command == Command::VOICE_GUIDANCE_NTFY_STATUS)
             {
                 Deserialize(NotifyVoiceGuidanceStatusSettingOnOff, result, cmd);
-                self->mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
+                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
             }
             else
             {
                 Deserialize(RetVoiceGuidanceStatusSettingOnOff, result, cmd);
-                self->mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
+                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
             }
             return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
         }
@@ -101,19 +101,20 @@ namespace mdr
     {
         if (cmd.empty())
             return MDR_EVENT_UNHANDLED;
+        auto* self = this;
         switch (static_cast<Command>(cmd[0]))
         {
         case Command::PERIPHERAL_RET_STATUS:
         case Command::PERIPHERAL_NTFY_STATUS:
-            return HandlePeripheralStatus(this, cmd);
+            return HandlePeripheralStatus(self, cmd);
         case Command::PERIPHERAL_RET_PARAM:
         case Command::PERIPHERAL_NTFY_PARAM:
-            return HandlePeripheralParam(this, cmd);
+            return HandlePeripheralParam(self, cmd);
         case Command::VOICE_GUIDANCE_RET_PARAM:
         case Command::VOICE_GUIDANCE_NTFY_PARAM:
         case Command::VOICE_GUIDANCE_RET_STATUS:
         case Command::VOICE_GUIDANCE_NTFY_STATUS:
-            return HandleVoiceGuidance(this, cmd);
+            return HandleVoiceGuidance(self, cmd);
         default:
             MDR_LOG_DEBUG("** Unhandled V1 T2 {}", static_cast<Command>(cmd[0]));
             return MDR_EVENT_UNHANDLED;

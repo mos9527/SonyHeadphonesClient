@@ -21,7 +21,7 @@
 
 
 /**
- * @brief Stable result type used by the neutral C ABI.
+ * @brief Result type used by the C/C++ API.
  */
 typedef uint32_t MDRResult;
 
