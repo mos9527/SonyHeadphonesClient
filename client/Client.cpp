@@ -362,7 +362,7 @@ mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> GetGeneralSetti
         MDRGeneralSetting setting{};
         if (!gDevice || mdrHeadphonesGetGeneralSetting(gDevice, info.index, &setting) != MDR_RESULT_OK)
             continue;
-        values.push_back(setting);
+        values.emplace_back(info, setting);
     }
     return values;
 }
@@ -377,7 +377,7 @@ mdr::Vector<int> GetEqualizerBands()
     mdr::Vector<int> values;
     values.reserve(count);
     for (const int8_t value : bytes)
-        values.push_back(value);
+        values.emplace_back(value);
     return values;
 }
 
@@ -386,7 +386,7 @@ void SetEqualizerBands(const mdr::Vector<int>& values)
     mdr::Vector<int8_t> bytes;
     bytes.reserve(values.size());
     for (const int value : values)
-        bytes.push_back(static_cast<int8_t>(value));
+        bytes.emplace_back(static_cast<int8_t>(value));
     if (!bytes.empty())
         mdrHeadphonesSetEqualizerBands(gDevice, bytes.data(), static_cast<uint32_t>(bytes.size()));
 }
@@ -1378,8 +1378,8 @@ void DrawDeviceControlsDevices()
     };
     mdr::Vector<DeviceView> devices;
     for (const MDRPairedDevice& state : GetPairedDevices())
-        devices.push_back({state, mdr::String{state.macAddress},
-                           mdr::String{state.name}});
+        devices.emplace_back(state, mdr::String{state.macAddress},
+                           mdr::String{state.name});
     auto StageDeviceAction = [](MDRPairedDeviceCommand command, const char* mac)
     {
         MDRPairedDeviceAction action{};
@@ -1810,7 +1810,7 @@ void DrawDeviceControls()
         gState.mPairedDevices = GetPairedDevices();
         break;
     case MDR_EVENT_GENERAL_SETTINGS_CHANGED:
-        gState.mGeneralSettings = GetGeneralSettings();
+        gState.mGeneralSettings = GetGeneralSettings(GetGeneralSettingInfos());
         break;
     }
 
