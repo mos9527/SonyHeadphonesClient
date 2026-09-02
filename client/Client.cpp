@@ -1508,6 +1508,7 @@ void DrawDeviceControlsSystem()
             const char* subject = kFormatGSString(subjectKey.c_str(), kGSSubjectStrings);
             const char* summary = kFormatGSString(summaryKey.c_str(), kGSSummaryStrings);
             bool value = setting.boolean_value != MDR_FALSE;
+            ImGui::PushID(static_cast<int>(info.index));
             ImGui::BeginDisabled(subjectKey.empty() || !info.writable);
             if (ImGui::Checkbox(subject, &value))
             {
@@ -1521,6 +1522,7 @@ void DrawDeviceControlsSystem()
                 ImGui::TextWrapped("%s", summary);
             }
             ImGui::EndDisabled();
+            ImGui::PopID();
         }
         ImGui::TreePop();
     }
