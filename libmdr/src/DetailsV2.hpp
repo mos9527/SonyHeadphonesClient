@@ -92,6 +92,7 @@ namespace mdr
         MDRProperty<bool> mNcAsmEnabled;
         MDRProperty<bool> mNcAsmFocusOnVoice;
         MDRProperty<int> mNcAsmAmbientLevel;
+        MDRProperty<bool> mNcAsmChangingAsmLevel;
         MDRProperty<v2::t1::Function> mNcAsmButtonFunction;
         MDRProperty<v2::t1::NcAsmMode> mNcAsmMode;
         MDRProperty<bool> mNcAsmAutoAsmEnabled;

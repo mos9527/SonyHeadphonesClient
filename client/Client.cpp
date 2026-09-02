@@ -343,13 +343,27 @@ mdr::Vector<MDRPairedDevice> GetPairedDevices()
     return values;
 }
 
-mdr::Vector<MDRGeneralSettingInfo> GetGeneralSettings()
+mdr::Vector<MDRGeneralSettingInfo> GetGeneralSettingInfos()
 {
     mdr::Vector<MDRGeneralSettingInfo> values(4);
     uint32_t count = static_cast<uint32_t>(values.size());
     if (!gDevice || mdrHeadphonesGetGeneralSettingInfo(gDevice, values.data(), &count) != MDR_RESULT_OK)
         return {};
     values.resize(count);
+    return values;
+}
+
+mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> GetGeneralSettings(const mdr::Vector<MDRGeneralSettingInfo>& infos)
+{
+    mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> values;
+    values.reserve(infos.size());
+    for (const MDRGeneralSettingInfo& info : infos)
+    {
+        MDRGeneralSetting setting{};
+        if (!gDevice || mdrHeadphonesGetGeneralSetting(gDevice, info.index, &setting) != MDR_RESULT_OK)
+            continue;
+        values.push_back(setting);
+    }
     return values;
 }
 
@@ -386,6 +400,28 @@ void CloseDevice()
     mdrHeadphonesDestroy(gDevice);
     gDevice = nullptr;
 }
+
+struct ClientState
+{
+    MDRModel mModel{};
+    mdr::Vector<MDRBattery> mBatteries;
+    MDRPlayback mPlayback{};
+    MDRNoiseControl mNoise{};
+    MDRSpeakToChat mSpeakToChat{};
+    MDRListening mListening{};
+    MDREqualizer mEqualizer{};
+    mdr::Vector<int> mEqualizerBands;
+    mdr::Vector<MDRPairedDevice> mPairedDevices;
+    MDRPairing mPairing{};
+    mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> mGeneralSettings;
+    bool mModelAvailable;
+    bool mPlaybackAvailable;
+    bool mNoiseAvailable;
+    bool mSpeakToChatAvailable;
+    bool mListeningAvailable;
+    bool mEqualizerAvailable;
+    bool mPairingAvailable;
+} gState;
 
 #pragma region ImGui Extra
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost =
@@ -1029,19 +1065,14 @@ void DrawDeviceControlsHeader()
         std::array<Badge, 4> badges4;
         Badge *badgeFirst = &badges4[0], *badgeLast = &badges4[0];
         /* Codec */
-        MDRModel identity{};
-        if (mdrHeadphonesGetModel(gDevice, &identity) == MDR_RESULT_OK &&
-            identity.audio_codec != MDR_AUDIO_CODEC_UNKNOWN)
+        if (gState.mModelAvailable && gState.mModel.audio_codec != MDR_AUDIO_CODEC_UNKNOWN)
         {
-            *(badgeLast++) = {FormatAudioCodec(identity.audio_codec), ~0u, ~0u};
+            *(badgeLast++) = {FormatAudioCodec(gState.mModel.audio_codec), ~0u, ~0u};
         }
         /* DSEE */
-        MDREqualizer equalizer{};
-        if (FeatureAvailable(MDR_FEATURE_DSEE) &&
-            mdrHeadphonesGetEqualizer(gDevice, &equalizer) == MDR_RESULT_OK &&
-            equalizer.dsee_enabled)
+        if (FeatureAvailable(MDR_FEATURE_DSEE) && gState.mEqualizerAvailable && gState.mEqualizer.dsee_enabled)
         {
-            *(badgeLast++) = {FormatDseeType(equalizer.dsee_type), ~0u, ~0u};
+            *(badgeLast++) = {FormatDseeType(gState.mEqualizer.dsee_type), ~0u, ~0u};
         }
         std::span<Badge> badges{badgeFirst, static_cast<size_t>(badgeLast - badgeFirst)};
         // Right-align and draw them
@@ -1121,16 +1152,15 @@ void DrawDeviceControlsHeader()
 
 void DrawDeviceControlsPlayback()
 {
-    MDRPlayback playback{};
-    if (mdrHeadphonesGetPlayback(gDevice, &playback) != MDR_RESULT_OK)
+    if (!gState.mPlaybackAvailable)
         return;
     ImGui::SeparatorText("Volume");
     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-    int volume = playback.volume;
+    int volume = gState.mPlayback.volume;
     if (ImGui::SliderInt("##Volume", &volume, 0, 30))
     {
-        playback.volume = static_cast<uint8_t>(volume);
-        mdrHeadphonesSetPlayback(gDevice, &playback);
+        gState.mPlayback.volume = static_cast<uint8_t>(volume);
+        mdrHeadphonesSetPlayback(gDevice, &gState.mPlayback);
     }
     ImGui::SeparatorText("Controls");
     if (ImModalButton(PSI_STEP_BACKWARD " Prev", 0, 3))
@@ -1139,7 +1169,7 @@ void DrawDeviceControlsPlayback()
         command.action = MDR_PLAYBACK_PREVIOUS;
         mdrHeadphonesPlayback(gDevice, &command);
     }
-    if (playback.status == MDR_PLAYBACK_PLAYING)
+    if (gState.mPlayback.status == MDR_PLAYBACK_PLAYING)
     {
         if (ImModalButton(PSI_PAUSE " Pause", 1, 3))
         {
@@ -1173,104 +1203,99 @@ void DrawDeviceControlsSound()
     /* NC/ASM */
     if (supportASM || supportNC)
     {
-        MDRNoiseControl noise{};
-        const bool haveNoise =
-            mdrHeadphonesGetNoiseControl(gDevice, &noise) == MDR_RESULT_OK;
         if (ImGui::TreeNodeEx("Ambient Sound", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
             if (supportNC)
             {
-                if (ImGui::RadioButton("Noise Cancelling", noise.mode == MDR_NOISE_MODE_CANCELLING))
+                if (ImGui::RadioButton("Noise Cancelling", gState.mNoise.mode == MDR_NOISE_MODE_CANCELLING))
                 {
-                    noise.mode = MDR_NOISE_MODE_CANCELLING;
+                    gState.mNoise.mode = MDR_NOISE_MODE_CANCELLING;
                     changed = true;
                 }
                 ImGui::SameLine();
             }
             if (supportASM)
             {
-                if (ImGui::RadioButton("Ambient Sound", noise.mode == MDR_NOISE_MODE_AMBIENT))
+                if (ImGui::RadioButton("Ambient Sound", gState.mNoise.mode == MDR_NOISE_MODE_AMBIENT))
                 {
-                    noise.mode = MDR_NOISE_MODE_AMBIENT;
-                    if (noise.ambient_level == 0)
-                        noise.ambient_level = 20;
+                    gState.mNoise.mode = MDR_NOISE_MODE_AMBIENT;
+                    if (gState.mNoise.ambient_level == 0)
+                        gState.mNoise.ambient_level = 20;
                     changed = true;
                 }
                 ImGui::SameLine();
             }
-            if (ImGui::RadioButton("Off", noise.mode == MDR_NOISE_MODE_OFF))
-                noise.mode = MDR_NOISE_MODE_OFF, changed = true;
+            if (ImGui::RadioButton("Off", gState.mNoise.mode == MDR_NOISE_MODE_OFF))
+                gState.mNoise.mode = MDR_NOISE_MODE_OFF, changed = true;
             ImGui::SeparatorText("Ambient Strength");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            int ambientLevel = noise.ambient_level;
+            bool ambientChanged = false;
+            int ambientLevel = gState.mNoise.ambient_level;
             if (ImGui::SliderInt("##AmbStrength", &ambientLevel, 1, 20))
-                noise.ambient_level = static_cast<uint8_t>(ambientLevel), changed = true;
+                gState.mNoise.ambient_level = static_cast<uint8_t>(ambientLevel), ambientChanged = changed = true;
+            gState.mNoise.changing_asm_level = ambientChanged && ImGui::IsItemActive();
+            if (ImGui::IsItemDeactivatedAfterEdit())
+                changed = true;
             if (supportAutoASM)
             {
-                bool adaptive = noise.adaptive_ambient != MDR_FALSE;
+                bool adaptive = gState.mNoise.adaptive_ambient != MDR_FALSE;
                 if (ImGui::Checkbox("Auto Ambient Sound", &adaptive))
-                    noise.adaptive_ambient = adaptive ? MDR_TRUE : MDR_FALSE, changed = true;
+                    gState.mNoise.adaptive_ambient = adaptive ? MDR_TRUE : MDR_FALSE, changed = true;
                 ImGui::BeginDisabled(!adaptive);
                 constexpr MDRAdaptiveSensitivity kSelections[] = {
                     MDR_ADAPTIVE_SENSITIVITY_STANDARD, MDR_ADAPTIVE_SENSITIVITY_HIGH,
                     MDR_ADAPTIVE_SENSITIVITY_LOW};
                 changed |= ImComboBoxItems(
-                    "Sensitivity", std::span{kSelections}, noise.adaptive_sensitivity, FormatAdaptiveSensitivity);
+                    "Sensitivity", std::span{kSelections}, gState.mNoise.adaptive_sensitivity, FormatAdaptiveSensitivity);
                 ImGui::EndDisabled();
             }
-            bool focusOnVoice = noise.focus_on_voice != MDR_FALSE;
+            bool focusOnVoice = gState.mNoise.focus_on_voice != MDR_FALSE;
             if (ImGui::Checkbox("Voice Passthrough", &focusOnVoice))
-                noise.focus_on_voice = focusOnVoice ? MDR_TRUE : MDR_FALSE, changed = true;
-            if (changed && haveNoise)
-                mdrHeadphonesSetNoiseControl(gDevice, &noise);
+                gState.mNoise.focus_on_voice = focusOnVoice ? MDR_TRUE : MDR_FALSE, changed = true;
+            if (changed && gState.mNoiseAvailable)
+                mdrHeadphonesSetNoiseControl(gDevice, &gState.mNoise);
             ImGui::TreePop();
         }
     }
     /* STC */
     if (FeatureAvailable(MDR_FEATURE_SPEAK_TO_CHAT))
     {
-        MDRSpeakToChat speak{};
-        const bool haveSpeak =
-            mdrHeadphonesGetSpeakToChat(gDevice, &speak) == MDR_RESULT_OK;
         if (ImGui::TreeNodeEx("Speak To Chat", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
-            bool enabled = speak.enabled != MDR_FALSE;
+            bool enabled = gState.mSpeakToChat.enabled != MDR_FALSE;
             if (ImGui::Checkbox("Enabled", &enabled))
-                speak.enabled = enabled ? MDR_TRUE : MDR_FALSE, changed = true;
+                gState.mSpeakToChat.enabled = enabled ? MDR_TRUE : MDR_FALSE, changed = true;
             ImGui::BeginDisabled(!enabled);
             constexpr MDRSpeechSensitivity kSensitivity[] = {
                 MDR_SPEECH_SENSITIVITY_AUTO, MDR_SPEECH_SENSITIVITY_HIGH, MDR_SPEECH_SENSITIVITY_LOW};
             changed |= ImComboBoxItems(
-                "Sensitivity", std::span{kSensitivity}, speak.sensitivity, FormatSpeechSensitivity);
+                "Sensitivity", std::span{kSensitivity}, gState.mSpeakToChat.sensitivity, FormatSpeechSensitivity);
             constexpr MDRSpeakTimeout kTimeout[] = {
                 MDR_SPEAK_TIMEOUT_SHORT, MDR_SPEAK_TIMEOUT_MEDIUM, MDR_SPEAK_TIMEOUT_LONG,
                 MDR_SPEAK_TIMEOUT_MANUAL};
             changed |= ImComboBoxItems(
-                "Mode Duration", std::span{kTimeout}, speak.timeout, FormatSpeakTimeout);
+                "Mode Duration", std::span{kTimeout}, gState.mSpeakToChat.timeout, FormatSpeakTimeout);
             ImGui::EndDisabled();
-            if (changed && haveSpeak)
-                mdrHeadphonesSetSpeakToChat(gDevice, &speak);
+            if (changed && gState.mSpeakToChatAvailable)
+                mdrHeadphonesSetSpeakToChat(gDevice, &gState.mSpeakToChat);
             ImGui::TreePop();
         }
     }
     /* Listening Mode */
     if (FeatureAvailable(MDR_FEATURE_LISTENING_MODE))
     {
-        MDRListening listening{};
-        const bool haveListening =
-            mdrHeadphonesGetListening(gDevice, &listening) == MDR_RESULT_OK;
         if (ImGui::TreeNodeEx("Listening Mode", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
-            if (ImGui::RadioButton("Standard", listening.mode == MDR_LISTENING_STANDARD))
-                listening.mode = MDR_LISTENING_STANDARD, changed = true;
-            if (ImGui::RadioButton("BGM", listening.mode == MDR_LISTENING_BACKGROUND_MUSIC))
-                listening.mode = MDR_LISTENING_BACKGROUND_MUSIC, changed = true;
+            if (ImGui::RadioButton("Standard", gState.mListening.mode == MDR_LISTENING_STANDARD))
+                gState.mListening.mode = MDR_LISTENING_STANDARD, changed = true;
+            if (ImGui::RadioButton("BGM", gState.mListening.mode == MDR_LISTENING_BACKGROUND_MUSIC))
+                gState.mListening.mode = MDR_LISTENING_BACKGROUND_MUSIC, changed = true;
 
             ImGui::Indent();
-            ImGui::BeginDisabled(listening.mode != MDR_LISTENING_BACKGROUND_MUSIC);
+            ImGui::BeginDisabled(gState.mListening.mode != MDR_LISTENING_BACKGROUND_MUSIC);
             static const std::pair<MDRRoomSize, const char*> kBGMDistanceModes[] = {
                 {MDR_ROOM_SMALL, "My Room"},
                 {MDR_ROOM_MEDIUM, "Living Room"},
@@ -1278,15 +1303,15 @@ void DrawDeviceControlsSound()
             };
             const char* currentDistStr = "Unknown";
             for (auto const& [k, v] : kBGMDistanceModes)
-                if (k == listening.background_room)
+                if (k == gState.mListening.background_room)
                     currentDistStr = v;
             if (ImGui::BeginCombo("Distance", currentDistStr))
             {
                 for (auto const& [k, v] : kBGMDistanceModes)
                 {
-                    bool is_selected = k == listening.background_room;
+                    bool is_selected = k == gState.mListening.background_room;
                     if (ImGui::Selectable(v, is_selected))
-                        listening.background_room = k, changed = true;
+                        gState.mListening.background_room = k, changed = true;
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
                 }
@@ -1295,20 +1320,17 @@ void DrawDeviceControlsSound()
             ImGui::EndDisabled();
             ImGui::Unindent();
 
-            if (ImGui::RadioButton("Cinema", listening.mode == MDR_LISTENING_CINEMA))
-                listening.mode = MDR_LISTENING_CINEMA, changed = true;
+            if (ImGui::RadioButton("Cinema", gState.mListening.mode == MDR_LISTENING_CINEMA))
+                gState.mListening.mode = MDR_LISTENING_CINEMA, changed = true;
 
-            if (changed && haveListening)
-                mdrHeadphonesSetListening(gDevice, &listening);
+            if (changed && gState.mListeningAvailable)
+                mdrHeadphonesSetListening(gDevice, &gState.mListening);
             ImGui::TreePop();
         }
     }
     /* EQ & DSEE */
     if (ImGui::TreeNodeEx("Equalizer & DSEE", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        MDREqualizer equalizer{};
-        const bool haveEqualizer =
-            mdrHeadphonesGetEqualizer(gDevice, &equalizer) == MDR_RESULT_OK;
         bool changed = false;
         constexpr MDREqualizerPreset kSelections[] = {
             MDR_EQ_OFF, MDR_EQ_ROCK, MDR_EQ_POP, MDR_EQ_JAZZ, MDR_EQ_DANCE, MDR_EQ_EDM,
@@ -1318,27 +1340,26 @@ void DrawDeviceControlsSound()
             MDR_EQ_FPS_3, MDR_EQ_CUSTOM, MDR_EQ_USER_1, MDR_EQ_USER_2, MDR_EQ_USER_3, MDR_EQ_USER_4,
             MDR_EQ_USER_5};
         changed |= ImComboBoxItems(
-            "Preset", std::span{kSelections}, equalizer.preset, FormatEqualizerPreset);
-        mdr::Vector<int> bands = GetEqualizerBands();
-        if (ImEqualizer(bands))
-            SetEqualizerBands(bands);
-        if (bands.size() == 5)
+            "Preset", std::span{kSelections}, gState.mEqualizer.preset, FormatEqualizerPreset);
+        if (ImEqualizer(gState.mEqualizerBands))
+            SetEqualizerBands(gState.mEqualizerBands);
+        if (gState.mEqualizerBands.size() == 5)
         {
             ImGui::SeparatorText("Clear Bass");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            int clearBass = equalizer.clear_bass;
+            int clearBass = gState.mEqualizer.clear_bass;
             if (ImGui::SliderInt("##", &clearBass, -10, 10))
-                equalizer.clear_bass = static_cast<int8_t>(clearBass), changed = true;
+                gState.mEqualizer.clear_bass = static_cast<int8_t>(clearBass), changed = true;
         }
         ImGui::SeparatorText("DSEE");
         ImGui::BeginDisabled(!FeatureAvailable(MDR_FEATURE_DSEE));
-        if (ImGui::RadioButton("Off", equalizer.dsee_enabled == MDR_FALSE))
-            equalizer.dsee_enabled = MDR_FALSE, changed = true;
-        if (ImGui::RadioButton("On (Auto)", equalizer.dsee_enabled != MDR_FALSE))
-            equalizer.dsee_enabled = MDR_TRUE, changed = true;
+        if (ImGui::RadioButton("Off", gState.mEqualizer.dsee_enabled == MDR_FALSE))
+            gState.mEqualizer.dsee_enabled = MDR_FALSE, changed = true;
+        if (ImGui::RadioButton("On (Auto)", gState.mEqualizer.dsee_enabled != MDR_FALSE))
+            gState.mEqualizer.dsee_enabled = MDR_TRUE, changed = true;
         ImGui::EndDisabled();
-        if (changed && haveEqualizer)
-            mdrHeadphonesSetEqualizer(gDevice, &equalizer);
+        if (changed && gState.mEqualizerAvailable)
+            mdrHeadphonesSetEqualizer(gDevice, &gState.mEqualizer);
         ImGui::TreePop();
     }
 }
@@ -1437,10 +1458,7 @@ void DrawDeviceControlsDevices()
                 connectSelectedMac = connectSelectedMac == device.mac ? "" : device.mac;
         ImGui::TreePop();
     }
-    MDRPairing pairing{};
-    const bool havePairing =
-        mdrHeadphonesGetPairing(gDevice, &pairing) == MDR_RESULT_OK;
-    if (pairing.enabled)
+    if (gState.mPairing.enabled)
     {
         ImTextCentered("Pairing...");
         ImSpinner(1000.0f, 16.0f,
@@ -1448,18 +1466,18 @@ void DrawDeviceControlsDevices()
                   2.0f, true, false, 1.0f, ImEaseInOutCubic);
         if (ImModalButton("Stop"))
         {
-            pairing.enabled = MDR_FALSE;
-            if (havePairing)
-                mdrHeadphonesSetPairing(gDevice, &pairing);
+            gState.mPairing.enabled = MDR_FALSE;
+            if (gState.mPairingAvailable)
+                mdrHeadphonesSetPairing(gDevice, &gState.mPairing);
         }
     }
     else
     {
         if (ImModalButton(PSI_BLUETOOTH " Enter Pairing Mode"))
         {
-            pairing.enabled = MDR_TRUE;
-            if (havePairing)
-                mdrHeadphonesSetPairing(gDevice, &pairing);
+            gState.mPairing.enabled = MDR_TRUE;
+            if (gState.mPairingAvailable)
+                mdrHeadphonesSetPairing(gDevice, &gState.mPairing);
         }
         ImGui::TextWrapped(PSI_INFO_SIGN_ALT " For TWS (Earbuds) devices, you may need to take both of your headphones "
                                              "out from your case to enter Pairing Mode.");
@@ -1496,12 +1514,9 @@ void DrawDeviceControlsSystem()
              "Your own voice will be easier to hear during calls. If your voice sounds too loud or background "
              "noise is distracting, please turn off this feature."},
         };
-        for (const MDRGeneralSettingInfo& info : GetGeneralSettings())
+        for (auto& [info, setting] : gState.mGeneralSettings)
         {
             if (info.type != MDR_GENERAL_SETTING_BOOLEAN)
-                continue;
-            MDRGeneralSetting setting{};
-            if (mdrHeadphonesGetGeneralSetting(gDevice, info.index, &setting) != MDR_RESULT_OK)
                 continue;
             const mdr::String subjectKey = GetText(MDR_TEXT_GENERAL_SETTING_SUBJECT, info.index);
             const mdr::String summaryKey = GetText(MDR_TEXT_GENERAL_SETTING_SUMMARY, info.index);
@@ -1766,16 +1781,38 @@ void DrawDeviceControls()
         DisconnectWithModal();
         return;
     }
-    if (event == MDR_EVENT_INITIALIZE_COMPLETE)
+    switch (event)
     {
+    case MDR_EVENT_INITIALIZE_COMPLETE:
         if (mdrHeadphonesRequestFetch(gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;
         }
-    }
-    if (event == MDR_EVENT_IDENTITY_CHANGED || event == MDR_EVENT_SYNC_COMPLETE)
+        break;
+    case MDR_EVENT_IDENTITY_CHANGED:
+    case MDR_EVENT_SYNC_COMPLETE:
         MaterialYouTheme::ApplyForModelColor(GetModelColor());
+        break;
+    case MDR_EVENT_NOISE_CONTROL_CHANGED:
+        gState.mNoiseAvailable = mdrHeadphonesGetNoiseControl(gDevice, &gState.mNoise) == MDR_RESULT_OK;
+        break;
+    case MDR_EVENT_SPEAK_TO_CHAT_CHANGED:
+        gState.mSpeakToChatAvailable = mdrHeadphonesGetSpeakToChat(gDevice, &gState.mSpeakToChat) == MDR_RESULT_OK;
+        break;
+    case MDR_EVENT_LISTENING_MODE_CHANGED:
+        gState.mListeningAvailable = mdrHeadphonesGetListening(gDevice, &gState.mListening) == MDR_RESULT_OK;
+        break;
+    case MDR_EVENT_EQUALIZER_CHANGED:
+        gState.mEqualizerAvailable = mdrHeadphonesGetEqualizer(gDevice, &gState.mEqualizer) == MDR_RESULT_OK;
+        break;
+    case MDR_EVENT_PAIRED_DEVICES_CHANGED:
+        gState.mPairedDevices = GetPairedDevices();
+        break;
+    case MDR_EVENT_GENERAL_SETTINGS_CHANGED:
+        gState.mGeneralSettings = GetGeneralSettings();
+        break;
+    }
 
     DrawDeviceControlsHeader();
     if (!gDevice)

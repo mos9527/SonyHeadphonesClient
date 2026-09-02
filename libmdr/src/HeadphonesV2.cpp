@@ -305,6 +305,7 @@ namespace mdr
         state.mNcAsmEnabled.submit();
         state.mNcAsmFocusOnVoice.submit();
         state.mNcAsmAmbientLevel.submit();
+        state.mNcAsmChangingAsmLevel.submit();
         state.mNcAsmButtonFunction.submit();
         state.mNcAsmMode.submit();
         state.mNcAsmAutoAsmEnabled.submit();
@@ -362,18 +363,18 @@ namespace mdr
                 state.mShutdown.override(false);
         }
         /* NC/ASM */
-        if (state.mNcAsmAmbientLevel.pending() || state.mNcAsmEnabled.pending() ||
-            state.mNcAsmMode.pending() || state.mNcAsmFocusOnVoice.pending() ||
+        if (state.mNcAsmAmbientLevel.pending() || state.mNcAsmChangingAsmLevel.pending() ||
+            state.mNcAsmEnabled.pending() || state.mNcAsmMode.pending() || state.mNcAsmFocusOnVoice.pending() ||
             state.mNcAsmAutoAsmEnabled.pending() || state.mNcAsmNoiseAdaptiveSensitivity.pending())
         {
             using namespace t1;
             if (state.mSupport.contains(
                 t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
-
                 NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa res;
                 res.command = Command::NCASM_SET_PARAM;
-                res.valueChangeStatus = ValueChangeStatus::CHANGED;
+                res.valueChangeStatus = state.mNcAsmChangingAsmLevel.submitted
+                    ? ValueChangeStatus::UNDER_CHANGING : ValueChangeStatus::CHANGED;
                 res.ncAsmTotalEffect = state.mNcAsmEnabled.submitted ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
                 res.ncAsmMode = state.mNcAsmMode.submitted;
                 res.ambientSoundMode = state.mNcAsmFocusOnVoice.submitted
@@ -388,7 +389,8 @@ namespace mdr
             {
                 NcAsmSetParamAsmSeamless res;
                 res.command = Command::NCASM_SET_PARAM;
-                res.valueChangeStatus = ValueChangeStatus::CHANGED;
+                res.valueChangeStatus = state.mNcAsmChangingAsmLevel.submitted
+                    ? ValueChangeStatus::UNDER_CHANGING : ValueChangeStatus::CHANGED;
                 res.ncAsmTotalEffect = state.mNcAsmEnabled.submitted ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
                 res.ambientSoundMode = state.mNcAsmFocusOnVoice.submitted
                     ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
@@ -399,17 +401,18 @@ namespace mdr
             {
                 NcAsmSetParamModeNcDualModeSwitchAsmSeamless res;
                 res.command = Command::NCASM_SET_PARAM;
-                res.valueChangeStatus = ValueChangeStatus::CHANGED;
+                res.valueChangeStatus = state.mNcAsmChangingAsmLevel.submitted
+                    ? ValueChangeStatus::UNDER_CHANGING : ValueChangeStatus::CHANGED;
                 res.ncAsmTotalEffect = state.mNcAsmEnabled.submitted ? NcAsmOnOffValue::ON : NcAsmOnOffValue::OFF;
-                res.ncAsmMode = state.mNcAsmMode.submitted,
-                    res.ambientSoundMode = state.mNcAsmFocusOnVoice.submitted
-                    ? AmbientSoundMode::VOICE
-                    : AmbientSoundMode::NORMAL;
+                res.ncAsmMode = state.mNcAsmMode.submitted;
+                res.ambientSoundMode = state.mNcAsmFocusOnVoice.submitted
+                    ? AmbientSoundMode::VOICE : AmbientSoundMode::NORMAL;
                 res.ambientSoundLevelValue = state.mNcAsmAmbientLevel.submitted;
                 SendCommandACK(NcAsmSetParamModeNcDualModeSwitchAsmSeamless, res);
             }
-            state.mNcAsmAmbientLevel.commit(), state.mNcAsmEnabled.commit(), state.mNcAsmMode.commit();
-            state.mNcAsmFocusOnVoice.commit(), state.mNcAsmAutoAsmEnabled.commit(), state.mNcAsmNoiseAdaptiveSensitivity.commit();
+            state.mNcAsmAmbientLevel.commit(), state.mNcAsmChangingAsmLevel.commit(), state.mNcAsmEnabled.commit(),
+            state.mNcAsmMode.commit(), state.mNcAsmFocusOnVoice.commit(), state.mNcAsmAutoAsmEnabled.commit(),
+            state.mNcAsmNoiseAdaptiveSensitivity.commit();
         }
 
         /* NC/AMB Mode */
@@ -946,7 +949,7 @@ namespace mdr
     {
         const auto& state = mDetailsV2;
         return state.mShutdown.dirty() || state.mNcAsmEnabled.dirty() ||
-            state.mNcAsmFocusOnVoice.dirty() || state.mNcAsmAmbientLevel.dirty() ||
+            state.mNcAsmFocusOnVoice.dirty() || state.mNcAsmAmbientLevel.dirty() || state.mNcAsmChangingAsmLevel.dirty() ||
             state.mNcAsmButtonFunction.dirty() || state.mNcAsmMode.dirty() ||
             state.mNcAsmAutoAsmEnabled.dirty() || state.mNcAsmNoiseAdaptiveSensitivity.dirty() ||
             state.mPowerAutoOff.dirty() || state.mPowerAutoOffWearingDetection.dirty() ||

@@ -1592,6 +1592,7 @@ MDRResult mdrHeadphonesGetNoiseControl(
             state.mNcAsmMode.current == mdr::v2::t1::NcAsmMode::NC
                 ? MDR_NOISE_MODE_CANCELLING : MDR_NOISE_MODE_AMBIENT,
         .ambient_level = static_cast<uint8_t>(state.mNcAsmAmbientLevel.current),
+        .changing_asm_level = static_cast<MDRBoolean>(state.mNcAsmChangingAsmLevel.current),
         .focus_on_voice = static_cast<MDRBoolean>(state.mNcAsmFocusOnVoice.current),
         .button_mode = ToNeutral(state.mNcAsmButtonFunction.current),
         .adaptive_ambient = static_cast<MDRBoolean>(state.mNcAsmAutoAsmEnabled.current),
@@ -1605,7 +1606,8 @@ MDRResult mdrHeadphonesSetNoiseControl(
 {
     if (!headphones || !noiseControl ||
         noiseControl->mode > MDR_NOISE_MODE_AMBIENT || noiseControl->ambient_level > 20 ||
-        !ValidBoolean(noiseControl->focus_on_voice) || !ValidBoolean(noiseControl->adaptive_ambient))
+        !ValidBoolean(noiseControl->changing_asm_level) || !ValidBoolean(noiseControl->focus_on_voice) ||
+        !ValidBoolean(noiseControl->adaptive_ambient))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
@@ -1618,6 +1620,7 @@ MDRResult mdrHeadphonesSetNoiseControl(
         state.mNcAsmEnabled.stage(noiseControl->mode != MDR_NOISE_MODE_OFF);
         state.mNcAsmMode.stage(noiseControl->mode == MDR_NOISE_MODE_AMBIENT ? 1u : 0u);
         state.mNcAsmAmbientLevel.stage(noiseControl->ambient_level);
+        state.mNcAsmChangingAsmLevel.stage(noiseControl->changing_asm_level != MDR_FALSE);
         state.mNcAsmFocusOnVoice.stage(noiseControl->focus_on_voice != MDR_FALSE);
         return MDR_RESULT_OK;
     }
@@ -1632,6 +1635,7 @@ MDRResult mdrHeadphonesSetNoiseControl(
     state.mNcAsmMode.stage(noiseControl->mode == MDR_NOISE_MODE_AMBIENT
         ? mdr::v2::t1::NcAsmMode::ASM : mdr::v2::t1::NcAsmMode::NC);
     state.mNcAsmAmbientLevel.stage(noiseControl->ambient_level);
+    state.mNcAsmChangingAsmLevel.stage(noiseControl->changing_asm_level != MDR_FALSE);
     state.mNcAsmFocusOnVoice.stage(noiseControl->focus_on_voice != MDR_FALSE);
     state.mNcAsmButtonFunction.stage(button);
     state.mNcAsmAutoAsmEnabled.stage(noiseControl->adaptive_ambient != MDR_FALSE);

@@ -282,6 +282,7 @@ typedef struct MDRNoiseControl
 {
     MDRNoiseMode mode;
     uint8_t ambient_level;
+    MDRBoolean changing_asm_level;
     MDRBoolean focus_on_voice;
     MDRNoiseButtonMode button_mode;
     MDRBoolean adaptive_ambient;
