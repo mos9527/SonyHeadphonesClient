@@ -166,6 +166,7 @@ namespace mdr
                     self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
                         res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
+                    self->mDetailsV2.mNcAsmMode.overwrite(NcAsmMode::ASM);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                     self->mDetailsV2.mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
                 }
@@ -175,6 +176,7 @@ namespace mdr
                     self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
                         res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
+                    self->mDetailsV2.mNcAsmMode.overwrite(NcAsmMode::ASM);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                     self->mDetailsV2.mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
                 }
