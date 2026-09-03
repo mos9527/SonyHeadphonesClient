@@ -32756,8 +32756,8 @@
       "classification": "payload",
       "command": "GENERAL_SETTING_SET_PARAM",
       "cpp_name": "SetGsParamGsBooleanTypeValue",
-      "discriminator_field": null,
-      "discriminator_value": null,
+      "discriminator_field": "settingType",
+      "discriminator_value": "GsSettingType::BOOLEAN_TYPE",
       "evidence": [
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
@@ -32765,7 +32765,9 @@
         "-[THMSGV1T1GsInquiredType byteCode]",
         "-[THMSGV1T1GsSettingType byteCode]",
         "sub_1012B7DF8",
-        "writeToWithJavaIoByteArrayOutputStream:"
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "constructor initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsBooleanTypeValue: selects GsSettingType::BOOLEAN_TYPE",
+        "serializer getCommandStream writes settingType before variant payload"
       ],
       "factory_signature": null,
       "fields": [
@@ -32790,10 +32792,19 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "GsSettingType",
+          "default": "GsSettingType::BOOLEAN_TYPE",
+          "name": "settingType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1GsSettingType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "GsBooleanTypeValue",
           "default": "{}",
           "name": "settingValue",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsBooleanTypeValue;",
           "wire_kind": "helper"
@@ -32815,6 +32826,10 @@
         {
           "address": 4315581360,
           "symbol": "-[THMSGV1T1SetGsParam restoreFromPayloadWithByteArray:]"
+        },
+        {
+          "address": 4315579784,
+          "symbol": "-[THMSGV1T1SetGsParam initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsBooleanTypeValue:]"
         }
       ]
     },
@@ -32822,8 +32837,8 @@
       "classification": "payload",
       "command": "GENERAL_SETTING_SET_PARAM",
       "cpp_name": "SetGsParamGsListTypeValue",
-      "discriminator_field": null,
-      "discriminator_value": null,
+      "discriminator_field": "settingType",
+      "discriminator_value": "GsSettingType::LIST_TYPE",
       "evidence": [
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
@@ -32831,7 +32846,9 @@
         "-[THMSGV1T1GsInquiredType byteCode]",
         "-[THMSGV1T1GsSettingType byteCode]",
         "sub_1012B7DF8",
-        "writeToWithJavaIoByteArrayOutputStream:"
+        "writeToWithJavaIoByteArrayOutputStream:",
+        "constructor initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsListTypeValue: selects GsSettingType::LIST_TYPE",
+        "serializer getCommandStream writes settingType before variant payload"
       ],
       "factory_signature": null,
       "fields": [
@@ -32856,10 +32873,19 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "GsSettingType",
+          "default": "GsSettingType::LIST_TYPE",
+          "name": "settingType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1GsSettingType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "GsListTypeValue",
           "default": "{}",
           "name": "currentElementIndex",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsListTypeValue;",
           "wire_kind": "helper"
@@ -32881,6 +32907,10 @@
         {
           "address": 4315581360,
           "symbol": "-[THMSGV1T1SetGsParam restoreFromPayloadWithByteArray:]"
+        },
+        {
+          "address": 4315580304,
+          "symbol": "-[THMSGV1T1SetGsParam initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsListTypeValue:]"
         }
       ]
     },

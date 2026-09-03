@@ -6575,7 +6575,9 @@ namespace mdr::v1::t1
         Command command{Command::GENERAL_SETTING_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        GsBooleanTypeValue settingValue{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
+        GsSettingType settingType{GsSettingType::BOOLEAN_TYPE}; // 0x2
+        GsBooleanTypeValue settingValue{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SetGsParamGsBooleanTypeValue);
     };
@@ -6587,7 +6589,9 @@ namespace mdr::v1::t1
         Command command{Command::GENERAL_SETTING_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
-        GsListTypeValue currentElementIndex{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
+        GsSettingType settingType{GsSettingType::LIST_TYPE}; // 0x2
+        GsListTypeValue currentElementIndex{}; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SetGsParamGsListTypeValue);
     };

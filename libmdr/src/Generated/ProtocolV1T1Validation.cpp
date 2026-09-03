@@ -2843,6 +2843,7 @@ MDRResult<void> SetGsParamGsBooleanTypeValue::Validate(const SetGsParamGsBoolean
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_SET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
+    // data.settingType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.settingValue.settingValue));
     return MDRResult<void>::Success();
 }
@@ -2850,6 +2851,7 @@ MDRResult<void> SetGsParamGsListTypeValue::Validate(const SetGsParamGsListTypeVa
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_SET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
+    // data.settingType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SetNcAsmParamRetNcAsmCapability_AsmCapability::Validate(const SetNcAsmParamRetNcAsmCapability_AsmCapability& data) {

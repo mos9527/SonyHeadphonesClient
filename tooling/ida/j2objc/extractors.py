@@ -3990,11 +3990,14 @@ class ProtocolExtractor:
             ):
                 break
             common_count += 1
-        if common_count == 0 or not any(
+        if common_count == 0 or all(
             len(fields) == common_count for fields in field_lists
         ):
             return [payload for payload, _ in variants]
 
+        has_prefix_variant = any(
+            len(fields) == common_count for fields in field_lists
+        )
         existing_names = {
             field.name for fields in field_lists for field in fields
         }
@@ -4041,31 +4044,69 @@ class ProtocolExtractor:
                 len(selected) == len(variants)
                 and len(set(selected)) == len(selected)
             ):
-                member_values = {
-                    value.name: value.value for value in enum.values
-                }
-                required_branches = {
-                    member_values[selected[index]]
-                    for index, (payload, _) in enumerate(variants)
-                    if len(payload.fields) > common_count
-                }
-                parser_selector = None
-                for parser in self.metadata(class_name).methods:
-                    if not parser.java_name.startswith(("restore", "parse")):
-                        continue
-                    text = self._expanded_method_text(
-                        self._method_symbol(class_name, parser)
-                    )
-                    branch_values = {
-                        int(value)
-                        for value in re.findall(
-                            r"ordinal[\s\S]{0,192}?==\s*(\d+)", text
-                        )
+                wire_evidence = None
+                if has_prefix_variant:
+                    member_values = {
+                        value.name: value.value for value in enum.values
                     }
-                    if required_branches <= branch_values:
-                        parser_selector = parser.selector
-                        break
-                if parser_selector is None:
+                    required_branches = {
+                        member_values[selected[index]]
+                        for index, (payload, _) in enumerate(variants)
+                        if len(payload.fields) > common_count
+                    }
+                    for parser in self.metadata(class_name).methods:
+                        if not parser.java_name.startswith(
+                            ("restore", "parse")
+                        ):
+                            continue
+                        text = self._expanded_method_text(
+                            self._method_symbol(class_name, parser)
+                        )
+                        branch_values = {
+                            int(value)
+                            for value in re.findall(
+                                r"ordinal[\s\S]{0,192}?==\s*(\d+)",
+                                text,
+                            )
+                        }
+                        if required_branches <= branch_values:
+                            wire_evidence = (
+                                f"parser {parser.selector} branches on "
+                                f"{field_name}"
+                            )
+                            break
+                else:
+                    serializers = self.database.find_methods(
+                        class_name, selector_prefix="getCommandStream"
+                    )
+                    if len(serializers) == 1:
+                        text = self._expanded_method_text(serializers[0])
+                        discriminator_ivar = (
+                            f"m{field_name[:1].upper()}{field_name[1:]}_"
+                        )
+                        discriminator_position = text.find(
+                            discriminator_ivar
+                        )
+                        previous = field_lists[0][common_count - 1]
+                        previous_ivar = (
+                            f"m{previous.name[:1].upper()}"
+                            f"{previous.name[1:]}_"
+                        )
+                        previous_position = text.find(previous_ivar)
+                        payload_position = text.find(
+                            "writeToWithJavaIoByteArrayOutputStream",
+                            discriminator_position,
+                        )
+                        if (
+                            previous_position >= 0
+                            and previous_position < discriminator_position
+                            and payload_position > discriminator_position
+                        ):
+                            wire_evidence = (
+                                f"serializer {serializers[0].selector} writes "
+                                f"{field_name} before variant payload"
+                            )
+                if wire_evidence is None:
                     continue
                 candidates.append(
                     (
@@ -4073,7 +4114,7 @@ class ProtocolExtractor:
                         field_name,
                         cpp_type,
                         selected,
-                        parser_selector,
+                        wire_evidence,
                     )
                 )
 
@@ -4086,7 +4127,7 @@ class ProtocolExtractor:
                 f"{[name for _, name, _, _, _ in candidates]}"
             )
 
-        getter, field_name, cpp_type, selected, parser_selector = candidates[0]
+        getter, field_name, cpp_type, selected, wire_evidence = candidates[0]
         output: list[PayloadDecl] = []
         for (payload, constructor), member in zip(variants, selected):
             default = f"{cpp_type}::{member}"
@@ -4122,8 +4163,7 @@ class ProtocolExtractor:
                         *payload.evidence,
                         f"constructor {constructor.selector} selects "
                         f"{default}",
-                        f"parser {parser_selector} branches on "
-                        f"{field_name}",
+                        wire_evidence,
                     ),
                 )
             )

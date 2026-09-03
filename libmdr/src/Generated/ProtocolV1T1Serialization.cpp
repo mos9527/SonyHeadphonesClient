@@ -2842,6 +2842,7 @@ namespace mdr::v1::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (GsBooleanTypeValue::Write)(data.settingValue, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -2850,6 +2851,7 @@ namespace mdr::v1::t1 {
         SetGsParamGsBooleanTypeValue out{};
         MDR_TRY_SIZE(SetGsParamGsBooleanTypeValue, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SetGsParamGsBooleanTypeValue, MDRPod::Read(&data, out.type, maxSize));
+        MDR_TRY_SIZE(SetGsParamGsBooleanTypeValue, MDRPod::Read(&data, out.settingType, maxSize));
         MDR_TRY_SIZE(SetGsParamGsBooleanTypeValue, (GsBooleanTypeValue::Read)(&data, out.settingValue, maxSize));
         MDR_TRY(SetGsParamGsBooleanTypeValue, Validate(out));
         return MDRResult<SetGsParamGsBooleanTypeValue>::Success(std::move(out));
@@ -2860,6 +2862,7 @@ namespace mdr::v1::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (GsListTypeValue::Write)(data.currentElementIndex, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -2868,6 +2871,7 @@ namespace mdr::v1::t1 {
         SetGsParamGsListTypeValue out{};
         MDR_TRY_SIZE(SetGsParamGsListTypeValue, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SetGsParamGsListTypeValue, MDRPod::Read(&data, out.type, maxSize));
+        MDR_TRY_SIZE(SetGsParamGsListTypeValue, MDRPod::Read(&data, out.settingType, maxSize));
         MDR_TRY_SIZE(SetGsParamGsListTypeValue, (GsListTypeValue::Read)(&data, out.currentElementIndex, maxSize));
         MDR_TRY(SetGsParamGsListTypeValue, Validate(out));
         return MDRResult<SetGsParamGsListTypeValue>::Success(std::move(out));
