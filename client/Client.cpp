@@ -415,7 +415,6 @@ struct ClientState
     MDRPairing mPairing{};
     mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> mGeneralSettings;
     bool mModelAvailable;
-    bool mPlaybackAvailable;
     bool mNoiseAvailable;
     bool mSpeakToChatAvailable;
     bool mListeningAvailable;
@@ -1152,8 +1151,6 @@ void DrawDeviceControlsHeader()
 
 void DrawDeviceControlsPlayback()
 {
-    if (!gState.mPlaybackAvailable)
-        return;
     ImGui::SeparatorText("Volume");
     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
     int volume = gState.mPlayback.volume;
