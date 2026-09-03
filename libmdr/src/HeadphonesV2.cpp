@@ -354,7 +354,7 @@ namespace mdr
         if (state.mShutdown.pending())
         {
             using namespace t1;
-            if (state.mSupport.contains(t1::FunctionType::POWER_OFF) && state.mShutdown.submitted)
+            if (state.mSupport.contains(FunctionType::POWER_OFF) && state.mShutdown.submitted)
             {
                 SendCommandACK(PowerSetStatusPowerOff);
                 state.mShutdown.override(false);
@@ -369,7 +369,7 @@ namespace mdr
         {
             using namespace t1;
             if (state.mSupport.contains(
-                t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+                FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
                 NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa res;
                 res.command = Command::NCASM_SET_PARAM;
@@ -385,7 +385,7 @@ namespace mdr
                 res.noiseAdaptiveSensitivitySettings = state.mNcAsmNoiseAdaptiveSensitivity.submitted;
                 SendCommandACK(NcAsmSetParamModeNcDualModeSwitchAsmSeamlessNa, res);
             }
-            else if (state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+            else if (state.mSupport.contains(FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 NcAsmSetParamAsmSeamless res;
                 res.command = Command::NCASM_SET_PARAM;
@@ -416,17 +416,17 @@ namespace mdr
         }
 
         /* NC/AMB Mode */
-        if (state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        if (state.mNcAsmButtonFunction.pending())
         {
             using namespace t1;
-            if (state.mNcAsmButtonFunction.pending())
+            if (state.mSupport.contains(FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
             {
                 NcAsmSetParamNcAmbToggle res;
                 res.command = Command::NCASM_SET_PARAM;
                 res.function = state.mNcAsmButtonFunction.submitted;
                 SendCommandACK(NcAsmSetParamNcAmbToggle, res);
-                state.mNcAsmButtonFunction.commit();
             }
+            state.mNcAsmButtonFunction.commit();
         }
         /* Volume */
         if (state.mPlayVolume.pending())
@@ -565,10 +565,10 @@ namespace mdr
         }
 
         /* STC */
-        if (state.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
+        if (state.mSpeakToChatEnabled.pending())
         {
             using namespace t1;
-            if (state.mSpeakToChatEnabled.pending())
+            if (state.mSupport.contains(FunctionType::SMART_TALKING_MODE_TYPE2))
             {
                 SystemSetParamSmartTalking res;
                 res.command = Command::SYSTEM_SET_PARAM;
@@ -578,25 +578,29 @@ namespace mdr
                     : OnOffSettingValue::OFF;
                 res.previewModeOnOffValue = OnOffSettingValue::OFF;
                 SendCommandACK(SystemSetParamSmartTalking, res);
-                state.mSpeakToChatEnabled.commit();
             }
+            state.mSpeakToChatEnabled.commit();
+        }
 
-            if (state.mSpeakToChatDetectSensitivity.pending() || state.mSpeakToModeOutTime.pending())
+        if (state.mSpeakToChatDetectSensitivity.pending() || state.mSpeakToModeOutTime.pending())
+        {
+            using namespace t1;
+            if (state.mSupport.contains(FunctionType::SMART_TALKING_MODE_TYPE2))
             {
                 SystemSetExtParamSmartTalkingModeType2 res;
                 res.command = Command::SYSTEM_SET_EXT_PARAM;
                 res.detectSensitivity = state.mSpeakToChatDetectSensitivity.submitted;
                 res.modeOffTime = state.mSpeakToModeOutTime.submitted;
                 SendCommandACK(SystemSetExtParamSmartTalkingModeType2, res);
-                state.mSpeakToChatDetectSensitivity.commit(), state.mSpeakToModeOutTime.commit();
             }
+            state.mSpeakToChatDetectSensitivity.commit(), state.mSpeakToModeOutTime.commit();
         }
 
         /* Listening Mode */
-        if (state.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+        if (state.mBGMModeEnabled.pending() || state.mBGMModeRoomSize.pending())
         {
             using namespace t1;
-            if (state.mBGMModeEnabled.pending() || state.mBGMModeRoomSize.pending())
+            if (state.mSupport.contains(FunctionType::LISTENING_OPTION))
             {
                 AudioSetParamBGMMode res;
                 res.command = Command::AUDIO_SET_PARAM;
@@ -606,10 +610,14 @@ namespace mdr
                     : OnOffSettingValue::OFF;
                 res.targetRoomSize = state.mBGMModeRoomSize.submitted;
                 SendCommandACK(AudioSetParamBGMMode, res);
-                state.mBGMModeEnabled.commit(), state.mBGMModeRoomSize.commit();
-                MDR_LOG("S/W BGM BGM {} ROOM {} UPMIX {}", state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired, state.mUpmixCinemaEnabled.desired);
             }
-            if (state.mUpmixCinemaEnabled.pending())
+            state.mBGMModeEnabled.commit(), state.mBGMModeRoomSize.commit();
+            MDR_LOG("S/W BGM BGM {} ROOM {} UPMIX {}", state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired, state.mUpmixCinemaEnabled.desired);
+        }
+        if (state.mUpmixCinemaEnabled.pending())
+        {
+            using namespace t1;
+            if (state.mSupport.contains(FunctionType::LISTENING_OPTION))
             {
                 AudioSetParamUpmixCinema res;
                 res.command = Command::AUDIO_SET_PARAM;
@@ -617,9 +625,9 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(AudioSetParamUpmixCinema, res);
-                state.mUpmixCinemaEnabled.commit();
-                MDR_LOG("S/W CNE BGM {} ROOM {} UPMIX {}", state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired, state.mUpmixCinemaEnabled.desired);
             }
+            state.mUpmixCinemaEnabled.commit();
+            MDR_LOG("S/W CNE BGM {} ROOM {} UPMIX {}", state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired, state.mUpmixCinemaEnabled.desired);
         }
 
         /* EQ */
@@ -685,56 +693,55 @@ namespace mdr
         }
 
         /* Connection Quality */
-        if (state.mSupport.
-            contains(t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+        if (state.mAudioPriorityMode.pending())
         {
-            if (state.mAudioPriorityMode.pending())
+            using namespace t1;
+            if (state.mSupport.contains(FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             {
-                using namespace t1;
                 AudioSetParamConnection res;
                 res.command = Command::AUDIO_SET_PARAM;
                 res.settingValue = state.mAudioPriorityMode.submitted;
                 SendCommandACK(AudioSetParamConnection, res);
-                state.mAudioPriorityMode.commit();
             }
+            state.mAudioPriorityMode.commit();
         }
 
         /* DSEE */
-        if (state.mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
+        if (state.mUpscalingEnabled.pending())
         {
-            if (state.mUpscalingEnabled.pending())
+            using namespace t1;
+            if (state.mSupport.contains(FunctionType::UPSCALING_AUTO_OFF))
             {
-                using namespace t1;
                 AudioSetParamUpscaling res;
                 res.command = Command::AUDIO_SET_PARAM;
                 res.type = AudioInquiredType::UPSCALING;
                 res.settingValue = state.mUpscalingEnabled.submitted
                     ? UpscalingTypeAutoOff::AUTO : UpscalingTypeAutoOff::OFF;
                 SendCommandACK(AudioSetParamUpscaling, res);
-                state.mUpscalingEnabled.commit();
             }
+            state.mUpscalingEnabled.commit();
         }
 
         /* Touch Functions */
-        if (state.mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
+        if (state.mTouchFunctionLeft.pending() || state.mTouchFunctionRight.pending())
         {
-            if (state.mTouchFunctionLeft.pending() || state.mTouchFunctionRight.pending())
+            using namespace t1;
+            if (state.mSupport.contains(FunctionType::ASSIGNABLE_SETTING))
             {
-                using namespace t1;
                 SystemSetParamAssignableSettings res;
                 res.command = Command::SYSTEM_SET_PARAM;
                 res.presetList.value = {state.mTouchFunctionLeft.submitted, state.mTouchFunctionRight.submitted};
                 SendCommandACK(SystemSetParamAssignableSettings, res);
-                state.mTouchFunctionLeft.commit(), state.mTouchFunctionRight.commit();
             }
+            state.mTouchFunctionLeft.commit(), state.mTouchFunctionRight.commit();
         }
 
         /* Head Gesture */
-        if (state.mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
+        if (state.mHeadGestureEnabled.pending())
         {
-            if (state.mHeadGestureEnabled.pending())
+            using namespace t1;
+            if (state.mSupport.contains(FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
             {
-                using namespace t1;
                 SystemSetParamCommon res;
                 res.command = Command::SYSTEM_SET_PARAM;
                 res.type = SystemInquiredType::HEAD_GESTURE_ON_OFF;
@@ -742,44 +749,43 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SystemSetParamCommon, res);
-                state.mHeadGestureEnabled.commit();
             }
+            state.mHeadGestureEnabled.commit();
         }
 
         /* Auto Power Off */
-        if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
+        if (state.mPowerAutoOff.pending())
         {
             using namespace t1;
-            if (state.mPowerAutoOff.pending())
+            if (state.mSupport.contains(FunctionType::AUTO_POWER_OFF))
             {
                 PowerSetParamAutoPowerOff res;
                 res.command = Command::POWER_SET_PARAM;
                 res.currentPowerOffElements = state.mPowerAutoOff.submitted;
                 res.lastSelectPowerOffElements = AutoPowerOffElements::POWER_OFF_IN_5_MIN;
                 SendCommandACK(PowerSetParamAutoPowerOff, res);
-                state.mPowerAutoOff.commit();
             }
+            state.mPowerAutoOff.commit();
         }
-        else if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        if (state.mPowerAutoOffWearingDetection.pending())
         {
             using namespace t1;
-            if (state.mPowerAutoOffWearingDetection.pending())
+            if (state.mSupport.contains(FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
             {
                 PowerSetParamAutoPowerOffWithWearingDetection res;
                 res.command = Command::POWER_SET_PARAM;
                 res.currentPowerOffElements = state.mPowerAutoOffWearingDetection.submitted;
                 res.lastSelectPowerOffElements = AutoPowerOffWearingDetectionElements::POWER_OFF_IN_5_MIN;
                 SendCommandACK(PowerSetParamAutoPowerOffWithWearingDetection, res);
-                state.mPowerAutoOffWearingDetection.commit();
             }
+            state.mPowerAutoOffWearingDetection.commit();
         }
 
         /* Pause when device is removed */
-        if (state.mSupport.contains(
-            t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+        if (state.mAutoPauseEnabled.pending())
         {
             using namespace t1;
-            if (state.mAutoPauseEnabled.pending())
+            if (state.mSupport.contains(FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             {
                 SystemSetParamCommon res;
                 res.command = Command::SYSTEM_SET_PARAM;
@@ -788,8 +794,8 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SystemSetParamCommon, res);
-                state.mAutoPauseEnabled.commit();
             }
+            state.mAutoPauseEnabled.commit();
         }
 
         /* Voice Guidance */
@@ -806,10 +812,10 @@ namespace mdr
         }
 
         /* Voice Guidance */
-        if (state.mSupport.contains(
-            t2::FunctionType::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
+        if (state.mVoiceGuidanceVolume.pending())
         {
-            if (state.mVoiceGuidanceVolume.pending())
+            if (state.mSupport.contains(
+                t2::FunctionType::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT))
             {
                 using namespace t2;
                 VoiceGuidanceSetParamVolume res;
@@ -817,60 +823,60 @@ namespace mdr
                 res.volumeValue = state.mVoiceGuidanceVolume.submitted;
                 res.feedbackSound = OnOffSettingValue::ON;
                 SendCommandACK(VoiceGuidanceSetParamVolume, res);
-                state.mVoiceGuidanceVolume.commit();
             }
+            state.mVoiceGuidanceVolume.commit();
         }
 
         /* General Settings */
         {
             using namespace t1;
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING_1))
+            if (state.mGsParamBool1.pending())
             {
-                if (state.mGsParamBool1.pending())
+                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_1))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING1;
                     res.value = state.mGsParamBool1.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
-                    state.mGsParamBool1.commit();
                 }
+                state.mGsParamBool1.commit();
             }
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING_2))
+            if (state.mGsParamBool2.pending())
             {
-                if (state.mGsParamBool2.pending())
+                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_2))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING2;
                     res.value = state.mGsParamBool2.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
-                    state.mGsParamBool2.commit();
                 }
+                state.mGsParamBool2.commit();
             }
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING_3))
+            if (state.mGsParamBool3.pending())
             {
-                if (state.mGsParamBool3.pending())
+                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_3))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING3;
                     res.value = state.mGsParamBool3.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
-                    state.mGsParamBool3.commit();
                 }
+                state.mGsParamBool3.commit();
             }
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING_4))
+            if (state.mGsParamBool4.pending())
             {
-                if (state.mGsParamBool4.pending())
+                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_4))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING4;
                     res.value = state.mGsParamBool4.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
-                    state.mGsParamBool4.commit();
                 }
+                state.mGsParamBool4.commit();
             }
         }
 
@@ -887,7 +893,6 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
-                state.mSafeListeningPreviewMode.commit();
             }
             else if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_2))
             {
@@ -898,7 +903,6 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
-                state.mSafeListeningPreviewMode.commit();
             }
             else if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_1))
             {
@@ -909,7 +913,6 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
-                state.mSafeListeningPreviewMode.commit();
             }
             else if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_2))
             {
@@ -920,8 +923,8 @@ namespace mdr
                     ? OnOffSettingValue::ON
                     : OnOffSettingValue::OFF;
                 SendCommandACK(SafeListeningSetParamSL, res);
-                state.mSafeListeningPreviewMode.commit();
             }
+            state.mSafeListeningPreviewMode.commit();
         }
         co_return MDR_EVENT_APPLY_COMPLETE;
     }
