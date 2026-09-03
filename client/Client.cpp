@@ -1262,29 +1262,33 @@ void DrawDeviceControlsSound()
                 gState.mNoise.mode = MDR_NOISE_MODE_OFF, changed = true;
             ImGui::SeparatorText("Ambient Strength");
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            bool ambientChanged = false;
-            int ambientLevel = gState.mNoise.ambient_level;
-            if (ImGui::SliderInt("##AmbStrength", &ambientLevel, 1, 20))
-                gState.mNoise.ambient_level = static_cast<uint8_t>(ambientLevel), ambientChanged = changed = true;
-            gState.mNoise.changing_asm_level = ambientChanged && ImGui::IsItemActive();
-            if (ImGui::IsItemDeactivatedAfterEdit())
-                changed = true;
-            if (supportAutoASM)
             {
-                bool adaptive = gState.mNoise.adaptive_ambient != MDR_FALSE;
-                if (ImGui::Checkbox("Auto Ambient Sound", &adaptive))
-                    gState.mNoise.adaptive_ambient = adaptive ? MDR_TRUE : MDR_FALSE, changed = true;
-                ImGui::BeginDisabled(!adaptive);
-                constexpr MDRAdaptiveSensitivity kSelections[] = {
-                    MDR_ADAPTIVE_SENSITIVITY_STANDARD, MDR_ADAPTIVE_SENSITIVITY_HIGH,
-                    MDR_ADAPTIVE_SENSITIVITY_LOW};
-                changed |= ImComboBoxItems(
-                    "Sensitivity", std::span{kSelections}, gState.mNoise.adaptive_sensitivity, FormatAdaptiveSensitivity);
+                // Only works with AMB enabled
+                ImGui::BeginDisabled(gState.mNoise.mode != MDR_NOISE_MODE_AMBIENT);
+                bool ambientChanged = false;
+                int ambientLevel = gState.mNoise.ambient_level;
+                if (ImGui::SliderInt("##AmbStrength", &ambientLevel, 1, 20))
+                    gState.mNoise.ambient_level = static_cast<uint8_t>(ambientLevel), ambientChanged = changed = true;
+                gState.mNoise.changing_asm_level = ambientChanged && ImGui::IsItemActive();
+                if (ImGui::IsItemDeactivatedAfterEdit())
+                    changed = true;
+                if (supportAutoASM)
+                {
+                    bool adaptive = gState.mNoise.adaptive_ambient != MDR_FALSE;
+                    if (ImGui::Checkbox("Auto Ambient Sound", &adaptive))
+                        gState.mNoise.adaptive_ambient = adaptive ? MDR_TRUE : MDR_FALSE, changed = true;
+                    ImGui::BeginDisabled(!adaptive);
+                    constexpr MDRAdaptiveSensitivity kSelections[] = {
+                        MDR_ADAPTIVE_SENSITIVITY_STANDARD, MDR_ADAPTIVE_SENSITIVITY_HIGH, MDR_ADAPTIVE_SENSITIVITY_LOW};
+                    changed |= ImComboBoxItems("Sensitivity", std::span{kSelections},
+                                               gState.mNoise.adaptive_sensitivity, FormatAdaptiveSensitivity);
+                    ImGui::EndDisabled();
+                }
+                bool focusOnVoice = gState.mNoise.focus_on_voice != MDR_FALSE;
+                if (ImGui::Checkbox("Voice Passthrough", &focusOnVoice))
+                    gState.mNoise.focus_on_voice = focusOnVoice ? MDR_TRUE : MDR_FALSE, changed = true;
                 ImGui::EndDisabled();
             }
-            bool focusOnVoice = gState.mNoise.focus_on_voice != MDR_FALSE;
-            if (ImGui::Checkbox("Voice Passthrough", &focusOnVoice))
-                gState.mNoise.focus_on_voice = focusOnVoice ? MDR_TRUE : MDR_FALSE, changed = true;
             if (changed && gState.mNoiseAvailable)
                 mdrHeadphonesSetNoiseControl(gDevice, &gState.mNoise);
             ImGui::TreePop();
