@@ -161,9 +161,9 @@ namespace mdr
         void ApplyNcAsm(MDRHeadphones* self, const T& result)
         {
             self->mDetailsV1.mNcAsmEnabled.overwrite(result.ncAsmEffect == NcAsmEffect::ON);
-            self->mDetailsV1.mNcAsmMode.overwrite(result.asmValue > 0 ? 1 : 0);
             self->mDetailsV1.mNcAsmFocusOnVoice.overwrite(result.asmId == AsmId::VOICE);
-            self->mDetailsV1.mNcAsmAmbientLevel.overwrite(result.asmValue);
+            self->mDetailsV1.mNcAsmLevel.overwrite(
+                result.ncValue == static_cast<UInt8>(NcDualSingleValue::DUAL) ? -1 : result.asmValue);
         }
 
         int HandleNcAsm(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -192,17 +192,15 @@ namespace mdr
                 {
                     Deserialize(NotifyNcAsmParamAsmParam, result, cmd);
                     self->mDetailsV1.mNcAsmEnabled.overwrite(result.ncAsmEffect == NcAsmEffect::ON);
-                    self->mDetailsV1.mNcAsmMode.overwrite(1);
                     self->mDetailsV1.mNcAsmFocusOnVoice.overwrite(result.asmId == AsmId::VOICE);
-                    self->mDetailsV1.mNcAsmAmbientLevel.overwrite(result.asmValue);
+                    self->mDetailsV1.mNcAsmLevel.overwrite(result.asmValue);
                 }
                 else
                 {
                     Deserialize(RetNcAsmParamAsmParam, result, cmd);
                     self->mDetailsV1.mNcAsmEnabled.overwrite(result.ncAsmEffect == NcAsmEffect::ON);
-                    self->mDetailsV1.mNcAsmMode.overwrite(1);
                     self->mDetailsV1.mNcAsmFocusOnVoice.overwrite(result.asmId == AsmId::VOICE);
-                    self->mDetailsV1.mNcAsmAmbientLevel.overwrite(result.asmValue);
+                    self->mDetailsV1.mNcAsmLevel.overwrite(result.asmValue);
                 }
                 return MDR_EVENT_NOISE_CONTROL_CHANGED;
             }

@@ -1576,9 +1576,8 @@ MDRResult mdrHeadphonesGetNoiseControl(
     {
         const auto& state = h.mDetailsV1;
         *outNoiseControl = {
-            .mode = !state.mNcAsmEnabled.current ? MDR_NOISE_MODE_OFF :
-                state.mNcAsmMode.current == 0 ? MDR_NOISE_MODE_CANCELLING : MDR_NOISE_MODE_AMBIENT,
-            .ambient_level = static_cast<uint8_t>(state.mNcAsmAmbientLevel.current),
+            .mode = state.mNcAsmEnabled.current ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_OFF,
+            .ambient_level = static_cast<uint8_t>(static_cast<int8_t>(state.mNcAsmLevel.current)),
             .focus_on_voice = static_cast<MDRBoolean>(state.mNcAsmFocusOnVoice.current),
             .button_mode = MDR_NOISE_BUTTON_NONE,
             .adaptive_ambient = MDR_FALSE,
@@ -1605,25 +1604,27 @@ MDRResult mdrHeadphonesSetNoiseControl(
     MDRHeadphones* headphones, const MDRNoiseControl* noiseControl)
 {
     if (!headphones || !noiseControl ||
-        noiseControl->mode > MDR_NOISE_MODE_AMBIENT || noiseControl->ambient_level > 20 ||
-        !ValidBoolean(noiseControl->changing_asm_level) || !ValidBoolean(noiseControl->focus_on_voice) ||
-        !ValidBoolean(noiseControl->adaptive_ambient))
+        noiseControl->mode > MDR_NOISE_MODE_AMBIENT || !ValidBoolean(noiseControl->changing_asm_level) ||
+        !ValidBoolean(noiseControl->focus_on_voice) || !ValidBoolean(noiseControl->adaptive_ambient))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
+        if (noiseControl->ambient_level != 0xFF && noiseControl->ambient_level > 20)
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
         if (noiseControl->button_mode != MDR_NOISE_BUTTON_NONE ||
             noiseControl->adaptive_ambient != MDR_FALSE ||
             noiseControl->adaptive_sensitivity != MDR_ADAPTIVE_SENSITIVITY_UNKNOWN)
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
         auto& state = h->mDetailsV1;
         state.mNcAsmEnabled.stage(noiseControl->mode != MDR_NOISE_MODE_OFF);
-        state.mNcAsmMode.stage(noiseControl->mode == MDR_NOISE_MODE_AMBIENT ? 1u : 0u);
-        state.mNcAsmAmbientLevel.stage(noiseControl->ambient_level);
-        state.mNcAsmChangingAsmLevel.stage(noiseControl->changing_asm_level != MDR_FALSE);
+        state.mNcAsmLevel.stage(static_cast<int8_t>(noiseControl->ambient_level));
+        state.mNcAsmChangingLevel.stage(noiseControl->changing_asm_level != MDR_FALSE);
         state.mNcAsmFocusOnVoice.stage(noiseControl->focus_on_voice != MDR_FALSE);
         return MDR_RESULT_OK;
     }
+    if (noiseControl->ambient_level > 20)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& state = h->mDetailsV2;
     mdr::v2::t1::Function button{};
     auto sensitivity = state.mNcAsmNoiseAdaptiveSensitivity.desired;

@@ -142,6 +142,7 @@ typedef uint32_t MDRSourceSwitchControlResult;
 typedef uint32_t MDRNoiseMode;
 #define MDR_NOISE_MODE_OFF ((MDRNoiseMode)0u)
 #define MDR_NOISE_MODE_CANCELLING ((MDRNoiseMode)1u)
+#define MDR_NOISE_MODE_V1_ON ((MDRNoiseMode)1u)
 #define MDR_NOISE_MODE_AMBIENT ((MDRNoiseMode)2u)
 
 typedef uint32_t MDRAdaptiveSensitivity;

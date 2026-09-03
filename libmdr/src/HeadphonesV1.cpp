@@ -18,12 +18,12 @@ namespace mdr
     {
         UInt8 V1NcValueForAmbientLevel(int level)
         {
-            if (level <= 0)
-                return static_cast<UInt8>(t1::NcDualSingleValue::DUAL);
-            if (level == 1)
-                return static_cast<UInt8>(t1::NcDualSingleValue::SINGLE);
+            if (level <= -1)
+                return static_cast<UInt8>(t1::NcDualSingleValue::DUAL); // Noise Cancelling
+            if (level == 0)
+                return static_cast<UInt8>(t1::NcDualSingleValue::SINGLE); // Wind Noise Reduction
             return static_cast<UInt8>(t1::NcDualSingleValue::OFF);
-        }       
+        }
     }
 
     MDRTask MDRHeadphones::RequestInitV1()
@@ -191,11 +191,9 @@ namespace mdr
         state.mShutdown.submit();
         state.mNcAsmEnabled.submit();
         state.mNcAsmFocusOnVoice.submit();
-        state.mNcAsmAmbientLevel.submit();
+        state.mNcAsmLevel.submit();
+        state.mNcAsmChangingLevel.submit();
         state.mNcAsmButtonFunction.submit();
-        state.mNcAsmMode.submit();
-        state.mNcAsmAutoAsmEnabled.submit();
-        state.mNcAsmNoiseAdaptiveSensitivity.submit();
         state.mPowerAutoOff.submit();
         state.mPowerAutoOffWearingDetection.submit();
         state.mPlayVolume.submit();
@@ -244,27 +242,37 @@ namespace mdr
             state.mShutdown.override(false);
         }
 
-        if (state.mNcAsmEnabled.pending() || state.mNcAsmMode.pending() ||
-            state.mNcAsmFocusOnVoice.pending() || state.mNcAsmAmbientLevel.pending())
+        if (state.mNcAsmEnabled.pending() || state.mNcAsmFocusOnVoice.pending() || state.mNcAsmLevel.pending() ||
+            state.mNcAsmChangingLevel.pending())
         {
             if (state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
                 t1::SetNcAsmParamNcAsmParam payload;
-                payload.ncAsmEffect =
-                    state.mNcAsmEnabled.submitted ? t1::NcAsmEffect::ON : t1::NcAsmEffect::OFF;
+                if (state.mNcAsmEnabled.submitted)
+                {
+                    if (state.mNcAsmChangingLevel.submitted)
+                        payload.ncAsmEffect = t1::NcAsmEffect::ADJUSTMENT_IN_PROGRESS;
+                    else if (!state.mNcAsmEnabled.pending())
+                        payload.ncAsmEffect = t1::NcAsmEffect::ADJUSTMENT_COMPLETION;
+                    else
+                        payload.ncAsmEffect = t1::NcAsmEffect::ON;
+                }
+                else
+                {
+                    payload.ncAsmEffect = t1::NcAsmEffect::OFF;
+                }
                 payload.ncType = t1::NcAsmSettingType::LEVEL_ADJUSTMENT;
-                payload.ncValue = V1NcValueForAmbientLevel(state.mNcAsmAmbientLevel.submitted);
+                payload.ncValue = V1NcValueForAmbientLevel(state.mNcAsmLevel.submitted);
                 payload.asmType = t1::AsmSettingType::LEVEL_ADJUSTMENT;
                 payload.asmId = state.mNcAsmFocusOnVoice.submitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
-                payload.asmValue = static_cast<UInt8>(std::clamp(state.mNcAsmAmbientLevel.submitted, 0, 20));
-                if (state.mNcAsmMode.submitted == 0)
-                    payload.asmValue = 0;
+                payload.asmValue = static_cast<UInt8>(
+                    state.mNcAsmLevel.submitted <= -1 ? 0 : std::clamp(state.mNcAsmLevel.submitted, 0, 20));
                 SendCommandACK(t1::SetNcAsmParamNcAsmParam, payload);
             }
             state.mNcAsmEnabled.commit();
-            state.mNcAsmMode.commit();
             state.mNcAsmFocusOnVoice.commit();
-            state.mNcAsmAmbientLevel.commit();
+            state.mNcAsmLevel.commit();
+            state.mNcAsmChangingLevel.commit();
         }
 
         if (state.mPlayVolume.pending())
@@ -466,9 +474,8 @@ namespace mdr
     {
         const auto& state = mDetailsV1;
         return state.mShutdown.dirty() || state.mNcAsmEnabled.dirty() ||
-            state.mNcAsmFocusOnVoice.dirty() || state.mNcAsmAmbientLevel.dirty() ||
-            state.mNcAsmButtonFunction.dirty() || state.mNcAsmMode.dirty() ||
-            state.mNcAsmAutoAsmEnabled.dirty() || state.mNcAsmNoiseAdaptiveSensitivity.dirty() ||
+            state.mNcAsmFocusOnVoice.dirty() || state.mNcAsmLevel.dirty() ||
+            state.mNcAsmChangingLevel.dirty() || state.mNcAsmButtonFunction.dirty() ||
             state.mPowerAutoOff.dirty() || state.mPowerAutoOffWearingDetection.dirty() ||
             state.mPlayVolume.dirty() || state.mPlayControl.dirty() ||
             state.mGsParamBool1.dirty() || state.mGsParamBool2.dirty() ||

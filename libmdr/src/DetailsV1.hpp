@@ -85,12 +85,9 @@ namespace mdr
         MDRProperty<bool> mShutdown;
         MDRProperty<bool> mNcAsmEnabled;
         MDRProperty<bool> mNcAsmFocusOnVoice;
-        MDRProperty<int> mNcAsmAmbientLevel;
-        MDRProperty<bool> mNcAsmChangingAsmLevel;
+        MDRProperty<int> mNcAsmLevel;
+        MDRProperty<bool> mNcAsmChangingLevel;
         MDRProperty<UInt8> mNcAsmButtonFunction;
-        MDRProperty<UInt8> mNcAsmMode;
-        MDRProperty<bool> mNcAsmAutoAsmEnabled;
-        MDRProperty<UInt8> mNcAsmNoiseAdaptiveSensitivity;
         MDRProperty<v1::t1::AutoPowerOffElementId> mPowerAutoOff;
         MDRProperty<UInt8> mPowerAutoOffWearingDetection;
         MDRProperty<int> mPlayVolume;
