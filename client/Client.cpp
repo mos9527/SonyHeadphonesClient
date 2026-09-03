@@ -1666,10 +1666,10 @@ void DrawDeviceControlsSystem()
             bool enabled = voice.enabled != MDR_FALSE;
             if (ImGui::Checkbox("Enabled", &enabled))
                 voice.enabled = enabled ? MDR_TRUE : MDR_FALSE, changed = true;
-            ImGui::SeparatorText("Volume");
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             if (FeatureAvailable(MDR_FEATURE_VOICE_GUIDANCE_VOLUME))
             {
+                ImGui::SeparatorText("Volume");
+                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
                 int volume = voice.volume;
                 if (ImGui::SliderInt("##Volume", &volume, -2, 2))
                     voice.volume = static_cast<int8_t>(volume), changed = true;
