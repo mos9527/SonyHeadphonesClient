@@ -41,7 +41,7 @@ namespace mdr
         v1::ModelColor mModelColor{};
         v1::t1::AudioCodec mAudioCodec{};
 
-        UInt8 mLastAlertMessage{};
+        v1::t1::AlertMessageType mLastAlertMessage{};
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
 
@@ -80,7 +80,7 @@ namespace mdr
             v1::t1::GsSettingInfo value{};
         };
 
-        GsCapability mGsCapability1, mGsCapability2, mGsCapability3, mGsCapability4;
+        GsCapability mGsCapability[3];
 
         MDRProperty<bool> mShutdown;
         MDRProperty<bool> mNcAsmEnabled;
@@ -92,7 +92,7 @@ namespace mdr
         MDRProperty<UInt8> mPowerAutoOffWearingDetection;
         MDRProperty<int> mPlayVolume;
         MDRProperty<v1::t1::PlaybackControl> mPlayControl;
-        MDRProperty<bool> mGsParamBool1, mGsParamBool2, mGsParamBool3, mGsParamBool4;
+        MDRProperty<bool> mGsParamBool[3];
         MDRProperty<bool> mUpscalingEnabled;
         MDRProperty<v1::t1::ConnectionModeSettingValue> mAudioPriorityMode;
         MDRProperty<bool> mBGMModeEnabled;

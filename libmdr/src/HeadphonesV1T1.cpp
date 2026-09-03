@@ -280,22 +280,49 @@ namespace mdr
             return MDR_EVENT_UNHANDLED;
         }
 
+        int HandleGsCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            Deserialize(RetGsCapabilityGsSettingInfo, res, cmd);
+            using enum GsInquiredType;
+            switch (res.type)
+            {
+            case GENERAL_SETTING1:
+            {
+                self->mDetailsV1.mGsCapability[0] = {res.settingType, res.title};
+                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+            }
+            case GENERAL_SETTING2:
+            {
+                self->mDetailsV1.mGsCapability[1] = {res.settingType, res.title};
+                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+            }
+            case GENERAL_SETTING3:
+            {
+                self->mDetailsV1.mGsCapability[2] = {res.settingType, res.title};
+                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+            }
+            default:
+                break;
+            }
+            return MDR_EVENT_UNHANDLED;
+        }
+
         int HandleGsParam(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             GsInquiredType type{};
             if (!detail::ReadEnumTag(cmd, type))
                 return MDR_EVENT_UNHANDLED;
-            MDRProperty<bool>* property = nullptr;
+            MDRProperty<bool>* property;
             switch (type)
             {
             case GsInquiredType::GENERAL_SETTING1:
-                property = &self->mDetailsV1.mGsParamBool1;
+                property = &self->mDetailsV1.mGsParamBool[0];
                 break;
             case GsInquiredType::GENERAL_SETTING2:
-                property = &self->mDetailsV1.mGsParamBool2;
+                property = &self->mDetailsV1.mGsParamBool[1];
                 break;
             case GsInquiredType::GENERAL_SETTING3:
-                property = &self->mDetailsV1.mGsParamBool3;
+                property = &self->mDetailsV1.mGsParamBool[2];
                 break;
             default:
                 return MDR_EVENT_UNHANDLED;
@@ -403,6 +430,36 @@ namespace mdr
                 return MDR_EVENT_UNHANDLED;
             }
         }
+
+        int HandleAlertParam(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            AlertInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type))
+                return MDR_EVENT_UNHANDLED;
+            using enum AlertInquiredType;
+            switch (type)
+            {
+            case FIXED_MESSAGE:
+            {
+                Deserialize(NotifyAlertParam, res, cmd);
+                using enum AlertActionType;
+                switch (res.actionType)
+                {
+                case POSITIVE_NEGATIVE:
+                {
+                    self->mDetailsV1.mLastAlertMessage = res.messageType;
+                    return MDR_EVENT_ALERT;
+                }
+                default:
+                    break;
+                }
+                return MDR_EVENT_UNHANDLED;
+            }
+            default:
+                break;
+            }
+            return MDR_EVENT_UNHANDLED;
+        }
     }
 
     int MDRHeadphones::HandleCommandV1T1(Span<const UInt8> cmd, MDRCommandSeqNumber)
@@ -443,12 +500,16 @@ namespace mdr
         case Command::AUDIO_RET_PARAM:
         case Command::AUDIO_NTFY_PARAM:
             return HandleAudioParam(self, cmd);
+        case Command::GENERAL_SETTING_RET_CAPABILITY:
+            return HandleGsCapability(self, cmd);
         case Command::GENERAL_SETTING_RET_PARAM:
         case Command::GENERAL_SETTING_NTNY_PARAM:
             return HandleGsParam(self, cmd);
         case Command::SYSTEM_RET_PARAM:
         case Command::SYSTEM_NTFY_PARAM:
             return HandleSystemParam(self, cmd);
+        case Command::ALERT_NTFY_PARAM:
+            return HandleAlertParam(self, cmd);
         default:
             MDR_LOG_DEBUG("** Unhandled V1 T1 {}", static_cast<Command>(cmd[0]));
             return MDR_EVENT_UNHANDLED;

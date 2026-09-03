@@ -26,7 +26,7 @@ namespace mdr
         SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::MODEL_NAME});
         SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::SERIES_AND_COLOR_INFO});
 
-        // Following are cached by the offical app based on the MAC address
+        // Following are cached by the official app based on the MAC address
         {
             /* Support Functions */
             SendCommandACK(t1::ConnectGetSupportFunction);
@@ -82,6 +82,7 @@ namespace mdr
                            .type = t1::AudioInquiredType::UPSCALING
                            });
         }
+
         /* Receive alerts for certain operations like toggling multipoint */
         if (state.mSupport.contains(t1::FunctionType::FIXED_MESSAGE))
             SendCommandACK(t1::AlertSetStatusFixedMessage, { .status = EnableDisable::ENABLE});
@@ -219,13 +220,14 @@ namespace mdr
         /* Voice Guidance */
         if (state.mProtocol.hasTable2)
         {
-            // Enabled
+            /* Enabled */
             SendCommandACK(t2::VoiceGuidanceGetParam,
                            {
                            .inquiredType = t2::VoiceGuidanceInquiredType::
                            MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH
                            });
-            // Volume
+
+            /* Volume */
             SendCommandACK(t2::VoiceGuidanceGetParam, {.inquiredType = t2::VoiceGuidanceInquiredType::VOLUME});
         }
 
@@ -314,10 +316,10 @@ namespace mdr
         state.mPowerAutoOffWearingDetection.submit();
         state.mPlayVolume.submit();
         state.mPlayControl.submit();
-        state.mGsParamBool1.submit();
-        state.mGsParamBool2.submit();
-        state.mGsParamBool3.submit();
-        state.mGsParamBool4.submit();
+        state.mGsParamBool[0].submit();
+        state.mGsParamBool[1].submit();
+        state.mGsParamBool[2].submit();
+        state.mGsParamBool[3].submit();
         state.mUpscalingEnabled.submit();
         state.mAudioPriorityMode.submit();
         state.mBGMModeEnabled.submit();
@@ -830,53 +832,53 @@ namespace mdr
         /* General Settings */
         {
             using namespace t1;
-            if (state.mGsParamBool1.pending())
+            if (state.mGsParamBool[0].pending())
             {
                 if (state.mSupport.contains(FunctionType::GENERAL_SETTING_1))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING1;
-                    res.value = state.mGsParamBool1.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = state.mGsParamBool[0].submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                 }
-                state.mGsParamBool1.commit();
+                state.mGsParamBool[0].commit();
             }
-            if (state.mGsParamBool2.pending())
+            if (state.mGsParamBool[1].pending())
             {
                 if (state.mSupport.contains(FunctionType::GENERAL_SETTING_2))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING2;
-                    res.value = state.mGsParamBool2.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = state.mGsParamBool[1].submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                 }
-                state.mGsParamBool2.commit();
+                state.mGsParamBool[1].commit();
             }
-            if (state.mGsParamBool3.pending())
+            if (state.mGsParamBool[2].pending())
             {
                 if (state.mSupport.contains(FunctionType::GENERAL_SETTING_3))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING3;
-                    res.value = state.mGsParamBool3.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = state.mGsParamBool[2].submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                 }
-                state.mGsParamBool3.commit();
+                state.mGsParamBool[2].commit();
             }
-            if (state.mGsParamBool4.pending())
+            if (state.mGsParamBool[3].pending())
             {
                 if (state.mSupport.contains(FunctionType::GENERAL_SETTING_4))
                 {
                     GsSetParamBoolean res;
                     res.command = Command::GENERAL_SETTING_SET_PARAM;
                     res.type = GsInquiredType::GENERAL_SETTING4;
-                    res.value = state.mGsParamBool4.submitted ? GsSettingValue::ON : GsSettingValue::OFF;
+                    res.value = state.mGsParamBool[3].submitted ? GsSettingValue::ON : GsSettingValue::OFF;
                     SendCommandACK(GsSetParamBoolean, res);
                 }
-                state.mGsParamBool4.commit();
+                state.mGsParamBool[3].commit();
             }
         }
 
@@ -957,8 +959,8 @@ namespace mdr
             state.mNcAsmAutoAsmEnabled.dirty() || state.mNcAsmNoiseAdaptiveSensitivity.dirty() ||
             state.mPowerAutoOff.dirty() || state.mPowerAutoOffWearingDetection.dirty() ||
             state.mPlayVolume.dirty() || state.mPlayControl.dirty() ||
-            state.mGsParamBool1.dirty() || state.mGsParamBool2.dirty() ||
-            state.mGsParamBool3.dirty() || state.mGsParamBool4.dirty() ||
+            state.mGsParamBool[0].dirty() || state.mGsParamBool[1].dirty() ||
+            state.mGsParamBool[2].dirty() || state.mGsParamBool[3].dirty() ||
             state.mUpscalingEnabled.dirty() || state.mAudioPriorityMode.dirty() ||
             state.mBGMModeEnabled.dirty() || state.mBGMModeRoomSize.dirty() ||
             state.mUpmixCinemaEnabled.dirty() || state.mAutoPauseEnabled.dirty() ||

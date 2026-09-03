@@ -1430,14 +1430,11 @@ MDRResult mdrHeadphonesGetText(
     case MDR_TEXT_GENERAL_SETTING_SUBJECT:
     case MDR_TEXT_GENERAL_SETTING_SUMMARY:
         {
-            const auto capabilities = std::array{
-                &state.mGsCapability1, &state.mGsCapability2, &state.mGsCapability3, &state.mGsCapability4
-            };
-            if (index >= std::size(capabilities))
+            if (index >= std::size(state.mGsCapability))
                 return MDR_RESULT_ERROR_NOT_FOUND;
             const auto& value = text == MDR_TEXT_GENERAL_SETTING_SUBJECT
-                ? capabilities[index]->value.subject.value
-                : capabilities[index]->value.summary.value;
+                ? state.mGsCapability[index].value.subject.value
+                : state.mGsCapability[index].value.summary.value;
             return CopyText({value.data(), value.size()}, buffer, inoutSize);
         }
     case MDR_TEXT_LAST_ALERT:
@@ -1994,19 +1991,16 @@ MDRResult mdrHeadphonesGetGeneralSettingInfo(
         *inoutCount = required;
         return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
     }
-    const auto capabilities = std::array{
-        &state.mGsCapability1, &state.mGsCapability2, &state.mGsCapability3, &state.mGsCapability4
-    };
     uint32_t out = 0;
-    for (uint32_t i = 0; i < 4; ++i)
+    for (uint32_t i = 0; i < std::size(state.mGsCapability); ++i)
     {
         if (!SupportsGeneralSetting(h, i))
             continue;
         settings[out++] = {
             .index = i,
-            .type = IsBooleanGeneralSetting(*capabilities[i])
+            .type = IsBooleanGeneralSetting(state.mGsCapability[i])
                 ? MDR_GENERAL_SETTING_BOOLEAN : MDR_GENERAL_SETTING_UNKNOWN,
-            .writable = static_cast<MDRBoolean>(IsBooleanGeneralSetting(*capabilities[i]))
+            .writable = static_cast<MDRBoolean>(IsBooleanGeneralSetting(state.mGsCapability[i]))
         };
     }
     *inoutCount = required;
@@ -2017,20 +2011,17 @@ MDRResult mdrHeadphonesGetGeneralSettingInfo(
 MDRResult mdrHeadphonesGetGeneralSetting(
     MDRHeadphones* headphones, uint32_t index, MDRGeneralSetting* outSetting)
 {
-    if (!headphones || index >= 4 || !outSetting)
+    if (!headphones || !outSetting)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
-    if (!SupportsGeneralSetting(h, index))
+    if (!SupportsGeneralSetting(h, index)) // This also checks index
         return MDR_RESULT_ERROR_NOT_FOUND;
     return WithDetails(h, [&](const auto& state) -> MDRResult
     {
-    const auto capabilities = std::array{
-        &state.mGsCapability1, &state.mGsCapability2, &state.mGsCapability3, &state.mGsCapability4
-    };
-    if (!IsBooleanGeneralSetting(*capabilities[index]))
+    if (!IsBooleanGeneralSetting(state.mGsCapability[index]))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     const mdr::MDRProperty<bool>* values[] = {
-        &state.mGsParamBool1, &state.mGsParamBool2, &state.mGsParamBool3, &state.mGsParamBool4
+        &state.mGsParamBool[0], &state.mGsParamBool[1], &state.mGsParamBool[2], &state.mGsParamBool[3]
     };
     *outSetting = {
         .index = index,
@@ -2043,23 +2034,16 @@ MDRResult mdrHeadphonesGetGeneralSetting(
 MDRResult mdrHeadphonesSetGeneralSetting(
     MDRHeadphones* headphones, const MDRGeneralSetting* setting)
 {
-    if (!headphones || !setting || setting->index >= 4 ||
-        !ValidBoolean(setting->boolean_value))
+    if (!headphones || !setting || !ValidBoolean(setting->boolean_value))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
-    if (!SupportsGeneralSetting(h, setting->index))
+    if (!SupportsGeneralSetting(h, setting->index)) // This also checks index
         return MDR_RESULT_ERROR_NOT_FOUND;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-    const auto capabilities = std::array{
-        &state.mGsCapability1, &state.mGsCapability2, &state.mGsCapability3, &state.mGsCapability4
-    };
-    if (!IsBooleanGeneralSetting(*capabilities[setting->index]))
+    if (!IsBooleanGeneralSetting(state.mGsCapability[setting->index]))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    mdr::MDRProperty<bool>* values[] = {
-        &state.mGsParamBool1, &state.mGsParamBool2, &state.mGsParamBool3, &state.mGsParamBool4
-    };
-    values[setting->index]->stage(setting->boolean_value != MDR_FALSE);
+    state.mGsParamBool[setting->index].stage(setting->boolean_value != MDR_FALSE);
     return MDR_RESULT_OK;
     });
 }

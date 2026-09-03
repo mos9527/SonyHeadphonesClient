@@ -467,22 +467,22 @@ namespace mdr
         {
         case GENERAL_SETTING1:
         {
-            self->mDetailsV2.mGsCapability1 = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
+            self->mDetailsV2.mGsCapability[0] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
         case GENERAL_SETTING2:
         {
-            self->mDetailsV2.mGsCapability2 = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
+            self->mDetailsV2.mGsCapability[1] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
         case GENERAL_SETTING3:
         {
-            self->mDetailsV2.mGsCapability3 = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
+            self->mDetailsV2.mGsCapability[2] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
         case GENERAL_SETTING4:
         {
-            self->mDetailsV2.mGsCapability4 = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
+            self->mDetailsV2.mGsCapability[3] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
         default:
@@ -514,19 +514,19 @@ namespace mdr
         {
         case GENERAL_SETTING1:
         {
-            return Write(self->mDetailsV2.mGsParamBool1);
+            return Write(self->mDetailsV2.mGsParamBool[0]);
         }
         case GENERAL_SETTING2:
         {
-            return Write(self->mDetailsV2.mGsParamBool2);
+            return Write(self->mDetailsV2.mGsParamBool[1]);
         }
         case GENERAL_SETTING3:
         {
-            return Write(self->mDetailsV2.mGsParamBool3);
+            return Write(self->mDetailsV2.mGsParamBool[2]);
         }
         case GENERAL_SETTING4:
         {
-            return Write(self->mDetailsV2.mGsParamBool4);
+            return Write(self->mDetailsV2.mGsParamBool[3]);
         }
         default:
             break;

@@ -438,6 +438,7 @@ namespace mdr::detail
  * lack thereof.
  */
 #define SendCommandACK(Type, ...)                                                                                      \
+    do                                                                                                                 \
     {                                                                                                                  \
         int _retries;                                                                                                  \
         for (_retries = 0; _retries < mACKRetriesCount; _retries++)                                                    \
@@ -453,7 +454,8 @@ namespace mdr::detail
         }                                                                                                              \
         if (_retries == mACKRetriesCount)                                                                              \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \
-    }
+    }                                                                                                                  \
+    while (false)
 
 /**
  * @brief Just a helper macro to deserialize a command payload.

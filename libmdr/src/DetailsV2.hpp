@@ -86,7 +86,7 @@ namespace mdr
             v2::t1::GsSettingInfo value{};
         };
 
-        GsCapability mGsCapability1, mGsCapability2, mGsCapability3, mGsCapability4;
+        GsCapability mGsCapability[4];
 
         MDRProperty<bool> mShutdown;
         MDRProperty<bool> mNcAsmEnabled;
@@ -101,7 +101,7 @@ namespace mdr
         MDRProperty<v2::t1::AutoPowerOffWearingDetectionElements> mPowerAutoOffWearingDetection;
         MDRProperty<int> mPlayVolume;
         MDRProperty<v2::t1::PlaybackControl> mPlayControl;
-        MDRProperty<bool> mGsParamBool1, mGsParamBool2, mGsParamBool3, mGsParamBool4;
+        MDRProperty<bool> mGsParamBool[4];
         MDRProperty<bool> mUpscalingEnabled;
         MDRProperty<v2::t1::PriorMode> mAudioPriorityMode;
         MDRProperty<bool> mBGMModeEnabled;
