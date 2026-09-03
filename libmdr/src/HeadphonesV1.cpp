@@ -173,7 +173,7 @@ namespace mdr
                 });
             }
         }
-        mNeutralInitialized = true;
+        mInitialized = true;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 

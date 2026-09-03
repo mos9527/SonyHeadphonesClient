@@ -309,7 +309,7 @@ namespace mdr
 #pragma endregion
 
         // Common lifecycle state; family device state lives in DetailsV1/DetailsV2.
-        bool mNeutralInitialized{};
+        bool mInitialized{};
 
     private:
         /**

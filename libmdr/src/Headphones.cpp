@@ -592,7 +592,7 @@ namespace
         return mdr::v2::format_as(state.mModelColor);
     }
 
-    MDRAudioCodec ToNeutral(mdr::v1::t1::AudioCodec value)
+    MDRAudioCodec from_protocol(mdr::v1::t1::AudioCodec value)
     {
         using enum mdr::v1::t1::AudioCodec;
         switch (value)
@@ -607,7 +607,7 @@ namespace
         }
     }
 
-    MDRAudioCodec ToNeutral(mdr::v2::t1::AudioCodec value)
+    MDRAudioCodec from_protocol(mdr::v2::t1::AudioCodec value)
     {
         using enum mdr::v2::t1::AudioCodec;
         switch (value)
@@ -623,7 +623,7 @@ namespace
         }
     }
 
-    MDRChargingState ToNeutral(mdr::v1::t1::BatteryChargingStatus value)
+    MDRChargingState from_protocol(mdr::v1::t1::BatteryChargingStatus value)
     {
         switch (value)
         {
@@ -633,7 +633,7 @@ namespace
         }
     }
 
-    MDRChargingState ToNeutral(mdr::v2::t1::BatteryChargingStatus value)
+    MDRChargingState from_protocol(mdr::v2::t1::BatteryChargingStatus value)
     {
         using enum mdr::v2::t1::BatteryChargingStatus;
         switch (value)
@@ -645,7 +645,7 @@ namespace
         }
     }
 
-    MDRPlaybackStatus ToNeutral(mdr::v1::t1::PlaybackStatus value)
+    MDRPlaybackStatus from_protocol(mdr::v1::t1::PlaybackStatus value)
     {
         switch (value)
         {
@@ -656,7 +656,7 @@ namespace
         }
     }
 
-    MDRPlaybackStatus ToNeutral(mdr::v2::t1::PlaybackStatus value)
+    MDRPlaybackStatus from_protocol(mdr::v2::t1::PlaybackStatus value)
     {
         using enum mdr::v2::t1::PlaybackStatus;
         switch (value)
@@ -694,7 +694,7 @@ namespace
         }
     }
 
-    MDRAdaptiveSensitivity ToNeutral(mdr::v2::t1::NoiseAdaptiveSensitivity value)
+    MDRAdaptiveSensitivity from_protocol(mdr::v2::t1::NoiseAdaptiveSensitivity value)
     {
         using enum mdr::v2::t1::NoiseAdaptiveSensitivity;
         switch (value)
@@ -706,7 +706,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRAdaptiveSensitivity value, mdr::v2::t1::NoiseAdaptiveSensitivity& out)
+    bool to_protocol(MDRAdaptiveSensitivity value, mdr::v2::t1::NoiseAdaptiveSensitivity& out)
     {
         using enum mdr::v2::t1::NoiseAdaptiveSensitivity;
         switch (value)
@@ -718,7 +718,7 @@ namespace
         }
     }
 
-    MDRNoiseButtonMode ToNeutral(mdr::v2::t1::Function value)
+    MDRNoiseButtonMode from_protocol(mdr::v2::t1::Function value)
     {
         using enum mdr::v2::t1::Function;
         switch (value)
@@ -731,7 +731,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRNoiseButtonMode value, mdr::v2::t1::Function& out)
+    bool to_protocol(MDRNoiseButtonMode value, mdr::v2::t1::Function& out)
     {
         using enum mdr::v2::t1::Function;
         switch (value)
@@ -745,7 +745,7 @@ namespace
         }
     }
 
-    MDRSpeechSensitivity ToNeutral(mdr::v1::t1::DetectionSensitivity value)
+    MDRSpeechSensitivity from_protocol(mdr::v1::t1::DetectionSensitivity value)
     {
         switch (value)
         {
@@ -756,7 +756,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRSpeechSensitivity value, mdr::v1::t1::DetectionSensitivity& out)
+    bool to_protocol(MDRSpeechSensitivity value, mdr::v1::t1::DetectionSensitivity& out)
     {
         switch (value)
         {
@@ -767,7 +767,7 @@ namespace
         }
     }
 
-    MDRSpeechSensitivity ToNeutral(mdr::v2::t1::DetectSensitivity value)
+    MDRSpeechSensitivity from_protocol(mdr::v2::t1::DetectSensitivity value)
     {
         using enum mdr::v2::t1::DetectSensitivity;
         switch (value)
@@ -779,7 +779,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRSpeechSensitivity value, mdr::v2::t1::DetectSensitivity& out)
+    bool to_protocol(MDRSpeechSensitivity value, mdr::v2::t1::DetectSensitivity& out)
     {
         using enum mdr::v2::t1::DetectSensitivity;
         switch (value)
@@ -791,7 +791,7 @@ namespace
         }
     }
 
-    MDRSpeakTimeout ToNeutral(mdr::v1::t1::ModeOutTime value)
+    MDRSpeakTimeout from_protocol(mdr::v1::t1::ModeOutTime value)
     {
         switch (value)
         {
@@ -803,7 +803,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRSpeakTimeout value, mdr::v1::t1::ModeOutTime& out)
+    bool to_protocol(MDRSpeakTimeout value, mdr::v1::t1::ModeOutTime& out)
     {
         switch (value)
         {
@@ -815,7 +815,7 @@ namespace
         }
     }
 
-    MDRSpeakTimeout ToNeutral(mdr::v2::t1::ModeOutTime value)
+    MDRSpeakTimeout from_protocol(mdr::v2::t1::ModeOutTime value)
     {
         using enum mdr::v2::t1::ModeOutTime;
         switch (value)
@@ -828,7 +828,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRSpeakTimeout value, mdr::v2::t1::ModeOutTime& out)
+    bool to_protocol(MDRSpeakTimeout value, mdr::v2::t1::ModeOutTime& out)
     {
         using enum mdr::v2::t1::ModeOutTime;
         switch (value)
@@ -841,7 +841,7 @@ namespace
         }
     }
 
-    MDRRoomSize ToNeutral(mdr::v2::t1::RoomSize value)
+    MDRRoomSize from_protocol(mdr::v2::t1::RoomSize value)
     {
         using enum mdr::v2::t1::RoomSize;
         switch (value)
@@ -853,7 +853,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRRoomSize value, mdr::v2::t1::RoomSize& out)
+    bool to_protocol(MDRRoomSize value, mdr::v2::t1::RoomSize& out)
     {
         using enum mdr::v2::t1::RoomSize;
         switch (value)
@@ -865,7 +865,7 @@ namespace
         }
     }
 
-    MDREqualizerPreset ToNeutral(mdr::v1::t1::EqPresetId value)
+    MDREqualizerPreset from_protocol(mdr::v1::t1::EqPresetId value)
     {
         using enum mdr::v1::t1::EqPresetId;
         switch (value)
@@ -896,7 +896,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDREqualizerPreset value, mdr::v1::t1::EqPresetId& out)
+    bool to_protocol(MDREqualizerPreset value, mdr::v1::t1::EqPresetId& out)
     {
         using enum mdr::v1::t1::EqPresetId;
         switch (value)
@@ -927,7 +927,7 @@ namespace
         }
     }
 
-    MDREqualizerPreset ToNeutral(mdr::v2::t1::EqPresetId value)
+    MDREqualizerPreset from_protocol(mdr::v2::t1::EqPresetId value)
     {
         using enum mdr::v2::t1::EqPresetId;
         switch (value)
@@ -966,7 +966,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDREqualizerPreset value, mdr::v2::t1::EqPresetId& out)
+    bool to_protocol(MDREqualizerPreset value, mdr::v2::t1::EqPresetId& out)
     {
         using enum mdr::v2::t1::EqPresetId;
         switch (value)
@@ -1005,7 +1005,7 @@ namespace
         }
     }
 
-    MDRDSEEType ToNeutral(mdr::v1::t1::UpscalingType value)
+    MDRDSEEType from_protocol(mdr::v1::t1::UpscalingType value)
     {
         switch (value)
         {
@@ -1016,7 +1016,7 @@ namespace
         }
     }
 
-    MDRDSEEType ToNeutral(mdr::v2::t1::UpscalingType value)
+    MDRDSEEType from_protocol(mdr::v2::t1::UpscalingType value)
     {
         using enum mdr::v2::t1::UpscalingType;
         switch (value)
@@ -1029,7 +1029,7 @@ namespace
         }
     }
 
-    MDRAssignableAction ToNeutral(mdr::v1::t1::AssignableSettingsPreset value)
+    MDRAssignableAction from_protocol(mdr::v1::t1::AssignableSettingsPreset value)
     {
         using enum mdr::v1::t1::AssignableSettingsPreset;
         switch (value)
@@ -1044,7 +1044,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRAssignableAction value, mdr::v1::t1::AssignableSettingsPreset& out)
+    bool to_protocol(MDRAssignableAction value, mdr::v1::t1::AssignableSettingsPreset& out)
     {
         using enum mdr::v1::t1::AssignableSettingsPreset;
         switch (value)
@@ -1057,7 +1057,7 @@ namespace
         }
     }
 
-    MDRAssignableAction ToNeutral(mdr::v2::t1::Preset value)
+    MDRAssignableAction from_protocol(mdr::v2::t1::Preset value)
     {
         using enum mdr::v2::t1::Preset;
         switch (value)
@@ -1084,7 +1084,7 @@ namespace
         }
     }
 
-    bool FromNeutral(MDRAssignableAction value, mdr::v2::t1::Preset& out)
+    bool to_protocol(MDRAssignableAction value, mdr::v2::t1::Preset& out)
     {
         using enum mdr::v2::t1::Preset;
         switch (value)
@@ -1313,7 +1313,7 @@ void mdrHeadphonesDestroy(MDRHeadphones* headphones)
 
 MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones)
 {
-    return static_cast<MDRBoolean>(headphones && Impl(headphones)->mNeutralInitialized);
+    return static_cast<MDRBoolean>(headphones && Impl(headphones)->mInitialized);
 }
 
 MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones)
@@ -1378,7 +1378,7 @@ MDRResult mdrHeadphonesGetFeature(
     if (feature < MDR_FEATURE_IDENTITY || feature > MDR_FEATURE_SOURCE_SWITCH_CONTROL)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
-    if (!h.mNeutralInitialized)
+    if (!h.mInitialized)
     {
         *outAvailability = MDR_AVAILABILITY_UNKNOWN;
         return MDR_RESULT_OK;
@@ -1464,7 +1464,7 @@ MDRResult mdrHeadphonesGetModel(MDRHeadphones* headphones, MDRModel* outIdentity
     {
         *outIdentity = {
             .protocol_version = static_cast<uint32_t>(state.mProtocol.version),
-            .audio_codec = ToNeutral(state.mAudioCodec),
+            .audio_codec = from_protocol(state.mAudioCodec),
             .model_color = static_cast<uint8_t>(state.mModelColor)
         };
         return MDR_RESULT_OK;
@@ -1503,7 +1503,7 @@ MDRResult mdrHeadphonesGetBatteries(
             .present = MDR_TRUE,
             .level_percent = battery.level,
             .update_threshold_percent = battery.threshold,
-            .charging = ToNeutral(battery.charging)
+            .charging = from_protocol(battery.charging)
         };
     };
     if (hasLR)
@@ -1528,7 +1528,7 @@ MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPlayback* outPl
     return WithDetails(h, [&](const auto& state) -> MDRResult
     {
         *outPlayback = {
-            .status = ToNeutral(state.mPlayPause),
+            .status = from_protocol(state.mPlayPause),
             .volume = static_cast<uint8_t>(state.mPlayVolume.current)
         };
         return MDR_RESULT_OK;
@@ -1543,7 +1543,7 @@ MDRResult mdrHeadphonesSetPlayback(MDRHeadphones* headphones, const MDRPlayback*
     auto& h = *Impl(headphones);
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-        const auto currentStatus = ToNeutral(state.mPlayPause);
+        const auto currentStatus = from_protocol(state.mPlayPause);
         if (playback->status != MDR_PLAYBACK_UNKNOWN && playback->status != currentStatus)
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
         state.mPlayVolume.stage(playback->volume);
@@ -1594,9 +1594,9 @@ MDRResult mdrHeadphonesGetNoiseControl(
         .ambient_level = static_cast<uint8_t>(state.mNcAsmAmbientLevel.current),
         .changing_asm_level = static_cast<MDRBoolean>(state.mNcAsmChangingAsmLevel.current),
         .focus_on_voice = static_cast<MDRBoolean>(state.mNcAsmFocusOnVoice.current),
-        .button_mode = ToNeutral(state.mNcAsmButtonFunction.current),
+        .button_mode = from_protocol(state.mNcAsmButtonFunction.current),
         .adaptive_ambient = static_cast<MDRBoolean>(state.mNcAsmAutoAsmEnabled.current),
-        .adaptive_sensitivity = ToNeutral(state.mNcAsmNoiseAdaptiveSensitivity.current)
+        .adaptive_sensitivity = from_protocol(state.mNcAsmNoiseAdaptiveSensitivity.current)
     };
     return MDR_RESULT_OK;
 }
@@ -1627,9 +1627,9 @@ MDRResult mdrHeadphonesSetNoiseControl(
     auto& state = h->mDetailsV2;
     mdr::v2::t1::Function button{};
     auto sensitivity = state.mNcAsmNoiseAdaptiveSensitivity.desired;
-    if (!FromNeutral(noiseControl->button_mode, button) ||
+    if (!to_protocol(noiseControl->button_mode, button) ||
         (noiseControl->adaptive_sensitivity != MDR_ADAPTIVE_SENSITIVITY_UNKNOWN &&
-         !FromNeutral(noiseControl->adaptive_sensitivity, sensitivity)))
+         !to_protocol(noiseControl->adaptive_sensitivity, sensitivity)))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     state.mNcAsmEnabled.stage(noiseControl->mode != MDR_NOISE_MODE_OFF);
     state.mNcAsmMode.stage(noiseControl->mode == MDR_NOISE_MODE_AMBIENT
@@ -1653,8 +1653,8 @@ MDRResult mdrHeadphonesGetSpeakToChat(
     {
         *outSpeakToChat = {
             .enabled = static_cast<MDRBoolean>(state.mSpeakToChatEnabled.current),
-            .sensitivity = ToNeutral(state.mSpeakToChatDetectSensitivity.current),
-            .timeout = ToNeutral(state.mSpeakToModeOutTime.current)
+            .sensitivity = from_protocol(state.mSpeakToChatDetectSensitivity.current),
+            .timeout = from_protocol(state.mSpeakToModeOutTime.current)
         };
         return MDR_RESULT_OK;
     });
@@ -1673,9 +1673,9 @@ MDRResult mdrHeadphonesSetSpeakToChat(
     auto sensitivity = state.mSpeakToChatDetectSensitivity.desired;
     auto timeout = state.mSpeakToModeOutTime.desired;
     if ((speakToChat->sensitivity != MDR_SPEECH_SENSITIVITY_UNKNOWN &&
-         !FromNeutral(speakToChat->sensitivity, sensitivity)) ||
+         !to_protocol(speakToChat->sensitivity, sensitivity)) ||
         (speakToChat->timeout != MDR_SPEAK_TIMEOUT_UNKNOWN &&
-         !FromNeutral(speakToChat->timeout, timeout)))
+         !to_protocol(speakToChat->timeout, timeout)))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     state.mSpeakToChatEnabled.stage(speakToChat->enabled != MDR_FALSE);
     state.mSpeakToChatDetectSensitivity.stage(sensitivity);
@@ -1701,7 +1701,7 @@ MDRResult mdrHeadphonesGetListening(
     *outListening = {
         .mode = cinema ? MDR_LISTENING_CINEMA :
             background ? MDR_LISTENING_BACKGROUND_MUSIC : MDR_LISTENING_STANDARD,
-        .background_room = ToNeutral(state.mBGMModeRoomSize.current)
+        .background_room = from_protocol(state.mBGMModeRoomSize.current)
     };
     return MDR_RESULT_OK;
 }
@@ -1717,7 +1717,7 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
     if (!state.mSupport.contains(mdr::v2::t1::FunctionType::LISTENING_OPTION))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto room = state.mBGMModeRoomSize.desired;
-    if (listening->background_room != MDR_ROOM_UNKNOWN && !FromNeutral(listening->background_room, room))
+    if (listening->background_room != MDR_ROOM_UNKNOWN && !to_protocol(listening->background_room, room))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (listening->mode == MDR_LISTENING_BACKGROUND_MUSIC && listening->background_room == MDR_ROOM_UNKNOWN)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -1736,11 +1736,11 @@ MDRResult mdrHeadphonesGetEqualizer(
     return WithDetails(h, [&](const auto& state) -> MDRResult
     {
         *outEqualizer = {
-            .preset = ToNeutral(state.mEqPresetId.current),
+            .preset = from_protocol(state.mEqPresetId.current),
             .clear_bass = static_cast<int8_t>(state.mEqClearBass.current),
             .band_count = static_cast<uint32_t>(state.mEqConfig.current.size()),
             .dsee_enabled = static_cast<MDRBoolean>(state.mUpscalingEnabled.current),
-            .dsee_type = ToNeutral(state.mUpscalingType)
+            .dsee_type = from_protocol(state.mUpscalingType)
         };
         return MDR_RESULT_OK;
     });
@@ -1756,9 +1756,9 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
     auto preset = state.mEqPresetId.desired;
-    if (equalizer->preset != MDR_EQ_UNKNOWN && !FromNeutral(equalizer->preset, preset))
+    if (equalizer->preset != MDR_EQ_UNKNOWN && !to_protocol(equalizer->preset, preset))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    if (equalizer->dsee_type != MDR_DSEE_UNKNOWN && equalizer->dsee_type != ToNeutral(state.mUpscalingType))
+    if (equalizer->dsee_type != MDR_DSEE_UNKNOWN && equalizer->dsee_type != from_protocol(state.mUpscalingType))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     const auto existingCount = state.mEqConfig.desired.size();
     if (equalizer->band_count != 0 && equalizer->band_count != existingCount)
@@ -2072,8 +2072,8 @@ MDRResult mdrHeadphonesGetAssignableControls(
     return WithDetails(h, [&](const auto& state) -> MDRResult
     {
         *outControls = {
-            .left = ToNeutral(state.mTouchFunctionLeft.current),
-            .right = ToNeutral(state.mTouchFunctionRight.current)
+            .left = from_protocol(state.mTouchFunctionLeft.current),
+            .right = from_protocol(state.mTouchFunctionRight.current)
         };
         return MDR_RESULT_OK;
     });
@@ -2091,7 +2091,7 @@ MDRResult mdrHeadphonesSetAssignableControls(
     {
     auto left = state.mTouchFunctionLeft.desired;
     auto right = state.mTouchFunctionRight.desired;
-    if (!FromNeutral(controls->left, left) || !FromNeutral(controls->right, right))
+    if (!to_protocol(controls->left, left) || !to_protocol(controls->right, right))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     state.mTouchFunctionLeft.stage(left);
     state.mTouchFunctionRight.stage(right);
