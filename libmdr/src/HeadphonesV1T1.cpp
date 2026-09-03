@@ -123,8 +123,18 @@ namespace mdr
                 String value;
                 if (command == Command::PLAY_NTFY_PARAM)
                 {
-                    Deserialize(NotifyPlayParamPlaybackControllerNameData, result, cmd);
-                    value = result.playbackName.name.value;
+                    if (cmd.size() > 3)
+                    {
+                        // Not observed on WH-1000XM4 v2.5.0, what is observed is in the else branch. Just in case...
+                        Deserialize(NotifyPlayParamPlaybackControllerNameData, result, cmd);
+                        value = result.playbackName.name.value;
+                    }
+                    else
+                    {
+                        // The incoming packet is A9 01 00 with no new track/album/artist name data,
+                        // re-request all three when we get this.
+                        return MDR_EVENT_UNHANDLED;
+                    }
                 }
                 else
                 {
