@@ -391,16 +391,6 @@ void SetEqualizerBands(const mdr::Vector<int>& values)
         mdrHeadphonesSetEqualizerBands(gDevice, bytes.data(), static_cast<uint32_t>(bytes.size()));
 }
 
-void CloseDevice()
-{
-    if (!gDevice)
-        return;
-    gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
-    clientPacketObserverDetach();
-    mdrHeadphonesDestroy(gDevice);
-    gDevice = nullptr;
-}
-
 struct ClientState
 {
     MDRModel mModel{};
@@ -420,7 +410,47 @@ struct ClientState
     bool mListeningAvailable;
     bool mEqualizerAvailable;
     bool mPairingAvailable;
+    bool mPlaybackVolumeStaged;
 } gState;
+
+void RefreshPlaybackState()
+{
+    MDRPlayback playback{};
+    if (mdrHeadphonesGetPlayback(gDevice, &playback) != MDR_RESULT_OK)
+        return;
+    gState.mPlayback.status = playback.status;
+    if (gState.mPlaybackVolumeStaged && playback.volume == gState.mPlayback.volume)
+        gState.mPlaybackVolumeStaged = false;
+    if (!gState.mPlaybackVolumeStaged)
+        gState.mPlayback.volume = playback.volume;
+}
+
+void RefreshClientState()
+{
+    gState = {};
+    gState.mModelAvailable = mdrHeadphonesGetModel(gDevice, &gState.mModel) == MDR_RESULT_OK;
+    gState.mBatteries = GetBatteries();
+    RefreshPlaybackState();
+    gState.mNoiseAvailable = mdrHeadphonesGetNoiseControl(gDevice, &gState.mNoise) == MDR_RESULT_OK;
+    gState.mSpeakToChatAvailable = mdrHeadphonesGetSpeakToChat(gDevice, &gState.mSpeakToChat) == MDR_RESULT_OK;
+    gState.mListeningAvailable = mdrHeadphonesGetListening(gDevice, &gState.mListening) == MDR_RESULT_OK;
+    gState.mEqualizerAvailable = mdrHeadphonesGetEqualizer(gDevice, &gState.mEqualizer) == MDR_RESULT_OK;
+    gState.mEqualizerBands = GetEqualizerBands();
+    gState.mPairedDevices = GetPairedDevices();
+    gState.mPairingAvailable = mdrHeadphonesGetPairing(gDevice, &gState.mPairing) == MDR_RESULT_OK;
+    gState.mGeneralSettings = GetGeneralSettings(GetGeneralSettingInfos());
+}
+
+void CloseDevice()
+{
+    if (!gDevice)
+        return;
+    gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
+    clientPacketObserverDetach();
+    mdrHeadphonesDestroy(gDevice);
+    gDevice = nullptr;
+    gState = {};
+}
 
 #pragma region ImGui Extra
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost =
@@ -1104,7 +1134,7 @@ void DrawDeviceControlsHeader()
         {
             if (ImGui::BeginTable("##Battery", 2, ImGuiTableFlags_SizingStretchProp))
             {
-                for (const MDRBattery& battery : GetBatteries())
+                for (const MDRBattery& battery : gState.mBatteries)
                 {
                     if (!battery.present || !battery.update_threshold_percent)
                         continue;
@@ -1156,8 +1186,13 @@ void DrawDeviceControlsPlayback()
     int volume = gState.mPlayback.volume;
     if (ImGui::SliderInt("##Volume", &volume, 0, 30))
     {
-        gState.mPlayback.volume = static_cast<uint8_t>(volume);
-        mdrHeadphonesSetPlayback(gDevice, &gState.mPlayback);
+        MDRPlayback playback = gState.mPlayback;
+        playback.volume = static_cast<uint8_t>(volume);
+        if (mdrHeadphonesSetPlayback(gDevice, &playback) == MDR_RESULT_OK)
+        {
+            gState.mPlayback = playback;
+            gState.mPlaybackVolumeStaged = true;
+        }
     }
     ImGui::SeparatorText("Controls");
     if (ImModalButton(PSI_STEP_BACKWARD " Prev", 0, 3))
@@ -1374,7 +1409,7 @@ void DrawDeviceControlsDevices()
         mdr::String name;
     };
     mdr::Vector<DeviceView> devices;
-    for (const MDRPairedDevice& state : GetPairedDevices())
+    for (const MDRPairedDevice& state : gState.mPairedDevices)
         devices.emplace_back(state, mdr::String{state.macAddress},
                            mdr::String{state.name});
     auto StageDeviceAction = [](MDRPairedDeviceCommand command, const char* mac)
@@ -1560,15 +1595,14 @@ void DrawDeviceControlsSystem()
     if (FeatureAvailable(MDR_FEATURE_NOISE_CONTROL_BUTTON) &&
         ImGui::TreeNodeEx("NC/AMB Button Function", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        MDRNoiseControl noise{};
-        if (mdrHeadphonesGetNoiseControl(gDevice, &noise) == MDR_RESULT_OK)
+        if (gState.mNoiseAvailable)
         {
             constexpr MDRNoiseButtonMode kSelections[] = {
                 MDR_NOISE_BUTTON_NONE, MDR_NOISE_BUTTON_NOISE_AMBIENT_OFF, MDR_NOISE_BUTTON_NOISE_AMBIENT,
                 MDR_NOISE_BUTTON_NOISE_OFF, MDR_NOISE_BUTTON_AMBIENT_OFF};
             if (ImComboBoxItems(
-                    "Function", std::span{kSelections}, noise.button_mode, FormatNoiseButtonMode))
-                mdrHeadphonesSetNoiseControl(gDevice, &noise);
+                    "Function", std::span{kSelections}, gState.mNoise.button_mode, FormatNoiseButtonMode))
+                mdrHeadphonesSetNoiseControl(gDevice, &gState.mNoise);
         }
         ImGui::TreePop();
     }
@@ -1788,8 +1822,14 @@ void DrawDeviceControls()
         }
         break;
     case MDR_EVENT_IDENTITY_CHANGED:
-    case MDR_EVENT_SYNC_COMPLETE:
+        gState.mModelAvailable = mdrHeadphonesGetModel(gDevice, &gState.mModel) == MDR_RESULT_OK;
         MaterialYouTheme::ApplyForModelColor(GetModelColor());
+        break;
+    case MDR_EVENT_BATTERY_CHANGED:
+        gState.mBatteries = GetBatteries();
+        break;
+    case MDR_EVENT_PLAYBACK_CHANGED:
+        RefreshPlaybackState();
         break;
     case MDR_EVENT_NOISE_CONTROL_CHANGED:
         gState.mNoiseAvailable = mdrHeadphonesGetNoiseControl(gDevice, &gState.mNoise) == MDR_RESULT_OK;
@@ -1802,12 +1842,23 @@ void DrawDeviceControls()
         break;
     case MDR_EVENT_EQUALIZER_CHANGED:
         gState.mEqualizerAvailable = mdrHeadphonesGetEqualizer(gDevice, &gState.mEqualizer) == MDR_RESULT_OK;
+        gState.mEqualizerBands = GetEqualizerBands();
         break;
     case MDR_EVENT_PAIRED_DEVICES_CHANGED:
         gState.mPairedDevices = GetPairedDevices();
         break;
+    case MDR_EVENT_PAIRING_CHANGED:
+        gState.mPairingAvailable = mdrHeadphonesGetPairing(gDevice, &gState.mPairing) == MDR_RESULT_OK;
+        break;
     case MDR_EVENT_GENERAL_SETTINGS_CHANGED:
         gState.mGeneralSettings = GetGeneralSettings(GetGeneralSettingInfos());
+        break;
+    case MDR_EVENT_SYNC_COMPLETE:
+        RefreshClientState();
+        MaterialYouTheme::ApplyForModelColor(GetModelColor());
+        break;
+    case MDR_EVENT_APPLY_COMPLETE:
+        RefreshPlaybackState();
         break;
     }
 

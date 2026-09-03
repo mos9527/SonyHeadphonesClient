@@ -102,6 +102,8 @@ namespace mdr
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
                     Deserialize(NcAsmNtfyParamModeNcDualModeSwitchAsmSeamless, res, cmd);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
+                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -110,6 +112,8 @@ namespace mdr
                 else
                 {
                     Deserialize(NcAsmRetParamModeNcDualModeSwitchAsmSeamless, res, cmd);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
+                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -127,6 +131,8 @@ namespace mdr
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
                     Deserialize(NcAsmNtfyParamModeNcDualModeSwitchAsmSeamlessNa, res, cmd);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
+                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -137,6 +143,8 @@ namespace mdr
                 else
                 {
                     Deserialize(NcAsmRetParamModeNcDualModeSwitchAsmSeamlessNa, res, cmd);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
+                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -155,6 +163,8 @@ namespace mdr
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
                     Deserialize(NcAsmNtfyParamAsmSeamless, res, cmd);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
+                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                     self->mDetailsV2.mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
@@ -162,6 +172,8 @@ namespace mdr
                 else
                 {
                     Deserialize(NcAsmRetParamAsmSeamless, res, cmd);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
+                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
                     self->mDetailsV2.mNcAsmAmbientLevel.overwrite(res.ambientSoundLevelValue);
