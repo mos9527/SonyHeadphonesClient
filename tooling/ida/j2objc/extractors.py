@@ -1180,6 +1180,7 @@ class ProtocolExtractor:
             constructor_variants = self._constructor_variants(class_name)
             if len(constructor_variants) > 1:
                 _, _, simple_name = protocol_coordinates(class_name)
+                extracted_variants: list[tuple[PayloadDecl, JavaMethod]] = []
                 for constructor in constructor_variants:
                     descriptors = parse_descriptors(
                         constructor.parameter_types or ""
@@ -1198,8 +1199,13 @@ class ProtocolExtractor:
                         constructor_override=constructor,
                         cpp_name_override=simple_name + suffix,
                     )
-                    extracted_payloads.append(payload)
+                    extracted_variants.append((payload, constructor))
                     references.update(payload_references)
+                extracted_payloads = (
+                    self._synthesize_implicit_constructor_discriminator(
+                        class_name, extracted_variants
+                    )
+                )
             else:
                 payload, references = self.extract_payload(
                     class_name,
@@ -3956,6 +3962,173 @@ class ProtocolExtractor:
         # complete variant set.
         return tuple(sorted(constructors, key=lambda method: method.selector))
 
+    def _synthesize_implicit_constructor_discriminator(
+        self,
+        class_name: str,
+        variants: list[tuple[PayloadDecl, JavaMethod]],
+    ) -> list[PayloadDecl]:
+        """Recover enum tags selected implicitly by constructor overloads.
+
+        Some J2ObjC wire classes expose a common-prefix constructor and an
+        extended constructor. Each constructor assigns a distinct enum tag
+        internally instead of accepting it as a parameter. When the payload
+        layouts share a strict prefix and an otherwise omitted enum getter
+        accounts for those distinct assignments, the tag belongs between the
+        common prefix and the variant-specific suffix.
+        """
+        if len(variants) < 2:
+            return [payload for payload, _ in variants]
+
+        field_lists = [payload.fields for payload, _ in variants]
+        common_count = 0
+        for index in range(min(map(len, field_lists))):
+            first = field_lists[0][index]
+            if not all(
+                fields[index].name == first.name
+                and fields[index].cpp_type == first.cpp_type
+                for fields in field_lists[1:]
+            ):
+                break
+            common_count += 1
+        if common_count == 0 or not any(
+            len(fields) == common_count for fields in field_lists
+        ):
+            return [payload for payload, _ in variants]
+
+        existing_names = {
+            field.name for fields in field_lists for field in fields
+        }
+        candidates: list[
+            tuple[JavaMethod, str, str, list[str], str]
+        ] = []
+        for getter in self._payload_getters(self.metadata(class_name)):
+            if not getter.return_type or not getter.return_type.startswith("L"):
+                continue
+            field_name = self._getter_field_name(getter)
+            if field_name in existing_names:
+                continue
+            try:
+                cpp_type, wire_kind, referenced = self._cpp_type(
+                    getter.return_type, getter.generic_signature
+                )
+            except ExtractionError:
+                continue
+            if wire_kind != "pod" or len(referenced) != 1:
+                continue
+            enum_class = next(iter(referenced))
+            if not self.is_wire_enum(enum_class):
+                continue
+            enum = self.extract_enum(enum_class)
+            valid_members = {
+                value.name
+                for value in enum.values
+                if value.name not in ("NO_USE", "OUT_OF_RANGE", "UNKNOWN")
+            }
+            selected: list[str] = []
+            for _, constructor in variants:
+                members = (
+                    self._referenced_enum_members(
+                        self._method_symbol(class_name, constructor),
+                        enum_class,
+                        follow_helpers=True,
+                    )
+                    & valid_members
+                )
+                if len(members) != 1:
+                    break
+                selected.append(next(iter(members)))
+            if (
+                len(selected) == len(variants)
+                and len(set(selected)) == len(selected)
+            ):
+                member_values = {
+                    value.name: value.value for value in enum.values
+                }
+                required_branches = {
+                    member_values[selected[index]]
+                    for index, (payload, _) in enumerate(variants)
+                    if len(payload.fields) > common_count
+                }
+                parser_selector = None
+                for parser in self.metadata(class_name).methods:
+                    if not parser.java_name.startswith(("restore", "parse")):
+                        continue
+                    text = self._expanded_method_text(
+                        self._method_symbol(class_name, parser)
+                    )
+                    branch_values = {
+                        int(value)
+                        for value in re.findall(
+                            r"ordinal[\s\S]{0,192}?==\s*(\d+)", text
+                        )
+                    }
+                    if required_branches <= branch_values:
+                        parser_selector = parser.selector
+                        break
+                if parser_selector is None:
+                    continue
+                candidates.append(
+                    (
+                        getter,
+                        field_name,
+                        cpp_type,
+                        selected,
+                        parser_selector,
+                    )
+                )
+
+        if not candidates:
+            return [payload for payload, _ in variants]
+        if len(candidates) != 1:
+            raise ExtractionError(
+                f"multiple implicit constructor discriminators for "
+                f"{class_name}: "
+                f"{[name for _, name, _, _, _ in candidates]}"
+            )
+
+        getter, field_name, cpp_type, selected, parser_selector = candidates[0]
+        output: list[PayloadDecl] = []
+        for (payload, constructor), member in zip(variants, selected):
+            default = f"{cpp_type}::{member}"
+            discriminator = FieldDecl(
+                name=field_name,
+                cpp_type=cpp_type,
+                wire_kind="pod",
+                default=default,
+                source_type=getter.return_type,
+                semantic_rules=(f"EnumRange {default}",),
+            )
+            fields = self._recalculate_offsets(
+                [
+                    *payload.fields[:common_count],
+                    discriminator,
+                    *payload.fields[common_count:],
+                ]
+            )
+            constructor_source = SourceRef(
+                constructor.source_address,
+                f"{constructor.kind}[{class_name} {constructor.selector}]",
+            )
+            output.append(
+                replace(
+                    payload,
+                    fields=tuple(fields),
+                    discriminator_field=field_name,
+                    discriminator_value=default,
+                    sources=tuple(
+                        dict.fromkeys((*payload.sources, constructor_source))
+                    ),
+                    evidence=(
+                        *payload.evidence,
+                        f"constructor {constructor.selector} selects "
+                        f"{default}",
+                        f"parser {parser_selector} branches on "
+                        f"{field_name}",
+                    ),
+                )
+            )
+        return output
+
     @staticmethod
     def _select_value_method(
         factory_class: str, methods: list[JavaMethod]
@@ -4551,6 +4724,84 @@ class ProtocolExtractor:
             if address in global_members
         )
         return next(iter(members)) if len(members) == 1 else None
+
+    def _referenced_enum_members(
+        self,
+        method: MethodSymbol,
+        enum_class: str,
+        *,
+        follow_helpers: bool = False,
+    ) -> set[str]:
+        class ObjectVisitor(ida_hexrays.ctree_visitor_t):
+            def __init__(self) -> None:
+                super().__init__(ida_hexrays.CV_FAST)
+                self.addresses: set[int] = set()
+                self.targets: set[int] = set()
+
+            def visit_expr(self, expression) -> int:
+                if expression.op == ida_hexrays.cot_obj:
+                    self.addresses.add(expression.obj_ea)
+                if expression.op == ida_hexrays.cot_call:
+                    target = _unwrap(expression.x)
+                    if target.op == ida_hexrays.cot_obj:
+                        self.targets.add(target.obj_ea)
+                return 0
+
+        pattern = re.compile(
+            rf"^\+\[{re.escape(enum_class)} (?P<member>[A-Z][A-Z0-9_]*)\]$"
+        )
+        members: set[str] = set()
+        global_members = self._enum_global_members(enum_class)
+        pending = [(method, 0)]
+        visited: set[int] = set()
+        while pending:
+            current, depth = pending.pop()
+            if current.address in visited:
+                continue
+            visited.add(current.address)
+            if current.address == 0 or ida_funcs.get_func(current.address) is None:
+                continue
+            try:
+                decompiled = self.database.decompile(current)
+            except ExtractionError:
+                continue
+            visitor = ObjectVisitor()
+            visitor.apply_to(decompiled.body, None)
+            members.update(
+                global_members[address]
+                for address in visitor.addresses
+                if address in global_members
+            )
+            for instruction in idautils.FuncItems(current.address):
+                members.update(
+                    global_members[address]
+                    for address in idautils.DataRefsFrom(instruction)
+                    if address in global_members
+                )
+            text = str(decompiled)
+            for name in re.findall(
+                r"\b(?:qword|off|unk)_[0-9A-Fa-f]+\b", text
+            ):
+                address = ida_name.get_name_ea(idaapi.BADADDR, name)
+                if address in global_members:
+                    members.add(global_members[address])
+            for address in visitor.targets:
+                name = idc.get_func_name(address)
+                match = pattern.fullmatch(name)
+                if match:
+                    members.add(match.group("member"))
+                elif (
+                    follow_helpers
+                    and depth == 0
+                    and name.startswith("sub_")
+                ):
+                    pending.append(
+                        (
+                            MethodSymbol(address, "", "", name, name),
+                            depth + 1,
+                        )
+                    )
+        return members
 
     def _enum_global_members(self, enum_class: str) -> dict[int, str]:
         cached = self._enum_global_cache.get(enum_class)

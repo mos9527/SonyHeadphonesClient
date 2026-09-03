@@ -6232,6 +6232,8 @@ namespace mdr::v1::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         GsSettingInfo title{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
+        GsSettingType settingType{GsSettingType::BOOLEAN_TYPE};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(RetGsCapabilityGsSettingInfo);
     };
@@ -6738,6 +6740,8 @@ namespace mdr::v1::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         GsInquiredType type{GsInquiredType::GENERAL_SETTING1}; // 0x1
         GsSettingInfo title{}; // 0x2
+        // CODEGEN Ignore OUT_OF_RANGE is expected
+        GsSettingType settingType{GsSettingType::LIST_TYPE};
         GsCandidateElementList listTypeCapability{};
 
         MDR_DEFINE_EXTERN_SERIALIZATION(RetGsCapabilityGsCandidateElementList);

@@ -2429,6 +2429,7 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (GsSettingInfo::Write)(data.title, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<RetGsCapabilityGsSettingInfo> RetGsCapabilityGsSettingInfo::Deserialize(const UInt8* data, size_t maxSize)
@@ -2437,6 +2438,7 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(RetGsCapabilityGsSettingInfo, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(RetGsCapabilityGsSettingInfo, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(RetGsCapabilityGsSettingInfo, (GsSettingInfo::Read)(&data, out.title, maxSize));
+        MDR_TRY_SIZE(RetGsCapabilityGsSettingInfo, MDRPod::Read(&data, out.settingType, maxSize));
         MDR_TRY(RetGsCapabilityGsSettingInfo, Validate(out));
         return MDRResult<RetGsCapabilityGsSettingInfo>::Success(std::move(out));
     }
@@ -3083,6 +3085,7 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (GsSettingInfo::Write)(data.title, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (GsCandidateElementList::Write)(data.listTypeCapability, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -3092,6 +3095,7 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(RetGsCapabilityGsCandidateElementList, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(RetGsCapabilityGsCandidateElementList, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(RetGsCapabilityGsCandidateElementList, (GsSettingInfo::Read)(&data, out.title, maxSize));
+        MDR_TRY_SIZE(RetGsCapabilityGsCandidateElementList, MDRPod::Read(&data, out.settingType, maxSize));
         MDR_TRY_SIZE(RetGsCapabilityGsCandidateElementList, (GsCandidateElementList::Read)(&data, out.listTypeCapability, maxSize));
         MDR_TRY(RetGsCapabilityGsCandidateElementList, Validate(out));
         return MDRResult<RetGsCapabilityGsCandidateElementList>::Success(std::move(out));

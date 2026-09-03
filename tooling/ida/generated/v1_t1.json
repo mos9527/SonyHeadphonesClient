@@ -22988,10 +22988,12 @@
       "classification": "payload",
       "command": "GENERAL_SETTING_RET_CAPABILITY",
       "cpp_name": "RetGsCapabilityGsCandidateElementList",
-      "discriminator_field": null,
-      "discriminator_value": null,
+      "discriminator_field": "settingType",
+      "discriminator_value": "GsSettingType::LIST_TYPE",
       "evidence": [
-        "_create_JavaIoByteArrayOutputStream_init"
+        "_create_JavaIoByteArrayOutputStream_init",
+        "constructor initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsSettingInfo:withTHMSGV1T1GsCandidateElementList: selects GsSettingType::LIST_TYPE",
+        "parser restoreWithByteArray: branches on settingType"
       ],
       "factory_signature": null,
       "fields": [
@@ -23023,6 +23025,15 @@
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsSettingInfo;",
           "wire_kind": "helper"
+        },
+        {
+          "cpp_type": "GsSettingType",
+          "default": "GsSettingType::LIST_TYPE",
+          "name": "settingType",
+          "offset": null,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1GsSettingType;",
+          "wire_kind": "pod"
         },
         {
           "cpp_type": "GsCandidateElementList",
@@ -23054,6 +23065,10 @@
         {
           "address": 4315575444,
           "symbol": "-[THMSGV1T1RetGsCapability restoreWithByteArray:]"
+        },
+        {
+          "address": 4315574108,
+          "symbol": "-[THMSGV1T1RetGsCapability initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsSettingInfo:withTHMSGV1T1GsCandidateElementList:]"
         }
       ]
     },
@@ -23061,10 +23076,12 @@
       "classification": "payload",
       "command": "GENERAL_SETTING_RET_CAPABILITY",
       "cpp_name": "RetGsCapabilityGsSettingInfo",
-      "discriminator_field": null,
-      "discriminator_value": null,
+      "discriminator_field": "settingType",
+      "discriminator_value": "GsSettingType::BOOLEAN_TYPE",
       "evidence": [
-        "_create_JavaIoByteArrayOutputStream_init"
+        "_create_JavaIoByteArrayOutputStream_init",
+        "constructor initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsSettingInfo: selects GsSettingType::BOOLEAN_TYPE",
+        "parser restoreWithByteArray: branches on settingType"
       ],
       "factory_signature": null,
       "fields": [
@@ -23096,6 +23113,15 @@
           "semantic_rules": [],
           "source_type": "LTHMSGV1T1GsSettingInfo;",
           "wire_kind": "helper"
+        },
+        {
+          "cpp_type": "GsSettingType",
+          "default": "GsSettingType::BOOLEAN_TYPE",
+          "name": "settingType",
+          "offset": null,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T1GsSettingType;",
+          "wire_kind": "pod"
         }
       ],
       "objc_name": "THMSGV1T1RetGsCapability",
@@ -23118,6 +23144,10 @@
         {
           "address": 4315575444,
           "symbol": "-[THMSGV1T1RetGsCapability restoreWithByteArray:]"
+        },
+        {
+          "address": 4315573428,
+          "symbol": "-[THMSGV1T1RetGsCapability initWithTHMSGV1T1GsInquiredType:withTHMSGV1T1GsSettingInfo:]"
         }
       ]
     },

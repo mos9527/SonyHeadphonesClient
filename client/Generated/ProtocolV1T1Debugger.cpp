@@ -14393,6 +14393,7 @@ namespace client::debugger {
                 changed |= DrawPrefixedString("summary", value.title.summary);
                 return changed;
             });
+            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__GsSettingType);
             return changed;
         }
         mdr::MDRResult<void> Decode_RetGsCapabilityGsSettingInfo(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -14403,6 +14404,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, (GsSettingInfo::Read)(&ptr, value.title, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -14414,6 +14416,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (GsSettingInfo::Write)(value.title, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_RetGsCapabilityGsSettingInfo() { return Construct<RetGsCapabilityGsSettingInfo>(); }
@@ -16037,6 +16040,7 @@ namespace client::debugger {
                 changed |= DrawPrefixedString("summary", value.title.summary);
                 return changed;
             });
+            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__GsSettingType);
             changed |= DrawTree("listTypeCapability", [&]() {
                 bool changed = false;
                 changed |= DrawSequence("elements", value.listTypeCapability.elements.value, true, [&](const char* elementLabel, auto& element) {
@@ -16065,6 +16069,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, (GsSettingInfo::Read)(&ptr, value.title, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
             MDR_DEBUGGER_TRY_READ(void, (GsCandidateElementList::Read)(&ptr, value.listTypeCapability, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -16077,6 +16082,7 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (GsSettingInfo::Write)(value.title, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (GsCandidateElementList::Write)(value.listTypeCapability, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }

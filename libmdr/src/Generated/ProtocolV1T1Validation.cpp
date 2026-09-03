@@ -2610,6 +2610,7 @@ MDRResult<void> RetGsCapabilityGsSettingInfo::Validate(const RetGsCapabilityGsSe
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.title.stringFormat));
+    // data.settingType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetNcAsmCapability::Validate(const RetNcAsmCapability& data) {
@@ -2920,6 +2921,7 @@ MDRResult<void> RetGsCapabilityGsCandidateElementList::Validate(const RetGsCapab
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.title.stringFormat));
+    // data.settingType ignored: OUT_OF_RANGE is expected
     for (const auto& elements_elem : data.listTypeCapability.elements) {
         MDR_VALIDATE(is_valid(elements_elem.stringFormat));
     }

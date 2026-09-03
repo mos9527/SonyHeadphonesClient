@@ -547,3 +547,5 @@ tooling/ida/input/
 *.id2
 *.nam
 *.til
+
+build-*/
