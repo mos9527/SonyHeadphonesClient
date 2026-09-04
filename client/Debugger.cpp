@@ -402,11 +402,10 @@ namespace
                 if (index >= bytes.size())
                     break;
 
-                const bool padding = index >= bytes.size();
-                const mdr::UInt8 byte = padding ? 0 : bytes[index];
+                const mdr::UInt8 byte = bytes[index];
                 const mdr::String byteText = mdr::Format("{:02X}", byte);
                 const ImVec2 position{origin.x + (offsetColumns + column * 3) * characterWidth, origin.y};
-                drawList->AddText(position, padding || byte == 0 ? mutedColor : textColor, byteText.c_str());
+                drawList->AddText(position, byte == 0 ? mutedColor : textColor, byteText.c_str());
             }
 
             const float asciiStart = origin.x + (offsetColumns + hexColumns + 1) * characterWidth;
@@ -417,9 +416,8 @@ namespace
                 if (index >= bytes.size())
                     break;
 
-                const bool padding = index >= bytes.size();
-                const mdr::UInt8 byte = padding ? 0 : bytes[index];
-                const bool printable = !padding && std::isprint(static_cast<unsigned char>(byte));
+                const mdr::UInt8 byte = bytes[index];
+                const bool printable = std::isprint(static_cast<unsigned char>(byte));
                 const char character[] = {printable ? static_cast<char>(byte) : '.', '\0'};
                 drawList->AddText({asciiStart + (column + 2) * characterWidth, origin.y},
                                   printable ? textColor : mutedColor, character);
