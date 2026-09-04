@@ -10161,7 +10161,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_GET_CAPABILITY",
       "cpp_name": "GetOptimizerCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -10175,11 +10175,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_GET_CAPABILITY",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_GET_CAPABILITY"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -10215,7 +10215,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_GET_PARAM",
       "cpp_name": "GetOptimizerParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -10229,11 +10229,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_GET_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_GET_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -10269,7 +10269,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_GET_STATUS",
       "cpp_name": "GetOptimizerStatus",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -10283,11 +10283,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_GET_STATUS",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_GET_STATUS"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -10657,7 +10657,7 @@
     },
     {
       "classification": "payload",
-      "command": "SPORTS_GET_PARAM",
+      "command": "SPORTS_GET_EXTENDED_PARAM",
       "cpp_name": "GetSportsExParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -10673,11 +10673,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SPORTS_GET_PARAM",
+          "default": "Command::SPORTS_GET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SPORTS_GET_PARAM"
+            "EnumRange Command::SPORTS_GET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -10972,7 +10972,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_GET_PARAM",
+      "command": "SYSTEM_GET_EXTENDED_PARAM",
       "cpp_name": "GetSystemExParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -10986,11 +10986,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_GET_PARAM",
+          "default": "Command::SYSTEM_GET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_GET_PARAM"
+            "EnumRange Command::SYSTEM_GET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -11134,7 +11134,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "UPDT_GET_PARAM",
       "cpp_name": "GetUpdateParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -11148,11 +11148,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::UPDT_GET_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::UPDT_GET_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -14332,7 +14332,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_NTFY_PARAM",
       "cpp_name": "NotifyOptimizerParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -14348,11 +14348,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_NTFY_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_NTFY_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -14424,7 +14424,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_NTFY_STATUS",
       "cpp_name": "NotifyOptimizerStatus",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -14440,11 +14440,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_NTFY_STATUS",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_NTFY_STATUS"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -24409,7 +24409,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_RET_PARAM",
       "cpp_name": "RetOptimizerParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -24425,11 +24425,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_RET_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_RET_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -24501,7 +24501,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_RET_STATUS",
       "cpp_name": "RetOptimizerStatus",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -24517,11 +24517,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_RET_STATUS",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_RET_STATUS"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -33668,7 +33668,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "OPT_SET_STATUS",
       "cpp_name": "SetOptimizerStatus",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -33684,11 +33684,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::OPT_SET_STATUS",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::OPT_SET_STATUS"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34077,7 +34077,7 @@
     },
     {
       "classification": "payload",
-      "command": "SPORTS_SET_PARAM",
+      "command": "SPORTS_SET_EXTENDED_PARAM",
       "cpp_name": "SetSportsExParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34092,11 +34092,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SPORTS_SET_PARAM",
+          "default": "Command::SPORTS_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SPORTS_SET_PARAM"
+            "EnumRange Command::SPORTS_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34205,7 +34205,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamAssignableSettingsParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34221,11 +34221,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34270,7 +34270,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamAutoPowerOffParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34286,11 +34286,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34353,7 +34353,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamControlByWearingParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34369,11 +34369,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34427,7 +34427,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamPowerSavingModeParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34443,11 +34443,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34501,7 +34501,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_AssignableSettingsCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34517,11 +34517,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34566,7 +34566,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_AutoPowerOffCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34582,11 +34582,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34631,7 +34631,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_ControlByWearingCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34647,11 +34647,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34696,7 +34696,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_PowerSavingModeCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34712,11 +34712,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34761,7 +34761,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -34777,11 +34777,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -34999,7 +34999,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_SystemCapabilityBase",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35015,11 +35015,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -35055,7 +35055,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamRetSystemCapability_VibratorCapability",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35071,11 +35071,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -35120,7 +35120,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParamVibratorParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35136,11 +35136,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -35194,7 +35194,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParammartTalkingModeExParamType1Param",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35210,11 +35210,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -35286,7 +35286,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParammartTalkingModeExType1Param",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35302,11 +35302,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -35369,7 +35369,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParammartTalkingModeRetParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35385,11 +35385,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -35443,7 +35443,7 @@
     },
     {
       "classification": "payload",
-      "command": "SYSTEM_SET_PARAM",
+      "command": "SYSTEM_SET_EXTENDED_PARAM",
       "cpp_name": "SetSystemExParammartTalkingModeSetNtfyParam",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -35459,11 +35459,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::SYSTEM_SET_PARAM",
+          "default": "Command::SYSTEM_SET_EXTENDED_PARAM",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::SYSTEM_SET_PARAM"
+            "EnumRange Command::SYSTEM_SET_EXTENDED_PARAM"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"
@@ -36604,7 +36604,7 @@
     },
     {
       "classification": "payload",
-      "command": "TEST_COMMAND",
+      "command": "UPDT_SET_STATUS",
       "cpp_name": "SetUpdateStatus",
       "discriminator_field": null,
       "discriminator_value": null,
@@ -36619,11 +36619,11 @@
       "fields": [
         {
           "cpp_type": "Command",
-          "default": "Command::TEST_COMMAND",
+          "default": "Command::UPDT_SET_STATUS",
           "name": "command",
           "offset": 0,
           "semantic_rules": [
-            "EnumRange Command::TEST_COMMAND"
+            "EnumRange Command::UPDT_SET_STATUS"
           ],
           "source_type": "THMSGV1T1Command",
           "wire_kind": "pod"

@@ -1437,8 +1437,8 @@ namespace mdr::v1::t1
     // THMSGV1T1GetOptimizerCapability
     struct GetOptimizerCapability
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_GET_CAPABILITY
+        Command command{Command::OPT_GET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType optimizerInquiredType{OptimizerInquiredType::NO_USE}; // 0x1
 
@@ -1448,8 +1448,8 @@ namespace mdr::v1::t1
     // THMSGV1T1GetOptimizerParam
     struct GetOptimizerParam
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_GET_PARAM
+        Command command{Command::OPT_GET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType optimizerInquiredType{OptimizerInquiredType::NO_USE}; // 0x1
 
@@ -1459,8 +1459,8 @@ namespace mdr::v1::t1
     // THMSGV1T1GetOptimizerStatus
     struct GetOptimizerStatus
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_GET_STATUS
+        Command command{Command::OPT_GET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType optimizerInquiredType{OptimizerInquiredType::NO_USE}; // 0x1
 
@@ -1591,8 +1591,8 @@ namespace mdr::v1::t1
     // THMSGV1T1GetSystemExParam
     struct GetSystemExParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_GET_PARAM
-        Command command{Command::SYSTEM_GET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_GET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_GET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType systemInquiredType{SystemInquiredType::NO_USE}; // 0x1
 
@@ -1624,8 +1624,8 @@ namespace mdr::v1::t1
     // THMSGV1T1GetUpdateParam
     struct GetUpdateParam
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::UPDT_GET_PARAM
+        Command command{Command::UPDT_GET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpdateInquiredType updateInquiredType{UpdateInquiredType::NO_USE}; // 0x1
 
@@ -2180,8 +2180,8 @@ namespace mdr::v1::t1
     // THMSGV1T1NotifyOptimizerParam
     struct NotifyOptimizerParam
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_NTFY_PARAM
+        Command command{Command::OPT_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType type{OptimizerInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -2197,8 +2197,8 @@ namespace mdr::v1::t1
     // THMSGV1T1NotifyOptimizerStatus
     struct NotifyOptimizerStatus
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_NTFY_STATUS
+        Command command{Command::OPT_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType type{OptimizerInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -3709,8 +3709,8 @@ namespace mdr::v1::t1
     // THMSGV1T1RetOptimizerParam
     struct RetOptimizerParam
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_RET_PARAM
+        Command command{Command::OPT_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType type{OptimizerInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -3726,8 +3726,8 @@ namespace mdr::v1::t1
     // THMSGV1T1RetOptimizerStatus
     struct RetOptimizerStatus
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_RET_STATUS
+        Command command{Command::OPT_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType type{OptimizerInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5101,8 +5101,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetOptimizerStatus
     struct SetOptimizerStatus
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::OPT_SET_STATUS
+        Command command{Command::OPT_SET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OptimizerInquiredType optimizerInquiredType{OptimizerInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5165,8 +5165,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamAssignableSettingsParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         MDRPodArray<AssignableSettingsPreset> presets; // 0x2
@@ -5177,8 +5177,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamAutoPowerOffParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5192,8 +5192,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamControlByWearingParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CONTROL_BY_WEARING}; // 0x1
         ControlByWearingSettingType settingType{ControlByWearingSettingType::ON_OFF}; // 0x2
@@ -5205,8 +5205,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamPowerSavingModeParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType settingType{PowerSavingModeSettingType::ON_OFF}; // 0x2
@@ -5219,8 +5219,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_AutoPowerOffCapability
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::AUTO_POWER_OFF}; // 0x1
         MDRPodArray<AutoPowerOffElementId> candidateElements; // 0x2
@@ -5231,8 +5231,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_ControlByWearingCapability
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::CONTROL_BY_WEARING}; // 0x1
         ControlByWearingSettingType controlByWearingSettingType{}; // 0x2
@@ -5243,8 +5243,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_PowerSavingModeCapability
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::POWER_SAVING_MODE}; // 0x1
         PowerSavingModeSettingType powerSavingModeSettingType{}; // 0x2
@@ -5255,8 +5255,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5303,8 +5303,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_SystemCapabilityBase
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::NO_USE}; // 0x1
 
@@ -5314,8 +5314,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_VibratorCapability
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType vibratorSettingType{}; // 0x2
@@ -5326,8 +5326,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamVibratorParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::VIBRATOR}; // 0x1
         VibratorSettingType settingType{VibratorSettingType::ON_OFF}; // 0x2
@@ -5340,8 +5340,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParammartTalkingModeExParamType1Param
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5358,8 +5358,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParammartTalkingModeExType1Param
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5374,8 +5374,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParammartTalkingModeRetParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5389,8 +5389,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParammartTalkingModeSetNtfyParam
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::SMART_TALKING_MODE}; // 0x1
         SmartTalkingModeParameterType parameterType{SmartTalkingModeParameterType::NO_USE}; // 0x2
@@ -5596,8 +5596,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetUpdateStatus
     struct SetUpdateStatus
     {
-        // CODEGEN EnumRange Command::TEST_COMMAND
-        Command command{Command::TEST_COMMAND}; // 0x0
+        // CODEGEN EnumRange Command::UPDT_SET_STATUS
+        Command command{Command::UPDT_SET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UpdateInquiredType updateInquiredType{UpdateInquiredType::NO_USE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -5942,8 +5942,8 @@ namespace mdr::v1::t1
     // THMSGV1T1GetSportsExParam
     struct GetSportsExParam
     {
-        // CODEGEN EnumRange Command::SPORTS_GET_PARAM
-        Command command{Command::SPORTS_GET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SPORTS_GET_EXTENDED_PARAM
+        Command command{Command::SPORTS_GET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SportsInquiredType type{SportsInquiredType::NO_USE}; // 0x1
         GetSportsExParam_TrainingModeRequest getSportsExParam_TrainingModeRequest{}; // 0x2
@@ -6754,8 +6754,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSportsExParam
     struct SetSportsExParam
     {
-        // CODEGEN EnumRange Command::SPORTS_SET_PARAM
-        Command command{Command::SPORTS_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SPORTS_SET_EXTENDED_PARAM
+        Command command{Command::SPORTS_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SportsInquiredType type{SportsInquiredType::NO_USE}; // 0x1
         TrainingModeExParam trainingModeExParam{}; // 0x2
@@ -6882,8 +6882,8 @@ namespace mdr::v1::t1
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_AssignableSettingsCapability
     {
-        // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
-        Command command{Command::SYSTEM_SET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
+        Command command{Command::SYSTEM_SET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SystemInquiredType type{SystemInquiredType::ASSIGNABLE_SETTINGS}; // 0x1
         AsCapabilityKeyList assignableSettingKeyList{}; // 0x2

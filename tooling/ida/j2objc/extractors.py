@@ -2755,6 +2755,7 @@ class ProtocolExtractor:
         cpp_name = cpp_name_override or self._clean_type_name(class_name)
         factory_class = class_name + "_Factory"
         factory_methods = self.database.methods(factory_class)
+        constructor: JavaMethod | None = None
         references: set[str] = set()
 
         if factory_methods:
@@ -2852,6 +2853,12 @@ class ProtocolExtractor:
             if has_command_stream or factory_methods
             else None
         )
+        if constructor is not None and has_command_stream:
+            assigned_command = self._assigned_constructor_command(
+                class_name, command_enum.objc_name
+            )
+            if assigned_command is not None:
+                inferred_command = assigned_command
         getter_methods = self._payload_getters(metadata)
         raw_fields: list[FieldDecl] = []
         used_names: set[str] = set()
@@ -4671,6 +4678,35 @@ class ProtocolExtractor:
             )
         return names[0]
 
+    def _assigned_constructor_command(
+        self, class_name: str, command_enum_class: str
+    ) -> str | None:
+        """Recover a class-wide command fixed by every public constructor."""
+        constructors = [
+            method
+            for method in self.metadata(class_name).methods
+            if method.java_name == "<init>"
+            and method.parameter_types not in ("[B", None)
+        ]
+        if not constructors:
+            return None
+
+        assignments: set[str] = set()
+        for constructor in constructors:
+            members = self._referenced_enum_members(
+                self._method_symbol(class_name, constructor),
+                command_enum_class,
+                follow_helpers=True,
+                ignore_adr_refs=True,
+            )
+            # A command is class-wide only when every constructor proves the
+            # same single assignment. Missing, nested, or conflicting
+            # references leave the name-based inference unchanged.
+            if len(members) != 1:
+                return None
+            assignments.update(members)
+        return next(iter(assignments)) if len(assignments) == 1 else None
+
     @staticmethod
     def _is_subsequence(needle: list[str], haystack: list[str]) -> bool:
         iterator = iter(haystack)
@@ -4771,6 +4807,7 @@ class ProtocolExtractor:
         enum_class: str,
         *,
         follow_helpers: bool = False,
+        ignore_adr_refs: bool = False,
     ) -> set[str]:
         class ObjectVisitor(ida_hexrays.ctree_visitor_t):
             def __init__(self) -> None:
@@ -4813,6 +4850,15 @@ class ProtocolExtractor:
                 if address in global_members
             )
             for instruction in idautils.FuncItems(current.address):
+                if (
+                    ignore_adr_refs
+                    and idc.print_insn_mnem(instruction).upper().startswith("ADR")
+                ):
+                    # AArch64 commonly materializes the start of the enum
+                    # globals page before loading a different member by
+                    # offset. The page anchor is not itself referenced by the
+                    # constructor and would introduce a false enum member.
+                    continue
                 members.update(
                     global_members[address]
                     for address in idautils.DataRefsFrom(instruction)
