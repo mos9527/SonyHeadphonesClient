@@ -9347,9 +9347,7 @@
           "default": "BluetoothDeviceInfoType::BLUETOOTH_DEVICE_ADDRESS",
           "name": "type",
           "offset": 1,
-          "semantic_rules": [
-            "EnumRange BluetoothDeviceInfoType::BLUETOOTH_DEVICE_ADDRESS"
-          ],
+          "semantic_rules": [],
           "source_type": "LTHMSGV1T1BluetoothDeviceInfoType;",
           "wire_kind": "pod"
         }

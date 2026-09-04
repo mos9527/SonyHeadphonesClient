@@ -3121,6 +3121,7 @@ class ProtocolExtractor:
             if len(referenced) == 1 and wire_kind == "pod":
                 enum_class = next(iter(referenced))
                 member = self._returned_enum_member(getter, enum_class)
+                fixed_member = member is not None
                 if member is None:
                     enum_decl = self.extract_enum(enum_class)
                     valid_values = [
@@ -3132,7 +3133,7 @@ class ProtocolExtractor:
                         member = valid_values[0].name
                 if member is not None:
                     default = f"{cpp_type}::{member}"
-                    if getter.source_address != metadata.metadata_method_address:
+                    if fixed_member:
                         rules = (f"EnumRange {cpp_type}::{member}",)
             raw_fields.insert(
                 0,

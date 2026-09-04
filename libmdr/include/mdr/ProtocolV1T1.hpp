@@ -1271,7 +1271,6 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::COMMON_GET_BLUETOOTH_DEVICE_INFO
         Command command{Command::COMMON_GET_BLUETOOTH_DEVICE_INFO}; // 0x0
-        // CODEGEN EnumRange BluetoothDeviceInfoType::BLUETOOTH_DEVICE_ADDRESS
         BluetoothDeviceInfoType type{BluetoothDeviceInfoType::BLUETOOTH_DEVICE_ADDRESS}; // 0x1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetBluetoothDeviceInfo);
