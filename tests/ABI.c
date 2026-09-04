@@ -447,7 +447,7 @@ static void test_one_operation_at_a_time(void)
         "initialization starts"
     );
     check_result(
-        mdrHeadphonesRequestFetch(session.headphones),
+        mdrHeadphonesRequestSync(session.headphones),
         MDR_RESULT_INPROGRESS,
         "a second operation is rejected while initialization is active"
     );

@@ -1336,7 +1336,7 @@ MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones)
     return h->Invoke(h->RequestInit());
 }
 
-MDRResult mdrHeadphonesRequestFetch(MDRHeadphones* headphones)
+MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones)
 {
     if (!headphones)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;

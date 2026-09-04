@@ -1,4 +1,5 @@
 #pragma once
+// TODO @mos9527: Documentation.
 
 #include <stddef.h>
 #include <stdint.h>
@@ -74,7 +75,11 @@ typedef uint32_t MDREvent;
 #define MDR_EVENT_ALERT ((MDREvent)19u)
 #define MDR_EVENT_INTERACTION ((MDREvent)20u)
 #define MDR_EVENT_DEVICE_MESSAGE ((MDREvent)21u)
-#define MDR_EVENT_UNHANDLED ((MDREvent)22u)
+// Rarely do you need this. This currently applies to V1 protocol where e.x. playback metadata (MDR_EVENT_PLAYBACK_CHANGED)
+// is only sent after a @ref mdrHeadphonesRequestSync.
+// The change events are sent by device as stub payloads w/o actual info. Xref to here to see what's going to use it.
+#define MDR_EVENT_NEED_SYNC ((MDREvent)22u)
+#define MDR_EVENT_UNHANDLED ((MDREvent)23u)
 
 typedef uint32_t MDRPacketDirection;
 #define MDR_PACKET_DIRECTION_RX ((MDRPacketDirection)0u)
@@ -436,7 +441,7 @@ MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones);
  * @brief Request pulling latest states from the device. This includes e.g. battery levels and some other states that
  * may change without being notified by the headphones themselves.
  */
-MDR_API MDRResult mdrHeadphonesRequestFetch(MDRHeadphones* headphones);
+MDR_API MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones);
 /**
  * @brief Commits any pending changes made via the ...Set calls. Changes are ONLY applied to the devices
  *        after this call is complete, and only then @ref mdrHeadphonesIsDirty will return false

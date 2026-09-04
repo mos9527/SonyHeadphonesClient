@@ -411,6 +411,8 @@ struct ClientState
     bool mEqualizerAvailable;
     bool mPairingAvailable;
     bool mPlaybackVolumeStaged;
+    // Set to true to update batteries, etc for V2 and  playback vol/metadata once headphones become available.
+    bool mPendingSync;
 } gState;
 
 void RefreshPlaybackState()
@@ -1858,7 +1860,7 @@ void DrawDeviceControls()
     switch (event)
     {
     case MDR_EVENT_INITIALIZE_COMPLETE:
-        if (mdrHeadphonesRequestFetch(gDevice) != MDR_RESULT_OK)
+        if (mdrHeadphonesRequestSync(gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;
@@ -1903,6 +1905,9 @@ void DrawDeviceControls()
     case MDR_EVENT_APPLY_COMPLETE:
         RefreshPlaybackState();
         break;
+    case MDR_EVENT_NEED_SYNC:
+        gState.mPendingSync = true;
+        break;
     }
 
     DrawDeviceControlsHeader();
@@ -1914,9 +1919,16 @@ void DrawDeviceControls()
     ImScrollWhenDraggingAnywhere(ImGui::GetIO().MouseDelta, ImGuiMouseButton_Left);
     ImGui::EndChild();
 
-    if (mdrHeadphonesIsReady(gDevice) && mdrHeadphonesIsDirty(gDevice) &&
-        mdrHeadphonesRequestCommit(gDevice) != MDR_RESULT_OK)
-        DisconnectWithModal();
+    if (mdrHeadphonesIsReady(gDevice))
+    {
+        if (mdrHeadphonesIsDirty(gDevice) && mdrHeadphonesRequestCommit(gDevice) != MDR_RESULT_OK)
+            DisconnectWithModal();
+        if (gState.mPendingSync){
+            gState.mPendingSync = false;
+            if (mdrHeadphonesRequestSync(gDevice) != MDR_RESULT_OK)
+                DisconnectWithModal();
+        }
+    }
 }
 
 void DrawDeviceDisconnect()
