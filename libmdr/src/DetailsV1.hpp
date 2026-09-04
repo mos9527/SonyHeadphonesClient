@@ -74,6 +74,8 @@ namespace mdr
         v1::t1::UpscalingType mUpscalingType{};
         bool mUpscalingAvailable{};
 
+        Vector<v1::t1::AsCapabilityKey> mAssignableSettingsKeys;
+
         struct GsCapability
         {
             v1::t1::GsSettingType type{};
@@ -99,7 +101,7 @@ namespace mdr
         MDRProperty<UInt8> mBGMModeRoomSize;
         MDRProperty<bool> mUpmixCinemaEnabled;
         MDRProperty<bool> mAutoPauseEnabled;
-        MDRProperty<v1::t1::AssignableSettingsPreset> mTouchFunctionLeft, mTouchFunctionRight;
+        MDRProperty<Vector<v1::t1::AssignableSettingsPreset>> mAssignableSettingsPresets;
         MDRProperty<bool> mSpeakToChatEnabled;
         MDRProperty<v1::t1::DetectionSensitivity> mSpeakToChatDetectSensitivity;
         MDRProperty<v1::t1::ModeOutTime> mSpeakToModeOutTime;

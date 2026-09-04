@@ -243,8 +243,12 @@ typedef uint32_t MDRAssignableAction;
 #define MDR_ASSIGNABLE_NOISE_CONTROL ((MDRAssignableAction)2u)
 #define MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS ((MDRAssignableAction)3u)
 #define MDR_ASSIGNABLE_TRACK_CONTROL ((MDRAssignableAction)4u)
-#define MDR_ASSIGNABLE_VOICE_ASSISTANT ((MDRAssignableAction)5u)
-#define MDR_ASSIGNABLE_QUICK_ACCESS ((MDRAssignableAction)6u)
+#define MDR_ASSIGNABLE_VOICE_RECOGNITION ((MDRAssignableAction)5u)
+#define MDR_ASSIGNABLE_GOOGLE_ASSISTANT ((MDRAssignableAction)6u)
+#define MDR_ASSIGNABLE_AMAZON_ALEXA ((MDRAssignableAction)7u)
+#define MDR_ASSIGNABLE_TENCENT_XIAOWEI ((MDRAssignableAction)8u)
+#define MDR_ASSIGNABLE_MICROSOFT_CORTANA ((MDRAssignableAction)9u)
+#define MDR_ASSIGNABLE_QUICK_ACCESS ((MDRAssignableAction)10u)
 
 typedef uint32_t MDRWearingPowerMode;
 #define MDR_WEARING_POWER_UNAVAILABLE ((MDRWearingPowerMode)0u)
@@ -350,11 +354,23 @@ typedef struct MDRGeneralSetting
     MDRBoolean boolean_value;
 } MDRGeneralSetting;
 
-typedef struct MDRAssignableControls
+typedef uint32_t MDRAssignableActionKeyLocation;
+#define MDR_ASSIGNABLE_ACTION_KEY_UNKNOWN ((MDRAssignableActionKeyLocation)0u)
+#define MDR_ASSIGNABLE_ACTION_KEY_LEFT ((MDRAssignableActionKeyLocation)1u)
+#define MDR_ASSIGNABLE_ACTION_KEY_RIGHT ((MDRAssignableActionKeyLocation)2u)
+#define MDR_ASSIGNABLE_ACTION_KEY_CUSTOM ((MDRAssignableActionKeyLocation)3u)
+
+typedef uint32_t MDRAssignableActionKeyType;
+#define MDR_ASSIGNABLE_ACTION_KEY_TYPE_UNKNOWN ((MDRAssignableActionKeyType)0u)
+#define MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR ((MDRAssignableActionKeyType)1u)
+#define MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON ((MDRAssignableActionKeyType)2u)
+
+typedef struct MDRAssignableControl
 {
-    MDRAssignableAction left;
-    MDRAssignableAction right;
-} MDRAssignableControls;
+    MDRAssignableActionKeyLocation location;
+    MDRAssignableActionKeyType type;
+    MDRAssignableAction action;
+} MDRAssignableActionPreset;
 
 typedef struct MDRPower
 {
@@ -525,8 +541,13 @@ MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(MDRHeadphones* headphones, 
 MDR_API MDRResult mdrHeadphonesGetGeneralSetting(MDRHeadphones* headphones, uint32_t index,
                                                  MDRGeneralSetting* out_setting);
 MDR_API MDRResult mdrHeadphonesSetGeneralSetting(MDRHeadphones* headphones, const MDRGeneralSetting* setting);
-MDR_API MDRResult mdrHeadphonesGetAssignableControls(MDRHeadphones* headphones, MDRAssignableControls* out_controls);
-MDR_API MDRResult mdrHeadphonesSetAssignableControls(MDRHeadphones* headphones, const MDRAssignableControls* controls);
+MDR_API MDRResult mdrHeadphonesGetAssignableControls(MDRHeadphones* headphones, MDRAssignableControl* out_controls,
+                                                     uint32_t* inout_count);
+MDR_API MDRResult mdrHeadphonesGetAssignableControlActions(MDRHeadphones* headphones,
+                                                           MDRAssignableActionKeyLocation key,
+                                                           MDRAssignableAction* out_options, uint32_t* inout_count);
+MDR_API MDRResult mdrHeadphonesSetAssignableControls(MDRHeadphones* headphones, const MDRAssignableControl* controls,
+                                                     uint32_t count);
 
 /* Power, wearing behavior, voice guidance, and related system settings. */
 MDR_API MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPower* out_power);

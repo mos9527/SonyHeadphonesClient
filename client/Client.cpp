@@ -220,6 +220,21 @@ const char* FormatEqualizerPreset(MDREqualizerPreset id)
     }
 }
 
+const char* FormatAssignableActionKeyLocation(const MDRAssignableControl& control)
+{
+    switch (control.location)
+    {
+    case MDR_ASSIGNABLE_ACTION_KEY_LEFT:
+        return control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR ? "Left Touch" : "Left Button";
+    case MDR_ASSIGNABLE_ACTION_KEY_RIGHT:
+        return control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR ? "Right Touch" : "Right Button";
+    case MDR_ASSIGNABLE_ACTION_KEY_CUSTOM:
+        return "[CUSTOM] Button";
+    default:
+        return "Unknown";
+    }
+}
+
 const char* FormatAssignableAction(MDRAssignableAction action)
 {
     switch (action)
@@ -230,8 +245,16 @@ const char* FormatAssignableAction(MDRAssignableAction action)
         return "Playback Control";
     case MDR_ASSIGNABLE_TRACK_CONTROL:
         return "Track Control";
-    case MDR_ASSIGNABLE_VOICE_ASSISTANT:
-        return "Voice Assistant";
+    case MDR_ASSIGNABLE_VOICE_RECOGNITION:
+        return "Voice Recognition";
+    case MDR_ASSIGNABLE_GOOGLE_ASSISTANT:
+        return "Google Assistant";
+    case MDR_ASSIGNABLE_AMAZON_ALEXA:
+        return "Amazon Alexa";
+    case MDR_ASSIGNABLE_TENCENT_XIAOWEI:
+        return "Tencent Xiaowei";
+    case MDR_ASSIGNABLE_MICROSOFT_CORTANA:
+        return "Microsoft Cortana";
     case MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS:
         return "Ambient Sound Control";
     case MDR_ASSIGNABLE_QUICK_ACCESS:
@@ -364,6 +387,26 @@ mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> GetGeneralSetti
             continue;
         values.emplace_back(info, setting);
     }
+    return values;
+}
+
+mdr::Vector<MDRAssignableControl> GetAssignableControls()
+{
+    mdr::Vector<MDRAssignableControl> values(2); // Custom only, or Left+Right
+    uint32_t count = static_cast<uint32_t>(values.size());
+    if (!gDevice || mdrHeadphonesGetAssignableControls(gDevice, values.data(), &count) != MDR_RESULT_OK)
+        return {};
+    values.resize(count);
+    return values;
+}
+
+mdr::Vector<MDRAssignableAction> GetAssignableControlActions(MDRAssignableActionKeyLocation key)
+{
+    mdr::Vector<MDRAssignableAction> values(7); // Number of MDRAssignableAction enum values
+    uint32_t count = static_cast<uint32_t>(values.size());
+    if (!gDevice || mdrHeadphonesGetAssignableControlActions(gDevice, key, values.data(), &count) != MDR_RESULT_OK)
+        return {};
+    values.resize(count);
     return values;
 }
 
@@ -1619,22 +1662,27 @@ void DrawDeviceControlsSystem()
         ImGui::TreePop();
     }
     /* Assignable Settings */
-    if (FeatureAvailable(MDR_FEATURE_ASSIGNABLE_CONTROLS) &&
-        ImGui::TreeNodeEx("Touch Preset", ImGuiTreeNodeFlags_DefaultOpen))
+    if (FeatureAvailable(MDR_FEATURE_ASSIGNABLE_CONTROLS))
     {
-        MDRAssignableControls controls{};
-        if (mdrHeadphonesGetAssignableControls(gDevice, &controls) == MDR_RESULT_OK)
+        if (ImGui::TreeNodeEx("Assignable Controls", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            constexpr MDRAssignableAction kSelections[] = {
-                MDR_ASSIGNABLE_PLAYBACK, MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS, MDR_ASSIGNABLE_NONE};
-            bool changed = ImComboBoxItems(
-                "Left Touch", std::span{kSelections}, controls.left, FormatAssignableAction);
-            changed |= ImComboBoxItems(
-                "Right Touch", std::span{kSelections}, controls.right, FormatAssignableAction);
+            bool changed = false;
+
+            auto controls = GetAssignableControls();
+            for (MDRAssignableControl& control : controls)
+            {
+                mdr::Vector<MDRAssignableAction> actions = GetAssignableControlActions(control.location);
+                std::erase(actions, MDR_ASSIGNABLE_GOOGLE_ASSISTANT);
+                changed |= ImComboBoxItems<MDRAssignableAction, std::dynamic_extent>(
+                    FormatAssignableActionKeyLocation(control), std::span{actions}, control.action,
+                    FormatAssignableAction);
+            }
+
             if (changed)
-                mdrHeadphonesSetAssignableControls(gDevice, &controls);
+                mdrHeadphonesSetAssignableControls(gDevice, controls.data(), static_cast<uint32_t>(controls.size()));
+
+            ImGui::TreePop();
         }
-        ImGui::TreePop();
     }
     /* NC/ASM Button Settings */
     if (FeatureAvailable(MDR_FEATURE_NOISE_CONTROL_BUTTON) &&

@@ -350,6 +350,24 @@ namespace mdr
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
 
+        int HandleSystemCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            SystemInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type))
+                return MDR_EVENT_UNHANDLED;
+            switch (type)
+            {
+            case SystemInquiredType::ASSIGNABLE_SETTINGS:
+            {
+                Deserialize(RetSystemCapability_AssignableSettingsCapability, result, cmd);
+                self->mDetailsV1.mAssignableSettingsKeys = std::move(result.assignableSettingKeyList.elements.value);
+                return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
+            }
+            default:
+                return MDR_EVENT_UNHANDLED;
+            }
+        }
+
         int HandleSystemParam(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             SystemInquiredType type{};
@@ -388,18 +406,12 @@ namespace mdr
                 if (notify)
                 {
                     Deserialize(NotifySystemParamAssignableSettingsParam, result, cmd);
-                    if (!result.presets.value.empty())
-                        self->mDetailsV1.mTouchFunctionLeft.overwrite(result.presets.value[0]);
-                    if (result.presets.size() > 1)
-                        self->mDetailsV1.mTouchFunctionRight.overwrite(result.presets.value[1]);
+                    self->mDetailsV1.mAssignableSettingsPresets.overwrite(result.presets.value);
                 }
                 else
                 {
                     Deserialize(RetSystemParamAssignableSettingsParam, result, cmd);
-                    if (!result.presets.value.empty())
-                        self->mDetailsV1.mTouchFunctionLeft.overwrite(result.presets.value[0]);
-                    if (result.presets.size() > 1)
-                        self->mDetailsV1.mTouchFunctionRight.overwrite(result.presets.value[1]);
+                    self->mDetailsV1.mAssignableSettingsPresets.overwrite(result.presets.value);
                 }
                 return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
             case SystemInquiredType::SMART_TALKING_MODE:
@@ -515,6 +527,8 @@ namespace mdr
         case Command::GENERAL_SETTING_RET_PARAM:
         case Command::GENERAL_SETTING_NTNY_PARAM:
             return HandleGsParam(self, cmd);
+        case Command::SYSTEM_RET_CAPABILITY:
+            return HandleSystemCapability(self, cmd);
         case Command::SYSTEM_RET_PARAM:
         case Command::SYSTEM_NTFY_PARAM:
             return HandleSystemParam(self, cmd);
