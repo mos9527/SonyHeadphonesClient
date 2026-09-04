@@ -399,6 +399,9 @@ namespace
             for (size_t column = 0; column < bytesPerLine; ++column)
             {
                 const size_t index = offset + column;
+                if (index >= bytes.size())
+                    break;
+
                 const bool padding = index >= bytes.size();
                 const mdr::UInt8 byte = padding ? 0 : bytes[index];
                 const mdr::String byteText = mdr::Format("{:02X}", byte);
@@ -411,6 +414,9 @@ namespace
             for (size_t column = 0; column < bytesPerLine; ++column)
             {
                 const size_t index = offset + column;
+                if (index >= bytes.size())
+                    break;
+
                 const bool padding = index >= bytes.size();
                 const mdr::UInt8 byte = padding ? 0 : bytes[index];
                 const bool printable = !padding && std::isprint(static_cast<unsigned char>(byte));
