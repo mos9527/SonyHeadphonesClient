@@ -128,8 +128,8 @@ namespace
 
     bool UsesCustomReadWrite(std::string_view typeName)
     {
-        constexpr std::string_view reserved[] = {"MDRPodArray", "MDRPrefixedString", "MDRArray", "MDRFixedArray",
-                                                 "MDRMap"};
+        constexpr std::string_view reserved[] = {"MDRPodArray", "MDRPrefixedString16BE", "MDRPrefixedString",
+                                                 "MDRArray",    "MDRFixedArray",         "MDRMap"};
         const std::string normalized = NormalizedTypeName(std::string(typeName));
         for (const std::string_view prefix : reserved)
             if (normalized.starts_with(prefix))
@@ -358,7 +358,8 @@ namespace
             return;
         }
 
-        if (normalized == "Int16BE" || normalized == "Int24BE" || normalized == "Int32BE" || normalized == "UInt64BE")
+        if (normalized == "UInt16BE" || normalized == "Int16BE" || normalized == "Int24BE" ||
+            normalized == "Int32BE" || normalized == "UInt64BE")
         {
             println("{}changed |= DrawEndian({}, {});", Indent(), labelExpression, expression);
             return;
@@ -367,6 +368,12 @@ namespace
         if (normalized == "MDRPrefixedString")
         {
             println("{}changed |= DrawPrefixedString({}, {});", Indent(), labelExpression, expression);
+            return;
+        }
+
+        if (normalized == "MDRPrefixedString16BE")
+        {
+            println("{}changed |= DrawString({}, {}.value, UINT16_MAX);", Indent(), labelExpression, expression);
             return;
         }
 

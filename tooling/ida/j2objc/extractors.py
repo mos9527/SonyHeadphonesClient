@@ -327,9 +327,67 @@ class ProtocolExtractor:
             for field in field_names
         }
         orders: set[tuple[str, ...]] = set()
+        partial_orders: set[tuple[str, ...]] = set()
         serializer_texts: list[str] = []
         layout_texts: list[str] = []
         target_descriptor = f"L{class_name};"
+        xref_fields: dict[int, set[str]] = {}
+        for field, selector in selectors.items():
+            getters = [
+                method
+                for method in self.database.find_methods(
+                    class_name, selector_prefix=selector
+                )
+                if method.selector == selector
+            ]
+            for getter in getters:
+                for reference in idautils.CodeRefsTo(getter.address, False):
+                    function = ida_funcs.get_func(reference)
+                    if function is None:
+                        continue
+                    symbol = ida_name.get_name(function.start_ea)
+                    if prefix not in symbol:
+                        continue
+                    xref_fields.setdefault(function.start_ea, set()).add(field)
+        xref_orders: set[tuple[str, ...]] = set()
+        xref_texts: list[str] = []
+        for address, referenced_fields in xref_fields.items():
+            if len(referenced_fields) < 2:
+                continue
+            symbol = ida_name.get_name(address)
+            method = MethodSymbol(address, "", "", "", symbol)
+            try:
+                text = self._expanded_method_text(method)
+            except ExtractionError:
+                continue
+            positions = {
+                field: text.find(f'"{selectors[field]}"')
+                for field in referenced_fields
+            }
+            present = {
+                field: position
+                for field, position in positions.items()
+                if position >= 0
+            }
+            if len(present) < 2:
+                continue
+            xref_orders.add(
+                tuple(
+                    field
+                    for field, _ in sorted(
+                        present.items(), key=lambda item: item[1]
+                    )
+                )
+            )
+            xref_texts.append(text)
+        if len(xref_orders) == 1:
+            result = (
+                next(iter(xref_orders)),
+                "\n".join(xref_texts),
+                "\n".join(xref_texts),
+            )
+            self._external_field_cache[key] = result
+            return result
         for candidate_class in self.database.protocol_classes():
             if not candidate_class.startswith(prefix):
                 continue
@@ -361,6 +419,7 @@ class ProtocolExtractor:
                 )
                 related_by_type = any(
                     target_descriptor in descriptor
+                    or class_name.removeprefix(prefix) in descriptor
                     for descriptor in descriptors
                 )
             if not related_by_name and not related_by_type:
@@ -407,18 +466,30 @@ class ProtocolExtractor:
                             )
                         )
                     )
+                elif len(present) >= 2:
+                    partial_orders.add(
+                        tuple(
+                            field
+                            for field, _ in sorted(
+                                present.items(), key=lambda item: item[1]
+                            )
+                        )
+                    )
         if len(orders) > 1:
             raise ExtractionError(
                 f"contradictory external field orders for {class_name}: "
                 f"{sorted(orders)}"
             )
+        selected_orders = orders or partial_orders
+        if not orders and len(partial_orders) > 1:
+            selected_orders = set()
         result = (
             (
-                next(iter(orders)),
+                next(iter(selected_orders)),
                 "\n".join(serializer_texts),
                 "\n".join(layout_texts),
             )
-            if len(orders) == 1
+            if len(selected_orders) == 1
             else None
         )
         self._external_field_cache[key] = result
@@ -707,6 +778,30 @@ class ProtocolExtractor:
                          expression)
         ]
         return len(matching) if 1 <= len(matching) <= 8 else None
+
+    @staticmethod
+    def _external_primitive_width(
+        serializer_text: str, field: FieldDecl
+    ) -> int | None:
+        selector = f'"get{field.name[:1].upper()}{field.name[1:]}"'
+        positions = [
+            match.start()
+            for match in re.finditer(re.escape(selector), serializer_text)
+        ]
+        widths: set[int] = set()
+        for position in positions:
+            window = serializer_text[
+                max(0, position - 1200) : position + 1200
+            ]
+            lengths = {
+                int(value)
+                for value in re.findall(
+                    r"arrayWithLength:[^;\n]*?(\d+)", window
+                )
+            }
+            if "BYTE1(" in window and 2 in lengths:
+                widths.add(2)
+        return next(iter(widths)) if len(widths) == 1 else None
 
     def _parser_primitive_span(
         self,
@@ -1274,11 +1369,15 @@ class ProtocolExtractor:
             result.payloads, result.enums, version
         )
         result.payloads = self._inherit_family_layouts(result.payloads)
+        result.payloads = self._fill_proven_offset_gaps(result.payloads)
         result.payloads = self._infer_discriminator_defaults(
             result.payloads, result.enums
         )
         result.payloads = self._split_contextual_field_helpers(
             result.payloads, result.enums
+        )
+        result.payloads = self._prune_unserialized_dynamic_suffixes(
+            result.payloads
         )
         result.payloads = self._link_nested_variants(result.payloads)
         unknown_types = self._unknown_field_types(
@@ -1499,6 +1598,167 @@ class ProtocolExtractor:
             for payload in output
         ]
 
+    @classmethod
+    def _fill_proven_offset_gaps(
+        cls, payloads: list[PayloadDecl]
+    ) -> list[PayloadDecl]:
+        """Restore fixed fields omitted by constructor-oriented metadata."""
+
+        output: list[PayloadDecl] = []
+        for payload in payloads:
+            if not any(
+                evidence.startswith("inherited wire layout from ")
+                for evidence in payload.evidence
+            ):
+                output.append(payload)
+                continue
+            expected_offsets: dict[str, int] = {}
+            for evidence in payload.evidence:
+                match = re.search(
+                    r"\bget([A-Z][A-Za-z0-9_]*) reads bytes (\d+)\.\.",
+                    evidence,
+                )
+                if match:
+                    name = match.group(1)
+                    expected_offsets[name[:1].lower() + name[1:]] = int(
+                        match.group(2)
+                    )
+                match = re.search(
+                    r"\bINDEX_([A-Z0-9_]+)\s*=\s*(\d+)", evidence
+                )
+                if match:
+                    parts = match.group(1).lower().split("_")
+                    name = parts[0] + "".join(
+                        part[:1].upper() + part[1:] for part in parts[1:]
+                    )
+                    expected_offsets[name] = int(match.group(2))
+
+            fields = list(payload.fields)
+            changed = False
+            while True:
+                mismatches = [
+                    (field, expected_offsets[field.name])
+                    for field in fields
+                    if field.name in expected_offsets
+                    and field.offset is not None
+                    and field.offset < expected_offsets[field.name]
+                ]
+                if not mismatches:
+                    break
+                field, expected = min(
+                    mismatches, key=lambda item: item[1]
+                )
+                actual = field.offset
+                assert actual is not None
+                insertions: list[tuple[int, FieldDecl]] = []
+                for missing_offset in range(1, actual + 1):
+                    prefix_types = tuple(
+                        item.cpp_type
+                        for item in fields
+                        if item.offset is not None
+                        and item.offset < missing_offset
+                    )
+                    current_at_offset = next(
+                        (
+                            item
+                            for item in fields
+                            if item.offset == missing_offset
+                        ),
+                        None,
+                    )
+                    candidates = {
+                        (
+                            candidate.name,
+                            candidate.cpp_type,
+                            candidate.wire_kind,
+                        ): candidate
+                        for sibling in payloads
+                        if sibling.objc_name != payload.objc_name
+                        and (
+                            set(cls._camel_tokens(sibling.cpp_name))
+                            & {"PARAM", "STATUS", "CAPABILITY"}
+                        )
+                        == (
+                            set(cls._camel_tokens(payload.cpp_name))
+                            & {"PARAM", "STATUS", "CAPABILITY"}
+                        )
+                        for candidate in sibling.fields
+                        if candidate.offset == missing_offset
+                        and candidate.name != "command"
+                        and (
+                            candidate.name.endswith("Type")
+                            or candidate.cpp_type.endswith("Type")
+                        )
+                        and (
+                            current_at_offset is None
+                            or candidate.cpp_type
+                            != current_at_offset.cpp_type
+                        )
+                        and tuple(
+                            item.cpp_type
+                            for item in sibling.fields
+                            if item.offset is not None
+                            and item.offset < missing_offset
+                        )
+                        == prefix_types
+                        and len(
+                            (
+                                set(cls._camel_tokens(sibling.cpp_name))
+                                & set(cls._camel_tokens(payload.cpp_name))
+                            )
+                            - _COMMAND_WORDS
+                            - _GENERIC_NAME_TOKENS
+                        )
+                        >= 2
+                    }
+                    if len(candidates) == 1:
+                        insertions.append(
+                            (missing_offset, next(iter(candidates.values())))
+                        )
+                if not insertions:
+                    break
+                missing_offset, inserted = max(
+                    insertions, key=lambda item: item[0]
+                )
+                insert_at = next(
+                    (
+                        index
+                        for index, item in enumerate(fields)
+                        if item.offset is not None
+                        and item.offset >= missing_offset
+                    ),
+                    len(fields),
+                )
+                fields.insert(insert_at, inserted)
+                fields = cls._recalculate_offsets(fields)
+                changed = True
+
+            if changed:
+                unresolved = [
+                    (field.name, field.offset, expected_offsets[field.name])
+                    for field in fields
+                    if field.name in expected_offsets
+                    and field.offset != expected_offsets[field.name]
+                ]
+                if unresolved:
+                    raise ExtractionError(
+                        f"cannot preserve proven offsets for "
+                        f"{payload.objc_name}: {unresolved}"
+                    )
+            output.append(
+                replace(
+                    payload,
+                    fields=tuple(fields),
+                    evidence=(
+                        *payload.evidence,
+                        "restored fields from proven absolute offsets",
+                    ),
+                )
+                if changed
+                else payload
+            )
+        return output
+
     @staticmethod
     def _covariant_cpp_type(base: str, derived: str) -> bool:
         if base == derived:
@@ -1694,6 +1954,66 @@ class ProtocolExtractor:
                     fields=tuple(fields),
                     serialization=(
                         "external" if changed else payload.serialization
+                    ),
+                )
+            )
+        return output
+
+    def _prune_unserialized_dynamic_suffixes(
+        self, payloads: list[PayloadDecl]
+    ) -> list[PayloadDecl]:
+        """Drop Java object fields proven absent after a dynamic wire field."""
+
+        output: list[PayloadDecl] = []
+        for payload in payloads:
+            dynamic_index = next(
+                (
+                    index
+                    for index, field in enumerate(payload.fields)
+                    if field.offset is not None
+                    and field.wire_kind in ("array", "string")
+                ),
+                None,
+            )
+            if dynamic_index is None:
+                output.append(payload)
+                continue
+            trailing = payload.fields[dynamic_index + 1 :]
+            if not trailing or not all(
+                field.offset is None for field in trailing
+            ):
+                output.append(payload)
+                continue
+            serializers = self.database.find_methods(
+                payload.objc_name, selector_prefix="writeTo"
+            )
+            if len(serializers) != 1:
+                output.append(payload)
+                continue
+            text = self._expanded_method_text(serializers[0])
+            omitted = [
+                field
+                for field in trailing
+                if (
+                    f"m{field.name[:1].upper()}{field.name[1:]}_" not in text
+                    and f'"get{field.name[:1].upper()}{field.name[1:]}"'
+                    not in text
+                )
+            ]
+            if not omitted:
+                output.append(payload)
+                continue
+            kept = [
+                field for field in payload.fields if field not in omitted
+            ]
+            output.append(
+                replace(
+                    payload,
+                    fields=tuple(kept),
+                    evidence=(
+                        *payload.evidence,
+                        "dropped unserialized Java suffix fields: "
+                        + ", ".join(field.name for field in omitted),
                     ),
                 )
             )
@@ -2122,16 +2442,24 @@ class ProtocolExtractor:
                 ):
                     fields.append(field)
                     continue
-                scores = []
+                scores: list[tuple[tuple[int, int, int], str]] = []
                 for member in enum_values[field.cpp_type]:
                     member_tokens = (
                         set(cls._camel_tokens(member)) - _GENERIC_NAME_TOKENS
                     )
-                    if not member_tokens or not (
-                        member_tokens <= name_tokens
-                    ):
+                    overlap = member_tokens & name_tokens
+                    if not member_tokens or not overlap:
                         continue
-                    scores.append((len(member_tokens), member))
+                    scores.append(
+                        (
+                            (
+                                int(member_tokens <= name_tokens),
+                                len(overlap),
+                                -len(member_tokens - name_tokens),
+                            ),
+                            member,
+                        )
+                    )
                 if not scores:
                     fields.append(field)
                     continue
@@ -2339,14 +2667,7 @@ class ProtocolExtractor:
         enums: list[EnumDecl],
         allocation_dispatch: dict[str, frozenset[str]],
     ) -> list[PayloadDecl]:
-        enum_names = {
-            field.cpp_type
-            for payload in payloads
-            for field in payload.fields
-            if field.default
-            and "::" in field.default
-            and not field.cpp_type.startswith("Command")
-        }
+        enum_names = {enum.cpp_name for enum in enums}
         enum_defaults: dict[str, set[str]] = {}
         for enum in enums:
             enum_defaults[enum.cpp_name] = {
@@ -2415,10 +2736,105 @@ class ProtocolExtractor:
                 concrete_allocations = allocation_dispatch.get(
                     payload.objc_name, frozenset()
                 ) & {candidate.objc_name for candidate in output}
+                receive_side = bool(
+                    payload.command
+                    and {"RET", "NTFY"}
+                    & set(payload.command.split("_"))
+                )
+                allocation_tag_defaults: dict[str, set[str]] = {}
+                allocation_shape_tags: dict[
+                    str, set[tuple[str, str]]
+                ] = {}
+                if receive_side and concrete_allocations:
+                    for declaration in output:
+                        if declaration.objc_name not in concrete_allocations:
+                            continue
+                        declaration_fields = [
+                            field
+                            for field in declaration.fields
+                            if field.name != "command"
+                        ]
+                        if declaration_fields:
+                            first = declaration_fields[0]
+                            if (
+                                first.default
+                                and "::" in first.default
+                                and not first.default.endswith(
+                                    (
+                                        "::NO_USE",
+                                        "::OUT_OF_RANGE",
+                                        "::UNKNOWN",
+                                    )
+                                )
+                            ):
+                                allocation_shape_tags.setdefault(
+                                    declaration.objc_name, set()
+                                ).add((first.cpp_type, first.default))
+                        if tag_field is None:
+                            continue
+                        direct = {
+                            field.default
+                            for field in declaration_fields
+                            if field.cpp_type == tag_field.cpp_type
+                            and field.default
+                            in enum_defaults.get(tag_field.cpp_type, set())
+                        }
+                        declaration_tokens = set(
+                            cls._camel_tokens(declaration.cpp_name)
+                        )
+                        inferred = {
+                            default
+                            for default in enum_defaults.get(
+                                tag_field.cpp_type, set()
+                            )
+                            if (
+                                set(
+                                    cls._camel_tokens(
+                                        default.split("::", 1)[1]
+                                    )
+                                )
+                                - _GENERIC_NAME_TOKENS
+                            )
+                            <= declaration_tokens
+                        }
+                        allocation_tag_defaults.setdefault(
+                            declaration.objc_name, set()
+                        ).update(direct or inferred)
+                uniquely_tagged_targets = {
+                    target: next(iter(defaults))
+                    for target, defaults in allocation_tag_defaults.items()
+                    if len(defaults) == 1
+                }
+                generic_targets = (
+                    concrete_allocations - uniquely_tagged_targets.keys()
+                )
+                unique_shape_targets = {
+                    target: next(iter(tags))
+                    for target, tags in allocation_shape_tags.items()
+                    if len(tags) == 1
+                }
+                branch_proven = receive_side and (
+                    (
+                        len(concrete_allocations) >= 2
+                        and len(unique_shape_targets)
+                        == len(concrete_allocations)
+                        and len(set(unique_shape_targets.values()))
+                        == len(concrete_allocations)
+                    )
+                    or (
+                        bool(uniquely_tagged_targets)
+                        and len(generic_targets) <= 1
+                    )
+                )
                 for candidate in output:
                     if candidate.classification not in (
                         "field_helper",
                         "nested_variant",
+                    ):
+                        continue
+                    if (
+                        branch_proven
+                        and candidate.objc_name not in concrete_allocations
                     ):
                         continue
                     if any(
@@ -2441,6 +2857,62 @@ class ProtocolExtractor:
                             ("::OUT_OF_RANGE", "::NO_USE", "::UNKNOWN")
                         )
                     )
+                    if (
+                        tag_field is not None
+                        and branch_proven
+                        and candidate.objc_name in concrete_allocations
+                        and candidate_tag.cpp_type != tag_field.cpp_type
+                    ):
+                        inferred_allocations = uniquely_tagged_targets
+                        tagged_allocations = {
+                            field.default
+                            for declaration in output
+                            if declaration.objc_name in concrete_allocations
+                            for field in declaration.fields
+                            if field.cpp_type == tag_field.cpp_type
+                            and field.default in enum_defaults.get(
+                                tag_field.cpp_type, set()
+                            )
+                        }
+                        tagged_allocations.update(
+                            inferred_allocations.values()
+                        )
+                        candidate_default = inferred_allocations.get(
+                            candidate.objc_name
+                        )
+                        defaults = (
+                            {candidate_default}
+                            if candidate_default is not None
+                            else (
+                                enum_defaults.get(tag_field.cpp_type, set())
+                                - tagged_allocations
+                            )
+                        )
+                        for default in sorted(defaults):
+                            member = default.split("::", 1)[1]
+                            member_name = "".join(
+                                token[:1] + token[1:].lower()
+                                for token in member.split("_")
+                            )
+                            suffix = candidate.cpp_name
+                            if suffix.startswith("System"):
+                                suffix = suffix[len("System") :]
+                            case_name = (
+                                candidate.cpp_name
+                                if candidate_default is not None
+                                else member_name + suffix
+                            )
+                            cases.append(
+                                (
+                                    replace(
+                                        candidate,
+                                        cpp_name=case_name,
+                                    ),
+                                    replace(tag_field, default=default),
+                                    None,
+                                )
+                            )
+                        continue
                     exact_tag = (
                         tag_field is not None
                         and candidate_tag.default
@@ -2693,11 +3165,49 @@ class ProtocolExtractor:
             }
             if len(token_sets) == 1:
                 select_winner(variants)
-        return [
+        deduplicated = [
             replacements.get(id(payload), payload)
             for payload in payloads
             if id(payload) in selected
         ]
+        output: list[PayloadDecl] = []
+        by_name: dict[str, int] = {}
+        for payload in deduplicated:
+            previous_index = by_name.get(payload.cpp_name)
+            if previous_index is None:
+                by_name[payload.cpp_name] = len(output)
+                output.append(payload)
+                continue
+            previous = output[previous_index]
+            if (
+                previous.objc_name,
+                previous.command,
+                previous.fields,
+                previous.serialization,
+                previous.parent,
+                previous.discriminator_field,
+                previous.discriminator_value,
+            ) != (
+                payload.objc_name,
+                payload.command,
+                payload.fields,
+                payload.serialization,
+                payload.parent,
+                payload.discriminator_field,
+                payload.discriminator_value,
+            ):
+                output.append(payload)
+                continue
+            output[previous_index] = replace(
+                previous,
+                sources=tuple(
+                    dict.fromkeys((*previous.sources, *payload.sources))
+                ),
+                evidence=tuple(
+                    dict.fromkeys((*previous.evidence, *payload.evidence))
+                ),
+            )
+        return output
 
     @staticmethod
     def _recalculate_offsets(fields: list[FieldDecl]) -> list[FieldDecl]:
@@ -2853,11 +3363,17 @@ class ProtocolExtractor:
             if has_command_stream or factory_methods
             else None
         )
-        if constructor is not None and has_command_stream:
+        if has_command_stream:
             assigned_command = self._assigned_constructor_command(
                 class_name, command_enum.objc_name
             )
-            if assigned_command is not None:
+            if (
+                assigned_command is not None
+                and (
+                    assigned_command != "TEST_COMMAND"
+                    or inferred_command is None
+                )
+            ):
                 inferred_command = assigned_command
         getter_methods = self._payload_getters(metadata)
         raw_fields: list[FieldDecl] = []
@@ -3081,6 +3597,34 @@ class ProtocolExtractor:
                     if index in parameter_ranges
                     else (),
                 )
+            )
+        serializer_fields = self._serializer_wire_fields(
+            class_name,
+            serializer_method,
+            raw_fields,
+            references,
+            command_prefix=has_command_stream,
+        )
+        if serializer_fields is not None:
+            raw_fields = serializer_fields
+            recovered_names = {field.name for field in raw_fields}
+            recovered_types = {field.cpp_type for field in raw_fields}
+            for getter in list(getter_methods):
+                try:
+                    getter_type, _, _ = self._cpp_type(
+                        getter.return_type or "",
+                        getter.generic_signature,
+                    )
+                except ExtractionError:
+                    continue
+                if (
+                    self._getter_field_name(getter) in recovered_names
+                    or getter_type in recovered_types
+                ):
+                    getter_methods.remove(getter)
+            field_evidence.append(
+                f"0x{serializer_method.address:X} serializer field order "
+                "is authoritative"
             )
         serializer_order = self._serializer_parameter_order(
             serializer_method, len(raw_fields)
@@ -3361,6 +3905,14 @@ class ProtocolExtractor:
                 class_name, serializer_method, parser_methods, raw_fields
             )
         )
+        raw_fields, string_evidence = self._apply_string_prefix_widths(
+            class_name,
+            serializer_method,
+            parser_methods,
+            raw_fields,
+            command_prefix=has_command_stream,
+        )
+        field_evidence.extend(string_evidence)
         for name, primitive_offset in primitive_offsets.items():
             known_offset = getter_offsets.get(name)
             if known_offset is not None and known_offset != primitive_offset:
@@ -3379,6 +3931,19 @@ class ProtocolExtractor:
             external = self._external_field_evidence(
                 class_name, [field.name for field in raw_fields]
             )
+            if external is not None:
+                requested_names = set(external[0])
+                omitted = [
+                    field
+                    for field in raw_fields
+                    if field.name not in requested_names
+                ]
+                if any(
+                    (field.source_type or "").lstrip("+-")
+                    in {"B", "Z", "C", "S", "I", "J", "F", "D"}
+                    for field in omitted
+                ):
+                    external = None
             if external is not None:
                 requested_order, serializer_text, layout_text = external
                 field_evidence.append(
@@ -3437,50 +4002,71 @@ class ProtocolExtractor:
                                     cpp_type=f"Array<UInt8, {length}>",
                                     wire_kind="helper",
                                 )
-                    elif (
-                        field.source_type == "I"
-                        and lowered.endswith("classofdevice")
-                    ):
+                    elif field.source_type == "I":
+                        external_width = self._external_primitive_width(
+                            layout_text, field
+                        )
+                        if external_width is not None:
+                            sized = (
+                                "UInt16BE"
+                                if external_width == 2
+                                else self._sized_primitive(
+                                    "I", external_width
+                                )
+                            )
+                            if sized is None:
+                                raise ExtractionError(
+                                    f"unsupported external width "
+                                    f"{external_width} for "
+                                    f"{class_name}.{name}"
+                                )
+                            field = replace(
+                                field, cpp_type=sized, wire_kind="pod"
+                            )
+                        elif not lowered.endswith("classofdevice"):
+                            ordered_fields.append(field)
+                            continue
                         start = (
                             fixed_address_length + 1
                             if fixed_address_length is not None
                             else None
                         )
-                        widths = {
-                            min(
-                                value
-                                for value in values
-                                if value > start
+                        if lowered.endswith("classofdevice"):
+                            widths = {
+                                min(
+                                    value
+                                    for value in values
+                                    if value > start
+                                )
+                                - start
+                                for values in cursor_groups.values()
+                                if start is not None
+                                and start in values
+                                and start - 1 in values
+                                and any(
+                                    start < value <= start + 8
+                                    for value in values
+                                )
+                            }
+                            widths = {
+                                width for width in widths if 1 < width <= 8
+                            }
+                            if len(widths) != 1:
+                                raise ExtractionError(
+                                    f"cannot prove class-of-device width for "
+                                    f"{class_name}.{name}: "
+                                    f"{sorted(widths)} from {cursor_groups}"
+                                )
+                            width = next(iter(widths))
+                            sized = self._sized_primitive("I", width)
+                            if sized is None:
+                                raise ExtractionError(
+                                    f"unsupported inferred width {width} for "
+                                    f"{class_name}.{name}"
+                                )
+                            field = replace(
+                                field, cpp_type=sized, wire_kind="pod"
                             )
-                            - start
-                            for values in cursor_groups.values()
-                            if start is not None
-                            and start in values
-                            and start - 1 in values
-                            and any(
-                                start < value <= start + 8
-                                for value in values
-                            )
-                        }
-                        widths = {
-                            width for width in widths if 1 < width <= 8
-                        }
-                        if len(widths) != 1:
-                            raise ExtractionError(
-                                f"cannot prove class-of-device width for "
-                                f"{class_name}.{name}: "
-                                f"{sorted(widths)} from {cursor_groups}"
-                            )
-                        width = next(iter(widths))
-                        sized = self._sized_primitive("I", width)
-                        if sized is None:
-                            raise ExtractionError(
-                                f"unsupported inferred width {width} for "
-                                f"{class_name}.{name}"
-                            )
-                        field = replace(
-                            field, cpp_type=sized, wire_kind="pod"
-                        )
                     ordered_fields.append(field)
                 raw_fields = self._recalculate_offsets(ordered_fields)
 
@@ -3609,6 +4195,210 @@ class ProtocolExtractor:
             ),
             references,
         )
+
+    def _serializer_wire_fields(
+        self,
+        class_name: str,
+        serializer: MethodSymbol | None,
+        existing: list[FieldDecl],
+        references: set[str],
+        *,
+        command_prefix: bool,
+    ) -> list[FieldDecl] | None:
+        """Recover a fixed POD layout from an all-writeWithInt serializer."""
+
+        if serializer is None:
+            return None
+        text = self._decompile_text(serializer)
+        if (
+            "writeWithByteArray:" in text
+            or "writeToWith" in text
+            or "writeTo:" in text
+        ):
+            return None
+
+        events: list[tuple[int, str, str | None]] = []
+        for match in re.finditer(
+            r"-\[(?P<class>[A-Za-z0-9_$]+) byteCode\]"
+            r"\(\s*(?P<ivar>m[A-Za-z0-9]+)",
+            text,
+        ):
+            ivar = match.group("ivar")
+            events.append(
+                (
+                    match.start(),
+                    ivar[1:2].lower() + ivar[2:],
+                    match.group("class"),
+                )
+            )
+        for match in re.finditer(
+            r'writeWithInt:\s*",\s*self(?:->super)?->m'
+            r"(?P<ivar>[A-Za-z0-9]+)_",
+            text,
+        ):
+            ivar = match.group("ivar")
+            if ivar in ("Command", "CommandType"):
+                continue
+            events.append(
+                (match.start(), ivar[:1].lower() + ivar[1:], None)
+            )
+
+        events.sort(key=lambda item: item[0])
+        ordered: list[tuple[str, str | None]] = []
+        seen: set[str] = set()
+        for _, name, enum_class in events:
+            if name in seen:
+                continue
+            seen.add(name)
+            ordered.append((name, enum_class))
+
+        write_count = text.count('"writeWithInt:"')
+        expected_count = len(ordered) + (1 if command_prefix else 0)
+        if not ordered or write_count != expected_count:
+            return None
+        ordered_names = {name for name, _ in ordered}
+        ordered_enum_types = {
+            self._clean_type_name(enum_class)
+            for _, enum_class in ordered
+            if enum_class is not None
+        }
+        if any(
+            (field.source_type or "").lstrip("+-")
+            in {"B", "Z", "C", "S", "I", "J", "F", "D"}
+            and field.name not in ordered_names
+            and field.cpp_type not in ordered_enum_types
+            for field in existing
+        ):
+            return None
+
+        java_fields = {
+            field.name[1:-1][:1].lower() + field.name[1:-1][1:]: field
+            for field in self.metadata(class_name).fields
+            if field.name.startswith("m")
+            and field.name.endswith("_")
+            and field.type_descriptor is not None
+        }
+        existing_by_name = {field.name: field for field in existing}
+        recovered: list[FieldDecl] = []
+        for name, enum_class in ordered:
+            current = existing_by_name.get(name)
+            java_field = java_fields.get(name)
+            if enum_class is not None:
+                cpp_type = self._clean_type_name(enum_class)
+                if current is None:
+                    type_matches = [
+                        field
+                        for field in existing
+                        if field.cpp_type == cpp_type
+                    ]
+                    if len(type_matches) == 1:
+                        current = type_matches[0]
+                        name = current.name
+                wire_kind = "pod"
+                references.add(enum_class)
+                source_type = (
+                    java_field.type_descriptor
+                    if java_field is not None
+                    else f"L{enum_class};"
+                )
+                default = current.default if current is not None else None
+                if default is None or "::" not in default:
+                    enum = self.extract_enum(enum_class)
+                    valid = [
+                        value
+                        for value in enum.values
+                        if value.name not in ("OUT_OF_RANGE", "UNKNOWN")
+                    ]
+                    default = (
+                        f"{cpp_type}::{valid[0].name}" if valid else "{}"
+                    )
+            else:
+                if java_field is None:
+                    return None
+                cpp_type, wire_kind, referenced = self._cpp_type(
+                    java_field.type_descriptor,
+                    java_field.generic_signature,
+                )
+                references.update(referenced)
+                source_type = java_field.type_descriptor
+                default = (
+                    current.default
+                    if current is not None
+                    else self._default_value(cpp_type)
+                )
+            recovered.append(
+                FieldDecl(
+                    name=name,
+                    cpp_type=cpp_type,
+                    wire_kind=wire_kind,
+                    default=default,
+                    source_type=source_type,
+                    semantic_rules=(
+                        current.semantic_rules if current is not None else ()
+                    ),
+                )
+            )
+        return self._recalculate_offsets(recovered)
+
+    def _apply_string_prefix_widths(
+        self,
+        class_name: str,
+        serializer: MethodSymbol | None,
+        parsers: list[JavaMethod],
+        fields: list[FieldDecl],
+        *,
+        command_prefix: bool,
+    ) -> tuple[list[FieldDecl], list[str]]:
+        if serializer is None or "writeWithByteArray:" not in self._decompile_text(
+            serializer
+        ):
+            return fields, []
+        parser_text = "\n".join(
+            self._decompile_text(parser) for parser in parsers
+        )
+        output: list[FieldDecl] = []
+        evidence: list[str] = []
+        for field in fields:
+            if (
+                field.cpp_type != "MDRPrefixedString"
+                or field.offset is None
+            ):
+                output.append(field)
+                continue
+            base = field.offset + (1 if command_prefix else 0)
+            byte_offsets = {
+                int(value)
+                for value in re.findall(
+                    r"IOSByteArray_buffer_\s*\+\s*(\d+)", parser_text
+                )
+            }
+            data_starts = {
+                int(value)
+                for value in re.findall(
+                    r"writeWithByteArray:[^;]*?,\s*(\d+)\s*,",
+                    parser_text,
+                    re.DOTALL,
+                )
+            }
+            if (
+                base in byte_offsets
+                and base + 1 in byte_offsets
+                and base + 2 in data_starts
+            ):
+                output.append(
+                    replace(
+                        field,
+                        cpp_type="MDRPrefixedString16BE",
+                        wire_kind="string",
+                    )
+                )
+                evidence.append(
+                    f"parser/serializer prove UInt16BE string prefix for "
+                    f"{class_name}.{field.name}"
+                )
+            else:
+                output.append(field)
+        return output, evidence
 
     def _cpp_type(
         self, descriptor: str, generic: str | None
@@ -4642,6 +5432,27 @@ class ProtocolExtractor:
                 candidates.append(category + tokens[:1] + tokens[1 + len(category) :])
         else:
             candidates.append(category + tokens)
+        operation = next(
+            (token for token in tokens if token in _COMMAND_WORDS), None
+        )
+        if (
+            operation is not None
+            and "SYSTEM" in tokens
+            and "EX" in tokens
+            and "PARAM" in tokens
+        ):
+            candidates.append(["SYSTEM", operation, "EXTENDED", "PARAM"])
+        candidates.extend(
+            [
+                {
+                    "OPTIMIZER": "OPT",
+                    "UPDATE": "UPDT",
+                }.get(token, token)
+                for token in candidate
+            ]
+            for candidate in list(candidates)
+            if "OPTIMIZER" in candidate or "UPDATE" in candidate
+        )
         candidates.extend(
             [
                 replacement if token == source else token

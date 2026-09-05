@@ -137,7 +137,6 @@ namespace mdr::v2::t1 {
     MDRResult<size_t> AfNcAsmBase::Write(const AfNcAsmBase& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.senseApplicableFunction, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.valueChangeStatus, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.ncAsmEffect, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -145,7 +144,6 @@ namespace mdr::v2::t1 {
     MDRResult<size_t> AfNcAsmBase::Read(const UInt8** ppSrcBuffer, AfNcAsmBase& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.senseApplicableFunction, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.valueChangeStatus, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.ncAsmEffect, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);

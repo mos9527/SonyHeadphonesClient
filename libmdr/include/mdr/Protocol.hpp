@@ -75,6 +75,25 @@ namespace mdr
         }
     };
 
+    struct UInt16BE
+    {
+        uint16_t value; // Big-endian
+
+        UInt16BE() : value(0) {}
+
+        UInt16BE(uint16_t v) : value(Swap(v)) {}
+
+        static uint16_t Swap(uint16_t v) { return static_cast<uint16_t>((v << 8u) | (v >> 8u)); }
+
+        operator uint16_t() const { return Swap(value); }
+
+        UInt16BE& operator=(uint16_t v)
+        {
+            value = Swap(v);
+            return *this;
+        }
+    };
+
     struct Int24BE
     {
         uint8_t low;
@@ -392,6 +411,51 @@ namespace mdr
             std::memcpy(*ppDstBuffer, str.value.data(), str.value.length());
             *ppDstBuffer += str.value.length();
             return MDRResult<size_t>::Success(str.value.length() + 1);
+        }
+
+        [[nodiscard]] auto begin() { return value.begin(); }
+        [[nodiscard]] auto end() { return value.end(); }
+        [[nodiscard]] auto begin() const { return value.begin(); }
+        [[nodiscard]] auto end() const { return value.end(); }
+        [[nodiscard]] constexpr size_t size() const { return value.size(); }
+    };
+
+    /**
+     * @brief String prefixed with a big-endian UInt16 length. Max len=65535
+     */
+    struct MDRPrefixedString16BE
+    {
+        String value;
+
+        static MDRResult<size_t> Read(const UInt8** ppSrcBuffer, MDRPrefixedString16BE& str, size_t maxSize)
+        {
+            constexpr size_t prefixSize = sizeof(uint16_t);
+            if (maxSize < prefixSize)
+                return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_BUFFER_TOO_SMALL);
+            const UInt8* const src = *ppSrcBuffer;
+            const size_t len = static_cast<size_t>(src[0]) << 8u | src[1];
+            if (len > maxSize - prefixSize)
+                return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD);
+            str.value.resize(len);
+            std::memcpy(str.value.data(), src + prefixSize, len);
+            *ppSrcBuffer += prefixSize + len;
+            return MDRResult<size_t>::Success(prefixSize + len);
+        }
+
+        static MDRResult<size_t> Write(MDRPrefixedString16BE const& str, UInt8** ppDstBuffer, size_t maxSize)
+        {
+            constexpr size_t prefixSize = sizeof(uint16_t);
+            const size_t len = str.value.length();
+            if (len > UINT16_MAX)
+                return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_INVALID_ARGUMENT);
+            if (maxSize < prefixSize || len > maxSize - prefixSize)
+                return MDRResult<size_t>::Failure(MDR_RESULT_ERROR_BUFFER_TOO_SMALL);
+            UInt8* const dst = *ppDstBuffer;
+            dst[0] = static_cast<UInt8>(len >> 8u);
+            dst[1] = static_cast<UInt8>(len);
+            std::memcpy(dst + prefixSize, str.value.data(), len);
+            *ppDstBuffer += prefixSize + len;
+            return MDRResult<size_t>::Success(prefixSize + len);
         }
 
         [[nodiscard]] auto begin() { return value.begin(); }

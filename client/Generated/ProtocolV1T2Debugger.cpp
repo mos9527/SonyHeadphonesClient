@@ -424,6 +424,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("detailType", value.detailType, kEnum_mdr__v1__t2__PeripheralDetailDataType);
+            changed |= DrawEnum("actionType", value.actionType, kEnum_mdr__v1__t2__ActionType);
             changed |= DrawEnum("resultType", value.resultType, kEnum_mdr__v1__t2__ResultType);
             changed |= DrawScalar("btDeviceAddress", value.btDeviceAddress);
             return changed;
@@ -435,6 +436,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.actionType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.resultType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.btDeviceAddress, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
@@ -447,6 +449,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.actionType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.resultType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.btDeviceAddress, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
@@ -606,6 +609,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t2__VoiceGuidanceSettingValue);
             return changed;
         }
@@ -616,6 +620,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -627,6 +632,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -677,6 +683,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("statusType", value.statusType, kEnum_mdr__v1__t2__StatusType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
@@ -687,6 +694,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.statusType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -698,6 +706,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.statusType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -714,6 +723,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("statusType", value.statusType, kEnum_mdr__v1__t2__StatusType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
@@ -724,6 +734,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.statusType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -735,6 +746,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.statusType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -986,6 +998,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("currentLangauge", value.currentLangauge, kEnum_mdr__v1__t2__VoiceGuidanceLanguage);
             return changed;
         }
@@ -996,6 +1009,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.currentLangauge, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1007,6 +1021,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.currentLangauge, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1023,6 +1038,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t2__VoiceGuidanceSettingValue);
             return changed;
         }
@@ -1033,6 +1049,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1044,6 +1061,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1060,6 +1078,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawScalar("requiredTime", value.requiredTime);
             return changed;
         }
@@ -1070,6 +1089,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.requiredTime, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1081,6 +1101,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.requiredTime, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1131,6 +1152,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("updateMethod", value.updateMethod, kEnum_mdr__v1__UpdateMethod);
             changed |= DrawScalar("bleTxPower", value.bleTxPower);
             changed |= DrawScalar("batteryPowerThresh", value.batteryPowerThresh);
@@ -1143,6 +1165,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.updateMethod, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.bleTxPower, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.batteryPowerThresh, remaining));
@@ -1156,6 +1179,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.updateMethod, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.bleTxPower, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.batteryPowerThresh, &ptr, remaining));
@@ -1174,6 +1198,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("updateMethod", value.updateMethod, kEnum_mdr__v1__UpdateMethod);
             changed |= DrawScalar("batteryPowerThresh", value.batteryPowerThresh);
             changed |= DrawScalar("batteryPowerThreshForInterrupting", value.batteryPowerThreshForInterrupting);
@@ -1187,6 +1212,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.updateMethod, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.batteryPowerThresh, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.batteryPowerThreshForInterrupting, remaining));
@@ -1201,6 +1227,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.updateMethod, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.batteryPowerThresh, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.batteryPowerThreshForInterrupting, &ptr, remaining));
@@ -1254,6 +1281,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("statusType", value.statusType, kEnum_mdr__v1__t2__StatusType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
@@ -1264,6 +1292,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.statusType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1275,6 +1304,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.statusType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1291,6 +1321,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("statusType", value.statusType, kEnum_mdr__v1__t2__StatusType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
@@ -1301,6 +1332,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.statusType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1312,6 +1344,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.statusType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1399,6 +1432,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("detailType", value.detailType, kEnum_mdr__v1__t2__PeripheralDetailDataType);
+            changed |= DrawEnum("resultType", value.resultType, kEnum_mdr__v1__t2__ResultType);
             changed |= DrawEnum("actionType", value.actionType, kEnum_mdr__v1__t2__ActionType);
             changed |= DrawScalar("btDeviceAddress", value.btDeviceAddress);
             return changed;
@@ -1410,6 +1444,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.resultType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.actionType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.btDeviceAddress, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
@@ -1422,6 +1457,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.resultType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.actionType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.btDeviceAddress, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
@@ -1513,6 +1549,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t2__VoiceGuidanceSettingValue);
             return changed;
         }
@@ -1523,6 +1560,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1534,6 +1572,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1584,6 +1623,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("statusType", value.statusType, kEnum_mdr__v1__t2__StatusType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
@@ -1594,6 +1634,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.statusType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1605,6 +1646,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.statusType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1621,6 +1663,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("statusType", value.statusType, kEnum_mdr__v1__t2__StatusType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
@@ -1631,6 +1674,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.statusType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -1642,6 +1686,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.statusType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -1795,6 +1840,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t2__Command);
             changed |= DrawEnum("voiceGuidanceInquiredType", value.voiceGuidanceInquiredType, kEnum_mdr__v1__t2__VoiceGuidanceInquiredType);
+            changed |= DrawEnum("detailedDataType", value.detailedDataType, kEnum_mdr__v1__t2__DetailedDataType);
             changed |= DrawEnum("downloadServerMethod", value.downloadServerMethod, kEnum_mdr__v1__t2__DownloadServerMethod);
             changed |= DrawPrefixedString("categoryId", value.categoryId);
             changed |= DrawPrefixedString("serialNumber", value.serialNumber);
@@ -1820,6 +1866,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceGuidanceInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailedDataType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.downloadServerMethod, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.categoryId, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.serialNumber, remaining));
@@ -1834,6 +1881,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceGuidanceInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailedDataType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.downloadServerMethod, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.categoryId, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.serialNumber, &ptr, remaining));

@@ -1882,11 +1882,9 @@ namespace mdr::v2::t1
     struct AfNcAsmBase
     {
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SenseApplicableFunction senseApplicableFunction{SenseApplicableFunction::NC_ON_OFF_AND_ASM_ON_OFF}; // 0x0
+        ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        ValueChangeStatus valueChangeStatus{ValueChangeStatus::UNDER_CHANGING}; // 0x1
-        // CODEGEN Ignore OUT_OF_RANGE is expected
-        NcAsmOnOffValue ncAsmEffect{NcAsmOnOffValue::OFF}; // 0x2
+        NcAsmOnOffValue ncAsmEffect{NcAsmOnOffValue::OFF}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(AfNcAsmBase);
     };
@@ -2069,7 +2067,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        AlertMessageType messageType{AlertMessageType::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE}; // 0x2
+        AlertMessageType messageType{AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertActionType actionType{AlertActionType::CONFIRMATION_ONLY}; // 0x3
 
@@ -2199,7 +2197,7 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertInquiredType type{AlertInquiredType::APP_BECOMES_FOREGROUND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        AlertMessageType messageType{AlertMessageType::DISCONNECT_CAUSED_BY_CONNECTION_MODE_CHANGE}; // 0x2
+        AlertMessageType messageType{AlertMessageType::FOREGROUND_CAUTION_NEED_DISCONNECTION_FOR_ENABLING_WAKE_WORD}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
         AlertAction actionType{AlertAction::NEGATIVE}; // 0x3
 
@@ -3333,7 +3331,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::COMMON_RET_CAPABILITY
         Command command{Command::COMMON_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        CommonInquiredType inquiredType{CommonInquiredType::CONCIERGE}; // 0x1
+        CommonInquiredType inquiredType{CommonInquiredType::SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION}; // 0x1
         Array<UInt8, 17> smartPhoneBDAddress{}; // 0x2
         MDRPrefixedString deviceBDAddress;
 
@@ -6683,7 +6681,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::POWER_NTFY_STATUS
         Command command{Command::POWER_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
+        PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
 
@@ -7045,7 +7043,7 @@ namespace mdr::v2::t1
         // CODEGEN EnumRange Command::POWER_RET_STATUS
         Command command{Command::POWER_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        PowerInquiredType type{PowerInquiredType::BATTERY}; // 0x1
+        PowerInquiredType type{PowerInquiredType::POWER_OFF}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
 

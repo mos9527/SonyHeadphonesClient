@@ -782,7 +782,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_NTFY_STATUS
         Command command{Command::LEA_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType type{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
+        LEAInquiredType type{LEAInquiredType::LINK_AUTO_SWITCH_CANT_BE_USED_WITH_LEA_CONNECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
 
@@ -795,7 +795,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_NTFY_STATUS
         Command command{Command::LEA_NTFY_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType type{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
+        LEAInquiredType type{LEAInquiredType::LINK_AUTO_SWITCH_CANT_BE_USED_WITH_LEA_CONNECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UnavailableReason unavailableReason{UnavailableReason::UNAVAILABLE_BY_LE_AUDIO_PRIOR}; // 0x2
 
@@ -858,7 +858,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_CAPABILITY
         Command command{Command::LEA_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
+        LEAInquiredType inquiredType{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         Array<UInt8, 17> deviceUniqueId{}; // 0x2
         MDRPrefixedString bdAddressLE;
 
@@ -882,7 +882,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_PARAM
         Command command{Command::LEA_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
+        LEAInquiredType inquiredType{LEAInquiredType::GET_IDENTITY_RESOLVING_KEY}; // 0x1
         MDRPodArray<UInt8> iRK; // 0x2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(LEARetParamGetIdentityResolvingKey);
@@ -907,7 +907,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_PARAM
         Command command{Command::LEA_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType inquiredType{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
+        LEAInquiredType inquiredType{LEAInquiredType::PAS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         PairedHistory pairedHistory{PairedHistory::BOTH_CLASSIC_BT_BLE}; // 0x2
 
@@ -931,7 +931,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::LEA_RET_STATUS
         Command command{Command::LEA_RET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        LEAInquiredType type{LEAInquiredType::LE_AUDIO_CONNECTION_STATE_NOTIFICATION}; // 0x1
+        LEAInquiredType type{LEAInquiredType::LINK_AUTO_SWITCH_CANT_BE_USED_WITH_LEA_CONNECTION}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         UnavailableReason unavailableReason{UnavailableReason::UNAVAILABLE_BY_LE_AUDIO_PRIOR}; // 0x2
 
@@ -3122,7 +3122,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
         Command command{Command::SYSTEM_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType type{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
+        SystemInquiredType type{SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH}; // 0x1
         // CODEGEN Range 0 255
         UInt8 value2{}; // 0x2
         // CODEGEN Ignore OUT_OF_RANGE is expected
@@ -3638,7 +3638,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
         Command command{Command::SYSTEM_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType inquiredType{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
+        SystemInquiredType inquiredType{SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue trainingModeOnOffValue{OnOffSettingValue::ON}; // 0x2
 
@@ -3826,7 +3826,7 @@ namespace mdr::v2::t2
     {
         Command command2{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::BATTERY_LV_VOICE}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(VoiceGuidanceNotifyParam);
     };
@@ -3846,7 +3846,7 @@ namespace mdr::v2::t2
     struct VoiceGuidanceNotifyParamSettingOnOff
     {
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x0
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue settingValue{OnOffSettingValue::ON}; // 0x1
 
@@ -4101,7 +4101,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
         Command command{Command::VOICE_GUIDANCE_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue settingValue{OnOffSettingValue::ON}; // 0x2
 
@@ -4220,7 +4220,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_PARAM
         Command command{Command::VOICE_GUIDANCE_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
+        VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         OnOffSettingValue settingValue{OnOffSettingValue::ON}; // 0x2
 
@@ -4637,7 +4637,7 @@ namespace mdr::v2::t2
         // CODEGEN EnumRange Command::SYSTEM_RET_EXTENDED_PARAM
         Command command{Command::SYSTEM_RET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        SystemInquiredType inquiredType{SystemInquiredType::WEARING_STATUS_CHECKER}; // 0x1
+        SystemInquiredType inquiredType{SystemInquiredType::SONY_VOICE_ASSISTANT_SETTING_MTK_TRANSFER_SUPPORT_LANGUAGE_SWITCH}; // 0x1
         UInt8 requiredTime{}; // 0x2
         MDRPrefixedString categoryId; // 0x3
         MDRPrefixedString serialNumber;

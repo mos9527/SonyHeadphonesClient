@@ -370,7 +370,7 @@ typedef struct MDRAssignableControl
     MDRAssignableActionKeyLocation location;
     MDRAssignableActionKeyType type;
     MDRAssignableAction action;
-} MDRAssignableActionPreset;
+} MDRAssignableControl;
 
 typedef struct MDRPower
 {

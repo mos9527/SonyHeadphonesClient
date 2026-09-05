@@ -2453,10 +2453,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -2499,8 +2501,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;LTHMSGV1T2DetailedDataType;",
       "fields": [
@@ -2517,10 +2519,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         },
@@ -2572,8 +2576,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2GetVoiceGuidanceStatus_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetVoiceGuidanceStatus_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;LTHMSGV1T2StatusType;",
       "fields": [
@@ -2590,10 +2594,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         },
@@ -2782,7 +2788,8 @@
         "writeWithByteArray:",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt"
+        "inherited wire layout from THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMSGV1T2ResultType;LNSString;",
       "fields": [
@@ -2807,10 +2814,19 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "ActionType",
+          "default": "ActionType::DISCONNECT",
+          "name": "actionType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2ActionType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "ResultType",
           "default": "ResultType::DISCONNECTION_SUCCESS",
           "name": "resultType",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T2ResultType;",
           "wire_kind": "pod"
@@ -2819,7 +2835,7 @@
           "cpp_type": "Array<UInt8, 17>",
           "default": "{}",
           "name": "btDeviceAddress",
-          "offset": 3,
+          "offset": 4,
           "semantic_rules": [],
           "source_type": "LNSString;",
           "wire_kind": "helper"
@@ -3075,8 +3091,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV1T2NotifyPeripheralStatus"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
@@ -3172,10 +3188,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -3219,7 +3237,8 @@
         "writeWithInt:",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceParam"
+        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
       "fields": [
@@ -3246,10 +3265,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::ON_OFF",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "VoiceGuidanceSettingValue",
           "default": "VoiceGuidanceSettingValue::OFF",
           "name": "settingValue",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceSettingValue;",
           "wire_kind": "pod"
@@ -3305,10 +3335,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -3352,7 +3384,8 @@
         "writeWithInt:",
         "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus"
+        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMCommonStatus;",
       "fields": [
@@ -3379,10 +3412,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "StatusType",
+          "default": "StatusType::LANGUAGE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "CommonStatus",
           "default": "CommonStatus::ENABLE",
           "name": "status",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMCommonStatus;",
           "wire_kind": "pod"
@@ -3427,7 +3471,8 @@
         "writeWithInt:",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus"
+        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMCommonStatus;",
       "fields": [
@@ -3454,10 +3499,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "StatusType",
+          "default": "StatusType::ON_OFF",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "CommonStatus",
           "default": "CommonStatus::ENABLE",
           "name": "status",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMCommonStatus;",
           "wire_kind": "pod"
@@ -3914,8 +3970,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV1T2RetPeripheralStatus_Factory parseBytesWithByteArray:]"
+        "-[THMSGV1T2RetPeripheralStatus_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralInquiredType;LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
       "fields": [
@@ -4019,10 +4075,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "inquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         },
@@ -4104,10 +4162,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -4152,9 +4212,10 @@
         "sub_1025E7290",
         "_memset",
         "_objc_enumerationMutation",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;Ljava/lang/String;Ljava/lang/String;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic$ServiceInformation;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic;",
       "fields": [
@@ -4181,10 +4242,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::DOWNLOAD_SERVER_METHOD",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::DOWNLOAD_SERVER_METHOD"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "DownloadServerMethod",
           "default": "DownloadServerMethod::NO_USE",
           "name": "downloadServerMethod",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;",
           "wire_kind": "pod"
@@ -4193,7 +4265,7 @@
           "cpp_type": "MDRPrefixedString",
           "default": null,
           "name": "categoryId",
-          "offset": 3,
+          "offset": 4,
           "semantic_rules": [],
           "source_type": "Ljava/lang/String;",
           "wire_kind": "string"
@@ -4294,7 +4366,8 @@
         "writeWithInt:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceLanguage;",
       "fields": [
@@ -4321,10 +4394,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::LANGUAGE",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "VoiceGuidanceLanguage",
           "default": "VoiceGuidanceLanguage::UNDEFINED_LANGUAGE",
           "name": "currentLangauge",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceLanguage;",
           "wire_kind": "pod"
@@ -4369,7 +4453,8 @@
         "writeWithInt:",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
       "fields": [
@@ -4396,10 +4481,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::ON_OFF",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "VoiceGuidanceSettingValue",
           "default": "VoiceGuidanceSettingValue::OFF",
           "name": "settingValue",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceSettingValue;",
           "wire_kind": "pod"
@@ -4443,9 +4539,10 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1025E7078",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "I",
       "fields": [
@@ -4472,10 +4569,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::REQUIRED_TIME",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::REQUIRED_TIME"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "UInt8",
           "default": "{}",
           "name": "requiredTime",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "I",
           "wire_kind": "pod"
@@ -4571,9 +4679,10 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "sub_1025E7078",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMUpdateMethod;II",
       "fields": [
@@ -4600,10 +4709,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::UPDATE_METHOD",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::UPDATE_METHOD"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "UpdateMethod",
           "default": "UpdateMethod::TANDEM_METHOD",
           "name": "updateMethod",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMUpdateMethod;",
           "wire_kind": "pod"
@@ -4612,7 +4732,7 @@
           "cpp_type": "UInt8",
           "default": "{}",
           "name": "bleTxPower",
-          "offset": 3,
+          "offset": 4,
           "semantic_rules": [],
           "source_type": "I",
           "wire_kind": "pod"
@@ -4621,7 +4741,7 @@
           "cpp_type": "UInt8",
           "default": "{}",
           "name": "batteryPowerThresh",
-          "offset": 4,
+          "offset": 5,
           "semantic_rules": [],
           "source_type": "I",
           "wire_kind": "pod"
@@ -4669,7 +4789,8 @@
         "sub_1025E7290",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam"
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMUpdateMethod;IILNSString;",
       "fields": [
@@ -4696,10 +4817,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::UPDATE_METHOD",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::UPDATE_METHOD"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "UpdateMethod",
           "default": "UpdateMethod::TANDEM_METHOD",
           "name": "updateMethod",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMUpdateMethod;",
           "wire_kind": "pod"
@@ -4708,7 +4840,7 @@
           "cpp_type": "UInt8",
           "default": "{}",
           "name": "batteryPowerThresh",
-          "offset": 3,
+          "offset": 4,
           "semantic_rules": [],
           "source_type": "I",
           "wire_kind": "pod"
@@ -4717,7 +4849,7 @@
           "cpp_type": "UInt8",
           "default": "{}",
           "name": "batteryPowerThreshForInterrupting",
-          "offset": 4,
+          "offset": 5,
           "semantic_rules": [],
           "source_type": "I",
           "wire_kind": "pod"
@@ -4726,7 +4858,7 @@
           "cpp_type": "MDRPrefixedString",
           "default": null,
           "name": "uniqueId",
-          "offset": 5,
+          "offset": 6,
           "semantic_rules": [],
           "source_type": "LNSString;",
           "wire_kind": "string"
@@ -4782,10 +4914,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -4827,9 +4961,10 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus"
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMCommonStatus;",
       "fields": [
@@ -4856,10 +4991,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "StatusType",
+          "default": "StatusType::LANGUAGE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "CommonStatus",
           "default": "CommonStatus::ENABLE",
           "name": "status",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMCommonStatus;",
           "wire_kind": "pod"
@@ -4902,9 +5048,10 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
         "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus"
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMCommonStatus;",
       "fields": [
@@ -4931,10 +5078,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "StatusType",
+          "default": "StatusType::ON_OFF",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "CommonStatus",
           "default": "CommonStatus::ENABLE",
           "name": "status",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMCommonStatus;",
           "wire_kind": "pod"
@@ -5113,9 +5271,10 @@
         "_JreThrowNullPointerException",
         "writeWithInt:",
         "writeWithByteArray:",
-        "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt"
+        "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMSGV1T2ActionType;LNSString;",
       "fields": [
@@ -5140,10 +5299,19 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "ResultType",
+          "default": "ResultType::DISCONNECTION_SUCCESS",
+          "name": "resultType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2ResultType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "ActionType",
           "default": "ActionType::DISCONNECT",
           "name": "actionType",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T2ActionType;",
           "wire_kind": "pod"
@@ -5152,7 +5320,7 @@
           "cpp_type": "Array<UInt8, 17>",
           "default": "{}",
           "name": "btDeviceAddress",
-          "offset": 3,
+          "offset": 4,
           "semantic_rules": [],
           "source_type": "LNSString;",
           "wire_kind": "helper"
@@ -5197,8 +5365,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "parseBytesWithByteArray:",
-        "-[THMSGV1T2SetPeripheralStatus_Factory parseBytesWithByteArray:]"
+        "-[THMSGV1T2SetPeripheralStatus_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
       ],
       "factory_signature": "LTHMSGV1T2PeripheralInquiredType;LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
       "fields": [
@@ -5291,10 +5459,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -5338,7 +5508,8 @@
         "writeWithInt:",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2SetVoiceGuidanceParam"
+        "inherited wire layout from THMSGV1T2SetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
       "fields": [
@@ -5365,10 +5536,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::ON_OFF",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "VoiceGuidanceSettingValue",
           "default": "VoiceGuidanceSettingValue::OFF",
           "name": "settingValue",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMSGV1T2VoiceGuidanceSettingValue;",
           "wire_kind": "pod"
@@ -5424,10 +5606,12 @@
         },
         {
           "cpp_type": "VoiceGuidanceInquiredType",
-          "default": "VoiceGuidanceInquiredType::NO_USE",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
           "name": "voiceGuidanceInquiredType",
           "offset": 1,
-          "semantic_rules": [],
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
           "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
           "wire_kind": "pod"
         }
@@ -5471,7 +5655,8 @@
         "writeWithInt:",
         "parseBytesWithByteArray:",
         "-[THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
-        "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus"
+        "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMCommonStatus;",
       "fields": [
@@ -5498,10 +5683,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "StatusType",
+          "default": "StatusType::LANGUAGE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "CommonStatus",
           "default": "CommonStatus::ENABLE",
           "name": "status",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMCommonStatus;",
           "wire_kind": "pod"
@@ -5546,7 +5742,8 @@
         "writeWithInt:",
         "-[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus"
+        "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
       ],
       "factory_signature": "LTHMCommonStatus;",
       "fields": [
@@ -5573,10 +5770,21 @@
           "wire_kind": "pod"
         },
         {
+          "cpp_type": "StatusType",
+          "default": "StatusType::ON_OFF",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
           "cpp_type": "CommonStatus",
           "default": "CommonStatus::ENABLE",
           "name": "status",
-          "offset": 2,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "LTHMCommonStatus;",
           "wire_kind": "pod"
@@ -5616,8 +5824,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "_JreThrowNullPointerException",
         "writeWithInt:",
-        "-[THMSGV1T2UnknownCommand_Factory parseBytesWithByteArray:]",
-        "parseBytesWithByteArray:"
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2UnknownCommand_Factory parseBytesWithByteArray:]"
       ],
       "factory_signature": null,
       "fields": [

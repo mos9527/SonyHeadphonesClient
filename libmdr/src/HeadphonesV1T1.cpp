@@ -123,18 +123,9 @@ namespace mdr
                 String value;
                 if (command == Command::PLAY_NTFY_PARAM)
                 {
-                    if (cmd.size() > 3)
-                    {
-                        // @Amrsatrio: Not observed on WH-1000XM4 v2.5.0, what is observed is in the else branch. Just in case...
-                        Deserialize(NotifyPlayParamPlaybackControllerNameData, result, cmd);
-                        value = result.playbackName.name.value;
-                    }
-                    else
-                    {
-                        // Need a sync request to get the actual payload
-                        // Same thing on the app observerd by @Amrsatrio
-                        return MDR_EVENT_NEED_SYNC;
-                    }
+                    // Notifications carry only the discriminator; request the
+                    // corresponding value with a sync command.
+                    return MDR_EVENT_NEED_SYNC;
                 }
                 else
                 {
@@ -419,7 +410,7 @@ namespace mdr
                 {
                     if (notify)
                     {
-                        Deserialize(NotifySystemParamSmartTalkingModeRetParam, result, cmd);
+                        Deserialize(NotifySystemParamSmartTalkingModeSetNtfyParam, result, cmd);
                         self->mDetailsV1.mSpeakToChatEnabled.overwrite(
                             result.settingValue == SmartTalkingModeSettingValue::ON);
                     }
@@ -434,14 +425,14 @@ namespace mdr
                 {
                     if (notify)
                     {
-                        Deserialize(NotifySystemExParamChildPayloadSmartTalkingModeExType1Param, result, cmd);
+                        Deserialize(NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param, result, cmd);
                         self->mDetailsV1.mSpeakToChatDetectSensitivity.overwrite(result.devectionSensitivity);
                         self->mDetailsV1.mSpeakToChatVoiceFocus = result.voiceFocus;
                         self->mDetailsV1.mSpeakToModeOutTime.overwrite(result.modeOutTime);
                     }
                     else
                     {
-                        Deserialize(RetSystemExParamChildPayloadSmartTalkingModeExType1Param, result, cmd);
+                        Deserialize(RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param, result, cmd);
                         self->mDetailsV1.mSpeakToChatDetectSensitivity.overwrite(result.devectionSensitivity);
                         self->mDetailsV1.mSpeakToChatVoiceFocus = result.voiceFocus;
                         self->mDetailsV1.mSpeakToModeOutTime.overwrite(result.modeOutTime);

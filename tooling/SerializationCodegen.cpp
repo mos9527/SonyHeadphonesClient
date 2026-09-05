@@ -5,13 +5,8 @@
 const char* kMDRExternMacro = "MDR_DEFINE_EXTERN_SERIALIZATION";
 const char* kMDRIgnoredMacro = "MDR_CODEGEN_IGNORE_SERIALIZATION";
 const char* kMDRRWMacro = "MDR_DEFINE_EXTERN_READ_WRITE";
-const char* kMDRReservedRWStructs[] = {
-    "MDRPodArray",
-    "MDRPrefixedString",
-    "MDRArray",
-    "MDRFixedArray",
-    "MDRMap"
-};
+const char* kMDRReservedRWStructs[] = {"MDRPodArray", "MDRPrefixedString16BE", "MDRPrefixedString",
+                                       "MDRArray",    "MDRFixedArray",         "MDRMap"};
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 using MacroPair = std::pair<unsigned, std::string>; // Line, Name

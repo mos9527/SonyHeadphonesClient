@@ -8,6 +8,7 @@ namespace mdr::v1::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.actionType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.resultType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -17,6 +18,7 @@ namespace mdr::v1::t2 {
         NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl out{};
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.detailType, maxSize));
+        MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.actionType, maxSize));
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.resultType, maxSize));
         MDR_TRY_SIZE(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.btDeviceAddress, maxSize));
         MDR_TRY(NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, Validate(out));
@@ -92,6 +94,7 @@ namespace mdr::v1::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceGuidanceInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailedDataType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.updateMethod, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.batteryPowerThresh, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.batteryPowerThreshForInterrupting, &ptr, maxSize));
@@ -103,6 +106,7 @@ namespace mdr::v1::t2 {
         RetVoiceGuidanceParamSettingUpdateMethodMtk out{};
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingUpdateMethodMtk, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingUpdateMethodMtk, MDRPod::Read(&data, out.voiceGuidanceInquiredType, maxSize));
+        MDR_TRY_SIZE(RetVoiceGuidanceParamSettingUpdateMethodMtk, MDRPod::Read(&data, out.detailedDataType, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingUpdateMethodMtk, MDRPod::Read(&data, out.updateMethod, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingUpdateMethodMtk, MDRPod::Read(&data, out.batteryPowerThresh, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingUpdateMethodMtk, MDRPod::Read(&data, out.batteryPowerThreshForInterrupting, maxSize));
@@ -116,6 +120,7 @@ namespace mdr::v1::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.resultType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.actionType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.btDeviceAddress, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
@@ -125,6 +130,7 @@ namespace mdr::v1::t2 {
         SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl out{};
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.detailType, maxSize));
+        MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.resultType, maxSize));
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.actionType, maxSize));
         MDR_TRY_SIZE(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, MDRPod::Read(&data, out.btDeviceAddress, maxSize));
         MDR_TRY(SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl, Validate(out));
@@ -176,6 +182,7 @@ namespace mdr::v1::t2 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceGuidanceInquiredType, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailedDataType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.downloadServerMethod, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.categoryId, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.serialNumber, &ptr, maxSize));
@@ -187,6 +194,7 @@ namespace mdr::v1::t2 {
         RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic out{};
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic, MDRPod::Read(&data, out.voiceGuidanceInquiredType, maxSize));
+        MDR_TRY_SIZE(RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic, MDRPod::Read(&data, out.detailedDataType, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic, MDRPod::Read(&data, out.downloadServerMethod, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic, (MDRPrefixedString::Read)(&data, out.categoryId, maxSize));
         MDR_TRY_SIZE(RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic, (MDRPrefixedString::Read)(&data, out.serialNumber, maxSize));

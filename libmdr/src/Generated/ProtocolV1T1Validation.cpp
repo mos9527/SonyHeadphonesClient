@@ -282,19 +282,6 @@ MDRResult<void> NotifyAudioParamConnectionModeParam::Validate(const NotifyAudioP
     MDR_VALIDATE(is_valid(data.settingValue));
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifyAudioParamRetAudioCapability_AudioCapabilityBase::Validate(const NotifyAudioParamRetAudioCapability_AudioCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::AUDIO_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyAudioParamRetAudioCapability_ConnectionModeCapability::Validate(const NotifyAudioParamRetAudioCapability_ConnectionModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::AUDIO_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> NotifyAudioParamUpscalingParam::Validate(const NotifyAudioParamUpscalingParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::AUDIO_NTFY_PARAM);
@@ -315,21 +302,6 @@ MDRResult<void> NotifyBatteryLevelBatteryParam::Validate(const NotifyBatteryLeve
     MDR_VALIDATE(data.command == Command::COMMON_NTFY_BATTERY_LEVEL);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.chargingStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyBatteryLevelCradleBatteryParam::Validate(const NotifyBatteryLevelCradleBatteryParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::COMMON_NTFY_BATTERY_LEVEL);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.chargingStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyBatteryLevelLeftRightBatteryParam::Validate(const NotifyBatteryLevelLeftRightBatteryParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::COMMON_NTFY_BATTERY_LEVEL);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.leftChargingStatus));
-    MDR_VALIDATE(is_valid(data.rightChargingStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam::Validate(const NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam& data) {
@@ -367,18 +339,6 @@ MDRResult<void> NotifyEqEbbParamEqParam::Validate(const NotifyEqEbbParamEqParam&
     MDR_VALIDATE(is_valid(data.presetId));
     for (const auto& bandSteps_elem : data.bandSteps) {
     }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyEqEbbParamRetEqEbbCapability_EbbCapability::Validate(const NotifyEqEbbParamRetEqEbbCapability_EbbCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase::Validate(const NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifyEqEbbStatus::Validate(const NotifyEqEbbStatus& data) {
@@ -439,19 +399,6 @@ MDRResult<void> NotifyNcAsmParamAsmParam::Validate(const NotifyNcAsmParamAsmPara
     // data.asmId ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase::Validate(const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyNcAsmParamRetNcAsmCapability_NcCapability::Validate(const NotifyNcAsmParamRetNcAsmCapability_NcCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> NotifyNcAsmParamcAsmParam::Validate(const NotifyNcAsmParamcAsmParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::NCASM_NTFY_PARAM);
@@ -493,6 +440,13 @@ MDRResult<void> NotifyOptimizerStatus::Validate(const NotifyOptimizerStatus& dat
     MDR_VALIDATE(is_valid(data.optimizerStatus));
     return MDRResult<void>::Success();
 }
+MDRResult<void> NotifyPlayParamPlaybackControllerNotifyNameData::Validate(const NotifyPlayParamPlaybackControllerNotifyNameData& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::PLAY_NTFY_PARAM);
+    // data.playInquiredType ignored: OUT_OF_RANGE is expected
+    // data.dataType ignored: OUT_OF_RANGE is expected
+    return MDRResult<void>::Success();
+}
 MDRResult<void> NotifyPlayParamPlaybackControllerVolumeData::Validate(const NotifyPlayParamPlaybackControllerVolumeData& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PLAY_NTFY_PARAM);
@@ -508,41 +462,6 @@ MDRResult<void> NotifyPlayStatus::Validate(const NotifyPlayStatus& data) {
     // data.playbackStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest::Validate(const NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.trainingModeExParameterType ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySportsExParamChildPayloadTrainingModeExAsmParam::Validate(const NotifySportsExParamChildPayloadTrainingModeExAsmParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.ncAsmEffect ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.asmType));
-    // data.asmId ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySportsExParamChildPayloadTrainingModeExEqParam::Validate(const NotifySportsExParamChildPayloadTrainingModeExEqParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.presetId));
-    for (const auto& bandSteps_elem : data.bandSteps) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySportsExParamChildPayloadTrainingModeExNcAsmParam::Validate(const NotifySportsExParamChildPayloadTrainingModeExNcAsmParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.ncAsmEffect ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.ncType));
-    MDR_VALIDATE(is_valid(data.asmType));
-    // data.asmId ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
 MDRResult<void> NotifySportsParamTrainingModeParam::Validate(const NotifySportsParamTrainingModeParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SPORTS_NTFY_PARAM);
@@ -551,223 +470,14 @@ MDRResult<void> NotifySportsParamTrainingModeParam::Validate(const NotifySportsP
     MDR_VALIDATE(is_valid(data.settingValue));
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemExParamChildPayloadAssignableSettingsParam::Validate(const NotifySystemExParamChildPayloadAssignableSettingsParam& data) {
+MDRResult<void> NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param::Validate(const NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presets_elem : data.presets) {
-        MDR_VALIDATE(is_valid(presets_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadAutoPowerOffParam::Validate(const NotifySystemExParamChildPayloadAutoPowerOffParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.activeElementId));
-    MDR_VALIDATE(is_valid(data.selectTimeElementId));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadControlByWearingParam::Validate(const NotifySystemExParamChildPayloadControlByWearingParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadPowerSavingModeParam::Validate(const NotifySystemExParamChildPayloadPowerSavingModeParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.previewType ignored: OUT_OF_RANGE is expected
-    // data.detailSettingType ignored: OUT_OF_RANGE is expected
-    // data.detectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.voiceFocusType ignored: OUT_OF_RANGE is expected
-    // data.modeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& modeTimeOutValues_elem : data.modeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadSmartTalkingModeExType1Param::Validate(const NotifySystemExParamChildPayloadSmartTalkingModeExType1Param& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.devectionSensitivity ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.voiceFocus));
-    // data.modeOutTime ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadSmartTalkingModeRetParam::Validate(const NotifySystemExParamChildPayloadSmartTalkingModeRetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam::Validate(const NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.parameterType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamChildPayloadVibratorParam::Validate(const NotifySystemExParamChildPayloadVibratorParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam::Validate(const NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presets_elem : data.presets) {
-        MDR_VALIDATE(is_valid(presets_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam::Validate(const NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.activeElementId));
-    MDR_VALIDATE(is_valid(data.selectTimeElementId));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamControlByWearingParam::Validate(const NotifySystemExParamSmartTalkingModeExParamControlByWearingParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam::Validate(const NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability::Validate(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability::Validate(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability::Validate(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase::Validate(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability::Validate(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param::Validate(const NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_EXTENDED_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.detailSettingType ignored: OUT_OF_RANGE is expected
     // data.devectionSensitivity ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.voiceFocus));
     // data.modeOutTime ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamVibratorParam::Validate(const NotifySystemExParamSmartTalkingModeExParamVibratorParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifySystemParamAssignableSettingsParam::Validate(const NotifySystemParamAssignableSettingsParam& data) {
@@ -804,92 +514,13 @@ MDRResult<void> NotifySystemParamPowerSavingModeParam::Validate(const NotifySyst
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemParamRetSystemCapability_AutoPowerOffCapability::Validate(const NotifySystemParamRetSystemCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_ControlByWearingCapability::Validate(const NotifySystemParamRetSystemCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_PowerSavingModeCapability::Validate(const NotifySystemParamRetSystemCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.previewType ignored: OUT_OF_RANGE is expected
-    // data.detailSettingType ignored: OUT_OF_RANGE is expected
-    // data.detectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.voiceFocusType ignored: OUT_OF_RANGE is expected
-    // data.modeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& modeTimeOutValues_elem : data.modeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_SystemCapabilityBase::Validate(const NotifySystemParamRetSystemCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_VibratorCapability::Validate(const NotifySystemParamRetSystemCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamSmartTalkingModeRetParam::Validate(const NotifySystemParamSmartTalkingModeRetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
 MDRResult<void> NotifySystemParamSmartTalkingModeSetNtfyParam::Validate(const NotifySystemParamSmartTalkingModeSetNtfyParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.parameterType));
+    MDR_VALIDATE(data.parameterType == SmartTalkingModeParameterType::MODE_ON_OFF);
     // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamVibratorAlertNotificationParam::Validate(const NotifySystemParamVibratorAlertNotificationParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.alertInquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibrationType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifySystemParamVibratorParam::Validate(const NotifySystemParamVibratorParam& data) {
@@ -900,15 +531,6 @@ MDRResult<void> NotifySystemParamVibratorParam::Validate(const NotifySystemParam
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemStatusAssignableSettingsParam::Validate(const NotifySystemStatusAssignableSettingsParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presets_elem : data.presets) {
-        MDR_VALIDATE(is_valid(presets_elem));
-    }
-    return MDRResult<void>::Success();
-}
 MDRResult<void> NotifySystemStatusAssignableSettingsStatus::Validate(const NotifySystemStatusAssignableSettingsStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
@@ -916,112 +538,27 @@ MDRResult<void> NotifySystemStatusAssignableSettingsStatus::Validate(const Notif
     for (const auto& allStatus_elem : data.allStatus) {
         MDR_VALIDATE(is_valid(allStatus_elem));
     }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> NotifySystemStatusAutoPowerOffStatus::Validate(const NotifySystemStatusAutoPowerOffStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemStatusAutoPowerOffParam::Validate(const NotifySystemStatusAutoPowerOffParam& data) {
+MDRResult<void> NotifySystemStatusControlByWearingStatus::Validate(const NotifySystemStatusControlByWearingStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.activeElementId));
-    MDR_VALIDATE(is_valid(data.selectTimeElementId));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemStatusControlByWearingParam::Validate(const NotifySystemStatusControlByWearingParam& data) {
+MDRResult<void> NotifySystemStatusPowerSavingModeStatus::Validate(const NotifySystemStatusPowerSavingModeStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusPowerSavingModeParam::Validate(const NotifySystemStatusPowerSavingModeParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_AutoPowerOffCapability::Validate(const NotifySystemStatusRetSystemCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_ControlByWearingCapability::Validate(const NotifySystemStatusRetSystemCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_PowerSavingModeCapability::Validate(const NotifySystemStatusRetSystemCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.previewType ignored: OUT_OF_RANGE is expected
-    // data.detailSettingType ignored: OUT_OF_RANGE is expected
-    // data.detectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.voiceFocusType ignored: OUT_OF_RANGE is expected
-    // data.modeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& modeTimeOutValues_elem : data.modeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_SystemCapabilityBase::Validate(const NotifySystemStatusRetSystemCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_VibratorCapability::Validate(const NotifySystemStatusRetSystemCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusSmartTalkingModeRetParam::Validate(const NotifySystemStatusSmartTalkingModeRetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusSmartTalkingModeSetNtfyParam::Validate(const NotifySystemStatusSmartTalkingModeSetNtfyParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.parameterType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifySystemStatusSmartTalkingModeStatus::Validate(const NotifySystemStatusSmartTalkingModeStatus& data) {
@@ -1032,17 +569,16 @@ MDRResult<void> NotifySystemStatusSmartTalkingModeStatus::Validate(const NotifyS
     // data.effectStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemStatusVibratorParam::Validate(const NotifySystemStatusVibratorParam& data) {
+MDRResult<void> NotifySystemStatusVibratorStatus::Validate(const NotifySystemStatusVibratorStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifyUpdateStatus::Validate(const NotifyUpdateStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
@@ -1053,12 +589,6 @@ MDRResult<void> NotifyUpscalingEffect::Validate(const NotifyUpscalingEffect& dat
     // data.commonCapabilityInquiredType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.effectType));
     MDR_VALIDATE(is_valid(data.effectStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyVptParamRetVptCapability_VptCapabilityBase::Validate(const NotifyVptParamRetVptCapability_VptCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::VPT_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> NotifyVptParamSoundPositionParam::Validate(const NotifyVptParamSoundPositionParam& data) {
@@ -1096,19 +626,6 @@ MDRResult<void> RetAudioCodec::Validate(const RetAudioCodec& data) {
     MDR_VALIDATE(is_valid(data.audioCodec));
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetAudioParamCapability_AudioCapabilityBase::Validate(const RetAudioParamCapability_AudioCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::AUDIO_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetAudioParamCapability_ConnectionModeCapability::Validate(const RetAudioParamCapability_ConnectionModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::AUDIO_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> RetAudioParamConnectionModeParam::Validate(const RetAudioParamConnectionModeParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::AUDIO_RET_PARAM);
@@ -1137,21 +654,6 @@ MDRResult<void> RetBatteryLevelBatteryParam::Validate(const RetBatteryLevelBatte
     MDR_VALIDATE(data.command == Command::COMMON_RET_BATTERY_LEVEL);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.chargingStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetBatteryLevelCradleBatteryParam::Validate(const RetBatteryLevelCradleBatteryParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::COMMON_RET_BATTERY_LEVEL);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.chargingStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetBatteryLevelLeftRightBatteryParam::Validate(const RetBatteryLevelLeftRightBatteryParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::COMMON_RET_BATTERY_LEVEL);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.leftChargingStatus));
-    MDR_VALIDATE(is_valid(data.rightChargingStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam::Validate(const RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam& data) {
@@ -1191,18 +693,6 @@ MDRResult<void> RetConnectionStatusLeftRightConnectionStatusParam::Validate(cons
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.leftConnectionStatus));
     MDR_VALIDATE(is_valid(data.rightConnectionStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetEqEbbParamCapability_EbbCapability::Validate(const RetEqEbbParamCapability_EbbCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetEqEbbParamCapability_EqEbbCapabilityBase::Validate(const RetEqEbbParamCapability_EqEbbCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetEqEbbParamEbbParam::Validate(const RetEqEbbParamEbbParam& data) {
@@ -1258,19 +748,6 @@ MDRResult<void> RetNcAsmParamAsmParam::Validate(const RetNcAsmParamAsmParam& dat
     // data.asmId ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetNcAsmParamCapability_NcAsmCapabilityBase::Validate(const RetNcAsmParamCapability_NcAsmCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetNcAsmParamCapability_NcCapability::Validate(const RetNcAsmParamCapability_NcCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> RetNcAsmParamNcAsmParam::Validate(const RetNcAsmParamNcAsmParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::NCASM_RET_PARAM);
@@ -1298,7 +775,7 @@ MDRResult<void> RetNcAsmStatus::Validate(const RetNcAsmStatus& data) {
 }
 MDRResult<void> RetOptimizerCapability::Validate(const RetOptimizerCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::OPT_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.personalType ignored: OUT_OF_RANGE is expected
     // data.barometricType ignored: OUT_OF_RANGE is expected
@@ -1320,12 +797,12 @@ MDRResult<void> RetOptimizerStatus::Validate(const RetOptimizerStatus& data) {
     MDR_VALIDATE(is_valid(data.optimizerStatus));
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetPlayCapabilityPlaybackControllerVolumeData::Validate(const RetPlayCapabilityPlaybackControllerVolumeData& data) {
+MDRResult<void> RetPlayCapability::Validate(const RetPlayCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PLAY_RET_CAPABILITY);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     // data.playbackControlType ignored: OUT_OF_RANGE is expected
-    // data.dataType ignored: OUT_OF_RANGE is expected
+    // data.metaDataDisplayType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetPlayParamPlaybackControllerVolumeData::Validate(const RetPlayParamPlaybackControllerVolumeData& data) {
@@ -1356,41 +833,6 @@ MDRResult<void> RetSenseCapability::Validate(const RetSenseCapability& data) {
     // data.tableType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest::Validate(const RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.trainingModeExParameterType ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSportsExParamChildPayloadTrainingModeExAsmParam::Validate(const RetSportsExParamChildPayloadTrainingModeExAsmParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.ncAsmEffect ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.asmType));
-    // data.asmId ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSportsExParamChildPayloadTrainingModeExEqParam::Validate(const RetSportsExParamChildPayloadTrainingModeExEqParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.presetId));
-    for (const auto& bandSteps_elem : data.bandSteps) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSportsExParamChildPayloadTrainingModeExNcAsmParam::Validate(const RetSportsExParamChildPayloadTrainingModeExNcAsmParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SPORTS_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.ncAsmEffect ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.ncType));
-    MDR_VALIDATE(is_valid(data.asmType));
-    // data.asmId ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
 MDRResult<void> RetSportsParamTrainingModeParam::Validate(const RetSportsParamTrainingModeParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SPORTS_RET_PARAM);
@@ -1408,223 +850,14 @@ MDRResult<void> RetSupportFunction::Validate(const RetSupportFunction& data) {
     }
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetSystemExParamChildPayloadAssignableSettingsParam::Validate(const RetSystemExParamChildPayloadAssignableSettingsParam& data) {
+MDRResult<void> RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param::Validate(const RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presets_elem : data.presets) {
-        MDR_VALIDATE(is_valid(presets_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadAutoPowerOffParam::Validate(const RetSystemExParamChildPayloadAutoPowerOffParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.activeElementId));
-    MDR_VALIDATE(is_valid(data.selectTimeElementId));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_AutoPowerOffCapability::Validate(const RetSystemExParamChildPayloadCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_ControlByWearingCapability::Validate(const RetSystemExParamChildPayloadCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_PowerSavingModeCapability::Validate(const RetSystemExParamChildPayloadCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1::Validate(const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2::Validate(const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.previewType ignored: OUT_OF_RANGE is expected
-    // data.detailSettingType ignored: OUT_OF_RANGE is expected
-    // data.detectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.voiceFocusType ignored: OUT_OF_RANGE is expected
-    // data.modeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& modeTimeOutValues_elem : data.modeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_SystemCapabilityBase::Validate(const RetSystemExParamChildPayloadCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_VibratorCapability::Validate(const RetSystemExParamChildPayloadCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadControlByWearingParam::Validate(const RetSystemExParamChildPayloadControlByWearingParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadPowerSavingModeParam::Validate(const RetSystemExParamChildPayloadPowerSavingModeParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadSmartTalkingModeExType1Param::Validate(const RetSystemExParamChildPayloadSmartTalkingModeExType1Param& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.devectionSensitivity ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.voiceFocus));
-    // data.modeOutTime ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadSmartTalkingModeRetParam::Validate(const RetSystemExParamChildPayloadSmartTalkingModeRetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam::Validate(const RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.parameterType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadVibratorParam::Validate(const RetSystemExParamChildPayloadVibratorParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam::Validate(const RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presets_elem : data.presets) {
-        MDR_VALIDATE(is_valid(presets_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam::Validate(const RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.activeElementId));
-    MDR_VALIDATE(is_valid(data.selectTimeElementId));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability::Validate(const RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability::Validate(const RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability::Validate(const RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase::Validate(const RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability::Validate(const RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamControlByWearingParam::Validate(const RetSystemExParamSmartTalkingModeExParamControlByWearingParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam::Validate(const RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param::Validate(const RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_EXTENDED_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.detailSettingType ignored: OUT_OF_RANGE is expected
     // data.devectionSensitivity ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.voiceFocus));
     // data.modeOutTime ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamVibratorParam::Validate(const RetSystemExParamSmartTalkingModeExParamVibratorParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetSystemParamAssignableSettingsParam::Validate(const RetSystemParamAssignableSettingsParam& data) {
@@ -1643,70 +876,6 @@ MDRResult<void> RetSystemParamAutoPowerOffParam::Validate(const RetSystemParamAu
     // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.activeElementId));
     MDR_VALIDATE(is_valid(data.selectTimeElementId));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_AutoPowerOffCapability::Validate(const RetSystemParamCapability_AutoPowerOffCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_ControlByWearingCapability::Validate(const RetSystemParamCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_PowerSavingModeCapability::Validate(const RetSystemParamCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_SmartTalkingModeCapabilityVariant1::Validate(const RetSystemParamCapability_SmartTalkingModeCapabilityVariant1& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_SmartTalkingModeCapabilityVariant2::Validate(const RetSystemParamCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.previewType ignored: OUT_OF_RANGE is expected
-    // data.detailSettingType ignored: OUT_OF_RANGE is expected
-    // data.detectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.voiceFocusType ignored: OUT_OF_RANGE is expected
-    // data.modeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& modeTimeOutValues_elem : data.modeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_SystemCapabilityBase::Validate(const RetSystemParamCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_VibratorCapability::Validate(const RetSystemParamCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetSystemParamControlByWearingParam::Validate(const RetSystemParamControlByWearingParam& data) {
@@ -1733,37 +902,12 @@ MDRResult<void> RetSystemParamSmartTalkingModeRetParam::Validate(const RetSystem
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetSystemParamSmartTalkingModeSetNtfyParam::Validate(const RetSystemParamSmartTalkingModeSetNtfyParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.parameterType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamVibratorAlertNotificationParam::Validate(const RetSystemParamVibratorAlertNotificationParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.alertInquiredType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibrationType));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> RetSystemParamVibratorParam::Validate(const RetSystemParamVibratorParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.settingType));
     // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusAssignableSettingsParam::Validate(const RetSystemStatusAssignableSettingsParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presets_elem : data.presets) {
-        MDR_VALIDATE(is_valid(presets_elem));
-    }
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetSystemStatusAssignableSettingsStatus::Validate(const RetSystemStatusAssignableSettingsStatus& data) {
@@ -1773,112 +917,27 @@ MDRResult<void> RetSystemStatusAssignableSettingsStatus::Validate(const RetSyste
     for (const auto& allStatus_elem : data.allStatus) {
         MDR_VALIDATE(is_valid(allStatus_elem));
     }
+    return MDRResult<void>::Success();
+}
+MDRResult<void> RetSystemStatusAutoPowerOffStatus::Validate(const RetSystemStatusAutoPowerOffStatus& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
+    // data.type ignored: OUT_OF_RANGE is expected
     // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetSystemStatusAutoPowerOffParam::Validate(const RetSystemStatusAutoPowerOffParam& data) {
+MDRResult<void> RetSystemStatusControlByWearingStatus::Validate(const RetSystemStatusControlByWearingStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.autoPowerOffParameterType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.activeElementId));
-    MDR_VALIDATE(is_valid(data.selectTimeElementId));
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetSystemStatusCapability_AutoPowerOffCapability::Validate(const RetSystemStatusCapability_AutoPowerOffCapability& data) {
+MDRResult<void> RetSystemStatusPowerSavingModeStatus::Validate(const RetSystemStatusPowerSavingModeStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& candidateElements_elem : data.candidateElements) {
-        MDR_VALIDATE(is_valid(candidateElements_elem));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_ControlByWearingCapability::Validate(const RetSystemStatusCapability_ControlByWearingCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.controlByWearingSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_PowerSavingModeCapability::Validate(const RetSystemStatusCapability_PowerSavingModeCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.powerSavingModeSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1::Validate(const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2::Validate(const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.previewType ignored: OUT_OF_RANGE is expected
-    // data.detailSettingType ignored: OUT_OF_RANGE is expected
-    // data.detectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.voiceFocusType ignored: OUT_OF_RANGE is expected
-    // data.modeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& modeTimeOutValues_elem : data.modeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_SystemCapabilityBase::Validate(const RetSystemStatusCapability_SystemCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_VibratorCapability::Validate(const RetSystemStatusCapability_VibratorCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.vibratorSettingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusControlByWearingParam::Validate(const RetSystemStatusControlByWearingParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    MDR_VALIDATE(is_valid(data.settingValue));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusPowerSavingModeParam::Validate(const RetSystemStatusPowerSavingModeParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusSmartTalkingModeRetParam::Validate(const RetSystemStatusSmartTalkingModeRetParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    // data.settingType ignored: OUT_OF_RANGE is expected
-    // data.settingValue ignored: OUT_OF_RANGE is expected
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusSmartTalkingModeSetNtfyParam::Validate(const RetSystemStatusSmartTalkingModeSetNtfyParam& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.parameterType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetSystemStatusSmartTalkingModeStatus::Validate(const RetSystemStatusSmartTalkingModeStatus& data) {
@@ -1889,47 +948,46 @@ MDRResult<void> RetSystemStatusSmartTalkingModeStatus::Validate(const RetSystemS
     // data.effectStatus ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetSystemStatusVibratorParam::Validate(const RetSystemStatusVibratorParam& data) {
+MDRResult<void> RetSystemStatusVibratorStatus::Validate(const RetSystemStatusVibratorStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.settingType));
-    // data.settingValue ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam::Validate(const RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetUpdateParamUpdateBatteryPowerThresholdParam::Validate(const RetUpdateParamUpdateBatteryPowerThresholdParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetUpdateParamUpdateBleTxPowerParam::Validate(const RetUpdateParamUpdateBleTxPowerParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetUpdateParamUpdateMethodParam::Validate(const RetUpdateParamUpdateMethodParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetUpdateParamUpdateStringParamNSString::Validate(const RetUpdateParamUpdateStringParamNSString& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetUpdateParamUpdateStringParamUpdateInquiredType::Validate(const RetUpdateParamUpdateStringParamUpdateInquiredType& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::TEST_COMMAND);
+    MDR_VALIDATE(data.command == Command::UPDT_RET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -1939,12 +997,6 @@ MDRResult<void> RetUpscalingEffect::Validate(const RetUpscalingEffect& data) {
     // data.commonCapabilityInquiredType ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.effectType));
     MDR_VALIDATE(is_valid(data.effectStatus));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetVptParamCapability_VptCapabilityBase::Validate(const RetVptParamCapability_VptCapabilityBase& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::VPT_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetVptParamSoundPositionParam::Validate(const RetVptParamSoundPositionParam& data) {
@@ -2005,6 +1057,14 @@ MDRResult<void> SetAudioParamRetAudioCapability_ConnectionModeCapability::Valida
     MDR_VALIDATE(is_valid(data.settingType));
     return MDRResult<void>::Success();
 }
+MDRResult<void> SetAudioParamRetAudioCapability_UpscalingCapability::Validate(const SetAudioParamRetAudioCapability_UpscalingCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::AUDIO_SET_PARAM);
+    // data.type ignored: OUT_OF_RANGE is expected
+    MDR_VALIDATE(is_valid(data.upscalingType));
+    MDR_VALIDATE(is_valid(data.settingType));
+    return MDRResult<void>::Success();
+}
 MDRResult<void> SetAudioParamUpscalingParam::Validate(const SetAudioParamUpscalingParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::AUDIO_SET_PARAM);
@@ -2058,6 +1118,7 @@ MDRResult<void> SetLogStatus::Validate(const SetLogStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::LOG_SET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SetNcAsmParamAsmParam::Validate(const SetNcAsmParamAsmParam& data) {
@@ -2104,6 +1165,7 @@ MDRResult<void> SetOptimizerStatus::Validate(const SetOptimizerStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::OPT_SET_STATUS);
     // data.optimizerInquiredType ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     // data.optimizerControl ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -2118,6 +1180,7 @@ MDRResult<void> SetPlayStatus::Validate(const SetPlayStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::PLAY_SET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     // data.control ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -2132,6 +1195,7 @@ MDRResult<void> SetSenseStatus::Validate(const SetSenseStatus& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SENSE_SET_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
+    // data.status ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.senseSettingControl));
     return MDRResult<void>::Success();
 }
@@ -2196,20 +1260,6 @@ MDRResult<void> SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVa
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_EXTENDED_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     // data.settingType ignored: OUT_OF_RANGE is expected
     // data.previewType ignored: OUT_OF_RANGE is expected
     // data.detailSettingType ignored: OUT_OF_RANGE is expected
@@ -2273,6 +1323,7 @@ MDRResult<void> SetSystemExParammartTalkingModeSetNtfyParam::Validate(const SetS
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_EXTENDED_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.parameterType));
+    MDR_VALIDATE(data.parameterType == SmartTalkingModeParameterType::MODE_ON_OFF);
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -2337,20 +1388,6 @@ MDRResult<void> SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVari
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     // data.settingType ignored: OUT_OF_RANGE is expected
     // data.previewType ignored: OUT_OF_RANGE is expected
     // data.detailSettingType ignored: OUT_OF_RANGE is expected
@@ -2389,6 +1426,7 @@ MDRResult<void> SetSystemParammartTalkingModeSetNtfyParam::Validate(const SetSys
     MDR_VALIDATE(data.command == Command::SYSTEM_SET_PARAM);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.parameterType));
+    MDR_VALIDATE(data.parameterType == SmartTalkingModeParameterType::MODE_ON_OFF);
     // data.settingValue ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
@@ -2397,6 +1435,13 @@ MDRResult<void> SetUpdateStatus::Validate(const SetUpdateStatus& data) {
     MDR_VALIDATE(data.command == Command::UPDT_SET_STATUS);
     // data.updateInquiredType ignored: OUT_OF_RANGE is expected
     // data.commonStatus ignored: OUT_OF_RANGE is expected
+    return MDRResult<void>::Success();
+}
+MDRResult<void> SetVptParamRetVptCapability_SoundPositionCapability::Validate(const SetVptParamRetVptCapability_SoundPositionCapability& data) {
+    MDR_VALIDATE(is_valid(data.command));
+    MDR_VALIDATE(data.command == Command::VPT_SET_PARAM);
+    // data.type ignored: OUT_OF_RANGE is expected
+    // data.soundPositionType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
 MDRResult<void> SetVptParamRetVptCapability_VptCapabilityBase::Validate(const SetVptParamRetVptCapability_VptCapabilityBase& data) {
@@ -2432,44 +1477,6 @@ MDRResult<void> GetSportsExParam::Validate(const GetSportsExParam& data) {
     // data.getSportsExParam_TrainingModeRequest.type ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifyEqEbbParamRetEqEbbCapability_EqCapability::Validate(const NotifyEqEbbParamRetEqEbbCapability_EqCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presetList_elem : data.presetList) {
-        MDR_VALIDATE(is_valid(presetList_elem.presetId));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyNcAsmParamRetNcAsmCapability_AsmCapability::Validate(const NotifyNcAsmParamRetNcAsmCapability_AsmCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.asmSettingType));
-    for (const auto& asmList_elem : data.asmList) {
-        MDR_VALIDATE(is_valid(asmList_elem.id));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability::Validate(const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.ncSettingType));
-    MDR_VALIDATE(is_valid(data.asmSettingType));
-    for (const auto& asmList_elem : data.asmList) {
-        MDR_VALIDATE(is_valid(asmList_elem.id));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyPlayParamPlaybackControllerNameData::Validate(const NotifyPlayParamPlaybackControllerNameData& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::PLAY_NTFY_PARAM);
-    // data.playInquiredType ignored: OUT_OF_RANGE is expected
-    // data.dataType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
-    return MDRResult<void>::Success();
-}
 MDRResult<void> NotifySportsExParamTrainingModeExParam::Validate(const NotifySportsExParamTrainingModeExParam& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SPORTS_NTFY_PARAM);
@@ -2496,15 +1503,6 @@ MDRResult<void> NotifySportsStatusTrainingModeStatus::Validate(const NotifySport
     MDR_VALIDATE(data.command == Command::SPORTS_NTFY_STATUS);
     // data.type ignored: OUT_OF_RANGE is expected
     MDR_VALIDATE(is_valid(data.trainingStatus.status));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifyVptParamRetVptCapability_VptCapability::Validate(const NotifyVptParamRetVptCapability_VptCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::VPT_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& vptPresets_elem : data.vptPresets) {
-        MDR_VALIDATE(is_valid(vptPresets_elem.presetId));
-    }
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetAudioCapability::Validate(const RetAudioCapability& data) {
@@ -2589,18 +1587,18 @@ MDRResult<void> RetEqEbbCapability_EqCapability::Validate(const RetEqEbbCapabili
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::EQEBB_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.type == EqEbbInquiredType::NO_USE);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::PRESET_EQ);
     for (const auto& presetList_elem : data.presetList) {
         MDR_VALIDATE(is_valid(presetList_elem.presetId));
     }
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetEqEbbParamCapability_EqCapability::Validate(const RetEqEbbParamCapability_EqCapability& data) {
+MDRResult<void> RetEqEbbExtendedInfoEqExtendedInfo::Validate(const RetEqEbbExtendedInfoEqExtendedInfo& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_RET_PARAM);
+    MDR_VALIDATE(data.command == Command::EQEBB_RET_EXTENDED_INFO);
     // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& presetList_elem : data.presetList) {
-        MDR_VALIDATE(is_valid(presetList_elem.presetId));
+    for (const auto& bandInfos_elem : data.bandInfos) {
+        MDR_VALIDATE(is_valid(bandInfos_elem.infoType));
     }
     return MDRResult<void>::Success();
 }
@@ -2648,36 +1646,6 @@ MDRResult<void> RetNcAsmCapability_NcCapability::Validate(const RetNcAsmCapabili
     MDR_VALIDATE(is_valid(data.base.type));
     MDR_VALIDATE(data.base.type == NcAsmInquiredType::NOISE_CANCELLING);
     MDR_VALIDATE(is_valid(data.settingType));
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetNcAsmParamCapability_AsmCapability::Validate(const RetNcAsmParamCapability_AsmCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.asmSettingType));
-    for (const auto& asmList_elem : data.asmList) {
-        MDR_VALIDATE(is_valid(asmList_elem.id));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetNcAsmParamCapability_NcAsmCapability::Validate(const RetNcAsmParamCapability_NcAsmCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::NCASM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.ncSettingType));
-    MDR_VALIDATE(is_valid(data.asmSettingType));
-    for (const auto& asmList_elem : data.asmList) {
-        MDR_VALIDATE(is_valid(asmList_elem.id));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetPlayCapabilityPlaybackControllerNameData::Validate(const RetPlayCapabilityPlaybackControllerNameData& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::PLAY_RET_CAPABILITY);
-    // data.inquiredType ignored: OUT_OF_RANGE is expected
-    // data.playbackControlType ignored: OUT_OF_RANGE is expected
-    // data.dataType ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(is_valid(data.playbackName.nameStatus));
     return MDRResult<void>::Success();
 }
 MDRResult<void> RetPlayParamPlaybackControllerNameData::Validate(const RetPlayParamPlaybackControllerNameData& data) {
@@ -2762,21 +1730,6 @@ MDRResult<void> RetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.base.type));
     MDR_VALIDATE(data.base.type == SystemInquiredType::SMART_TALKING_MODE);
-    // data.smartTalkingModeSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModePreviewType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetailSettingType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeDetectionSensitivityType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeVoceFocusType ignored: OUT_OF_RANGE is expected
-    // data.smartTalkingModeModeOutTimeType ignored: OUT_OF_RANGE is expected
-    for (const auto& smartTalkingModeModeTimeOutValues_elem : data.smartTalkingModeModeTimeOutValues) {
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(const RetSystemCapability_SmartTalkingModeCapabilityVariant2& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
-    MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.type == SystemInquiredType::SMART_TALKING_MODE);
     // data.settingType ignored: OUT_OF_RANGE is expected
     // data.previewType ignored: OUT_OF_RANGE is expected
     // data.detailSettingType ignored: OUT_OF_RANGE is expected
@@ -2815,15 +1768,6 @@ MDRResult<void> RetVptCapability_VptCapability::Validate(const RetVptCapability_
     MDR_VALIDATE(data.command == Command::VPT_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.base.type));
     MDR_VALIDATE(data.base.type == VptInquiredType::VPT);
-    for (const auto& vptPresets_elem : data.vptPresets) {
-        MDR_VALIDATE(is_valid(vptPresets_elem.presetId));
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetVptParamCapability_VptCapability::Validate(const RetVptParamCapability_VptCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::VPT_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& vptPresets_elem : data.vptPresets) {
         MDR_VALIDATE(is_valid(vptPresets_elem.presetId));
     }
@@ -2908,15 +1852,6 @@ MDRResult<void> TestCommand::Validate(const TestCommand& data) {
     MDR_VALIDATE(is_valid(data.atCommandParam.messageType));
     return MDRResult<void>::Success();
 }
-MDRResult<void> RetEqEbbExtendedInfoEqExtendedInfo::Validate(const RetEqEbbExtendedInfoEqExtendedInfo& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::EQEBB_RET_EXTENDED_INFO);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& bandInfos_elem : data.bandInfos) {
-        MDR_VALIDATE(is_valid(bandInfos_elem.infoType));
-    }
-    return MDRResult<void>::Success();
-}
 MDRResult<void> RetGsCapabilityGsCandidateElementList::Validate(const RetGsCapabilityGsCandidateElementList& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::GENERAL_SETTING_RET_CAPABILITY);
@@ -2949,155 +1884,11 @@ MDRResult<void> SetSportsExParam::Validate(const SetSportsExParam& data) {
     }
     return MDRResult<void>::Success();
 }
-MDRResult<void> NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability::Validate(const NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability::Validate(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemParamRetSystemCapability_AssignableSettingsCapability::Validate(const NotifySystemParamRetSystemCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> NotifySystemStatusRetSystemCapability_AssignableSettingsCapability::Validate(const NotifySystemStatusRetSystemCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_NTFY_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
 MDRResult<void> RetSystemCapability_AssignableSettingsCapability::Validate(const RetSystemCapability_AssignableSettingsCapability& data) {
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.base.type));
     MDR_VALIDATE(data.base.type == SystemInquiredType::ASSIGNABLE_SETTINGS);
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamChildPayloadCapability_AssignableSettingsCapability::Validate(const RetSystemExParamChildPayloadCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability::Validate(const RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemParamCapability_AssignableSettingsCapability::Validate(const RetSystemParamCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_PARAM);
-    // data.type ignored: OUT_OF_RANGE is expected
-    for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
-        MDR_VALIDATE(is_valid(elements_elem.key));
-        MDR_VALIDATE(is_valid(elements_elem.keyType));
-        MDR_VALIDATE(is_valid(elements_elem.defaultPreset));
-        for (const auto& presets_elem : elements_elem.presets) {
-            MDR_VALIDATE(is_valid(presets_elem.preset));
-            for (const auto& actions_elem : presets_elem.actions) {
-                MDR_VALIDATE(is_valid(actions_elem.action));
-                MDR_VALIDATE(is_valid(actions_elem.function));
-            }
-        }
-    }
-    return MDRResult<void>::Success();
-}
-MDRResult<void> RetSystemStatusCapability_AssignableSettingsCapability::Validate(const RetSystemStatusCapability_AssignableSettingsCapability& data) {
-    MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::SYSTEM_RET_STATUS);
-    // data.type ignored: OUT_OF_RANGE is expected
     for (const auto& elements_elem : data.assignableSettingKeyList.elements) {
         MDR_VALIDATE(is_valid(elements_elem.key));
         MDR_VALIDATE(is_valid(elements_elem.keyType));

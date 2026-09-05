@@ -520,6 +520,11 @@ namespace client::debugger {
             {"ACTION_LOG_NOTIFIER", UINT64_C(1)},
             {"OUT_OF_RANGE", UINT64_C(255)},
         };
+        static constexpr EnumOption kEnum_mdr__v1__t1__MetaDataDisplayType[] = {
+            {"NOT_SUPPORT", UINT64_C(0)},
+            {"TRACK_ALBUM_ARTIST_GENRE_PLAYER", UINT64_C(1)},
+            {"OUT_OF_RANGE", UINT64_C(255)},
+        };
         static constexpr EnumOption kEnum_mdr__v1__t1__ModeOutTime[] = {
             {"FAST", UINT64_C(0)},
             {"MID", UINT64_C(1)},
@@ -2392,77 +2397,6 @@ namespace client::debugger {
         }
         bool DrawErased_NotifyAudioParamConnectionModeParam(void* value) { return Draw_NotifyAudioParamConnectionModeParam(*static_cast<NotifyAudioParamConnectionModeParam*>(value)); }
 
-        bool Draw_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(NotifyAudioParamRetAudioCapability_AudioCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__AudioInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyAudioParamRetAudioCapability_AudioCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyAudioParamRetAudioCapability_AudioCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyAudioParamRetAudioCapability_AudioCapabilityBase() { return Construct<NotifyAudioParamRetAudioCapability_AudioCapabilityBase>(); }
-        void Destroy_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(void* value) { Destruct(static_cast<NotifyAudioParamRetAudioCapability_AudioCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(const void* value)
-        {
-            return NotifyAudioParamRetAudioCapability_AudioCapabilityBase::Validate(*static_cast<const NotifyAudioParamRetAudioCapability_AudioCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(void* value) { return Draw_NotifyAudioParamRetAudioCapability_AudioCapabilityBase(*static_cast<NotifyAudioParamRetAudioCapability_AudioCapabilityBase*>(value)); }
-
-        bool Draw_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(NotifyAudioParamRetAudioCapability_ConnectionModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__AudioInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ConnectionModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyAudioParamRetAudioCapability_ConnectionModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyAudioParamRetAudioCapability_ConnectionModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyAudioParamRetAudioCapability_ConnectionModeCapability() { return Construct<NotifyAudioParamRetAudioCapability_ConnectionModeCapability>(); }
-        void Destroy_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(void* value) { Destruct(static_cast<NotifyAudioParamRetAudioCapability_ConnectionModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(const void* value)
-        {
-            return NotifyAudioParamRetAudioCapability_ConnectionModeCapability::Validate(*static_cast<const NotifyAudioParamRetAudioCapability_ConnectionModeCapability*>(value));
-        }
-        bool DrawErased_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(void* value) { return Draw_NotifyAudioParamRetAudioCapability_ConnectionModeCapability(*static_cast<NotifyAudioParamRetAudioCapability_ConnectionModeCapability*>(value)); }
-
         bool Draw_NotifyAudioParamUpscalingParam(NotifyAudioParamUpscalingParam& value)
         {
             bool changed = false;
@@ -2579,92 +2513,6 @@ namespace client::debugger {
             return NotifyBatteryLevelBatteryParam::Validate(*static_cast<const NotifyBatteryLevelBatteryParam*>(value));
         }
         bool DrawErased_NotifyBatteryLevelBatteryParam(void* value) { return Draw_NotifyBatteryLevelBatteryParam(*static_cast<NotifyBatteryLevelBatteryParam*>(value)); }
-
-        bool Draw_NotifyBatteryLevelCradleBatteryParam(NotifyBatteryLevelCradleBatteryParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawScalar("level", value.level);
-            changed |= DrawEnum("chargingStatus", value.chargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyBatteryLevelCradleBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyBatteryLevelCradleBatteryParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.level, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.chargingStatus, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyBatteryLevelCradleBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyBatteryLevelCradleBatteryParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.level, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.chargingStatus, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyBatteryLevelCradleBatteryParam() { return Construct<NotifyBatteryLevelCradleBatteryParam>(); }
-        void Destroy_NotifyBatteryLevelCradleBatteryParam(void* value) { Destruct(static_cast<NotifyBatteryLevelCradleBatteryParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyBatteryLevelCradleBatteryParam(const void* value)
-        {
-            return NotifyBatteryLevelCradleBatteryParam::Validate(*static_cast<const NotifyBatteryLevelCradleBatteryParam*>(value));
-        }
-        bool DrawErased_NotifyBatteryLevelCradleBatteryParam(void* value) { return Draw_NotifyBatteryLevelCradleBatteryParam(*static_cast<NotifyBatteryLevelCradleBatteryParam*>(value)); }
-
-        bool Draw_NotifyBatteryLevelLeftRightBatteryParam(NotifyBatteryLevelLeftRightBatteryParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawScalar("leftLevel", value.leftLevel);
-            changed |= DrawEnum("leftChargingStatus", value.leftChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
-            changed |= DrawScalar("rightLevel", value.rightLevel);
-            changed |= DrawEnum("rightChargingStatus", value.rightChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyBatteryLevelLeftRightBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyBatteryLevelLeftRightBatteryParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftLevel, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftChargingStatus, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightLevel, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightChargingStatus, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyBatteryLevelLeftRightBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyBatteryLevelLeftRightBatteryParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftLevel, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftChargingStatus, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightLevel, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightChargingStatus, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyBatteryLevelLeftRightBatteryParam() { return Construct<NotifyBatteryLevelLeftRightBatteryParam>(); }
-        void Destroy_NotifyBatteryLevelLeftRightBatteryParam(void* value) { Destruct(static_cast<NotifyBatteryLevelLeftRightBatteryParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyBatteryLevelLeftRightBatteryParam(const void* value)
-        {
-            return NotifyBatteryLevelLeftRightBatteryParam::Validate(*static_cast<const NotifyBatteryLevelLeftRightBatteryParam*>(value));
-        }
-        bool DrawErased_NotifyBatteryLevelLeftRightBatteryParam(void* value) { return Draw_NotifyBatteryLevelLeftRightBatteryParam(*static_cast<NotifyBatteryLevelLeftRightBatteryParam*>(value)); }
 
         bool Draw_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam& value)
         {
@@ -2869,80 +2717,6 @@ namespace client::debugger {
             return NotifyEqEbbParamEqParam::Validate(*static_cast<const NotifyEqEbbParamEqParam*>(value));
         }
         bool DrawErased_NotifyEqEbbParamEqParam(void* value) { return Draw_NotifyEqEbbParamEqParam(*static_cast<NotifyEqEbbParamEqParam*>(value)); }
-
-        bool Draw_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(NotifyEqEbbParamRetEqEbbCapability_EbbCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            changed |= DrawScalar("minValue", value.minValue);
-            changed |= DrawScalar("maxValue", value.maxValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyEqEbbParamRetEqEbbCapability_EbbCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.minValue, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.maxValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyEqEbbParamRetEqEbbCapability_EbbCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.minValue, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.maxValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyEqEbbParamRetEqEbbCapability_EbbCapability() { return Construct<NotifyEqEbbParamRetEqEbbCapability_EbbCapability>(); }
-        void Destroy_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(void* value) { Destruct(static_cast<NotifyEqEbbParamRetEqEbbCapability_EbbCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(const void* value)
-        {
-            return NotifyEqEbbParamRetEqEbbCapability_EbbCapability::Validate(*static_cast<const NotifyEqEbbParamRetEqEbbCapability_EbbCapability*>(value));
-        }
-        bool DrawErased_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(void* value) { return Draw_NotifyEqEbbParamRetEqEbbCapability_EbbCapability(*static_cast<NotifyEqEbbParamRetEqEbbCapability_EbbCapability*>(value)); }
-
-        bool Draw_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase() { return Construct<NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase>(); }
-        void Destroy_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(void* value) { Destruct(static_cast<NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(const void* value)
-        {
-            return NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase::Validate(*static_cast<const NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(void* value) { return Draw_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase(*static_cast<NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase*>(value)); }
 
         bool Draw_NotifyEqEbbStatus(NotifyEqEbbStatus& value)
         {
@@ -3180,7 +2954,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("logInquiredType", value.logInquiredType, kEnum_mdr__v1__t1__LogInquiredType);
-            changed |= DrawPrefixedString("data", value.data);
+            changed |= DrawString("data", value.data.value, UINT16_MAX);
             return changed;
         }
         mdr::MDRResult<void> Decode_NotifyLogParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -3190,7 +2964,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.logInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.data, remaining));
+            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString16BE::Read)(&ptr, value.data, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -3201,7 +2975,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.logInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.data, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString16BE::Write)(value.data, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_NotifyLogParam() { return Construct<NotifyLogParam>(); }
@@ -3257,77 +3031,6 @@ namespace client::debugger {
             return NotifyNcAsmParamAsmParam::Validate(*static_cast<const NotifyNcAsmParamAsmParam*>(value));
         }
         bool DrawErased_NotifyNcAsmParamAsmParam(void* value) { return Draw_NotifyNcAsmParamAsmParam(*static_cast<NotifyNcAsmParamAsmParam*>(value)); }
-
-        bool Draw_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase() { return Construct<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase>(); }
-        void Destroy_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(void* value) { Destruct(static_cast<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(const void* value)
-        {
-            return NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase::Validate(*static_cast<const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(void* value) { return Draw_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase(*static_cast<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase*>(value)); }
-
-        bool Draw_NotifyNcAsmParamRetNcAsmCapability_NcCapability(NotifyNcAsmParamRetNcAsmCapability_NcCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__NcSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyNcAsmParamRetNcAsmCapability_NcCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyNcAsmParamRetNcAsmCapability_NcCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyNcAsmParamRetNcAsmCapability_NcCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyNcAsmParamRetNcAsmCapability_NcCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyNcAsmParamRetNcAsmCapability_NcCapability() { return Construct<NotifyNcAsmParamRetNcAsmCapability_NcCapability>(); }
-        void Destroy_NotifyNcAsmParamRetNcAsmCapability_NcCapability(void* value) { Destruct(static_cast<NotifyNcAsmParamRetNcAsmCapability_NcCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyNcAsmParamRetNcAsmCapability_NcCapability(const void* value)
-        {
-            return NotifyNcAsmParamRetNcAsmCapability_NcCapability::Validate(*static_cast<const NotifyNcAsmParamRetNcAsmCapability_NcCapability*>(value));
-        }
-        bool DrawErased_NotifyNcAsmParamRetNcAsmCapability_NcCapability(void* value) { return Draw_NotifyNcAsmParamRetNcAsmCapability_NcCapability(*static_cast<NotifyNcAsmParamRetNcAsmCapability_NcCapability*>(value)); }
 
         bool Draw_NotifyNcAsmParamcAsmParam(NotifyNcAsmParamcAsmParam& value)
         {
@@ -3544,6 +3247,43 @@ namespace client::debugger {
         }
         bool DrawErased_NotifyOptimizerStatus(void* value) { return Draw_NotifyOptimizerStatus(*static_cast<NotifyOptimizerStatus*>(value)); }
 
+        bool Draw_NotifyPlayParamPlaybackControllerNotifyNameData(NotifyPlayParamPlaybackControllerNotifyNameData& value)
+        {
+            bool changed = false;
+            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
+            changed |= DrawEnum("playInquiredType", value.playInquiredType, kEnum_mdr__v1__t1__PlayInquiredType);
+            changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
+            return changed;
+        }
+        mdr::MDRResult<void> Decode_NotifyPlayParamPlaybackControllerNotifyNameData(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        {
+            auto& value = *static_cast<NotifyPlayParamPlaybackControllerNotifyNameData*>(storage);
+            const UInt8* ptr = bytes.data();
+            size_t remaining = bytes.size();
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
+            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
+            return mdr::MDRResult<void>::Success();
+        }
+        mdr::MDRResult<size_t> Encode_NotifyPlayParamPlaybackControllerNotifyNameData(const void* storage, mdr::UInt8* output, size_t maxSize)
+        {
+            const auto& value = *static_cast<const NotifyPlayParamPlaybackControllerNotifyNameData*>(storage);
+            UInt8* ptr = output;
+            size_t remaining = maxSize;
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
+            return mdr::MDRResult<size_t>::Success(ptr - output);
+        }
+        void* Create_NotifyPlayParamPlaybackControllerNotifyNameData() { return Construct<NotifyPlayParamPlaybackControllerNotifyNameData>(); }
+        void Destroy_NotifyPlayParamPlaybackControllerNotifyNameData(void* value) { Destruct(static_cast<NotifyPlayParamPlaybackControllerNotifyNameData*>(value)); }
+        mdr::MDRResult<void> Validate_NotifyPlayParamPlaybackControllerNotifyNameData(const void* value)
+        {
+            return NotifyPlayParamPlaybackControllerNotifyNameData::Validate(*static_cast<const NotifyPlayParamPlaybackControllerNotifyNameData*>(value));
+        }
+        bool DrawErased_NotifyPlayParamPlaybackControllerNotifyNameData(void* value) { return Draw_NotifyPlayParamPlaybackControllerNotifyNameData(*static_cast<NotifyPlayParamPlaybackControllerNotifyNameData*>(value)); }
+
         bool Draw_NotifyPlayParamPlaybackControllerVolumeData(NotifyPlayParamPlaybackControllerVolumeData& value)
         {
             bool changed = false;
@@ -3624,188 +3364,6 @@ namespace client::debugger {
         }
         bool DrawErased_NotifyPlayStatus(void* value) { return Draw_NotifyPlayStatus(*static_cast<NotifyPlayStatus*>(value)); }
 
-        bool Draw_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("trainingModeExParameterType", value.trainingModeExParameterType, kEnum_mdr__v1__t1__TrainingModeExParameterType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.trainingModeExParameterType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.trainingModeExParameterType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest() { return Construct<NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest>(); }
-        void Destroy_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(void* value) { Destruct(static_cast<NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(const void* value)
-        {
-            return NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest::Validate(*static_cast<const NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(value));
-        }
-        bool DrawErased_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(void* value) { return Draw_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(*static_cast<NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(value)); }
-
-        bool Draw_NotifySportsExParamChildPayloadTrainingModeExAsmParam(NotifySportsExParamChildPayloadTrainingModeExAsmParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("ncAsmEffect", value.ncAsmEffect, kEnum_mdr__v1__t1__NcAsmEffect);
-            changed |= DrawEnum("asmType", value.asmType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawEnum("asmId", value.asmId, kEnum_mdr__v1__t1__AsmId);
-            changed |= DrawScalar("asmValue", value.asmValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySportsExParamChildPayloadTrainingModeExAsmParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySportsExParamChildPayloadTrainingModeExAsmParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncAsmEffect, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySportsExParamChildPayloadTrainingModeExAsmParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySportsExParamChildPayloadTrainingModeExAsmParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncAsmEffect, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySportsExParamChildPayloadTrainingModeExAsmParam() { return Construct<NotifySportsExParamChildPayloadTrainingModeExAsmParam>(); }
-        void Destroy_NotifySportsExParamChildPayloadTrainingModeExAsmParam(void* value) { Destruct(static_cast<NotifySportsExParamChildPayloadTrainingModeExAsmParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySportsExParamChildPayloadTrainingModeExAsmParam(const void* value)
-        {
-            return NotifySportsExParamChildPayloadTrainingModeExAsmParam::Validate(*static_cast<const NotifySportsExParamChildPayloadTrainingModeExAsmParam*>(value));
-        }
-        bool DrawErased_NotifySportsExParamChildPayloadTrainingModeExAsmParam(void* value) { return Draw_NotifySportsExParamChildPayloadTrainingModeExAsmParam(*static_cast<NotifySportsExParamChildPayloadTrainingModeExAsmParam*>(value)); }
-
-        bool Draw_NotifySportsExParamChildPayloadTrainingModeExEqParam(NotifySportsExParamChildPayloadTrainingModeExEqParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("presetId", value.presetId, kEnum_mdr__v1__t1__EqPresetId);
-            changed |= DrawSequence("bandSteps", value.bandSteps.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySportsExParamChildPayloadTrainingModeExEqParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySportsExParamChildPayloadTrainingModeExEqParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.presetId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.bandSteps, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySportsExParamChildPayloadTrainingModeExEqParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySportsExParamChildPayloadTrainingModeExEqParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.presetId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.bandSteps, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySportsExParamChildPayloadTrainingModeExEqParam() { return Construct<NotifySportsExParamChildPayloadTrainingModeExEqParam>(); }
-        void Destroy_NotifySportsExParamChildPayloadTrainingModeExEqParam(void* value) { Destruct(static_cast<NotifySportsExParamChildPayloadTrainingModeExEqParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySportsExParamChildPayloadTrainingModeExEqParam(const void* value)
-        {
-            return NotifySportsExParamChildPayloadTrainingModeExEqParam::Validate(*static_cast<const NotifySportsExParamChildPayloadTrainingModeExEqParam*>(value));
-        }
-        bool DrawErased_NotifySportsExParamChildPayloadTrainingModeExEqParam(void* value) { return Draw_NotifySportsExParamChildPayloadTrainingModeExEqParam(*static_cast<NotifySportsExParamChildPayloadTrainingModeExEqParam*>(value)); }
-
-        bool Draw_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(NotifySportsExParamChildPayloadTrainingModeExNcAsmParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("ncAsmEffect", value.ncAsmEffect, kEnum_mdr__v1__t1__NcAsmEffect);
-            changed |= DrawEnum("ncType", value.ncType, kEnum_mdr__v1__t1__NcAsmSettingType);
-            changed |= DrawScalar("ncValue", value.ncValue);
-            changed |= DrawEnum("asmType", value.asmType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawEnum("asmId", value.asmId, kEnum_mdr__v1__t1__AsmId);
-            changed |= DrawScalar("asmValue", value.asmValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySportsExParamChildPayloadTrainingModeExNcAsmParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncAsmEffect, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncValue, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySportsExParamChildPayloadTrainingModeExNcAsmParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncAsmEffect, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncValue, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam() { return Construct<NotifySportsExParamChildPayloadTrainingModeExNcAsmParam>(); }
-        void Destroy_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(void* value) { Destruct(static_cast<NotifySportsExParamChildPayloadTrainingModeExNcAsmParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(const void* value)
-        {
-            return NotifySportsExParamChildPayloadTrainingModeExNcAsmParam::Validate(*static_cast<const NotifySportsExParamChildPayloadTrainingModeExNcAsmParam*>(value));
-        }
-        bool DrawErased_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(void* value) { return Draw_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam(*static_cast<NotifySportsExParamChildPayloadTrainingModeExNcAsmParam*>(value)); }
-
         bool Draw_NotifySportsParamTrainingModeParam(NotifySportsParamTrainingModeParam& value)
         {
             bool changed = false;
@@ -3846,1006 +3404,7 @@ namespace client::debugger {
         }
         bool DrawErased_NotifySportsParamTrainingModeParam(void* value) { return Draw_NotifySportsParamTrainingModeParam(*static_cast<NotifySportsParamTrainingModeParam*>(value)); }
 
-        bool Draw_NotifySystemExParamChildPayloadAssignableSettingsParam(NotifySystemExParamChildPayloadAssignableSettingsParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("presets", value.presets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadAssignableSettingsParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadAssignableSettingsParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AssignableSettingsPreset>::Read)(&ptr, value.presets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadAssignableSettingsParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadAssignableSettingsParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(value.presets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadAssignableSettingsParam() { return Construct<NotifySystemExParamChildPayloadAssignableSettingsParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadAssignableSettingsParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadAssignableSettingsParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadAssignableSettingsParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadAssignableSettingsParam::Validate(*static_cast<const NotifySystemExParamChildPayloadAssignableSettingsParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadAssignableSettingsParam(void* value) { return Draw_NotifySystemExParamChildPayloadAssignableSettingsParam(*static_cast<NotifySystemExParamChildPayloadAssignableSettingsParam*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadAutoPowerOffParam(NotifySystemExParamChildPayloadAutoPowerOffParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("autoPowerOffParameterType", value.autoPowerOffParameterType, kEnum_mdr__v1__t1__AutoPowerOffParameterType);
-            changed |= DrawEnum("activeElementId", value.activeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            changed |= DrawEnum("selectTimeElementId", value.selectTimeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadAutoPowerOffParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadAutoPowerOffParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.autoPowerOffParameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.activeElementId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.selectTimeElementId, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadAutoPowerOffParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadAutoPowerOffParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.autoPowerOffParameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.activeElementId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.selectTimeElementId, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadAutoPowerOffParam() { return Construct<NotifySystemExParamChildPayloadAutoPowerOffParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadAutoPowerOffParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadAutoPowerOffParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadAutoPowerOffParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadAutoPowerOffParam::Validate(*static_cast<const NotifySystemExParamChildPayloadAutoPowerOffParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadAutoPowerOffParam(void* value) { return Draw_NotifySystemExParamChildPayloadAutoPowerOffParam(*static_cast<NotifySystemExParamChildPayloadAutoPowerOffParam*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadControlByWearingParam(NotifySystemExParamChildPayloadControlByWearingParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__ControlByWearingSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadControlByWearingParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadControlByWearingParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadControlByWearingParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadControlByWearingParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadControlByWearingParam() { return Construct<NotifySystemExParamChildPayloadControlByWearingParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadControlByWearingParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadControlByWearingParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadControlByWearingParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadControlByWearingParam::Validate(*static_cast<const NotifySystemExParamChildPayloadControlByWearingParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadControlByWearingParam(void* value) { return Draw_NotifySystemExParamChildPayloadControlByWearingParam(*static_cast<NotifySystemExParamChildPayloadControlByWearingParam*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadPowerSavingModeParam(NotifySystemExParamChildPayloadPowerSavingModeParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__PowerSavingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadPowerSavingModeParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadPowerSavingModeParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadPowerSavingModeParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadPowerSavingModeParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadPowerSavingModeParam() { return Construct<NotifySystemExParamChildPayloadPowerSavingModeParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadPowerSavingModeParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadPowerSavingModeParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadPowerSavingModeParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadPowerSavingModeParam::Validate(*static_cast<const NotifySystemExParamChildPayloadPowerSavingModeParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadPowerSavingModeParam(void* value) { return Draw_NotifySystemExParamChildPayloadPowerSavingModeParam(*static_cast<NotifySystemExParamChildPayloadPowerSavingModeParam*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("detectionSensitivityType", value.detectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("voiceFocusType", value.voiceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("modeOutTimeType", value.modeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("modeTimeOutValues", value.modeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.previewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.modeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.previewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(NotifySystemExParamChildPayloadSmartTalkingModeExType1Param& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("devectionSensitivity", value.devectionSensitivity, kEnum_mdr__v1__t1__DetectionSensitivity);
-            changed |= DrawEnum("voiceFocus", value.voiceFocus, kEnum_mdr__v1__t1__CommonOnOffSettingValue);
-            changed |= DrawEnum("modeOutTime", value.modeOutTime, kEnum_mdr__v1__t1__ModeOutTime);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadSmartTalkingModeExType1Param*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.devectionSensitivity, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocus, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTime, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeExType1Param*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.devectionSensitivity, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocus, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTime, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param() { return Construct<NotifySystemExParamChildPayloadSmartTalkingModeExType1Param>(); }
-        void Destroy_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadSmartTalkingModeExType1Param*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(const void* value)
-        {
-            return NotifySystemExParamChildPayloadSmartTalkingModeExType1Param::Validate(*static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeExType1Param*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(void* value) { return Draw_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param(*static_cast<NotifySystemExParamChildPayloadSmartTalkingModeExType1Param*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(NotifySystemExParamChildPayloadSmartTalkingModeRetParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadSmartTalkingModeRetParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeRetParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadSmartTalkingModeRetParam() { return Construct<NotifySystemExParamChildPayloadSmartTalkingModeRetParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadSmartTalkingModeRetParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadSmartTalkingModeRetParam::Validate(*static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeRetParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(void* value) { return Draw_NotifySystemExParamChildPayloadSmartTalkingModeRetParam(*static_cast<NotifySystemExParamChildPayloadSmartTalkingModeRetParam*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("parameterType", value.parameterType, kEnum_mdr__v1__t1__SmartTalkingModeParameterType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.parameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.parameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam() { return Construct<NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam::Validate(*static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(void* value) { return Draw_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam(*static_cast<NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(value)); }
-
-        bool Draw_NotifySystemExParamChildPayloadVibratorParam(NotifySystemExParamChildPayloadVibratorParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__VibratorSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadVibratorParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadVibratorParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadVibratorParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadVibratorParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadVibratorParam() { return Construct<NotifySystemExParamChildPayloadVibratorParam>(); }
-        void Destroy_NotifySystemExParamChildPayloadVibratorParam(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadVibratorParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadVibratorParam(const void* value)
-        {
-            return NotifySystemExParamChildPayloadVibratorParam::Validate(*static_cast<const NotifySystemExParamChildPayloadVibratorParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadVibratorParam(void* value) { return Draw_NotifySystemExParamChildPayloadVibratorParam(*static_cast<NotifySystemExParamChildPayloadVibratorParam*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("presets", value.presets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AssignableSettingsPreset>::Read)(&ptr, value.presets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(value.presets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam() { return Construct<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam(*static_cast<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("autoPowerOffParameterType", value.autoPowerOffParameterType, kEnum_mdr__v1__t1__AutoPowerOffParameterType);
-            changed |= DrawEnum("activeElementId", value.activeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            changed |= DrawEnum("selectTimeElementId", value.selectTimeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.autoPowerOffParameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.activeElementId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.selectTimeElementId, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.autoPowerOffParameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.activeElementId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.selectTimeElementId, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam() { return Construct<NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam(*static_cast<NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(NotifySystemExParamSmartTalkingModeExParamControlByWearingParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__ControlByWearingSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamControlByWearingParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamControlByWearingParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam() { return Construct<NotifySystemExParamSmartTalkingModeExParamControlByWearingParam>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamControlByWearingParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamControlByWearingParam::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamControlByWearingParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam(*static_cast<NotifySystemExParamSmartTalkingModeExParamControlByWearingParam*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__PowerSavingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam() { return Construct<NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam(*static_cast<NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability() { return Construct<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability(*static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability() { return Construct<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability(*static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability() { return Construct<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability(*static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase() { return Construct<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase(*static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability() { return Construct<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability(*static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param& value)
+        bool Draw_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
@@ -4856,9 +3415,9 @@ namespace client::debugger {
             changed |= DrawEnum("modeOutTime", value.modeOutTime, kEnum_mdr__v1__t1__ModeOutTime);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(storage);
+            auto& value = *static_cast<NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
@@ -4870,9 +3429,9 @@ namespace client::debugger {
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(storage);
+            const auto& value = *static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
@@ -4883,53 +3442,13 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTime, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param() { return Construct<NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(const void* value)
+        void* Create_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param() { return Construct<NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param>(); }
+        void Destroy_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(value)); }
+        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(const void* value)
         {
-            return NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(value));
+            return NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param::Validate(*static_cast<const NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(value));
         }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(*static_cast<NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamVibratorParam(NotifySystemExParamSmartTalkingModeExParamVibratorParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__VibratorSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamVibratorParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamVibratorParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamVibratorParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamVibratorParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamVibratorParam() { return Construct<NotifySystemExParamSmartTalkingModeExParamVibratorParam>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamVibratorParam(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamVibratorParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamVibratorParam(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamVibratorParam::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamVibratorParam*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamVibratorParam(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamVibratorParam(*static_cast<NotifySystemExParamSmartTalkingModeExParamVibratorParam*>(value)); }
+        bool DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(void* value) { return Draw_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param(*static_cast<NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(value)); }
 
         bool Draw_NotifySystemParamAssignableSettingsParam(NotifySystemParamAssignableSettingsParam& value)
         {
@@ -5098,359 +3617,6 @@ namespace client::debugger {
         }
         bool DrawErased_NotifySystemParamPowerSavingModeParam(void* value) { return Draw_NotifySystemParamPowerSavingModeParam(*static_cast<NotifySystemParamPowerSavingModeParam*>(value)); }
 
-        bool Draw_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(NotifySystemParamRetSystemCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_AutoPowerOffCapability() { return Construct<NotifySystemParamRetSystemCapability_AutoPowerOffCapability>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_AutoPowerOffCapability::Validate(*static_cast<const NotifySystemParamRetSystemCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(void* value) { return Draw_NotifySystemParamRetSystemCapability_AutoPowerOffCapability(*static_cast<NotifySystemParamRetSystemCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_ControlByWearingCapability(NotifySystemParamRetSystemCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_ControlByWearingCapability() { return Construct<NotifySystemParamRetSystemCapability_ControlByWearingCapability>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_ControlByWearingCapability(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_ControlByWearingCapability::Validate(*static_cast<const NotifySystemParamRetSystemCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_ControlByWearingCapability(void* value) { return Draw_NotifySystemParamRetSystemCapability_ControlByWearingCapability(*static_cast<NotifySystemParamRetSystemCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(NotifySystemParamRetSystemCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_PowerSavingModeCapability() { return Construct<NotifySystemParamRetSystemCapability_PowerSavingModeCapability>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_PowerSavingModeCapability::Validate(*static_cast<const NotifySystemParamRetSystemCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(void* value) { return Draw_NotifySystemParamRetSystemCapability_PowerSavingModeCapability(*static_cast<NotifySystemParamRetSystemCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("detectionSensitivityType", value.detectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("voiceFocusType", value.voiceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("modeOutTimeType", value.modeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("modeTimeOutValues", value.modeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.previewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.modeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.previewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2() { return Construct<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(*static_cast<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_SystemCapabilityBase(NotifySystemParamRetSystemCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_SystemCapabilityBase() { return Construct<NotifySystemParamRetSystemCapability_SystemCapabilityBase>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_SystemCapabilityBase(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_SystemCapabilityBase::Validate(*static_cast<const NotifySystemParamRetSystemCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_SystemCapabilityBase(void* value) { return Draw_NotifySystemParamRetSystemCapability_SystemCapabilityBase(*static_cast<NotifySystemParamRetSystemCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_VibratorCapability(NotifySystemParamRetSystemCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_VibratorCapability() { return Construct<NotifySystemParamRetSystemCapability_VibratorCapability>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_VibratorCapability(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_VibratorCapability(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_VibratorCapability::Validate(*static_cast<const NotifySystemParamRetSystemCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_VibratorCapability(void* value) { return Draw_NotifySystemParamRetSystemCapability_VibratorCapability(*static_cast<NotifySystemParamRetSystemCapability_VibratorCapability*>(value)); }
-
-        bool Draw_NotifySystemParamSmartTalkingModeRetParam(NotifySystemParamSmartTalkingModeRetParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamSmartTalkingModeRetParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamSmartTalkingModeRetParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamSmartTalkingModeRetParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamSmartTalkingModeRetParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamSmartTalkingModeRetParam() { return Construct<NotifySystemParamSmartTalkingModeRetParam>(); }
-        void Destroy_NotifySystemParamSmartTalkingModeRetParam(void* value) { Destruct(static_cast<NotifySystemParamSmartTalkingModeRetParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamSmartTalkingModeRetParam(const void* value)
-        {
-            return NotifySystemParamSmartTalkingModeRetParam::Validate(*static_cast<const NotifySystemParamSmartTalkingModeRetParam*>(value));
-        }
-        bool DrawErased_NotifySystemParamSmartTalkingModeRetParam(void* value) { return Draw_NotifySystemParamSmartTalkingModeRetParam(*static_cast<NotifySystemParamSmartTalkingModeRetParam*>(value)); }
-
         bool Draw_NotifySystemParamSmartTalkingModeSetNtfyParam(NotifySystemParamSmartTalkingModeSetNtfyParam& value)
         {
             bool changed = false;
@@ -5490,46 +3656,6 @@ namespace client::debugger {
             return NotifySystemParamSmartTalkingModeSetNtfyParam::Validate(*static_cast<const NotifySystemParamSmartTalkingModeSetNtfyParam*>(value));
         }
         bool DrawErased_NotifySystemParamSmartTalkingModeSetNtfyParam(void* value) { return Draw_NotifySystemParamSmartTalkingModeSetNtfyParam(*static_cast<NotifySystemParamSmartTalkingModeSetNtfyParam*>(value)); }
-
-        bool Draw_NotifySystemParamVibratorAlertNotificationParam(NotifySystemParamVibratorAlertNotificationParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("alertInquiredType", value.alertInquiredType, kEnum_mdr__v1__t1__AlertInquiredType);
-            changed |= DrawEnum("vibrationType", value.vibrationType, kEnum_mdr__v1__t1__VibrationType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamVibratorAlertNotificationParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamVibratorAlertNotificationParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.alertInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibrationType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamVibratorAlertNotificationParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamVibratorAlertNotificationParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.alertInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibrationType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamVibratorAlertNotificationParam() { return Construct<NotifySystemParamVibratorAlertNotificationParam>(); }
-        void Destroy_NotifySystemParamVibratorAlertNotificationParam(void* value) { Destruct(static_cast<NotifySystemParamVibratorAlertNotificationParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamVibratorAlertNotificationParam(const void* value)
-        {
-            return NotifySystemParamVibratorAlertNotificationParam::Validate(*static_cast<const NotifySystemParamVibratorAlertNotificationParam*>(value));
-        }
-        bool DrawErased_NotifySystemParamVibratorAlertNotificationParam(void* value) { return Draw_NotifySystemParamVibratorAlertNotificationParam(*static_cast<NotifySystemParamVibratorAlertNotificationParam*>(value)); }
 
         bool Draw_NotifySystemParamVibratorParam(NotifySystemParamVibratorParam& value)
         {
@@ -5571,50 +3697,6 @@ namespace client::debugger {
         }
         bool DrawErased_NotifySystemParamVibratorParam(void* value) { return Draw_NotifySystemParamVibratorParam(*static_cast<NotifySystemParamVibratorParam*>(value)); }
 
-        bool Draw_NotifySystemStatusAssignableSettingsParam(NotifySystemStatusAssignableSettingsParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("presets", value.presets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusAssignableSettingsParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusAssignableSettingsParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AssignableSettingsPreset>::Read)(&ptr, value.presets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusAssignableSettingsParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusAssignableSettingsParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(value.presets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusAssignableSettingsParam() { return Construct<NotifySystemStatusAssignableSettingsParam>(); }
-        void Destroy_NotifySystemStatusAssignableSettingsParam(void* value) { Destruct(static_cast<NotifySystemStatusAssignableSettingsParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusAssignableSettingsParam(const void* value)
-        {
-            return NotifySystemStatusAssignableSettingsParam::Validate(*static_cast<const NotifySystemStatusAssignableSettingsParam*>(value));
-        }
-        bool DrawErased_NotifySystemStatusAssignableSettingsParam(void* value) { return Draw_NotifySystemStatusAssignableSettingsParam(*static_cast<NotifySystemStatusAssignableSettingsParam*>(value)); }
-
         bool Draw_NotifySystemStatusAssignableSettingsStatus(NotifySystemStatusAssignableSettingsStatus& value)
         {
             bool changed = false;
@@ -5628,7 +3710,6 @@ namespace client::debugger {
                 }
                 return elementChanged;
             });
-            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
         mdr::MDRResult<void> Decode_NotifySystemStatusAssignableSettingsStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -5639,7 +3720,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<CommonStatus>::Read)(&ptr, value.allStatus, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -5651,7 +3731,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<CommonStatus>::Write)(value.allStatus, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_NotifySystemStatusAssignableSettingsStatus() { return Construct<NotifySystemStatusAssignableSettingsStatus>(); }
@@ -5662,521 +3741,116 @@ namespace client::debugger {
         }
         bool DrawErased_NotifySystemStatusAssignableSettingsStatus(void* value) { return Draw_NotifySystemStatusAssignableSettingsStatus(*static_cast<NotifySystemStatusAssignableSettingsStatus*>(value)); }
 
-        bool Draw_NotifySystemStatusAutoPowerOffParam(NotifySystemStatusAutoPowerOffParam& value)
+        bool Draw_NotifySystemStatusAutoPowerOffStatus(NotifySystemStatusAutoPowerOffStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("autoPowerOffParameterType", value.autoPowerOffParameterType, kEnum_mdr__v1__t1__AutoPowerOffParameterType);
-            changed |= DrawEnum("activeElementId", value.activeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            changed |= DrawEnum("selectTimeElementId", value.selectTimeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifySystemStatusAutoPowerOffParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifySystemStatusAutoPowerOffStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifySystemStatusAutoPowerOffParam*>(storage);
+            auto& value = *static_cast<NotifySystemStatusAutoPowerOffStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.autoPowerOffParameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.activeElementId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.selectTimeElementId, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusAutoPowerOffParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifySystemStatusAutoPowerOffStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifySystemStatusAutoPowerOffParam*>(storage);
+            const auto& value = *static_cast<const NotifySystemStatusAutoPowerOffStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.autoPowerOffParameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.activeElementId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.selectTimeElementId, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifySystemStatusAutoPowerOffParam() { return Construct<NotifySystemStatusAutoPowerOffParam>(); }
-        void Destroy_NotifySystemStatusAutoPowerOffParam(void* value) { Destruct(static_cast<NotifySystemStatusAutoPowerOffParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusAutoPowerOffParam(const void* value)
+        void* Create_NotifySystemStatusAutoPowerOffStatus() { return Construct<NotifySystemStatusAutoPowerOffStatus>(); }
+        void Destroy_NotifySystemStatusAutoPowerOffStatus(void* value) { Destruct(static_cast<NotifySystemStatusAutoPowerOffStatus*>(value)); }
+        mdr::MDRResult<void> Validate_NotifySystemStatusAutoPowerOffStatus(const void* value)
         {
-            return NotifySystemStatusAutoPowerOffParam::Validate(*static_cast<const NotifySystemStatusAutoPowerOffParam*>(value));
+            return NotifySystemStatusAutoPowerOffStatus::Validate(*static_cast<const NotifySystemStatusAutoPowerOffStatus*>(value));
         }
-        bool DrawErased_NotifySystemStatusAutoPowerOffParam(void* value) { return Draw_NotifySystemStatusAutoPowerOffParam(*static_cast<NotifySystemStatusAutoPowerOffParam*>(value)); }
+        bool DrawErased_NotifySystemStatusAutoPowerOffStatus(void* value) { return Draw_NotifySystemStatusAutoPowerOffStatus(*static_cast<NotifySystemStatusAutoPowerOffStatus*>(value)); }
 
-        bool Draw_NotifySystemStatusControlByWearingParam(NotifySystemStatusControlByWearingParam& value)
+        bool Draw_NotifySystemStatusControlByWearingStatus(NotifySystemStatusControlByWearingStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__ControlByWearingSettingValue);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifySystemStatusControlByWearingParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifySystemStatusControlByWearingStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifySystemStatusControlByWearingParam*>(storage);
+            auto& value = *static_cast<NotifySystemStatusControlByWearingStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusControlByWearingParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifySystemStatusControlByWearingStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifySystemStatusControlByWearingParam*>(storage);
+            const auto& value = *static_cast<const NotifySystemStatusControlByWearingStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifySystemStatusControlByWearingParam() { return Construct<NotifySystemStatusControlByWearingParam>(); }
-        void Destroy_NotifySystemStatusControlByWearingParam(void* value) { Destruct(static_cast<NotifySystemStatusControlByWearingParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusControlByWearingParam(const void* value)
+        void* Create_NotifySystemStatusControlByWearingStatus() { return Construct<NotifySystemStatusControlByWearingStatus>(); }
+        void Destroy_NotifySystemStatusControlByWearingStatus(void* value) { Destruct(static_cast<NotifySystemStatusControlByWearingStatus*>(value)); }
+        mdr::MDRResult<void> Validate_NotifySystemStatusControlByWearingStatus(const void* value)
         {
-            return NotifySystemStatusControlByWearingParam::Validate(*static_cast<const NotifySystemStatusControlByWearingParam*>(value));
+            return NotifySystemStatusControlByWearingStatus::Validate(*static_cast<const NotifySystemStatusControlByWearingStatus*>(value));
         }
-        bool DrawErased_NotifySystemStatusControlByWearingParam(void* value) { return Draw_NotifySystemStatusControlByWearingParam(*static_cast<NotifySystemStatusControlByWearingParam*>(value)); }
+        bool DrawErased_NotifySystemStatusControlByWearingStatus(void* value) { return Draw_NotifySystemStatusControlByWearingStatus(*static_cast<NotifySystemStatusControlByWearingStatus*>(value)); }
 
-        bool Draw_NotifySystemStatusPowerSavingModeParam(NotifySystemStatusPowerSavingModeParam& value)
+        bool Draw_NotifySystemStatusPowerSavingModeStatus(NotifySystemStatusPowerSavingModeStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__PowerSavingModeSettingValue);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifySystemStatusPowerSavingModeParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifySystemStatusPowerSavingModeStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifySystemStatusPowerSavingModeParam*>(storage);
+            auto& value = *static_cast<NotifySystemStatusPowerSavingModeStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusPowerSavingModeParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifySystemStatusPowerSavingModeStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifySystemStatusPowerSavingModeParam*>(storage);
+            const auto& value = *static_cast<const NotifySystemStatusPowerSavingModeStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifySystemStatusPowerSavingModeParam() { return Construct<NotifySystemStatusPowerSavingModeParam>(); }
-        void Destroy_NotifySystemStatusPowerSavingModeParam(void* value) { Destruct(static_cast<NotifySystemStatusPowerSavingModeParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusPowerSavingModeParam(const void* value)
+        void* Create_NotifySystemStatusPowerSavingModeStatus() { return Construct<NotifySystemStatusPowerSavingModeStatus>(); }
+        void Destroy_NotifySystemStatusPowerSavingModeStatus(void* value) { Destruct(static_cast<NotifySystemStatusPowerSavingModeStatus*>(value)); }
+        mdr::MDRResult<void> Validate_NotifySystemStatusPowerSavingModeStatus(const void* value)
         {
-            return NotifySystemStatusPowerSavingModeParam::Validate(*static_cast<const NotifySystemStatusPowerSavingModeParam*>(value));
+            return NotifySystemStatusPowerSavingModeStatus::Validate(*static_cast<const NotifySystemStatusPowerSavingModeStatus*>(value));
         }
-        bool DrawErased_NotifySystemStatusPowerSavingModeParam(void* value) { return Draw_NotifySystemStatusPowerSavingModeParam(*static_cast<NotifySystemStatusPowerSavingModeParam*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(NotifySystemStatusRetSystemCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability() { return Construct<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_AutoPowerOffCapability::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(void* value) { return Draw_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability(*static_cast<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(NotifySystemStatusRetSystemCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_ControlByWearingCapability() { return Construct<NotifySystemStatusRetSystemCapability_ControlByWearingCapability>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_ControlByWearingCapability::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(void* value) { return Draw_NotifySystemStatusRetSystemCapability_ControlByWearingCapability(*static_cast<NotifySystemStatusRetSystemCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(NotifySystemStatusRetSystemCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability() { return Construct<NotifySystemStatusRetSystemCapability_PowerSavingModeCapability>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_PowerSavingModeCapability::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(void* value) { return Draw_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability(*static_cast<NotifySystemStatusRetSystemCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("detectionSensitivityType", value.detectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("voiceFocusType", value.voiceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("modeOutTimeType", value.modeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("modeTimeOutValues", value.modeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.previewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.modeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.previewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2() { return Construct<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2(*static_cast<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(NotifySystemStatusRetSystemCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_SystemCapabilityBase() { return Construct<NotifySystemStatusRetSystemCapability_SystemCapabilityBase>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_SystemCapabilityBase::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(void* value) { return Draw_NotifySystemStatusRetSystemCapability_SystemCapabilityBase(*static_cast<NotifySystemStatusRetSystemCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_VibratorCapability(NotifySystemStatusRetSystemCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_VibratorCapability() { return Construct<NotifySystemStatusRetSystemCapability_VibratorCapability>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_VibratorCapability(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_VibratorCapability(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_VibratorCapability::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_VibratorCapability(void* value) { return Draw_NotifySystemStatusRetSystemCapability_VibratorCapability(*static_cast<NotifySystemStatusRetSystemCapability_VibratorCapability*>(value)); }
-
-        bool Draw_NotifySystemStatusSmartTalkingModeRetParam(NotifySystemStatusSmartTalkingModeRetParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusSmartTalkingModeRetParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusSmartTalkingModeRetParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusSmartTalkingModeRetParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusSmartTalkingModeRetParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusSmartTalkingModeRetParam() { return Construct<NotifySystemStatusSmartTalkingModeRetParam>(); }
-        void Destroy_NotifySystemStatusSmartTalkingModeRetParam(void* value) { Destruct(static_cast<NotifySystemStatusSmartTalkingModeRetParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusSmartTalkingModeRetParam(const void* value)
-        {
-            return NotifySystemStatusSmartTalkingModeRetParam::Validate(*static_cast<const NotifySystemStatusSmartTalkingModeRetParam*>(value));
-        }
-        bool DrawErased_NotifySystemStatusSmartTalkingModeRetParam(void* value) { return Draw_NotifySystemStatusSmartTalkingModeRetParam(*static_cast<NotifySystemStatusSmartTalkingModeRetParam*>(value)); }
-
-        bool Draw_NotifySystemStatusSmartTalkingModeSetNtfyParam(NotifySystemStatusSmartTalkingModeSetNtfyParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("parameterType", value.parameterType, kEnum_mdr__v1__t1__SmartTalkingModeParameterType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusSmartTalkingModeSetNtfyParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusSmartTalkingModeSetNtfyParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.parameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusSmartTalkingModeSetNtfyParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusSmartTalkingModeSetNtfyParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.parameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusSmartTalkingModeSetNtfyParam() { return Construct<NotifySystemStatusSmartTalkingModeSetNtfyParam>(); }
-        void Destroy_NotifySystemStatusSmartTalkingModeSetNtfyParam(void* value) { Destruct(static_cast<NotifySystemStatusSmartTalkingModeSetNtfyParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusSmartTalkingModeSetNtfyParam(const void* value)
-        {
-            return NotifySystemStatusSmartTalkingModeSetNtfyParam::Validate(*static_cast<const NotifySystemStatusSmartTalkingModeSetNtfyParam*>(value));
-        }
-        bool DrawErased_NotifySystemStatusSmartTalkingModeSetNtfyParam(void* value) { return Draw_NotifySystemStatusSmartTalkingModeSetNtfyParam(*static_cast<NotifySystemStatusSmartTalkingModeSetNtfyParam*>(value)); }
+        bool DrawErased_NotifySystemStatusPowerSavingModeStatus(void* value) { return Draw_NotifySystemStatusPowerSavingModeStatus(*static_cast<NotifySystemStatusPowerSavingModeStatus*>(value)); }
 
         bool Draw_NotifySystemStatusSmartTalkingModeStatus(NotifySystemStatusSmartTalkingModeStatus& value)
         {
@@ -6218,45 +3892,42 @@ namespace client::debugger {
         }
         bool DrawErased_NotifySystemStatusSmartTalkingModeStatus(void* value) { return Draw_NotifySystemStatusSmartTalkingModeStatus(*static_cast<NotifySystemStatusSmartTalkingModeStatus*>(value)); }
 
-        bool Draw_NotifySystemStatusVibratorParam(NotifySystemStatusVibratorParam& value)
+        bool Draw_NotifySystemStatusVibratorStatus(NotifySystemStatusVibratorStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__VibratorSettingValue);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifySystemStatusVibratorParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifySystemStatusVibratorStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifySystemStatusVibratorParam*>(storage);
+            auto& value = *static_cast<NotifySystemStatusVibratorStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusVibratorParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifySystemStatusVibratorStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifySystemStatusVibratorParam*>(storage);
+            const auto& value = *static_cast<const NotifySystemStatusVibratorStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifySystemStatusVibratorParam() { return Construct<NotifySystemStatusVibratorParam>(); }
-        void Destroy_NotifySystemStatusVibratorParam(void* value) { Destruct(static_cast<NotifySystemStatusVibratorParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusVibratorParam(const void* value)
+        void* Create_NotifySystemStatusVibratorStatus() { return Construct<NotifySystemStatusVibratorStatus>(); }
+        void Destroy_NotifySystemStatusVibratorStatus(void* value) { Destruct(static_cast<NotifySystemStatusVibratorStatus*>(value)); }
+        mdr::MDRResult<void> Validate_NotifySystemStatusVibratorStatus(const void* value)
         {
-            return NotifySystemStatusVibratorParam::Validate(*static_cast<const NotifySystemStatusVibratorParam*>(value));
+            return NotifySystemStatusVibratorStatus::Validate(*static_cast<const NotifySystemStatusVibratorStatus*>(value));
         }
-        bool DrawErased_NotifySystemStatusVibratorParam(void* value) { return Draw_NotifySystemStatusVibratorParam(*static_cast<NotifySystemStatusVibratorParam*>(value)); }
+        bool DrawErased_NotifySystemStatusVibratorStatus(void* value) { return Draw_NotifySystemStatusVibratorStatus(*static_cast<NotifySystemStatusVibratorStatus*>(value)); }
 
         bool Draw_NotifyUpdateStatus(NotifyUpdateStatus& value)
         {
@@ -6334,40 +4005,6 @@ namespace client::debugger {
             return NotifyUpscalingEffect::Validate(*static_cast<const NotifyUpscalingEffect*>(value));
         }
         bool DrawErased_NotifyUpscalingEffect(void* value) { return Draw_NotifyUpscalingEffect(*static_cast<NotifyUpscalingEffect*>(value)); }
-
-        bool Draw_NotifyVptParamRetVptCapability_VptCapabilityBase(NotifyVptParamRetVptCapability_VptCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__VptInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyVptParamRetVptCapability_VptCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyVptParamRetVptCapability_VptCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyVptParamRetVptCapability_VptCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyVptParamRetVptCapability_VptCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyVptParamRetVptCapability_VptCapabilityBase() { return Construct<NotifyVptParamRetVptCapability_VptCapabilityBase>(); }
-        void Destroy_NotifyVptParamRetVptCapability_VptCapabilityBase(void* value) { Destruct(static_cast<NotifyVptParamRetVptCapability_VptCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyVptParamRetVptCapability_VptCapabilityBase(const void* value)
-        {
-            return NotifyVptParamRetVptCapability_VptCapabilityBase::Validate(*static_cast<const NotifyVptParamRetVptCapability_VptCapabilityBase*>(value));
-        }
-        bool DrawErased_NotifyVptParamRetVptCapability_VptCapabilityBase(void* value) { return Draw_NotifyVptParamRetVptCapability_VptCapabilityBase(*static_cast<NotifyVptParamRetVptCapability_VptCapabilityBase*>(value)); }
 
         bool Draw_NotifyVptParamSoundPositionParam(NotifyVptParamSoundPositionParam& value)
         {
@@ -6554,77 +4191,6 @@ namespace client::debugger {
         }
         bool DrawErased_RetAudioCodec(void* value) { return Draw_RetAudioCodec(*static_cast<RetAudioCodec*>(value)); }
 
-        bool Draw_RetAudioParamCapability_AudioCapabilityBase(RetAudioParamCapability_AudioCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__AudioInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetAudioParamCapability_AudioCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetAudioParamCapability_AudioCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetAudioParamCapability_AudioCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetAudioParamCapability_AudioCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetAudioParamCapability_AudioCapabilityBase() { return Construct<RetAudioParamCapability_AudioCapabilityBase>(); }
-        void Destroy_RetAudioParamCapability_AudioCapabilityBase(void* value) { Destruct(static_cast<RetAudioParamCapability_AudioCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetAudioParamCapability_AudioCapabilityBase(const void* value)
-        {
-            return RetAudioParamCapability_AudioCapabilityBase::Validate(*static_cast<const RetAudioParamCapability_AudioCapabilityBase*>(value));
-        }
-        bool DrawErased_RetAudioParamCapability_AudioCapabilityBase(void* value) { return Draw_RetAudioParamCapability_AudioCapabilityBase(*static_cast<RetAudioParamCapability_AudioCapabilityBase*>(value)); }
-
-        bool Draw_RetAudioParamCapability_ConnectionModeCapability(RetAudioParamCapability_ConnectionModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__AudioInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ConnectionModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetAudioParamCapability_ConnectionModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetAudioParamCapability_ConnectionModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetAudioParamCapability_ConnectionModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetAudioParamCapability_ConnectionModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetAudioParamCapability_ConnectionModeCapability() { return Construct<RetAudioParamCapability_ConnectionModeCapability>(); }
-        void Destroy_RetAudioParamCapability_ConnectionModeCapability(void* value) { Destruct(static_cast<RetAudioParamCapability_ConnectionModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetAudioParamCapability_ConnectionModeCapability(const void* value)
-        {
-            return RetAudioParamCapability_ConnectionModeCapability::Validate(*static_cast<const RetAudioParamCapability_ConnectionModeCapability*>(value));
-        }
-        bool DrawErased_RetAudioParamCapability_ConnectionModeCapability(void* value) { return Draw_RetAudioParamCapability_ConnectionModeCapability(*static_cast<RetAudioParamCapability_ConnectionModeCapability*>(value)); }
-
         bool Draw_RetAudioParamConnectionModeParam(RetAudioParamConnectionModeParam& value)
         {
             bool changed = false;
@@ -6781,92 +4347,6 @@ namespace client::debugger {
             return RetBatteryLevelBatteryParam::Validate(*static_cast<const RetBatteryLevelBatteryParam*>(value));
         }
         bool DrawErased_RetBatteryLevelBatteryParam(void* value) { return Draw_RetBatteryLevelBatteryParam(*static_cast<RetBatteryLevelBatteryParam*>(value)); }
-
-        bool Draw_RetBatteryLevelCradleBatteryParam(RetBatteryLevelCradleBatteryParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawScalar("level", value.level);
-            changed |= DrawEnum("chargingStatus", value.chargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetBatteryLevelCradleBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetBatteryLevelCradleBatteryParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.level, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.chargingStatus, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetBatteryLevelCradleBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetBatteryLevelCradleBatteryParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.level, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.chargingStatus, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetBatteryLevelCradleBatteryParam() { return Construct<RetBatteryLevelCradleBatteryParam>(); }
-        void Destroy_RetBatteryLevelCradleBatteryParam(void* value) { Destruct(static_cast<RetBatteryLevelCradleBatteryParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetBatteryLevelCradleBatteryParam(const void* value)
-        {
-            return RetBatteryLevelCradleBatteryParam::Validate(*static_cast<const RetBatteryLevelCradleBatteryParam*>(value));
-        }
-        bool DrawErased_RetBatteryLevelCradleBatteryParam(void* value) { return Draw_RetBatteryLevelCradleBatteryParam(*static_cast<RetBatteryLevelCradleBatteryParam*>(value)); }
-
-        bool Draw_RetBatteryLevelLeftRightBatteryParam(RetBatteryLevelLeftRightBatteryParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawScalar("leftLevel", value.leftLevel);
-            changed |= DrawEnum("leftChargingStatus", value.leftChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
-            changed |= DrawScalar("rightLevel", value.rightLevel);
-            changed |= DrawEnum("rightChargingStatus", value.rightChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetBatteryLevelLeftRightBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetBatteryLevelLeftRightBatteryParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftLevel, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftChargingStatus, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightLevel, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightChargingStatus, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetBatteryLevelLeftRightBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetBatteryLevelLeftRightBatteryParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftLevel, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftChargingStatus, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightLevel, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightChargingStatus, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetBatteryLevelLeftRightBatteryParam() { return Construct<RetBatteryLevelLeftRightBatteryParam>(); }
-        void Destroy_RetBatteryLevelLeftRightBatteryParam(void* value) { Destruct(static_cast<RetBatteryLevelLeftRightBatteryParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetBatteryLevelLeftRightBatteryParam(const void* value)
-        {
-            return RetBatteryLevelLeftRightBatteryParam::Validate(*static_cast<const RetBatteryLevelLeftRightBatteryParam*>(value));
-        }
-        bool DrawErased_RetBatteryLevelLeftRightBatteryParam(void* value) { return Draw_RetBatteryLevelLeftRightBatteryParam(*static_cast<RetBatteryLevelLeftRightBatteryParam*>(value)); }
 
         bool Draw_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam& value)
         {
@@ -7098,80 +4578,6 @@ namespace client::debugger {
             return RetConnectionStatusLeftRightConnectionStatusParam::Validate(*static_cast<const RetConnectionStatusLeftRightConnectionStatusParam*>(value));
         }
         bool DrawErased_RetConnectionStatusLeftRightConnectionStatusParam(void* value) { return Draw_RetConnectionStatusLeftRightConnectionStatusParam(*static_cast<RetConnectionStatusLeftRightConnectionStatusParam*>(value)); }
-
-        bool Draw_RetEqEbbParamCapability_EbbCapability(RetEqEbbParamCapability_EbbCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            changed |= DrawScalar("minValue", value.minValue);
-            changed |= DrawScalar("maxValue", value.maxValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetEqEbbParamCapability_EbbCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetEqEbbParamCapability_EbbCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.minValue, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.maxValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetEqEbbParamCapability_EbbCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetEqEbbParamCapability_EbbCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.minValue, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.maxValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetEqEbbParamCapability_EbbCapability() { return Construct<RetEqEbbParamCapability_EbbCapability>(); }
-        void Destroy_RetEqEbbParamCapability_EbbCapability(void* value) { Destruct(static_cast<RetEqEbbParamCapability_EbbCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetEqEbbParamCapability_EbbCapability(const void* value)
-        {
-            return RetEqEbbParamCapability_EbbCapability::Validate(*static_cast<const RetEqEbbParamCapability_EbbCapability*>(value));
-        }
-        bool DrawErased_RetEqEbbParamCapability_EbbCapability(void* value) { return Draw_RetEqEbbParamCapability_EbbCapability(*static_cast<RetEqEbbParamCapability_EbbCapability*>(value)); }
-
-        bool Draw_RetEqEbbParamCapability_EqEbbCapabilityBase(RetEqEbbParamCapability_EqEbbCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetEqEbbParamCapability_EqEbbCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetEqEbbParamCapability_EqEbbCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetEqEbbParamCapability_EqEbbCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetEqEbbParamCapability_EqEbbCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetEqEbbParamCapability_EqEbbCapabilityBase() { return Construct<RetEqEbbParamCapability_EqEbbCapabilityBase>(); }
-        void Destroy_RetEqEbbParamCapability_EqEbbCapabilityBase(void* value) { Destruct(static_cast<RetEqEbbParamCapability_EqEbbCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetEqEbbParamCapability_EqEbbCapabilityBase(const void* value)
-        {
-            return RetEqEbbParamCapability_EqEbbCapabilityBase::Validate(*static_cast<const RetEqEbbParamCapability_EqEbbCapabilityBase*>(value));
-        }
-        bool DrawErased_RetEqEbbParamCapability_EqEbbCapabilityBase(void* value) { return Draw_RetEqEbbParamCapability_EqEbbCapabilityBase(*static_cast<RetEqEbbParamCapability_EqEbbCapabilityBase*>(value)); }
 
         bool Draw_RetEqEbbParamEbbParam(RetEqEbbParamEbbParam& value)
         {
@@ -7457,77 +4863,6 @@ namespace client::debugger {
         }
         bool DrawErased_RetNcAsmParamAsmParam(void* value) { return Draw_RetNcAsmParamAsmParam(*static_cast<RetNcAsmParamAsmParam*>(value)); }
 
-        bool Draw_RetNcAsmParamCapability_NcAsmCapabilityBase(RetNcAsmParamCapability_NcAsmCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetNcAsmParamCapability_NcAsmCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetNcAsmParamCapability_NcAsmCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetNcAsmParamCapability_NcAsmCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetNcAsmParamCapability_NcAsmCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetNcAsmParamCapability_NcAsmCapabilityBase() { return Construct<RetNcAsmParamCapability_NcAsmCapabilityBase>(); }
-        void Destroy_RetNcAsmParamCapability_NcAsmCapabilityBase(void* value) { Destruct(static_cast<RetNcAsmParamCapability_NcAsmCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetNcAsmParamCapability_NcAsmCapabilityBase(const void* value)
-        {
-            return RetNcAsmParamCapability_NcAsmCapabilityBase::Validate(*static_cast<const RetNcAsmParamCapability_NcAsmCapabilityBase*>(value));
-        }
-        bool DrawErased_RetNcAsmParamCapability_NcAsmCapabilityBase(void* value) { return Draw_RetNcAsmParamCapability_NcAsmCapabilityBase(*static_cast<RetNcAsmParamCapability_NcAsmCapabilityBase*>(value)); }
-
-        bool Draw_RetNcAsmParamCapability_NcCapability(RetNcAsmParamCapability_NcCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__NcSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetNcAsmParamCapability_NcCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetNcAsmParamCapability_NcCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetNcAsmParamCapability_NcCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetNcAsmParamCapability_NcCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetNcAsmParamCapability_NcCapability() { return Construct<RetNcAsmParamCapability_NcCapability>(); }
-        void Destroy_RetNcAsmParamCapability_NcCapability(void* value) { Destruct(static_cast<RetNcAsmParamCapability_NcCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetNcAsmParamCapability_NcCapability(const void* value)
-        {
-            return RetNcAsmParamCapability_NcCapability::Validate(*static_cast<const RetNcAsmParamCapability_NcCapability*>(value));
-        }
-        bool DrawErased_RetNcAsmParamCapability_NcCapability(void* value) { return Draw_RetNcAsmParamCapability_NcCapability(*static_cast<RetNcAsmParamCapability_NcCapability*>(value)); }
-
         bool Draw_RetNcAsmParamNcAsmParam(RetNcAsmParamNcAsmParam& value)
         {
             bool changed = false;
@@ -7792,51 +5127,48 @@ namespace client::debugger {
         }
         bool DrawErased_RetOptimizerStatus(void* value) { return Draw_RetOptimizerStatus(*static_cast<RetOptimizerStatus*>(value)); }
 
-        bool Draw_RetPlayCapabilityPlaybackControllerVolumeData(RetPlayCapabilityPlaybackControllerVolumeData& value)
+        bool Draw_RetPlayCapability(RetPlayCapability& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v1__t1__PlayInquiredType);
             changed |= DrawScalar("volumeStep", value.volumeStep);
             changed |= DrawEnum("playbackControlType", value.playbackControlType, kEnum_mdr__v1__t1__PlaybackControlType);
-            changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
-            changed |= DrawScalar("volumeValue", value.volumeValue);
+            changed |= DrawEnum("metaDataDisplayType", value.metaDataDisplayType, kEnum_mdr__v1__t1__MetaDataDisplayType);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetPlayCapabilityPlaybackControllerVolumeData(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetPlayCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetPlayCapabilityPlaybackControllerVolumeData*>(storage);
+            auto& value = *static_cast<RetPlayCapability*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.volumeStep, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playbackControlType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.volumeValue, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.metaDataDisplayType, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetPlayCapabilityPlaybackControllerVolumeData(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetPlayCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetPlayCapabilityPlaybackControllerVolumeData*>(storage);
+            const auto& value = *static_cast<const RetPlayCapability*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.volumeStep, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playbackControlType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.volumeValue, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.metaDataDisplayType, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetPlayCapabilityPlaybackControllerVolumeData() { return Construct<RetPlayCapabilityPlaybackControllerVolumeData>(); }
-        void Destroy_RetPlayCapabilityPlaybackControllerVolumeData(void* value) { Destruct(static_cast<RetPlayCapabilityPlaybackControllerVolumeData*>(value)); }
-        mdr::MDRResult<void> Validate_RetPlayCapabilityPlaybackControllerVolumeData(const void* value)
+        void* Create_RetPlayCapability() { return Construct<RetPlayCapability>(); }
+        void Destroy_RetPlayCapability(void* value) { Destruct(static_cast<RetPlayCapability*>(value)); }
+        mdr::MDRResult<void> Validate_RetPlayCapability(const void* value)
         {
-            return RetPlayCapabilityPlaybackControllerVolumeData::Validate(*static_cast<const RetPlayCapabilityPlaybackControllerVolumeData*>(value));
+            return RetPlayCapability::Validate(*static_cast<const RetPlayCapability*>(value));
         }
-        bool DrawErased_RetPlayCapabilityPlaybackControllerVolumeData(void* value) { return Draw_RetPlayCapabilityPlaybackControllerVolumeData(*static_cast<RetPlayCapabilityPlaybackControllerVolumeData*>(value)); }
+        bool DrawErased_RetPlayCapability(void* value) { return Draw_RetPlayCapability(*static_cast<RetPlayCapability*>(value)); }
 
         bool Draw_RetPlayParamPlaybackControllerVolumeData(RetPlayParamPlaybackControllerVolumeData& value)
         {
@@ -7992,188 +5324,6 @@ namespace client::debugger {
         }
         bool DrawErased_RetSenseCapability(void* value) { return Draw_RetSenseCapability(*static_cast<RetSenseCapability*>(value)); }
 
-        bool Draw_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("trainingModeExParameterType", value.trainingModeExParameterType, kEnum_mdr__v1__t1__TrainingModeExParameterType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.trainingModeExParameterType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.trainingModeExParameterType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest() { return Construct<RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest>(); }
-        void Destroy_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(void* value) { Destruct(static_cast<RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(value)); }
-        mdr::MDRResult<void> Validate_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(const void* value)
-        {
-            return RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest::Validate(*static_cast<const RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(value));
-        }
-        bool DrawErased_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(void* value) { return Draw_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest(*static_cast<RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest*>(value)); }
-
-        bool Draw_RetSportsExParamChildPayloadTrainingModeExAsmParam(RetSportsExParamChildPayloadTrainingModeExAsmParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("ncAsmEffect", value.ncAsmEffect, kEnum_mdr__v1__t1__NcAsmEffect);
-            changed |= DrawEnum("asmType", value.asmType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawEnum("asmId", value.asmId, kEnum_mdr__v1__t1__AsmId);
-            changed |= DrawScalar("asmValue", value.asmValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSportsExParamChildPayloadTrainingModeExAsmParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSportsExParamChildPayloadTrainingModeExAsmParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncAsmEffect, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSportsExParamChildPayloadTrainingModeExAsmParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSportsExParamChildPayloadTrainingModeExAsmParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncAsmEffect, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSportsExParamChildPayloadTrainingModeExAsmParam() { return Construct<RetSportsExParamChildPayloadTrainingModeExAsmParam>(); }
-        void Destroy_RetSportsExParamChildPayloadTrainingModeExAsmParam(void* value) { Destruct(static_cast<RetSportsExParamChildPayloadTrainingModeExAsmParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSportsExParamChildPayloadTrainingModeExAsmParam(const void* value)
-        {
-            return RetSportsExParamChildPayloadTrainingModeExAsmParam::Validate(*static_cast<const RetSportsExParamChildPayloadTrainingModeExAsmParam*>(value));
-        }
-        bool DrawErased_RetSportsExParamChildPayloadTrainingModeExAsmParam(void* value) { return Draw_RetSportsExParamChildPayloadTrainingModeExAsmParam(*static_cast<RetSportsExParamChildPayloadTrainingModeExAsmParam*>(value)); }
-
-        bool Draw_RetSportsExParamChildPayloadTrainingModeExEqParam(RetSportsExParamChildPayloadTrainingModeExEqParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("presetId", value.presetId, kEnum_mdr__v1__t1__EqPresetId);
-            changed |= DrawSequence("bandSteps", value.bandSteps.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSportsExParamChildPayloadTrainingModeExEqParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSportsExParamChildPayloadTrainingModeExEqParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.presetId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.bandSteps, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSportsExParamChildPayloadTrainingModeExEqParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSportsExParamChildPayloadTrainingModeExEqParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.presetId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.bandSteps, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSportsExParamChildPayloadTrainingModeExEqParam() { return Construct<RetSportsExParamChildPayloadTrainingModeExEqParam>(); }
-        void Destroy_RetSportsExParamChildPayloadTrainingModeExEqParam(void* value) { Destruct(static_cast<RetSportsExParamChildPayloadTrainingModeExEqParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSportsExParamChildPayloadTrainingModeExEqParam(const void* value)
-        {
-            return RetSportsExParamChildPayloadTrainingModeExEqParam::Validate(*static_cast<const RetSportsExParamChildPayloadTrainingModeExEqParam*>(value));
-        }
-        bool DrawErased_RetSportsExParamChildPayloadTrainingModeExEqParam(void* value) { return Draw_RetSportsExParamChildPayloadTrainingModeExEqParam(*static_cast<RetSportsExParamChildPayloadTrainingModeExEqParam*>(value)); }
-
-        bool Draw_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(RetSportsExParamChildPayloadTrainingModeExNcAsmParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SportsInquiredType);
-            changed |= DrawEnum("ncAsmEffect", value.ncAsmEffect, kEnum_mdr__v1__t1__NcAsmEffect);
-            changed |= DrawEnum("ncType", value.ncType, kEnum_mdr__v1__t1__NcAsmSettingType);
-            changed |= DrawScalar("ncValue", value.ncValue);
-            changed |= DrawEnum("asmType", value.asmType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawEnum("asmId", value.asmId, kEnum_mdr__v1__t1__AsmId);
-            changed |= DrawScalar("asmValue", value.asmValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSportsExParamChildPayloadTrainingModeExNcAsmParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncAsmEffect, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncValue, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSportsExParamChildPayloadTrainingModeExNcAsmParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncAsmEffect, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncValue, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSportsExParamChildPayloadTrainingModeExNcAsmParam() { return Construct<RetSportsExParamChildPayloadTrainingModeExNcAsmParam>(); }
-        void Destroy_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(void* value) { Destruct(static_cast<RetSportsExParamChildPayloadTrainingModeExNcAsmParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(const void* value)
-        {
-            return RetSportsExParamChildPayloadTrainingModeExNcAsmParam::Validate(*static_cast<const RetSportsExParamChildPayloadTrainingModeExNcAsmParam*>(value));
-        }
-        bool DrawErased_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(void* value) { return Draw_RetSportsExParamChildPayloadTrainingModeExNcAsmParam(*static_cast<RetSportsExParamChildPayloadTrainingModeExNcAsmParam*>(value)); }
-
         bool Draw_RetSportsParamTrainingModeParam(RetSportsParamTrainingModeParam& value)
         {
             bool changed = false;
@@ -8258,1006 +5408,7 @@ namespace client::debugger {
         }
         bool DrawErased_RetSupportFunction(void* value) { return Draw_RetSupportFunction(*static_cast<RetSupportFunction*>(value)); }
 
-        bool Draw_RetSystemExParamChildPayloadAssignableSettingsParam(RetSystemExParamChildPayloadAssignableSettingsParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("presets", value.presets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadAssignableSettingsParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadAssignableSettingsParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AssignableSettingsPreset>::Read)(&ptr, value.presets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadAssignableSettingsParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadAssignableSettingsParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(value.presets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadAssignableSettingsParam() { return Construct<RetSystemExParamChildPayloadAssignableSettingsParam>(); }
-        void Destroy_RetSystemExParamChildPayloadAssignableSettingsParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadAssignableSettingsParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadAssignableSettingsParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadAssignableSettingsParam::Validate(*static_cast<const RetSystemExParamChildPayloadAssignableSettingsParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadAssignableSettingsParam(void* value) { return Draw_RetSystemExParamChildPayloadAssignableSettingsParam(*static_cast<RetSystemExParamChildPayloadAssignableSettingsParam*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadAutoPowerOffParam(RetSystemExParamChildPayloadAutoPowerOffParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("autoPowerOffParameterType", value.autoPowerOffParameterType, kEnum_mdr__v1__t1__AutoPowerOffParameterType);
-            changed |= DrawEnum("activeElementId", value.activeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            changed |= DrawEnum("selectTimeElementId", value.selectTimeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadAutoPowerOffParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadAutoPowerOffParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.autoPowerOffParameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.activeElementId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.selectTimeElementId, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadAutoPowerOffParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadAutoPowerOffParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.autoPowerOffParameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.activeElementId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.selectTimeElementId, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadAutoPowerOffParam() { return Construct<RetSystemExParamChildPayloadAutoPowerOffParam>(); }
-        void Destroy_RetSystemExParamChildPayloadAutoPowerOffParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadAutoPowerOffParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadAutoPowerOffParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadAutoPowerOffParam::Validate(*static_cast<const RetSystemExParamChildPayloadAutoPowerOffParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadAutoPowerOffParam(void* value) { return Draw_RetSystemExParamChildPayloadAutoPowerOffParam(*static_cast<RetSystemExParamChildPayloadAutoPowerOffParam*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(RetSystemExParamChildPayloadCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability() { return Construct<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_AutoPowerOffCapability::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(void* value) { return Draw_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability(*static_cast<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(RetSystemExParamChildPayloadCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_ControlByWearingCapability() { return Construct<RetSystemExParamChildPayloadCapability_ControlByWearingCapability>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_ControlByWearingCapability::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(void* value) { return Draw_RetSystemExParamChildPayloadCapability_ControlByWearingCapability(*static_cast<RetSystemExParamChildPayloadCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(RetSystemExParamChildPayloadCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability() { return Construct<RetSystemExParamChildPayloadCapability_PowerSavingModeCapability>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_PowerSavingModeCapability::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(void* value) { return Draw_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability(*static_cast<RetSystemExParamChildPayloadCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1() { return Construct<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1(*static_cast<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("detectionSensitivityType", value.detectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("voiceFocusType", value.voiceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("modeOutTimeType", value.modeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("modeTimeOutValues", value.modeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.previewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.modeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.previewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2() { return Construct<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2(*static_cast<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(RetSystemExParamChildPayloadCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_SystemCapabilityBase() { return Construct<RetSystemExParamChildPayloadCapability_SystemCapabilityBase>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_SystemCapabilityBase::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(void* value) { return Draw_RetSystemExParamChildPayloadCapability_SystemCapabilityBase(*static_cast<RetSystemExParamChildPayloadCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_VibratorCapability(RetSystemExParamChildPayloadCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_VibratorCapability() { return Construct<RetSystemExParamChildPayloadCapability_VibratorCapability>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_VibratorCapability(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_VibratorCapability(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_VibratorCapability::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_VibratorCapability(void* value) { return Draw_RetSystemExParamChildPayloadCapability_VibratorCapability(*static_cast<RetSystemExParamChildPayloadCapability_VibratorCapability*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadControlByWearingParam(RetSystemExParamChildPayloadControlByWearingParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__ControlByWearingSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadControlByWearingParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadControlByWearingParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadControlByWearingParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadControlByWearingParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadControlByWearingParam() { return Construct<RetSystemExParamChildPayloadControlByWearingParam>(); }
-        void Destroy_RetSystemExParamChildPayloadControlByWearingParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadControlByWearingParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadControlByWearingParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadControlByWearingParam::Validate(*static_cast<const RetSystemExParamChildPayloadControlByWearingParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadControlByWearingParam(void* value) { return Draw_RetSystemExParamChildPayloadControlByWearingParam(*static_cast<RetSystemExParamChildPayloadControlByWearingParam*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadPowerSavingModeParam(RetSystemExParamChildPayloadPowerSavingModeParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__PowerSavingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadPowerSavingModeParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadPowerSavingModeParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadPowerSavingModeParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadPowerSavingModeParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadPowerSavingModeParam() { return Construct<RetSystemExParamChildPayloadPowerSavingModeParam>(); }
-        void Destroy_RetSystemExParamChildPayloadPowerSavingModeParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadPowerSavingModeParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadPowerSavingModeParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadPowerSavingModeParam::Validate(*static_cast<const RetSystemExParamChildPayloadPowerSavingModeParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadPowerSavingModeParam(void* value) { return Draw_RetSystemExParamChildPayloadPowerSavingModeParam(*static_cast<RetSystemExParamChildPayloadPowerSavingModeParam*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(RetSystemExParamChildPayloadSmartTalkingModeExType1Param& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("devectionSensitivity", value.devectionSensitivity, kEnum_mdr__v1__t1__DetectionSensitivity);
-            changed |= DrawEnum("voiceFocus", value.voiceFocus, kEnum_mdr__v1__t1__CommonOnOffSettingValue);
-            changed |= DrawEnum("modeOutTime", value.modeOutTime, kEnum_mdr__v1__t1__ModeOutTime);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadSmartTalkingModeExType1Param*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.devectionSensitivity, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocus, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTime, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadSmartTalkingModeExType1Param*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.devectionSensitivity, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocus, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTime, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadSmartTalkingModeExType1Param() { return Construct<RetSystemExParamChildPayloadSmartTalkingModeExType1Param>(); }
-        void Destroy_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadSmartTalkingModeExType1Param*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(const void* value)
-        {
-            return RetSystemExParamChildPayloadSmartTalkingModeExType1Param::Validate(*static_cast<const RetSystemExParamChildPayloadSmartTalkingModeExType1Param*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(void* value) { return Draw_RetSystemExParamChildPayloadSmartTalkingModeExType1Param(*static_cast<RetSystemExParamChildPayloadSmartTalkingModeExType1Param*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadSmartTalkingModeRetParam(RetSystemExParamChildPayloadSmartTalkingModeRetParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadSmartTalkingModeRetParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadSmartTalkingModeRetParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadSmartTalkingModeRetParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadSmartTalkingModeRetParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadSmartTalkingModeRetParam() { return Construct<RetSystemExParamChildPayloadSmartTalkingModeRetParam>(); }
-        void Destroy_RetSystemExParamChildPayloadSmartTalkingModeRetParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadSmartTalkingModeRetParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadSmartTalkingModeRetParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadSmartTalkingModeRetParam::Validate(*static_cast<const RetSystemExParamChildPayloadSmartTalkingModeRetParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadSmartTalkingModeRetParam(void* value) { return Draw_RetSystemExParamChildPayloadSmartTalkingModeRetParam(*static_cast<RetSystemExParamChildPayloadSmartTalkingModeRetParam*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("parameterType", value.parameterType, kEnum_mdr__v1__t1__SmartTalkingModeParameterType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.parameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.parameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam() { return Construct<RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam>(); }
-        void Destroy_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam::Validate(*static_cast<const RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(void* value) { return Draw_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam(*static_cast<RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadVibratorParam(RetSystemExParamChildPayloadVibratorParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__VibratorSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadVibratorParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadVibratorParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadVibratorParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadVibratorParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadVibratorParam() { return Construct<RetSystemExParamChildPayloadVibratorParam>(); }
-        void Destroy_RetSystemExParamChildPayloadVibratorParam(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadVibratorParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadVibratorParam(const void* value)
-        {
-            return RetSystemExParamChildPayloadVibratorParam::Validate(*static_cast<const RetSystemExParamChildPayloadVibratorParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadVibratorParam(void* value) { return Draw_RetSystemExParamChildPayloadVibratorParam(*static_cast<RetSystemExParamChildPayloadVibratorParam*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("presets", value.presets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AssignableSettingsPreset>::Read)(&ptr, value.presets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(value.presets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam() { return Construct<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam(*static_cast<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("autoPowerOffParameterType", value.autoPowerOffParameterType, kEnum_mdr__v1__t1__AutoPowerOffParameterType);
-            changed |= DrawEnum("activeElementId", value.activeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            changed |= DrawEnum("selectTimeElementId", value.selectTimeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.autoPowerOffParameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.activeElementId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.selectTimeElementId, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.autoPowerOffParameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.activeElementId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.selectTimeElementId, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam() { return Construct<RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam(*static_cast<RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability() { return Construct<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability(*static_cast<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability() { return Construct<RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability(*static_cast<RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability() { return Construct<RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability(*static_cast<RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase() { return Construct<RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase(*static_cast<RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability() { return Construct<RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability(*static_cast<RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(RetSystemExParamSmartTalkingModeExParamControlByWearingParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__ControlByWearingSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamControlByWearingParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamControlByWearingParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamControlByWearingParam() { return Construct<RetSystemExParamSmartTalkingModeExParamControlByWearingParam>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamControlByWearingParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamControlByWearingParam::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamControlByWearingParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamControlByWearingParam(*static_cast<RetSystemExParamSmartTalkingModeExParamControlByWearingParam*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__PowerSavingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam() { return Construct<RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam(*static_cast<RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param& value)
+        bool Draw_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
@@ -9268,9 +5419,9 @@ namespace client::debugger {
             changed |= DrawEnum("modeOutTime", value.modeOutTime, kEnum_mdr__v1__t1__ModeOutTime);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(storage);
+            auto& value = *static_cast<RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
@@ -9282,9 +5433,9 @@ namespace client::debugger {
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(storage);
+            const auto& value = *static_cast<const RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
@@ -9295,53 +5446,13 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTime, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param() { return Construct<RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(const void* value)
+        void* Create_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param() { return Construct<RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param>(); }
+        void Destroy_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(value)); }
+        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(const void* value)
         {
-            return RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(value));
+            return RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param::Validate(*static_cast<const RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(value));
         }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param(*static_cast<RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamVibratorParam(RetSystemExParamSmartTalkingModeExParamVibratorParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__VibratorSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamVibratorParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamVibratorParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamVibratorParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamVibratorParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamVibratorParam() { return Construct<RetSystemExParamSmartTalkingModeExParamVibratorParam>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamVibratorParam(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamVibratorParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamVibratorParam(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamVibratorParam::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamVibratorParam*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamVibratorParam(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamVibratorParam(*static_cast<RetSystemExParamSmartTalkingModeExParamVibratorParam*>(value)); }
+        bool DrawErased_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(void* value) { return Draw_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param(*static_cast<RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param*>(value)); }
 
         bool Draw_RetSystemParamAssignableSettingsParam(RetSystemParamAssignableSettingsParam& value)
         {
@@ -9429,319 +5540,6 @@ namespace client::debugger {
             return RetSystemParamAutoPowerOffParam::Validate(*static_cast<const RetSystemParamAutoPowerOffParam*>(value));
         }
         bool DrawErased_RetSystemParamAutoPowerOffParam(void* value) { return Draw_RetSystemParamAutoPowerOffParam(*static_cast<RetSystemParamAutoPowerOffParam*>(value)); }
-
-        bool Draw_RetSystemParamCapability_AutoPowerOffCapability(RetSystemParamCapability_AutoPowerOffCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_AutoPowerOffCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_AutoPowerOffCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_AutoPowerOffCapability() { return Construct<RetSystemParamCapability_AutoPowerOffCapability>(); }
-        void Destroy_RetSystemParamCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<RetSystemParamCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_AutoPowerOffCapability(const void* value)
-        {
-            return RetSystemParamCapability_AutoPowerOffCapability::Validate(*static_cast<const RetSystemParamCapability_AutoPowerOffCapability*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_AutoPowerOffCapability(void* value) { return Draw_RetSystemParamCapability_AutoPowerOffCapability(*static_cast<RetSystemParamCapability_AutoPowerOffCapability*>(value)); }
-
-        bool Draw_RetSystemParamCapability_ControlByWearingCapability(RetSystemParamCapability_ControlByWearingCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_ControlByWearingCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_ControlByWearingCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_ControlByWearingCapability() { return Construct<RetSystemParamCapability_ControlByWearingCapability>(); }
-        void Destroy_RetSystemParamCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<RetSystemParamCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_ControlByWearingCapability(const void* value)
-        {
-            return RetSystemParamCapability_ControlByWearingCapability::Validate(*static_cast<const RetSystemParamCapability_ControlByWearingCapability*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_ControlByWearingCapability(void* value) { return Draw_RetSystemParamCapability_ControlByWearingCapability(*static_cast<RetSystemParamCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_RetSystemParamCapability_PowerSavingModeCapability(RetSystemParamCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_PowerSavingModeCapability() { return Construct<RetSystemParamCapability_PowerSavingModeCapability>(); }
-        void Destroy_RetSystemParamCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<RetSystemParamCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_PowerSavingModeCapability(const void* value)
-        {
-            return RetSystemParamCapability_PowerSavingModeCapability::Validate(*static_cast<const RetSystemParamCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_PowerSavingModeCapability(void* value) { return Draw_RetSystemParamCapability_PowerSavingModeCapability(*static_cast<RetSystemParamCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1() { return Construct<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return RetSystemParamCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const RetSystemParamCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1(*static_cast<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("detectionSensitivityType", value.detectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("voiceFocusType", value.voiceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("modeOutTimeType", value.modeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("modeTimeOutValues", value.modeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.previewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.modeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.previewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2() { return Construct<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(const void* value)
-        {
-            return RetSystemParamCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const RetSystemParamCapability_SmartTalkingModeCapabilityVariant2*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2(*static_cast<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-
-        bool Draw_RetSystemParamCapability_SystemCapabilityBase(RetSystemParamCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_SystemCapabilityBase() { return Construct<RetSystemParamCapability_SystemCapabilityBase>(); }
-        void Destroy_RetSystemParamCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<RetSystemParamCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_SystemCapabilityBase(const void* value)
-        {
-            return RetSystemParamCapability_SystemCapabilityBase::Validate(*static_cast<const RetSystemParamCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_SystemCapabilityBase(void* value) { return Draw_RetSystemParamCapability_SystemCapabilityBase(*static_cast<RetSystemParamCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_RetSystemParamCapability_VibratorCapability(RetSystemParamCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_VibratorCapability() { return Construct<RetSystemParamCapability_VibratorCapability>(); }
-        void Destroy_RetSystemParamCapability_VibratorCapability(void* value) { Destruct(static_cast<RetSystemParamCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_VibratorCapability(const void* value)
-        {
-            return RetSystemParamCapability_VibratorCapability::Validate(*static_cast<const RetSystemParamCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_VibratorCapability(void* value) { return Draw_RetSystemParamCapability_VibratorCapability(*static_cast<RetSystemParamCapability_VibratorCapability*>(value)); }
 
         bool Draw_RetSystemParamControlByWearingParam(RetSystemParamControlByWearingParam& value)
         {
@@ -9863,86 +5661,6 @@ namespace client::debugger {
         }
         bool DrawErased_RetSystemParamSmartTalkingModeRetParam(void* value) { return Draw_RetSystemParamSmartTalkingModeRetParam(*static_cast<RetSystemParamSmartTalkingModeRetParam*>(value)); }
 
-        bool Draw_RetSystemParamSmartTalkingModeSetNtfyParam(RetSystemParamSmartTalkingModeSetNtfyParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("parameterType", value.parameterType, kEnum_mdr__v1__t1__SmartTalkingModeParameterType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamSmartTalkingModeSetNtfyParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamSmartTalkingModeSetNtfyParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.parameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamSmartTalkingModeSetNtfyParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamSmartTalkingModeSetNtfyParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.parameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamSmartTalkingModeSetNtfyParam() { return Construct<RetSystemParamSmartTalkingModeSetNtfyParam>(); }
-        void Destroy_RetSystemParamSmartTalkingModeSetNtfyParam(void* value) { Destruct(static_cast<RetSystemParamSmartTalkingModeSetNtfyParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamSmartTalkingModeSetNtfyParam(const void* value)
-        {
-            return RetSystemParamSmartTalkingModeSetNtfyParam::Validate(*static_cast<const RetSystemParamSmartTalkingModeSetNtfyParam*>(value));
-        }
-        bool DrawErased_RetSystemParamSmartTalkingModeSetNtfyParam(void* value) { return Draw_RetSystemParamSmartTalkingModeSetNtfyParam(*static_cast<RetSystemParamSmartTalkingModeSetNtfyParam*>(value)); }
-
-        bool Draw_RetSystemParamVibratorAlertNotificationParam(RetSystemParamVibratorAlertNotificationParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("alertInquiredType", value.alertInquiredType, kEnum_mdr__v1__t1__AlertInquiredType);
-            changed |= DrawEnum("vibrationType", value.vibrationType, kEnum_mdr__v1__t1__VibrationType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamVibratorAlertNotificationParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamVibratorAlertNotificationParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.alertInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibrationType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamVibratorAlertNotificationParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamVibratorAlertNotificationParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.alertInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibrationType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamVibratorAlertNotificationParam() { return Construct<RetSystemParamVibratorAlertNotificationParam>(); }
-        void Destroy_RetSystemParamVibratorAlertNotificationParam(void* value) { Destruct(static_cast<RetSystemParamVibratorAlertNotificationParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamVibratorAlertNotificationParam(const void* value)
-        {
-            return RetSystemParamVibratorAlertNotificationParam::Validate(*static_cast<const RetSystemParamVibratorAlertNotificationParam*>(value));
-        }
-        bool DrawErased_RetSystemParamVibratorAlertNotificationParam(void* value) { return Draw_RetSystemParamVibratorAlertNotificationParam(*static_cast<RetSystemParamVibratorAlertNotificationParam*>(value)); }
-
         bool Draw_RetSystemParamVibratorParam(RetSystemParamVibratorParam& value)
         {
             bool changed = false;
@@ -9983,50 +5701,6 @@ namespace client::debugger {
         }
         bool DrawErased_RetSystemParamVibratorParam(void* value) { return Draw_RetSystemParamVibratorParam(*static_cast<RetSystemParamVibratorParam*>(value)); }
 
-        bool Draw_RetSystemStatusAssignableSettingsParam(RetSystemStatusAssignableSettingsParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("presets", value.presets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusAssignableSettingsParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusAssignableSettingsParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AssignableSettingsPreset>::Read)(&ptr, value.presets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusAssignableSettingsParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusAssignableSettingsParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(value.presets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusAssignableSettingsParam() { return Construct<RetSystemStatusAssignableSettingsParam>(); }
-        void Destroy_RetSystemStatusAssignableSettingsParam(void* value) { Destruct(static_cast<RetSystemStatusAssignableSettingsParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusAssignableSettingsParam(const void* value)
-        {
-            return RetSystemStatusAssignableSettingsParam::Validate(*static_cast<const RetSystemStatusAssignableSettingsParam*>(value));
-        }
-        bool DrawErased_RetSystemStatusAssignableSettingsParam(void* value) { return Draw_RetSystemStatusAssignableSettingsParam(*static_cast<RetSystemStatusAssignableSettingsParam*>(value)); }
-
         bool Draw_RetSystemStatusAssignableSettingsStatus(RetSystemStatusAssignableSettingsStatus& value)
         {
             bool changed = false;
@@ -10040,7 +5714,6 @@ namespace client::debugger {
                 }
                 return elementChanged;
             });
-            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
         mdr::MDRResult<void> Decode_RetSystemStatusAssignableSettingsStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -10051,7 +5724,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<CommonStatus>::Read)(&ptr, value.allStatus, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -10063,7 +5735,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<CommonStatus>::Write)(value.allStatus, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_RetSystemStatusAssignableSettingsStatus() { return Construct<RetSystemStatusAssignableSettingsStatus>(); }
@@ -10074,521 +5745,116 @@ namespace client::debugger {
         }
         bool DrawErased_RetSystemStatusAssignableSettingsStatus(void* value) { return Draw_RetSystemStatusAssignableSettingsStatus(*static_cast<RetSystemStatusAssignableSettingsStatus*>(value)); }
 
-        bool Draw_RetSystemStatusAutoPowerOffParam(RetSystemStatusAutoPowerOffParam& value)
+        bool Draw_RetSystemStatusAutoPowerOffStatus(RetSystemStatusAutoPowerOffStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("autoPowerOffParameterType", value.autoPowerOffParameterType, kEnum_mdr__v1__t1__AutoPowerOffParameterType);
-            changed |= DrawEnum("activeElementId", value.activeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-            changed |= DrawEnum("selectTimeElementId", value.selectTimeElementId, kEnum_mdr__v1__t1__AutoPowerOffElementId);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetSystemStatusAutoPowerOffParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetSystemStatusAutoPowerOffStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetSystemStatusAutoPowerOffParam*>(storage);
+            auto& value = *static_cast<RetSystemStatusAutoPowerOffStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.autoPowerOffParameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.activeElementId, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.selectTimeElementId, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusAutoPowerOffParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetSystemStatusAutoPowerOffStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetSystemStatusAutoPowerOffParam*>(storage);
+            const auto& value = *static_cast<const RetSystemStatusAutoPowerOffStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.autoPowerOffParameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.activeElementId, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.selectTimeElementId, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetSystemStatusAutoPowerOffParam() { return Construct<RetSystemStatusAutoPowerOffParam>(); }
-        void Destroy_RetSystemStatusAutoPowerOffParam(void* value) { Destruct(static_cast<RetSystemStatusAutoPowerOffParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusAutoPowerOffParam(const void* value)
+        void* Create_RetSystemStatusAutoPowerOffStatus() { return Construct<RetSystemStatusAutoPowerOffStatus>(); }
+        void Destroy_RetSystemStatusAutoPowerOffStatus(void* value) { Destruct(static_cast<RetSystemStatusAutoPowerOffStatus*>(value)); }
+        mdr::MDRResult<void> Validate_RetSystemStatusAutoPowerOffStatus(const void* value)
         {
-            return RetSystemStatusAutoPowerOffParam::Validate(*static_cast<const RetSystemStatusAutoPowerOffParam*>(value));
+            return RetSystemStatusAutoPowerOffStatus::Validate(*static_cast<const RetSystemStatusAutoPowerOffStatus*>(value));
         }
-        bool DrawErased_RetSystemStatusAutoPowerOffParam(void* value) { return Draw_RetSystemStatusAutoPowerOffParam(*static_cast<RetSystemStatusAutoPowerOffParam*>(value)); }
+        bool DrawErased_RetSystemStatusAutoPowerOffStatus(void* value) { return Draw_RetSystemStatusAutoPowerOffStatus(*static_cast<RetSystemStatusAutoPowerOffStatus*>(value)); }
 
-        bool Draw_RetSystemStatusCapability_AutoPowerOffCapability(RetSystemStatusCapability_AutoPowerOffCapability& value)
+        bool Draw_RetSystemStatusControlByWearingStatus(RetSystemStatusControlByWearingStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawSequence("candidateElements", value.candidateElements.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawEnum(elementLabel, element, kEnum_mdr__v1__t1__AutoPowerOffElementId);
-                }
-                return elementChanged;
-            });
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_AutoPowerOffCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetSystemStatusControlByWearingStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetSystemStatusCapability_AutoPowerOffCapability*>(storage);
+            auto& value = *static_cast<RetSystemStatusControlByWearingStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<AutoPowerOffElementId>::Read)(&ptr, value.candidateElements, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_AutoPowerOffCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetSystemStatusControlByWearingStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetSystemStatusCapability_AutoPowerOffCapability*>(storage);
+            const auto& value = *static_cast<const RetSystemStatusControlByWearingStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(value.candidateElements, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetSystemStatusCapability_AutoPowerOffCapability() { return Construct<RetSystemStatusCapability_AutoPowerOffCapability>(); }
-        void Destroy_RetSystemStatusCapability_AutoPowerOffCapability(void* value) { Destruct(static_cast<RetSystemStatusCapability_AutoPowerOffCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_AutoPowerOffCapability(const void* value)
+        void* Create_RetSystemStatusControlByWearingStatus() { return Construct<RetSystemStatusControlByWearingStatus>(); }
+        void Destroy_RetSystemStatusControlByWearingStatus(void* value) { Destruct(static_cast<RetSystemStatusControlByWearingStatus*>(value)); }
+        mdr::MDRResult<void> Validate_RetSystemStatusControlByWearingStatus(const void* value)
         {
-            return RetSystemStatusCapability_AutoPowerOffCapability::Validate(*static_cast<const RetSystemStatusCapability_AutoPowerOffCapability*>(value));
+            return RetSystemStatusControlByWearingStatus::Validate(*static_cast<const RetSystemStatusControlByWearingStatus*>(value));
         }
-        bool DrawErased_RetSystemStatusCapability_AutoPowerOffCapability(void* value) { return Draw_RetSystemStatusCapability_AutoPowerOffCapability(*static_cast<RetSystemStatusCapability_AutoPowerOffCapability*>(value)); }
+        bool DrawErased_RetSystemStatusControlByWearingStatus(void* value) { return Draw_RetSystemStatusControlByWearingStatus(*static_cast<RetSystemStatusControlByWearingStatus*>(value)); }
 
-        bool Draw_RetSystemStatusCapability_ControlByWearingCapability(RetSystemStatusCapability_ControlByWearingCapability& value)
+        bool Draw_RetSystemStatusPowerSavingModeStatus(RetSystemStatusPowerSavingModeStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("controlByWearingSettingType", value.controlByWearingSettingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_ControlByWearingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetSystemStatusPowerSavingModeStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetSystemStatusCapability_ControlByWearingCapability*>(storage);
+            auto& value = *static_cast<RetSystemStatusPowerSavingModeStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.controlByWearingSettingType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_ControlByWearingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetSystemStatusPowerSavingModeStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetSystemStatusCapability_ControlByWearingCapability*>(storage);
+            const auto& value = *static_cast<const RetSystemStatusPowerSavingModeStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.controlByWearingSettingType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetSystemStatusCapability_ControlByWearingCapability() { return Construct<RetSystemStatusCapability_ControlByWearingCapability>(); }
-        void Destroy_RetSystemStatusCapability_ControlByWearingCapability(void* value) { Destruct(static_cast<RetSystemStatusCapability_ControlByWearingCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_ControlByWearingCapability(const void* value)
+        void* Create_RetSystemStatusPowerSavingModeStatus() { return Construct<RetSystemStatusPowerSavingModeStatus>(); }
+        void Destroy_RetSystemStatusPowerSavingModeStatus(void* value) { Destruct(static_cast<RetSystemStatusPowerSavingModeStatus*>(value)); }
+        mdr::MDRResult<void> Validate_RetSystemStatusPowerSavingModeStatus(const void* value)
         {
-            return RetSystemStatusCapability_ControlByWearingCapability::Validate(*static_cast<const RetSystemStatusCapability_ControlByWearingCapability*>(value));
+            return RetSystemStatusPowerSavingModeStatus::Validate(*static_cast<const RetSystemStatusPowerSavingModeStatus*>(value));
         }
-        bool DrawErased_RetSystemStatusCapability_ControlByWearingCapability(void* value) { return Draw_RetSystemStatusCapability_ControlByWearingCapability(*static_cast<RetSystemStatusCapability_ControlByWearingCapability*>(value)); }
-
-        bool Draw_RetSystemStatusCapability_PowerSavingModeCapability(RetSystemStatusCapability_PowerSavingModeCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("powerSavingModeSettingType", value.powerSavingModeSettingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_PowerSavingModeCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusCapability_PowerSavingModeCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.powerSavingModeSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_PowerSavingModeCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusCapability_PowerSavingModeCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.powerSavingModeSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusCapability_PowerSavingModeCapability() { return Construct<RetSystemStatusCapability_PowerSavingModeCapability>(); }
-        void Destroy_RetSystemStatusCapability_PowerSavingModeCapability(void* value) { Destruct(static_cast<RetSystemStatusCapability_PowerSavingModeCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_PowerSavingModeCapability(const void* value)
-        {
-            return RetSystemStatusCapability_PowerSavingModeCapability::Validate(*static_cast<const RetSystemStatusCapability_PowerSavingModeCapability*>(value));
-        }
-        bool DrawErased_RetSystemStatusCapability_PowerSavingModeCapability(void* value) { return Draw_RetSystemStatusCapability_PowerSavingModeCapability(*static_cast<RetSystemStatusCapability_PowerSavingModeCapability*>(value)); }
-
-        bool Draw_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1() { return Construct<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1(*static_cast<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("detectionSensitivityType", value.detectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("voiceFocusType", value.voiceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("modeOutTimeType", value.modeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("modeTimeOutValues", value.modeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.previewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.detectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.voiceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.modeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.modeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.previewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.detectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.voiceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.modeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2() { return Construct<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(const void* value)
-        {
-            return RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2*>(value));
-        }
-        bool DrawErased_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2(*static_cast<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-
-        bool Draw_RetSystemStatusCapability_SystemCapabilityBase(RetSystemStatusCapability_SystemCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_SystemCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusCapability_SystemCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_SystemCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusCapability_SystemCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusCapability_SystemCapabilityBase() { return Construct<RetSystemStatusCapability_SystemCapabilityBase>(); }
-        void Destroy_RetSystemStatusCapability_SystemCapabilityBase(void* value) { Destruct(static_cast<RetSystemStatusCapability_SystemCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_SystemCapabilityBase(const void* value)
-        {
-            return RetSystemStatusCapability_SystemCapabilityBase::Validate(*static_cast<const RetSystemStatusCapability_SystemCapabilityBase*>(value));
-        }
-        bool DrawErased_RetSystemStatusCapability_SystemCapabilityBase(void* value) { return Draw_RetSystemStatusCapability_SystemCapabilityBase(*static_cast<RetSystemStatusCapability_SystemCapabilityBase*>(value)); }
-
-        bool Draw_RetSystemStatusCapability_VibratorCapability(RetSystemStatusCapability_VibratorCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("vibratorSettingType", value.vibratorSettingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_VibratorCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusCapability_VibratorCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.vibratorSettingType, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_VibratorCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusCapability_VibratorCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.vibratorSettingType, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusCapability_VibratorCapability() { return Construct<RetSystemStatusCapability_VibratorCapability>(); }
-        void Destroy_RetSystemStatusCapability_VibratorCapability(void* value) { Destruct(static_cast<RetSystemStatusCapability_VibratorCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_VibratorCapability(const void* value)
-        {
-            return RetSystemStatusCapability_VibratorCapability::Validate(*static_cast<const RetSystemStatusCapability_VibratorCapability*>(value));
-        }
-        bool DrawErased_RetSystemStatusCapability_VibratorCapability(void* value) { return Draw_RetSystemStatusCapability_VibratorCapability(*static_cast<RetSystemStatusCapability_VibratorCapability*>(value)); }
-
-        bool Draw_RetSystemStatusControlByWearingParam(RetSystemStatusControlByWearingParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__ControlByWearingSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__ControlByWearingSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusControlByWearingParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusControlByWearingParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusControlByWearingParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusControlByWearingParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusControlByWearingParam() { return Construct<RetSystemStatusControlByWearingParam>(); }
-        void Destroy_RetSystemStatusControlByWearingParam(void* value) { Destruct(static_cast<RetSystemStatusControlByWearingParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusControlByWearingParam(const void* value)
-        {
-            return RetSystemStatusControlByWearingParam::Validate(*static_cast<const RetSystemStatusControlByWearingParam*>(value));
-        }
-        bool DrawErased_RetSystemStatusControlByWearingParam(void* value) { return Draw_RetSystemStatusControlByWearingParam(*static_cast<RetSystemStatusControlByWearingParam*>(value)); }
-
-        bool Draw_RetSystemStatusPowerSavingModeParam(RetSystemStatusPowerSavingModeParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__PowerSavingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__PowerSavingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusPowerSavingModeParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusPowerSavingModeParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusPowerSavingModeParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusPowerSavingModeParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusPowerSavingModeParam() { return Construct<RetSystemStatusPowerSavingModeParam>(); }
-        void Destroy_RetSystemStatusPowerSavingModeParam(void* value) { Destruct(static_cast<RetSystemStatusPowerSavingModeParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusPowerSavingModeParam(const void* value)
-        {
-            return RetSystemStatusPowerSavingModeParam::Validate(*static_cast<const RetSystemStatusPowerSavingModeParam*>(value));
-        }
-        bool DrawErased_RetSystemStatusPowerSavingModeParam(void* value) { return Draw_RetSystemStatusPowerSavingModeParam(*static_cast<RetSystemStatusPowerSavingModeParam*>(value)); }
-
-        bool Draw_RetSystemStatusSmartTalkingModeRetParam(RetSystemStatusSmartTalkingModeRetParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusSmartTalkingModeRetParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusSmartTalkingModeRetParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusSmartTalkingModeRetParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusSmartTalkingModeRetParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusSmartTalkingModeRetParam() { return Construct<RetSystemStatusSmartTalkingModeRetParam>(); }
-        void Destroy_RetSystemStatusSmartTalkingModeRetParam(void* value) { Destruct(static_cast<RetSystemStatusSmartTalkingModeRetParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusSmartTalkingModeRetParam(const void* value)
-        {
-            return RetSystemStatusSmartTalkingModeRetParam::Validate(*static_cast<const RetSystemStatusSmartTalkingModeRetParam*>(value));
-        }
-        bool DrawErased_RetSystemStatusSmartTalkingModeRetParam(void* value) { return Draw_RetSystemStatusSmartTalkingModeRetParam(*static_cast<RetSystemStatusSmartTalkingModeRetParam*>(value)); }
-
-        bool Draw_RetSystemStatusSmartTalkingModeSetNtfyParam(RetSystemStatusSmartTalkingModeSetNtfyParam& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("parameterType", value.parameterType, kEnum_mdr__v1__t1__SmartTalkingModeParameterType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__SmartTalkingModeSettingValue);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusSmartTalkingModeSetNtfyParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusSmartTalkingModeSetNtfyParam*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.parameterType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusSmartTalkingModeSetNtfyParam(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusSmartTalkingModeSetNtfyParam*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.parameterType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusSmartTalkingModeSetNtfyParam() { return Construct<RetSystemStatusSmartTalkingModeSetNtfyParam>(); }
-        void Destroy_RetSystemStatusSmartTalkingModeSetNtfyParam(void* value) { Destruct(static_cast<RetSystemStatusSmartTalkingModeSetNtfyParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusSmartTalkingModeSetNtfyParam(const void* value)
-        {
-            return RetSystemStatusSmartTalkingModeSetNtfyParam::Validate(*static_cast<const RetSystemStatusSmartTalkingModeSetNtfyParam*>(value));
-        }
-        bool DrawErased_RetSystemStatusSmartTalkingModeSetNtfyParam(void* value) { return Draw_RetSystemStatusSmartTalkingModeSetNtfyParam(*static_cast<RetSystemStatusSmartTalkingModeSetNtfyParam*>(value)); }
+        bool DrawErased_RetSystemStatusPowerSavingModeStatus(void* value) { return Draw_RetSystemStatusPowerSavingModeStatus(*static_cast<RetSystemStatusPowerSavingModeStatus*>(value)); }
 
         bool Draw_RetSystemStatusSmartTalkingModeStatus(RetSystemStatusSmartTalkingModeStatus& value)
         {
@@ -10630,45 +5896,42 @@ namespace client::debugger {
         }
         bool DrawErased_RetSystemStatusSmartTalkingModeStatus(void* value) { return Draw_RetSystemStatusSmartTalkingModeStatus(*static_cast<RetSystemStatusSmartTalkingModeStatus*>(value)); }
 
-        bool Draw_RetSystemStatusVibratorParam(RetSystemStatusVibratorParam& value)
+        bool Draw_RetSystemStatusVibratorStatus(RetSystemStatusVibratorStatus& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__VibratorSettingType);
-            changed |= DrawEnum("settingValue", value.settingValue, kEnum_mdr__v1__t1__VibratorSettingValue);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetSystemStatusVibratorParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetSystemStatusVibratorStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetSystemStatusVibratorParam*>(storage);
+            auto& value = *static_cast<RetSystemStatusVibratorStatus*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingValue, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusVibratorParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetSystemStatusVibratorStatus(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetSystemStatusVibratorParam*>(storage);
+            const auto& value = *static_cast<const RetSystemStatusVibratorStatus*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingValue, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetSystemStatusVibratorParam() { return Construct<RetSystemStatusVibratorParam>(); }
-        void Destroy_RetSystemStatusVibratorParam(void* value) { Destruct(static_cast<RetSystemStatusVibratorParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusVibratorParam(const void* value)
+        void* Create_RetSystemStatusVibratorStatus() { return Construct<RetSystemStatusVibratorStatus>(); }
+        void Destroy_RetSystemStatusVibratorStatus(void* value) { Destruct(static_cast<RetSystemStatusVibratorStatus*>(value)); }
+        mdr::MDRResult<void> Validate_RetSystemStatusVibratorStatus(const void* value)
         {
-            return RetSystemStatusVibratorParam::Validate(*static_cast<const RetSystemStatusVibratorParam*>(value));
+            return RetSystemStatusVibratorStatus::Validate(*static_cast<const RetSystemStatusVibratorStatus*>(value));
         }
-        bool DrawErased_RetSystemStatusVibratorParam(void* value) { return Draw_RetSystemStatusVibratorParam(*static_cast<RetSystemStatusVibratorParam*>(value)); }
+        bool DrawErased_RetSystemStatusVibratorStatus(void* value) { return Draw_RetSystemStatusVibratorStatus(*static_cast<RetSystemStatusVibratorStatus*>(value)); }
 
         bool Draw_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam(RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam& value)
         {
@@ -10928,40 +6191,6 @@ namespace client::debugger {
             return RetUpscalingEffect::Validate(*static_cast<const RetUpscalingEffect*>(value));
         }
         bool DrawErased_RetUpscalingEffect(void* value) { return Draw_RetUpscalingEffect(*static_cast<RetUpscalingEffect*>(value)); }
-
-        bool Draw_RetVptParamCapability_VptCapabilityBase(RetVptParamCapability_VptCapabilityBase& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__VptInquiredType);
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetVptParamCapability_VptCapabilityBase(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetVptParamCapability_VptCapabilityBase*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetVptParamCapability_VptCapabilityBase(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetVptParamCapability_VptCapabilityBase*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetVptParamCapability_VptCapabilityBase() { return Construct<RetVptParamCapability_VptCapabilityBase>(); }
-        void Destroy_RetVptParamCapability_VptCapabilityBase(void* value) { Destruct(static_cast<RetVptParamCapability_VptCapabilityBase*>(value)); }
-        mdr::MDRResult<void> Validate_RetVptParamCapability_VptCapabilityBase(const void* value)
-        {
-            return RetVptParamCapability_VptCapabilityBase::Validate(*static_cast<const RetVptParamCapability_VptCapabilityBase*>(value));
-        }
-        bool DrawErased_RetVptParamCapability_VptCapabilityBase(void* value) { return Draw_RetVptParamCapability_VptCapabilityBase(*static_cast<RetVptParamCapability_VptCapabilityBase*>(value)); }
 
         bool Draw_RetVptParamSoundPositionParam(RetVptParamSoundPositionParam& value)
         {
@@ -11265,6 +6494,46 @@ namespace client::debugger {
         }
         bool DrawErased_SetAudioParamRetAudioCapability_ConnectionModeCapability(void* value) { return Draw_SetAudioParamRetAudioCapability_ConnectionModeCapability(*static_cast<SetAudioParamRetAudioCapability_ConnectionModeCapability*>(value)); }
 
+        bool Draw_SetAudioParamRetAudioCapability_UpscalingCapability(SetAudioParamRetAudioCapability_UpscalingCapability& value)
+        {
+            bool changed = false;
+            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
+            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__AudioInquiredType);
+            changed |= DrawEnum("upscalingType", value.upscalingType, kEnum_mdr__v1__t1__UpscalingType);
+            changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__UpscalingSettingType);
+            return changed;
+        }
+        mdr::MDRResult<void> Decode_SetAudioParamRetAudioCapability_UpscalingCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        {
+            auto& value = *static_cast<SetAudioParamRetAudioCapability_UpscalingCapability*>(storage);
+            const UInt8* ptr = bytes.data();
+            size_t remaining = bytes.size();
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.upscalingType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.settingType, remaining));
+            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
+            return mdr::MDRResult<void>::Success();
+        }
+        mdr::MDRResult<size_t> Encode_SetAudioParamRetAudioCapability_UpscalingCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
+        {
+            const auto& value = *static_cast<const SetAudioParamRetAudioCapability_UpscalingCapability*>(storage);
+            UInt8* ptr = output;
+            size_t remaining = maxSize;
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.upscalingType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.settingType, &ptr, remaining));
+            return mdr::MDRResult<size_t>::Success(ptr - output);
+        }
+        void* Create_SetAudioParamRetAudioCapability_UpscalingCapability() { return Construct<SetAudioParamRetAudioCapability_UpscalingCapability>(); }
+        void Destroy_SetAudioParamRetAudioCapability_UpscalingCapability(void* value) { Destruct(static_cast<SetAudioParamRetAudioCapability_UpscalingCapability*>(value)); }
+        mdr::MDRResult<void> Validate_SetAudioParamRetAudioCapability_UpscalingCapability(const void* value)
+        {
+            return SetAudioParamRetAudioCapability_UpscalingCapability::Validate(*static_cast<const SetAudioParamRetAudioCapability_UpscalingCapability*>(value));
+        }
+        bool DrawErased_SetAudioParamRetAudioCapability_UpscalingCapability(void* value) { return Draw_SetAudioParamRetAudioCapability_UpscalingCapability(*static_cast<SetAudioParamRetAudioCapability_UpscalingCapability*>(value)); }
+
         bool Draw_SetAudioParamUpscalingParam(SetAudioParamUpscalingParam& value)
         {
             bool changed = false;
@@ -11545,6 +6814,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__LogInquiredType);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             return changed;
         }
         mdr::MDRResult<void> Decode_SetLogStatus(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -11554,6 +6824,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -11564,6 +6835,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_SetLogStatus() { return Construct<SetLogStatus>(); }
@@ -11788,6 +7060,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("optimizerInquiredType", value.optimizerInquiredType, kEnum_mdr__v1__t1__OptimizerInquiredType);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             changed |= DrawEnum("optimizerControl", value.optimizerControl, kEnum_mdr__v1__t1__OptimizerControl);
             return changed;
         }
@@ -11798,6 +7071,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.optimizerInquiredType, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.optimizerControl, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -11809,6 +7083,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.optimizerInquiredType, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.optimizerControl, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -11865,6 +7140,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__PlayInquiredType);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             changed |= DrawEnum("control", value.control, kEnum_mdr__v1__t1__PlaybackControl);
             return changed;
         }
@@ -11875,6 +7151,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.control, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -11886,6 +7163,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.control, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -11939,6 +7217,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SenseInquiredType);
+            changed |= DrawEnum("status", value.status, kEnum_mdr__v1__CommonStatus);
             changed |= DrawEnum("senseSettingControl", value.senseSettingControl, kEnum_mdr__v1__t1__SenseSettingControl);
             return changed;
         }
@@ -11949,6 +7228,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.senseSettingControl, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -11960,6 +7240,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.senseSettingControl, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -12261,68 +7542,6 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
             changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
             changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
             changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
@@ -12339,9 +7558,9 @@ namespace client::debugger {
             });
             return changed;
         }
-        mdr::MDRResult<void> Decode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
+            auto& value = *static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
@@ -12356,9 +7575,9 @@ namespace client::debugger {
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
+            const auto& value = *static_cast<const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
@@ -12372,13 +7591,13 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2() { return Construct<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* value)
+        void* Create_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
+        void Destroy_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
+        mdr::MDRResult<void> Validate_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
         {
-            return SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value));
+            return SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
         }
-        bool DrawErased_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(*static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
+        bool DrawErased_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
 
         bool Draw_SetSystemExParamRetSystemCapability_SystemCapabilityBase(SetSystemExParamRetSystemCapability_SystemCapabilityBase& value)
         {
@@ -12950,68 +8169,6 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
             changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
             changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
             changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
@@ -13028,9 +8185,9 @@ namespace client::debugger {
             });
             return changed;
         }
-        mdr::MDRResult<void> Decode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
+            auto& value = *static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
@@ -13045,9 +8202,9 @@ namespace client::debugger {
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
+            const auto& value = *static_cast<const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
@@ -13061,13 +8218,13 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2() { return Construct<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* value)
+        void* Create_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
+        void Destroy_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
+        mdr::MDRResult<void> Validate_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
         {
-            return SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value));
+            return SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
         }
-        bool DrawErased_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2(*static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
+        bool DrawErased_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
 
         bool Draw_SetSystemParamRetSystemCapability_VibratorCapability(SetSystemParamRetSystemCapability_VibratorCapability& value)
         {
@@ -13263,6 +8420,43 @@ namespace client::debugger {
         }
         bool DrawErased_SetUpdateStatus(void* value) { return Draw_SetUpdateStatus(*static_cast<SetUpdateStatus*>(value)); }
 
+        bool Draw_SetVptParamRetVptCapability_SoundPositionCapability(SetVptParamRetVptCapability_SoundPositionCapability& value)
+        {
+            bool changed = false;
+            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
+            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__VptInquiredType);
+            changed |= DrawEnum("soundPositionType", value.soundPositionType, kEnum_mdr__v1__t1__SoundPositionType);
+            return changed;
+        }
+        mdr::MDRResult<void> Decode_SetVptParamRetVptCapability_SoundPositionCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        {
+            auto& value = *static_cast<SetVptParamRetVptCapability_SoundPositionCapability*>(storage);
+            const UInt8* ptr = bytes.data();
+            size_t remaining = bytes.size();
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.soundPositionType, remaining));
+            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
+            return mdr::MDRResult<void>::Success();
+        }
+        mdr::MDRResult<size_t> Encode_SetVptParamRetVptCapability_SoundPositionCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
+        {
+            const auto& value = *static_cast<const SetVptParamRetVptCapability_SoundPositionCapability*>(storage);
+            UInt8* ptr = output;
+            size_t remaining = maxSize;
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.soundPositionType, &ptr, remaining));
+            return mdr::MDRResult<size_t>::Success(ptr - output);
+        }
+        void* Create_SetVptParamRetVptCapability_SoundPositionCapability() { return Construct<SetVptParamRetVptCapability_SoundPositionCapability>(); }
+        void Destroy_SetVptParamRetVptCapability_SoundPositionCapability(void* value) { Destruct(static_cast<SetVptParamRetVptCapability_SoundPositionCapability*>(value)); }
+        mdr::MDRResult<void> Validate_SetVptParamRetVptCapability_SoundPositionCapability(const void* value)
+        {
+            return SetVptParamRetVptCapability_SoundPositionCapability::Validate(*static_cast<const SetVptParamRetVptCapability_SoundPositionCapability*>(value));
+        }
+        bool DrawErased_SetVptParamRetVptCapability_SoundPositionCapability(void* value) { return Draw_SetVptParamRetVptCapability_SoundPositionCapability(*static_cast<SetVptParamRetVptCapability_SoundPositionCapability*>(value)); }
+
         bool Draw_SetVptParamRetVptCapability_VptCapabilityBase(SetVptParamRetVptCapability_VptCapabilityBase& value)
         {
             bool changed = false;
@@ -13449,216 +8643,6 @@ namespace client::debugger {
         }
         bool DrawErased_GetSportsExParam(void* value) { return Draw_GetSportsExParam(*static_cast<GetSportsExParam*>(value)); }
 
-        bool Draw_NotifyEqEbbParamRetEqEbbCapability_EqCapability(NotifyEqEbbParamRetEqEbbCapability_EqCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            changed |= DrawScalar("band", value.band);
-            changed |= DrawScalar("step", value.step);
-            changed |= DrawSequence("presetList", value.presetList.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("presetId", element.presetId, kEnum_mdr__v1__t1__EqPresetId);
-                        changed |= DrawPrefixedString("name", element.name);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyEqEbbParamRetEqEbbCapability_EqCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyEqEbbParamRetEqEbbCapability_EqCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.band, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.step, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<EqPreset>::Read)(&ptr, value.presetList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyEqEbbParamRetEqEbbCapability_EqCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyEqEbbParamRetEqEbbCapability_EqCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.band, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.step, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<EqPreset>::Write)(value.presetList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyEqEbbParamRetEqEbbCapability_EqCapability() { return Construct<NotifyEqEbbParamRetEqEbbCapability_EqCapability>(); }
-        void Destroy_NotifyEqEbbParamRetEqEbbCapability_EqCapability(void* value) { Destruct(static_cast<NotifyEqEbbParamRetEqEbbCapability_EqCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyEqEbbParamRetEqEbbCapability_EqCapability(const void* value)
-        {
-            return NotifyEqEbbParamRetEqEbbCapability_EqCapability::Validate(*static_cast<const NotifyEqEbbParamRetEqEbbCapability_EqCapability*>(value));
-        }
-        bool DrawErased_NotifyEqEbbParamRetEqEbbCapability_EqCapability(void* value) { return Draw_NotifyEqEbbParamRetEqEbbCapability_EqCapability(*static_cast<NotifyEqEbbParamRetEqEbbCapability_EqCapability*>(value)); }
-
-        bool Draw_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(NotifyNcAsmParamRetNcAsmCapability_AsmCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            changed |= DrawEnum("asmSettingType", value.asmSettingType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawSequence("asmList", value.asmList.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("id", element.id, kEnum_mdr__v1__t1__AsmId);
-                        changed |= DrawScalar("step", element.step);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyNcAsmParamRetNcAsmCapability_AsmCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<Asm>::Read)(&ptr, value.asmList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyNcAsmParamRetNcAsmCapability_AsmCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<Asm>::Write)(value.asmList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyNcAsmParamRetNcAsmCapability_AsmCapability() { return Construct<NotifyNcAsmParamRetNcAsmCapability_AsmCapability>(); }
-        void Destroy_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(void* value) { Destruct(static_cast<NotifyNcAsmParamRetNcAsmCapability_AsmCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(const void* value)
-        {
-            return NotifyNcAsmParamRetNcAsmCapability_AsmCapability::Validate(*static_cast<const NotifyNcAsmParamRetNcAsmCapability_AsmCapability*>(value));
-        }
-        bool DrawErased_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(void* value) { return Draw_NotifyNcAsmParamRetNcAsmCapability_AsmCapability(*static_cast<NotifyNcAsmParamRetNcAsmCapability_AsmCapability*>(value)); }
-
-        bool Draw_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            changed |= DrawEnum("ncSettingType", value.ncSettingType, kEnum_mdr__v1__t1__NcAsmSettingType);
-            changed |= DrawScalar("ncStep", value.ncStep);
-            changed |= DrawEnum("asmSettingType", value.asmSettingType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawSequence("asmList", value.asmList.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("id", element.id, kEnum_mdr__v1__t1__AsmId);
-                        changed |= DrawScalar("step", element.step);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncStep, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<Asm>::Read)(&ptr, value.asmList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncStep, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<Asm>::Write)(value.asmList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability() { return Construct<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability>(); }
-        void Destroy_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(void* value) { Destruct(static_cast<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(const void* value)
-        {
-            return NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability::Validate(*static_cast<const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability*>(value));
-        }
-        bool DrawErased_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(void* value) { return Draw_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability(*static_cast<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability*>(value)); }
-
-        bool Draw_NotifyPlayParamPlaybackControllerNameData(NotifyPlayParamPlaybackControllerNameData& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("playInquiredType", value.playInquiredType, kEnum_mdr__v1__t1__PlayInquiredType);
-            changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
-            changed |= DrawTree("playbackName", [&]() {
-                bool changed = false;
-                changed |= DrawEnum("nameStatus", value.playbackName.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
-                changed |= DrawPrefixedString("name", value.playbackName.name);
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyPlayParamPlaybackControllerNameData(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyPlayParamPlaybackControllerNameData*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyPlayParamPlaybackControllerNameData(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyPlayParamPlaybackControllerNameData*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyPlayParamPlaybackControllerNameData() { return Construct<NotifyPlayParamPlaybackControllerNameData>(); }
-        void Destroy_NotifyPlayParamPlaybackControllerNameData(void* value) { Destruct(static_cast<NotifyPlayParamPlaybackControllerNameData*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyPlayParamPlaybackControllerNameData(const void* value)
-        {
-            return NotifyPlayParamPlaybackControllerNameData::Validate(*static_cast<const NotifyPlayParamPlaybackControllerNameData*>(value));
-        }
-        bool DrawErased_NotifyPlayParamPlaybackControllerNameData(void* value) { return Draw_NotifyPlayParamPlaybackControllerNameData(*static_cast<NotifyPlayParamPlaybackControllerNameData*>(value)); }
-
         bool Draw_NotifySportsExParamTrainingModeExParam(NotifySportsExParamTrainingModeExParam& value)
         {
             bool changed = false;
@@ -13791,55 +8775,6 @@ namespace client::debugger {
             return NotifySportsStatusTrainingModeStatus::Validate(*static_cast<const NotifySportsStatusTrainingModeStatus*>(value));
         }
         bool DrawErased_NotifySportsStatusTrainingModeStatus(void* value) { return Draw_NotifySportsStatusTrainingModeStatus(*static_cast<NotifySportsStatusTrainingModeStatus*>(value)); }
-
-        bool Draw_NotifyVptParamRetVptCapability_VptCapability(NotifyVptParamRetVptCapability_VptCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__VptInquiredType);
-            changed |= DrawSequence("vptPresets", value.vptPresets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("presetId", element.presetId, kEnum_mdr__v1__t1__VptPresetId);
-                        changed |= DrawPrefixedString("name", element.name);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifyVptParamRetVptCapability_VptCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifyVptParamRetVptCapability_VptCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<VptPreset>::Read)(&ptr, value.vptPresets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifyVptParamRetVptCapability_VptCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifyVptParamRetVptCapability_VptCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<VptPreset>::Write)(value.vptPresets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifyVptParamRetVptCapability_VptCapability() { return Construct<NotifyVptParamRetVptCapability_VptCapability>(); }
-        void Destroy_NotifyVptParamRetVptCapability_VptCapability(void* value) { Destruct(static_cast<NotifyVptParamRetVptCapability_VptCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyVptParamRetVptCapability_VptCapability(const void* value)
-        {
-            return NotifyVptParamRetVptCapability_VptCapability::Validate(*static_cast<const NotifyVptParamRetVptCapability_VptCapability*>(value));
-        }
-        bool DrawErased_NotifyVptParamRetVptCapability_VptCapability(void* value) { return Draw_NotifyVptParamRetVptCapability_VptCapability(*static_cast<NotifyVptParamRetVptCapability_VptCapability*>(value)); }
 
         bool Draw_RetAudioCapability(RetAudioCapability& value)
         {
@@ -14326,21 +9261,19 @@ namespace client::debugger {
         }
         bool DrawErased_RetEqEbbCapability_EqCapability(void* value) { return Draw_RetEqEbbCapability_EqCapability(*static_cast<RetEqEbbCapability_EqCapability*>(value)); }
 
-        bool Draw_RetEqEbbParamCapability_EqCapability(RetEqEbbParamCapability_EqCapability& value)
+        bool Draw_RetEqEbbExtendedInfoEqExtendedInfo(RetEqEbbExtendedInfoEqExtendedInfo& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            changed |= DrawScalar("band", value.band);
-            changed |= DrawScalar("step", value.step);
-            changed |= DrawSequence("presetList", value.presetList.value, true, [&](const char* elementLabel, auto& element) {
+            changed |= DrawSequence("bandInfos", value.bandInfos.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
                     bool& changed = elementChanged;
                     changed |= DrawTree(elementLabel, [&]() {
                         bool changed = false;
-                        changed |= DrawEnum("presetId", element.presetId, kEnum_mdr__v1__t1__EqPresetId);
-                        changed |= DrawPrefixedString("name", element.name);
+                        changed |= DrawEnum("infoType", element.infoType, kEnum_mdr__v1__t1__EqBandInformationType);
+                        changed |= DrawEndian("valueAsFrequency", element.valueAsFrequency);
                         return changed;
                     });
                 }
@@ -14348,38 +9281,34 @@ namespace client::debugger {
             });
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetEqEbbParamCapability_EqCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetEqEbbExtendedInfoEqExtendedInfo(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetEqEbbParamCapability_EqCapability*>(storage);
+            auto& value = *static_cast<RetEqEbbExtendedInfoEqExtendedInfo*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.band, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.step, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<EqPreset>::Read)(&ptr, value.presetList, remaining));
+            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<EqBandInformation>::Read)(&ptr, value.bandInfos, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetEqEbbParamCapability_EqCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetEqEbbExtendedInfoEqExtendedInfo(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetEqEbbParamCapability_EqCapability*>(storage);
+            const auto& value = *static_cast<const RetEqEbbExtendedInfoEqExtendedInfo*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.band, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.step, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<EqPreset>::Write)(value.presetList, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<EqBandInformation>::Write)(value.bandInfos, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetEqEbbParamCapability_EqCapability() { return Construct<RetEqEbbParamCapability_EqCapability>(); }
-        void Destroy_RetEqEbbParamCapability_EqCapability(void* value) { Destruct(static_cast<RetEqEbbParamCapability_EqCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetEqEbbParamCapability_EqCapability(const void* value)
+        void* Create_RetEqEbbExtendedInfoEqExtendedInfo() { return Construct<RetEqEbbExtendedInfoEqExtendedInfo>(); }
+        void Destroy_RetEqEbbExtendedInfoEqExtendedInfo(void* value) { Destruct(static_cast<RetEqEbbExtendedInfoEqExtendedInfo*>(value)); }
+        mdr::MDRResult<void> Validate_RetEqEbbExtendedInfoEqExtendedInfo(const void* value)
         {
-            return RetEqEbbParamCapability_EqCapability::Validate(*static_cast<const RetEqEbbParamCapability_EqCapability*>(value));
+            return RetEqEbbExtendedInfoEqExtendedInfo::Validate(*static_cast<const RetEqEbbExtendedInfoEqExtendedInfo*>(value));
         }
-        bool DrawErased_RetEqEbbParamCapability_EqCapability(void* value) { return Draw_RetEqEbbParamCapability_EqCapability(*static_cast<RetEqEbbParamCapability_EqCapability*>(value)); }
+        bool DrawErased_RetEqEbbExtendedInfoEqExtendedInfo(void* value) { return Draw_RetEqEbbExtendedInfoEqExtendedInfo(*static_cast<RetEqEbbExtendedInfoEqExtendedInfo*>(value)); }
 
         bool Draw_RetGsCapabilityGsSettingInfo(RetGsCapabilityGsSettingInfo& value)
         {
@@ -14626,167 +9555,6 @@ namespace client::debugger {
             return RetNcAsmCapability_NcCapability::Validate(*static_cast<const RetNcAsmCapability_NcCapability*>(value));
         }
         bool DrawErased_RetNcAsmCapability_NcCapability(void* value) { return Draw_RetNcAsmCapability_NcCapability(*static_cast<RetNcAsmCapability_NcCapability*>(value)); }
-
-        bool Draw_RetNcAsmParamCapability_AsmCapability(RetNcAsmParamCapability_AsmCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            changed |= DrawEnum("asmSettingType", value.asmSettingType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawSequence("asmList", value.asmList.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("id", element.id, kEnum_mdr__v1__t1__AsmId);
-                        changed |= DrawScalar("step", element.step);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetNcAsmParamCapability_AsmCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetNcAsmParamCapability_AsmCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<Asm>::Read)(&ptr, value.asmList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetNcAsmParamCapability_AsmCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetNcAsmParamCapability_AsmCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<Asm>::Write)(value.asmList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetNcAsmParamCapability_AsmCapability() { return Construct<RetNcAsmParamCapability_AsmCapability>(); }
-        void Destroy_RetNcAsmParamCapability_AsmCapability(void* value) { Destruct(static_cast<RetNcAsmParamCapability_AsmCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetNcAsmParamCapability_AsmCapability(const void* value)
-        {
-            return RetNcAsmParamCapability_AsmCapability::Validate(*static_cast<const RetNcAsmParamCapability_AsmCapability*>(value));
-        }
-        bool DrawErased_RetNcAsmParamCapability_AsmCapability(void* value) { return Draw_RetNcAsmParamCapability_AsmCapability(*static_cast<RetNcAsmParamCapability_AsmCapability*>(value)); }
-
-        bool Draw_RetNcAsmParamCapability_NcAsmCapability(RetNcAsmParamCapability_NcAsmCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__NcAsmInquiredType);
-            changed |= DrawEnum("ncSettingType", value.ncSettingType, kEnum_mdr__v1__t1__NcAsmSettingType);
-            changed |= DrawScalar("ncStep", value.ncStep);
-            changed |= DrawEnum("asmSettingType", value.asmSettingType, kEnum_mdr__v1__t1__AsmSettingType);
-            changed |= DrawSequence("asmList", value.asmList.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("id", element.id, kEnum_mdr__v1__t1__AsmId);
-                        changed |= DrawScalar("step", element.step);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetNcAsmParamCapability_NcAsmCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetNcAsmParamCapability_NcAsmCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.ncStep, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.asmSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<Asm>::Read)(&ptr, value.asmList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetNcAsmParamCapability_NcAsmCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetNcAsmParamCapability_NcAsmCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.ncStep, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.asmSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<Asm>::Write)(value.asmList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetNcAsmParamCapability_NcAsmCapability() { return Construct<RetNcAsmParamCapability_NcAsmCapability>(); }
-        void Destroy_RetNcAsmParamCapability_NcAsmCapability(void* value) { Destruct(static_cast<RetNcAsmParamCapability_NcAsmCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetNcAsmParamCapability_NcAsmCapability(const void* value)
-        {
-            return RetNcAsmParamCapability_NcAsmCapability::Validate(*static_cast<const RetNcAsmParamCapability_NcAsmCapability*>(value));
-        }
-        bool DrawErased_RetNcAsmParamCapability_NcAsmCapability(void* value) { return Draw_RetNcAsmParamCapability_NcAsmCapability(*static_cast<RetNcAsmParamCapability_NcAsmCapability*>(value)); }
-
-        bool Draw_RetPlayCapabilityPlaybackControllerNameData(RetPlayCapabilityPlaybackControllerNameData& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("inquiredType", value.inquiredType, kEnum_mdr__v1__t1__PlayInquiredType);
-            changed |= DrawScalar("volumeStep", value.volumeStep);
-            changed |= DrawEnum("playbackControlType", value.playbackControlType, kEnum_mdr__v1__t1__PlaybackControlType);
-            changed |= DrawEnum("dataType", value.dataType, kEnum_mdr__v1__t1__PlaybackDetailedDataType);
-            changed |= DrawTree("playbackName", [&]() {
-                bool changed = false;
-                changed |= DrawEnum("nameStatus", value.playbackName.nameStatus, kEnum_mdr__v1__t1__PlaybackNameStatus);
-                changed |= DrawPrefixedString("name", value.playbackName.name);
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetPlayCapabilityPlaybackControllerNameData(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetPlayCapabilityPlaybackControllerNameData*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.inquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.volumeStep, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.playbackControlType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (PlaybackName::Read)(&ptr, value.playbackName, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetPlayCapabilityPlaybackControllerNameData(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetPlayCapabilityPlaybackControllerNameData*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.inquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.volumeStep, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.playbackControlType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (PlaybackName::Write)(value.playbackName, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetPlayCapabilityPlaybackControllerNameData() { return Construct<RetPlayCapabilityPlaybackControllerNameData>(); }
-        void Destroy_RetPlayCapabilityPlaybackControllerNameData(void* value) { Destruct(static_cast<RetPlayCapabilityPlaybackControllerNameData*>(value)); }
-        mdr::MDRResult<void> Validate_RetPlayCapabilityPlaybackControllerNameData(const void* value)
-        {
-            return RetPlayCapabilityPlaybackControllerNameData::Validate(*static_cast<const RetPlayCapabilityPlaybackControllerNameData*>(value));
-        }
-        bool DrawErased_RetPlayCapabilityPlaybackControllerNameData(void* value) { return Draw_RetPlayCapabilityPlaybackControllerNameData(*static_cast<RetPlayCapabilityPlaybackControllerNameData*>(value)); }
 
         bool Draw_RetPlayParamPlaybackControllerNameData(RetPlayParamPlaybackControllerNameData& value)
         {
@@ -15188,72 +9956,6 @@ namespace client::debugger {
                 changed |= DrawEnum("type", value.base.type, kEnum_mdr__v1__t1__SystemInquiredType);
                 return changed;
             });
-            changed |= DrawEnum("smartTalkingModeSettingType", value.smartTalkingModeSettingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
-            changed |= DrawEnum("smartTalkingModePreviewType", value.smartTalkingModePreviewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
-            changed |= DrawEnum("smartTalkingModeDetailSettingType", value.smartTalkingModeDetailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
-            changed |= DrawEnum("smartTalkingModeDetectionSensitivityType", value.smartTalkingModeDetectionSensitivityType, kEnum_mdr__v1__t1__SmartTalkingModeDetectionSensitivityType);
-            changed |= DrawEnum("smartTalkingModeVoceFocusType", value.smartTalkingModeVoceFocusType, kEnum_mdr__v1__t1__SmartTalkingModeVoiceFocusType);
-            changed |= DrawEnum("smartTalkingModeModeOutTimeType", value.smartTalkingModeModeOutTimeType, kEnum_mdr__v1__t1__SmartTalkingModeModeOutTimeType);
-            changed |= DrawSequence("smartTalkingModeModeTimeOutValues", value.smartTalkingModeModeTimeOutValues.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawScalar(elementLabel, element);
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (RetSystemCapability_SystemCapabilityBase::Read)(&ptr, value.base, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModePreviewType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetailSettingType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeDetectionSensitivityType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeVoceFocusType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.smartTalkingModeModeOutTimeType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.smartTalkingModeModeTimeOutValues, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (RetSystemCapability_SystemCapabilityBase::Write)(value.base, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModePreviewType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetailSettingType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeDetectionSensitivityType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeVoceFocusType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.smartTalkingModeModeOutTimeType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.smartTalkingModeModeTimeOutValues, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<RetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
-        void Destroy_RetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
-        {
-            return RetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
-        }
-        bool DrawErased_RetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_RetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
-
-        bool Draw_RetSystemCapability_SmartTalkingModeCapabilityVariant2(RetSystemCapability_SmartTalkingModeCapabilityVariant2& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawTree("base", [&]() {
-                bool changed = false;
-                changed |= DrawEnum("type", value.base.type, kEnum_mdr__v1__t1__SystemInquiredType);
-                return changed;
-            });
             changed |= DrawEnum("settingType", value.settingType, kEnum_mdr__v1__t1__SmartTalkingModeSettingType);
             changed |= DrawEnum("previewType", value.previewType, kEnum_mdr__v1__t1__SmartTalkingModePreviewType);
             changed |= DrawEnum("detailSettingType", value.detailSettingType, kEnum_mdr__v1__t1__SmartTalkingModeDetailSettingType);
@@ -15270,9 +9972,9 @@ namespace client::debugger {
             });
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetSystemCapability_SmartTalkingModeCapabilityVariant2(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetSystemCapability_SmartTalkingModeCapabilityVariant1(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
+            auto& value = *static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
@@ -15287,9 +9989,9 @@ namespace client::debugger {
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetSystemCapability_SmartTalkingModeCapabilityVariant2*>(storage);
+            const auto& value = *static_cast<const RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
@@ -15303,13 +10005,13 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.modeTimeOutValues, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetSystemCapability_SmartTalkingModeCapabilityVariant2() { return Construct<RetSystemCapability_SmartTalkingModeCapabilityVariant2>(); }
-        void Destroy_RetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { Destruct(static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemCapability_SmartTalkingModeCapabilityVariant2(const void* value)
+        void* Create_RetSystemCapability_SmartTalkingModeCapabilityVariant1() { return Construct<RetSystemCapability_SmartTalkingModeCapabilityVariant1>(); }
+        void Destroy_RetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { Destruct(static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
+        mdr::MDRResult<void> Validate_RetSystemCapability_SmartTalkingModeCapabilityVariant1(const void* value)
         {
-            return RetSystemCapability_SmartTalkingModeCapabilityVariant2::Validate(*static_cast<const RetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value));
+            return RetSystemCapability_SmartTalkingModeCapabilityVariant1::Validate(*static_cast<const RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value));
         }
-        bool DrawErased_RetSystemCapability_SmartTalkingModeCapabilityVariant2(void* value) { return Draw_RetSystemCapability_SmartTalkingModeCapabilityVariant2(*static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant2*>(value)); }
+        bool DrawErased_RetSystemCapability_SmartTalkingModeCapabilityVariant1(void* value) { return Draw_RetSystemCapability_SmartTalkingModeCapabilityVariant1(*static_cast<RetSystemCapability_SmartTalkingModeCapabilityVariant1*>(value)); }
 
         bool Draw_RetSystemCapability_VibratorCapability(RetSystemCapability_VibratorCapability& value)
         {
@@ -15486,55 +10188,6 @@ namespace client::debugger {
             return RetVptCapability_VptCapability::Validate(*static_cast<const RetVptCapability_VptCapability*>(value));
         }
         bool DrawErased_RetVptCapability_VptCapability(void* value) { return Draw_RetVptCapability_VptCapability(*static_cast<RetVptCapability_VptCapability*>(value)); }
-
-        bool Draw_RetVptParamCapability_VptCapability(RetVptParamCapability_VptCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__VptInquiredType);
-            changed |= DrawSequence("vptPresets", value.vptPresets.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("presetId", element.presetId, kEnum_mdr__v1__t1__VptPresetId);
-                        changed |= DrawPrefixedString("name", element.name);
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetVptParamCapability_VptCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetVptParamCapability_VptCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<VptPreset>::Read)(&ptr, value.vptPresets, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetVptParamCapability_VptCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetVptParamCapability_VptCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<VptPreset>::Write)(value.vptPresets, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetVptParamCapability_VptCapability() { return Construct<RetVptParamCapability_VptCapability>(); }
-        void Destroy_RetVptParamCapability_VptCapability(void* value) { Destruct(static_cast<RetVptParamCapability_VptCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetVptParamCapability_VptCapability(const void* value)
-        {
-            return RetVptParamCapability_VptCapability::Validate(*static_cast<const RetVptParamCapability_VptCapability*>(value));
-        }
-        bool DrawErased_RetVptParamCapability_VptCapability(void* value) { return Draw_RetVptParamCapability_VptCapability(*static_cast<RetVptParamCapability_VptCapability*>(value)); }
 
         bool Draw_SetEqEbbParamRetEqEbbCapability_EqCapability(SetEqEbbParamRetEqEbbCapability_EqCapability& value)
         {
@@ -15980,60 +10633,6 @@ namespace client::debugger {
         }
         bool DrawErased_TestCommand(void* value) { return Draw_TestCommand(*static_cast<TestCommand*>(value)); }
 
-        bool Draw_RetEqEbbExtendedInfoEqExtendedInfo(RetEqEbbExtendedInfoEqExtendedInfo& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__EqEbbInquiredType);
-            changed |= DrawSequence("bandInfos", value.bandInfos.value, true, [&](const char* elementLabel, auto& element) {
-                bool elementChanged = false;
-                {
-                    bool& changed = elementChanged;
-                    changed |= DrawTree(elementLabel, [&]() {
-                        bool changed = false;
-                        changed |= DrawEnum("infoType", element.infoType, kEnum_mdr__v1__t1__EqBandInformationType);
-                        changed |= DrawScalar("valueAsFrequency", element.valueAsFrequency);
-                        changed |= DrawTree("valueAsSpecificInformation", [&]() {
-                            bool changed = false;
-                            changed |= DrawScalar("code", element.valueAsSpecificInformation.code);
-                            return changed;
-                        });
-                        return changed;
-                    });
-                }
-                return elementChanged;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetEqEbbExtendedInfoEqExtendedInfo(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetEqEbbExtendedInfoEqExtendedInfo*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRArray<EqBandInformation>::Read)(&ptr, value.bandInfos, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetEqEbbExtendedInfoEqExtendedInfo(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetEqEbbExtendedInfoEqExtendedInfo*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRArray<EqBandInformation>::Write)(value.bandInfos, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetEqEbbExtendedInfoEqExtendedInfo() { return Construct<RetEqEbbExtendedInfoEqExtendedInfo>(); }
-        void Destroy_RetEqEbbExtendedInfoEqExtendedInfo(void* value) { Destruct(static_cast<RetEqEbbExtendedInfoEqExtendedInfo*>(value)); }
-        mdr::MDRResult<void> Validate_RetEqEbbExtendedInfoEqExtendedInfo(const void* value)
-        {
-            return RetEqEbbExtendedInfoEqExtendedInfo::Validate(*static_cast<const RetEqEbbExtendedInfoEqExtendedInfo*>(value));
-        }
-        bool DrawErased_RetEqEbbExtendedInfoEqExtendedInfo(void* value) { return Draw_RetEqEbbExtendedInfoEqExtendedInfo(*static_cast<RetEqEbbExtendedInfoEqExtendedInfo*>(value)); }
-
         bool Draw_RetGsCapabilityGsCandidateElementList(RetGsCapabilityGsCandidateElementList& value)
         {
             bool changed = false;
@@ -16178,322 +10777,6 @@ namespace client::debugger {
         }
         bool DrawErased_SetSportsExParam(void* value) { return Draw_SetSportsExParam(*static_cast<SetSportsExParam*>(value)); }
 
-        bool Draw_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability() { return Construct<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability>(); }
-        void Destroy_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(const void* value)
-        {
-            return NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability::Validate(*static_cast<const NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(void* value) { return Draw_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability(*static_cast<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability() { return Construct<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability>(); }
-        void Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(const void* value)
-        {
-            return NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability::Validate(*static_cast<const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(void* value) { return Draw_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability(*static_cast<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(NotifySystemParamRetSystemCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemParamRetSystemCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemParamRetSystemCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemParamRetSystemCapability_AssignableSettingsCapability() { return Construct<NotifySystemParamRetSystemCapability_AssignableSettingsCapability>(); }
-        void Destroy_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<NotifySystemParamRetSystemCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(const void* value)
-        {
-            return NotifySystemParamRetSystemCapability_AssignableSettingsCapability::Validate(*static_cast<const NotifySystemParamRetSystemCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(void* value) { return Draw_NotifySystemParamRetSystemCapability_AssignableSettingsCapability(*static_cast<NotifySystemParamRetSystemCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(NotifySystemStatusRetSystemCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const NotifySystemStatusRetSystemCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability() { return Construct<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability>(); }
-        void Destroy_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(const void* value)
-        {
-            return NotifySystemStatusRetSystemCapability_AssignableSettingsCapability::Validate(*static_cast<const NotifySystemStatusRetSystemCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(void* value) { return Draw_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability(*static_cast<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability*>(value)); }
-
         bool Draw_RetSystemCapability_AssignableSettingsCapability(RetSystemCapability_AssignableSettingsCapability& value)
         {
             bool changed = false;
@@ -16576,322 +10859,6 @@ namespace client::debugger {
             return RetSystemCapability_AssignableSettingsCapability::Validate(*static_cast<const RetSystemCapability_AssignableSettingsCapability*>(value));
         }
         bool DrawErased_RetSystemCapability_AssignableSettingsCapability(void* value) { return Draw_RetSystemCapability_AssignableSettingsCapability(*static_cast<RetSystemCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(RetSystemExParamChildPayloadCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamChildPayloadCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability() { return Construct<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability>(); }
-        void Destroy_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(const void* value)
-        {
-            return RetSystemExParamChildPayloadCapability_AssignableSettingsCapability::Validate(*static_cast<const RetSystemExParamChildPayloadCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(void* value) { return Draw_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability(*static_cast<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability() { return Construct<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability>(); }
-        void Destroy_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(const void* value)
-        {
-            return RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability::Validate(*static_cast<const RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(void* value) { return Draw_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability(*static_cast<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_RetSystemParamCapability_AssignableSettingsCapability(RetSystemParamCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemParamCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemParamCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemParamCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemParamCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemParamCapability_AssignableSettingsCapability() { return Construct<RetSystemParamCapability_AssignableSettingsCapability>(); }
-        void Destroy_RetSystemParamCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<RetSystemParamCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemParamCapability_AssignableSettingsCapability(const void* value)
-        {
-            return RetSystemParamCapability_AssignableSettingsCapability::Validate(*static_cast<const RetSystemParamCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_RetSystemParamCapability_AssignableSettingsCapability(void* value) { return Draw_RetSystemParamCapability_AssignableSettingsCapability(*static_cast<RetSystemParamCapability_AssignableSettingsCapability*>(value)); }
-
-        bool Draw_RetSystemStatusCapability_AssignableSettingsCapability(RetSystemStatusCapability_AssignableSettingsCapability& value)
-        {
-            bool changed = false;
-            changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
-            changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__SystemInquiredType);
-            changed |= DrawTree("assignableSettingKeyList", [&]() {
-                bool changed = false;
-                changed |= DrawSequence("elements", value.assignableSettingKeyList.elements.value, true, [&](const char* elementLabel, auto& element) {
-                    bool elementChanged = false;
-                    {
-                        bool& changed = elementChanged;
-                        changed |= DrawTree(elementLabel, [&]() {
-                            bool changed = false;
-                            changed |= DrawEnum("key", element.key, kEnum_mdr__v1__t1__AssignableSettingsKey);
-                            changed |= DrawEnum("keyType", element.keyType, kEnum_mdr__v1__t1__AssignableSettingsKeyType);
-                            changed |= DrawEnum("defaultPreset", element.defaultPreset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                            changed |= DrawSequence("presets", element.presets.value, true, [&](const char* elementLabel, auto& element) {
-                                bool elementChanged = false;
-                                {
-                                    bool& changed = elementChanged;
-                                    changed |= DrawTree(elementLabel, [&]() {
-                                        bool changed = false;
-                                        changed |= DrawEnum("preset", element.preset, kEnum_mdr__v1__t1__AssignableSettingsPreset);
-                                        changed |= DrawSequence("actions", element.actions.value, true, [&](const char* elementLabel, auto& element) {
-                                            bool elementChanged = false;
-                                            {
-                                                bool& changed = elementChanged;
-                                                changed |= DrawTree(elementLabel, [&]() {
-                                                    bool changed = false;
-                                                    changed |= DrawEnum("action", element.action, kEnum_mdr__v1__t1__AssignableSettingsAction);
-                                                    changed |= DrawEnum("function", element.function, kEnum_mdr__v1__t1__AssignableSettingsFunction);
-                                                    return changed;
-                                                });
-                                            }
-                                            return elementChanged;
-                                        });
-                                        return changed;
-                                    });
-                                }
-                                return elementChanged;
-                            });
-                            return changed;
-                        });
-                    }
-                    return elementChanged;
-                });
-                return changed;
-            });
-            return changed;
-        }
-        mdr::MDRResult<void> Decode_RetSystemStatusCapability_AssignableSettingsCapability(void* storage, mdr::Span<const mdr::UInt8> bytes)
-        {
-            auto& value = *static_cast<RetSystemStatusCapability_AssignableSettingsCapability*>(storage);
-            const UInt8* ptr = bytes.data();
-            size_t remaining = bytes.size();
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (AsCapabilityKeyList::Read)(&ptr, value.assignableSettingKeyList, remaining));
-            if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
-            return mdr::MDRResult<void>::Success();
-        }
-        mdr::MDRResult<size_t> Encode_RetSystemStatusCapability_AssignableSettingsCapability(const void* storage, mdr::UInt8* output, size_t maxSize)
-        {
-            const auto& value = *static_cast<const RetSystemStatusCapability_AssignableSettingsCapability*>(storage);
-            UInt8* ptr = output;
-            size_t remaining = maxSize;
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (AsCapabilityKeyList::Write)(value.assignableSettingKeyList, &ptr, remaining));
-            return mdr::MDRResult<size_t>::Success(ptr - output);
-        }
-        void* Create_RetSystemStatusCapability_AssignableSettingsCapability() { return Construct<RetSystemStatusCapability_AssignableSettingsCapability>(); }
-        void Destroy_RetSystemStatusCapability_AssignableSettingsCapability(void* value) { Destruct(static_cast<RetSystemStatusCapability_AssignableSettingsCapability*>(value)); }
-        mdr::MDRResult<void> Validate_RetSystemStatusCapability_AssignableSettingsCapability(const void* value)
-        {
-            return RetSystemStatusCapability_AssignableSettingsCapability::Validate(*static_cast<const RetSystemStatusCapability_AssignableSettingsCapability*>(value));
-        }
-        bool DrawErased_RetSystemStatusCapability_AssignableSettingsCapability(void* value) { return Draw_RetSystemStatusCapability_AssignableSettingsCapability(*static_cast<RetSystemStatusCapability_AssignableSettingsCapability*>(value)); }
 
         bool Draw_SetSystemExParamRetSystemCapability_AssignableSettingsCapability(SetSystemExParamRetSystemCapability_AssignableSettingsCapability& value)
         {
@@ -17097,20 +11064,14 @@ namespace client::debugger {
             {"mdr::v1::t1::NotifyAlertParam", ProtocolFamily::V1, MDRTraits<NotifyAlertParam>::kDataType, static_cast<UInt8>(NotifyAlertParam{}.command), &Create_NotifyAlertParam, &Destroy_NotifyAlertParam, &Decode_NotifyAlertParam, &Encode_NotifyAlertParam, &Validate_NotifyAlertParam, &DrawErased_NotifyAlertParam},
             {"mdr::v1::t1::NotifyAudioCodec", ProtocolFamily::V1, MDRTraits<NotifyAudioCodec>::kDataType, static_cast<UInt8>(NotifyAudioCodec{}.command), &Create_NotifyAudioCodec, &Destroy_NotifyAudioCodec, &Decode_NotifyAudioCodec, &Encode_NotifyAudioCodec, &Validate_NotifyAudioCodec, &DrawErased_NotifyAudioCodec},
             {"mdr::v1::t1::NotifyAudioParamConnectionModeParam", ProtocolFamily::V1, MDRTraits<NotifyAudioParamConnectionModeParam>::kDataType, static_cast<UInt8>(NotifyAudioParamConnectionModeParam{}.command), &Create_NotifyAudioParamConnectionModeParam, &Destroy_NotifyAudioParamConnectionModeParam, &Decode_NotifyAudioParamConnectionModeParam, &Encode_NotifyAudioParamConnectionModeParam, &Validate_NotifyAudioParamConnectionModeParam, &DrawErased_NotifyAudioParamConnectionModeParam},
-            {"mdr::v1::t1::NotifyAudioParamRetAudioCapability_AudioCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifyAudioParamRetAudioCapability_AudioCapabilityBase>::kDataType, static_cast<UInt8>(NotifyAudioParamRetAudioCapability_AudioCapabilityBase{}.command), &Create_NotifyAudioParamRetAudioCapability_AudioCapabilityBase, &Destroy_NotifyAudioParamRetAudioCapability_AudioCapabilityBase, &Decode_NotifyAudioParamRetAudioCapability_AudioCapabilityBase, &Encode_NotifyAudioParamRetAudioCapability_AudioCapabilityBase, &Validate_NotifyAudioParamRetAudioCapability_AudioCapabilityBase, &DrawErased_NotifyAudioParamRetAudioCapability_AudioCapabilityBase},
-            {"mdr::v1::t1::NotifyAudioParamRetAudioCapability_ConnectionModeCapability", ProtocolFamily::V1, MDRTraits<NotifyAudioParamRetAudioCapability_ConnectionModeCapability>::kDataType, static_cast<UInt8>(NotifyAudioParamRetAudioCapability_ConnectionModeCapability{}.command), &Create_NotifyAudioParamRetAudioCapability_ConnectionModeCapability, &Destroy_NotifyAudioParamRetAudioCapability_ConnectionModeCapability, &Decode_NotifyAudioParamRetAudioCapability_ConnectionModeCapability, &Encode_NotifyAudioParamRetAudioCapability_ConnectionModeCapability, &Validate_NotifyAudioParamRetAudioCapability_ConnectionModeCapability, &DrawErased_NotifyAudioParamRetAudioCapability_ConnectionModeCapability},
             {"mdr::v1::t1::NotifyAudioParamUpscalingParam", ProtocolFamily::V1, MDRTraits<NotifyAudioParamUpscalingParam>::kDataType, static_cast<UInt8>(NotifyAudioParamUpscalingParam{}.command), &Create_NotifyAudioParamUpscalingParam, &Destroy_NotifyAudioParamUpscalingParam, &Decode_NotifyAudioParamUpscalingParam, &Encode_NotifyAudioParamUpscalingParam, &Validate_NotifyAudioParamUpscalingParam, &DrawErased_NotifyAudioParamUpscalingParam},
             {"mdr::v1::t1::NotifyAudioStatus", ProtocolFamily::V1, MDRTraits<NotifyAudioStatus>::kDataType, static_cast<UInt8>(NotifyAudioStatus{}.command), &Create_NotifyAudioStatus, &Destroy_NotifyAudioStatus, &Decode_NotifyAudioStatus, &Encode_NotifyAudioStatus, &Validate_NotifyAudioStatus, &DrawErased_NotifyAudioStatus},
             {"mdr::v1::t1::NotifyBatteryLevelBatteryParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelBatteryParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelBatteryParam{}.command), &Create_NotifyBatteryLevelBatteryParam, &Destroy_NotifyBatteryLevelBatteryParam, &Decode_NotifyBatteryLevelBatteryParam, &Encode_NotifyBatteryLevelBatteryParam, &Validate_NotifyBatteryLevelBatteryParam, &DrawErased_NotifyBatteryLevelBatteryParam},
-            {"mdr::v1::t1::NotifyBatteryLevelCradleBatteryParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelCradleBatteryParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelCradleBatteryParam{}.command), &Create_NotifyBatteryLevelCradleBatteryParam, &Destroy_NotifyBatteryLevelCradleBatteryParam, &Decode_NotifyBatteryLevelCradleBatteryParam, &Encode_NotifyBatteryLevelCradleBatteryParam, &Validate_NotifyBatteryLevelCradleBatteryParam, &DrawErased_NotifyBatteryLevelCradleBatteryParam},
-            {"mdr::v1::t1::NotifyBatteryLevelLeftRightBatteryParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelLeftRightBatteryParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelLeftRightBatteryParam{}.command), &Create_NotifyBatteryLevelLeftRightBatteryParam, &Destroy_NotifyBatteryLevelLeftRightBatteryParam, &Decode_NotifyBatteryLevelLeftRightBatteryParam, &Encode_NotifyBatteryLevelLeftRightBatteryParam, &Validate_NotifyBatteryLevelLeftRightBatteryParam, &DrawErased_NotifyBatteryLevelLeftRightBatteryParam},
             {"mdr::v1::t1::NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam{}.command), &Create_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Destroy_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Decode_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Encode_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Validate_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &DrawErased_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam},
             {"mdr::v1::t1::NotifyBatteryLevelUpdateBatteryPowerThresholdParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelUpdateBatteryPowerThresholdParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelUpdateBatteryPowerThresholdParam{}.command), &Create_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Destroy_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Decode_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Encode_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Validate_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &DrawErased_NotifyBatteryLevelUpdateBatteryPowerThresholdParam},
             {"mdr::v1::t1::NotifyConnectionStatusLeftRightConnectionStatusParam", ProtocolFamily::V1, MDRTraits<NotifyConnectionStatusLeftRightConnectionStatusParam>::kDataType, static_cast<UInt8>(NotifyConnectionStatusLeftRightConnectionStatusParam{}.command), &Create_NotifyConnectionStatusLeftRightConnectionStatusParam, &Destroy_NotifyConnectionStatusLeftRightConnectionStatusParam, &Decode_NotifyConnectionStatusLeftRightConnectionStatusParam, &Encode_NotifyConnectionStatusLeftRightConnectionStatusParam, &Validate_NotifyConnectionStatusLeftRightConnectionStatusParam, &DrawErased_NotifyConnectionStatusLeftRightConnectionStatusParam},
             {"mdr::v1::t1::NotifyEqEbbParamEbbParam", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamEbbParam>::kDataType, static_cast<UInt8>(NotifyEqEbbParamEbbParam{}.command), &Create_NotifyEqEbbParamEbbParam, &Destroy_NotifyEqEbbParamEbbParam, &Decode_NotifyEqEbbParamEbbParam, &Encode_NotifyEqEbbParamEbbParam, &Validate_NotifyEqEbbParamEbbParam, &DrawErased_NotifyEqEbbParamEbbParam},
             {"mdr::v1::t1::NotifyEqEbbParamEqParam", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamEqParam>::kDataType, static_cast<UInt8>(NotifyEqEbbParamEqParam{}.command), &Create_NotifyEqEbbParamEqParam, &Destroy_NotifyEqEbbParamEqParam, &Decode_NotifyEqEbbParamEqParam, &Encode_NotifyEqEbbParamEqParam, &Validate_NotifyEqEbbParamEqParam, &DrawErased_NotifyEqEbbParamEqParam},
-            {"mdr::v1::t1::NotifyEqEbbParamRetEqEbbCapability_EbbCapability", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamRetEqEbbCapability_EbbCapability>::kDataType, static_cast<UInt8>(NotifyEqEbbParamRetEqEbbCapability_EbbCapability{}.command), &Create_NotifyEqEbbParamRetEqEbbCapability_EbbCapability, &Destroy_NotifyEqEbbParamRetEqEbbCapability_EbbCapability, &Decode_NotifyEqEbbParamRetEqEbbCapability_EbbCapability, &Encode_NotifyEqEbbParamRetEqEbbCapability_EbbCapability, &Validate_NotifyEqEbbParamRetEqEbbCapability_EbbCapability, &DrawErased_NotifyEqEbbParamRetEqEbbCapability_EbbCapability},
-            {"mdr::v1::t1::NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase>::kDataType, static_cast<UInt8>(NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase{}.command), &Create_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase, &Destroy_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase, &Decode_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase, &Encode_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase, &Validate_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase, &DrawErased_NotifyEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase},
             {"mdr::v1::t1::NotifyEqEbbStatus", ProtocolFamily::V1, MDRTraits<NotifyEqEbbStatus>::kDataType, static_cast<UInt8>(NotifyEqEbbStatus{}.command), &Create_NotifyEqEbbStatus, &Destroy_NotifyEqEbbStatus, &Decode_NotifyEqEbbStatus, &Encode_NotifyEqEbbStatus, &Validate_NotifyEqEbbStatus, &DrawErased_NotifyEqEbbStatus},
             {"mdr::v1::t1::NotifyGsParamGsBooleanTypeValue", ProtocolFamily::V1, MDRTraits<NotifyGsParamGsBooleanTypeValue>::kDataType, static_cast<UInt8>(NotifyGsParamGsBooleanTypeValue{}.command), &Create_NotifyGsParamGsBooleanTypeValue, &Destroy_NotifyGsParamGsBooleanTypeValue, &Decode_NotifyGsParamGsBooleanTypeValue, &Encode_NotifyGsParamGsBooleanTypeValue, &Validate_NotifyGsParamGsBooleanTypeValue, &DrawErased_NotifyGsParamGsBooleanTypeValue},
             {"mdr::v1::t1::NotifyGsParamGsListTypeValue", ProtocolFamily::V1, MDRTraits<NotifyGsParamGsListTypeValue>::kDataType, static_cast<UInt8>(NotifyGsParamGsListTypeValue{}.command), &Create_NotifyGsParamGsListTypeValue, &Destroy_NotifyGsParamGsListTypeValue, &Decode_NotifyGsParamGsListTypeValue, &Encode_NotifyGsParamGsListTypeValue, &Validate_NotifyGsParamGsListTypeValue, &DrawErased_NotifyGsParamGsListTypeValue},
@@ -17119,101 +11080,45 @@ namespace client::debugger {
             {"mdr::v1::t1::NotifyLinkControlKeepAliveLinkControlSettingParam", ProtocolFamily::V1, MDRTraits<NotifyLinkControlKeepAliveLinkControlSettingParam>::kDataType, static_cast<UInt8>(NotifyLinkControlKeepAliveLinkControlSettingParam{}.command), &Create_NotifyLinkControlKeepAliveLinkControlSettingParam, &Destroy_NotifyLinkControlKeepAliveLinkControlSettingParam, &Decode_NotifyLinkControlKeepAliveLinkControlSettingParam, &Encode_NotifyLinkControlKeepAliveLinkControlSettingParam, &Validate_NotifyLinkControlKeepAliveLinkControlSettingParam, &DrawErased_NotifyLinkControlKeepAliveLinkControlSettingParam},
             {"mdr::v1::t1::NotifyLogParam", ProtocolFamily::V1, MDRTraits<NotifyLogParam>::kDataType, static_cast<UInt8>(NotifyLogParam{}.command), &Create_NotifyLogParam, &Destroy_NotifyLogParam, &Decode_NotifyLogParam, &Encode_NotifyLogParam, &Validate_NotifyLogParam, &DrawErased_NotifyLogParam},
             {"mdr::v1::t1::NotifyNcAsmParamAsmParam", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamAsmParam>::kDataType, static_cast<UInt8>(NotifyNcAsmParamAsmParam{}.command), &Create_NotifyNcAsmParamAsmParam, &Destroy_NotifyNcAsmParamAsmParam, &Decode_NotifyNcAsmParamAsmParam, &Encode_NotifyNcAsmParamAsmParam, &Validate_NotifyNcAsmParamAsmParam, &DrawErased_NotifyNcAsmParamAsmParam},
-            {"mdr::v1::t1::NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase>::kDataType, static_cast<UInt8>(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase{}.command), &Create_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase, &Destroy_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase, &Decode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase, &Encode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase, &Validate_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase, &DrawErased_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase},
-            {"mdr::v1::t1::NotifyNcAsmParamRetNcAsmCapability_NcCapability", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamRetNcAsmCapability_NcCapability>::kDataType, static_cast<UInt8>(NotifyNcAsmParamRetNcAsmCapability_NcCapability{}.command), &Create_NotifyNcAsmParamRetNcAsmCapability_NcCapability, &Destroy_NotifyNcAsmParamRetNcAsmCapability_NcCapability, &Decode_NotifyNcAsmParamRetNcAsmCapability_NcCapability, &Encode_NotifyNcAsmParamRetNcAsmCapability_NcCapability, &Validate_NotifyNcAsmParamRetNcAsmCapability_NcCapability, &DrawErased_NotifyNcAsmParamRetNcAsmCapability_NcCapability},
             {"mdr::v1::t1::NotifyNcAsmParamcAsmParam", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamcAsmParam>::kDataType, static_cast<UInt8>(NotifyNcAsmParamcAsmParam{}.command), &Create_NotifyNcAsmParamcAsmParam, &Destroy_NotifyNcAsmParamcAsmParam, &Decode_NotifyNcAsmParamcAsmParam, &Encode_NotifyNcAsmParamcAsmParam, &Validate_NotifyNcAsmParamcAsmParam, &DrawErased_NotifyNcAsmParamcAsmParam},
             {"mdr::v1::t1::NotifyNcAsmParamcParam", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamcParam>::kDataType, static_cast<UInt8>(NotifyNcAsmParamcParam{}.command), &Create_NotifyNcAsmParamcParam, &Destroy_NotifyNcAsmParamcParam, &Decode_NotifyNcAsmParamcParam, &Encode_NotifyNcAsmParamcParam, &Validate_NotifyNcAsmParamcParam, &DrawErased_NotifyNcAsmParamcParam},
             {"mdr::v1::t1::NotifyNcAsmStatus", ProtocolFamily::V1, MDRTraits<NotifyNcAsmStatus>::kDataType, static_cast<UInt8>(NotifyNcAsmStatus{}.command), &Create_NotifyNcAsmStatus, &Destroy_NotifyNcAsmStatus, &Decode_NotifyNcAsmStatus, &Encode_NotifyNcAsmStatus, &Validate_NotifyNcAsmStatus, &DrawErased_NotifyNcAsmStatus},
             {"mdr::v1::t1::NotifyOptimizerParam", ProtocolFamily::V1, MDRTraits<NotifyOptimizerParam>::kDataType, static_cast<UInt8>(NotifyOptimizerParam{}.command), &Create_NotifyOptimizerParam, &Destroy_NotifyOptimizerParam, &Decode_NotifyOptimizerParam, &Encode_NotifyOptimizerParam, &Validate_NotifyOptimizerParam, &DrawErased_NotifyOptimizerParam},
             {"mdr::v1::t1::NotifyOptimizerStatus", ProtocolFamily::V1, MDRTraits<NotifyOptimizerStatus>::kDataType, static_cast<UInt8>(NotifyOptimizerStatus{}.command), &Create_NotifyOptimizerStatus, &Destroy_NotifyOptimizerStatus, &Decode_NotifyOptimizerStatus, &Encode_NotifyOptimizerStatus, &Validate_NotifyOptimizerStatus, &DrawErased_NotifyOptimizerStatus},
+            {"mdr::v1::t1::NotifyPlayParamPlaybackControllerNotifyNameData", ProtocolFamily::V1, MDRTraits<NotifyPlayParamPlaybackControllerNotifyNameData>::kDataType, static_cast<UInt8>(NotifyPlayParamPlaybackControllerNotifyNameData{}.command), &Create_NotifyPlayParamPlaybackControllerNotifyNameData, &Destroy_NotifyPlayParamPlaybackControllerNotifyNameData, &Decode_NotifyPlayParamPlaybackControllerNotifyNameData, &Encode_NotifyPlayParamPlaybackControllerNotifyNameData, &Validate_NotifyPlayParamPlaybackControllerNotifyNameData, &DrawErased_NotifyPlayParamPlaybackControllerNotifyNameData},
             {"mdr::v1::t1::NotifyPlayParamPlaybackControllerVolumeData", ProtocolFamily::V1, MDRTraits<NotifyPlayParamPlaybackControllerVolumeData>::kDataType, static_cast<UInt8>(NotifyPlayParamPlaybackControllerVolumeData{}.command), &Create_NotifyPlayParamPlaybackControllerVolumeData, &Destroy_NotifyPlayParamPlaybackControllerVolumeData, &Decode_NotifyPlayParamPlaybackControllerVolumeData, &Encode_NotifyPlayParamPlaybackControllerVolumeData, &Validate_NotifyPlayParamPlaybackControllerVolumeData, &DrawErased_NotifyPlayParamPlaybackControllerVolumeData},
             {"mdr::v1::t1::NotifyPlayStatus", ProtocolFamily::V1, MDRTraits<NotifyPlayStatus>::kDataType, static_cast<UInt8>(NotifyPlayStatus{}.command), &Create_NotifyPlayStatus, &Destroy_NotifyPlayStatus, &Decode_NotifyPlayStatus, &Encode_NotifyPlayStatus, &Validate_NotifyPlayStatus, &DrawErased_NotifyPlayStatus},
-            {"mdr::v1::t1::NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest", ProtocolFamily::V1, MDRTraits<NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest>::kDataType, static_cast<UInt8>(NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest{}.command), &Create_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Destroy_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Decode_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Encode_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Validate_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &DrawErased_NotifySportsExParamChildPayloadGetSportsExParam_TrainingModeRequest},
-            {"mdr::v1::t1::NotifySportsExParamChildPayloadTrainingModeExAsmParam", ProtocolFamily::V1, MDRTraits<NotifySportsExParamChildPayloadTrainingModeExAsmParam>::kDataType, static_cast<UInt8>(NotifySportsExParamChildPayloadTrainingModeExAsmParam{}.command), &Create_NotifySportsExParamChildPayloadTrainingModeExAsmParam, &Destroy_NotifySportsExParamChildPayloadTrainingModeExAsmParam, &Decode_NotifySportsExParamChildPayloadTrainingModeExAsmParam, &Encode_NotifySportsExParamChildPayloadTrainingModeExAsmParam, &Validate_NotifySportsExParamChildPayloadTrainingModeExAsmParam, &DrawErased_NotifySportsExParamChildPayloadTrainingModeExAsmParam},
-            {"mdr::v1::t1::NotifySportsExParamChildPayloadTrainingModeExEqParam", ProtocolFamily::V1, MDRTraits<NotifySportsExParamChildPayloadTrainingModeExEqParam>::kDataType, static_cast<UInt8>(NotifySportsExParamChildPayloadTrainingModeExEqParam{}.command), &Create_NotifySportsExParamChildPayloadTrainingModeExEqParam, &Destroy_NotifySportsExParamChildPayloadTrainingModeExEqParam, &Decode_NotifySportsExParamChildPayloadTrainingModeExEqParam, &Encode_NotifySportsExParamChildPayloadTrainingModeExEqParam, &Validate_NotifySportsExParamChildPayloadTrainingModeExEqParam, &DrawErased_NotifySportsExParamChildPayloadTrainingModeExEqParam},
-            {"mdr::v1::t1::NotifySportsExParamChildPayloadTrainingModeExNcAsmParam", ProtocolFamily::V1, MDRTraits<NotifySportsExParamChildPayloadTrainingModeExNcAsmParam>::kDataType, static_cast<UInt8>(NotifySportsExParamChildPayloadTrainingModeExNcAsmParam{}.command), &Create_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam, &Destroy_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam, &Decode_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam, &Encode_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam, &Validate_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam, &DrawErased_NotifySportsExParamChildPayloadTrainingModeExNcAsmParam},
             {"mdr::v1::t1::NotifySportsParamTrainingModeParam", ProtocolFamily::V1, MDRTraits<NotifySportsParamTrainingModeParam>::kDataType, static_cast<UInt8>(NotifySportsParamTrainingModeParam{}.command), &Create_NotifySportsParamTrainingModeParam, &Destroy_NotifySportsParamTrainingModeParam, &Decode_NotifySportsParamTrainingModeParam, &Encode_NotifySportsParamTrainingModeParam, &Validate_NotifySportsParamTrainingModeParam, &DrawErased_NotifySportsParamTrainingModeParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadAssignableSettingsParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadAssignableSettingsParam{}.command), &Create_NotifySystemExParamChildPayloadAssignableSettingsParam, &Destroy_NotifySystemExParamChildPayloadAssignableSettingsParam, &Decode_NotifySystemExParamChildPayloadAssignableSettingsParam, &Encode_NotifySystemExParamChildPayloadAssignableSettingsParam, &Validate_NotifySystemExParamChildPayloadAssignableSettingsParam, &DrawErased_NotifySystemExParamChildPayloadAssignableSettingsParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadAutoPowerOffParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadAutoPowerOffParam{}.command), &Create_NotifySystemExParamChildPayloadAutoPowerOffParam, &Destroy_NotifySystemExParamChildPayloadAutoPowerOffParam, &Decode_NotifySystemExParamChildPayloadAutoPowerOffParam, &Encode_NotifySystemExParamChildPayloadAutoPowerOffParam, &Validate_NotifySystemExParamChildPayloadAutoPowerOffParam, &DrawErased_NotifySystemExParamChildPayloadAutoPowerOffParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadControlByWearingParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadControlByWearingParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadControlByWearingParam{}.command), &Create_NotifySystemExParamChildPayloadControlByWearingParam, &Destroy_NotifySystemExParamChildPayloadControlByWearingParam, &Decode_NotifySystemExParamChildPayloadControlByWearingParam, &Encode_NotifySystemExParamChildPayloadControlByWearingParam, &Validate_NotifySystemExParamChildPayloadControlByWearingParam, &DrawErased_NotifySystemExParamChildPayloadControlByWearingParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadPowerSavingModeParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadPowerSavingModeParam{}.command), &Create_NotifySystemExParamChildPayloadPowerSavingModeParam, &Destroy_NotifySystemExParamChildPayloadPowerSavingModeParam, &Decode_NotifySystemExParamChildPayloadPowerSavingModeParam, &Encode_NotifySystemExParamChildPayloadPowerSavingModeParam, &Validate_NotifySystemExParamChildPayloadPowerSavingModeParam, &DrawErased_NotifySystemExParamChildPayloadPowerSavingModeParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_VibratorCapability},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadSmartTalkingModeExType1Param", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadSmartTalkingModeExType1Param>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadSmartTalkingModeExType1Param{}.command), &Create_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param, &Destroy_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param, &Decode_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param, &Encode_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param, &Validate_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param, &DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeExType1Param},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadSmartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadSmartTalkingModeRetParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadSmartTalkingModeRetParam{}.command), &Create_NotifySystemExParamChildPayloadSmartTalkingModeRetParam, &Destroy_NotifySystemExParamChildPayloadSmartTalkingModeRetParam, &Decode_NotifySystemExParamChildPayloadSmartTalkingModeRetParam, &Encode_NotifySystemExParamChildPayloadSmartTalkingModeRetParam, &Validate_NotifySystemExParamChildPayloadSmartTalkingModeRetParam, &DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeRetParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam{}.command), &Create_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Destroy_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Decode_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Encode_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Validate_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeSetNtfyParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadVibratorParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadVibratorParam>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadVibratorParam{}.command), &Create_NotifySystemExParamChildPayloadVibratorParam, &Destroy_NotifySystemExParamChildPayloadVibratorParam, &Decode_NotifySystemExParamChildPayloadVibratorParam, &Encode_NotifySystemExParamChildPayloadVibratorParam, &Validate_NotifySystemExParamChildPayloadVibratorParam, &DrawErased_NotifySystemExParamChildPayloadVibratorParam},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Destroy_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Decode_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Encode_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Validate_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, &DrawErased_NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Destroy_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Decode_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Encode_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Validate_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam, &DrawErased_NotifySystemExParamSmartTalkingModeExParamAutoPowerOffParam},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamControlByWearingParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamControlByWearingParam>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamControlByWearingParam{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam, &Destroy_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam, &Decode_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam, &Encode_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam, &Validate_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam, &DrawErased_NotifySystemExParamSmartTalkingModeExParamControlByWearingParam},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Destroy_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Decode_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Encode_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Validate_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam, &DrawErased_NotifySystemExParamSmartTalkingModeExParamPowerSavingModeParam},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, &Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, &Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, &Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, &Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, &DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability, &Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability, &Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability, &Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability, &Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability, &DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability, &Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability, &Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability, &Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability, &Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability, &DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase, &Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase, &Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase, &Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase, &Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase, &DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability, &Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability, &Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability, &Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability, &Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability, &DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_VibratorCapability},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Destroy_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Decode_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Encode_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Validate_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &DrawErased_NotifySystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamVibratorParam", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamVibratorParam>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamVibratorParam{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamVibratorParam, &Destroy_NotifySystemExParamSmartTalkingModeExParamVibratorParam, &Decode_NotifySystemExParamSmartTalkingModeExParamVibratorParam, &Encode_NotifySystemExParamSmartTalkingModeExParamVibratorParam, &Validate_NotifySystemExParamSmartTalkingModeExParamVibratorParam, &DrawErased_NotifySystemExParamSmartTalkingModeExParamVibratorParam},
+            {"mdr::v1::t1::NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param{}.command), &Create_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Destroy_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Decode_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Encode_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Validate_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param, &DrawErased_NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param},
             {"mdr::v1::t1::NotifySystemParamAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamAssignableSettingsParam>::kDataType, static_cast<UInt8>(NotifySystemParamAssignableSettingsParam{}.command), &Create_NotifySystemParamAssignableSettingsParam, &Destroy_NotifySystemParamAssignableSettingsParam, &Decode_NotifySystemParamAssignableSettingsParam, &Encode_NotifySystemParamAssignableSettingsParam, &Validate_NotifySystemParamAssignableSettingsParam, &DrawErased_NotifySystemParamAssignableSettingsParam},
             {"mdr::v1::t1::NotifySystemParamAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamAutoPowerOffParam>::kDataType, static_cast<UInt8>(NotifySystemParamAutoPowerOffParam{}.command), &Create_NotifySystemParamAutoPowerOffParam, &Destroy_NotifySystemParamAutoPowerOffParam, &Decode_NotifySystemParamAutoPowerOffParam, &Encode_NotifySystemParamAutoPowerOffParam, &Validate_NotifySystemParamAutoPowerOffParam, &DrawErased_NotifySystemParamAutoPowerOffParam},
             {"mdr::v1::t1::NotifySystemParamControlByWearingParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamControlByWearingParam>::kDataType, static_cast<UInt8>(NotifySystemParamControlByWearingParam{}.command), &Create_NotifySystemParamControlByWearingParam, &Destroy_NotifySystemParamControlByWearingParam, &Decode_NotifySystemParamControlByWearingParam, &Encode_NotifySystemParamControlByWearingParam, &Validate_NotifySystemParamControlByWearingParam, &DrawErased_NotifySystemParamControlByWearingParam},
             {"mdr::v1::t1::NotifySystemParamPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamPowerSavingModeParam>::kDataType, static_cast<UInt8>(NotifySystemParamPowerSavingModeParam{}.command), &Create_NotifySystemParamPowerSavingModeParam, &Destroy_NotifySystemParamPowerSavingModeParam, &Decode_NotifySystemParamPowerSavingModeParam, &Encode_NotifySystemParamPowerSavingModeParam, &Validate_NotifySystemParamPowerSavingModeParam, &DrawErased_NotifySystemParamPowerSavingModeParam},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_AutoPowerOffCapability{}.command), &Create_NotifySystemParamRetSystemCapability_AutoPowerOffCapability, &Destroy_NotifySystemParamRetSystemCapability_AutoPowerOffCapability, &Decode_NotifySystemParamRetSystemCapability_AutoPowerOffCapability, &Encode_NotifySystemParamRetSystemCapability_AutoPowerOffCapability, &Validate_NotifySystemParamRetSystemCapability_AutoPowerOffCapability, &DrawErased_NotifySystemParamRetSystemCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_ControlByWearingCapability{}.command), &Create_NotifySystemParamRetSystemCapability_ControlByWearingCapability, &Destroy_NotifySystemParamRetSystemCapability_ControlByWearingCapability, &Decode_NotifySystemParamRetSystemCapability_ControlByWearingCapability, &Encode_NotifySystemParamRetSystemCapability_ControlByWearingCapability, &Validate_NotifySystemParamRetSystemCapability_ControlByWearingCapability, &DrawErased_NotifySystemParamRetSystemCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_PowerSavingModeCapability{}.command), &Create_NotifySystemParamRetSystemCapability_PowerSavingModeCapability, &Destroy_NotifySystemParamRetSystemCapability_PowerSavingModeCapability, &Decode_NotifySystemParamRetSystemCapability_PowerSavingModeCapability, &Encode_NotifySystemParamRetSystemCapability_PowerSavingModeCapability, &Validate_NotifySystemParamRetSystemCapability_PowerSavingModeCapability, &DrawErased_NotifySystemParamRetSystemCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Destroy_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Decode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Encode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Validate_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Destroy_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Decode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Encode_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Validate_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_SystemCapabilityBase{}.command), &Create_NotifySystemParamRetSystemCapability_SystemCapabilityBase, &Destroy_NotifySystemParamRetSystemCapability_SystemCapabilityBase, &Decode_NotifySystemParamRetSystemCapability_SystemCapabilityBase, &Encode_NotifySystemParamRetSystemCapability_SystemCapabilityBase, &Validate_NotifySystemParamRetSystemCapability_SystemCapabilityBase, &DrawErased_NotifySystemParamRetSystemCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_VibratorCapability{}.command), &Create_NotifySystemParamRetSystemCapability_VibratorCapability, &Destroy_NotifySystemParamRetSystemCapability_VibratorCapability, &Decode_NotifySystemParamRetSystemCapability_VibratorCapability, &Encode_NotifySystemParamRetSystemCapability_VibratorCapability, &Validate_NotifySystemParamRetSystemCapability_VibratorCapability, &DrawErased_NotifySystemParamRetSystemCapability_VibratorCapability},
-            {"mdr::v1::t1::NotifySystemParamSmartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamSmartTalkingModeRetParam>::kDataType, static_cast<UInt8>(NotifySystemParamSmartTalkingModeRetParam{}.command), &Create_NotifySystemParamSmartTalkingModeRetParam, &Destroy_NotifySystemParamSmartTalkingModeRetParam, &Decode_NotifySystemParamSmartTalkingModeRetParam, &Encode_NotifySystemParamSmartTalkingModeRetParam, &Validate_NotifySystemParamSmartTalkingModeRetParam, &DrawErased_NotifySystemParamSmartTalkingModeRetParam},
             {"mdr::v1::t1::NotifySystemParamSmartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamSmartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(NotifySystemParamSmartTalkingModeSetNtfyParam{}.command), &Create_NotifySystemParamSmartTalkingModeSetNtfyParam, &Destroy_NotifySystemParamSmartTalkingModeSetNtfyParam, &Decode_NotifySystemParamSmartTalkingModeSetNtfyParam, &Encode_NotifySystemParamSmartTalkingModeSetNtfyParam, &Validate_NotifySystemParamSmartTalkingModeSetNtfyParam, &DrawErased_NotifySystemParamSmartTalkingModeSetNtfyParam},
-            {"mdr::v1::t1::NotifySystemParamVibratorAlertNotificationParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamVibratorAlertNotificationParam>::kDataType, static_cast<UInt8>(NotifySystemParamVibratorAlertNotificationParam{}.command), &Create_NotifySystemParamVibratorAlertNotificationParam, &Destroy_NotifySystemParamVibratorAlertNotificationParam, &Decode_NotifySystemParamVibratorAlertNotificationParam, &Encode_NotifySystemParamVibratorAlertNotificationParam, &Validate_NotifySystemParamVibratorAlertNotificationParam, &DrawErased_NotifySystemParamVibratorAlertNotificationParam},
             {"mdr::v1::t1::NotifySystemParamVibratorParam", ProtocolFamily::V1, MDRTraits<NotifySystemParamVibratorParam>::kDataType, static_cast<UInt8>(NotifySystemParamVibratorParam{}.command), &Create_NotifySystemParamVibratorParam, &Destroy_NotifySystemParamVibratorParam, &Decode_NotifySystemParamVibratorParam, &Encode_NotifySystemParamVibratorParam, &Validate_NotifySystemParamVibratorParam, &DrawErased_NotifySystemParamVibratorParam},
-            {"mdr::v1::t1::NotifySystemStatusAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusAssignableSettingsParam>::kDataType, static_cast<UInt8>(NotifySystemStatusAssignableSettingsParam{}.command), &Create_NotifySystemStatusAssignableSettingsParam, &Destroy_NotifySystemStatusAssignableSettingsParam, &Decode_NotifySystemStatusAssignableSettingsParam, &Encode_NotifySystemStatusAssignableSettingsParam, &Validate_NotifySystemStatusAssignableSettingsParam, &DrawErased_NotifySystemStatusAssignableSettingsParam},
             {"mdr::v1::t1::NotifySystemStatusAssignableSettingsStatus", ProtocolFamily::V1, MDRTraits<NotifySystemStatusAssignableSettingsStatus>::kDataType, static_cast<UInt8>(NotifySystemStatusAssignableSettingsStatus{}.command), &Create_NotifySystemStatusAssignableSettingsStatus, &Destroy_NotifySystemStatusAssignableSettingsStatus, &Decode_NotifySystemStatusAssignableSettingsStatus, &Encode_NotifySystemStatusAssignableSettingsStatus, &Validate_NotifySystemStatusAssignableSettingsStatus, &DrawErased_NotifySystemStatusAssignableSettingsStatus},
-            {"mdr::v1::t1::NotifySystemStatusAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusAutoPowerOffParam>::kDataType, static_cast<UInt8>(NotifySystemStatusAutoPowerOffParam{}.command), &Create_NotifySystemStatusAutoPowerOffParam, &Destroy_NotifySystemStatusAutoPowerOffParam, &Decode_NotifySystemStatusAutoPowerOffParam, &Encode_NotifySystemStatusAutoPowerOffParam, &Validate_NotifySystemStatusAutoPowerOffParam, &DrawErased_NotifySystemStatusAutoPowerOffParam},
-            {"mdr::v1::t1::NotifySystemStatusControlByWearingParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusControlByWearingParam>::kDataType, static_cast<UInt8>(NotifySystemStatusControlByWearingParam{}.command), &Create_NotifySystemStatusControlByWearingParam, &Destroy_NotifySystemStatusControlByWearingParam, &Decode_NotifySystemStatusControlByWearingParam, &Encode_NotifySystemStatusControlByWearingParam, &Validate_NotifySystemStatusControlByWearingParam, &DrawErased_NotifySystemStatusControlByWearingParam},
-            {"mdr::v1::t1::NotifySystemStatusPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusPowerSavingModeParam>::kDataType, static_cast<UInt8>(NotifySystemStatusPowerSavingModeParam{}.command), &Create_NotifySystemStatusPowerSavingModeParam, &Destroy_NotifySystemStatusPowerSavingModeParam, &Decode_NotifySystemStatusPowerSavingModeParam, &Encode_NotifySystemStatusPowerSavingModeParam, &Validate_NotifySystemStatusPowerSavingModeParam, &DrawErased_NotifySystemStatusPowerSavingModeParam},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_AutoPowerOffCapability{}.command), &Create_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, &Destroy_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, &Decode_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, &Encode_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, &Validate_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, &DrawErased_NotifySystemStatusRetSystemCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_ControlByWearingCapability{}.command), &Create_NotifySystemStatusRetSystemCapability_ControlByWearingCapability, &Destroy_NotifySystemStatusRetSystemCapability_ControlByWearingCapability, &Decode_NotifySystemStatusRetSystemCapability_ControlByWearingCapability, &Encode_NotifySystemStatusRetSystemCapability_ControlByWearingCapability, &Validate_NotifySystemStatusRetSystemCapability_ControlByWearingCapability, &DrawErased_NotifySystemStatusRetSystemCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_PowerSavingModeCapability{}.command), &Create_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability, &Destroy_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability, &Decode_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability, &Encode_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability, &Validate_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability, &DrawErased_NotifySystemStatusRetSystemCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Destroy_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Decode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Encode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Validate_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Destroy_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Decode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Encode_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Validate_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_SystemCapabilityBase{}.command), &Create_NotifySystemStatusRetSystemCapability_SystemCapabilityBase, &Destroy_NotifySystemStatusRetSystemCapability_SystemCapabilityBase, &Decode_NotifySystemStatusRetSystemCapability_SystemCapabilityBase, &Encode_NotifySystemStatusRetSystemCapability_SystemCapabilityBase, &Validate_NotifySystemStatusRetSystemCapability_SystemCapabilityBase, &DrawErased_NotifySystemStatusRetSystemCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_VibratorCapability{}.command), &Create_NotifySystemStatusRetSystemCapability_VibratorCapability, &Destroy_NotifySystemStatusRetSystemCapability_VibratorCapability, &Decode_NotifySystemStatusRetSystemCapability_VibratorCapability, &Encode_NotifySystemStatusRetSystemCapability_VibratorCapability, &Validate_NotifySystemStatusRetSystemCapability_VibratorCapability, &DrawErased_NotifySystemStatusRetSystemCapability_VibratorCapability},
-            {"mdr::v1::t1::NotifySystemStatusSmartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusSmartTalkingModeRetParam>::kDataType, static_cast<UInt8>(NotifySystemStatusSmartTalkingModeRetParam{}.command), &Create_NotifySystemStatusSmartTalkingModeRetParam, &Destroy_NotifySystemStatusSmartTalkingModeRetParam, &Decode_NotifySystemStatusSmartTalkingModeRetParam, &Encode_NotifySystemStatusSmartTalkingModeRetParam, &Validate_NotifySystemStatusSmartTalkingModeRetParam, &DrawErased_NotifySystemStatusSmartTalkingModeRetParam},
-            {"mdr::v1::t1::NotifySystemStatusSmartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusSmartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(NotifySystemStatusSmartTalkingModeSetNtfyParam{}.command), &Create_NotifySystemStatusSmartTalkingModeSetNtfyParam, &Destroy_NotifySystemStatusSmartTalkingModeSetNtfyParam, &Decode_NotifySystemStatusSmartTalkingModeSetNtfyParam, &Encode_NotifySystemStatusSmartTalkingModeSetNtfyParam, &Validate_NotifySystemStatusSmartTalkingModeSetNtfyParam, &DrawErased_NotifySystemStatusSmartTalkingModeSetNtfyParam},
+            {"mdr::v1::t1::NotifySystemStatusAutoPowerOffStatus", ProtocolFamily::V1, MDRTraits<NotifySystemStatusAutoPowerOffStatus>::kDataType, static_cast<UInt8>(NotifySystemStatusAutoPowerOffStatus{}.command), &Create_NotifySystemStatusAutoPowerOffStatus, &Destroy_NotifySystemStatusAutoPowerOffStatus, &Decode_NotifySystemStatusAutoPowerOffStatus, &Encode_NotifySystemStatusAutoPowerOffStatus, &Validate_NotifySystemStatusAutoPowerOffStatus, &DrawErased_NotifySystemStatusAutoPowerOffStatus},
+            {"mdr::v1::t1::NotifySystemStatusControlByWearingStatus", ProtocolFamily::V1, MDRTraits<NotifySystemStatusControlByWearingStatus>::kDataType, static_cast<UInt8>(NotifySystemStatusControlByWearingStatus{}.command), &Create_NotifySystemStatusControlByWearingStatus, &Destroy_NotifySystemStatusControlByWearingStatus, &Decode_NotifySystemStatusControlByWearingStatus, &Encode_NotifySystemStatusControlByWearingStatus, &Validate_NotifySystemStatusControlByWearingStatus, &DrawErased_NotifySystemStatusControlByWearingStatus},
+            {"mdr::v1::t1::NotifySystemStatusPowerSavingModeStatus", ProtocolFamily::V1, MDRTraits<NotifySystemStatusPowerSavingModeStatus>::kDataType, static_cast<UInt8>(NotifySystemStatusPowerSavingModeStatus{}.command), &Create_NotifySystemStatusPowerSavingModeStatus, &Destroy_NotifySystemStatusPowerSavingModeStatus, &Decode_NotifySystemStatusPowerSavingModeStatus, &Encode_NotifySystemStatusPowerSavingModeStatus, &Validate_NotifySystemStatusPowerSavingModeStatus, &DrawErased_NotifySystemStatusPowerSavingModeStatus},
             {"mdr::v1::t1::NotifySystemStatusSmartTalkingModeStatus", ProtocolFamily::V1, MDRTraits<NotifySystemStatusSmartTalkingModeStatus>::kDataType, static_cast<UInt8>(NotifySystemStatusSmartTalkingModeStatus{}.command), &Create_NotifySystemStatusSmartTalkingModeStatus, &Destroy_NotifySystemStatusSmartTalkingModeStatus, &Decode_NotifySystemStatusSmartTalkingModeStatus, &Encode_NotifySystemStatusSmartTalkingModeStatus, &Validate_NotifySystemStatusSmartTalkingModeStatus, &DrawErased_NotifySystemStatusSmartTalkingModeStatus},
-            {"mdr::v1::t1::NotifySystemStatusVibratorParam", ProtocolFamily::V1, MDRTraits<NotifySystemStatusVibratorParam>::kDataType, static_cast<UInt8>(NotifySystemStatusVibratorParam{}.command), &Create_NotifySystemStatusVibratorParam, &Destroy_NotifySystemStatusVibratorParam, &Decode_NotifySystemStatusVibratorParam, &Encode_NotifySystemStatusVibratorParam, &Validate_NotifySystemStatusVibratorParam, &DrawErased_NotifySystemStatusVibratorParam},
+            {"mdr::v1::t1::NotifySystemStatusVibratorStatus", ProtocolFamily::V1, MDRTraits<NotifySystemStatusVibratorStatus>::kDataType, static_cast<UInt8>(NotifySystemStatusVibratorStatus{}.command), &Create_NotifySystemStatusVibratorStatus, &Destroy_NotifySystemStatusVibratorStatus, &Decode_NotifySystemStatusVibratorStatus, &Encode_NotifySystemStatusVibratorStatus, &Validate_NotifySystemStatusVibratorStatus, &DrawErased_NotifySystemStatusVibratorStatus},
             {"mdr::v1::t1::NotifyUpdateStatus", ProtocolFamily::V1, MDRTraits<NotifyUpdateStatus>::kDataType, static_cast<UInt8>(NotifyUpdateStatus{}.command), &Create_NotifyUpdateStatus, &Destroy_NotifyUpdateStatus, &Decode_NotifyUpdateStatus, &Encode_NotifyUpdateStatus, &Validate_NotifyUpdateStatus, &DrawErased_NotifyUpdateStatus},
             {"mdr::v1::t1::NotifyUpscalingEffect", ProtocolFamily::V1, MDRTraits<NotifyUpscalingEffect>::kDataType, static_cast<UInt8>(NotifyUpscalingEffect{}.command), &Create_NotifyUpscalingEffect, &Destroy_NotifyUpscalingEffect, &Decode_NotifyUpscalingEffect, &Encode_NotifyUpscalingEffect, &Validate_NotifyUpscalingEffect, &DrawErased_NotifyUpscalingEffect},
-            {"mdr::v1::t1::NotifyVptParamRetVptCapability_VptCapabilityBase", ProtocolFamily::V1, MDRTraits<NotifyVptParamRetVptCapability_VptCapabilityBase>::kDataType, static_cast<UInt8>(NotifyVptParamRetVptCapability_VptCapabilityBase{}.command), &Create_NotifyVptParamRetVptCapability_VptCapabilityBase, &Destroy_NotifyVptParamRetVptCapability_VptCapabilityBase, &Decode_NotifyVptParamRetVptCapability_VptCapabilityBase, &Encode_NotifyVptParamRetVptCapability_VptCapabilityBase, &Validate_NotifyVptParamRetVptCapability_VptCapabilityBase, &DrawErased_NotifyVptParamRetVptCapability_VptCapabilityBase},
             {"mdr::v1::t1::NotifyVptParamSoundPositionParam", ProtocolFamily::V1, MDRTraits<NotifyVptParamSoundPositionParam>::kDataType, static_cast<UInt8>(NotifyVptParamSoundPositionParam{}.command), &Create_NotifyVptParamSoundPositionParam, &Destroy_NotifyVptParamSoundPositionParam, &Decode_NotifyVptParamSoundPositionParam, &Encode_NotifyVptParamSoundPositionParam, &Validate_NotifyVptParamSoundPositionParam, &DrawErased_NotifyVptParamSoundPositionParam},
             {"mdr::v1::t1::NotifyVptParamVptParam", ProtocolFamily::V1, MDRTraits<NotifyVptParamVptParam>::kDataType, static_cast<UInt8>(NotifyVptParamVptParam{}.command), &Create_NotifyVptParamVptParam, &Destroy_NotifyVptParamVptParam, &Decode_NotifyVptParamVptParam, &Encode_NotifyVptParamVptParam, &Validate_NotifyVptParamVptParam, &DrawErased_NotifyVptParamVptParam},
             {"mdr::v1::t1::NotifyVptStatus", ProtocolFamily::V1, MDRTraits<NotifyVptStatus>::kDataType, static_cast<UInt8>(NotifyVptStatus{}.command), &Create_NotifyVptStatus, &Destroy_NotifyVptStatus, &Decode_NotifyVptStatus, &Encode_NotifyVptStatus, &Validate_NotifyVptStatus, &DrawErased_NotifyVptStatus},
             {"mdr::v1::t1::RetAlertCapability", ProtocolFamily::V1, MDRTraits<RetAlertCapability>::kDataType, static_cast<UInt8>(RetAlertCapability{}.command), &Create_RetAlertCapability, &Destroy_RetAlertCapability, &Decode_RetAlertCapability, &Encode_RetAlertCapability, &Validate_RetAlertCapability, &DrawErased_RetAlertCapability},
             {"mdr::v1::t1::RetAudioCodec", ProtocolFamily::V1, MDRTraits<RetAudioCodec>::kDataType, static_cast<UInt8>(RetAudioCodec{}.command), &Create_RetAudioCodec, &Destroy_RetAudioCodec, &Decode_RetAudioCodec, &Encode_RetAudioCodec, &Validate_RetAudioCodec, &DrawErased_RetAudioCodec},
-            {"mdr::v1::t1::RetAudioParamCapability_AudioCapabilityBase", ProtocolFamily::V1, MDRTraits<RetAudioParamCapability_AudioCapabilityBase>::kDataType, static_cast<UInt8>(RetAudioParamCapability_AudioCapabilityBase{}.command), &Create_RetAudioParamCapability_AudioCapabilityBase, &Destroy_RetAudioParamCapability_AudioCapabilityBase, &Decode_RetAudioParamCapability_AudioCapabilityBase, &Encode_RetAudioParamCapability_AudioCapabilityBase, &Validate_RetAudioParamCapability_AudioCapabilityBase, &DrawErased_RetAudioParamCapability_AudioCapabilityBase},
-            {"mdr::v1::t1::RetAudioParamCapability_ConnectionModeCapability", ProtocolFamily::V1, MDRTraits<RetAudioParamCapability_ConnectionModeCapability>::kDataType, static_cast<UInt8>(RetAudioParamCapability_ConnectionModeCapability{}.command), &Create_RetAudioParamCapability_ConnectionModeCapability, &Destroy_RetAudioParamCapability_ConnectionModeCapability, &Decode_RetAudioParamCapability_ConnectionModeCapability, &Encode_RetAudioParamCapability_ConnectionModeCapability, &Validate_RetAudioParamCapability_ConnectionModeCapability, &DrawErased_RetAudioParamCapability_ConnectionModeCapability},
             {"mdr::v1::t1::RetAudioParamConnectionModeParam", ProtocolFamily::V1, MDRTraits<RetAudioParamConnectionModeParam>::kDataType, static_cast<UInt8>(RetAudioParamConnectionModeParam{}.command), &Create_RetAudioParamConnectionModeParam, &Destroy_RetAudioParamConnectionModeParam, &Decode_RetAudioParamConnectionModeParam, &Encode_RetAudioParamConnectionModeParam, &Validate_RetAudioParamConnectionModeParam, &DrawErased_RetAudioParamConnectionModeParam},
             {"mdr::v1::t1::RetAudioParamUpscalingParam", ProtocolFamily::V1, MDRTraits<RetAudioParamUpscalingParam>::kDataType, static_cast<UInt8>(RetAudioParamUpscalingParam{}.command), &Create_RetAudioParamUpscalingParam, &Destroy_RetAudioParamUpscalingParam, &Decode_RetAudioParamUpscalingParam, &Encode_RetAudioParamUpscalingParam, &Validate_RetAudioParamUpscalingParam, &DrawErased_RetAudioParamUpscalingParam},
             {"mdr::v1::t1::RetAudioStatus", ProtocolFamily::V1, MDRTraits<RetAudioStatus>::kDataType, static_cast<UInt8>(RetAudioStatus{}.command), &Create_RetAudioStatus, &Destroy_RetAudioStatus, &Decode_RetAudioStatus, &Encode_RetAudioStatus, &Validate_RetAudioStatus, &DrawErased_RetAudioStatus},
             {"mdr::v1::t1::RetBatteryLevelBatteryParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelBatteryParam>::kDataType, static_cast<UInt8>(RetBatteryLevelBatteryParam{}.command), &Create_RetBatteryLevelBatteryParam, &Destroy_RetBatteryLevelBatteryParam, &Decode_RetBatteryLevelBatteryParam, &Encode_RetBatteryLevelBatteryParam, &Validate_RetBatteryLevelBatteryParam, &DrawErased_RetBatteryLevelBatteryParam},
-            {"mdr::v1::t1::RetBatteryLevelCradleBatteryParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelCradleBatteryParam>::kDataType, static_cast<UInt8>(RetBatteryLevelCradleBatteryParam{}.command), &Create_RetBatteryLevelCradleBatteryParam, &Destroy_RetBatteryLevelCradleBatteryParam, &Decode_RetBatteryLevelCradleBatteryParam, &Encode_RetBatteryLevelCradleBatteryParam, &Validate_RetBatteryLevelCradleBatteryParam, &DrawErased_RetBatteryLevelCradleBatteryParam},
-            {"mdr::v1::t1::RetBatteryLevelLeftRightBatteryParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelLeftRightBatteryParam>::kDataType, static_cast<UInt8>(RetBatteryLevelLeftRightBatteryParam{}.command), &Create_RetBatteryLevelLeftRightBatteryParam, &Destroy_RetBatteryLevelLeftRightBatteryParam, &Decode_RetBatteryLevelLeftRightBatteryParam, &Encode_RetBatteryLevelLeftRightBatteryParam, &Validate_RetBatteryLevelLeftRightBatteryParam, &DrawErased_RetBatteryLevelLeftRightBatteryParam},
             {"mdr::v1::t1::RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam>::kDataType, static_cast<UInt8>(RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam{}.command), &Create_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Destroy_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Decode_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Encode_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Validate_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &DrawErased_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam},
             {"mdr::v1::t1::RetBatteryLevelUpdateBatteryPowerThresholdParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelUpdateBatteryPowerThresholdParam>::kDataType, static_cast<UInt8>(RetBatteryLevelUpdateBatteryPowerThresholdParam{}.command), &Create_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Destroy_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Decode_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Encode_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Validate_RetBatteryLevelUpdateBatteryPowerThresholdParam, &DrawErased_RetBatteryLevelUpdateBatteryPowerThresholdParam},
             {"mdr::v1::t1::RetBluetoothDeviceInfo", ProtocolFamily::V1, MDRTraits<RetBluetoothDeviceInfo>::kDataType, static_cast<UInt8>(RetBluetoothDeviceInfo{}.command), &Create_RetBluetoothDeviceInfo, &Destroy_RetBluetoothDeviceInfo, &Decode_RetBluetoothDeviceInfo, &Encode_RetBluetoothDeviceInfo, &Validate_RetBluetoothDeviceInfo, &DrawErased_RetBluetoothDeviceInfo},
             {"mdr::v1::t1::RetCapabilityInfo", ProtocolFamily::V1, MDRTraits<RetCapabilityInfo>::kDataType, static_cast<UInt8>(RetCapabilityInfo{}.command), &Create_RetCapabilityInfo, &Destroy_RetCapabilityInfo, &Decode_RetCapabilityInfo, &Encode_RetCapabilityInfo, &Validate_RetCapabilityInfo, &DrawErased_RetCapabilityInfo},
             {"mdr::v1::t1::RetConciergeData", ProtocolFamily::V1, MDRTraits<RetConciergeData>::kDataType, static_cast<UInt8>(RetConciergeData{}.command), &Create_RetConciergeData, &Destroy_RetConciergeData, &Decode_RetConciergeData, &Encode_RetConciergeData, &Validate_RetConciergeData, &DrawErased_RetConciergeData},
             {"mdr::v1::t1::RetConnectionStatusLeftRightConnectionStatusParam", ProtocolFamily::V1, MDRTraits<RetConnectionStatusLeftRightConnectionStatusParam>::kDataType, static_cast<UInt8>(RetConnectionStatusLeftRightConnectionStatusParam{}.command), &Create_RetConnectionStatusLeftRightConnectionStatusParam, &Destroy_RetConnectionStatusLeftRightConnectionStatusParam, &Decode_RetConnectionStatusLeftRightConnectionStatusParam, &Encode_RetConnectionStatusLeftRightConnectionStatusParam, &Validate_RetConnectionStatusLeftRightConnectionStatusParam, &DrawErased_RetConnectionStatusLeftRightConnectionStatusParam},
-            {"mdr::v1::t1::RetEqEbbParamCapability_EbbCapability", ProtocolFamily::V1, MDRTraits<RetEqEbbParamCapability_EbbCapability>::kDataType, static_cast<UInt8>(RetEqEbbParamCapability_EbbCapability{}.command), &Create_RetEqEbbParamCapability_EbbCapability, &Destroy_RetEqEbbParamCapability_EbbCapability, &Decode_RetEqEbbParamCapability_EbbCapability, &Encode_RetEqEbbParamCapability_EbbCapability, &Validate_RetEqEbbParamCapability_EbbCapability, &DrawErased_RetEqEbbParamCapability_EbbCapability},
-            {"mdr::v1::t1::RetEqEbbParamCapability_EqEbbCapabilityBase", ProtocolFamily::V1, MDRTraits<RetEqEbbParamCapability_EqEbbCapabilityBase>::kDataType, static_cast<UInt8>(RetEqEbbParamCapability_EqEbbCapabilityBase{}.command), &Create_RetEqEbbParamCapability_EqEbbCapabilityBase, &Destroy_RetEqEbbParamCapability_EqEbbCapabilityBase, &Decode_RetEqEbbParamCapability_EqEbbCapabilityBase, &Encode_RetEqEbbParamCapability_EqEbbCapabilityBase, &Validate_RetEqEbbParamCapability_EqEbbCapabilityBase, &DrawErased_RetEqEbbParamCapability_EqEbbCapabilityBase},
             {"mdr::v1::t1::RetEqEbbParamEbbParam", ProtocolFamily::V1, MDRTraits<RetEqEbbParamEbbParam>::kDataType, static_cast<UInt8>(RetEqEbbParamEbbParam{}.command), &Create_RetEqEbbParamEbbParam, &Destroy_RetEqEbbParamEbbParam, &Decode_RetEqEbbParamEbbParam, &Encode_RetEqEbbParamEbbParam, &Validate_RetEqEbbParamEbbParam, &DrawErased_RetEqEbbParamEbbParam},
             {"mdr::v1::t1::RetEqEbbParamEqParam", ProtocolFamily::V1, MDRTraits<RetEqEbbParamEqParam>::kDataType, static_cast<UInt8>(RetEqEbbParamEqParam{}.command), &Create_RetEqEbbParamEqParam, &Destroy_RetEqEbbParamEqParam, &Decode_RetEqEbbParamEqParam, &Encode_RetEqEbbParamEqParam, &Validate_RetEqEbbParamEqParam, &DrawErased_RetEqEbbParamEqParam},
             {"mdr::v1::t1::RetEqEbbStatus", ProtocolFamily::V1, MDRTraits<RetEqEbbStatus>::kDataType, static_cast<UInt8>(RetEqEbbStatus{}.command), &Create_RetEqEbbStatus, &Destroy_RetEqEbbStatus, &Decode_RetEqEbbStatus, &Encode_RetEqEbbStatus, &Validate_RetEqEbbStatus, &DrawErased_RetEqEbbStatus},
@@ -17221,82 +11126,32 @@ namespace client::debugger {
             {"mdr::v1::t1::RetGsParamGsListTypeValue", ProtocolFamily::V1, MDRTraits<RetGsParamGsListTypeValue>::kDataType, static_cast<UInt8>(RetGsParamGsListTypeValue{}.command), &Create_RetGsParamGsListTypeValue, &Destroy_RetGsParamGsListTypeValue, &Decode_RetGsParamGsListTypeValue, &Encode_RetGsParamGsListTypeValue, &Validate_RetGsParamGsListTypeValue, &DrawErased_RetGsParamGsListTypeValue},
             {"mdr::v1::t1::RetGsStatus", ProtocolFamily::V1, MDRTraits<RetGsStatus>::kDataType, static_cast<UInt8>(RetGsStatus{}.command), &Create_RetGsStatus, &Destroy_RetGsStatus, &Decode_RetGsStatus, &Encode_RetGsStatus, &Validate_RetGsStatus, &DrawErased_RetGsStatus},
             {"mdr::v1::t1::RetNcAsmParamAsmParam", ProtocolFamily::V1, MDRTraits<RetNcAsmParamAsmParam>::kDataType, static_cast<UInt8>(RetNcAsmParamAsmParam{}.command), &Create_RetNcAsmParamAsmParam, &Destroy_RetNcAsmParamAsmParam, &Decode_RetNcAsmParamAsmParam, &Encode_RetNcAsmParamAsmParam, &Validate_RetNcAsmParamAsmParam, &DrawErased_RetNcAsmParamAsmParam},
-            {"mdr::v1::t1::RetNcAsmParamCapability_NcAsmCapabilityBase", ProtocolFamily::V1, MDRTraits<RetNcAsmParamCapability_NcAsmCapabilityBase>::kDataType, static_cast<UInt8>(RetNcAsmParamCapability_NcAsmCapabilityBase{}.command), &Create_RetNcAsmParamCapability_NcAsmCapabilityBase, &Destroy_RetNcAsmParamCapability_NcAsmCapabilityBase, &Decode_RetNcAsmParamCapability_NcAsmCapabilityBase, &Encode_RetNcAsmParamCapability_NcAsmCapabilityBase, &Validate_RetNcAsmParamCapability_NcAsmCapabilityBase, &DrawErased_RetNcAsmParamCapability_NcAsmCapabilityBase},
-            {"mdr::v1::t1::RetNcAsmParamCapability_NcCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmParamCapability_NcCapability>::kDataType, static_cast<UInt8>(RetNcAsmParamCapability_NcCapability{}.command), &Create_RetNcAsmParamCapability_NcCapability, &Destroy_RetNcAsmParamCapability_NcCapability, &Decode_RetNcAsmParamCapability_NcCapability, &Encode_RetNcAsmParamCapability_NcCapability, &Validate_RetNcAsmParamCapability_NcCapability, &DrawErased_RetNcAsmParamCapability_NcCapability},
             {"mdr::v1::t1::RetNcAsmParamNcAsmParam", ProtocolFamily::V1, MDRTraits<RetNcAsmParamNcAsmParam>::kDataType, static_cast<UInt8>(RetNcAsmParamNcAsmParam{}.command), &Create_RetNcAsmParamNcAsmParam, &Destroy_RetNcAsmParamNcAsmParam, &Decode_RetNcAsmParamNcAsmParam, &Encode_RetNcAsmParamNcAsmParam, &Validate_RetNcAsmParamNcAsmParam, &DrawErased_RetNcAsmParamNcAsmParam},
             {"mdr::v1::t1::RetNcAsmParamNcParam", ProtocolFamily::V1, MDRTraits<RetNcAsmParamNcParam>::kDataType, static_cast<UInt8>(RetNcAsmParamNcParam{}.command), &Create_RetNcAsmParamNcParam, &Destroy_RetNcAsmParamNcParam, &Decode_RetNcAsmParamNcParam, &Encode_RetNcAsmParamNcParam, &Validate_RetNcAsmParamNcParam, &DrawErased_RetNcAsmParamNcParam},
             {"mdr::v1::t1::RetNcAsmStatus", ProtocolFamily::V1, MDRTraits<RetNcAsmStatus>::kDataType, static_cast<UInt8>(RetNcAsmStatus{}.command), &Create_RetNcAsmStatus, &Destroy_RetNcAsmStatus, &Decode_RetNcAsmStatus, &Encode_RetNcAsmStatus, &Validate_RetNcAsmStatus, &DrawErased_RetNcAsmStatus},
             {"mdr::v1::t1::RetOptimizerCapability", ProtocolFamily::V1, MDRTraits<RetOptimizerCapability>::kDataType, static_cast<UInt8>(RetOptimizerCapability{}.command), &Create_RetOptimizerCapability, &Destroy_RetOptimizerCapability, &Decode_RetOptimizerCapability, &Encode_RetOptimizerCapability, &Validate_RetOptimizerCapability, &DrawErased_RetOptimizerCapability},
             {"mdr::v1::t1::RetOptimizerParam", ProtocolFamily::V1, MDRTraits<RetOptimizerParam>::kDataType, static_cast<UInt8>(RetOptimizerParam{}.command), &Create_RetOptimizerParam, &Destroy_RetOptimizerParam, &Decode_RetOptimizerParam, &Encode_RetOptimizerParam, &Validate_RetOptimizerParam, &DrawErased_RetOptimizerParam},
             {"mdr::v1::t1::RetOptimizerStatus", ProtocolFamily::V1, MDRTraits<RetOptimizerStatus>::kDataType, static_cast<UInt8>(RetOptimizerStatus{}.command), &Create_RetOptimizerStatus, &Destroy_RetOptimizerStatus, &Decode_RetOptimizerStatus, &Encode_RetOptimizerStatus, &Validate_RetOptimizerStatus, &DrawErased_RetOptimizerStatus},
-            {"mdr::v1::t1::RetPlayCapabilityPlaybackControllerVolumeData", ProtocolFamily::V1, MDRTraits<RetPlayCapabilityPlaybackControllerVolumeData>::kDataType, static_cast<UInt8>(RetPlayCapabilityPlaybackControllerVolumeData{}.command), &Create_RetPlayCapabilityPlaybackControllerVolumeData, &Destroy_RetPlayCapabilityPlaybackControllerVolumeData, &Decode_RetPlayCapabilityPlaybackControllerVolumeData, &Encode_RetPlayCapabilityPlaybackControllerVolumeData, &Validate_RetPlayCapabilityPlaybackControllerVolumeData, &DrawErased_RetPlayCapabilityPlaybackControllerVolumeData},
+            {"mdr::v1::t1::RetPlayCapability", ProtocolFamily::V1, MDRTraits<RetPlayCapability>::kDataType, static_cast<UInt8>(RetPlayCapability{}.command), &Create_RetPlayCapability, &Destroy_RetPlayCapability, &Decode_RetPlayCapability, &Encode_RetPlayCapability, &Validate_RetPlayCapability, &DrawErased_RetPlayCapability},
             {"mdr::v1::t1::RetPlayParamPlaybackControllerVolumeData", ProtocolFamily::V1, MDRTraits<RetPlayParamPlaybackControllerVolumeData>::kDataType, static_cast<UInt8>(RetPlayParamPlaybackControllerVolumeData{}.command), &Create_RetPlayParamPlaybackControllerVolumeData, &Destroy_RetPlayParamPlaybackControllerVolumeData, &Decode_RetPlayParamPlaybackControllerVolumeData, &Encode_RetPlayParamPlaybackControllerVolumeData, &Validate_RetPlayParamPlaybackControllerVolumeData, &DrawErased_RetPlayParamPlaybackControllerVolumeData},
             {"mdr::v1::t1::RetPlayStatus", ProtocolFamily::V1, MDRTraits<RetPlayStatus>::kDataType, static_cast<UInt8>(RetPlayStatus{}.command), &Create_RetPlayStatus, &Destroy_RetPlayStatus, &Decode_RetPlayStatus, &Encode_RetPlayStatus, &Validate_RetPlayStatus, &DrawErased_RetPlayStatus},
             {"mdr::v1::t1::RetProtocolInfo", ProtocolFamily::V1, MDRTraits<RetProtocolInfo>::kDataType, static_cast<UInt8>(RetProtocolInfo{}.command), &Create_RetProtocolInfo, &Destroy_RetProtocolInfo, &Decode_RetProtocolInfo, &Encode_RetProtocolInfo, &Validate_RetProtocolInfo, &DrawErased_RetProtocolInfo},
             {"mdr::v1::t1::RetSenseCapability", ProtocolFamily::V1, MDRTraits<RetSenseCapability>::kDataType, static_cast<UInt8>(RetSenseCapability{}.command), &Create_RetSenseCapability, &Destroy_RetSenseCapability, &Decode_RetSenseCapability, &Encode_RetSenseCapability, &Validate_RetSenseCapability, &DrawErased_RetSenseCapability},
-            {"mdr::v1::t1::RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest", ProtocolFamily::V1, MDRTraits<RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest>::kDataType, static_cast<UInt8>(RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest{}.command), &Create_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Destroy_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Decode_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Encode_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &Validate_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest, &DrawErased_RetSportsExParamChildPayloadGetSportsExParam_TrainingModeRequest},
-            {"mdr::v1::t1::RetSportsExParamChildPayloadTrainingModeExAsmParam", ProtocolFamily::V1, MDRTraits<RetSportsExParamChildPayloadTrainingModeExAsmParam>::kDataType, static_cast<UInt8>(RetSportsExParamChildPayloadTrainingModeExAsmParam{}.command), &Create_RetSportsExParamChildPayloadTrainingModeExAsmParam, &Destroy_RetSportsExParamChildPayloadTrainingModeExAsmParam, &Decode_RetSportsExParamChildPayloadTrainingModeExAsmParam, &Encode_RetSportsExParamChildPayloadTrainingModeExAsmParam, &Validate_RetSportsExParamChildPayloadTrainingModeExAsmParam, &DrawErased_RetSportsExParamChildPayloadTrainingModeExAsmParam},
-            {"mdr::v1::t1::RetSportsExParamChildPayloadTrainingModeExEqParam", ProtocolFamily::V1, MDRTraits<RetSportsExParamChildPayloadTrainingModeExEqParam>::kDataType, static_cast<UInt8>(RetSportsExParamChildPayloadTrainingModeExEqParam{}.command), &Create_RetSportsExParamChildPayloadTrainingModeExEqParam, &Destroy_RetSportsExParamChildPayloadTrainingModeExEqParam, &Decode_RetSportsExParamChildPayloadTrainingModeExEqParam, &Encode_RetSportsExParamChildPayloadTrainingModeExEqParam, &Validate_RetSportsExParamChildPayloadTrainingModeExEqParam, &DrawErased_RetSportsExParamChildPayloadTrainingModeExEqParam},
-            {"mdr::v1::t1::RetSportsExParamChildPayloadTrainingModeExNcAsmParam", ProtocolFamily::V1, MDRTraits<RetSportsExParamChildPayloadTrainingModeExNcAsmParam>::kDataType, static_cast<UInt8>(RetSportsExParamChildPayloadTrainingModeExNcAsmParam{}.command), &Create_RetSportsExParamChildPayloadTrainingModeExNcAsmParam, &Destroy_RetSportsExParamChildPayloadTrainingModeExNcAsmParam, &Decode_RetSportsExParamChildPayloadTrainingModeExNcAsmParam, &Encode_RetSportsExParamChildPayloadTrainingModeExNcAsmParam, &Validate_RetSportsExParamChildPayloadTrainingModeExNcAsmParam, &DrawErased_RetSportsExParamChildPayloadTrainingModeExNcAsmParam},
             {"mdr::v1::t1::RetSportsParamTrainingModeParam", ProtocolFamily::V1, MDRTraits<RetSportsParamTrainingModeParam>::kDataType, static_cast<UInt8>(RetSportsParamTrainingModeParam{}.command), &Create_RetSportsParamTrainingModeParam, &Destroy_RetSportsParamTrainingModeParam, &Decode_RetSportsParamTrainingModeParam, &Encode_RetSportsParamTrainingModeParam, &Validate_RetSportsParamTrainingModeParam, &DrawErased_RetSportsParamTrainingModeParam},
             {"mdr::v1::t1::RetSupportFunction", ProtocolFamily::V1, MDRTraits<RetSupportFunction>::kDataType, static_cast<UInt8>(RetSupportFunction{}.command), &Create_RetSupportFunction, &Destroy_RetSupportFunction, &Decode_RetSupportFunction, &Encode_RetSupportFunction, &Validate_RetSupportFunction, &DrawErased_RetSupportFunction},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadAssignableSettingsParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadAssignableSettingsParam{}.command), &Create_RetSystemExParamChildPayloadAssignableSettingsParam, &Destroy_RetSystemExParamChildPayloadAssignableSettingsParam, &Decode_RetSystemExParamChildPayloadAssignableSettingsParam, &Encode_RetSystemExParamChildPayloadAssignableSettingsParam, &Validate_RetSystemExParamChildPayloadAssignableSettingsParam, &DrawErased_RetSystemExParamChildPayloadAssignableSettingsParam},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadAutoPowerOffParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadAutoPowerOffParam{}.command), &Create_RetSystemExParamChildPayloadAutoPowerOffParam, &Destroy_RetSystemExParamChildPayloadAutoPowerOffParam, &Decode_RetSystemExParamChildPayloadAutoPowerOffParam, &Encode_RetSystemExParamChildPayloadAutoPowerOffParam, &Validate_RetSystemExParamChildPayloadAutoPowerOffParam, &DrawErased_RetSystemExParamChildPayloadAutoPowerOffParam},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_AutoPowerOffCapability{}.command), &Create_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, &Destroy_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, &Decode_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, &Encode_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, &Validate_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, &DrawErased_RetSystemExParamChildPayloadCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_ControlByWearingCapability{}.command), &Create_RetSystemExParamChildPayloadCapability_ControlByWearingCapability, &Destroy_RetSystemExParamChildPayloadCapability_ControlByWearingCapability, &Decode_RetSystemExParamChildPayloadCapability_ControlByWearingCapability, &Encode_RetSystemExParamChildPayloadCapability_ControlByWearingCapability, &Validate_RetSystemExParamChildPayloadCapability_ControlByWearingCapability, &DrawErased_RetSystemExParamChildPayloadCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_PowerSavingModeCapability{}.command), &Create_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability, &Destroy_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability, &Decode_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability, &Encode_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability, &Validate_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability, &DrawErased_RetSystemExParamChildPayloadCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, &Destroy_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, &Decode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, &Encode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, &Validate_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, &Destroy_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, &Decode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, &Encode_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, &Validate_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_SystemCapabilityBase{}.command), &Create_RetSystemExParamChildPayloadCapability_SystemCapabilityBase, &Destroy_RetSystemExParamChildPayloadCapability_SystemCapabilityBase, &Decode_RetSystemExParamChildPayloadCapability_SystemCapabilityBase, &Encode_RetSystemExParamChildPayloadCapability_SystemCapabilityBase, &Validate_RetSystemExParamChildPayloadCapability_SystemCapabilityBase, &DrawErased_RetSystemExParamChildPayloadCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_VibratorCapability>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_VibratorCapability{}.command), &Create_RetSystemExParamChildPayloadCapability_VibratorCapability, &Destroy_RetSystemExParamChildPayloadCapability_VibratorCapability, &Decode_RetSystemExParamChildPayloadCapability_VibratorCapability, &Encode_RetSystemExParamChildPayloadCapability_VibratorCapability, &Validate_RetSystemExParamChildPayloadCapability_VibratorCapability, &DrawErased_RetSystemExParamChildPayloadCapability_VibratorCapability},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadControlByWearingParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadControlByWearingParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadControlByWearingParam{}.command), &Create_RetSystemExParamChildPayloadControlByWearingParam, &Destroy_RetSystemExParamChildPayloadControlByWearingParam, &Decode_RetSystemExParamChildPayloadControlByWearingParam, &Encode_RetSystemExParamChildPayloadControlByWearingParam, &Validate_RetSystemExParamChildPayloadControlByWearingParam, &DrawErased_RetSystemExParamChildPayloadControlByWearingParam},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadPowerSavingModeParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadPowerSavingModeParam{}.command), &Create_RetSystemExParamChildPayloadPowerSavingModeParam, &Destroy_RetSystemExParamChildPayloadPowerSavingModeParam, &Decode_RetSystemExParamChildPayloadPowerSavingModeParam, &Encode_RetSystemExParamChildPayloadPowerSavingModeParam, &Validate_RetSystemExParamChildPayloadPowerSavingModeParam, &DrawErased_RetSystemExParamChildPayloadPowerSavingModeParam},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadSmartTalkingModeExType1Param", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadSmartTalkingModeExType1Param>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadSmartTalkingModeExType1Param{}.command), &Create_RetSystemExParamChildPayloadSmartTalkingModeExType1Param, &Destroy_RetSystemExParamChildPayloadSmartTalkingModeExType1Param, &Decode_RetSystemExParamChildPayloadSmartTalkingModeExType1Param, &Encode_RetSystemExParamChildPayloadSmartTalkingModeExType1Param, &Validate_RetSystemExParamChildPayloadSmartTalkingModeExType1Param, &DrawErased_RetSystemExParamChildPayloadSmartTalkingModeExType1Param},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadSmartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadSmartTalkingModeRetParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadSmartTalkingModeRetParam{}.command), &Create_RetSystemExParamChildPayloadSmartTalkingModeRetParam, &Destroy_RetSystemExParamChildPayloadSmartTalkingModeRetParam, &Decode_RetSystemExParamChildPayloadSmartTalkingModeRetParam, &Encode_RetSystemExParamChildPayloadSmartTalkingModeRetParam, &Validate_RetSystemExParamChildPayloadSmartTalkingModeRetParam, &DrawErased_RetSystemExParamChildPayloadSmartTalkingModeRetParam},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam{}.command), &Create_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Destroy_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Decode_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Encode_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &Validate_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam, &DrawErased_RetSystemExParamChildPayloadSmartTalkingModeSetNtfyParam},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadVibratorParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadVibratorParam>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadVibratorParam{}.command), &Create_RetSystemExParamChildPayloadVibratorParam, &Destroy_RetSystemExParamChildPayloadVibratorParam, &Decode_RetSystemExParamChildPayloadVibratorParam, &Encode_RetSystemExParamChildPayloadVibratorParam, &Validate_RetSystemExParamChildPayloadVibratorParam, &DrawErased_RetSystemExParamChildPayloadVibratorParam},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam{}.command), &Create_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Destroy_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Decode_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Encode_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, &Validate_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, &DrawErased_RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam{}.command), &Create_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Destroy_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Decode_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Encode_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam, &Validate_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam, &DrawErased_RetSystemExParamSmartTalkingModeExParamAutoPowerOffParam},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability{}.command), &Create_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, &Destroy_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, &Decode_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, &Encode_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, &Validate_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, &DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability{}.command), &Create_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability, &Destroy_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability, &Decode_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability, &Encode_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability, &Validate_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability, &DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability{}.command), &Create_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability, &Destroy_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability, &Decode_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability, &Encode_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability, &Validate_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability, &DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase{}.command), &Create_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase, &Destroy_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase, &Decode_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase, &Encode_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase, &Validate_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase, &DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability{}.command), &Create_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability, &Destroy_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability, &Decode_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability, &Encode_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability, &Validate_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability, &DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_VibratorCapability},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamControlByWearingParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamControlByWearingParam>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamControlByWearingParam{}.command), &Create_RetSystemExParamSmartTalkingModeExParamControlByWearingParam, &Destroy_RetSystemExParamSmartTalkingModeExParamControlByWearingParam, &Decode_RetSystemExParamSmartTalkingModeExParamControlByWearingParam, &Encode_RetSystemExParamSmartTalkingModeExParamControlByWearingParam, &Validate_RetSystemExParamSmartTalkingModeExParamControlByWearingParam, &DrawErased_RetSystemExParamSmartTalkingModeExParamControlByWearingParam},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam{}.command), &Create_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Destroy_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Decode_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Encode_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam, &Validate_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam, &DrawErased_RetSystemExParamSmartTalkingModeExParamPowerSavingModeParam},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param{}.command), &Create_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Destroy_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Decode_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Encode_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &Validate_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param, &DrawErased_RetSystemExParamSmartTalkingModeExParamSmartTalkingModeExParamType1Param},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamVibratorParam", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamVibratorParam>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamVibratorParam{}.command), &Create_RetSystemExParamSmartTalkingModeExParamVibratorParam, &Destroy_RetSystemExParamSmartTalkingModeExParamVibratorParam, &Decode_RetSystemExParamSmartTalkingModeExParamVibratorParam, &Encode_RetSystemExParamSmartTalkingModeExParamVibratorParam, &Validate_RetSystemExParamSmartTalkingModeExParamVibratorParam, &DrawErased_RetSystemExParamSmartTalkingModeExParamVibratorParam},
+            {"mdr::v1::t1::RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param{}.command), &Create_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Destroy_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Decode_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Encode_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param, &Validate_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param, &DrawErased_RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param},
             {"mdr::v1::t1::RetSystemParamAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<RetSystemParamAssignableSettingsParam>::kDataType, static_cast<UInt8>(RetSystemParamAssignableSettingsParam{}.command), &Create_RetSystemParamAssignableSettingsParam, &Destroy_RetSystemParamAssignableSettingsParam, &Decode_RetSystemParamAssignableSettingsParam, &Encode_RetSystemParamAssignableSettingsParam, &Validate_RetSystemParamAssignableSettingsParam, &DrawErased_RetSystemParamAssignableSettingsParam},
             {"mdr::v1::t1::RetSystemParamAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<RetSystemParamAutoPowerOffParam>::kDataType, static_cast<UInt8>(RetSystemParamAutoPowerOffParam{}.command), &Create_RetSystemParamAutoPowerOffParam, &Destroy_RetSystemParamAutoPowerOffParam, &Decode_RetSystemParamAutoPowerOffParam, &Encode_RetSystemParamAutoPowerOffParam, &Validate_RetSystemParamAutoPowerOffParam, &DrawErased_RetSystemParamAutoPowerOffParam},
-            {"mdr::v1::t1::RetSystemParamCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(RetSystemParamCapability_AutoPowerOffCapability{}.command), &Create_RetSystemParamCapability_AutoPowerOffCapability, &Destroy_RetSystemParamCapability_AutoPowerOffCapability, &Decode_RetSystemParamCapability_AutoPowerOffCapability, &Encode_RetSystemParamCapability_AutoPowerOffCapability, &Validate_RetSystemParamCapability_AutoPowerOffCapability, &DrawErased_RetSystemParamCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::RetSystemParamCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(RetSystemParamCapability_ControlByWearingCapability{}.command), &Create_RetSystemParamCapability_ControlByWearingCapability, &Destroy_RetSystemParamCapability_ControlByWearingCapability, &Decode_RetSystemParamCapability_ControlByWearingCapability, &Encode_RetSystemParamCapability_ControlByWearingCapability, &Validate_RetSystemParamCapability_ControlByWearingCapability, &DrawErased_RetSystemParamCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::RetSystemParamCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(RetSystemParamCapability_PowerSavingModeCapability{}.command), &Create_RetSystemParamCapability_PowerSavingModeCapability, &Destroy_RetSystemParamCapability_PowerSavingModeCapability, &Decode_RetSystemParamCapability_PowerSavingModeCapability, &Encode_RetSystemParamCapability_PowerSavingModeCapability, &Validate_RetSystemParamCapability_PowerSavingModeCapability, &DrawErased_RetSystemParamCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::RetSystemParamCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, &Destroy_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, &Decode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, &Encode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, &Validate_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_RetSystemParamCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::RetSystemParamCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, &Destroy_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, &Decode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, &Encode_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, &Validate_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_RetSystemParamCapability_SmartTalkingModeCapabilityVariant2},
-            {"mdr::v1::t1::RetSystemParamCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(RetSystemParamCapability_SystemCapabilityBase{}.command), &Create_RetSystemParamCapability_SystemCapabilityBase, &Destroy_RetSystemParamCapability_SystemCapabilityBase, &Decode_RetSystemParamCapability_SystemCapabilityBase, &Encode_RetSystemParamCapability_SystemCapabilityBase, &Validate_RetSystemParamCapability_SystemCapabilityBase, &DrawErased_RetSystemParamCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::RetSystemParamCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_VibratorCapability>::kDataType, static_cast<UInt8>(RetSystemParamCapability_VibratorCapability{}.command), &Create_RetSystemParamCapability_VibratorCapability, &Destroy_RetSystemParamCapability_VibratorCapability, &Decode_RetSystemParamCapability_VibratorCapability, &Encode_RetSystemParamCapability_VibratorCapability, &Validate_RetSystemParamCapability_VibratorCapability, &DrawErased_RetSystemParamCapability_VibratorCapability},
             {"mdr::v1::t1::RetSystemParamControlByWearingParam", ProtocolFamily::V1, MDRTraits<RetSystemParamControlByWearingParam>::kDataType, static_cast<UInt8>(RetSystemParamControlByWearingParam{}.command), &Create_RetSystemParamControlByWearingParam, &Destroy_RetSystemParamControlByWearingParam, &Decode_RetSystemParamControlByWearingParam, &Encode_RetSystemParamControlByWearingParam, &Validate_RetSystemParamControlByWearingParam, &DrawErased_RetSystemParamControlByWearingParam},
             {"mdr::v1::t1::RetSystemParamPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<RetSystemParamPowerSavingModeParam>::kDataType, static_cast<UInt8>(RetSystemParamPowerSavingModeParam{}.command), &Create_RetSystemParamPowerSavingModeParam, &Destroy_RetSystemParamPowerSavingModeParam, &Decode_RetSystemParamPowerSavingModeParam, &Encode_RetSystemParamPowerSavingModeParam, &Validate_RetSystemParamPowerSavingModeParam, &DrawErased_RetSystemParamPowerSavingModeParam},
             {"mdr::v1::t1::RetSystemParamSmartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<RetSystemParamSmartTalkingModeRetParam>::kDataType, static_cast<UInt8>(RetSystemParamSmartTalkingModeRetParam{}.command), &Create_RetSystemParamSmartTalkingModeRetParam, &Destroy_RetSystemParamSmartTalkingModeRetParam, &Decode_RetSystemParamSmartTalkingModeRetParam, &Encode_RetSystemParamSmartTalkingModeRetParam, &Validate_RetSystemParamSmartTalkingModeRetParam, &DrawErased_RetSystemParamSmartTalkingModeRetParam},
-            {"mdr::v1::t1::RetSystemParamSmartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<RetSystemParamSmartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(RetSystemParamSmartTalkingModeSetNtfyParam{}.command), &Create_RetSystemParamSmartTalkingModeSetNtfyParam, &Destroy_RetSystemParamSmartTalkingModeSetNtfyParam, &Decode_RetSystemParamSmartTalkingModeSetNtfyParam, &Encode_RetSystemParamSmartTalkingModeSetNtfyParam, &Validate_RetSystemParamSmartTalkingModeSetNtfyParam, &DrawErased_RetSystemParamSmartTalkingModeSetNtfyParam},
-            {"mdr::v1::t1::RetSystemParamVibratorAlertNotificationParam", ProtocolFamily::V1, MDRTraits<RetSystemParamVibratorAlertNotificationParam>::kDataType, static_cast<UInt8>(RetSystemParamVibratorAlertNotificationParam{}.command), &Create_RetSystemParamVibratorAlertNotificationParam, &Destroy_RetSystemParamVibratorAlertNotificationParam, &Decode_RetSystemParamVibratorAlertNotificationParam, &Encode_RetSystemParamVibratorAlertNotificationParam, &Validate_RetSystemParamVibratorAlertNotificationParam, &DrawErased_RetSystemParamVibratorAlertNotificationParam},
             {"mdr::v1::t1::RetSystemParamVibratorParam", ProtocolFamily::V1, MDRTraits<RetSystemParamVibratorParam>::kDataType, static_cast<UInt8>(RetSystemParamVibratorParam{}.command), &Create_RetSystemParamVibratorParam, &Destroy_RetSystemParamVibratorParam, &Decode_RetSystemParamVibratorParam, &Encode_RetSystemParamVibratorParam, &Validate_RetSystemParamVibratorParam, &DrawErased_RetSystemParamVibratorParam},
-            {"mdr::v1::t1::RetSystemStatusAssignableSettingsParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusAssignableSettingsParam>::kDataType, static_cast<UInt8>(RetSystemStatusAssignableSettingsParam{}.command), &Create_RetSystemStatusAssignableSettingsParam, &Destroy_RetSystemStatusAssignableSettingsParam, &Decode_RetSystemStatusAssignableSettingsParam, &Encode_RetSystemStatusAssignableSettingsParam, &Validate_RetSystemStatusAssignableSettingsParam, &DrawErased_RetSystemStatusAssignableSettingsParam},
             {"mdr::v1::t1::RetSystemStatusAssignableSettingsStatus", ProtocolFamily::V1, MDRTraits<RetSystemStatusAssignableSettingsStatus>::kDataType, static_cast<UInt8>(RetSystemStatusAssignableSettingsStatus{}.command), &Create_RetSystemStatusAssignableSettingsStatus, &Destroy_RetSystemStatusAssignableSettingsStatus, &Decode_RetSystemStatusAssignableSettingsStatus, &Encode_RetSystemStatusAssignableSettingsStatus, &Validate_RetSystemStatusAssignableSettingsStatus, &DrawErased_RetSystemStatusAssignableSettingsStatus},
-            {"mdr::v1::t1::RetSystemStatusAutoPowerOffParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusAutoPowerOffParam>::kDataType, static_cast<UInt8>(RetSystemStatusAutoPowerOffParam{}.command), &Create_RetSystemStatusAutoPowerOffParam, &Destroy_RetSystemStatusAutoPowerOffParam, &Decode_RetSystemStatusAutoPowerOffParam, &Encode_RetSystemStatusAutoPowerOffParam, &Validate_RetSystemStatusAutoPowerOffParam, &DrawErased_RetSystemStatusAutoPowerOffParam},
-            {"mdr::v1::t1::RetSystemStatusCapability_AutoPowerOffCapability", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_AutoPowerOffCapability>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_AutoPowerOffCapability{}.command), &Create_RetSystemStatusCapability_AutoPowerOffCapability, &Destroy_RetSystemStatusCapability_AutoPowerOffCapability, &Decode_RetSystemStatusCapability_AutoPowerOffCapability, &Encode_RetSystemStatusCapability_AutoPowerOffCapability, &Validate_RetSystemStatusCapability_AutoPowerOffCapability, &DrawErased_RetSystemStatusCapability_AutoPowerOffCapability},
-            {"mdr::v1::t1::RetSystemStatusCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_ControlByWearingCapability{}.command), &Create_RetSystemStatusCapability_ControlByWearingCapability, &Destroy_RetSystemStatusCapability_ControlByWearingCapability, &Decode_RetSystemStatusCapability_ControlByWearingCapability, &Encode_RetSystemStatusCapability_ControlByWearingCapability, &Validate_RetSystemStatusCapability_ControlByWearingCapability, &DrawErased_RetSystemStatusCapability_ControlByWearingCapability},
-            {"mdr::v1::t1::RetSystemStatusCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_PowerSavingModeCapability{}.command), &Create_RetSystemStatusCapability_PowerSavingModeCapability, &Destroy_RetSystemStatusCapability_PowerSavingModeCapability, &Decode_RetSystemStatusCapability_PowerSavingModeCapability, &Encode_RetSystemStatusCapability_PowerSavingModeCapability, &Validate_RetSystemStatusCapability_PowerSavingModeCapability, &DrawErased_RetSystemStatusCapability_PowerSavingModeCapability},
-            {"mdr::v1::t1::RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, &Destroy_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, &Decode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, &Encode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, &Validate_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, &Destroy_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, &Decode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, &Encode_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, &Validate_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2},
-            {"mdr::v1::t1::RetSystemStatusCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_SystemCapabilityBase{}.command), &Create_RetSystemStatusCapability_SystemCapabilityBase, &Destroy_RetSystemStatusCapability_SystemCapabilityBase, &Decode_RetSystemStatusCapability_SystemCapabilityBase, &Encode_RetSystemStatusCapability_SystemCapabilityBase, &Validate_RetSystemStatusCapability_SystemCapabilityBase, &DrawErased_RetSystemStatusCapability_SystemCapabilityBase},
-            {"mdr::v1::t1::RetSystemStatusCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_VibratorCapability>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_VibratorCapability{}.command), &Create_RetSystemStatusCapability_VibratorCapability, &Destroy_RetSystemStatusCapability_VibratorCapability, &Decode_RetSystemStatusCapability_VibratorCapability, &Encode_RetSystemStatusCapability_VibratorCapability, &Validate_RetSystemStatusCapability_VibratorCapability, &DrawErased_RetSystemStatusCapability_VibratorCapability},
-            {"mdr::v1::t1::RetSystemStatusControlByWearingParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusControlByWearingParam>::kDataType, static_cast<UInt8>(RetSystemStatusControlByWearingParam{}.command), &Create_RetSystemStatusControlByWearingParam, &Destroy_RetSystemStatusControlByWearingParam, &Decode_RetSystemStatusControlByWearingParam, &Encode_RetSystemStatusControlByWearingParam, &Validate_RetSystemStatusControlByWearingParam, &DrawErased_RetSystemStatusControlByWearingParam},
-            {"mdr::v1::t1::RetSystemStatusPowerSavingModeParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusPowerSavingModeParam>::kDataType, static_cast<UInt8>(RetSystemStatusPowerSavingModeParam{}.command), &Create_RetSystemStatusPowerSavingModeParam, &Destroy_RetSystemStatusPowerSavingModeParam, &Decode_RetSystemStatusPowerSavingModeParam, &Encode_RetSystemStatusPowerSavingModeParam, &Validate_RetSystemStatusPowerSavingModeParam, &DrawErased_RetSystemStatusPowerSavingModeParam},
-            {"mdr::v1::t1::RetSystemStatusSmartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusSmartTalkingModeRetParam>::kDataType, static_cast<UInt8>(RetSystemStatusSmartTalkingModeRetParam{}.command), &Create_RetSystemStatusSmartTalkingModeRetParam, &Destroy_RetSystemStatusSmartTalkingModeRetParam, &Decode_RetSystemStatusSmartTalkingModeRetParam, &Encode_RetSystemStatusSmartTalkingModeRetParam, &Validate_RetSystemStatusSmartTalkingModeRetParam, &DrawErased_RetSystemStatusSmartTalkingModeRetParam},
-            {"mdr::v1::t1::RetSystemStatusSmartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusSmartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(RetSystemStatusSmartTalkingModeSetNtfyParam{}.command), &Create_RetSystemStatusSmartTalkingModeSetNtfyParam, &Destroy_RetSystemStatusSmartTalkingModeSetNtfyParam, &Decode_RetSystemStatusSmartTalkingModeSetNtfyParam, &Encode_RetSystemStatusSmartTalkingModeSetNtfyParam, &Validate_RetSystemStatusSmartTalkingModeSetNtfyParam, &DrawErased_RetSystemStatusSmartTalkingModeSetNtfyParam},
+            {"mdr::v1::t1::RetSystemStatusAutoPowerOffStatus", ProtocolFamily::V1, MDRTraits<RetSystemStatusAutoPowerOffStatus>::kDataType, static_cast<UInt8>(RetSystemStatusAutoPowerOffStatus{}.command), &Create_RetSystemStatusAutoPowerOffStatus, &Destroy_RetSystemStatusAutoPowerOffStatus, &Decode_RetSystemStatusAutoPowerOffStatus, &Encode_RetSystemStatusAutoPowerOffStatus, &Validate_RetSystemStatusAutoPowerOffStatus, &DrawErased_RetSystemStatusAutoPowerOffStatus},
+            {"mdr::v1::t1::RetSystemStatusControlByWearingStatus", ProtocolFamily::V1, MDRTraits<RetSystemStatusControlByWearingStatus>::kDataType, static_cast<UInt8>(RetSystemStatusControlByWearingStatus{}.command), &Create_RetSystemStatusControlByWearingStatus, &Destroy_RetSystemStatusControlByWearingStatus, &Decode_RetSystemStatusControlByWearingStatus, &Encode_RetSystemStatusControlByWearingStatus, &Validate_RetSystemStatusControlByWearingStatus, &DrawErased_RetSystemStatusControlByWearingStatus},
+            {"mdr::v1::t1::RetSystemStatusPowerSavingModeStatus", ProtocolFamily::V1, MDRTraits<RetSystemStatusPowerSavingModeStatus>::kDataType, static_cast<UInt8>(RetSystemStatusPowerSavingModeStatus{}.command), &Create_RetSystemStatusPowerSavingModeStatus, &Destroy_RetSystemStatusPowerSavingModeStatus, &Decode_RetSystemStatusPowerSavingModeStatus, &Encode_RetSystemStatusPowerSavingModeStatus, &Validate_RetSystemStatusPowerSavingModeStatus, &DrawErased_RetSystemStatusPowerSavingModeStatus},
             {"mdr::v1::t1::RetSystemStatusSmartTalkingModeStatus", ProtocolFamily::V1, MDRTraits<RetSystemStatusSmartTalkingModeStatus>::kDataType, static_cast<UInt8>(RetSystemStatusSmartTalkingModeStatus{}.command), &Create_RetSystemStatusSmartTalkingModeStatus, &Destroy_RetSystemStatusSmartTalkingModeStatus, &Decode_RetSystemStatusSmartTalkingModeStatus, &Encode_RetSystemStatusSmartTalkingModeStatus, &Validate_RetSystemStatusSmartTalkingModeStatus, &DrawErased_RetSystemStatusSmartTalkingModeStatus},
-            {"mdr::v1::t1::RetSystemStatusVibratorParam", ProtocolFamily::V1, MDRTraits<RetSystemStatusVibratorParam>::kDataType, static_cast<UInt8>(RetSystemStatusVibratorParam{}.command), &Create_RetSystemStatusVibratorParam, &Destroy_RetSystemStatusVibratorParam, &Decode_RetSystemStatusVibratorParam, &Encode_RetSystemStatusVibratorParam, &Validate_RetSystemStatusVibratorParam, &DrawErased_RetSystemStatusVibratorParam},
+            {"mdr::v1::t1::RetSystemStatusVibratorStatus", ProtocolFamily::V1, MDRTraits<RetSystemStatusVibratorStatus>::kDataType, static_cast<UInt8>(RetSystemStatusVibratorStatus{}.command), &Create_RetSystemStatusVibratorStatus, &Destroy_RetSystemStatusVibratorStatus, &Decode_RetSystemStatusVibratorStatus, &Encode_RetSystemStatusVibratorStatus, &Validate_RetSystemStatusVibratorStatus, &DrawErased_RetSystemStatusVibratorStatus},
             {"mdr::v1::t1::RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam", ProtocolFamily::V1, MDRTraits<RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam>::kDataType, static_cast<UInt8>(RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam{}.command), &Create_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Destroy_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Decode_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Encode_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Validate_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &DrawErased_RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam},
             {"mdr::v1::t1::RetUpdateParamUpdateBatteryPowerThresholdParam", ProtocolFamily::V1, MDRTraits<RetUpdateParamUpdateBatteryPowerThresholdParam>::kDataType, static_cast<UInt8>(RetUpdateParamUpdateBatteryPowerThresholdParam{}.command), &Create_RetUpdateParamUpdateBatteryPowerThresholdParam, &Destroy_RetUpdateParamUpdateBatteryPowerThresholdParam, &Decode_RetUpdateParamUpdateBatteryPowerThresholdParam, &Encode_RetUpdateParamUpdateBatteryPowerThresholdParam, &Validate_RetUpdateParamUpdateBatteryPowerThresholdParam, &DrawErased_RetUpdateParamUpdateBatteryPowerThresholdParam},
             {"mdr::v1::t1::RetUpdateParamUpdateBleTxPowerParam", ProtocolFamily::V1, MDRTraits<RetUpdateParamUpdateBleTxPowerParam>::kDataType, static_cast<UInt8>(RetUpdateParamUpdateBleTxPowerParam{}.command), &Create_RetUpdateParamUpdateBleTxPowerParam, &Destroy_RetUpdateParamUpdateBleTxPowerParam, &Decode_RetUpdateParamUpdateBleTxPowerParam, &Encode_RetUpdateParamUpdateBleTxPowerParam, &Validate_RetUpdateParamUpdateBleTxPowerParam, &DrawErased_RetUpdateParamUpdateBleTxPowerParam},
@@ -17304,7 +11159,6 @@ namespace client::debugger {
             {"mdr::v1::t1::RetUpdateParamUpdateStringParamNSString", ProtocolFamily::V1, MDRTraits<RetUpdateParamUpdateStringParamNSString>::kDataType, static_cast<UInt8>(RetUpdateParamUpdateStringParamNSString{}.command), &Create_RetUpdateParamUpdateStringParamNSString, &Destroy_RetUpdateParamUpdateStringParamNSString, &Decode_RetUpdateParamUpdateStringParamNSString, &Encode_RetUpdateParamUpdateStringParamNSString, &Validate_RetUpdateParamUpdateStringParamNSString, &DrawErased_RetUpdateParamUpdateStringParamNSString},
             {"mdr::v1::t1::RetUpdateParamUpdateStringParamUpdateInquiredType", ProtocolFamily::V1, MDRTraits<RetUpdateParamUpdateStringParamUpdateInquiredType>::kDataType, static_cast<UInt8>(RetUpdateParamUpdateStringParamUpdateInquiredType{}.command), &Create_RetUpdateParamUpdateStringParamUpdateInquiredType, &Destroy_RetUpdateParamUpdateStringParamUpdateInquiredType, &Decode_RetUpdateParamUpdateStringParamUpdateInquiredType, &Encode_RetUpdateParamUpdateStringParamUpdateInquiredType, &Validate_RetUpdateParamUpdateStringParamUpdateInquiredType, &DrawErased_RetUpdateParamUpdateStringParamUpdateInquiredType},
             {"mdr::v1::t1::RetUpscalingEffect", ProtocolFamily::V1, MDRTraits<RetUpscalingEffect>::kDataType, static_cast<UInt8>(RetUpscalingEffect{}.command), &Create_RetUpscalingEffect, &Destroy_RetUpscalingEffect, &Decode_RetUpscalingEffect, &Encode_RetUpscalingEffect, &Validate_RetUpscalingEffect, &DrawErased_RetUpscalingEffect},
-            {"mdr::v1::t1::RetVptParamCapability_VptCapabilityBase", ProtocolFamily::V1, MDRTraits<RetVptParamCapability_VptCapabilityBase>::kDataType, static_cast<UInt8>(RetVptParamCapability_VptCapabilityBase{}.command), &Create_RetVptParamCapability_VptCapabilityBase, &Destroy_RetVptParamCapability_VptCapabilityBase, &Decode_RetVptParamCapability_VptCapabilityBase, &Encode_RetVptParamCapability_VptCapabilityBase, &Validate_RetVptParamCapability_VptCapabilityBase, &DrawErased_RetVptParamCapability_VptCapabilityBase},
             {"mdr::v1::t1::RetVptParamSoundPositionParam", ProtocolFamily::V1, MDRTraits<RetVptParamSoundPositionParam>::kDataType, static_cast<UInt8>(RetVptParamSoundPositionParam{}.command), &Create_RetVptParamSoundPositionParam, &Destroy_RetVptParamSoundPositionParam, &Decode_RetVptParamSoundPositionParam, &Encode_RetVptParamSoundPositionParam, &Validate_RetVptParamSoundPositionParam, &DrawErased_RetVptParamSoundPositionParam},
             {"mdr::v1::t1::RetVptParamVptParam", ProtocolFamily::V1, MDRTraits<RetVptParamVptParam>::kDataType, static_cast<UInt8>(RetVptParamVptParam{}.command), &Create_RetVptParamVptParam, &Destroy_RetVptParamVptParam, &Decode_RetVptParamVptParam, &Encode_RetVptParamVptParam, &Validate_RetVptParamVptParam, &DrawErased_RetVptParamVptParam},
             {"mdr::v1::t1::RetVptStatus", ProtocolFamily::V1, MDRTraits<RetVptStatus>::kDataType, static_cast<UInt8>(RetVptStatus{}.command), &Create_RetVptStatus, &Destroy_RetVptStatus, &Decode_RetVptStatus, &Encode_RetVptStatus, &Validate_RetVptStatus, &DrawErased_RetVptStatus},
@@ -17313,6 +11167,7 @@ namespace client::debugger {
             {"mdr::v1::t1::SetAlertStatus", ProtocolFamily::V1, MDRTraits<SetAlertStatus>::kDataType, static_cast<UInt8>(SetAlertStatus{}.command), &Create_SetAlertStatus, &Destroy_SetAlertStatus, &Decode_SetAlertStatus, &Encode_SetAlertStatus, &Validate_SetAlertStatus, &DrawErased_SetAlertStatus},
             {"mdr::v1::t1::SetAudioParamConnectionModeParam", ProtocolFamily::V1, MDRTraits<SetAudioParamConnectionModeParam>::kDataType, static_cast<UInt8>(SetAudioParamConnectionModeParam{}.command), &Create_SetAudioParamConnectionModeParam, &Destroy_SetAudioParamConnectionModeParam, &Decode_SetAudioParamConnectionModeParam, &Encode_SetAudioParamConnectionModeParam, &Validate_SetAudioParamConnectionModeParam, &DrawErased_SetAudioParamConnectionModeParam},
             {"mdr::v1::t1::SetAudioParamRetAudioCapability_ConnectionModeCapability", ProtocolFamily::V1, MDRTraits<SetAudioParamRetAudioCapability_ConnectionModeCapability>::kDataType, static_cast<UInt8>(SetAudioParamRetAudioCapability_ConnectionModeCapability{}.command), &Create_SetAudioParamRetAudioCapability_ConnectionModeCapability, &Destroy_SetAudioParamRetAudioCapability_ConnectionModeCapability, &Decode_SetAudioParamRetAudioCapability_ConnectionModeCapability, &Encode_SetAudioParamRetAudioCapability_ConnectionModeCapability, &Validate_SetAudioParamRetAudioCapability_ConnectionModeCapability, &DrawErased_SetAudioParamRetAudioCapability_ConnectionModeCapability},
+            {"mdr::v1::t1::SetAudioParamRetAudioCapability_UpscalingCapability", ProtocolFamily::V1, MDRTraits<SetAudioParamRetAudioCapability_UpscalingCapability>::kDataType, static_cast<UInt8>(SetAudioParamRetAudioCapability_UpscalingCapability{}.command), &Create_SetAudioParamRetAudioCapability_UpscalingCapability, &Destroy_SetAudioParamRetAudioCapability_UpscalingCapability, &Decode_SetAudioParamRetAudioCapability_UpscalingCapability, &Encode_SetAudioParamRetAudioCapability_UpscalingCapability, &Validate_SetAudioParamRetAudioCapability_UpscalingCapability, &DrawErased_SetAudioParamRetAudioCapability_UpscalingCapability},
             {"mdr::v1::t1::SetAudioParamUpscalingParam", ProtocolFamily::V1, MDRTraits<SetAudioParamUpscalingParam>::kDataType, static_cast<UInt8>(SetAudioParamUpscalingParam{}.command), &Create_SetAudioParamUpscalingParam, &Destroy_SetAudioParamUpscalingParam, &Decode_SetAudioParamUpscalingParam, &Encode_SetAudioParamUpscalingParam, &Validate_SetAudioParamUpscalingParam, &DrawErased_SetAudioParamUpscalingParam},
             {"mdr::v1::t1::SetEqEbbParamEbbParam", ProtocolFamily::V1, MDRTraits<SetEqEbbParamEbbParam>::kDataType, static_cast<UInt8>(SetEqEbbParamEbbParam{}.command), &Create_SetEqEbbParamEbbParam, &Destroy_SetEqEbbParamEbbParam, &Decode_SetEqEbbParamEbbParam, &Encode_SetEqEbbParamEbbParam, &Validate_SetEqEbbParamEbbParam, &DrawErased_SetEqEbbParamEbbParam},
             {"mdr::v1::t1::SetEqEbbParamEqParam", ProtocolFamily::V1, MDRTraits<SetEqEbbParamEqParam>::kDataType, static_cast<UInt8>(SetEqEbbParamEqParam{}.command), &Create_SetEqEbbParamEqParam, &Destroy_SetEqEbbParamEqParam, &Decode_SetEqEbbParamEqParam, &Encode_SetEqEbbParamEqParam, &Validate_SetEqEbbParamEqParam, &DrawErased_SetEqEbbParamEqParam},
@@ -17339,7 +11194,6 @@ namespace client::debugger {
             {"mdr::v1::t1::SetSystemExParamRetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_ControlByWearingCapability{}.command), &Create_SetSystemExParamRetSystemCapability_ControlByWearingCapability, &Destroy_SetSystemExParamRetSystemCapability_ControlByWearingCapability, &Decode_SetSystemExParamRetSystemCapability_ControlByWearingCapability, &Encode_SetSystemExParamRetSystemCapability_ControlByWearingCapability, &Validate_SetSystemExParamRetSystemCapability_ControlByWearingCapability, &DrawErased_SetSystemExParamRetSystemCapability_ControlByWearingCapability},
             {"mdr::v1::t1::SetSystemExParamRetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_PowerSavingModeCapability{}.command), &Create_SetSystemExParamRetSystemCapability_PowerSavingModeCapability, &Destroy_SetSystemExParamRetSystemCapability_PowerSavingModeCapability, &Decode_SetSystemExParamRetSystemCapability_PowerSavingModeCapability, &Encode_SetSystemExParamRetSystemCapability_PowerSavingModeCapability, &Validate_SetSystemExParamRetSystemCapability_PowerSavingModeCapability, &DrawErased_SetSystemExParamRetSystemCapability_PowerSavingModeCapability},
             {"mdr::v1::t1::SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Destroy_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Decode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Encode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Validate_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Destroy_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Decode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Encode_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Validate_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2},
             {"mdr::v1::t1::SetSystemExParamRetSystemCapability_SystemCapabilityBase", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_SystemCapabilityBase>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_SystemCapabilityBase{}.command), &Create_SetSystemExParamRetSystemCapability_SystemCapabilityBase, &Destroy_SetSystemExParamRetSystemCapability_SystemCapabilityBase, &Decode_SetSystemExParamRetSystemCapability_SystemCapabilityBase, &Encode_SetSystemExParamRetSystemCapability_SystemCapabilityBase, &Validate_SetSystemExParamRetSystemCapability_SystemCapabilityBase, &DrawErased_SetSystemExParamRetSystemCapability_SystemCapabilityBase},
             {"mdr::v1::t1::SetSystemExParamRetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_VibratorCapability{}.command), &Create_SetSystemExParamRetSystemCapability_VibratorCapability, &Destroy_SetSystemExParamRetSystemCapability_VibratorCapability, &Decode_SetSystemExParamRetSystemCapability_VibratorCapability, &Encode_SetSystemExParamRetSystemCapability_VibratorCapability, &Validate_SetSystemExParamRetSystemCapability_VibratorCapability, &DrawErased_SetSystemExParamRetSystemCapability_VibratorCapability},
             {"mdr::v1::t1::SetSystemExParamVibratorParam", ProtocolFamily::V1, MDRTraits<SetSystemExParamVibratorParam>::kDataType, static_cast<UInt8>(SetSystemExParamVibratorParam{}.command), &Create_SetSystemExParamVibratorParam, &Destroy_SetSystemExParamVibratorParam, &Decode_SetSystemExParamVibratorParam, &Encode_SetSystemExParamVibratorParam, &Validate_SetSystemExParamVibratorParam, &DrawErased_SetSystemExParamVibratorParam},
@@ -17355,24 +11209,19 @@ namespace client::debugger {
             {"mdr::v1::t1::SetSystemParamRetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<SetSystemParamRetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(SetSystemParamRetSystemCapability_ControlByWearingCapability{}.command), &Create_SetSystemParamRetSystemCapability_ControlByWearingCapability, &Destroy_SetSystemParamRetSystemCapability_ControlByWearingCapability, &Decode_SetSystemParamRetSystemCapability_ControlByWearingCapability, &Encode_SetSystemParamRetSystemCapability_ControlByWearingCapability, &Validate_SetSystemParamRetSystemCapability_ControlByWearingCapability, &DrawErased_SetSystemParamRetSystemCapability_ControlByWearingCapability},
             {"mdr::v1::t1::SetSystemParamRetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<SetSystemParamRetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(SetSystemParamRetSystemCapability_PowerSavingModeCapability{}.command), &Create_SetSystemParamRetSystemCapability_PowerSavingModeCapability, &Destroy_SetSystemParamRetSystemCapability_PowerSavingModeCapability, &Decode_SetSystemParamRetSystemCapability_PowerSavingModeCapability, &Encode_SetSystemParamRetSystemCapability_PowerSavingModeCapability, &Validate_SetSystemParamRetSystemCapability_PowerSavingModeCapability, &DrawErased_SetSystemParamRetSystemCapability_PowerSavingModeCapability},
             {"mdr::v1::t1::SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Destroy_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Decode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Encode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &Validate_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Destroy_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Decode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Encode_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &Validate_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2},
             {"mdr::v1::t1::SetSystemParamRetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<SetSystemParamRetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(SetSystemParamRetSystemCapability_VibratorCapability{}.command), &Create_SetSystemParamRetSystemCapability_VibratorCapability, &Destroy_SetSystemParamRetSystemCapability_VibratorCapability, &Decode_SetSystemParamRetSystemCapability_VibratorCapability, &Encode_SetSystemParamRetSystemCapability_VibratorCapability, &Validate_SetSystemParamRetSystemCapability_VibratorCapability, &DrawErased_SetSystemParamRetSystemCapability_VibratorCapability},
             {"mdr::v1::t1::SetSystemParamVibratorParam", ProtocolFamily::V1, MDRTraits<SetSystemParamVibratorParam>::kDataType, static_cast<UInt8>(SetSystemParamVibratorParam{}.command), &Create_SetSystemParamVibratorParam, &Destroy_SetSystemParamVibratorParam, &Decode_SetSystemParamVibratorParam, &Encode_SetSystemParamVibratorParam, &Validate_SetSystemParamVibratorParam, &DrawErased_SetSystemParamVibratorParam},
             {"mdr::v1::t1::SetSystemParammartTalkingModeRetParam", ProtocolFamily::V1, MDRTraits<SetSystemParammartTalkingModeRetParam>::kDataType, static_cast<UInt8>(SetSystemParammartTalkingModeRetParam{}.command), &Create_SetSystemParammartTalkingModeRetParam, &Destroy_SetSystemParammartTalkingModeRetParam, &Decode_SetSystemParammartTalkingModeRetParam, &Encode_SetSystemParammartTalkingModeRetParam, &Validate_SetSystemParammartTalkingModeRetParam, &DrawErased_SetSystemParammartTalkingModeRetParam},
             {"mdr::v1::t1::SetSystemParammartTalkingModeSetNtfyParam", ProtocolFamily::V1, MDRTraits<SetSystemParammartTalkingModeSetNtfyParam>::kDataType, static_cast<UInt8>(SetSystemParammartTalkingModeSetNtfyParam{}.command), &Create_SetSystemParammartTalkingModeSetNtfyParam, &Destroy_SetSystemParammartTalkingModeSetNtfyParam, &Decode_SetSystemParammartTalkingModeSetNtfyParam, &Encode_SetSystemParammartTalkingModeSetNtfyParam, &Validate_SetSystemParammartTalkingModeSetNtfyParam, &DrawErased_SetSystemParammartTalkingModeSetNtfyParam},
             {"mdr::v1::t1::SetUpdateStatus", ProtocolFamily::V1, MDRTraits<SetUpdateStatus>::kDataType, static_cast<UInt8>(SetUpdateStatus{}.command), &Create_SetUpdateStatus, &Destroy_SetUpdateStatus, &Decode_SetUpdateStatus, &Encode_SetUpdateStatus, &Validate_SetUpdateStatus, &DrawErased_SetUpdateStatus},
+            {"mdr::v1::t1::SetVptParamRetVptCapability_SoundPositionCapability", ProtocolFamily::V1, MDRTraits<SetVptParamRetVptCapability_SoundPositionCapability>::kDataType, static_cast<UInt8>(SetVptParamRetVptCapability_SoundPositionCapability{}.command), &Create_SetVptParamRetVptCapability_SoundPositionCapability, &Destroy_SetVptParamRetVptCapability_SoundPositionCapability, &Decode_SetVptParamRetVptCapability_SoundPositionCapability, &Encode_SetVptParamRetVptCapability_SoundPositionCapability, &Validate_SetVptParamRetVptCapability_SoundPositionCapability, &DrawErased_SetVptParamRetVptCapability_SoundPositionCapability},
             {"mdr::v1::t1::SetVptParamRetVptCapability_VptCapabilityBase", ProtocolFamily::V1, MDRTraits<SetVptParamRetVptCapability_VptCapabilityBase>::kDataType, static_cast<UInt8>(SetVptParamRetVptCapability_VptCapabilityBase{}.command), &Create_SetVptParamRetVptCapability_VptCapabilityBase, &Destroy_SetVptParamRetVptCapability_VptCapabilityBase, &Decode_SetVptParamRetVptCapability_VptCapabilityBase, &Encode_SetVptParamRetVptCapability_VptCapabilityBase, &Validate_SetVptParamRetVptCapability_VptCapabilityBase, &DrawErased_SetVptParamRetVptCapability_VptCapabilityBase},
             {"mdr::v1::t1::SetVptParamVptParam", ProtocolFamily::V1, MDRTraits<SetVptParamVptParam>::kDataType, static_cast<UInt8>(SetVptParamVptParam{}.command), &Create_SetVptParamVptParam, &Destroy_SetVptParamVptParam, &Decode_SetVptParamVptParam, &Encode_SetVptParamVptParam, &Validate_SetVptParamVptParam, &DrawErased_SetVptParamVptParam},
             {"mdr::v1::t1::SetVptParamVptPreset", ProtocolFamily::V1, MDRTraits<SetVptParamVptPreset>::kDataType, static_cast<UInt8>(SetVptParamVptPreset{}.command), &Create_SetVptParamVptPreset, &Destroy_SetVptParamVptPreset, &Decode_SetVptParamVptPreset, &Encode_SetVptParamVptPreset, &Validate_SetVptParamVptPreset, &DrawErased_SetVptParamVptPreset},
             {"mdr::v1::t1::SetVptParamoundPositionParam", ProtocolFamily::V1, MDRTraits<SetVptParamoundPositionParam>::kDataType, static_cast<UInt8>(SetVptParamoundPositionParam{}.command), &Create_SetVptParamoundPositionParam, &Destroy_SetVptParamoundPositionParam, &Decode_SetVptParamoundPositionParam, &Encode_SetVptParamoundPositionParam, &Validate_SetVptParamoundPositionParam, &DrawErased_SetVptParamoundPositionParam},
             {"mdr::v1::t1::GetSportsExParam", ProtocolFamily::V1, MDRTraits<GetSportsExParam>::kDataType, static_cast<UInt8>(GetSportsExParam{}.command), &Create_GetSportsExParam, &Destroy_GetSportsExParam, &Decode_GetSportsExParam, &Encode_GetSportsExParam, &Validate_GetSportsExParam, &DrawErased_GetSportsExParam},
-            {"mdr::v1::t1::NotifyEqEbbParamRetEqEbbCapability_EqCapability", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamRetEqEbbCapability_EqCapability>::kDataType, static_cast<UInt8>(NotifyEqEbbParamRetEqEbbCapability_EqCapability{}.command), &Create_NotifyEqEbbParamRetEqEbbCapability_EqCapability, &Destroy_NotifyEqEbbParamRetEqEbbCapability_EqCapability, &Decode_NotifyEqEbbParamRetEqEbbCapability_EqCapability, &Encode_NotifyEqEbbParamRetEqEbbCapability_EqCapability, &Validate_NotifyEqEbbParamRetEqEbbCapability_EqCapability, &DrawErased_NotifyEqEbbParamRetEqEbbCapability_EqCapability},
-            {"mdr::v1::t1::NotifyNcAsmParamRetNcAsmCapability_AsmCapability", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamRetNcAsmCapability_AsmCapability>::kDataType, static_cast<UInt8>(NotifyNcAsmParamRetNcAsmCapability_AsmCapability{}.command), &Create_NotifyNcAsmParamRetNcAsmCapability_AsmCapability, &Destroy_NotifyNcAsmParamRetNcAsmCapability_AsmCapability, &Decode_NotifyNcAsmParamRetNcAsmCapability_AsmCapability, &Encode_NotifyNcAsmParamRetNcAsmCapability_AsmCapability, &Validate_NotifyNcAsmParamRetNcAsmCapability_AsmCapability, &DrawErased_NotifyNcAsmParamRetNcAsmCapability_AsmCapability},
-            {"mdr::v1::t1::NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability", ProtocolFamily::V1, MDRTraits<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability>::kDataType, static_cast<UInt8>(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability{}.command), &Create_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, &Destroy_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, &Decode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, &Encode_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, &Validate_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, &DrawErased_NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability},
-            {"mdr::v1::t1::NotifyPlayParamPlaybackControllerNameData", ProtocolFamily::V1, MDRTraits<NotifyPlayParamPlaybackControllerNameData>::kDataType, static_cast<UInt8>(NotifyPlayParamPlaybackControllerNameData{}.command), &Create_NotifyPlayParamPlaybackControllerNameData, &Destroy_NotifyPlayParamPlaybackControllerNameData, &Decode_NotifyPlayParamPlaybackControllerNameData, &Encode_NotifyPlayParamPlaybackControllerNameData, &Validate_NotifyPlayParamPlaybackControllerNameData, &DrawErased_NotifyPlayParamPlaybackControllerNameData},
             {"mdr::v1::t1::NotifySportsExParamTrainingModeExParam", ProtocolFamily::V1, MDRTraits<NotifySportsExParamTrainingModeExParam>::kDataType, static_cast<UInt8>(NotifySportsExParamTrainingModeExParam{}.command), &Create_NotifySportsExParamTrainingModeExParam, &Destroy_NotifySportsExParamTrainingModeExParam, &Decode_NotifySportsExParamTrainingModeExParam, &Encode_NotifySportsExParamTrainingModeExParam, &Validate_NotifySportsExParamTrainingModeExParam, &DrawErased_NotifySportsExParamTrainingModeExParam},
             {"mdr::v1::t1::NotifySportsStatusTrainingModeStatus", ProtocolFamily::V1, MDRTraits<NotifySportsStatusTrainingModeStatus>::kDataType, static_cast<UInt8>(NotifySportsStatusTrainingModeStatus{}.command), &Create_NotifySportsStatusTrainingModeStatus, &Destroy_NotifySportsStatusTrainingModeStatus, &Decode_NotifySportsStatusTrainingModeStatus, &Encode_NotifySportsStatusTrainingModeStatus, &Validate_NotifySportsStatusTrainingModeStatus, &DrawErased_NotifySportsStatusTrainingModeStatus},
-            {"mdr::v1::t1::NotifyVptParamRetVptCapability_VptCapability", ProtocolFamily::V1, MDRTraits<NotifyVptParamRetVptCapability_VptCapability>::kDataType, static_cast<UInt8>(NotifyVptParamRetVptCapability_VptCapability{}.command), &Create_NotifyVptParamRetVptCapability_VptCapability, &Destroy_NotifyVptParamRetVptCapability_VptCapability, &Decode_NotifyVptParamRetVptCapability_VptCapability, &Encode_NotifyVptParamRetVptCapability_VptCapability, &Validate_NotifyVptParamRetVptCapability_VptCapability, &DrawErased_NotifyVptParamRetVptCapability_VptCapability},
             {"mdr::v1::t1::RetAudioCapability", ProtocolFamily::V1, MDRTraits<RetAudioCapability>::kDataType, static_cast<UInt8>(RetAudioCapability{}.command), &Create_RetAudioCapability, &Destroy_RetAudioCapability, &Decode_RetAudioCapability, &Encode_RetAudioCapability, &Validate_RetAudioCapability, &DrawErased_RetAudioCapability},
             {"mdr::v1::t1::RetAudioCapability_ConnectionModeCapability", ProtocolFamily::V1, MDRTraits<RetAudioCapability_ConnectionModeCapability>::kDataType, static_cast<UInt8>(RetAudioCapability_ConnectionModeCapability{}.command), &Create_RetAudioCapability_ConnectionModeCapability, &Destroy_RetAudioCapability_ConnectionModeCapability, &Decode_RetAudioCapability_ConnectionModeCapability, &Encode_RetAudioCapability_ConnectionModeCapability, &Validate_RetAudioCapability_ConnectionModeCapability, &DrawErased_RetAudioCapability_ConnectionModeCapability},
             {"mdr::v1::t1::RetAudioCapability_UpscalingCapability", ProtocolFamily::V1, MDRTraits<RetAudioCapability_UpscalingCapability>::kDataType, static_cast<UInt8>(RetAudioCapability_UpscalingCapability{}.command), &Create_RetAudioCapability_UpscalingCapability, &Destroy_RetAudioCapability_UpscalingCapability, &Decode_RetAudioCapability_UpscalingCapability, &Encode_RetAudioCapability_UpscalingCapability, &Validate_RetAudioCapability_UpscalingCapability, &DrawErased_RetAudioCapability_UpscalingCapability},
@@ -17384,15 +11233,12 @@ namespace client::debugger {
             {"mdr::v1::t1::RetEqEbbCapability", ProtocolFamily::V1, MDRTraits<RetEqEbbCapability>::kDataType, static_cast<UInt8>(RetEqEbbCapability{}.command), &Create_RetEqEbbCapability, &Destroy_RetEqEbbCapability, &Decode_RetEqEbbCapability, &Encode_RetEqEbbCapability, &Validate_RetEqEbbCapability, &DrawErased_RetEqEbbCapability},
             {"mdr::v1::t1::RetEqEbbCapability_EbbCapability", ProtocolFamily::V1, MDRTraits<RetEqEbbCapability_EbbCapability>::kDataType, static_cast<UInt8>(RetEqEbbCapability_EbbCapability{}.command), &Create_RetEqEbbCapability_EbbCapability, &Destroy_RetEqEbbCapability_EbbCapability, &Decode_RetEqEbbCapability_EbbCapability, &Encode_RetEqEbbCapability_EbbCapability, &Validate_RetEqEbbCapability_EbbCapability, &DrawErased_RetEqEbbCapability_EbbCapability},
             {"mdr::v1::t1::RetEqEbbCapability_EqCapability", ProtocolFamily::V1, MDRTraits<RetEqEbbCapability_EqCapability>::kDataType, static_cast<UInt8>(RetEqEbbCapability_EqCapability{}.command), &Create_RetEqEbbCapability_EqCapability, &Destroy_RetEqEbbCapability_EqCapability, &Decode_RetEqEbbCapability_EqCapability, &Encode_RetEqEbbCapability_EqCapability, &Validate_RetEqEbbCapability_EqCapability, &DrawErased_RetEqEbbCapability_EqCapability},
-            {"mdr::v1::t1::RetEqEbbParamCapability_EqCapability", ProtocolFamily::V1, MDRTraits<RetEqEbbParamCapability_EqCapability>::kDataType, static_cast<UInt8>(RetEqEbbParamCapability_EqCapability{}.command), &Create_RetEqEbbParamCapability_EqCapability, &Destroy_RetEqEbbParamCapability_EqCapability, &Decode_RetEqEbbParamCapability_EqCapability, &Encode_RetEqEbbParamCapability_EqCapability, &Validate_RetEqEbbParamCapability_EqCapability, &DrawErased_RetEqEbbParamCapability_EqCapability},
+            {"mdr::v1::t1::RetEqEbbExtendedInfoEqExtendedInfo", ProtocolFamily::V1, MDRTraits<RetEqEbbExtendedInfoEqExtendedInfo>::kDataType, static_cast<UInt8>(RetEqEbbExtendedInfoEqExtendedInfo{}.command), &Create_RetEqEbbExtendedInfoEqExtendedInfo, &Destroy_RetEqEbbExtendedInfoEqExtendedInfo, &Decode_RetEqEbbExtendedInfoEqExtendedInfo, &Encode_RetEqEbbExtendedInfoEqExtendedInfo, &Validate_RetEqEbbExtendedInfoEqExtendedInfo, &DrawErased_RetEqEbbExtendedInfoEqExtendedInfo},
             {"mdr::v1::t1::RetGsCapabilityGsSettingInfo", ProtocolFamily::V1, MDRTraits<RetGsCapabilityGsSettingInfo>::kDataType, static_cast<UInt8>(RetGsCapabilityGsSettingInfo{}.command), &Create_RetGsCapabilityGsSettingInfo, &Destroy_RetGsCapabilityGsSettingInfo, &Decode_RetGsCapabilityGsSettingInfo, &Encode_RetGsCapabilityGsSettingInfo, &Validate_RetGsCapabilityGsSettingInfo, &DrawErased_RetGsCapabilityGsSettingInfo},
             {"mdr::v1::t1::RetNcAsmCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmCapability>::kDataType, static_cast<UInt8>(RetNcAsmCapability{}.command), &Create_RetNcAsmCapability, &Destroy_RetNcAsmCapability, &Decode_RetNcAsmCapability, &Encode_RetNcAsmCapability, &Validate_RetNcAsmCapability, &DrawErased_RetNcAsmCapability},
             {"mdr::v1::t1::RetNcAsmCapability_AsmCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmCapability_AsmCapability>::kDataType, static_cast<UInt8>(RetNcAsmCapability_AsmCapability{}.command), &Create_RetNcAsmCapability_AsmCapability, &Destroy_RetNcAsmCapability_AsmCapability, &Decode_RetNcAsmCapability_AsmCapability, &Encode_RetNcAsmCapability_AsmCapability, &Validate_RetNcAsmCapability_AsmCapability, &DrawErased_RetNcAsmCapability_AsmCapability},
             {"mdr::v1::t1::RetNcAsmCapability_NcAsmCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmCapability_NcAsmCapability>::kDataType, static_cast<UInt8>(RetNcAsmCapability_NcAsmCapability{}.command), &Create_RetNcAsmCapability_NcAsmCapability, &Destroy_RetNcAsmCapability_NcAsmCapability, &Decode_RetNcAsmCapability_NcAsmCapability, &Encode_RetNcAsmCapability_NcAsmCapability, &Validate_RetNcAsmCapability_NcAsmCapability, &DrawErased_RetNcAsmCapability_NcAsmCapability},
             {"mdr::v1::t1::RetNcAsmCapability_NcCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmCapability_NcCapability>::kDataType, static_cast<UInt8>(RetNcAsmCapability_NcCapability{}.command), &Create_RetNcAsmCapability_NcCapability, &Destroy_RetNcAsmCapability_NcCapability, &Decode_RetNcAsmCapability_NcCapability, &Encode_RetNcAsmCapability_NcCapability, &Validate_RetNcAsmCapability_NcCapability, &DrawErased_RetNcAsmCapability_NcCapability},
-            {"mdr::v1::t1::RetNcAsmParamCapability_AsmCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmParamCapability_AsmCapability>::kDataType, static_cast<UInt8>(RetNcAsmParamCapability_AsmCapability{}.command), &Create_RetNcAsmParamCapability_AsmCapability, &Destroy_RetNcAsmParamCapability_AsmCapability, &Decode_RetNcAsmParamCapability_AsmCapability, &Encode_RetNcAsmParamCapability_AsmCapability, &Validate_RetNcAsmParamCapability_AsmCapability, &DrawErased_RetNcAsmParamCapability_AsmCapability},
-            {"mdr::v1::t1::RetNcAsmParamCapability_NcAsmCapability", ProtocolFamily::V1, MDRTraits<RetNcAsmParamCapability_NcAsmCapability>::kDataType, static_cast<UInt8>(RetNcAsmParamCapability_NcAsmCapability{}.command), &Create_RetNcAsmParamCapability_NcAsmCapability, &Destroy_RetNcAsmParamCapability_NcAsmCapability, &Decode_RetNcAsmParamCapability_NcAsmCapability, &Encode_RetNcAsmParamCapability_NcAsmCapability, &Validate_RetNcAsmParamCapability_NcAsmCapability, &DrawErased_RetNcAsmParamCapability_NcAsmCapability},
-            {"mdr::v1::t1::RetPlayCapabilityPlaybackControllerNameData", ProtocolFamily::V1, MDRTraits<RetPlayCapabilityPlaybackControllerNameData>::kDataType, static_cast<UInt8>(RetPlayCapabilityPlaybackControllerNameData{}.command), &Create_RetPlayCapabilityPlaybackControllerNameData, &Destroy_RetPlayCapabilityPlaybackControllerNameData, &Decode_RetPlayCapabilityPlaybackControllerNameData, &Encode_RetPlayCapabilityPlaybackControllerNameData, &Validate_RetPlayCapabilityPlaybackControllerNameData, &DrawErased_RetPlayCapabilityPlaybackControllerNameData},
             {"mdr::v1::t1::RetPlayParamPlaybackControllerNameData", ProtocolFamily::V1, MDRTraits<RetPlayParamPlaybackControllerNameData>::kDataType, static_cast<UInt8>(RetPlayParamPlaybackControllerNameData{}.command), &Create_RetPlayParamPlaybackControllerNameData, &Destroy_RetPlayParamPlaybackControllerNameData, &Decode_RetPlayParamPlaybackControllerNameData, &Encode_RetPlayParamPlaybackControllerNameData, &Validate_RetPlayParamPlaybackControllerNameData, &DrawErased_RetPlayParamPlaybackControllerNameData},
             {"mdr::v1::t1::RetSportsCapability", ProtocolFamily::V1, MDRTraits<RetSportsCapability>::kDataType, static_cast<UInt8>(RetSportsCapability{}.command), &Create_RetSportsCapability, &Destroy_RetSportsCapability, &Decode_RetSportsCapability, &Encode_RetSportsCapability, &Validate_RetSportsCapability, &DrawErased_RetSportsCapability},
             {"mdr::v1::t1::RetSportsExParamTrainingModeExParam", ProtocolFamily::V1, MDRTraits<RetSportsExParamTrainingModeExParam>::kDataType, static_cast<UInt8>(RetSportsExParamTrainingModeExParam{}.command), &Create_RetSportsExParamTrainingModeExParam, &Destroy_RetSportsExParamTrainingModeExParam, &Decode_RetSportsExParamTrainingModeExParam, &Encode_RetSportsExParamTrainingModeExParam, &Validate_RetSportsExParamTrainingModeExParam, &DrawErased_RetSportsExParamTrainingModeExParam},
@@ -17402,12 +11248,10 @@ namespace client::debugger {
             {"mdr::v1::t1::RetSystemCapability_ControlByWearingCapability", ProtocolFamily::V1, MDRTraits<RetSystemCapability_ControlByWearingCapability>::kDataType, static_cast<UInt8>(RetSystemCapability_ControlByWearingCapability{}.command), &Create_RetSystemCapability_ControlByWearingCapability, &Destroy_RetSystemCapability_ControlByWearingCapability, &Decode_RetSystemCapability_ControlByWearingCapability, &Encode_RetSystemCapability_ControlByWearingCapability, &Validate_RetSystemCapability_ControlByWearingCapability, &DrawErased_RetSystemCapability_ControlByWearingCapability},
             {"mdr::v1::t1::RetSystemCapability_PowerSavingModeCapability", ProtocolFamily::V1, MDRTraits<RetSystemCapability_PowerSavingModeCapability>::kDataType, static_cast<UInt8>(RetSystemCapability_PowerSavingModeCapability{}.command), &Create_RetSystemCapability_PowerSavingModeCapability, &Destroy_RetSystemCapability_PowerSavingModeCapability, &Decode_RetSystemCapability_PowerSavingModeCapability, &Encode_RetSystemCapability_PowerSavingModeCapability, &Validate_RetSystemCapability_PowerSavingModeCapability, &DrawErased_RetSystemCapability_PowerSavingModeCapability},
             {"mdr::v1::t1::RetSystemCapability_SmartTalkingModeCapabilityVariant1", ProtocolFamily::V1, MDRTraits<RetSystemCapability_SmartTalkingModeCapabilityVariant1>::kDataType, static_cast<UInt8>(RetSystemCapability_SmartTalkingModeCapabilityVariant1{}.command), &Create_RetSystemCapability_SmartTalkingModeCapabilityVariant1, &Destroy_RetSystemCapability_SmartTalkingModeCapabilityVariant1, &Decode_RetSystemCapability_SmartTalkingModeCapabilityVariant1, &Encode_RetSystemCapability_SmartTalkingModeCapabilityVariant1, &Validate_RetSystemCapability_SmartTalkingModeCapabilityVariant1, &DrawErased_RetSystemCapability_SmartTalkingModeCapabilityVariant1},
-            {"mdr::v1::t1::RetSystemCapability_SmartTalkingModeCapabilityVariant2", ProtocolFamily::V1, MDRTraits<RetSystemCapability_SmartTalkingModeCapabilityVariant2>::kDataType, static_cast<UInt8>(RetSystemCapability_SmartTalkingModeCapabilityVariant2{}.command), &Create_RetSystemCapability_SmartTalkingModeCapabilityVariant2, &Destroy_RetSystemCapability_SmartTalkingModeCapabilityVariant2, &Decode_RetSystemCapability_SmartTalkingModeCapabilityVariant2, &Encode_RetSystemCapability_SmartTalkingModeCapabilityVariant2, &Validate_RetSystemCapability_SmartTalkingModeCapabilityVariant2, &DrawErased_RetSystemCapability_SmartTalkingModeCapabilityVariant2},
             {"mdr::v1::t1::RetSystemCapability_VibratorCapability", ProtocolFamily::V1, MDRTraits<RetSystemCapability_VibratorCapability>::kDataType, static_cast<UInt8>(RetSystemCapability_VibratorCapability{}.command), &Create_RetSystemCapability_VibratorCapability, &Destroy_RetSystemCapability_VibratorCapability, &Decode_RetSystemCapability_VibratorCapability, &Encode_RetSystemCapability_VibratorCapability, &Validate_RetSystemCapability_VibratorCapability, &DrawErased_RetSystemCapability_VibratorCapability},
             {"mdr::v1::t1::RetVptCapability", ProtocolFamily::V1, MDRTraits<RetVptCapability>::kDataType, static_cast<UInt8>(RetVptCapability{}.command), &Create_RetVptCapability, &Destroy_RetVptCapability, &Decode_RetVptCapability, &Encode_RetVptCapability, &Validate_RetVptCapability, &DrawErased_RetVptCapability},
             {"mdr::v1::t1::RetVptCapability_SoundPositionCapability", ProtocolFamily::V1, MDRTraits<RetVptCapability_SoundPositionCapability>::kDataType, static_cast<UInt8>(RetVptCapability_SoundPositionCapability{}.command), &Create_RetVptCapability_SoundPositionCapability, &Destroy_RetVptCapability_SoundPositionCapability, &Decode_RetVptCapability_SoundPositionCapability, &Encode_RetVptCapability_SoundPositionCapability, &Validate_RetVptCapability_SoundPositionCapability, &DrawErased_RetVptCapability_SoundPositionCapability},
             {"mdr::v1::t1::RetVptCapability_VptCapability", ProtocolFamily::V1, MDRTraits<RetVptCapability_VptCapability>::kDataType, static_cast<UInt8>(RetVptCapability_VptCapability{}.command), &Create_RetVptCapability_VptCapability, &Destroy_RetVptCapability_VptCapability, &Decode_RetVptCapability_VptCapability, &Encode_RetVptCapability_VptCapability, &Validate_RetVptCapability_VptCapability, &DrawErased_RetVptCapability_VptCapability},
-            {"mdr::v1::t1::RetVptParamCapability_VptCapability", ProtocolFamily::V1, MDRTraits<RetVptParamCapability_VptCapability>::kDataType, static_cast<UInt8>(RetVptParamCapability_VptCapability{}.command), &Create_RetVptParamCapability_VptCapability, &Destroy_RetVptParamCapability_VptCapability, &Decode_RetVptParamCapability_VptCapability, &Encode_RetVptParamCapability_VptCapability, &Validate_RetVptParamCapability_VptCapability, &DrawErased_RetVptParamCapability_VptCapability},
             {"mdr::v1::t1::SetEqEbbParamRetEqEbbCapability_EqCapability", ProtocolFamily::V1, MDRTraits<SetEqEbbParamRetEqEbbCapability_EqCapability>::kDataType, static_cast<UInt8>(SetEqEbbParamRetEqEbbCapability_EqCapability{}.command), &Create_SetEqEbbParamRetEqEbbCapability_EqCapability, &Destroy_SetEqEbbParamRetEqEbbCapability_EqCapability, &Decode_SetEqEbbParamRetEqEbbCapability_EqCapability, &Encode_SetEqEbbParamRetEqEbbCapability_EqCapability, &Validate_SetEqEbbParamRetEqEbbCapability_EqCapability, &DrawErased_SetEqEbbParamRetEqEbbCapability_EqCapability},
             {"mdr::v1::t1::SetGsParamGsBooleanTypeValue", ProtocolFamily::V1, MDRTraits<SetGsParamGsBooleanTypeValue>::kDataType, static_cast<UInt8>(SetGsParamGsBooleanTypeValue{}.command), &Create_SetGsParamGsBooleanTypeValue, &Destroy_SetGsParamGsBooleanTypeValue, &Decode_SetGsParamGsBooleanTypeValue, &Encode_SetGsParamGsBooleanTypeValue, &Validate_SetGsParamGsBooleanTypeValue, &DrawErased_SetGsParamGsBooleanTypeValue},
             {"mdr::v1::t1::SetGsParamGsListTypeValue", ProtocolFamily::V1, MDRTraits<SetGsParamGsListTypeValue>::kDataType, static_cast<UInt8>(SetGsParamGsListTypeValue{}.command), &Create_SetGsParamGsListTypeValue, &Destroy_SetGsParamGsListTypeValue, &Decode_SetGsParamGsListTypeValue, &Encode_SetGsParamGsListTypeValue, &Validate_SetGsParamGsListTypeValue, &DrawErased_SetGsParamGsListTypeValue},
@@ -17417,18 +11261,9 @@ namespace client::debugger {
             {"mdr::v1::t1::SetSportsParam", ProtocolFamily::V1, MDRTraits<SetSportsParam>::kDataType, static_cast<UInt8>(SetSportsParam{}.command), &Create_SetSportsParam, &Destroy_SetSportsParam, &Decode_SetSportsParam, &Encode_SetSportsParam, &Validate_SetSportsParam, &DrawErased_SetSportsParam},
             {"mdr::v1::t1::SetVptParamRetVptCapability_VptCapability", ProtocolFamily::V1, MDRTraits<SetVptParamRetVptCapability_VptCapability>::kDataType, static_cast<UInt8>(SetVptParamRetVptCapability_VptCapability{}.command), &Create_SetVptParamRetVptCapability_VptCapability, &Destroy_SetVptParamRetVptCapability_VptCapability, &Decode_SetVptParamRetVptCapability_VptCapability, &Encode_SetVptParamRetVptCapability_VptCapability, &Validate_SetVptParamRetVptCapability_VptCapability, &DrawErased_SetVptParamRetVptCapability_VptCapability},
             {"mdr::v1::t1::TestCommand", ProtocolFamily::V1, MDRTraits<TestCommand>::kDataType, static_cast<UInt8>(TestCommand{}.command), &Create_TestCommand, &Destroy_TestCommand, &Decode_TestCommand, &Encode_TestCommand, &Validate_TestCommand, &DrawErased_TestCommand},
-            {"mdr::v1::t1::RetEqEbbExtendedInfoEqExtendedInfo", ProtocolFamily::V1, MDRTraits<RetEqEbbExtendedInfoEqExtendedInfo>::kDataType, static_cast<UInt8>(RetEqEbbExtendedInfoEqExtendedInfo{}.command), &Create_RetEqEbbExtendedInfoEqExtendedInfo, &Destroy_RetEqEbbExtendedInfoEqExtendedInfo, &Decode_RetEqEbbExtendedInfoEqExtendedInfo, &Encode_RetEqEbbExtendedInfoEqExtendedInfo, &Validate_RetEqEbbExtendedInfoEqExtendedInfo, &DrawErased_RetEqEbbExtendedInfoEqExtendedInfo},
             {"mdr::v1::t1::RetGsCapabilityGsCandidateElementList", ProtocolFamily::V1, MDRTraits<RetGsCapabilityGsCandidateElementList>::kDataType, static_cast<UInt8>(RetGsCapabilityGsCandidateElementList{}.command), &Create_RetGsCapabilityGsCandidateElementList, &Destroy_RetGsCapabilityGsCandidateElementList, &Decode_RetGsCapabilityGsCandidateElementList, &Encode_RetGsCapabilityGsCandidateElementList, &Validate_RetGsCapabilityGsCandidateElementList, &DrawErased_RetGsCapabilityGsCandidateElementList},
             {"mdr::v1::t1::SetSportsExParam", ProtocolFamily::V1, MDRTraits<SetSportsExParam>::kDataType, static_cast<UInt8>(SetSportsExParam{}.command), &Create_SetSportsExParam, &Destroy_SetSportsExParam, &Decode_SetSportsExParam, &Encode_SetSportsExParam, &Validate_SetSportsExParam, &DrawErased_SetSportsExParam},
-            {"mdr::v1::t1::NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability{}.command), &Create_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, &Destroy_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, &Decode_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, &Encode_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, &Validate_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, &DrawErased_NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability{}.command), &Create_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, &Destroy_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, &Decode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, &Encode_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, &Validate_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, &DrawErased_NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::NotifySystemParamRetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<NotifySystemParamRetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(NotifySystemParamRetSystemCapability_AssignableSettingsCapability{}.command), &Create_NotifySystemParamRetSystemCapability_AssignableSettingsCapability, &Destroy_NotifySystemParamRetSystemCapability_AssignableSettingsCapability, &Decode_NotifySystemParamRetSystemCapability_AssignableSettingsCapability, &Encode_NotifySystemParamRetSystemCapability_AssignableSettingsCapability, &Validate_NotifySystemParamRetSystemCapability_AssignableSettingsCapability, &DrawErased_NotifySystemParamRetSystemCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::NotifySystemStatusRetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(NotifySystemStatusRetSystemCapability_AssignableSettingsCapability{}.command), &Create_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, &Destroy_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, &Decode_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, &Encode_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, &Validate_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, &DrawErased_NotifySystemStatusRetSystemCapability_AssignableSettingsCapability},
             {"mdr::v1::t1::RetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<RetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(RetSystemCapability_AssignableSettingsCapability{}.command), &Create_RetSystemCapability_AssignableSettingsCapability, &Destroy_RetSystemCapability_AssignableSettingsCapability, &Decode_RetSystemCapability_AssignableSettingsCapability, &Encode_RetSystemCapability_AssignableSettingsCapability, &Validate_RetSystemCapability_AssignableSettingsCapability, &DrawErased_RetSystemCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::RetSystemExParamChildPayloadCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(RetSystemExParamChildPayloadCapability_AssignableSettingsCapability{}.command), &Create_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, &Destroy_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, &Decode_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, &Encode_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, &Validate_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, &DrawErased_RetSystemExParamChildPayloadCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability{}.command), &Create_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, &Destroy_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, &Decode_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, &Encode_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, &Validate_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, &DrawErased_RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::RetSystemParamCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<RetSystemParamCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(RetSystemParamCapability_AssignableSettingsCapability{}.command), &Create_RetSystemParamCapability_AssignableSettingsCapability, &Destroy_RetSystemParamCapability_AssignableSettingsCapability, &Decode_RetSystemParamCapability_AssignableSettingsCapability, &Encode_RetSystemParamCapability_AssignableSettingsCapability, &Validate_RetSystemParamCapability_AssignableSettingsCapability, &DrawErased_RetSystemParamCapability_AssignableSettingsCapability},
-            {"mdr::v1::t1::RetSystemStatusCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<RetSystemStatusCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(RetSystemStatusCapability_AssignableSettingsCapability{}.command), &Create_RetSystemStatusCapability_AssignableSettingsCapability, &Destroy_RetSystemStatusCapability_AssignableSettingsCapability, &Decode_RetSystemStatusCapability_AssignableSettingsCapability, &Encode_RetSystemStatusCapability_AssignableSettingsCapability, &Validate_RetSystemStatusCapability_AssignableSettingsCapability, &DrawErased_RetSystemStatusCapability_AssignableSettingsCapability},
             {"mdr::v1::t1::SetSystemExParamRetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<SetSystemExParamRetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(SetSystemExParamRetSystemCapability_AssignableSettingsCapability{}.command), &Create_SetSystemExParamRetSystemCapability_AssignableSettingsCapability, &Destroy_SetSystemExParamRetSystemCapability_AssignableSettingsCapability, &Decode_SetSystemExParamRetSystemCapability_AssignableSettingsCapability, &Encode_SetSystemExParamRetSystemCapability_AssignableSettingsCapability, &Validate_SetSystemExParamRetSystemCapability_AssignableSettingsCapability, &DrawErased_SetSystemExParamRetSystemCapability_AssignableSettingsCapability},
             {"mdr::v1::t1::SetSystemParamRetSystemCapability_AssignableSettingsCapability", ProtocolFamily::V1, MDRTraits<SetSystemParamRetSystemCapability_AssignableSettingsCapability>::kDataType, static_cast<UInt8>(SetSystemParamRetSystemCapability_AssignableSettingsCapability{}.command), &Create_SetSystemParamRetSystemCapability_AssignableSettingsCapability, &Destroy_SetSystemParamRetSystemCapability_AssignableSettingsCapability, &Decode_SetSystemParamRetSystemCapability_AssignableSettingsCapability, &Encode_SetSystemParamRetSystemCapability_AssignableSettingsCapability, &Validate_SetSystemParamRetSystemCapability_AssignableSettingsCapability, &DrawErased_SetSystemParamRetSystemCapability_AssignableSettingsCapability},
         };

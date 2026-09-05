@@ -68,14 +68,12 @@ namespace mdr::v1::t1 {
     {
         UInt8* ptr = *ppDstBuffer;
         MDR_TRY_SIZE(size_t, (MDRPodArray<CommonStatus>::Write)(data.allStatus, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.status, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
     MDRResult<size_t> AssignableSettingsStatus::Read(const UInt8** ppSrcBuffer, AssignableSettingsStatus& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
         MDR_TRY_SIZE(size_t, (MDRPodArray<CommonStatus>::Read)(ppSrcBuffer, out.allStatus, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.status, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> AtCommandParam::Write(const AtCommandParam& data, UInt8** ppDstBuffer, size_t maxSize)
@@ -115,7 +113,6 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> BatteryParam::Write(const BatteryParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.level, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.chargingStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -123,7 +120,6 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> BatteryParam::Read(const UInt8** ppSrcBuffer, BatteryParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.level, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.chargingStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
@@ -163,7 +159,6 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> CradleBatteryParam::Write(const CradleBatteryParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.level, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.chargingStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -171,7 +166,6 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> CradleBatteryParam::Read(const UInt8** ppSrcBuffer, CradleBatteryParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.level, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.chargingStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
@@ -188,6 +182,20 @@ namespace mdr::v1::t1 {
         const UInt8* ptr = *ppSrcBuffer;
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.level, maxSize));
+        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
+    }
+    MDRResult<size_t> EqBandInformation::Write(const EqBandInformation& data, UInt8** ppDstBuffer, size_t maxSize)
+    {
+        UInt8* ptr = *ppDstBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.infoType, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.valueAsFrequency, ppDstBuffer, maxSize));
+        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
+    }
+    MDRResult<size_t> EqBandInformation::Read(const UInt8** ppSrcBuffer, EqBandInformation& out, size_t maxSize)
+    {
+        const UInt8* ptr = *ppSrcBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.infoType, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.valueAsFrequency, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> EqParam::Write(const EqParam& data, UInt8** ppDstBuffer, size_t maxSize)
@@ -339,27 +347,24 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> LeftRightBatteryParam::Write(const LeftRightBatteryParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftLevel, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftChargingStatus, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightLevel, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftChargingStatus, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightChargingStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
     MDRResult<size_t> LeftRightBatteryParam::Read(const UInt8** ppSrcBuffer, LeftRightBatteryParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftLevel, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftChargingStatus, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightLevel, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftChargingStatus, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightChargingStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> LeftRightConnectionStatusParam::Write(const LeftRightConnectionStatusParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftConnectionStatus, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightConnectionStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -367,7 +372,6 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> LeftRightConnectionStatusParam::Read(const UInt8** ppSrcBuffer, LeftRightConnectionStatusParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftConnectionStatus, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightConnectionStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
@@ -438,7 +442,7 @@ namespace mdr::v1::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logInquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.data, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPrefixedString16BE::Write)(data.data, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<NotifyLogParam> NotifyLogParam::Deserialize(const UInt8* data, size_t maxSize)
@@ -446,161 +450,9 @@ namespace mdr::v1::t1 {
         NotifyLogParam out{};
         MDR_TRY_SIZE(NotifyLogParam, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(NotifyLogParam, MDRPod::Read(&data, out.logInquiredType, maxSize));
-        MDR_TRY_SIZE(NotifyLogParam, (MDRPrefixedString::Read)(&data, out.data, maxSize));
+        MDR_TRY_SIZE(NotifyLogParam, (MDRPrefixedString16BE::Read)(&data, out.data, maxSize));
         MDR_TRY(NotifyLogParam, Validate(out));
         return MDRResult<NotifyLogParam>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySportsExParamChildPayloadTrainingModeExEqParam::Serialize(const NotifySportsExParamChildPayloadTrainingModeExEqParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.presetId, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.bandSteps, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySportsExParamChildPayloadTrainingModeExEqParam> NotifySportsExParamChildPayloadTrainingModeExEqParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySportsExParamChildPayloadTrainingModeExEqParam out{};
-        MDR_TRY_SIZE(NotifySportsExParamChildPayloadTrainingModeExEqParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySportsExParamChildPayloadTrainingModeExEqParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySportsExParamChildPayloadTrainingModeExEqParam, MDRPod::Read(&data, out.presetId, maxSize));
-        MDR_TRY_SIZE(NotifySportsExParamChildPayloadTrainingModeExEqParam, (MDRPodArray<UInt8>::Read)(&data, out.bandSteps, maxSize));
-        MDR_TRY(NotifySportsExParamChildPayloadTrainingModeExEqParam, Validate(out));
-        return MDRResult<NotifySportsExParamChildPayloadTrainingModeExEqParam>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamChildPayloadAssignableSettingsParam::Serialize(const NotifySystemExParamChildPayloadAssignableSettingsParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(data.presets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamChildPayloadAssignableSettingsParam> NotifySystemExParamChildPayloadAssignableSettingsParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamChildPayloadAssignableSettingsParam out{};
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadAssignableSettingsParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadAssignableSettingsParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadAssignableSettingsParam, (MDRPodArray<AssignableSettingsPreset>::Read)(&data, out.presets, maxSize));
-        MDR_TRY(NotifySystemExParamChildPayloadAssignableSettingsParam, Validate(out));
-        return MDRResult<NotifySystemExParamChildPayloadAssignableSettingsParam>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability::Serialize(const NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability> NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1::Serialize(const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1> NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2::Serialize(const NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.modeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2> NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam::Serialize(const NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(data.presets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam> NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam out{};
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, (MDRPodArray<AssignableSettingsPreset>::Read)(&data, out.presets, maxSize));
-        MDR_TRY(NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam, Validate(out));
-        return MDRResult<NotifySystemExParamSmartTalkingModeExParamAssignableSettingsParam>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability::Serialize(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AutoPowerOffCapability>::Success(std::move(out));
     }
     MDRResult<size_t> NotifySystemParamAssignableSettingsParam::Serialize(const NotifySystemParamAssignableSettingsParam& data, UInt8* out, size_t maxSize)
     {
@@ -620,102 +472,6 @@ namespace mdr::v1::t1 {
         MDR_TRY(NotifySystemParamAssignableSettingsParam, Validate(out));
         return MDRResult<NotifySystemParamAssignableSettingsParam>::Success(std::move(out));
     }
-    MDRResult<size_t> NotifySystemParamRetSystemCapability_AutoPowerOffCapability::Serialize(const NotifySystemParamRetSystemCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemParamRetSystemCapability_AutoPowerOffCapability> NotifySystemParamRetSystemCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemParamRetSystemCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(NotifySystemParamRetSystemCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<NotifySystemParamRetSystemCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Serialize(const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1> NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Serialize(const NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.modeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2> NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<NotifySystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemStatusAssignableSettingsParam::Serialize(const NotifySystemStatusAssignableSettingsParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(data.presets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemStatusAssignableSettingsParam> NotifySystemStatusAssignableSettingsParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemStatusAssignableSettingsParam out{};
-        MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsParam, (MDRPodArray<AssignableSettingsPreset>::Read)(&data, out.presets, maxSize));
-        MDR_TRY(NotifySystemStatusAssignableSettingsParam, Validate(out));
-        return MDRResult<NotifySystemStatusAssignableSettingsParam>::Success(std::move(out));
-    }
     MDRResult<size_t> NotifySystemStatusAssignableSettingsStatus::Serialize(const NotifySystemStatusAssignableSettingsStatus& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -723,7 +479,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<CommonStatus>::Write)(data.allStatus, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.status, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<NotifySystemStatusAssignableSettingsStatus> NotifySystemStatusAssignableSettingsStatus::Deserialize(const UInt8* data, size_t maxSize)
@@ -732,87 +487,8 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsStatus, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsStatus, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsStatus, (MDRPodArray<CommonStatus>::Read)(&data, out.allStatus, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusAssignableSettingsStatus, MDRPod::Read(&data, out.status, maxSize));
         MDR_TRY(NotifySystemStatusAssignableSettingsStatus, Validate(out));
         return MDRResult<NotifySystemStatusAssignableSettingsStatus>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemStatusRetSystemCapability_AutoPowerOffCapability::Serialize(const NotifySystemStatusRetSystemCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability> NotifySystemStatusRetSystemCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemStatusRetSystemCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(NotifySystemStatusRetSystemCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<NotifySystemStatusRetSystemCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1::Serialize(const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1> NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2::Serialize(const NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.modeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2> NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<NotifySystemStatusRetSystemCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
     }
     MDRResult<size_t> Payload::Write(const Payload& data, UInt8** ppDstBuffer, size_t maxSize)
     {
@@ -1016,26 +692,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    MDRResult<size_t> RetSportsExParamChildPayloadTrainingModeExEqParam::Serialize(const RetSportsExParamChildPayloadTrainingModeExEqParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.presetId, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.bandSteps, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSportsExParamChildPayloadTrainingModeExEqParam> RetSportsExParamChildPayloadTrainingModeExEqParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSportsExParamChildPayloadTrainingModeExEqParam out{};
-        MDR_TRY_SIZE(RetSportsExParamChildPayloadTrainingModeExEqParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSportsExParamChildPayloadTrainingModeExEqParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSportsExParamChildPayloadTrainingModeExEqParam, MDRPod::Read(&data, out.presetId, maxSize));
-        MDR_TRY_SIZE(RetSportsExParamChildPayloadTrainingModeExEqParam, (MDRPodArray<UInt8>::Read)(&data, out.bandSteps, maxSize));
-        MDR_TRY(RetSportsExParamChildPayloadTrainingModeExEqParam, Validate(out));
-        return MDRResult<RetSportsExParamChildPayloadTrainingModeExEqParam>::Success(std::move(out));
-    }
     MDRResult<size_t> RetSupportFunction::Serialize(const RetSupportFunction& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -1066,138 +722,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    MDRResult<size_t> RetSystemExParamChildPayloadAssignableSettingsParam::Serialize(const RetSystemExParamChildPayloadAssignableSettingsParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(data.presets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamChildPayloadAssignableSettingsParam> RetSystemExParamChildPayloadAssignableSettingsParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamChildPayloadAssignableSettingsParam out{};
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadAssignableSettingsParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadAssignableSettingsParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadAssignableSettingsParam, (MDRPodArray<AssignableSettingsPreset>::Read)(&data, out.presets, maxSize));
-        MDR_TRY(RetSystemExParamChildPayloadAssignableSettingsParam, Validate(out));
-        return MDRResult<RetSystemExParamChildPayloadAssignableSettingsParam>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamChildPayloadCapability_AutoPowerOffCapability::Serialize(const RetSystemExParamChildPayloadCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability> RetSystemExParamChildPayloadCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamChildPayloadCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(RetSystemExParamChildPayloadCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<RetSystemExParamChildPayloadCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1::Serialize(const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1> RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2::Serialize(const RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.modeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2> RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<RetSystemExParamChildPayloadCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam::Serialize(const RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(data.presets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam> RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam out{};
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, (MDRPodArray<AssignableSettingsPreset>::Read)(&data, out.presets, maxSize));
-        MDR_TRY(RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam, Validate(out));
-        return MDRResult<RetSystemExParamSmartTalkingModeExParamAssignableSettingsParam>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability::Serialize(const RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability> RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<RetSystemExParamSmartTalkingModeExParamCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
     MDRResult<size_t> RetSystemParamAssignableSettingsParam::Serialize(const RetSystemParamAssignableSettingsParam& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -1216,102 +740,6 @@ namespace mdr::v1::t1 {
         MDR_TRY(RetSystemParamAssignableSettingsParam, Validate(out));
         return MDRResult<RetSystemParamAssignableSettingsParam>::Success(std::move(out));
     }
-    MDRResult<size_t> RetSystemParamCapability_AutoPowerOffCapability::Serialize(const RetSystemParamCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemParamCapability_AutoPowerOffCapability> RetSystemParamCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemParamCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(RetSystemParamCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(RetSystemParamCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<RetSystemParamCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemParamCapability_SmartTalkingModeCapabilityVariant1::Serialize(const RetSystemParamCapability_SmartTalkingModeCapabilityVariant1& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1> RetSystemParamCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemParamCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemParamCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<RetSystemParamCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemParamCapability_SmartTalkingModeCapabilityVariant2::Serialize(const RetSystemParamCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.modeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2> RetSystemParamCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemParamCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemParamCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<RetSystemParamCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemStatusAssignableSettingsParam::Serialize(const RetSystemStatusAssignableSettingsParam& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsPreset>::Write)(data.presets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemStatusAssignableSettingsParam> RetSystemStatusAssignableSettingsParam::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemStatusAssignableSettingsParam out{};
-        MDR_TRY_SIZE(RetSystemStatusAssignableSettingsParam, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusAssignableSettingsParam, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusAssignableSettingsParam, (MDRPodArray<AssignableSettingsPreset>::Read)(&data, out.presets, maxSize));
-        MDR_TRY(RetSystemStatusAssignableSettingsParam, Validate(out));
-        return MDRResult<RetSystemStatusAssignableSettingsParam>::Success(std::move(out));
-    }
     MDRResult<size_t> RetSystemStatusAssignableSettingsStatus::Serialize(const RetSystemStatusAssignableSettingsStatus& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -1319,7 +747,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<CommonStatus>::Write)(data.allStatus, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.status, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<RetSystemStatusAssignableSettingsStatus> RetSystemStatusAssignableSettingsStatus::Deserialize(const UInt8* data, size_t maxSize)
@@ -1328,87 +755,8 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(RetSystemStatusAssignableSettingsStatus, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(RetSystemStatusAssignableSettingsStatus, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(RetSystemStatusAssignableSettingsStatus, (MDRPodArray<CommonStatus>::Read)(&data, out.allStatus, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusAssignableSettingsStatus, MDRPod::Read(&data, out.status, maxSize));
         MDR_TRY(RetSystemStatusAssignableSettingsStatus, Validate(out));
         return MDRResult<RetSystemStatusAssignableSettingsStatus>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemStatusCapability_AutoPowerOffCapability::Serialize(const RetSystemStatusCapability_AutoPowerOffCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AutoPowerOffElementId>::Write)(data.candidateElements, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemStatusCapability_AutoPowerOffCapability> RetSystemStatusCapability_AutoPowerOffCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemStatusCapability_AutoPowerOffCapability out{};
-        MDR_TRY_SIZE(RetSystemStatusCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_AutoPowerOffCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_AutoPowerOffCapability, (MDRPodArray<AutoPowerOffElementId>::Read)(&data, out.candidateElements, maxSize));
-        MDR_TRY(RetSystemStatusCapability_AutoPowerOffCapability, Validate(out));
-        return MDRResult<RetSystemStatusCapability_AutoPowerOffCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1::Serialize(const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1> RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2::Serialize(const RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.detectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.voiceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.modeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2> RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<RetSystemStatusCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
     }
     MDRResult<size_t> RetUpdateParamUpdateStringParamNSString::Serialize(const RetUpdateParamUpdateStringParamNSString& data, UInt8* out, size_t maxSize)
     {
@@ -1502,36 +850,6 @@ namespace mdr::v1::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1> SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Serialize(const SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
@@ -1541,20 +859,20 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
-    MDRResult<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2> SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
+    MDRResult<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1> SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
     {
-        SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
+        SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.previewType, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.detailSettingType, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.voiceFocusType, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
+        MDR_TRY_SIZE(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
+        MDR_TRY(SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
+        return MDRResult<SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
     }
     MDRResult<size_t> SetSystemParamAssignableSettingsParam::Serialize(const SetSystemParamAssignableSettingsParam& data, UInt8* out, size_t maxSize)
     {
@@ -1598,36 +916,6 @@ namespace mdr::v1::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1> SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Serialize(const SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
@@ -1637,20 +925,20 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
-    MDRResult<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2> SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
+    MDRResult<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1> SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
     {
-        SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
+        SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.type, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.previewType, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.detailSettingType, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.voiceFocusType, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
+        MDR_TRY_SIZE(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
+        MDR_TRY(SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
+        return MDRResult<SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
     }
     MDRResult<size_t> SetVptParamVptPreset::Serialize(const SetVptParamVptPreset& data, UInt8* out, size_t maxSize)
     {
@@ -2052,20 +1340,18 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, (MDRPodArray<AsCapabilityAction>::Read)(ppSrcBuffer, out.actions, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    MDRResult<size_t> EqBandInformation::Write(const EqBandInformation& data, UInt8** ppDstBuffer, size_t maxSize)
+    MDRResult<size_t> EqExtendedInfo::Write(const EqExtendedInfo& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.infoType, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.valueAsFrequency, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, (SpecificInformationType::Write)(data.valueAsSpecificInformation, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<EqBandInformation>::Write)(data.bandInfos, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
-    MDRResult<size_t> EqBandInformation::Read(const UInt8** ppSrcBuffer, EqBandInformation& out, size_t maxSize)
+    MDRResult<size_t> EqExtendedInfo::Read(const UInt8** ppSrcBuffer, EqExtendedInfo& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.infoType, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.valueAsFrequency, maxSize));
-        MDR_TRY_SIZE(size_t, (SpecificInformationType::Read)(ppSrcBuffer, out.valueAsSpecificInformation, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<EqBandInformation>::Read)(ppSrcBuffer, out.bandInfos, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> GetSportsExParam::Serialize(const GetSportsExParam& data, UInt8* out, size_t maxSize)
@@ -2097,92 +1383,6 @@ namespace mdr::v1::t1 {
         const UInt8* ptr = *ppSrcBuffer;
         MDR_TRY_SIZE(size_t, (MDRArray<GsSettingInfo>::Read)(ppSrcBuffer, out.elements, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
-    }
-    MDRResult<size_t> NotifyEqEbbParamRetEqEbbCapability_EqCapability::Serialize(const NotifyEqEbbParamRetEqEbbCapability_EqCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.band, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.step, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<EqPreset>::Write)(data.presetList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifyEqEbbParamRetEqEbbCapability_EqCapability> NotifyEqEbbParamRetEqEbbCapability_EqCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifyEqEbbParamRetEqEbbCapability_EqCapability out{};
-        MDR_TRY_SIZE(NotifyEqEbbParamRetEqEbbCapability_EqCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifyEqEbbParamRetEqEbbCapability_EqCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifyEqEbbParamRetEqEbbCapability_EqCapability, MDRPod::Read(&data, out.band, maxSize));
-        MDR_TRY_SIZE(NotifyEqEbbParamRetEqEbbCapability_EqCapability, MDRPod::Read(&data, out.step, maxSize));
-        MDR_TRY_SIZE(NotifyEqEbbParamRetEqEbbCapability_EqCapability, (MDRArray<EqPreset>::Read)(&data, out.presetList, maxSize));
-        MDR_TRY(NotifyEqEbbParamRetEqEbbCapability_EqCapability, Validate(out));
-        return MDRResult<NotifyEqEbbParamRetEqEbbCapability_EqCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifyNcAsmParamRetNcAsmCapability_AsmCapability::Serialize(const NotifyNcAsmParamRetNcAsmCapability_AsmCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.asmSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<Asm>::Write)(data.asmList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifyNcAsmParamRetNcAsmCapability_AsmCapability> NotifyNcAsmParamRetNcAsmCapability_AsmCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifyNcAsmParamRetNcAsmCapability_AsmCapability out{};
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_AsmCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_AsmCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_AsmCapability, MDRPod::Read(&data, out.asmSettingType, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_AsmCapability, (MDRPodArray<Asm>::Read)(&data, out.asmList, maxSize));
-        MDR_TRY(NotifyNcAsmParamRetNcAsmCapability_AsmCapability, Validate(out));
-        return MDRResult<NotifyNcAsmParamRetNcAsmCapability_AsmCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability::Serialize(const NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.ncSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.ncStep, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.asmSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<Asm>::Write)(data.asmList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability> NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability out{};
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, MDRPod::Read(&data, out.ncSettingType, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, MDRPod::Read(&data, out.ncStep, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, MDRPod::Read(&data, out.asmSettingType, maxSize));
-        MDR_TRY_SIZE(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, (MDRPodArray<Asm>::Read)(&data, out.asmList, maxSize));
-        MDR_TRY(NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability, Validate(out));
-        return MDRResult<NotifyNcAsmParamRetNcAsmCapability_NcAsmCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifyPlayParamPlaybackControllerNameData::Serialize(const NotifyPlayParamPlaybackControllerNameData& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.playInquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifyPlayParamPlaybackControllerNameData> NotifyPlayParamPlaybackControllerNameData::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifyPlayParamPlaybackControllerNameData out{};
-        MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.playInquiredType, maxSize));
-        MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
-        MDR_TRY_SIZE(NotifyPlayParamPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
-        MDR_TRY(NotifyPlayParamPlaybackControllerNameData, Validate(out));
-        return MDRResult<NotifyPlayParamPlaybackControllerNameData>::Success(std::move(out));
     }
     MDRResult<size_t> NotifySportsExParamTrainingModeExParam::Serialize(const NotifySportsExParamTrainingModeExParam& data, UInt8* out, size_t maxSize)
     {
@@ -2237,24 +1437,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(NotifySportsStatusTrainingModeStatus, (TrainingModeStatus::Read)(&data, out.trainingStatus, maxSize));
         MDR_TRY(NotifySportsStatusTrainingModeStatus, Validate(out));
         return MDRResult<NotifySportsStatusTrainingModeStatus>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifyVptParamRetVptCapability_VptCapability::Serialize(const NotifyVptParamRetVptCapability_VptCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<VptPreset>::Write)(data.vptPresets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifyVptParamRetVptCapability_VptCapability> NotifyVptParamRetVptCapability_VptCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifyVptParamRetVptCapability_VptCapability out{};
-        MDR_TRY_SIZE(NotifyVptParamRetVptCapability_VptCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifyVptParamRetVptCapability_VptCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifyVptParamRetVptCapability_VptCapability, (MDRArray<VptPreset>::Read)(&data, out.vptPresets, maxSize));
-        MDR_TRY(NotifyVptParamRetVptCapability_VptCapability, Validate(out));
-        return MDRResult<NotifyVptParamRetVptCapability_VptCapability>::Success(std::move(out));
     }
     MDRResult<size_t> PlaybackControllerNameData::Write(const PlaybackControllerNameData& data, UInt8** ppDstBuffer, size_t maxSize)
     {
@@ -2400,27 +1582,23 @@ namespace mdr::v1::t1 {
         MDR_TRY(RetEqEbbCapability_EqCapability, Validate(out));
         return MDRResult<RetEqEbbCapability_EqCapability>::Success(std::move(out));
     }
-    MDRResult<size_t> RetEqEbbParamCapability_EqCapability::Serialize(const RetEqEbbParamCapability_EqCapability& data, UInt8* out, size_t maxSize)
+    MDRResult<size_t> RetEqEbbExtendedInfoEqExtendedInfo::Serialize(const RetEqEbbExtendedInfoEqExtendedInfo& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.band, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.step, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<EqPreset>::Write)(data.presetList, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<EqBandInformation>::Write)(data.bandInfos, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
-    MDRResult<RetEqEbbParamCapability_EqCapability> RetEqEbbParamCapability_EqCapability::Deserialize(const UInt8* data, size_t maxSize)
+    MDRResult<RetEqEbbExtendedInfoEqExtendedInfo> RetEqEbbExtendedInfoEqExtendedInfo::Deserialize(const UInt8* data, size_t maxSize)
     {
-        RetEqEbbParamCapability_EqCapability out{};
-        MDR_TRY_SIZE(RetEqEbbParamCapability_EqCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetEqEbbParamCapability_EqCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetEqEbbParamCapability_EqCapability, MDRPod::Read(&data, out.band, maxSize));
-        MDR_TRY_SIZE(RetEqEbbParamCapability_EqCapability, MDRPod::Read(&data, out.step, maxSize));
-        MDR_TRY_SIZE(RetEqEbbParamCapability_EqCapability, (MDRArray<EqPreset>::Read)(&data, out.presetList, maxSize));
-        MDR_TRY(RetEqEbbParamCapability_EqCapability, Validate(out));
-        return MDRResult<RetEqEbbParamCapability_EqCapability>::Success(std::move(out));
+        RetEqEbbExtendedInfoEqExtendedInfo out{};
+        MDR_TRY_SIZE(RetEqEbbExtendedInfoEqExtendedInfo, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(RetEqEbbExtendedInfoEqExtendedInfo, MDRPod::Read(&data, out.type, maxSize));
+        MDR_TRY_SIZE(RetEqEbbExtendedInfoEqExtendedInfo, (MDRPodArray<EqBandInformation>::Read)(&data, out.bandInfos, maxSize));
+        MDR_TRY(RetEqEbbExtendedInfoEqExtendedInfo, Validate(out));
+        return MDRResult<RetEqEbbExtendedInfoEqExtendedInfo>::Success(std::move(out));
     }
     MDRResult<size_t> RetGsCapabilityGsSettingInfo::Serialize(const RetGsCapabilityGsSettingInfo& data, UInt8* out, size_t maxSize)
     {
@@ -2503,74 +1681,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(RetNcAsmCapability_NcAsmCapability, (MDRPodArray<Asm>::Read)(&data, out.asmList, maxSize));
         MDR_TRY(RetNcAsmCapability_NcAsmCapability, Validate(out));
         return MDRResult<RetNcAsmCapability_NcAsmCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetNcAsmParamCapability_AsmCapability::Serialize(const RetNcAsmParamCapability_AsmCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.asmSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<Asm>::Write)(data.asmList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetNcAsmParamCapability_AsmCapability> RetNcAsmParamCapability_AsmCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetNcAsmParamCapability_AsmCapability out{};
-        MDR_TRY_SIZE(RetNcAsmParamCapability_AsmCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_AsmCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_AsmCapability, MDRPod::Read(&data, out.asmSettingType, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_AsmCapability, (MDRPodArray<Asm>::Read)(&data, out.asmList, maxSize));
-        MDR_TRY(RetNcAsmParamCapability_AsmCapability, Validate(out));
-        return MDRResult<RetNcAsmParamCapability_AsmCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetNcAsmParamCapability_NcAsmCapability::Serialize(const RetNcAsmParamCapability_NcAsmCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.ncSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.ncStep, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.asmSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<Asm>::Write)(data.asmList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetNcAsmParamCapability_NcAsmCapability> RetNcAsmParamCapability_NcAsmCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetNcAsmParamCapability_NcAsmCapability out{};
-        MDR_TRY_SIZE(RetNcAsmParamCapability_NcAsmCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_NcAsmCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_NcAsmCapability, MDRPod::Read(&data, out.ncSettingType, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_NcAsmCapability, MDRPod::Read(&data, out.ncStep, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_NcAsmCapability, MDRPod::Read(&data, out.asmSettingType, maxSize));
-        MDR_TRY_SIZE(RetNcAsmParamCapability_NcAsmCapability, (MDRPodArray<Asm>::Read)(&data, out.asmList, maxSize));
-        MDR_TRY(RetNcAsmParamCapability_NcAsmCapability, Validate(out));
-        return MDRResult<RetNcAsmParamCapability_NcAsmCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetPlayCapabilityPlaybackControllerNameData::Serialize(const RetPlayCapabilityPlaybackControllerNameData& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.inquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.volumeStep, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.playbackControlType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (PlaybackName::Write)(data.playbackName, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetPlayCapabilityPlaybackControllerNameData> RetPlayCapabilityPlaybackControllerNameData::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetPlayCapabilityPlaybackControllerNameData out{};
-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.inquiredType, maxSize));
-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.volumeStep, maxSize));
-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.playbackControlType, maxSize));
-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, MDRPod::Read(&data, out.dataType, maxSize));
-        MDR_TRY_SIZE(RetPlayCapabilityPlaybackControllerNameData, (PlaybackName::Read)(&data, out.playbackName, maxSize));
-        MDR_TRY(RetPlayCapabilityPlaybackControllerNameData, Validate(out));
-        return MDRResult<RetPlayCapabilityPlaybackControllerNameData>::Success(std::move(out));
     }
     MDRResult<size_t> RetPlayParamPlaybackControllerNameData::Serialize(const RetPlayParamPlaybackControllerNameData& data, UInt8* out, size_t maxSize)
     {
@@ -2706,36 +1816,6 @@ namespace mdr::v1::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (RetSystemCapability_SystemCapabilityBase::Write)(data.base, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModePreviewType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetailSettingType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeDetectionSensitivityType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeVoceFocusType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.smartTalkingModeModeOutTimeType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.smartTalkingModeModeTimeOutValues, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemCapability_SmartTalkingModeCapabilityVariant1> RetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, (RetSystemCapability_SystemCapabilityBase::Read)(&data, out.base, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModePreviewType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeDetectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeVoceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.smartTalkingModeModeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.smartTalkingModeModeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
-        return MDRResult<RetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemCapability_SmartTalkingModeCapabilityVariant2::Serialize(const RetSystemCapability_SmartTalkingModeCapabilityVariant2& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (RetSystemCapability_SystemCapabilityBase::Write)(data.base, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.settingType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.previewType, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.detailSettingType, &ptr, maxSize));
@@ -2745,20 +1825,20 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.modeTimeOutValues, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
-    MDRResult<RetSystemCapability_SmartTalkingModeCapabilityVariant2> RetSystemCapability_SmartTalkingModeCapabilityVariant2::Deserialize(const UInt8* data, size_t maxSize)
+    MDRResult<RetSystemCapability_SmartTalkingModeCapabilityVariant1> RetSystemCapability_SmartTalkingModeCapabilityVariant1::Deserialize(const UInt8* data, size_t maxSize)
     {
-        RetSystemCapability_SmartTalkingModeCapabilityVariant2 out{};
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, (RetSystemCapability_SystemCapabilityBase::Read)(&data, out.base, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.settingType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.previewType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detailSettingType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.voiceFocusType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
-        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant2, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
-        MDR_TRY(RetSystemCapability_SmartTalkingModeCapabilityVariant2, Validate(out));
-        return MDRResult<RetSystemCapability_SmartTalkingModeCapabilityVariant2>::Success(std::move(out));
+        RetSystemCapability_SmartTalkingModeCapabilityVariant1 out{};
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.command, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, (RetSystemCapability_SystemCapabilityBase::Read)(&data, out.base, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.settingType, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.previewType, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.detailSettingType, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.detectionSensitivityType, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.voiceFocusType, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, MDRPod::Read(&data, out.modeOutTimeType, maxSize));
+        MDR_TRY_SIZE(RetSystemCapability_SmartTalkingModeCapabilityVariant1, (MDRPodArray<UInt8>::Read)(&data, out.modeTimeOutValues, maxSize));
+        MDR_TRY(RetSystemCapability_SmartTalkingModeCapabilityVariant1, Validate(out));
+        return MDRResult<RetSystemCapability_SmartTalkingModeCapabilityVariant1>::Success(std::move(out));
     }
     MDRResult<size_t> RetVptCapability::Serialize(const RetVptCapability& data, UInt8* out, size_t maxSize)
     {
@@ -2795,24 +1875,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(RetVptCapability_VptCapability, (MDRArray<VptPreset>::Read)(&data, out.vptPresets, maxSize));
         MDR_TRY(RetVptCapability_VptCapability, Validate(out));
         return MDRResult<RetVptCapability_VptCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetVptParamCapability_VptCapability::Serialize(const RetVptParamCapability_VptCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<VptPreset>::Write)(data.vptPresets, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetVptParamCapability_VptCapability> RetVptParamCapability_VptCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetVptParamCapability_VptCapability out{};
-        MDR_TRY_SIZE(RetVptParamCapability_VptCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetVptParamCapability_VptCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetVptParamCapability_VptCapability, (MDRArray<VptPreset>::Read)(&data, out.vptPresets, maxSize));
-        MDR_TRY(RetVptParamCapability_VptCapability, Validate(out));
-        return MDRResult<RetVptParamCapability_VptCapability>::Success(std::move(out));
     }
     MDRResult<size_t> SetEqEbbParamRetEqEbbCapability_EqCapability::Serialize(const SetEqEbbParamRetEqEbbCapability_EqCapability& data, UInt8* out, size_t maxSize)
     {
@@ -3050,38 +2112,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, (MDRArray<AsCapabilityPreset>::Read)(ppSrcBuffer, out.presets, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    MDRResult<size_t> EqExtendedInfo::Write(const EqExtendedInfo& data, UInt8** ppDstBuffer, size_t maxSize)
-    {
-        UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<EqBandInformation>::Write)(data.bandInfos, ppDstBuffer, maxSize));
-        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
-    }
-    MDRResult<size_t> EqExtendedInfo::Read(const UInt8** ppSrcBuffer, EqExtendedInfo& out, size_t maxSize)
-    {
-        const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<EqBandInformation>::Read)(ppSrcBuffer, out.bandInfos, maxSize));
-        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
-    }
-    MDRResult<size_t> RetEqEbbExtendedInfoEqExtendedInfo::Serialize(const RetEqEbbExtendedInfoEqExtendedInfo& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<EqBandInformation>::Write)(data.bandInfos, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetEqEbbExtendedInfoEqExtendedInfo> RetEqEbbExtendedInfoEqExtendedInfo::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetEqEbbExtendedInfoEqExtendedInfo out{};
-        MDR_TRY_SIZE(RetEqEbbExtendedInfoEqExtendedInfo, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetEqEbbExtendedInfoEqExtendedInfo, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetEqEbbExtendedInfoEqExtendedInfo, (MDRArray<EqBandInformation>::Read)(&data, out.bandInfos, maxSize));
-        MDR_TRY(RetEqEbbExtendedInfoEqExtendedInfo, Validate(out));
-        return MDRResult<RetEqEbbExtendedInfoEqExtendedInfo>::Success(std::move(out));
-    }
     MDRResult<size_t> RetGsCapabilityGsCandidateElementList::Serialize(const RetGsCapabilityGsCandidateElementList& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -3134,78 +2164,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(size_t, (MDRArray<AsCapabilityKey>::Read)(ppSrcBuffer, out.elements, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
-    MDRResult<size_t> NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability::Serialize(const NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability> NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<NotifySystemExParamChildPayloadRetSystemCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability::Serialize(const NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability> NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<NotifySystemExParamSmartTalkingModeExParamRetSystemCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemParamRetSystemCapability_AssignableSettingsCapability::Serialize(const NotifySystemParamRetSystemCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemParamRetSystemCapability_AssignableSettingsCapability> NotifySystemParamRetSystemCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemParamRetSystemCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemParamRetSystemCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(NotifySystemParamRetSystemCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<NotifySystemParamRetSystemCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> NotifySystemStatusRetSystemCapability_AssignableSettingsCapability::Serialize(const NotifySystemStatusRetSystemCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability> NotifySystemStatusRetSystemCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        NotifySystemStatusRetSystemCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(NotifySystemStatusRetSystemCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<NotifySystemStatusRetSystemCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
     MDRResult<size_t> RetSystemCapability_AssignableSettingsCapability::Serialize(const RetSystemCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
     {
         UInt8* ptr = out;
@@ -3223,78 +2181,6 @@ namespace mdr::v1::t1 {
         MDR_TRY_SIZE(RetSystemCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
         MDR_TRY(RetSystemCapability_AssignableSettingsCapability, Validate(out));
         return MDRResult<RetSystemCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamChildPayloadCapability_AssignableSettingsCapability::Serialize(const RetSystemExParamChildPayloadCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability> RetSystemExParamChildPayloadCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamChildPayloadCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(RetSystemExParamChildPayloadCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<RetSystemExParamChildPayloadCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability::Serialize(const RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability> RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<RetSystemExParamSmartTalkingModeExParamCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemParamCapability_AssignableSettingsCapability::Serialize(const RetSystemParamCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemParamCapability_AssignableSettingsCapability> RetSystemParamCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemParamCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(RetSystemParamCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemParamCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(RetSystemParamCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<RetSystemParamCapability_AssignableSettingsCapability>::Success(std::move(out));
-    }
-    MDRResult<size_t> RetSystemStatusCapability_AssignableSettingsCapability::Serialize(const RetSystemStatusCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
-    {
-        UInt8* ptr = out;
-        MDR_TRY(size_t, Validate(data));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (AsCapabilityKeyList::Write)(data.assignableSettingKeyList, &ptr, maxSize));
-        return MDRResult<size_t>::Success(ptr - out);
-    }
-    MDRResult<RetSystemStatusCapability_AssignableSettingsCapability> RetSystemStatusCapability_AssignableSettingsCapability::Deserialize(const UInt8* data, size_t maxSize)
-    {
-        RetSystemStatusCapability_AssignableSettingsCapability out{};
-        MDR_TRY_SIZE(RetSystemStatusCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.command, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_AssignableSettingsCapability, MDRPod::Read(&data, out.type, maxSize));
-        MDR_TRY_SIZE(RetSystemStatusCapability_AssignableSettingsCapability, (AsCapabilityKeyList::Read)(&data, out.assignableSettingKeyList, maxSize));
-        MDR_TRY(RetSystemStatusCapability_AssignableSettingsCapability, Validate(out));
-        return MDRResult<RetSystemStatusCapability_AssignableSettingsCapability>::Success(std::move(out));
     }
     MDRResult<size_t> SetSystemExParamRetSystemCapability_AssignableSettingsCapability::Serialize(const SetSystemExParamRetSystemCapability_AssignableSettingsCapability& data, UInt8* out, size_t maxSize)
     {

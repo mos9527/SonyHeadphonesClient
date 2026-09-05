@@ -36,6 +36,14 @@ namespace
         return true;
     }
 
+    template <typename Payload, size_t Size>
+    bool EncodesExactly(const Payload& payload, const mdr::UInt8 (&expected)[Size])
+    {
+        mdr::UInt8 bytes[Size]{};
+        const auto result = Payload::Serialize(payload, bytes, sizeof(bytes));
+        return result && result.value == Size && std::memcmp(bytes, expected, Size) == 0;
+    }
+
     bool CheckDefaultRoundTrips()
     {
         size_t count{};
@@ -117,6 +125,7 @@ namespace
     bool CheckV1PlaybackNameWireLayout()
     {
         using namespace mdr;
+        using namespace mdr::v1;
         using namespace mdr::v1::t1;
 
         constexpr UInt8 payload[]{
@@ -147,6 +156,141 @@ namespace
             );
         return serialized && serialized.value == sizeof(payload)
             && std::memcmp(payload, encoded, sizeof(payload)) == 0;
+    }
+
+    bool CheckCorrectedV1WireLayouts()
+    {
+        using namespace mdr;
+        using namespace mdr::v1;
+        using namespace mdr::v1::t1;
+
+        RetOptimizerCapability optimizer{};
+        UInt8 optimizerBytes[16]{};
+        const auto optimizerResult =
+            RetOptimizerCapability::Serialize(optimizer, optimizerBytes, sizeof(optimizerBytes));
+        if (!optimizerResult || optimizerBytes[0] != static_cast<UInt8>(Command::OPT_RET_CAPABILITY))
+            return false;
+
+        NotifyUpdateStatus update{};
+        UInt8 updateBytes[8]{};
+        const auto updateResult = NotifyUpdateStatus::Serialize(update, updateBytes, sizeof(updateBytes));
+        if (!updateResult || updateBytes[0] != static_cast<UInt8>(Command::UPDT_NTFY_STATUS))
+            return false;
+
+        RetPlayCapability capability{};
+        capability.inquiredType = PlayInquiredType::PLAYBACK_CONTROLLER;
+        capability.volumeStep = 0x1F;
+        capability.playbackControlType = PlaybackControlType::PLAY_PAUSE_TRACKUP_TRACKDOWN;
+        capability.metaDataDisplayType = MetaDataDisplayType::TRACK_ALBUM_ARTIST_GENRE_PLAYER;
+        const UInt8 capabilityExpected[]{0xA1, 0x01, 0x1F, 0x01, 0x01};
+        if (!EncodesExactly(capability, capabilityExpected))
+            return false;
+
+        SetPlayStatus play{};
+        play.type = PlayInquiredType::PLAYBACK_CONTROLLER;
+        play.status = CommonStatus::ENABLE;
+        play.control = PlaybackControl::PLAY;
+        const UInt8 playExpected[]{
+            static_cast<UInt8>(Command::PLAY_SET_STATUS),
+            static_cast<UInt8>(PlayInquiredType::PLAYBACK_CONTROLLER),
+            static_cast<UInt8>(CommonStatus::ENABLE),
+            static_cast<UInt8>(PlaybackControl::PLAY),
+        };
+        if (!EncodesExactly(play, playExpected))
+            return false;
+
+        SetLogStatus logStatus{};
+        const UInt8 logStatusExpected[]{
+            static_cast<UInt8>(Command::LOG_SET_STATUS),
+            static_cast<UInt8>(LogInquiredType::ACTION_LOG_NOTIFIER),
+            static_cast<UInt8>(CommonStatus::ENABLE),
+        };
+        if (!EncodesExactly(logStatus, logStatusExpected))
+            return false;
+
+        NotifyPlayParamPlaybackControllerNotifyNameData notifyName{};
+        const UInt8 notifyNameExpected[]{
+            static_cast<UInt8>(Command::PLAY_NTFY_PARAM),
+            static_cast<UInt8>(PlayInquiredType::PLAYBACK_CONTROLLER),
+            static_cast<UInt8>(PlaybackDetailedDataType::TRACK_NAME),
+        };
+        if (!EncodesExactly(notifyName, notifyNameExpected))
+            return false;
+
+        RetSystemStatusControlByWearingStatus wearing{};
+        const UInt8 wearingExpected[]{
+            static_cast<UInt8>(Command::SYSTEM_RET_STATUS),
+            static_cast<UInt8>(SystemInquiredType::CONTROL_BY_WEARING),
+            static_cast<UInt8>(CommonStatus::ENABLE),
+        };
+        if (!EncodesExactly(wearing, wearingExpected))
+            return false;
+
+        RetSystemStatusAutoPowerOffStatus powerOff{};
+        const UInt8 powerOffExpected[]{
+            static_cast<UInt8>(Command::SYSTEM_RET_STATUS),
+            static_cast<UInt8>(SystemInquiredType::AUTO_POWER_OFF),
+            static_cast<UInt8>(CommonStatus::ENABLE),
+        };
+        if (!EncodesExactly(powerOff, powerOffExpected))
+            return false;
+
+        RetSystemStatusAssignableSettingsStatus assignable{};
+        assignable.allStatus.value.push_back(CommonStatus::ENABLE);
+        const UInt8 assignableExpected[]{
+            static_cast<UInt8>(Command::SYSTEM_RET_STATUS),
+            static_cast<UInt8>(SystemInquiredType::ASSIGNABLE_SETTINGS),
+            0x01,
+            static_cast<UInt8>(CommonStatus::ENABLE),
+        };
+        if (!EncodesExactly(assignable, assignableExpected))
+            return false;
+
+        NotifyLogParam log{};
+        log.data.value = "{}";
+        const UInt8 logExpected[]{
+            static_cast<UInt8>(Command::LOG_NTFY_PARAM),
+            static_cast<UInt8>(LogInquiredType::ACTION_LOG_NOTIFIER),
+            0x00,
+            0x02,
+            '{',
+            '}',
+        };
+        if (!EncodesExactly(log, logExpected))
+            return false;
+
+        EqBandInformation band{};
+        band.infoType = EqBandInformationType::HZ;
+        band.valueAsFrequency = 400;
+        UInt8 bandBytes[3]{};
+        UInt8* bandPtr = bandBytes;
+        const auto bandResult = EqBandInformation::Write(band, &bandPtr, sizeof(bandBytes));
+        const UInt8 bandExpected[]{0x01, 0x01, 0x90};
+        if (!bandResult || bandResult.value != sizeof(bandExpected) ||
+            std::memcmp(bandBytes, bandExpected, sizeof(bandExpected)) != 0)
+        {
+            return false;
+        }
+
+        using namespace mdr::v1::t2;
+        RetVoiceGuidanceParamSettingOnOff voiceParam{};
+        const UInt8 voiceParamExpected[]{
+            static_cast<UInt8>(mdr::v1::t2::Command::VOICE_GUIDANCE_RET_PARAM),
+            static_cast<UInt8>(VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING),
+            static_cast<UInt8>(DetailedDataType::ON_OFF),
+            static_cast<UInt8>(VoiceGuidanceSettingValue::OFF),
+        };
+        if (!EncodesExactly(voiceParam, voiceParamExpected))
+            return false;
+
+        RetVoiceGuidanceStatusSettingOnOff voiceStatus{};
+        const UInt8 voiceStatusExpected[]{
+            static_cast<UInt8>(mdr::v1::t2::Command::VOICE_GUIDANCE_RET_STATUS),
+            static_cast<UInt8>(VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING),
+            static_cast<UInt8>(StatusType::ON_OFF),
+            static_cast<UInt8>(CommonStatus::ENABLE),
+        };
+        return EncodesExactly(voiceStatus, voiceStatusExpected);
     }
 
     bool CheckPeripheralDeviceInfoWireLayouts()
@@ -372,9 +516,11 @@ int main()
         return 3;
     if (!CheckPeripheralDeviceInfoWireLayouts())
         return 4;
-    if (!CheckSingleFileReplay())
+    if (!CheckCorrectedV1WireLayouts())
         return 5;
-    if (!CheckPacketCollectionZip())
+    if (!CheckSingleFileReplay())
         return 6;
+    if (!CheckPacketCollectionZip())
+        return 7;
     return 0;
 }
