@@ -1,4 +1,30 @@
 #pragma once
+#include <stdint.h>
+
+#define MDR_ABI_VERSION 1u
+
+#if !defined(MDR_API)
+#if defined(_WIN32)
+#if defined(MDR_BUILDING_SHARED)
+#define MDR_API __declspec(dllexport)
+#elif defined(MDR_USING_SHARED)
+#define MDR_API __declspec(dllimport)
+#else
+#define MDR_API
+#endif
+#elif defined(__GNUC__) || defined(__clang__)
+#define MDR_API __attribute__((visibility("default")))
+#else
+#define MDR_API
+#endif
+#endif
+
+
+/**
+ * @brief Result type used by the C/C++ API.
+ */
+typedef uint32_t MDRResult;
+
 // MDR_INIT...
 #define MDR_INIT_BT_BLE (1u << 0u) // Use BLE profile instead of Classic bluetooth
 // MDR_RESULT...
@@ -14,54 +40,12 @@
 #define MDR_RESULT_ERROR_BUFFER_TOO_SMALL 9
 #define MDR_RESULT_ERROR_MALFORMED_PAYLOAD 10
 #define MDR_RESULT_ERROR_INVALID_ARGUMENT 11
-// MDR_HEADPHONES...
-#define MDR_HEADPHONES_ERROR (-2) // Irrecoverable. Headphone should be cleaned up.
-#define MDR_HEADPHONES_INPROGRESS (-1) // No command received but there's a running task
-#define MDR_HEADPHONES_IDLE (0) // No command received and there's no running task
-// MDR_HEADPHONES_EVT...
-#define MDR_HEADPHONES_EVT_UNHANDLED 1 // Command received but we didn't care
-#define MDR_HEADPHONES_EVT_OK 2 // XXX: Placeholder for events I'm too lazy to label. Ideally - this should go.
-#define MDR_HEADPHONES_EVT_ALERT 3
-#define MDR_HEADPHONES_EVT_JSON_MESSAGE 4
-#define MDR_HEADPHONES_EVT_DEVICE_INFO 4
-#define MDR_HEADPHONES_EVT_SUPPORT_FUNCTIONS 5
-#define MDR_HEADPHONES_EVT_CODEC 6
-#define MDR_HEADPHONES_EVT_NCASM_PARAM 7
-#define MDR_HEADPHONES_EVT_NCASM_BUTTON_MODE 8
-#define MDR_HEADPHONES_EVT_BATTERY 9
-#define MDR_HEADPHONES_EVT_PLAYBACK_METADATA 10
-#define MDR_HEADPHONES_EVT_PLAYBACK_VOLUME 11
-#define MDR_HEADPHONES_EVT_PLAYBACK_PLAY_PAUSE 12
-#define MDR_HEADPHONES_EVT_SOUND_PRESSURE 13
-#define MDR_HEADPHONES_EVT_AUTO_POWER_OFF_PARAM 14
-#define MDR_HEADPHONES_EVT_AUTO_PAUSE 15
-#define MDR_HEADPHONES_EVT_VOICE_GUIDANCE_ENABLE 16
-#define MDR_HEADPHONES_EVT_VOICE_GUIDANCE_VOLUME 17
-#define MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_PARAM 18
-#define MDR_HEADPHONES_EVT_SPEAK_TO_CHAT_ENABLED 19
-#define MDR_HEADPHONES_EVT_HEAD_GESTURE 20
-#define MDR_HEADPHONES_EVT_LISTENING_MODE 21
-#define MDR_HEADPHONES_EVT_TOUCH_FUNCTION 22
-#define MDR_HEADPHONES_EVT_EQUALIZER_AVAILABLE 23
-#define MDR_HEADPHONES_EVT_EQUALIZER_PARAM 24
-#define MDR_HEADPHONES_EVT_CONNECTION_MODE 25
-#define MDR_HEADPHONES_EVT_UPSCALING_MODE 26
-#define MDR_HEADPHONES_EVT_BLUETOOTH_MODE 27
-#define MDR_HEADPHONES_EVT_MULTIPOINT_SWITCH 28
-#define MDR_HEADPHONES_EVT_GENERAL_SETTING_1 29
-#define MDR_HEADPHONES_EVT_GENERAL_SETTING_2 30
-#define MDR_HEADPHONES_EVT_GENERAL_SETTING_3 31
-#define MDR_HEADPHONES_EVT_GENERAL_SETTING_4 32
-#define MDR_HEADPHONES_EVT_SAFE_LISTENING_PARAM 33
-#define MDR_HEADPHONES_EVT_CONNECTED_DEVICES 34
-#define MDR_HEADPHONES_EVT_INTERACTION 36
-// MDR_HEADPHONES_TASK...
-#define MDR_HEADPHONES_TASK_INIT_OK 100
-#define MDR_HEADPHONES_TASK_SYNC_OK 101
-#define MDR_HEADPHONES_TASK_COMMIT_OK 102
+#define MDR_RESULT_ERROR_ABI_MISMATCH 12
 // Service UUIDs
 // XM5s and newer (Bluetooth Classic RFCOMM)
 #define MDR_SERVICE_UUID_XM5 "956C7B26-D49A-4BA8-B03F-B17D393CB6E2"
+// XM4s and older (Bluetooth Classic RFCOMM)
+#define MDR_SERVICE_UUID_LEGACY "96CC203E-5068-46AD-B32D-E316F5E069BA"
 // BLE GATT service UUID for TANDEM_OVER_BLE_HPC_SERVICE
 // See: Sony SongPal smali ServiceUuid.TANDEM_OVER_BLE_HPC_SERVICE
 #define MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC "5B833E20-6BC7-4802-8E9A-723CECA4BD8F"
@@ -71,7 +55,7 @@ extern "C" {
 /**
  * @brief Format MDR_RESULT_... error codes as null-terminated strings
  */
-const char* mdrResultString(int err);
+MDR_API const char* mdrResultString(MDRResult err);
 #ifdef __cplusplus
 }
 #endif

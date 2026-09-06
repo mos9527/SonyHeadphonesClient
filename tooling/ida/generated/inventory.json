@@ -1,0 +1,55 @@
+{
+  "binary_fingerprint": "d615ff298e1070328d5704eb54655bebe03ddf7fed512375ac3b388467dfe8f0",
+  "tables": {
+    "v1_t1": {
+      "candidates": 326,
+      "classifications": {
+        "alias": 2,
+        "enum": 102,
+        "field_helper": 69,
+        "nested_variant": 19,
+        "payload": 134
+      },
+      "enums": 101,
+      "payload_declarations": 317,
+      "serializers": 160
+    },
+    "v1_t2": {
+      "candidates": 133,
+      "classifications": {
+        "alias": 71,
+        "enum": 14,
+        "field_helper": 3,
+        "payload": 45
+      },
+      "enums": 12,
+      "payload_declarations": 48,
+      "serializers": 47
+    },
+    "v2_t1": {
+      "candidates": 1412,
+      "classifications": {
+        "alias": 644,
+        "enum": 145,
+        "field_helper": 44,
+        "payload": 579
+      },
+      "enums": 111,
+      "payload_declarations": 623,
+      "serializers": 585
+    },
+    "v2_t2": {
+      "candidates": 693,
+      "classifications": {
+        "alias": 322,
+        "enum": 65,
+        "field_helper": 24,
+        "payload": 281,
+        "unsupported": 1
+      },
+      "enums": 47,
+      "payload_declarations": 306,
+      "serializers": 300
+    }
+  }
+}

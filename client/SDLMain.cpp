@@ -1,5 +1,13 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
 #include <cstdio>
+#include <cstring>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+#include <mdr/Protocol.hpp>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -8,14 +16,21 @@
 #include <SDL3/SDL_main.h>
 
 #include "Platform/Platform.hpp"
+#include "PayloadRecorder.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
+#ifdef MDR_CLIENT_DEBUGGER
+#include "Debugger.hpp"
+#endif
 // Implemented by Client.cpp
 extern bool clientShouldExit();
+#ifdef MDR_CLIENT_DEBUGGER
+extern void clientEnterDebuggerReplayMode();
+#endif
 
 bool gShouldClose = false;
 
@@ -33,6 +48,22 @@ void mainLoop()
             gShouldClose = true;
         if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(gWindow))
             gShouldClose = true;
+#ifdef MDR_CLIENT_DEBUGGER
+        if (event.type == SDL_EVENT_DROP_FILE && event.drop.windowID == SDL_GetWindowID(gWindow))
+        {
+            size_t replayed{};
+            if (clientDebuggerReplayPath(event.drop.data, &replayed))
+            {
+                clientEnterDebuggerReplayMode();
+                SDL_Log("Replayed %zu packet(s) from %s", replayed, event.drop.data);
+            }
+            else
+            {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to replay %s: %s",
+                             event.drop.data, SDL_GetError());
+            }
+        }
+#endif
     }
     if (SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED)
     {
@@ -81,13 +112,141 @@ void mainLoop()
 
 #define CLIENT_WINDOW_WIDTH 800
 #define CLIENT_WINDOW_HEIGHT 600
-int main(int, char**)
+
+namespace
 {
+#ifdef _WIN32
+    void OpenConsole()
+    {
+        if (!AllocConsole() && GetLastError() != ERROR_ACCESS_DENIED)
+            return;
+
+        std::freopen("CONOUT$", "w", stdout);
+        std::freopen("CONOUT$", "w", stderr);
+        std::freopen("CONIN$", "r", stdin);
+        SetConsoleOutputCP(CP_UTF8);
+    }
+#endif
+
+    struct ClientOptions
+    {
+        const char* recordDirectory{};
+        const char* replayPath{};
+        bool showHelp{};
+    };
+
+    void PrintUsage()
+    {
+        MDR_LOG(
+            "Usage: SonyHeadphonesClient [-con] [--record <capture-folder>]\n"
+            "       SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]\n"
+            "\n"
+            "-con opens a diagnostic console on Windows.\n"
+            "Packet replay requires a client build with the debugger enabled."
+        );
+    }
+
+    bool ParseOptions(int argc, char** argv, ClientOptions& options)
+    {
+        for (int index = 1; index < argc; ++index)
+        {
+            const char* argument = argv[index];
+            if (std::strcmp(argument, "--help") == 0 || std::strcmp(argument, "-h") == 0)
+            {
+                options.showHelp = true;
+                continue;
+            }
+            if (std::strcmp(argument, "-con") == 0)
+            {
+#ifdef _WIN32
+                OpenConsole();
+#endif
+                continue;
+            }
+
+            const bool record = std::strcmp(argument, "--record") == 0;
+            const bool replay = std::strcmp(argument, "--replay") == 0;
+            if (record || replay)
+            {
+                if (index + 1 >= argc)
+                {
+                    MDR_LOG("Missing path after {}.", argument);
+                    return false;
+                }
+                const char* path = argv[++index];
+                const char*& destination = record ? options.recordDirectory : options.replayPath;
+                if (destination)
+                {
+                    MDR_LOG("{} may only be specified once.", argument);
+                    return false;
+                }
+                destination = path;
+                continue;
+            }
+
+            MDR_LOG("Unknown argument: {}", argument);
+            return false;
+        }
+
+        if (options.recordDirectory && options.replayPath)
+        {
+            MDR_LOG("--record and --replay cannot be used together.");
+            return false;
+        }
+        return true;
+    }
+}
+
+int main(int argc, char** argv)
+{
+    ClientOptions options;
+    if (!ParseOptions(argc, argv, options))
+    {
+        PrintUsage();
+        return 2;
+    }
+    if (options.showHelp)
+    {
+        PrintUsage();
+        return 0;
+    }
+#ifndef MDR_CLIENT_DEBUGGER
+    if (options.replayPath)
+    {
+        MDR_LOG("Packet replay is unavailable because this client was built without the debugger.");
+        return 2;
+    }
+#endif
+
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        printf("SDL_Init Error: %s\n", SDL_GetError());
+        MDR_LOG("SDL_Init Error: {}", SDL_GetError());
         return 1;
     }
+    if (options.recordDirectory)
+    {
+        if (!clientPayloadRecorderConfigure(options.recordDirectory))
+        {
+            MDR_LOG("Unable to prepare capture folder {}: {}", options.recordDirectory, SDL_GetError());
+            SDL_Quit();
+            return 1;
+        }
+        MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain device addresses, names, and playback metadata.", options.recordDirectory);
+    }
+#ifdef MDR_CLIENT_DEBUGGER
+    if (options.replayPath)
+    {
+        size_t replayed{};
+        if (!clientDebuggerReplayPath(options.replayPath, &replayed))
+        {
+            MDR_LOG("Unable to replay packet path {}: {}", options.replayPath, SDL_GetError());
+            SDL_Quit();
+            return 1;
+        }
+        clientEnterDebuggerReplayMode();
+        MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayPath);
+    }
+#endif
     // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md#numeric-example
     // This should only be effective (!=1.0f) on Windows and X11 platforms
     float displayScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
@@ -101,6 +260,9 @@ int main(int, char**)
         SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return 1;
     }
+#ifdef MDR_CLIENT_DEBUGGER
+    clientDebuggerSetWindow(gWindow);
+#endif
     gRenderer = SDL_CreateRenderer(gWindow, nullptr);
     SDL_SetRenderVSync(gRenderer, 1);
     if (!gRenderer)
@@ -114,6 +276,7 @@ int main(int, char**)
         ImGui::CreateContext();
     }
     ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
     // Setup Material You theme (Sony Sound Connect style)
     ImGui::StyleColorsDark(); // Base fallback
     MaterialYouTheme::ApplyDefault();
@@ -134,7 +297,13 @@ int main(int, char**)
     // Load our default font
     {
         io.Fonts->Clear();
-        io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+#ifdef MDR_CLIENT_DEBUGGER
+        ImFont* monospaceFont = io.Fonts->AddFontDefault();
+#endif
+        io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+#ifdef MDR_CLIENT_DEBUGGER
+        clientDebuggerSetMonospaceFont(monospaceFont);
+#endif
     }
     // Main loop
 

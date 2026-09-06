@@ -3,14 +3,17 @@ SonyHeadphonesClient
 
 A spiritual successor to  [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
 
-There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview), or use the [Web Version](#notes-on-web-platform).
+There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#notes-on-web-platform).
 
 [![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
-[![Nightly Builds](https://img.shields.io/badge/rewrite-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview)
+[![Nightly Builds](https://img.shields.io/badge/v1compat-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview)
 
 ## Roadmap
 This brach is expected to be merged/released once the following features have been implemented.
 - [ ] Support for legacy (`v1` protocol) devices, e.g. WH-1000XM4, WH-1000XM3
+  - Already WIP. You're looking at it *right now*
+  - Track the progress here: https://github.com/mos9527/SonyHeadphonesClient/pull/56
+  - Feel free to submit support status in new Issues regarding v1 (XM4 and older) devices. We *really* need more volunteers :(
 - [x] Native macOS platform support
 
 ## Compatiblity

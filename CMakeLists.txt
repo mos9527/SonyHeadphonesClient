@@ -13,45 +13,34 @@ else()
     add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable" "-Wno-unused-but-set-global")
 endif()
 
-# No exceptions!!!
-# Needed since MSVC STL containers use this all the time.
-# Running with scissors here... though quite actively maintained by STL
-# - https://github.com/microsoft/STL/pull/5406
-# - https://github.com/microsoft/STL/issues/2216
-if (MSVC) # True for both MSVC and Clang-CL
-    # Begone. /EHsc is everywhere even with Clang-CL configurations.
-    set(target_vars
-            CMAKE_CXX_FLAGS
-            CMAKE_CXX_FLAGS_DEBUG
-            CMAKE_CXX_FLAGS_RELEASE
-            CMAKE_CXX_FLAGS_MINSIZEREL
-            CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    )
-    foreach(var IN LISTS target_vars)
-        if(${var} MATCHES "/EHsc")
-            string(REPLACE "/EHsc" "" ${var} "${${var}}")
-        endif()
-    endforeach()
-endif()
+option(MDR_NO_EXCEPTIONS "Do not use C++ exceptions" ON)
+if (MDR_NO_EXCEPTIONS)
+    message(STATUS "C++ exceptions are disabled")
+    # No exceptions.
+    # =============================================================================
+    # For MSVC/Clang-cl with STL:
+    # - https://github.com/microsoft/STL/issues/202
+    # - _HAS_EXCEPTIONS=0 barely works.
+    # - With cases like these - in the end you'd be linking to MSVCP*.dll, VCRUNTIME*.dll 
+    #   since _Xlen checks are always performed.
+    # - TODO Workarounds
+    if (MSVC) # True for both MSVC and Clang-cl
+        string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        add_compile_options(/EHs-c-)
+        add_compile_definitions(_HAS_EXCEPTIONS=0 _CRT_SECURE_NO_WARNINGS)  
+    else()
+        # Other platforms are easier.
+        add_compile_options(
+            -fno-exceptions
+            -fno-unwind-tables
+            -fno-asynchronous-unwind-tables
+        )
+    endif()
 
-if (MSVC)
-    add_compile_options(/EHs-c-)
-    add_compile_definitions(_HAS_EXCEPTIONS=0)
-    # You might be surprised that even with enabling these flags, the final PE
-    # would *still* contain Exception Unwind tables. And no - there's no way to remove them
-    # from MSVC by itself.
-    # Of course, you can always...
-else()
-    # ...Use Clang/LLVM instead. Or Cl-Clang if you must stick with MS toolchains.
-    add_compile_options(
-        -fno-exceptions
-        -fno-unwind-tables
-        -fno-asynchronous-unwind-tables
-    )
+    # On FMT_USE_LOCALE - these allocate with operator new(), which we do not use.
+    # We don't even use chrono either, hence the disablement.
+    add_compile_definitions(FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0)
 endif()
-# On FMT_USE_LOCALE - these usually allocates with operator new(), which we do not use.
-# We don't even use chrono either, hence the disablement.
-add_compile_definitions(FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0)
 
 # Dead-code strip and no RTTI
 if (MSVC)
@@ -66,12 +55,24 @@ else()
     endif()
 endif()
 
+option(MDR_ENABLE_LOG "Enable MDR_LOG logging output" ON)
+if (MDR_ENABLE_LOG)
+    message(STATUS "MDR_LOG logging output is ON.")
+    add_compile_definitions(MDR_ENABLE_LOG=1)
+else()
+    add_compile_definitions(MDR_ENABLE_LOG=0)
+endif()
+
 # LTO
 include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
 if (ipo_ok)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+    if (MSVC AND NOT MDR_ENABLE_LOG)
+        message(STATUS "FIXME-MSVC LTCG Workaround https://developercommunity.visualstudio.com/t/Coroutines-emit-warning-C4737-without-/11131702")
+    else()        
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+    endif()
 else()
     message(STATUS "LTO not supported: ${ipo_msg}")
 endif()
@@ -79,18 +80,31 @@ endif()
 option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
     if (MSVC)
-        message(WARNING "ASAN not enabled on MSVC by *us*. You're on your own.")
+        add_compile_options("/fsanitize=address")
     else ()
         add_compile_options("-fsanitize=address")
         add_link_options("-fsanitize=address")
     endif ()
 endif ()
 
-option(MDR_DEBUG "Build with debug flags enabled" OFF)
+option(MDR_DEBUG "Build with debug flags enabled (also always on for Debug builds)" OFF)
+option(MDR_DEBUG_TRAPS "Break into the debugger when MDR operations fail in Debug builds" OFF)
+option(MDR_BUILD_CLIENT "Build the Sony Headphones Client and platform backends" ON)
+option(MDR_CLIENT_DEBUGGER "Build the ImGui packet debugger in all configurations" OFF)
+set(MDR_CLIENT_DEBUGGER_TARGET OFF)
+if (MDR_BUILD_CLIENT AND
+    (MDR_CLIENT_DEBUGGER OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_CONFIGURATION_TYPES))
+    set(MDR_CLIENT_DEBUGGER_TARGET ON)
+endif ()
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(MDR_DEBUG ON)
+endif ()
+add_compile_definitions(
+    $<$<OR:$<BOOL:${MDR_DEBUG}>,$<CONFIG:Debug>>:MDR_DEBUG>
+    $<$<AND:$<BOOL:${MDR_DEBUG_TRAPS}>,$<CONFIG:Debug>>:MDR_DEBUG_TRAPS>
+)
 if (MDR_DEBUG)
-    message(STATUS "Debugging features *ON*. Enjoy the logs.")
-   add_compile_definitions(MDR_DEBUG)
-   add_compile_definitions(_DEBUG)
+    message(STATUS "Debugging features enabled.")
 endif ()
 
 option(MDR_BLE "Build with BLE Backend support" ON)
@@ -129,4 +143,36 @@ endif()
 
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
-add_subdirectory(client)
+add_subdirectory(libmdr-bt)
+if (MDR_BUILD_CLIENT)
+    add_subdirectory(client)
+endif ()
+
+include(CTest)
+if (BUILD_TESTING)
+    add_subdirectory(tests)
+    add_test(
+        NAME mdr-c-abi
+        COMMAND mdr_abi_tests
+    )
+
+    file(
+        GLOB replay_test_entries
+        CONFIGURE_DEPENDS
+        LIST_DIRECTORIES true
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*"
+    )
+    foreach(replay_test_entry IN LISTS replay_test_entries)
+        if (IS_DIRECTORY "${replay_test_entry}")
+            get_filename_component(
+                replay_test_name
+                "${replay_test_entry}"
+                NAME
+            )
+            add_test(
+                NAME "${replay_test_name}"
+                COMMAND mdr_replay_tests "${replay_test_entry}"
+            )
+        endif()
+    endforeach()
+endif()
