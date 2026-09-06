@@ -293,6 +293,53 @@ namespace
         return EncodesExactly(voiceStatus, voiceStatusExpected);
     }
 
+    bool CheckV2AssignableSettingsCapabilityWireLayout()
+    {
+        using namespace mdr;
+        using namespace mdr::v2::t1;
+
+        constexpr UInt8 payload[]{
+            0xF1, 0x03, 0x01,
+            0x00, 0x01, 0x35, 0x01,
+            0x35, 0x01, 0x01,
+            0x00, 0x04,
+            0x01, 0x43, 0x02, 0x44, 0x24,
+        };
+        const auto decoded =
+            SystemRetCapabilityAssignableSettings::Deserialize(
+                payload, sizeof(payload)
+            );
+        if (!decoded || decoded.value.keys.size() != 1)
+            return false;
+
+        const auto& presets =
+            decoded.value.keys.value[0].assignableSettingsPreset;
+        if (presets.size() != 1)
+            return false;
+        const auto& preset = presets.value[0];
+        if (
+            preset.settingsActions.size() != 1
+            || preset.settingsCustomizableActions.size() != 1
+        )
+        {
+            return false;
+        }
+        const auto& customizable =
+            preset.settingsCustomizableActions.value[0];
+        if (
+            customizable.action != Action::DOUBLE_TAP
+            || customizable.defaultFunction != Function::QUICK_ACCESS1
+            || customizable.functions.size() != 2
+            || customizable.functions.value[0]
+                != Function::QUICK_ACCESS2
+            || customizable.functions.value[1] != Function::VOLUME_DOWN
+        )
+        {
+            return false;
+        }
+        return EncodesExactly(decoded.value, payload);
+    }
+
     bool CheckPeripheralDeviceInfoWireLayouts()
     {
         using namespace mdr;
@@ -518,9 +565,11 @@ int main()
         return 4;
     if (!CheckCorrectedV1WireLayouts())
         return 5;
-    if (!CheckSingleFileReplay())
+    if (!CheckV2AssignableSettingsCapabilityWireLayout())
         return 6;
-    if (!CheckPacketCollectionZip())
+    if (!CheckSingleFileReplay())
         return 7;
+    if (!CheckPacketCollectionZip())
+        return 8;
     return 0;
 }

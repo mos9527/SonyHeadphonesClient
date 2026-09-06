@@ -4570,11 +4570,11 @@ MDRResult<void> SystemRetCapabilityAssignableSettings::Validate(const SystemRetC
                 MDR_VALIDATE(is_valid(settingsActions_elem.function));
             }
             for (const auto& settingsCustomizableActions_elem : assignableSettingsPreset_elem.settingsCustomizableActions) {
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
                 for (const auto& functions_elem : settingsCustomizableActions_elem.functions) {
                     MDR_VALIDATE(is_valid(functions_elem));
                 }
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
             }
         }
     }
@@ -4596,11 +4596,11 @@ MDRResult<void> SystemRetCapabilityAssignableSettingsWithLimit::Validate(const S
                 MDR_VALIDATE(is_valid(settingsActions_elem.function));
             }
             for (const auto& settingsCustomizableActions_elem : assignableSettingsPreset_elem.settingsCustomizableActions) {
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
+                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
                 for (const auto& functions_elem : settingsCustomizableActions_elem.functions) {
                     MDR_VALIDATE(is_valid(functions_elem));
                 }
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.action));
-                MDR_VALIDATE(is_valid(settingsCustomizableActions_elem.defaultFunction));
             }
         }
     }

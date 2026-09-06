@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
+from dataclasses import replace
+import json
 import re
 from pathlib import Path
 
@@ -171,6 +173,8 @@ def _render_struct(
     payload: PayloadDecl,
     declarations: dict[str, PayloadDecl],
     enums_by_name: dict[str, EnumDecl],
+    *,
+    ignore_serialization: bool = False,
 ) -> list[str]:
     lines = [
         f"    // {payload.objc_name}",
@@ -252,6 +256,8 @@ def _render_struct(
             f"{_initializer(field)};{_offset_comment(field)}"
         )
     lines.append("")
+    if ignore_serialization:
+        lines.append("        MDR_CODEGEN_IGNORE_SERIALIZATION")
     if payload.classification == "field_helper":
         lines.append(
             f"        MDR_DEFINE_EXTERN_READ_WRITE({payload.cpp_name});"
@@ -374,7 +380,9 @@ def render_shared_header(
 
 
 def render_table_header(
-    table: TableIR, shared_enums: list[EnumDecl]
+    table: TableIR,
+    shared_enums: list[EnumDecl],
+    ignored_serialization: frozenset[str] = frozenset(),
 ) -> str:
     version = table.version
     number = table.table
@@ -413,7 +421,16 @@ def render_table_header(
     enums_by_name.update({enum.cpp_name: enum for enum in table.enums})
     for payload in _ordered_payloads(table.payloads):
         lines.append("")
-        lines.extend(_render_struct(payload, declarations, enums_by_name))
+        lines.extend(
+            _render_struct(
+                payload,
+                declarations,
+                enums_by_name,
+                ignore_serialization=(
+                    payload.cpp_name in ignored_serialization
+                ),
+            )
+        )
     lines.extend(
         [
             "#pragma endregion Declarations",
@@ -432,12 +449,87 @@ def render_table_header(
 def render_all(
     ir_directory: Path,
     include_directory: Path,
+    overrides_path: Path | None = None,
 ) -> None:
     tables = [
         read_table(ir_directory / f"v{version}_t{table}.json")
         for version in (1, 2)
         for table in (1, 2)
     ]
+    overrides = (
+        json.loads(overrides_path.read_text(encoding="utf-8"))
+        if overrides_path is not None
+        else {}
+    )
+    ignored_serialization: dict[tuple[int, int], frozenset[str]] = {}
+    for table in tables:
+        table_overrides = overrides.get(
+            f"v{table.version}_t{table.table}", {}
+        )
+        payload_names = {
+            payload.cpp_name for payload in table.payloads
+        }
+        unknown_payloads = set(table_overrides) - payload_names
+        if unknown_payloads:
+            raise ValueError(
+                f"unknown render overrides for v{table.version}_t"
+                f"{table.table}: {sorted(unknown_payloads)}"
+            )
+        updated_payloads: list[PayloadDecl] = []
+        ignored: set[str] = set()
+        for payload in table.payloads:
+            payload_override = table_overrides.get(payload.cpp_name, {})
+            unknown_options = set(payload_override) - {
+                "field_offsets",
+                "field_order",
+                "ignore_serialization",
+            }
+            if unknown_options:
+                raise ValueError(
+                    f"unknown override options for {payload.cpp_name}: "
+                    f"{sorted(unknown_options)}"
+                )
+            field_order = payload_override.get("field_order")
+            if field_order is not None:
+                by_name = {field.name: field for field in payload.fields}
+                if set(field_order) != set(by_name):
+                    raise ValueError(
+                        f"field_order override for {payload.cpp_name} "
+                        f"does not match extracted fields"
+                    )
+                payload = replace(
+                    payload,
+                    fields=tuple(by_name[name] for name in field_order),
+                )
+            field_offsets = payload_override.get("field_offsets", {})
+            unknown_fields = set(field_offsets) - {
+                field.name for field in payload.fields
+            }
+            if unknown_fields:
+                raise ValueError(
+                    f"unknown offset fields for {payload.cpp_name}: "
+                    f"{sorted(unknown_fields)}"
+                )
+            if field_offsets:
+                payload = replace(
+                    payload,
+                    fields=tuple(
+                        replace(
+                            field,
+                            offset=field_offsets.get(
+                                field.name, field.offset
+                            ),
+                        )
+                        for field in payload.fields
+                    ),
+                )
+            if payload_override.get("ignore_serialization", False):
+                ignored.add(payload.cpp_name)
+            updated_payloads.append(payload)
+        table.payloads = updated_payloads
+        ignored_serialization[(table.version, table.table)] = frozenset(
+            ignored
+        )
     shared = _shared_enums(tables)
     function_types = {
         table.table: next(
@@ -462,7 +554,11 @@ def render_all(
         )
         shared_enums = shared.get(version, [])
         for table in [item for item in tables if item.version == version]:
-            rendered = render_table_header(table, shared_enums)
+            rendered = render_table_header(
+                table,
+                shared_enums,
+                ignored_serialization[(version, table.table)],
+            )
             destination = (
                 include_directory / f"ProtocolV{version}T{table.table}.hpp"
             )
@@ -486,10 +582,22 @@ def main() -> None:
         type=Path,
         default=repository / "libmdr" / "include" / "mdr",
     )
+    parser.add_argument(
+        "--overrides",
+        type=Path,
+        default=(
+            repository
+            / "tooling"
+            / "ida"
+            / "j2objc"
+            / "render_overrides.json"
+        ),
+    )
     arguments = parser.parse_args()
     render_all(
         arguments.ir,
         arguments.include,
+        arguments.overrides,
     )
 
 

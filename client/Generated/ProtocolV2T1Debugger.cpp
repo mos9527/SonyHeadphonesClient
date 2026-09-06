@@ -25357,6 +25357,8 @@ namespace client::debugger {
                                             bool& changed = elementChanged;
                                             changed |= DrawTree(elementLabel, [&]() {
                                                 bool changed = false;
+                                                changed |= DrawEnum("action", element.action, kEnum_mdr__v2__t1__Action);
+                                                changed |= DrawEnum("defaultFunction", element.defaultFunction, kEnum_mdr__v2__t1__Function);
                                                 changed |= DrawSequence("functions", element.functions.value, true, [&](const char* elementLabel, auto& element) {
                                                     bool elementChanged = false;
                                                     {
@@ -25365,8 +25367,6 @@ namespace client::debugger {
                                                     }
                                                     return elementChanged;
                                                 });
-                                                changed |= DrawEnum("action", element.action, kEnum_mdr__v2__t1__Action);
-                                                changed |= DrawEnum("defaultFunction", element.defaultFunction, kEnum_mdr__v2__t1__Function);
                                                 return changed;
                                             });
                                         }
@@ -25454,6 +25454,8 @@ namespace client::debugger {
                                             bool& changed = elementChanged;
                                             changed |= DrawTree(elementLabel, [&]() {
                                                 bool changed = false;
+                                                changed |= DrawEnum("action", element.action, kEnum_mdr__v2__t1__Action);
+                                                changed |= DrawEnum("defaultFunction", element.defaultFunction, kEnum_mdr__v2__t1__Function);
                                                 changed |= DrawSequence("functions", element.functions.value, true, [&](const char* elementLabel, auto& element) {
                                                     bool elementChanged = false;
                                                     {
@@ -25462,8 +25464,6 @@ namespace client::debugger {
                                                     }
                                                     return elementChanged;
                                                 });
-                                                changed |= DrawEnum("action", element.action, kEnum_mdr__v2__t1__Action);
-                                                changed |= DrawEnum("defaultFunction", element.defaultFunction, kEnum_mdr__v2__t1__Function);
                                                 return changed;
                                             });
                                         }

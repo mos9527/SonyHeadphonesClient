@@ -425,17 +425,17 @@ namespace mdr::v2::t1 {
     MDRResult<size_t> AssignableSettingsCustomizableAction::Write(const AssignableSettingsCustomizableAction& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, (MDRPodArray<Function>::Write)(data.functions, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.action, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.defaultFunction, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<Function>::Write)(data.functions, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
     MDRResult<size_t> AssignableSettingsCustomizableAction::Read(const UInt8** ppSrcBuffer, AssignableSettingsCustomizableAction& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, (MDRPodArray<Function>::Read)(ppSrcBuffer, out.functions, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.action, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.defaultFunction, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPodArray<Function>::Read)(ppSrcBuffer, out.functions, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> AudioNotifyParamListeningOptionAssignCustomizable::Serialize(const AudioNotifyParamListeningOptionAssignCustomizable& data, UInt8* out, size_t maxSize)
@@ -2316,22 +2316,6 @@ namespace mdr::v2::t1 {
         const UInt8* ptr = *ppSrcBuffer;
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.preset, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsAction>::Read)(ppSrcBuffer, out.settingsActions, maxSize));
-        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
-    }
-    MDRResult<size_t> AssignableSettingsPresetCapability::Write(const AssignableSettingsPresetCapability& data, UInt8** ppDstBuffer, size_t maxSize)
-    {
-        UInt8* ptr = *ppDstBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.preset, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsAction>::Write)(data.settingsActions, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<AssignableSettingsCustomizableAction>::Write)(data.settingsCustomizableActions, ppDstBuffer, maxSize));
-        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
-    }
-    MDRResult<size_t> AssignableSettingsPresetCapability::Read(const UInt8** ppSrcBuffer, AssignableSettingsPresetCapability& out, size_t maxSize)
-    {
-        const UInt8* ptr = *ppSrcBuffer;
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.preset, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPodArray<AssignableSettingsAction>::Read)(ppSrcBuffer, out.settingsActions, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRArray<AssignableSettingsCustomizableAction>::Read)(ppSrcBuffer, out.settingsCustomizableActions, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> EqEbbNtfyParamCustomEq::Serialize(const EqEbbNtfyParamCustomEq& data, UInt8* out, size_t maxSize)

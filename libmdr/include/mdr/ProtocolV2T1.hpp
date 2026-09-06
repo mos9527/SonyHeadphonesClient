@@ -2345,11 +2345,11 @@ namespace mdr::v2::t1
     // THMSGV2T1AssignableSettingsCustomizableAction
     struct AssignableSettingsCustomizableAction
     {
-        MDRPodArray<Function> functions; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        Action action{Action::SINGLE_TAP};
+        Action action{Action::SINGLE_TAP}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
-        Function defaultFunction{Function::NO_FUNCTION};
+        Function defaultFunction{Function::NO_FUNCTION}; // 0x1
+        MDRPodArray<Function> functions; // 0x2
 
         MDR_DEFINE_EXTERN_READ_WRITE(AssignableSettingsCustomizableAction);
     };
@@ -9585,8 +9585,9 @@ namespace mdr::v2::t1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         Preset preset{Preset::AMBIENT_SOUND_CONTROL}; // 0x0
         MDRPodArray<AssignableSettingsAction> settingsActions; // 0x1
-        MDRArray<AssignableSettingsCustomizableAction> settingsCustomizableActions;
+        MDRArray<AssignableSettingsCustomizableAction> settingsCustomizableActions; // 0x2
 
+        MDR_CODEGEN_IGNORE_SERIALIZATION
         MDR_DEFINE_EXTERN_READ_WRITE(AssignableSettingsPresetCapability);
     };
 
