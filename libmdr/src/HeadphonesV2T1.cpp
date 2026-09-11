@@ -990,9 +990,12 @@ namespace mdr
         }
         case 0x01:
         {
-            if (cmd.size() < 4)
-                return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Malformed interaction parameter");
-            self->mDetailsV2.mLastInteractionMessage = mdr::String(cmd.begin() + 4, cmd.end());
+            Deserialize(NotifyLogParamTimeSeriesOperationLog, res, cmd);
+            self->mDetailsV2.mLastInteractionMessage = res.operationKey.value;
+            // The device never pushes WEARING_STATUS_CHECKER on its own, but it does log the
+            // sensor transitions here; a sync re-reads the status.
+            if (res.operationKey.value == "unitRemove" || res.operationKey.value == "unitWear")
+                return MDR_EVENT_NEED_SYNC;
             return MDR_EVENT_INTERACTION;
         }
         default:

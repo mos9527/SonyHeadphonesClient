@@ -217,6 +217,10 @@ namespace mdr
         /* Pause when headphones are removed */
         SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
 
+        /* Wearing status (proximity sensor) */
+        if (state.wearingSensorPossible())
+            SendCommandACK(t2::SystemGetStatus, {.type = t2::SystemInquiredType::WEARING_STATUS_CHECKER});
+
         /* Voice Guidance */
         if (state.mProtocol.hasTable2)
         {
@@ -297,6 +301,10 @@ namespace mdr
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
+        /* Wearing status (proximity sensor) */
+        if (state.wearingSensorPossible())
+            SendCommandACK(t2::SystemGetStatus, {.type = t2::SystemInquiredType::WEARING_STATUS_CHECKER});
+
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 

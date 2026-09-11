@@ -486,6 +486,10 @@ namespace
                 state.mSupport.contains(T2::SAFE_LISTENING_TWS_1) ||
                 state.mSupport.contains(T2::SAFE_LISTENING_TWS_2);
         case MDR_FEATURE_SOURCE_SWITCH_CONTROL: return state.mSupport.contains(T2::SOURCE_SWITCH_CONTROL);
+        case MDR_FEATURE_WEARING_STATUS:
+            // Advertised, or proven by a reply: the WH-1000XM6 answers without advertising.
+            return state.mSupport.contains(T2::WEARING_STATUS_CHECKER) ||
+                state.mWearingStatus != mdr::v2::t2::WearingStatusCode::OUT_OF_RANGE;
         default: return false;
         }
     }
@@ -1410,7 +1414,7 @@ MDRResult mdrHeadphonesGetFeature(
     if (!headphones || !outAvailability)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     // Keep the upper bound on the last MDR_FEATURE_* id, or newly added features read as invalid.
-    if (feature < MDR_FEATURE_IDENTITY || feature > MDR_FEATURE_SOURCE_SWITCH_CONTROL)
+    if (feature < MDR_FEATURE_IDENTITY || feature > MDR_FEATURE_MAX_VALUE)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
     if (!h.mInitialized)
@@ -2392,6 +2396,25 @@ MDRResult mdrHeadphonesSetSafeListening(
     if (safeListening->sound_pressure != static_cast<uint8_t>(std::clamp(state.mSafeListeningSoundPressure, 0, 255)))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     state.mSafeListeningPreviewMode.stage(safeListening->preview != MDR_FALSE);
+    return MDR_RESULT_OK;
+}
+
+MDRResult mdrHeadphonesGetWearingStatus(MDRHeadphones* headphones, MDRWearingStatus* outStatus)
+{
+    if (!headphones || !outStatus)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const auto& h = *Impl(headphones);
+    if (h.mProtocolFamily != Headphones::ProtocolFamily::V2)
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    using Code = mdr::v2::t2::WearingStatusCode;
+    switch (h.mDetailsV2.mWearingStatus)
+    {
+    case Code::NORMAL: *outStatus = MDR_WEARING_STATUS_WORN; break;
+    case Code::LEFT_SIDE_NOT_WEAR: *outStatus = MDR_WEARING_STATUS_LEFT_REMOVED; break;
+    case Code::RIGHT_SIDE_NOT_WEAR: *outStatus = MDR_WEARING_STATUS_RIGHT_REMOVED; break;
+    case Code::BOTH_NOT_WEAR: *outStatus = MDR_WEARING_STATUS_REMOVED; break;
+    default: *outStatus = MDR_WEARING_STATUS_UNKNOWN; break;
+    }
     return MDR_RESULT_OK;
 }
 }

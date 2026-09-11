@@ -34,6 +34,7 @@ MDR_ASSERT_U32(MDRPairedDeviceCommand);
 MDR_ASSERT_U32(MDRGeneralSettingType);
 MDR_ASSERT_U32(MDRAssignableAction);
 MDR_ASSERT_U32(MDRWearingPowerMode);
+MDR_ASSERT_U32(MDRWearingStatus);
 MDR_ASSERT_U32(MDRAudioPriority);
 #undef MDR_ASSERT_U32
 
@@ -44,7 +45,8 @@ enum
     MOCK_BUFFER_CAPACITY = 4096,
     FRAME_BUFFER_CAPACITY = 64,
     MDR_DATA_TYPE_ACK = 1,
-    MDR_DATA_TYPE_DATA_MDR = 12
+    MDR_DATA_TYPE_DATA_MDR = 12,
+    MDR_DATA_TYPE_DATA_MDR_NO2 = 14
 };
 
 typedef struct MockTransport
@@ -273,6 +275,22 @@ static size_t pack_data_frame(
 {
     return pack_frame(
         MDR_DATA_TYPE_DATA_MDR,
+        sequence,
+        payload,
+        payload_size,
+        output
+    );
+}
+
+static size_t pack_data_frame_no2(
+    const unsigned char* payload,
+    size_t payload_size,
+    unsigned char sequence,
+    unsigned char output[FRAME_BUFFER_CAPACITY]
+)
+{
+    return pack_frame(
+        MDR_DATA_TYPE_DATA_MDR_NO2,
         sequence,
         payload,
         payload_size,
@@ -715,6 +733,146 @@ static void test_newer_staging_survives_apply(void)
     session_close(&session);
 }
 
+
+static int tx_contains(const MockTransport* transport, const unsigned char* needle, size_t needle_size)
+{
+    size_t offset;
+    if (transport->tx_size < needle_size)
+        return 0;
+    for (offset = 0; offset + needle_size <= transport->tx_size; ++offset)
+        if (memcmp(transport->tx + offset, needle, needle_size) == 0)
+            return 1;
+    return 0;
+}
+
+/* Drive the automatic V2 initialization to completion on a mock link: ACK every request and
+ * answer the two support-function queries. Table 1 advertises only the pause-when-removed
+ * function (0xF1) and table 2 nothing, which is what a WH-1000XM6 sends: the wearing status
+ * checker is answered without being advertised. */
+static int g_init_probed_wearing;
+
+static int drive_v2_init(Session* session)
+{
+    static const unsigned char get_status[] = { 0xF2, 0x00 };
+    /* V2 with both tables (EnableDisable::ENABLE is 0x00). */
+    static const unsigned char protocol_info[] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00 };
+    static const unsigned char support_t1[] = { 0x07, 0x00, 0x01, 0xF1, 0x00 };
+    static const unsigned char support_t2[] = { 0x07, 0x00, 0x00 };
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    size_t frame_size;
+    MDREvent event;
+    int polls;
+
+    for (polls = 0; polls < 256 && mdrHeadphonesIsInitialized(session->headphones) == MDR_FALSE; ++polls)
+    {
+        if (tx_contains(&session->transport, get_status, sizeof(get_status)))
+            g_init_probed_wearing = 1;
+        session->transport.tx_size = 0;
+        frame_size = pack_ack(frame);
+        mock_load(&session->transport, frame, frame_size);
+        if (polls == 0)
+        {
+            /* Init asks for the protocol info first and waits for the reply. */
+            frame_size = pack_data_frame(protocol_info, sizeof(protocol_info), 1, frame);
+            mock_append(&session->transport, frame, frame_size);
+            if (!poll_event(session->headphones, &event, "V2 init drive polls"))
+                return 0;
+        }
+        frame_size = pack_data_frame(support_t1, sizeof(support_t1), (unsigned char)(polls & 1), frame);
+        mock_append(&session->transport, frame, frame_size);
+        frame_size = pack_data_frame_no2(support_t2, sizeof(support_t2), (unsigned char)(polls & 1), frame);
+        mock_append(&session->transport, frame, frame_size);
+        if (!poll_event(session->headphones, &event, "V2 init drive polls"))
+            return 0;
+        if (!poll_event(session->headphones, &event, "V2 init drive polls"))
+            return 0;
+        if (!poll_event(session->headphones, &event, "V2 init drive polls"))
+            return 0;
+    }
+    session->transport.rx_size = 0;
+    session->transport.rx_offset = 0;
+    return mdrHeadphonesIsInitialized(session->headphones) == MDR_TRUE;
+}
+
+static void test_wearing_status(void)
+{
+    /* T2 SYSTEM_RET_STATUS, WEARING_STATUS_CHECKER, BOTH_NOT_WEAR */
+    static const unsigned char ret_removed[] = { 0xF3, 0x00, 0x04 };
+    /* T2 SYSTEM_NTFY_STATUS, WEARING_STATUS_CHECKER, NORMAL */
+    static const unsigned char ntfy_worn[] = { 0xF5, 0x00, 0x00 };
+    /* T1 LOG_NTFY_PARAM, TIME_SERIES_OPERATIONLOG_NOTIFIER, "unitRemove" */
+    static const unsigned char log_remove[] = {
+        0xC9, 0x01, 0x0A, 'u', 'n', 'i', 't', 'R', 'e', 'm', 'o', 'v', 'e', 0x00, 0x00
+    };
+    /* The read a sync must issue: SYSTEM_GET_STATUS, WEARING_STATUS_CHECKER */
+    static const unsigned char get_status[] = { 0xF2, 0x00 };
+
+    Session session;
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    size_t frame_size;
+    MDREvent event;
+    MDRWearingStatus status;
+    MDRFeatureAvailability available = MDR_AVAILABILITY_UNKNOWN;
+    int drains;
+
+    if (!session_open(&session))
+        return;
+    check_result(mdrHeadphonesRequestInit(session.headphones), MDR_RESULT_OK, "wearing status: initialization starts");
+    check(drive_v2_init(&session), "wearing status: V2 initialization completes on the mock link");
+    /* Drain whatever the drive left in the receive buffer. */
+    for (drains = 0; drains < 16; ++drains)
+    {
+        poll_event(session.headphones, &event, "post-init drain polls");
+        if (event == MDR_EVENT_NONE)
+            break;
+    }
+
+    check_result(
+        mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_WEARING_STATUS, &available),
+        MDR_RESULT_OK,
+        "wearing status feature id is within the accepted range"
+    );
+    check(available == MDR_AVAILABILITY_UNAVAILABLE, "wearing status is unavailable until the checker answers");
+    check(g_init_probed_wearing, "init probes the wearing status checker when pause-when-removed is advertised");
+
+    frame_size = pack_data_frame_no2(ret_removed, sizeof(ret_removed), 1, frame);
+    mock_load(&session.transport, frame, frame_size);
+    poll_event(session.headphones, &event, "wearing status reply polls");
+    check(event == MDR_EVENT_WEARING_STATUS_CHANGED, "wearing status reply reports a change");
+    status = MDR_WEARING_STATUS_UNKNOWN;
+    check_result(mdrHeadphonesGetWearingStatus(session.headphones, &status), MDR_RESULT_OK, "wearing status is readable");
+    check(status == MDR_WEARING_STATUS_REMOVED, "BOTH_NOT_WEAR reads as removed");
+    mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_WEARING_STATUS, &available);
+    check(available == MDR_AVAILABILITY_AVAILABLE, "a checker reply makes the wearing status feature available");
+
+    frame_size = pack_data_frame_no2(ntfy_worn, sizeof(ntfy_worn), 0, frame);
+    mock_load(&session.transport, frame, frame_size);
+    poll_event(session.headphones, &event, "wearing status notification polls");
+    check(event == MDR_EVENT_WEARING_STATUS_CHANGED, "wearing status notification reports a change");
+    mdrHeadphonesGetWearingStatus(session.headphones, &status);
+    check(status == MDR_WEARING_STATUS_WORN, "NORMAL reads as worn");
+
+    frame_size = pack_data_frame(log_remove, sizeof(log_remove), 1, frame);
+    mock_load(&session.transport, frame, frame_size);
+    poll_event(session.headphones, &event, "unitRemove log entry polls");
+    check(event == MDR_EVENT_NEED_SYNC, "unitRemove log entry asks for a sync");
+
+    session.transport.tx_size = 0;
+    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_OK, "sync after unitRemove starts");
+    for (drains = 0; drains < 8 && !tx_contains(&session.transport, get_status, sizeof(get_status)); ++drains)
+    {
+        frame_size = pack_ack(frame);
+        mock_load(&session.transport, frame, frame_size);
+        poll_event(session.headphones, &event, "sync drive polls");
+    }
+    check(
+        tx_contains(&session.transport, get_status, sizeof(get_status)),
+        "sync re-reads the wearing status"
+    );
+
+    session_close(&session);
+}
+
 int main(void)
 {
     test_abi_version_handshake();
@@ -725,6 +883,7 @@ int main(void)
     test_poll_events();
     test_v2_bootstrap();
     test_newer_staging_survives_apply();
+    test_wearing_status();
 
     if (g_failures != 0)
         fprintf(stderr, "%d test assertion(s) failed\n", g_failures);
