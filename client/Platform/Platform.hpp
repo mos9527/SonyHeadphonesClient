@@ -22,6 +22,26 @@ extern "C" {
      * @return Size of font data in bytes, 0 if not available - can be retried.
      */
     extern int clientPlatformLocateFontBinary(const char** outData);
+    /**
+     * @brief Whether a Bluetooth address belongs to one of this computer's own adapters.
+     * @param address Text form, "XX:XX:XX:XX:XX:XX", any case.
+     * @param outIsLocal Receives 1 or 0.
+     * @return MDR_RESULT_OK, or MDR_RESULT_ERROR_NOT_SUPPORTED where the platform cannot tell.
+     */
+    extern int clientPlatformIsLocalBluetoothAddress(const char* address, int* outIsLocal);
+    /**
+     * @brief Pause every media player on this computer that is currently playing.
+     * @return A record of what was paused, owned by the caller and handed back to
+     *         @ref clientPlatformMediaResume, or NULL when nothing was playing or the platform
+     *         has no media control.
+     */
+    struct ClientMediaPause;
+    extern struct ClientMediaPause* clientPlatformMediaPause();
+    /**
+     * @brief Resume the players in a @ref clientPlatformMediaPause record that are still paused,
+     *        and free the record. NULL is accepted and ignored.
+     */
+    extern void clientPlatformMediaResume(struct ClientMediaPause* pause);
 #ifdef __EMSCRIPTEN__
     /**
      * @brief Download bytes through the browser.

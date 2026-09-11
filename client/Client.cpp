@@ -446,6 +446,7 @@ struct ClientState
     mdr::Vector<int> mEqualizerBands;
     mdr::Vector<MDRPairedDevice> mPairedDevices;
     MDRPairing mPairing{};
+    MDRWearingStatus mWearingStatus{};
     mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> mGeneralSettings;
     bool mModelAvailable;
     bool mNoiseAvailable;
@@ -453,6 +454,7 @@ struct ClientState
     bool mListeningAvailable;
     bool mEqualizerAvailable;
     bool mPairingAvailable;
+    bool mWearingStatusAvailable;
     bool mPlaybackVolumeStaged;
     // Set to true to update batteries, etc for V2 and  playback vol/metadata once headphones become available.
     bool mPendingSync;
@@ -483,7 +485,71 @@ void RefreshClientState()
     gState.mEqualizerBands = GetEqualizerBands();
     gState.mPairedDevices = GetPairedDevices();
     gState.mPairingAvailable = mdrHeadphonesGetPairing(gDevice, &gState.mPairing) == MDR_RESULT_OK;
+    gState.mWearingStatusAvailable = FeatureAvailable(MDR_FEATURE_WEARING_STATUS) &&
+        mdrHeadphonesGetWearingStatus(gDevice, &gState.mWearingStatus) == MDR_RESULT_OK;
     gState.mGeneralSettings = GetGeneralSettings(GetGeneralSettingInfos());
+}
+
+// Host-side "pause when removed". With a single connection the headphones deliver their own
+// auto pause (AVRCP) to this computer and the OS handles it. With multipoint they deliver it
+// to the other device instead, regardless of which one holds playback right (a WH-1000XM6
+// reports this computer as the playback-right holder while sending the pause to the phone).
+// So the client steps in exactly when another, non-local device is connected, and stays out
+// of the way otherwise, which keeps it from racing an AVRCP pause that does reach the OS.
+// Off unless enabled with --pause-media-on-remove; there is no persistent config.
+static bool gPauseMediaOnRemove = false;
+static ClientMediaPause* gMediaPause = nullptr;
+
+void clientSetPauseMediaOnRemove(bool enabled)
+{
+    gPauseMediaOnRemove = enabled;
+}
+
+// True when the headphones' auto pause will go somewhere other than this computer: another
+// device, not one of our own adapters, is connected alongside us.
+bool HostMediaNeedsPausing()
+{
+    for (const MDRPairedDevice& device : gState.mPairedDevices)
+    {
+        if (!device.connected)
+            continue;
+        int isLocal = 0;
+        if (clientPlatformIsLocalBluetoothAddress(device.macAddress, &isLocal) != MDR_RESULT_OK)
+            return false;
+        if (!isLocal)
+            return true;
+    }
+    return false;
+}
+
+const char* FormatWearingStatus(MDRWearingStatus status)
+{
+    switch (status)
+    {
+    case MDR_WEARING_STATUS_WORN: return "On head";
+    case MDR_WEARING_STATUS_LEFT_REMOVED: return "Left side off";
+    case MDR_WEARING_STATUS_RIGHT_REMOVED: return "Right side off";
+    case MDR_WEARING_STATUS_REMOVED: return "Removed";
+    default: return "Unknown";
+    }
+}
+
+void OnWearingStatusChanged()
+{
+    const MDRWearingStatus previous = gState.mWearingStatus;
+    gState.mWearingStatusAvailable = mdrHeadphonesGetWearingStatus(gDevice, &gState.mWearingStatus) == MDR_RESULT_OK;
+    if (!gPauseMediaOnRemove || !gState.mWearingStatusAvailable || gState.mWearingStatus == previous)
+        return;
+    if (gState.mWearingStatus == MDR_WEARING_STATUS_REMOVED)
+    {
+        if (!gMediaPause && HostMediaNeedsPausing())
+            gMediaPause = clientPlatformMediaPause();
+    }
+    else if (gState.mWearingStatus == MDR_WEARING_STATUS_WORN && gMediaPause)
+    {
+        clientPlatformMediaResume(gMediaPause);
+        gMediaPause = nullptr;
+    }
 }
 
 void CloseDevice()
@@ -1195,6 +1261,8 @@ void DrawDeviceControlsHeader()
                 }
                 ImGui::EndTable();
             }
+            if (gState.mWearingStatusAvailable)
+                ImGui::Text("Wearing: %s", FormatWearingStatus(gState.mWearingStatus));
         }
         ImGui::TableSetColumnIndex(1);
         /* Now Playing */
@@ -1744,6 +1812,23 @@ void DrawDeviceControlsSystem()
         }
         ImGui::TreePop();
     }
+    /* Host-side pause, driven by the proximity sensor */
+    if (gState.mWearingStatusAvailable &&
+        ImGui::TreeNodeEx("Pause this computer's media when removed", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Checkbox("Enabled", &gPauseMediaOnRemove);
+        ImGui::SameLine();
+        ImGui::TextDisabled("(%s, %s)", FormatWearingStatus(gState.mWearingStatus),
+                            HostMediaNeedsPausing() ? "another device is connected" : "not needed right now");
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("With multipoint, the headphones send their own auto pause to the other\n"
+                              "device, so this computer never hears it. While another device is\n"
+                              "connected, this pauses the players here on removal and resumes them\n"
+                              "when the headphones go back on. With a single connection the\n"
+                              "headphones pause this computer directly and this stays out of the way.\n"
+                              "Start with --pause-media-on-remove to have it on from launch.");
+        ImGui::TreePop();
+    }
     /* Voice Guidance */
     if (FeatureAvailable(MDR_FEATURE_VOICE_GUIDANCE) &&
         ImGui::TreeNodeEx("Voice Guidance", ImGuiTreeNodeFlags_DefaultOpen))
@@ -1845,6 +1930,7 @@ void DrawDeviceControlsAbout()
             {"Shutdown", MDR_FEATURE_SHUTDOWN},
             {"Connection mode", MDR_FEATURE_CONNECTION_MODE},
             {"Safe listening", MDR_FEATURE_SAFE_LISTENING},
+            {"Wearing status", MDR_FEATURE_WEARING_STATUS},
         };
         if (ImGui::BeginTable("##Features", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit))
         {
@@ -1920,6 +2006,9 @@ void DrawDeviceControls()
         break;
     case MDR_EVENT_BATTERY_CHANGED:
         gState.mBatteries = GetBatteries();
+        break;
+    case MDR_EVENT_WEARING_STATUS_CHANGED:
+        OnWearingStatusChanged();
         break;
     case MDR_EVENT_PLAYBACK_CHANGED:
         RefreshPlaybackState();

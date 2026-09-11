@@ -28,6 +28,7 @@
 #endif
 // Implemented by Client.cpp
 extern bool clientShouldExit();
+extern void clientSetPauseMediaOnRemove(bool enabled);
 #ifdef MDR_CLIENT_DEBUGGER
 extern void clientEnterDebuggerReplayMode();
 #endif
@@ -133,15 +134,21 @@ namespace
         const char* recordDirectory{};
         const char* replayPath{};
         bool showHelp{};
+        bool pauseMediaOnRemove{};
     };
 
     void PrintUsage()
     {
         MDR_LOG(
-            "Usage: SonyHeadphonesClient [-con] [--record <capture-folder>]\n"
+            "Usage: SonyHeadphonesClient [-con] [--pause-media-on-remove] [--record <capture-folder>]\n"
             "       SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]\n"
             "\n"
             "-con opens a diagnostic console on Windows.\n"
+            "--pause-media-on-remove pauses this computer's media players when the headphones\n"
+            "come off and resumes them when they go back on. Only acts while another device is\n"
+            "connected to the headphones (multipoint), which is when their own auto pause goes\n"
+            "to that device instead of here (wearing sensor required; Linux only for now).\n"
+            "Can also be toggled in the Power section while connected.\n"
             "Packet replay requires a client build with the debugger enabled."
         );
     }
@@ -161,6 +168,11 @@ namespace
 #ifdef _WIN32
                 OpenConsole();
 #endif
+                continue;
+            }
+            if (std::strcmp(argument, "--pause-media-on-remove") == 0)
+            {
+                options.pauseMediaOnRemove = true;
                 continue;
             }
 
@@ -205,6 +217,7 @@ int main(int argc, char** argv)
         PrintUsage();
         return 2;
     }
+    clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
     if (options.showHelp)
     {
         PrintUsage();

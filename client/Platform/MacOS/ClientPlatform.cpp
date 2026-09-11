@@ -1,3 +1,4 @@
+#include "../Platform.hpp"
 #include <mdr-bt/ConnectionMacOS.h>
 
 extern "C" {
@@ -32,5 +33,21 @@ void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();
     // TODO
+}
+}
+
+extern "C" {
+int clientPlatformIsLocalBluetoothAddress(const char*, int*)
+{
+    return MDR_RESULT_ERROR_NOT_SUPPORTED;
+}
+
+struct ClientMediaPause* clientPlatformMediaPause()
+{
+    return nullptr;
+}
+
+void clientPlatformMediaResume(struct ClientMediaPause*)
+{
 }
 }

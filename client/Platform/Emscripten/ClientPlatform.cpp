@@ -100,3 +100,19 @@ void __dont_touch_my_garbage_exclamation_marks__()
     clientPlatformDownloadFileImpl(nullptr, nullptr, 0, nullptr);
 }
 }
+
+extern "C" {
+int clientPlatformIsLocalBluetoothAddress(const char*, int*)
+{
+    return MDR_RESULT_ERROR_NOT_SUPPORTED;
+}
+
+struct ClientMediaPause* clientPlatformMediaPause()
+{
+    return nullptr;
+}
+
+void clientPlatformMediaResume(struct ClientMediaPause*)
+{
+}
+}
