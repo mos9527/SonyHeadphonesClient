@@ -81,10 +81,9 @@ namespace mdr
         bool awaitAck
     )
     {
-        // The debugger drives the envelope itself; adopt its sequence number so the
-        // acknowledgement is still recognized and the counter stays in step afterwards.
-        mTxSeqNumber = static_cast<MDRCommandSeqNumber>(sequence & 1u);
-        SendCommandImpl(payload, type, mTxSeqNumber);
+        // Adopt the debugger's sequence number so its ACK is recognized.
+        mSeqNumber = static_cast<MDRCommandSeqNumber>(sequence & 1u);
+        SendCommandImpl(payload, type, mSeqNumber);
         if (awaitAck)
         {
             const int result = co_await Await(AWAIT_ACK);
@@ -327,17 +326,14 @@ namespace mdr
 
     void MDRHeadphones::HandleAck(MDRCommandSeqNumber seq)
     {
-        // Devices acknowledge a DATA frame by echoing the inverted sequence number, the same
-        // convention @ref SendACK follows. Anything else acknowledges a frame we are no longer
-        // waiting on - a duplicate, or one the device re-sent late - and must not satisfy the
-        // pending await, or we would advance while our actual frame is still outstanding.
-        const auto expected = static_cast<MDRCommandSeqNumber>(1 - mTxSeqNumber);
+        // FIXME Stale ACKs (duplicates, late re-sends) are dropped, not matched to the frame they acknowledge.
+        const auto expected = static_cast<MDRCommandSeqNumber>(1 - mSeqNumber);
         if (seq != expected)
         {
             MDR_LOG_DEBUG("Ignoring stale ACK seq {} (awaiting {})", seq, expected);
             return;
         }
-        mTxSeqNumber = expected;
+        mSeqNumber = expected;
         Awake(AWAIT_ACK);
     }
 }
@@ -372,10 +368,6 @@ namespace
             return function(headphones.mDetailsV1);
         return function(headphones.mDetailsV2);
     }
-
-    // SupportsFeature() lives beside the state it reads, in DetailsV1.hpp / DetailsV2.hpp, so
-    // the initialization chains can gate their requests on the same predicates this exposes.
-    // Found via ADL on the DetailsV1 / DetailsV2 argument.
 
     bool ValidBoolean(MDRBoolean value)
     {
@@ -1278,7 +1270,7 @@ MDRResult mdrHeadphonesRequestCommit(MDRHeadphones* headphones)
     return h->Invoke(h->RequestCommit());
 }
 
-MDRResult mdrHeadphonesRespondToAlert(MDRHeadphones* headphones, MDRAlertAction action)
+MDRResult mdrHeadphonesRequestRespondToAlert(MDRHeadphones* headphones, MDRAlertAction action)
 {
     if (!headphones || (action != MDR_ALERT_ACTION_POSITIVE && action != MDR_ALERT_ACTION_NEGATIVE))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -1631,7 +1623,6 @@ MDRResult mdrHeadphonesGetListening(
         return MDR_RESULT_OK;
     }
     const auto& state = h.mDetailsV2;
-    // At most one is on; if a device ever reports two, the first match wins over guessing.
     const MDRListeningMode mode =
         state.mBGMModeEnabled.current ? MDR_LISTENING_BACKGROUND_MUSIC :
         state.mUpmixCinemaEnabled.current ? MDR_LISTENING_CINEMA :
@@ -1654,7 +1645,7 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto& state = h->mDetailsV2;
     static constexpr MDRFeature kModeFeatures[] = {
-        0, /* MDR_LISTENING_STANDARD is always reachable - it is every mode turned off */
+        0, /* MDR_LISTENING_STANDARD */
         MDR_FEATURE_LISTENING_BACKGROUND_MUSIC,
         MDR_FEATURE_LISTENING_CINEMA,
         MDR_FEATURE_LISTENING_VOICE_BOOST,
@@ -1668,7 +1659,6 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (listening->mode == MDR_LISTENING_BACKGROUND_MUSIC && listening->background_room == MDR_ROOM_UNKNOWN)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    // The modes are exclusive, so selecting one stages every other one off.
     state.mBGMModeEnabled.stage(listening->mode == MDR_LISTENING_BACKGROUND_MUSIC);
     state.mUpmixCinemaEnabled.stage(listening->mode == MDR_LISTENING_CINEMA);
     state.mVoiceContentsEnabled.stage(listening->mode == MDR_LISTENING_VOICE_BOOST);
@@ -1710,10 +1700,7 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
     auto preset = state.mEqPresetId.desired;
     if (equalizer->preset != MDR_EQ_UNKNOWN && !to_protocol(equalizer->preset, preset))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    /* A preset the device did not list is one it has no setting for: it answers by staying
-     * where it is, which a caller cannot tell from success. Refuse it here instead - but only
-     * once the device has actually said, since an empty list means we never asked or it never
-     * answered, not that it has no presets. */
+    // Devices silently ignore presets they did not advertise.
     if (equalizer->preset != MDR_EQ_UNKNOWN && !state.mEqPresets.empty() &&
         std::ranges::none_of(state.mEqPresets, [&](const auto& entry) { return entry.presetId == preset; }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
@@ -1801,9 +1788,6 @@ MDRResult mdrHeadphonesGetEqualizerPresets(
         *inoutCount = required;
         return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
     }
-    /* One entry per advertised preset, in the device's order, so the index also addresses
-     * MDR_TEXT_EQUALIZER_PRESET_NAME. An id with no MDREqualizerPreset keeps its place as
-     * MDR_EQ_UNKNOWN rather than shifting the ones after it. */
     for (uint32_t i = 0; i < required; ++i)
         presets[i] = from_protocol(state.mEqPresets[i].presetId);
     *inoutCount = required;

@@ -44,9 +44,6 @@ namespace mdr
         v1::t1::AudioCodec mAudioCodec{};
 
         v1::t1::AlertMessageType mLastAlertMessage{};
-        // Set when the device asks a POSITIVE_NEGATIVE question and cleared when it is
-        // answered. The request it is holding is dropped until then, so an answer sent
-        // with nothing outstanding would be answering a question already gone.
         bool mAlertAwaitingResponse{};
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
@@ -78,7 +75,6 @@ namespace mdr
         v1::t1::PlaybackStatus mPlayPause{};
 
         v1::t1::UpscalingType mUpscalingType{};
-        // Available until the device reports otherwise - not every device ever does.
         bool mUpscalingAvailable{true};
 
         Vector<v1::t1::AsCapabilityKey> mAssignableSettingsKeys;
@@ -120,7 +116,6 @@ namespace mdr
             String name;
         };
 
-        /* As in DetailsV2: what the device listed, in its order, empty while unknown. */
         Vector<EqPresetInfo> mEqPresets;
         MDRProperty<bool> mEqAvailable{true, true, true};
         MDRProperty<v1::t1::EqPresetId> mEqPresetId;
@@ -137,11 +132,7 @@ namespace mdr
     };
 
     /**
-     * @brief Whether the device advertises @p feature, derived from the functions it reported.
-     * @note  This says the hardware has the feature at all, not that it will act on a change
-     *        right now - momentary availability travels in the state structs instead.
-     *        The initialization chain gates its requests on these same predicates, so what we
-     *        ask a device for and what a caller is offered stay in agreement.
+     * @brief Whether the device advertises @p feature. Also gates the requests in @ref RequestInitV1.
      */
     inline bool SupportsFeature(const DetailsV1& state, MDRFeature feature)
     {

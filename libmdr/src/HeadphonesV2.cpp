@@ -167,10 +167,7 @@ namespace mdr
             SendCommandACK(t1::SystemGetExtParam, {.type = t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
         }
 
-        /* Listening Mode
-         * LISTENING_OPTION only says the device groups these under one setting. Each half is
-         * advertised on its own, and a device that implements just one of them acknowledges
-         * the other request and then never answers it. */
+        /* Listening Mode */
         if (state.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
         {
             if (state.mSupport.containsBGMMode())
@@ -186,12 +183,6 @@ namespace mdr
         /* Equalizer */
         if (SupportsFeature(state, MDR_FEATURE_EQUALIZER))
         {
-            /*
-             * Which presets exist is a capability, not a parameter, and the device names them
-             * in a language it has to be told - so this is the language-carrying request, the
-             * same shape the general-setting capabilities above use. Without it the preset id
-             * comes back with nothing saying which ids this device would accept.
-             */
             t1::EqEbbInquiredType eqType{};
             if (EqPresetInquiredType(state, eqType))
                 SendCommandACK(t1::EqEbbGetCapabilityLanguage, {
@@ -241,9 +232,7 @@ namespace mdr
         if (SupportsFeature(state, MDR_FEATURE_AUTO_PAUSE))
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
 
-        /* Voice Guidance
-         * These live in table 2, but having table 2 is not the same as having voice guidance -
-         * the commit path already gates on the function itself. */
+        /* Voice Guidance */
         if (SupportsFeature(state, MDR_FEATURE_VOICE_GUIDANCE))
         {
             /* Enabled */
@@ -264,7 +253,7 @@ namespace mdr
             static_cast<UInt8>(t1::Command::LOG_SET_STATUS),
             0x01, 0x00
         };
-        SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mTxSeqNumber);
+        SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
         co_await Await(AWAIT_ACK);
         mInitialized = true;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
@@ -324,13 +313,7 @@ namespace mdr
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
-        /* Playback metadata. The initialisation asks for it once and the
-         * headset announces a great deal by itself - volume, buttons, battery -
-         * but not this: the phone hands it a new track name over its own
-         * channel without a word on the control link, so the copy kept here
-         * stays at whatever was playing when the connection came up. A sync is
-         * the caller's way of saying "ask again about everything", so the names
-         * belong in it. */
+        /* Playback metadata. Track changes are not always notified. */
         if (SupportsFeature(state, MDR_FEATURE_PLAYBACK_METADATA))
         {
             SendCommandACK(t1::GetPlayParam,
@@ -643,10 +626,7 @@ namespace mdr
             state.mSpeakToChatDetectSensitivity.commit(), state.mSpeakToModeOutTime.commit();
         }
 
-        /* Listening Mode
-         * The modes are mutually exclusive, so a switch turns one off and another on. Send
-         * every deactivation before any activation: a device that refuses to have two on at
-         * once would reject the new mode if the old one were still set. */
+        /* Listening Mode. Modes are exclusive, so deactivations are sent before activations. */
         const bool bgmPending = state.mBGMModeEnabled.pending() || state.mBGMModeRoomSize.pending();
         const bool cinemaPending = state.mUpmixCinemaEnabled.pending();
         const bool voiceContentsPending = state.mVoiceContentsEnabled.pending();
@@ -654,20 +634,9 @@ namespace mdr
         if (bgmPending || cinemaPending || voiceContentsPending || soundLeakageReductionPending)
         {
             using namespace t1;
-            // LISTENING_OPTION only says the device groups these under one setting; each mode is
-            // advertised on its own, so every send is gated on the one it actually needs.
             const bool grouped = state.mSupport.contains(FunctionType::LISTENING_OPTION);
 
-            /* Take the staged values as current before the first send, not after the
-             * last one. Every SendCommandACK below suspends until the device answers,
-             * and frames that arrive meanwhile are dispatched from the same poll - so a
-             * client reading the listening mode mid-switch would otherwise see the old
-             * mode already off and the new one not yet on. The modes are exclusive and
-             * their flags are separate, so that half-applied state reads as a mode of
-             * its own: Standard. The device's own notifications still overwrite() all of
-             * this once they land, so this only moves an optimistic update earlier.
-             * It also consumes the staged values where a send is skipped, without which
-             * IsDirty() would never clear. */
+            // Committed before sending, or a read mid-switch sees every mode off (Standard).
             if (bgmPending)
                 state.mBGMModeEnabled.commit(), state.mBGMModeRoomSize.commit();
             state.mUpmixCinemaEnabled.commit();
@@ -723,15 +692,7 @@ namespace mdr
                     state.mUpmixCinemaEnabled.desired, state.mVoiceContentsEnabled.desired,
                     state.mSoundLeakageReductionEnabled.desired);
 
-            /*
-             * A listening mode takes the equalizer and the upscaling with it: the device
-             * switches both off while one is active and reports that in its own time. Ask
-             * for the two statuses rather than waiting to be told, the way the preset write
-             * below asks for its parameters back. A status a client only ever learns from an
-             * unsolicited frame is one it can miss for the rest of the session - nothing
-             * re-reads it, RequestSyncV2 included - and the miss is silent: the caller goes
-             * on offering a control the device is ignoring.
-             */
+            // Listening modes disable EQ and DSEE; re-read both rather than relying on notifications.
             if (SupportsFeature(state, MDR_FEATURE_EQUALIZER))
                 SendCommandACK(EqEbbGetStatus, {.type = EqEbbInquiredType::PRESET_EQ});
             if (state.mSupport.contains(FunctionType::UPSCALING_AUTO_OFF))
@@ -751,23 +712,12 @@ namespace mdr
             // Ask for a equalizer param update afterwards
             SendCommandACK(EqEbbGetParam);
         }
-        /*
-         * pending() alone is not enough to justify a band write. The device recomputes the band
-         * steps for a preset it was just given and reports them while this pass is still
-         * running - the request above asks it to - so `current` moves, and a band config nobody
-         * touched starts to look like a write waiting to go out. Sending that snapshot is
-         * exactly how choosing a preset ends up on CUSTOM with the curve that was on screen
-         * beforehand: band steps are what makes an EQ custom.
-         *
-         * dirty() is the caller's intent rather than the device's movement. overwrite() keeps
-         * `desired` in step with `current` while nothing is staged, so a device-side update
-         * leaves it false, and only an actual mdrHeadphonesSetEqualizerBands makes it true.
-         */
+        // Only write bands the caller changed. A preset change moves them on the device too,
+        // and writing that stale snapshot back would switch it to CUSTOM.
         const bool eqBandsPending = state.mEqConfig.pending() || state.mEqClearBass.pending();
         const bool eqBandsAsked = state.mEqConfig.dirty() || state.mEqClearBass.dirty();
         if (eqBandsPending && !eqBandsAsked)
         {
-            /* Follow the device rather than putting a stale copy of it back. */
             state.mEqConfig.override(state.mEqConfig.current);
             state.mEqClearBass.override(state.mEqClearBass.current);
         }
@@ -828,10 +778,7 @@ namespace mdr
             {
                 AudioSetParamConnection res;
                 res.command = Command::AUDIO_SET_PARAM;
-                // Assigned rather than left to the struct's default, which is
-                // CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO - a different inquired type with a
-                // field this one does not carry. CONNECTION_MODE is the one the capability
-                // above advertises and the one AudioGetParam reads back on.
+                // The struct defaults to CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO.
                 res.type = AudioInquiredType::CONNECTION_MODE;
                 res.settingValue = state.mAudioPriorityMode.submitted;
                 SendCommandACK(AudioSetParamConnection, res);
@@ -1068,16 +1015,11 @@ namespace mdr
         if (!state.mAlertAwaitingResponse)
             co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "The device has not asked anything");
 
-        // Cleared before the send, not after it: the question has been dealt with either way,
-        // and a failure here must not leave an answer owed for a message the device has since
-        // forgotten. It asks again if it still wants to know.
         state.mAlertAwaitingResponse = false;
 
         using namespace t1;
         AlertSetParamFixedMessage res;
         res.type = AlertInquiredType::FIXED_MESSAGE;
-        // Echoed back rather than assumed: the device pairs its answer with the question it
-        // asked, and the whole point of the exchange is which held request this applies to.
         res.messageType = state.mLastAlertMessage;
         res.actionType = action == MDR_ALERT_ACTION_POSITIVE ? AlertAction::POSITIVE
                                                              : AlertAction::NEGATIVE;

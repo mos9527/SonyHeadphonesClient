@@ -51,11 +51,7 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_CONNECTION_MODE ((MDRFeature)27u)
 #define MDR_FEATURE_SAFE_LISTENING ((MDRFeature)28u)
 #define MDR_FEATURE_SOURCE_SWITCH_CONTROL ((MDRFeature)29u)
-/*
- * Which listening modes the device actually offers. MDR_FEATURE_LISTENING_MODE says the
- * device groups them into one exclusive setting; these say which of them exist, and a
- * device advertises them independently.
- */
+/* Individual listening modes offered under MDR_FEATURE_LISTENING_MODE. */
 #define MDR_FEATURE_LISTENING_BACKGROUND_MUSIC ((MDRFeature)30u)
 #define MDR_FEATURE_LISTENING_CINEMA ((MDRFeature)31u)
 #define MDR_FEATURE_LISTENING_VOICE_BOOST ((MDRFeature)32u)
@@ -111,7 +107,7 @@ typedef uint32_t MDRText;
 #define MDR_TEXT_LAST_ALERT ((MDRText)14u)
 #define MDR_TEXT_LAST_INTERACTION ((MDRText)15u)
 #define MDR_TEXT_LAST_DEVICE_MESSAGE ((MDRText)16u)
-/* The device's own name for one entry of @ref mdrHeadphonesGetEqualizerPresets, by index. */
+/* Indexed like @ref mdrHeadphonesGetEqualizerPresets. */
 #define MDR_TEXT_EQUALIZER_PRESET_NAME ((MDRText)17u)
 
 typedef uint32_t MDRAudioCodec;
@@ -187,11 +183,7 @@ typedef uint32_t MDRSpeakTimeout;
 #define MDR_SPEAK_TIMEOUT_LONG ((MDRSpeakTimeout)3u)
 #define MDR_SPEAK_TIMEOUT_MANUAL ((MDRSpeakTimeout)4u)
 
-/*
- * Listening modes are mutually exclusive: at most one is active, and MDR_LISTENING_STANDARD
- * means none of them is. Which ones a device offers varies - see the
- * MDR_FEATURE_LISTENING_* availability flags.
- */
+/* Mutually exclusive. MDR_LISTENING_STANDARD means none is active. */
 typedef uint32_t MDRListeningMode;
 #define MDR_LISTENING_STANDARD ((MDRListeningMode)0u)
 #define MDR_LISTENING_BACKGROUND_MUSIC ((MDRListeningMode)1u)
@@ -251,9 +243,6 @@ typedef uint32_t MDRPairedDeviceCommand;
 #define MDR_PAIRED_DEVICE_SELECT_PLAYBACK ((MDRPairedDeviceCommand)3u)
 #define MDR_PAIRED_DEVICE_UNPAIR ((MDRPairedDeviceCommand)4u)
 
-/**
- * @brief Answer to the confirmation a device asks for with @ref MDR_EVENT_ALERT.
- */
 typedef uint32_t MDRAlertAction;
 #define MDR_ALERT_ACTION_NEGATIVE ((MDRAlertAction)0u)
 #define MDR_ALERT_ACTION_POSITIVE ((MDRAlertAction)1u)
@@ -344,13 +333,7 @@ typedef struct MDREqualizer
     uint32_t band_count;
     MDRBoolean dsee_enabled;
     MDRDSEEType dsee_type;
-    /*
-     * Whether the device will currently act on changes to these. Distinct from
-     * MDR_FEATURE_EQUALIZER and MDR_FEATURE_DSEE, which say the device has them at all:
-     * a device switches these off while a listening mode is active and reports them
-     * available again once it returns to MDR_LISTENING_STANDARD. Both read MDR_TRUE
-     * until the device says otherwise.
-     */
+    /* Whether the device currently accepts changes, e.g. MDR_FALSE while a listening mode is active. */
     MDRBoolean available;
     MDRBoolean dsee_available;
 } MDREqualizer;
@@ -538,22 +521,9 @@ MDR_API MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, int8
 MDR_API MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, const int8_t* bands, uint32_t count);
 
 /**
- * @brief The equalizer presets the device advertised, in the order it listed them.
- *
- * Read from its equalizer capability, which is also where the names behind
- * @ref MDR_TEXT_EQUALIZER_PRESET_NAME come from - index into this list to reach one.
- * Devices offer very different subsets, so this is what a picker should be built from
- * rather than the full @ref MDREqualizerPreset range.
- *
- * An **empty list means the device has not said**, not that it has no presets: an equalizer
- * variant whose capability carries no list, or a device that has not answered yet. While it
- * is empty, @ref mdrHeadphonesSetEqualizer accepts any preset it can encode; once it is not,
- * a preset outside it is refused with MDR_RESULT_ERROR_NOT_SUPPORTED.
- *
- * An entry this library has no @ref MDREqualizerPreset for reads MDR_EQ_UNKNOWN. It keeps its
- * place, so the text index stays aligned, but it cannot be selected.
- *
- * Called with @p presets NULL and @p inout_count 0, reports the count instead of filling.
+ * @brief The equalizer presets the device advertised, in its order. Names are @ref MDR_TEXT_EQUALIZER_PRESET_NAME.
+ * @note  An empty list means the device has not reported one, and @ref mdrHeadphonesSetEqualizer then accepts any
+ *        preset. Otherwise presets outside the list are refused. Unknown ids read MDR_EQ_UNKNOWN.
  */
 MDR_API MDRResult mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MDREqualizerPreset* presets,
                                                    uint32_t* inout_count);
@@ -591,26 +561,12 @@ MDR_API MDRResult mdrHeadphonesGetSourceSwitchControlResult(MDRHeadphones* headp
                                                             MDRSourceSwitchControlResult* out_result);
 
 /**
- * @brief Answer the question the device asked with @ref MDR_EVENT_ALERT.
- *
- * Some settings are not applied when the device receives them. A device that has to break its
- * Bluetooth connections to apply one - multipoint and the connection mode are the usual pair -
- * acknowledges the request, holds it, and asks first, as ALERT_NTFY_PARAM carrying a message
- * type and POSITIVE_NEGATIVE. That question is reported as @ref MDR_EVENT_ALERT, and
- * @ref MDR_TEXT_LAST_ALERT says which message it was.
- *
- * Until it is answered the held request is simply dropped: the device keeps the old value, says
- * nothing further about it, and the next @ref mdrHeadphonesRequestSync reads the setting back
- * unchanged. @ref MDR_ALERT_ACTION_POSITIVE is what applies it - after which the device does
- * disconnect, so expect the transport to drop and the setting to be reported on the next
- * session. @ref MDR_ALERT_ACTION_NEGATIVE discards it.
- *
- * @note The client owns this decision: the library reports the question and sends the answer,
- *       and neither invents one nor assumes the user is still there to give it.
- * @return @ref MDR_RESULT_ERROR_NOT_FOUND if the device has not asked anything,
- *         @ref MDR_RESULT_INPROGRESS if another request is still running - poll and try again.
+ * @brief Answers the confirmation the device asked for with @ref MDR_EVENT_ALERT (see @ref MDR_TEXT_LAST_ALERT).
+ * @note  The setting that triggered it (e.g. multipoint, connection mode) is not applied until answered with
+ *        @ref MDR_ALERT_ACTION_POSITIVE, which may disconnect the device.
+ * @return @ref MDR_RESULT_ERROR_NOT_FOUND if the device has not asked anything.
  */
-MDR_API MDRResult mdrHeadphonesRespondToAlert(MDRHeadphones* headphones, MDRAlertAction action);
+MDR_API MDRResult mdrHeadphonesRequestRespondToAlert(MDRHeadphones* headphones, MDRAlertAction action);
 
 /* General settings and assignable controls. */
 MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(MDRHeadphones* headphones, MDRGeneralSettingInfo* settings,

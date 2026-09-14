@@ -54,7 +54,7 @@ namespace mdr
             if (supportResult != MDR_RESULT_OK)
                 co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device failed to respond to support function request");
 
-            /* Equalizer - the capability is where the preset list comes from. */
+            /* Equalizer */
             if (state.mSupport.contains(t1::FunctionType::PRESET_EQ) ||
                 state.mSupport.contains(t1::FunctionType::PRESET_EQ_NONCUSTOMIZABLE))
             {
@@ -456,16 +456,7 @@ namespace mdr
     {
         auto& state = mDetailsV1;
 
-        /* A sync is the caller's way of saying "ask about everything again",
-         * and until now this one asked about nothing at all - it returned
-         * completion without sending a single command. For most of the state
-         * that went unnoticed, because a headset announces changes by itself:
-         * volume, buttons, battery, listening mode. The playback metadata is
-         * the exception. The phone hands the headset a new track name over its
-         * own channel and says nothing on the control link, so the copy kept
-         * here stays at whatever was playing when the connection came up. The
-         * initialisation asks for it once; without this, nothing ever asks
-         * again, and a track name is correct exactly until the next track. */
+        /* Playback metadata. Track changes are not always notified. */
         if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
         {
             SendCommandACK(t1::GetPlayStatus, {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER});
@@ -600,13 +591,7 @@ namespace mdr
             state.mPlayControl.override(t1::PlaybackControl::KEY_OFF);
         }
 
-        /*
-         * As in RequestCommitV2, and more sharply here: this frame carries the preset and every
-         * band step together, so re-sending a snapshot the device has already moved past puts
-         * both back. pending() says the device does not have what was submitted; dirty() says
-         * the caller asked for it, since overwrite() keeps `desired` in step with `current`
-         * while nothing is staged. Only the second is reason to transmit.
-         */
+        // Only write what the caller changed; pending() is also true when just the device moved.
         const bool eqPending = state.mEqPresetId.pending() || state.mEqConfig.pending() ||
             state.mEqClearBass.pending();
         const bool eqAsked = state.mEqPresetId.dirty() || state.mEqConfig.dirty() ||
@@ -621,16 +606,7 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::PRESET_EQ))
             {
-                /*
-                 * One frame, but it cannot say both things at once. A V1 device takes a
-                 * preset on its own - no band steps, and it answers with that preset's
-                 * curve - or a curve with the preset left UNSPECIFIED, and then selects
-                 * CUSTOM by itself and says so. A frame carrying a preset and band steps
-                 * together is acknowledged and dropped: a WH-1000XM4 keeps its preset and
-                 * its curve. So a curve the caller changed goes out alone, and anything
-                 * else is a preset change and goes out without one. dirty(), not
-                 * pending(), for the same reason as above.
-                 */
+                // Devices drop a frame carrying both a preset and band steps, so send one or the other.
                 t1::SetEqEbbParamEqParam payload;
                 if (state.mEqConfig.dirty() || state.mEqClearBass.dirty())
                 {
@@ -733,7 +709,7 @@ namespace mdr
                     static_cast<UInt8>(state.mSpeakToChatVoiceFocus),
                     static_cast<UInt8>(state.mSpeakToModeOutTime.submitted)
                 };
-                SendCommandImpl(payload, MDRDataType::DATA_MDR, mTxSeqNumber);
+                SendCommandImpl(payload, MDRDataType::DATA_MDR, mSeqNumber);
                 const int result = co_await Await(AWAIT_ACK);
                 if (result != MDR_RESULT_OK)
                     co_return SetLastError(result, "Timeout waiting for V1 Speak-to-Chat options");
@@ -844,7 +820,6 @@ namespace mdr
         if (!state.mAlertAwaitingResponse)
             co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "The device has not asked anything");
 
-        // As in V2, cleared before the send: the question is dealt with either way.
         state.mAlertAwaitingResponse = false;
 
         using namespace t1;

@@ -208,11 +208,6 @@ namespace mdr
             return MDR_EVENT_UNHANDLED;
         }
 
-        /*
-         * The preset list. V1 has asked for this since the capability request went into the
-         * initialization chain; until now nothing read the answer, so the ids a device would
-         * accept were never known.
-         */
         int HandleEqCapability(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             EqEbbInquiredType type{};
@@ -479,7 +474,6 @@ namespace mdr
                 case POSITIVE_NEGATIVE:
                 {
                     self->mDetailsV1.mLastAlertMessage = res.messageType;
-                    // As in V2: the request that provoked this is held until it is answered.
                     self->mDetailsV1.mAlertAwaitingResponse = true;
                     return MDR_EVENT_ALERT;
                 }

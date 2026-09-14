@@ -41,11 +41,6 @@ namespace mdr
                 return table2Functions[static_cast<UInt8>(value)];
             }
 
-            /**
-             * @brief Whether the device advertises any background-music listening mode.
-             * @note  There is no neutral feature for this: @ref MDR_FEATURE_LISTENING_MODE covers
-             *        the grouping the device presents, not the individual modes underneath it.
-             */
             [[nodiscard]] constexpr bool containsBGMMode() const
             {
                 using F = v2::t1::FunctionType;
@@ -63,9 +58,6 @@ namespace mdr
         v2::t1::AudioCodec mAudioCodec{};
 
         v2::t1::AlertMessageType mLastAlertMessage{};
-        // Set when the device asks a POSITIVE_NEGATIVE question and cleared when it is
-        // answered. The request it is holding is dropped until then, so an answer sent
-        // with nothing outstanding would be answering a question already gone.
         bool mAlertAwaitingResponse{};
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
@@ -97,7 +89,6 @@ namespace mdr
         v2::t1::PlaybackStatus mPlayPause{};
 
         v2::t1::UpscalingType mUpscalingType{};
-        // Available until the device reports otherwise - not every device ever does.
         bool mUpscalingAvailable{true};
 
         struct GsCapability
@@ -142,12 +133,7 @@ namespace mdr
             String name;
         };
 
-        /*
-         * The presets this device offers, in the order it listed them, with the names it
-         * gave them. Empty until the capability answer arrives, and on a device whose EQ
-         * variant carries no list at all - which is why "empty" has to mean "unknown"
-         * rather than "none", both here and everywhere it is read.
-         */
+        // Empty means unknown, not none.
         Vector<EqPresetInfo> mEqPresets;
         MDRProperty<bool> mEqAvailable{true, true, true};
         MDRProperty<v2::t1::EqPresetId> mEqPresetId;
@@ -164,11 +150,8 @@ namespace mdr
     };
 
     /**
-     * @brief The equalizer variant this device advertises, as an inquired type.
-     * @return false when it has none whose capability carries a preset list - EBB, the sound
-     *         effect variants and the turn-key EQ answer with something else entirely.
-     * @note   Devices advertise exactly one of these, and it decides both what to ask for and
-     *         which capability payload comes back.
+     * @brief The advertised preset EQ variant as an inquired type.
+     * @return false if the device has no variant whose capability carries a preset list.
      */
     inline bool EqPresetInquiredType(const DetailsV2& state, v2::t1::EqEbbInquiredType& out)
     {
@@ -186,11 +169,7 @@ namespace mdr
     }
 
     /**
-     * @brief Whether the device advertises @p feature, derived from the functions it reported.
-     * @note  This says the hardware has the feature at all, not that it will act on a change
-     *        right now - momentary availability travels in the state structs instead.
-     *        The initialization chain gates its requests on these same predicates, so what we
-     *        ask a device for and what a caller is offered stay in agreement.
+     * @brief Whether the device advertises @p feature. Also gates the requests in @ref RequestInitV2.
      */
     inline bool SupportsFeature(const DetailsV2& state, MDRFeature feature)
     {
@@ -242,7 +221,6 @@ namespace mdr
                 T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
         case MDR_FEATURE_SPEAK_TO_CHAT: return state.mSupport.contains(T1::SMART_TALKING_MODE_TYPE2);
         case MDR_FEATURE_LISTENING_MODE: return state.mSupport.contains(T1::LISTENING_OPTION);
-        // Each mode is advertised on its own; LISTENING_OPTION only says they are exclusive.
         case MDR_FEATURE_LISTENING_BACKGROUND_MUSIC:
             return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.containsBGMMode();
         case MDR_FEATURE_LISTENING_CINEMA:

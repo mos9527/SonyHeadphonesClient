@@ -864,11 +864,6 @@ namespace mdr
         return MDR_EVENT_UNHANDLED;
     }
 
-    /*
-     * The preset list, and the only frame that carries it. A device answers with the payload
-     * that matches the variant it advertises, so the inquired type picks the struct: the ULT
-     * one carries an extra step count ahead of the list, the rest are the same shape.
-     */
     int HandleEqEbbCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         EqEbbInquiredType type{};
@@ -1014,8 +1009,6 @@ namespace mdr
                 case POSITIVE_NEGATIVE:
                 {
                     self->mDetailsV2.mLastAlertMessage = res.messageType;
-                    // The device is holding the request that provoked this until it is
-                    // answered - see mdrHeadphonesRespondToAlert.
                     self->mDetailsV2.mAlertAwaitingResponse = true;
                     return MDR_EVENT_ALERT;
                 }

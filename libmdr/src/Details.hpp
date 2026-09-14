@@ -283,12 +283,7 @@ namespace mdr
          * send path. This is an internal C++ developer API, not part of the C ABI.
          */
         MDRTask RequestDebugCommand(MDRBuffer payload, MDRDataType type, MDRCommandSeqNumber sequence, bool awaitAck);
-        /**
-         * @brief Sequence number the next transmitted DATA frame will carry.
-         * @note  This is purely a transmit-side counter. It is deliberately unrelated to
-         *        the sequence numbers of inbound frames - see @ref mTxSeqNumber.
-         */
-        [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept { return mTxSeqNumber; }
+        [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept { return mSeqNumber; }
 
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
@@ -316,8 +311,7 @@ namespace mdr
          */
         MDRTask RequestCommitV2();
         /**
-         * @brief Answers the confirmation the device asked for, which is what makes it apply the
-         *        request it acknowledged and then held - see @ref mdrHeadphonesRespondToAlert.
+         * @brief Answers the confirmation the device asked for with an alert.
          * @note  To be used with @ref Invoke.
          */
         MDRTask RequestAlertResponseV2(int action);
@@ -343,20 +337,8 @@ namespace mdr
         MDRPacketCallback mPacketCallback{};
         void* mPacketCallbackUserData{};
         Deque<UInt8> mRecvBuf, mSendBuf;
-        /**
-         * @brief Sequence number carried by the DATA frames we transmit, toggled between 0 and 1.
-         *
-         * MDR devices use this to tell a fresh request apart from a retransmission: a frame
-         * repeating the sequence number of an already acknowledged one is silently dropped as
-         * a duplicate. So this only advances once the device has acknowledged the frame that
-         * used it (@ref HandleAck), which is also what lets the retry loop in
-         * @ref SendCommandACK re-send the identical frame and have it accepted.
-         *
-         * It must NOT be derived from inbound frames. Devices are free to interleave
-         * unsolicited notifications and late responses into the exchange, and letting those
-         * drive the transmit counter desynchronizes us from the device.
-         */
-        MDRCommandSeqNumber mTxSeqNumber{0};
+        // Advanced only by @ref HandleAck. Devices drop frames that repeat an acknowledged sequence number.
+        MDRCommandSeqNumber mSeqNumber{0};
 
         MDRTask mTask;
         Array<Awaiter, AWAIT_NUM_TYPES> mAwaiters{};
@@ -406,7 +388,7 @@ namespace mdr
                              serialized.errMessage ? serialized.errMessage : "Unable to serialize command");
                 return serialized.error;
             }
-            SendCommandImpl({buf, buf + serialized.value}, type, mTxSeqNumber);
+            SendCommandImpl({buf, buf + serialized.value}, type, mSeqNumber);
             return MDR_RESULT_OK;
         }
 
@@ -459,11 +441,7 @@ namespace mdr::detail
  *
  * TL;DR, this helps with compiler bloats. Use it well.
  *
- * @note On the sequence number across retries. A retransmission deliberately repeats the sequence
- *       number of the frame it re-sends: that is how the device tells a genuine retry apart from a
- *       new request, and @ref mTxSeqNumber only advances once a frame has actually been
- *       acknowledged. Flipping it here would make every retry look like a fresh frame, and the
- *       device would then answer the following request as if it were the duplicate.
+ * @note Retries re-send with the same @ref mSeqNumber.
  */
 #define SendCommandACK(Type, ...)                                                                                      \
     do                                                                                                                 \

@@ -73,15 +73,7 @@ namespace mdr
             const Command command = static_cast<Command>(cmd[0]);
             const bool isParam = command == Command::VOICE_GUIDANCE_NTFY_PARAM
                               || command == Command::VOICE_GUIDANCE_RET_PARAM;
-            // A voice-guidance reply says in its third byte which detail it carries, and
-            // only one value of that byte is the switch kept here: DetailedDataType::ON_OFF
-            // for the parameters, StatusType::ON_OFF for the statuses. Both enumerate more
-            // than that - LANGUAGE, REQUIRED_TIME, DOWNLOAD_SERVER_METHOD, UPDATE_METHOD -
-            // and a headset answering about its voice-guidance language is not sending a
-            // malformed packet, it is answering about something else. Deserializing one as
-            // the switch fails validation, and since these replies arrive during the
-            // handshake that took the whole connection down with it: no battery, no
-            // listening modes, nothing. Reported against a WH-1000XM4.
+            // Only ON_OFF is handled. Parsing other types (e.g. LANGUAGE) as ON_OFF fails and aborts the handshake.
             if (cmd.size() <= 2)
                 return MDR_EVENT_UNHANDLED;
             if (isParam ? static_cast<DetailedDataType>(cmd[2]) != DetailedDataType::ON_OFF
