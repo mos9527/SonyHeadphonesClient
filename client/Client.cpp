@@ -1491,19 +1491,10 @@ void DrawDeviceControlsSound()
     if (ImGui::TreeNodeEx("Equalizer & DSEE", ImGuiTreeNodeFlags_DefaultOpen))
     {
         bool changed = false;
-        // Fallback for devices that did not advertise a preset list.
-        static constexpr MDREqualizerPreset kAllPresets[] = {
-            MDR_EQ_OFF, MDR_EQ_ROCK, MDR_EQ_POP, MDR_EQ_JAZZ, MDR_EQ_DANCE, MDR_EQ_EDM,
-            MDR_EQ_R_AND_B_HIP_HOP, MDR_EQ_ACOUSTIC, MDR_EQ_BRIGHT, MDR_EQ_EXCITED, MDR_EQ_MELLOW,
-            MDR_EQ_RELAXED, MDR_EQ_VOCAL, MDR_EQ_TREBLE, MDR_EQ_BASS, MDR_EQ_SPEECH, MDR_EQ_HEAVY,
-            MDR_EQ_CLEAR, MDR_EQ_HARD, MDR_EQ_SOFT, MDR_EQ_GAMING, MDR_EQ_FPS_1, MDR_EQ_FPS_2,
-            MDR_EQ_FPS_3, MDR_EQ_CUSTOM, MDR_EQ_USER_1, MDR_EQ_USER_2, MDR_EQ_USER_3, MDR_EQ_USER_4,
-            MDR_EQ_USER_5};
+        // Only what the device advertised: an id it never named is one it will not take.
         mdr::Vector<MDREqualizerPreset> selections;
         for (const auto& [id, name] : gState.mEqualizerPresets)
             selections.push_back(id);
-        if (selections.empty())
-            selections.assign(std::begin(kAllPresets), std::end(kAllPresets));
         const auto formatPreset = [](MDREqualizerPreset id) -> const char*
         {
             for (const auto& [advertised, name] : gState.mEqualizerPresets)
@@ -1518,8 +1509,11 @@ void DrawDeviceControlsSound()
         if (!equalizerUsable || !dseeUsable)
             ImGui::TextDisabled("Unavailable while a listening mode other than Standard is active.");
         ImGui::BeginDisabled(!equalizerUsable);
+        // An empty list means the device has not answered yet, not that it has no presets.
+        ImGui::BeginDisabled(selections.empty());
         changed |= ImComboBoxItems<MDREqualizerPreset, std::dynamic_extent>(
             "Preset", std::span{selections}, gState.mEqualizer.preset, formatPreset);
+        ImGui::EndDisabled();
         if (ImEqualizer(gState.mEqualizerBands))
             SetEqualizerBands(gState.mEqualizerBands);
         if (gState.mEqualizerBands.size() == 5)
