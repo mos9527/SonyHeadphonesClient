@@ -369,6 +369,119 @@ namespace
         return function(headphones.mDetailsV2);
     }
 
+    bool SupportsFeature(const mdr::DetailsV1& state, MDRFeature feature)
+    {
+        using F = mdr::v1::t1::FunctionType;
+        switch (feature)
+        {
+        case MDR_FEATURE_IDENTITY: return true;
+        case MDR_FEATURE_BATTERY_SINGLE: return state.mSupport.contains(F::BATTERY_LEVEL);
+        case MDR_FEATURE_PLAYBACK_METADATA:
+        case MDR_FEATURE_PLAYBACK_CONTROL:
+        case MDR_FEATURE_PLAYBACK_VOLUME: return state.mSupport.contains(F::PLAYBACK_CONTROLLER);
+        case MDR_FEATURE_NOISE_CANCELLING:
+            return state.mSupport.contains(F::NOISE_CANCELLING) ||
+                state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE);
+        case MDR_FEATURE_AMBIENT_SOUND:
+            return state.mSupport.contains(F::AMBIENT_SOUND_MODE) ||
+                state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE);
+        case MDR_FEATURE_SPEAK_TO_CHAT: return state.mSupport.contains(F::SMART_TALKING_MODE);
+        case MDR_FEATURE_EQUALIZER:
+            return state.mSupport.contains(F::PRESET_EQ) || state.mSupport.contains(F::EBB) ||
+                state.mSupport.contains(F::PRESET_EQ_NONCUSTOMIZABLE);
+        case MDR_FEATURE_DSEE: return state.mSupport.contains(F::UPSCALING);
+        case MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT:
+        case MDR_FEATURE_PAIRING_MODE:
+            return state.mSupport.contains(F::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT);
+        case MDR_FEATURE_GENERAL_SETTINGS:
+            return state.mSupport.contains(F::GENERAL_SETTING1) ||
+                state.mSupport.contains(F::GENERAL_SETTING2) ||
+                state.mSupport.contains(F::GENERAL_SETTING3);
+        case MDR_FEATURE_ASSIGNABLE_CONTROLS: return state.mSupport.contains(F::ASSIGNABLE_SETTINGS);
+        case MDR_FEATURE_AUTO_POWER_OFF: return state.mSupport.contains(F::AUTO_POWER_OFF);
+        case MDR_FEATURE_WEARING_DETECTION:
+        case MDR_FEATURE_AUTO_PAUSE: return state.mSupport.contains(F::CONTROL_BY_WEARING);
+        case MDR_FEATURE_VOICE_GUIDANCE: return state.mSupport.contains(F::VOICE_GUIDANCE);
+        case MDR_FEATURE_SHUTDOWN: return state.mSupport.contains(F::POWER_OFF);
+        case MDR_FEATURE_CONNECTION_MODE: return state.mSupport.contains(F::CONNECTION_MODE);
+        default: return false;
+        }
+    }
+
+    bool SupportsFeature(const mdr::DetailsV2& state, MDRFeature feature)
+    {
+        using T1 = mdr::v2::t1::FunctionType;
+        using T2 = mdr::v2::t2::FunctionType;
+        switch (feature)
+        {
+        case MDR_FEATURE_IDENTITY: return true;
+        case MDR_FEATURE_BATTERY_SINGLE:
+            return state.mSupport.contains(T1::BATTERY_LEVEL_INDICATOR) ||
+                state.mSupport.contains(T1::BATTERY_LEVEL_WITH_THRESHOLD);
+        case MDR_FEATURE_BATTERY_LEFT_RIGHT:
+            return state.mSupport.contains(T1::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR) ||
+                state.mSupport.contains(T1::LR_BATTERY_LEVEL_WITH_THRESHOLD);
+        case MDR_FEATURE_BATTERY_CASE:
+            return state.mSupport.contains(T1::CRADLE_BATTERY_LEVEL_INDICATOR) ||
+                state.mSupport.contains(T1::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD);
+        case MDR_FEATURE_PLAYBACK_METADATA:
+        case MDR_FEATURE_PLAYBACK_CONTROL:
+        case MDR_FEATURE_PLAYBACK_VOLUME: return state.mSupport.containsPlaybackController();
+        case MDR_FEATURE_NOISE_CANCELLING: return state.mSupport.containsNoiseCancelling();
+        case MDR_FEATURE_AMBIENT_SOUND:
+            return state.mSupport.containsNoiseCancelling() ||
+                state.mSupport.contains(T1::AMBIENT_SOUND_MODE_ONOFF) ||
+                state.mSupport.contains(T1::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT);
+        case MDR_FEATURE_ADAPTIVE_AMBIENT_SOUND:
+            return state.mSupport.contains(
+                T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
+        case MDR_FEATURE_SPEAK_TO_CHAT: return state.mSupport.contains(T1::SMART_TALKING_MODE_TYPE2);
+        case MDR_FEATURE_LISTENING_MODE: return state.mSupport.contains(T1::LISTENING_OPTION);
+        case MDR_FEATURE_LISTENING_BACKGROUND_MUSIC:
+            return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.containsBGMMode();
+        case MDR_FEATURE_LISTENING_CINEMA:
+            return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.contains(T1::UPMIX_CINEMA);
+        case MDR_FEATURE_LISTENING_VOICE_BOOST:
+            return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.contains(T1::VOICE_CONTENTS);
+        case MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION:
+            return state.mSupport.contains(T1::LISTENING_OPTION) &&
+                state.mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION);
+        case MDR_FEATURE_EQUALIZER: return state.mSupport.containsEqualizer();
+        case MDR_FEATURE_DSEE: return state.mSupport.contains(T1::UPSCALING_AUTO_OFF);
+        case MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT:
+        case MDR_FEATURE_PAIRING_MODE: return state.mSupport.containsPairingDeviceManagement();
+        case MDR_FEATURE_GENERAL_SETTINGS:
+            return state.mSupport.contains(T1::GENERAL_SETTING_1) ||
+                state.mSupport.contains(T1::GENERAL_SETTING_2) ||
+                state.mSupport.contains(T1::GENERAL_SETTING_3) ||
+                state.mSupport.contains(T1::GENERAL_SETTING_4);
+        case MDR_FEATURE_ASSIGNABLE_CONTROLS: return state.mSupport.contains(T1::ASSIGNABLE_SETTING);
+        case MDR_FEATURE_NOISE_CONTROL_BUTTON:
+            return state.mSupport.contains(T1::AMBIENT_SOUND_CONTROL_MODE_SELECT);
+        case MDR_FEATURE_AUTO_POWER_OFF:
+            return state.mSupport.contains(T1::AUTO_POWER_OFF) ||
+                state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION);
+        case MDR_FEATURE_WEARING_DETECTION:
+            return state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION) ||
+                state.mSupport.contains(T1::WEARING_STATUS_DETECTOR);
+        case MDR_FEATURE_AUTO_PAUSE:
+            return state.mSupport.contains(T1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF);
+        case MDR_FEATURE_HEAD_GESTURE: return state.mSupport.contains(T1::HEAD_GESTURE_ON_OFF_TRAINING);
+        case MDR_FEATURE_VOICE_GUIDANCE: return state.mSupport.containsVoiceGuidance();
+        case MDR_FEATURE_VOICE_GUIDANCE_VOLUME: return state.mSupport.containsVoiceGuidanceVolume();
+        case MDR_FEATURE_SHUTDOWN: return state.mSupport.contains(T1::POWER_OFF);
+        case MDR_FEATURE_CONNECTION_MODE:
+            return state.mSupport.contains(T1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY);
+        case MDR_FEATURE_SAFE_LISTENING:
+            return state.mSupport.contains(T2::SAFE_LISTENING_HBS_1) ||
+                state.mSupport.contains(T2::SAFE_LISTENING_HBS_2) ||
+                state.mSupport.contains(T2::SAFE_LISTENING_TWS_1) ||
+                state.mSupport.contains(T2::SAFE_LISTENING_TWS_2);
+        case MDR_FEATURE_SOURCE_SWITCH_CONTROL: return state.mSupport.contains(T2::SOURCE_SWITCH_CONTROL);
+        default: return false;
+        }
+    }
+
     bool ValidBoolean(MDRBoolean value)
     {
         return value == MDR_FALSE || value == MDR_TRUE;

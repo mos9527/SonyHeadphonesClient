@@ -92,7 +92,7 @@ namespace mdr
             SendCommandACK(t1::CommonGetStatus, { .type = t1::CommonInquiredType::AUDIO_CODEC });
 
         /* Playback Metadata, Volume, Play/Pause */
-        if (SupportsFeature(state, MDR_FEATURE_PLAYBACK_METADATA))
+        if (state.mSupport.containsPlaybackController())
         {
             SendCommandACK(t1::GetPlayParam,
                            { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
@@ -181,7 +181,7 @@ namespace mdr
         }
 
         /* Equalizer */
-        if (SupportsFeature(state, MDR_FEATURE_EQUALIZER))
+        if (state.mSupport.containsEqualizer())
         {
             t1::EqEbbInquiredType eqType{};
             if (EqPresetInquiredType(state, eqType))
@@ -229,11 +229,11 @@ namespace mdr
         }
 
         /* Pause when headphones are removed */
-        if (SupportsFeature(state, MDR_FEATURE_AUTO_PAUSE))
+        if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
 
         /* Voice Guidance */
-        if (SupportsFeature(state, MDR_FEATURE_VOICE_GUIDANCE))
+        if (state.mSupport.containsVoiceGuidance())
         {
             /* Enabled */
             SendCommandACK(t2::VoiceGuidanceGetParam,
@@ -243,7 +243,7 @@ namespace mdr
                            });
 
             /* Volume */
-            if (SupportsFeature(state, MDR_FEATURE_VOICE_GUIDANCE_VOLUME))
+            if (state.mSupport.containsVoiceGuidanceVolume())
                 SendCommandACK(t2::VoiceGuidanceGetParam, {.inquiredType = t2::VoiceGuidanceInquiredType::VOLUME});
         }
 
@@ -314,7 +314,7 @@ namespace mdr
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
         /* Playback metadata. Track changes are not always notified. */
-        if (SupportsFeature(state, MDR_FEATURE_PLAYBACK_METADATA))
+        if (state.mSupport.containsPlaybackController())
         {
             SendCommandACK(t1::GetPlayParam,
                            { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
@@ -693,7 +693,7 @@ namespace mdr
                     state.mSoundLeakageReductionEnabled.desired);
 
             // Listening modes disable EQ and DSEE; re-read both rather than relying on notifications.
-            if (SupportsFeature(state, MDR_FEATURE_EQUALIZER))
+            if (state.mSupport.containsEqualizer())
                 SendCommandACK(EqEbbGetStatus, {.type = EqEbbInquiredType::PRESET_EQ});
             if (state.mSupport.contains(FunctionType::UPSCALING_AUTO_OFF))
                 SendCommandACK(AudioGetStatus, {.type = AudioInquiredType::UPSCALING});
