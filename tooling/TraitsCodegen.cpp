@@ -5,6 +5,8 @@
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 std::map<std::string, std::string> gNamespaceToDataTypeMapping = {
+    {"mdr::v1::t1", "MDRDataType::DATA_MDR"},
+    {"mdr::v1::t2", "MDRDataType::DATA_MDR_NO2"},
     {"mdr::v2::t1", "MDRDataType::DATA_MDR"},
     {"mdr::v2::t2", "MDRDataType::DATA_MDR_NO2"}
 };
@@ -58,6 +60,7 @@ int main( int argc, char** argv )
     println("namespace mdr {{");
     clang_visitChildren(cursor, structVisitor, nullptr);
     println("}}");
+    std::fflush(stdout);
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);

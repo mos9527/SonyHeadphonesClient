@@ -124,8 +124,10 @@ namespace mdr
             return MDRUnpackResult::BAD_CHECKSUM;
         // Data...
         data = data.subspan(0, data.size() - 1);
+        // There's practically no way for this to happen unless the packet is manually constructed.
+        // See also https://github.com/mos9527/SonyHeadphonesClient/pull/58
         if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
-            return MDRUnpackResult::INCOMPLETE;
+            return MDRUnpackResult::BAD_OTHER;
         outData.resize(data.size());
         std::ranges::copy(data, outData.begin());
         return MDRUnpackResult::OK;

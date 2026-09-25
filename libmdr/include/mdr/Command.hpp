@@ -32,6 +32,7 @@ namespace mdr
         INCOMPLETE = 1,
         BAD_MARKER = 2,
         BAD_CHECKSUM = 3,
+        BAD_OTHER = 4
     };
 
     /**

@@ -139,6 +139,7 @@ int main(int argc, char** argv)
     doVisit(cursor, enumNameIn, enumNameVisit, enumNameOut);
     doVisit(cursor, enumRangeIn, enumRangeVisit, enumRangeOut);
     println("}}");
+    std::fflush(stdout);
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);

@@ -1,4 +1,7 @@
 docs
 ===
 
-Documents. It's what the folder name says.
+- [Contributing](../.github/CONTRIBUTING.md)
+- [Contributing to Tests](../tests/README.md)
+- [Device Support matrix](device-support/)
+

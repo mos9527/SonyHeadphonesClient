@@ -1,19 +1,21 @@
 #pragma once
+#include <cstddef>
 #include <mdr-c/Connection.h>
 
 extern "C" {
     /**
-     * @brief Initializes platform MDRConnection* backend
-     * @param flags Bit flags combinations of @ref MDR_INIT.., e.g. @ref MDR_INIT_BT_BLE
-     * @return @ref MDR_RESULT_OK on success, or MDR_RESULT_ERROR_NOT_SUPPORTED if the requested configuration is not supported on this platform.
+     * @brief Select and initialize the platform Bluetooth backend.
+     *
+     * The client is responsible for picking the backend; libmdr-bt only exposes
+     * the per-platform entry points (e.g. mdrConnectionWindowsCreate /
+     * mdrConnectionWindowsBLECreate). This dispatches to the matching one.
+     * @param flags One or more MDR_INIT_* flags (e.g. MDR_INIT_BT_BLE).
+     * @return MDR_RESULT_OK on success, or an error code (e.g. NOT_SUPPORTED).
      */
     extern int clientPlatformConnectionInit(int flags);
-    /**
-     * @breif Get the current platform specific connection backend.
-     * @note
-     * @return
-     */
     extern MDRConnection* clientPlatformConnectionGet();
+    extern void clientPlatformConnectionDestroy();
+
     /**
      * @breif Locate platform-specific font binary data
      * @param outData Pointer to output font data. Must not be freed by caller.
@@ -21,9 +23,36 @@ extern "C" {
      */
     extern int clientPlatformLocateFontBinary(const char** outData);
     /**
-     * @brief Destroys the current, active underlying connection.
+     * @brief Whether a Bluetooth address belongs to one of this computer's own adapters.
+     * @param address Text form, "XX:XX:XX:XX:XX:XX", any case.
+     * @param outIsLocal Receives 1 or 0.
+     * @return MDR_RESULT_OK, or MDR_RESULT_ERROR_NOT_SUPPORTED where the platform cannot tell.
      */
-    extern void clientPlatformConnectionDestroy();
+    extern int clientPlatformIsLocalBluetoothAddress(const char* address, int* outIsLocal);
+    /**
+     * @brief Pause every media player on this computer that is currently playing.
+     * @return A record of what was paused, owned by the caller and handed back to
+     *         @ref clientPlatformMediaResume, or NULL when nothing was playing or the platform
+     *         has no media control.
+     */
+    struct ClientMediaPause;
+    extern struct ClientMediaPause* clientPlatformMediaPause();
+    /**
+     * @brief Resume the players in a @ref clientPlatformMediaPause record that are still paused,
+     *        and free the record. NULL is accepted and ignored.
+     */
+    extern void clientPlatformMediaResume(struct ClientMediaPause* pause);
+#ifdef __EMSCRIPTEN__
+    /**
+     * @brief Download bytes through the browser.
+     * @return Non-zero when the browser download was started.
+     */
+    extern int clientPlatformDownloadFile(
+        const char* filename,
+        const unsigned char* data,
+        size_t dataSize,
+        const char* mimeType);
+#endif
     /**
      * @brief Master clean up function.
      * This will destroy all connections, and ensures the client is quit without leaking resources.

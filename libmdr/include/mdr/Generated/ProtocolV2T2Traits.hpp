@@ -2,7 +2,7 @@
 #pragma once
 
 namespace mdr {
-    template<> struct MDRTraits<v2::t2::CommandBase> {
+    template<> struct MDRTraits<v2::t2::SupportFunction> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::ConnectGetSupportFunction> {
@@ -11,40 +11,217 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::ConnectRetSupportFunction> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralGetStatus> {
+    template<> struct MDRTraits<v2::t2::LEAGetCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralBase> {
+    template<> struct MDRTraits<v2::t2::LEAGetParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralStatusPairingDeviceManagementCommon> {
+    template<> struct MDRTraits<v2::t2::LEAGetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEANotifyParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEANotifyParamLEAudioConnectionModeWithBTReconnection> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEANotifyStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEANotifyStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEANotifyStatusCommonUnavailableReason> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEANotifyStatusPasSupportsA2dpLeaUniLeaBroad> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetCapabilityLEAudioConnectionModeWithBTReconnection> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetCapabilityLEAudioSwitchSupportedCompatibility> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetCapabilityPasSupportsA2dpLeaUniLeaBroad> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetParamGetIdentityResolvingKey> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetParamLEAudioConnectionModeWithBTReconnection> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetParamPasSupportsA2dpLeaUniLeaBroad> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetStatusCommonUnavailableReason> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetStatusLEAudioConnectionModeWithBTReconnection> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEARetStatusPasSupportsA2dpLeaUniLeaBroad> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEASetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEASetParamLEAudioConnectionModeWithBTReconnection> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::LEASetParamLeAudioConnectionStateNotification> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyGetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyGetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyGetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyIlluminationInfo> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyParamDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyParamIllumination> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyParamKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyParamLiveKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyStatusDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyStatusDjControlWithStatusDisableReason> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyStatusKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyNotifyStatusKaraokeWithStatusDisableReason> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetCapabilityDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetCapabilityKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetParamDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetParamIllumination> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetParamKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetParamLiveKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetStatusDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetStatusDjControlWithStatusDisableReason> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetStatusKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetStatusKaraokeWithStatusDisableReason> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetExtParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetExtParamDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetExtParamIllumination> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetExtParamKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetParamDjControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetParamIllumination> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetParamKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetParamLiveKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartySetStatusKaraoke> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::Payload> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::PeripheralDeviceInfo> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralDeviceInfoWithBluetoothClassOfDevice> {
+    template<> struct MDRTraits<v2::t2::PeripheralDeviceInfoWithoutBluetoothClassOfDevice> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralGetCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::PeripheralGetParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralParamPairingDeviceManagementClassicBt> {
+    template<> struct MDRTraits<v2::t2::PeripheralGetStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::PeripheralParamSourceSwitchControl> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::PeripheralParamPairingDeviceManagementWithBluetoothClassOfDevice> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::PeripheralParamMusicHandOverSetting> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::PeripheralSetExtendedParamParingDeviceManagementCommon> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::PeripheralSetExtendedParamSourceSwitchControl> {
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyExtendedParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::PeripheralNotifyExtendedParamParingDeviceManagementCommon> {
@@ -53,31 +230,133 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::PeripheralNotifyExtendedParamSourceSwitchControl> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetParam> {
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceBase> {
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyParamMusicHandOverSetting> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceParamSettingMtk> {
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyParamSourceSwitchControl> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceParamSettingSupportLangSwitch> {
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceParamVolume> {
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyStatusParingDeviceManagementCommon> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceParamSettingOnOff> {
+    template<> struct MDRTraits<v2::t2::PeripheralRetCapability> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetParamVolume> {
+    template<> struct MDRTraits<v2::t2::PeripheralRetCapabilityParingDeviceManagementCommon> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningGetCapability> {
+    template<> struct MDRTraits<v2::t2::PeripheralRetParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetCapability> {
+    template<> struct MDRTraits<v2::t2::PeripheralRetParamMusicHandOverSetting> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralRetParamSourceSwitchControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralRetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralRetStatusPairingDeviceManagementCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetExtendedParamParingDeviceManagementCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetExtendedParamSourceSwitchControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetParamMusicHandOverSetting> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetParamSourceSwitchControl> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralSetStatusParingDeviceManagementCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerGetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerGetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerGetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyParamSettingOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyParamUsbSubmersion> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyStatusCaringChargeWithThreshold> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerNotifyStatusUsbSubmersion> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetCapabilityAutoStandby> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetCapabilityCaringChargeWithThreshold> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetCapabilityUsbSubmersion> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetParamSettingOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetStatusCaringChargeWithThreshold> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerRetStatusUsbSubmersion> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerSetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PowerSetParamSettingOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::RepeatTapKey> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::SafeListeningData> {
@@ -89,55 +368,505 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::SafeListeningData2> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningStatus> {
+    template<> struct MDRTraits<v2::t2::SafeListeningGetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningGetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningGetParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::SafeListeningGetStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningBase> {
+    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusSL> {
+    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParamMaxVolLvLimit> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusHbs> {
+    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParamSL> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusHbs1> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusHbs2> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusTws> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusTws1> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusTws2> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetStatus> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusSL> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusHbs> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusTws> {
-        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
-    };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusSVC> {
+    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParamSVC> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatus> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
+    template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatusMaxVolLvLimit> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
     template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatusSL> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatusSVC> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetCapabilityMaxVolLvLimit> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetCapabilitySL> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetParamMaxVolLvLimit> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetParamSL> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusMaxVolLvLimit> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusSL> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetParamMaxVolLvLimit> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetParamSL> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetParamSVC> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusMaxVolLvLimit> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusSL> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusSVC> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SafeListeningStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetCapabilityCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetCapabilitySVACommand> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetExtendedParamCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetExtendedParamUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemGetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyExtendedParamUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyExtendedParamUsbBrowserForDirectoryStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyExtendedParamUsbBrowserForFileStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamAutoVolumeWithLimitation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamFunctionChange> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamLightingDefaultColorColorType> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamLightingDefaultColorCustomColor> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamLightingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamLinkAutoSwitchForHeadsets> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamLinkAutoSwitchForSpeaker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamMicOnOffByHeadphoneOperation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamQuickAccessEasySetting> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamRepeatTapTrainingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamSVACommand> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamUsbBrowserWithIndex> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamUsbBrowserWithoutIndex> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyStatusLinkAutoSwitchForSpeaker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyStatusRepeatTapTrainingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemNotifyStatusWearingStatusChecker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityFunctionChange> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityLightingDefaultColorColorType> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityLightingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityLinkAutoSwitchForSpeaker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityMicOnOffByHeadphoneOperation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilitySVACommand> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilitySVASettingMtkTransferSupportLanguageSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityVoiceAssistantWithSpecificLinkSupport> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityWearingDeviceInformation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch_ServiceInformation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParamUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParamUsbBrowserForDirectoryStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParamUsbBrowserForFileStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParamUsbBrowserForSize> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamAutoVolumeWithLimitation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamFunctionChange> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamLightingDefaultColorColorType> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamLightingDefaultColorCustomColor> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamLightingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamLinkAutoSwitchForHeadsets> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamLinkAutoSwitchForSpeaker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamMicOnOffByHeadphoneOperation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetParamSVASettingMtkTransferSupportLanguageSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetStatusLinkAutoSwitchForSpeaker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetStatusRepeatTapTrainingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemRetStatusWearingStatusChecker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetExtendedParamUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamFunctionChange> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamLightingDefaultColorColorType> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamLightingDefaultColorCustomColor> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamLightingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamLinkAutoSwitchForHeadsets> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamLinkAutoSwitchForSpeaker> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamMicOnOffByHeadphoneOperation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamQuickAccessEasySetting> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamSVACommand> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamUsbBrowser> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamUsbBrowserWithIndex> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamUsbBrowserWithoutIndex> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetParamWearingPositionJudgmentBySensor> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetStatusRepeatTapTrainingMode> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::SystemSetStatusSVASettingMtkSupportLanguageSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::UsbItemDirectoryInfo> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::UsbItemFileInfo> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceGetStatusCommonWithStatusType> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyParamSettingMtk> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyParamSettingOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyParamSettingSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyParamVolume> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyStatusSettingMtkNotSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyStatusSettingMtkSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceNotifyStatusSettingSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetCapability> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetCapabilitySettingMtk> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetCapabilitySettingSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetExtendedParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch_ServiceInformation> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetParamSettingMtk> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetParamSettingOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetParamVolume> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetStatusCommon> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetStatusSettingMtkNotSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetStatusSettingMtkSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetStatusSettingSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetParam> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetParamSettingMtk> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetParamSettingOnOff> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetParamSettingSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetParamVolume> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetStatus> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetStatusSettingMtkNotSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceSetStatusSettingMtkSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::WearingPositionAccelerometerData> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::WearingPositionJudgmentBySensorResultSet> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PartyRetCapabilityIllumination> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyParamPairingDeviceManagementClassicBt> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralNotifyParamPairingDeviceManagementWithBluetoothClassOfDevice> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralRetParamPairingDeviceManagementClassicBt> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::PeripheralRetParamPairingDeviceManagementWithBluetoothClassOfDevice> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
     template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatusHbs> {
@@ -158,37 +887,40 @@ namespace mdr {
     template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatusTws2> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningNotifyStatusSVC> {
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusHbs> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningGetParam> {
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusHbs1> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetParam> {
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusHbs2> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetParam> {
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusTws> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetParamSL> {
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusTws1> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningSetParamSVC> {
+    template<> struct MDRTraits<v2::t2::SafeListeningRetStatusTws2> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParam> {
+    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusHbs> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParamSL> {
+    template<> struct MDRTraits<v2::t2::SafeListeningSetStatusTws> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningNotifyParamSVC> {
+    template<> struct MDRTraits<v2::t2::SystemNotifyParamWearingPositionJudgmentBySensor> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningGetExtendedParam> {
+    template<> struct MDRTraits<v2::t2::SystemRetCapabilityRepeatTapTrainingMode> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
-    template<> struct MDRTraits<v2::t2::SafeListeningRetExtendedParam> {
+    template<> struct MDRTraits<v2::t2::SystemRetExtendedParamSVASettingMtkTransferSupportLangSwitch> {
+        static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
+    };
+    template<> struct MDRTraits<v2::t2::VoiceGuidanceRetExtendedParamSettingMtkSupportLangSwitch> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR_NO2;
     };
 }
