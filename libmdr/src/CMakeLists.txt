@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 
-set(_INC "${CMAKE_SOURCE_DIR}/libmdr/include/mdr")
+set(_INC "${CMAKE_CURRENT_SOURCE_DIR}/../include/mdr")
 set(_GEN_INC "${_INC}/Generated")
 set(_GEN_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Generated")
 

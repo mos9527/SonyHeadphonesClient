@@ -82,9 +82,12 @@ typedef uint32_t MDREvent;
 #define MDR_EVENT_ALERT ((MDREvent)19u)
 #define MDR_EVENT_INTERACTION ((MDREvent)20u)
 #define MDR_EVENT_DEVICE_MESSAGE ((MDREvent)21u)
-// Rarely do you need this. This currently applies to V1 protocol where e.x. playback metadata (MDR_EVENT_PLAYBACK_CHANGED)
-// is only sent after a @ref mdrHeadphonesRequestSync.
-// The change events are sent by device as stub payloads w/o actual info. Xref to here to see what's going to use it.
+/**
+ * The device reported that state changed without including its new value. Once
+ * @ref mdrHeadphonesIsReady returns true, call @ref mdrHeadphonesRequestSync
+ * 
+ * @ref MDR_EVENT_SYNC_COMPLETE is emitted from @ref mdrHeadphonesPoll after the sync is complete.
+ */
 #define MDR_EVENT_NEED_SYNC ((MDREvent)22u)
 #define MDR_EVENT_UNHANDLED ((MDREvent)23u)
 #define MDR_EVENT_WEARING_STATUS_CHANGED ((MDREvent)24u)
@@ -466,9 +469,9 @@ MDR_API void mdrHeadphonesDestroy(MDRHeadphones* headphones);
  */
 MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
 /**
- * @brief Returns true if new ...Request calls can be made.
- *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request calls will
- *        fail with @ref MDR_RESULT_INPROGRESS.
+ * @brief Returns true if new ...Request and state-changing ...Set calls can be made.
+ *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request, ...Set,
+ *        and @ref mdrHeadphonesPlayback calls will fail with @ref MDR_RESULT_INPROGRESS.
  */
 MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
 /**
@@ -484,6 +487,8 @@ MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones);
 /**
  * @brief Request pulling latest states from the device. This includes e.g. battery levels and some other states that
  * may change without being notified by the headphones themselves.
+ * @note  Call this after @ref MDR_EVENT_NEED_SYNC once @ref mdrHeadphonesIsReady returns true. Continue polling until
+ *        @ref MDR_EVENT_SYNC_COMPLETE; this function only schedules the non-blocking synchronization task.
  */
 MDR_API MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones);
 /**

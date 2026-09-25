@@ -88,8 +88,13 @@ then build from there and serve the static content within `<build directory>/cli
 ### Linux
 On Linux, you may not see player metadata (track title, artist, etc.) despite correct output from `playerctl metadata` command
 while your device having proper AVRCP support (e.g. works on other platforms).
+
+This mostly occurs with multipoint setups, and is mostly an implementation problem.
 - You (or your distro) may have misconfigured [MPRIS](https://wiki.archlinux.org/title/MPRIS) service. One way to remedy
   is to manually run `mpris-proxy` (available in `bluez-tools`/`bluez-utils` package) in the background, or as a systemd service.
 - See also
   - https://wiki.archlinux.org/title/MPRIS
-  - https://github.com/bluez/bluez/issues/868 
+  - https://github.com/bluez/bluez/issues/868
+  - [#65](https://github.com/mos9527/SonyHeadphonesClient/pull/65) 
+- Alternatively, the Linux Client App can be used as a fallback. This is introduced in [#63](https://github.com/mos9527/SonyHeadphonesClient/pull/63), where the wearing status of the device is used to control host player status and thus bypassing AVRCP controls. 
+- This is by-default disabled. You can enable this via `--pause-media-on-remove` flag when launch the Client App. Thanks @phedoreanu for the implementation!

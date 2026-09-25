@@ -33,7 +33,7 @@ add_library(mdr::bt ALIAS mdr-bt)
 
 target_include_directories(mdr-bt
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/libmdr-bt/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -48,7 +48,7 @@ add_library(mdr::bt_shared ALIAS mdr-bt_shared)
 
 target_include_directories(mdr-bt_shared
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/libmdr-bt/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

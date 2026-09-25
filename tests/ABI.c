@@ -1704,7 +1704,7 @@ static void test_v2_bootstrap(void)
     session_close(&session);
 }
 
-static void test_newer_staging_survives_apply(void)
+static void test_staging_is_rejected_during_apply(void)
 {
     Session session;
     MDRPlayback first;
@@ -1738,8 +1738,8 @@ static void test_newer_staging_survives_apply(void)
     newer.volume = 20;
     check_result(
         mdrHeadphonesSetPlayback(session.headphones, &newer),
-        MDR_RESULT_OK,
-        "newer playback value stages during apply"
+        MDR_RESULT_INPROGRESS,
+        "a playback value is rejected during apply"
     );
 
     poll_event(session.headphones, &ack_event, "apply request flushes");
@@ -1763,8 +1763,8 @@ static void test_newer_staging_survives_apply(void)
 
     check(
         mdrHeadphonesIsReady(session.headphones) == MDR_TRUE
-            && mdrHeadphonesIsDirty(session.headphones) == MDR_TRUE,
-        "newer value remains pending after apply completes"
+            && mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
+        "rejected value does not remain pending after apply completes"
     );
     session_close(&session);
 }
@@ -2198,7 +2198,7 @@ int main(void)
     test_listening_mode_rereads_what_it_takes_away();
     test_transmit_sequence_ignores_inbound_frames();
     test_v2_bootstrap();
-    test_newer_staging_survives_apply();
+    test_staging_is_rejected_during_apply();
     test_connection_mode_names_its_inquired_type();
     test_v1_voice_guidance_detail_is_not_the_switch();
     test_v1_sync_asks_for_the_track_names();

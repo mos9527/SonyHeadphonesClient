@@ -695,11 +695,6 @@ namespace mdr
                     SendCommandACK(AudioSetParamSoundLeakageReduction, res);
                 }
             }
-            MDR_LOG("S/W LSN BGM {} ROOM {} UPMIX {} VOICE {} LEAK {}",
-                    state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired,
-                    state.mUpmixCinemaEnabled.desired, state.mVoiceContentsEnabled.desired,
-                    state.mSoundLeakageReductionEnabled.desired);
-
             // Listening modes disable EQ and DSEE; re-read both rather than relying on notifications.
             if (state.mSupport.containsEqualizer())
                 SendCommandACK(EqEbbGetStatus, {.type = EqEbbInquiredType::PRESET_EQ});

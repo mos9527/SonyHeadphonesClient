@@ -480,6 +480,9 @@ struct ClientState
     bool mPendingSync;
 } gState;
 
+static bool gAlertPending{};
+static mdr::String gAlertMessage;
+
 void RefreshPlaybackState()
 {
     MDRPlayback playback{};
@@ -576,12 +579,18 @@ void OnWearingStatusChanged()
 void CloseDevice()
 {
     if (!gDevice)
+    {
+        gAlertPending = false;
+        gAlertMessage.clear();
         return;
+    }
     gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
     clientPacketObserverDetach();
     mdrHeadphonesDestroy(gDevice);
     gDevice = nullptr;
     gState = {};
+    gAlertPending = false;
+    gAlertMessage.clear();
 }
 
 #pragma region ImGui Extra
@@ -1090,6 +1099,50 @@ void DisconnectWithModal(const char* manualError = nullptr)
     mdrConnectionDisconnect(conn);
 }
 
+void DrawDeviceAlert()
+{
+    if (!gAlertPending)
+        return;
+
+    ImSetNextWindowCentered();
+    ImGui::OpenPopup("Headphones confirmation");
+    if (!ImGui::BeginPopupModal("Headphones confirmation", nullptr, kImWindowFlagsTopMost))
+        return;
+
+    ImGui::TextWrapped("The headphones require confirmation before applying this change. "
+                       "They may temporarily disconnect and reconnect.");
+    if (!gAlertMessage.empty())
+        ImGui::Text("Message ID: %s", gAlertMessage.c_str());
+    ImGui::NewLine();
+
+    ImGui::BeginDisabled(!mdrHeadphonesIsReady(gDevice));
+    MDRAlertAction response{};
+    bool answered = false;
+    if (ImModalButton(PSI_REMOVE " Cancel", 0, 2))
+        response = MDR_ALERT_ACTION_NEGATIVE, answered = true;
+    if (ImModalButton(PSI_OK " Continue", 1, 2))
+        response = MDR_ALERT_ACTION_POSITIVE, answered = true;
+    ImGui::EndDisabled();
+
+    if (answered)
+    {
+        const MDRResult result = mdrHeadphonesRequestRespondToAlert(gDevice, response);
+        if (result == MDR_RESULT_OK)
+        {
+            gAlertPending = false;
+            gAlertMessage.clear();
+            ImGui::CloseCurrentPopup();
+        }
+        else if (result != MDR_RESULT_INPROGRESS)
+        {
+            ImGui::EndPopup();
+            DisconnectWithModal();
+            return;
+        }
+    }
+    ImGui::EndPopup();
+}
+
 void DrawDeviceConnecting()
 {
     assert(connState == CONN_STATE_CONNECTING);
@@ -1193,6 +1246,7 @@ void DrawDeviceControlsHeader()
             }
             if (FeatureAvailable(MDR_FEATURE_SHUTDOWN))
             {
+                ImGui::BeginDisabled(!mdrHeadphonesIsReady(gDevice));
                 if (ImGui::MenuItem(PSI_OFF " Shutdown"))
                 {
                     MDRPower power{};
@@ -1202,6 +1256,7 @@ void DrawDeviceControlsHeader()
                         mdrHeadphonesSetPower(gDevice, &power);
                     }
                 }
+                ImGui::EndDisabled();
             }
 #ifdef MDR_CLIENT_DEBUGGER
             ImGui::Separator();
@@ -2100,6 +2155,10 @@ void DrawDeviceControls()
     case MDR_EVENT_APPLY_COMPLETE:
         RefreshPlaybackState();
         break;
+    case MDR_EVENT_ALERT:
+        gAlertMessage = GetText(MDR_TEXT_LAST_ALERT);
+        gAlertPending = true;
+        break;
     case MDR_EVENT_NEED_SYNC:
         gState.mPendingSync = true;
         break;
@@ -2108,9 +2167,14 @@ void DrawDeviceControls()
     DrawDeviceControlsHeader();
     if (!gDevice)
         return;
+    DrawDeviceAlert();
+    if (!gDevice)
+        return;
     ImGui::Separator();
     ImGui::BeginChild("##ControlTabs");
+    ImGui::BeginDisabled(!mdrHeadphonesIsReady(gDevice));
     DrawDeviceControlsTabs();
+    ImGui::EndDisabled();
     ImScrollWhenDraggingAnywhere(ImGui::GetIO().MouseDelta, ImGuiMouseButton_Left);
     ImGui::EndChild();
 

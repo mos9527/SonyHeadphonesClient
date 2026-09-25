@@ -1584,6 +1584,8 @@ MDRResult mdrHeadphonesSetPlayback(MDRHeadphones* headphones, const MDRPlayback*
         playback->status > MDR_PLAYBACK_PAUSED)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
         const auto currentStatus = from_protocol(state.mPlayPause);
@@ -1599,6 +1601,8 @@ MDRResult mdrHeadphonesPlayback(MDRHeadphones* headphones, const MDRPlaybackComm
     if (!headphones || !command)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
         auto value = state.mPlayControl.desired;
@@ -1651,6 +1655,8 @@ MDRResult mdrHeadphonesSetNoiseControl(
         !ValidBoolean(noiseControl->focus_on_voice) || !ValidBoolean(noiseControl->adaptive_ambient))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
         if (noiseControl->ambient_level != 0xFF && noiseControl->ambient_level > 20)
@@ -1710,6 +1716,8 @@ MDRResult mdrHeadphonesSetSpeakToChat(
     if (!headphones || !speakToChat || !ValidBoolean(speakToChat->enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!WithDetails(h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_SPEAK_TO_CHAT); }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     return WithDetails(h, [&](auto& state) -> MDRResult
@@ -1758,6 +1766,8 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
     if (!headphones || !listening || listening->mode > MDR_LISTENING_SOUND_LEAKAGE_REDUCTION)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily != Headphones::ProtocolFamily::V2)
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto& state = h->mDetailsV2;
@@ -1812,6 +1822,8 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
         (equalizer->band_count != 0 && equalizer->band_count != 5 && equalizer->band_count != 10))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
     auto preset = state.mEqPresetId.desired;
@@ -1877,6 +1889,8 @@ MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, const int8_t
         values.push_back(bands[i]);
     }
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
         state.mEqConfig.stage(values);
@@ -1965,6 +1979,8 @@ MDRResult mdrHeadphonesSetPairedDevice(
     if (validation != MDR_RESULT_OK)
         return validation;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!SupportsPairing(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
@@ -1999,6 +2015,8 @@ MDRResult mdrHeadphonesSetPairing(MDRHeadphones* headphones, const MDRPairing* p
     if (!headphones || !pairing || !ValidBoolean(pairing->enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!SupportsPairing(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     return WithDetails(*h, [&](auto& state) -> MDRResult
@@ -2024,6 +2042,8 @@ MDRResult mdrHeadphonesSetSourceSwitchControl(MDRHeadphones* headphones, MDRBool
     if (!headphones || !ValidBoolean(enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily != Headphones::ProtocolFamily::V2 ||
         !SupportsFeature(h->mDetailsV2, MDR_FEATURE_SOURCE_SWITCH_CONTROL))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
@@ -2130,6 +2150,8 @@ MDRResult mdrHeadphonesSetGeneralSetting(
     if (!headphones || !setting || !ValidBoolean(setting->boolean_value))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!SupportsGeneralSetting(h, setting->index)) // This also checks index
         return MDR_RESULT_ERROR_NOT_FOUND;
     return WithDetails(h, [&](auto& state) -> MDRResult
@@ -2230,6 +2252,8 @@ MDRResult mdrHeadphonesSetAssignableControls(
     if (!headphones || !controls || count == 0)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!h.IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!WithDetails(h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_ASSIGNABLE_CONTROLS); }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     // TODO(@amrsatrio): v1 only for now, please work on V2
@@ -2293,6 +2317,8 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         !ValidBoolean(power->head_gesture) || !ValidBoolean(power->shutdown_requested))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
         auto value = h->mDetailsV1.mPowerAutoOff.desired;
@@ -2351,6 +2377,8 @@ MDRResult mdrHeadphonesSetVoiceGuidance(
         !ValidBoolean(voiceGuidance->enabled) || voiceGuidance->volume < -2 || voiceGuidance->volume > 2)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!SupportsVoiceGuidance(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     return WithDetails(*h, [&](auto& state) -> MDRResult
@@ -2391,6 +2419,8 @@ MDRResult mdrHeadphonesSetConnectionMode(
     if (!headphones || !mode)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (!WithDetails(*h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_CONNECTION_MODE); }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
@@ -2444,6 +2474,8 @@ MDRResult mdrHeadphonesSetSafeListening(
     if (!headphones || !safeListening || !ValidBoolean(safeListening->preview))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily != Headphones::ProtocolFamily::V2 || !SupportsSafeListening(*h))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto& state = h->mDetailsV2;
