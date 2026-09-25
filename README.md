@@ -93,3 +93,10 @@ while your device having proper AVRCP support (e.g. works on other platforms).
 - See also
   - https://wiki.archlinux.org/title/MPRIS
   - https://github.com/bluez/bluez/issues/868 
+
+With a multipoint headset (two devices connected at once, say a phone and this computer) the headset's
+own play/pause key and its wear-sensor pause may never reach Linux: BlueZ registers no AVRCP player by
+default, so the headset sends those keys to the other device, even while this computer is the one
+streaming. Seen on the WH-1000XM6 with a phone connected: `btmon` shows nothing inbound on the headset
+link and no media key appears. The same `mpris-proxy` fixes this, since it registers a player with BlueZ;
+`systemctl --user enable --now mpris-proxy` keeps it running across logins.
