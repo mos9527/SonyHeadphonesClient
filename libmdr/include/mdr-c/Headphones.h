@@ -56,6 +56,8 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_LISTENING_CINEMA ((MDRFeature)31u)
 #define MDR_FEATURE_LISTENING_VOICE_BOOST ((MDRFeature)32u)
 #define MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRFeature)33u)
+#define MDR_FEATURE_WEARING_STATUS ((MDRFeature)34u)
+#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_WEARING_STATUS
 
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
@@ -85,6 +87,7 @@ typedef uint32_t MDREvent;
 // The change events are sent by device as stub payloads w/o actual info. Xref to here to see what's going to use it.
 #define MDR_EVENT_NEED_SYNC ((MDREvent)22u)
 #define MDR_EVENT_UNHANDLED ((MDREvent)23u)
+#define MDR_EVENT_WEARING_STATUS_CHANGED ((MDREvent)24u)
 
 typedef uint32_t MDRPacketDirection;
 #define MDR_PACKET_DIRECTION_RX ((MDRPacketDirection)0u)
@@ -268,6 +271,14 @@ typedef uint32_t MDRWearingPowerMode;
 #define MDR_WEARING_POWER_UNAVAILABLE ((MDRWearingPowerMode)0u)
 #define MDR_WEARING_POWER_DISABLED ((MDRWearingPowerMode)1u)
 #define MDR_WEARING_POWER_WHEN_REMOVED ((MDRWearingPowerMode)2u)
+
+/* Live proximity sensor reading (V2 table 2 WEARING_STATUS_CHECKER). */
+typedef uint32_t MDRWearingStatus;
+#define MDR_WEARING_STATUS_UNKNOWN ((MDRWearingStatus)0u)
+#define MDR_WEARING_STATUS_WORN ((MDRWearingStatus)1u)
+#define MDR_WEARING_STATUS_LEFT_REMOVED ((MDRWearingStatus)2u)
+#define MDR_WEARING_STATUS_RIGHT_REMOVED ((MDRWearingStatus)3u)
+#define MDR_WEARING_STATUS_REMOVED ((MDRWearingStatus)4u)
 
 typedef uint32_t MDRAudioPriority;
 #define MDR_AUDIO_PRIORITY_UNKNOWN ((MDRAudioPriority)0u)
@@ -591,6 +602,11 @@ MDR_API MDRResult mdrHeadphonesGetConnectionMode(MDRHeadphones* headphones, MDRC
 MDR_API MDRResult mdrHeadphonesSetConnectionMode(MDRHeadphones* headphones, const MDRConnectionMode* mode);
 MDR_API MDRResult mdrHeadphonesGetSafeListening(MDRHeadphones* headphones, MDRSafeListening* out_safe_listening);
 MDR_API MDRResult mdrHeadphonesSetSafeListening(MDRHeadphones* headphones, const MDRSafeListening* safe_listening);
+/**
+ * @brief Whether the headphones are currently on the head, from the proximity sensor.
+ *        Updated on @ref MDR_EVENT_WEARING_STATUS_CHANGED. Requires @ref MDR_FEATURE_WEARING_STATUS.
+ */
+MDR_API MDRResult mdrHeadphonesGetWearingStatus(MDRHeadphones* headphones, MDRWearingStatus* out_status);
 
 #ifdef __cplusplus
 }

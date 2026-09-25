@@ -236,6 +236,36 @@ namespace mdr
         return MDR_EVENT_SAFE_LISTENING_CHANGED;
     }
 
+    int HandleSystemStatusT2(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        SystemInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        using enum SystemInquiredType;
+        switch (type)
+        {
+        case WEARING_STATUS_CHECKER:
+        {
+            const auto command = static_cast<Command>(cmd[0]);
+            WearingStatusCode status;
+            if (command == Command::SYSTEM_NTFY_STATUS)
+            {
+                Deserialize(SystemNotifyStatusWearingStatusChecker, res, cmd);
+                status = res.status;
+            }
+            else
+            {
+                Deserialize(SystemRetStatusWearingStatusChecker, res, cmd);
+                status = res.status;
+            }
+            self->mDetailsV2.mWearingStatus = status;
+            return MDR_EVENT_WEARING_STATUS_CHANGED;
+        }
+        default: break;
+        }
+        return MDR_EVENT_UNHANDLED;
+    }
+
     int MDRHeadphones::HandleCommandV2T2(Span<const UInt8> cmd, MDRCommandSeqNumber)
     {
         auto* self = this;
@@ -261,6 +291,9 @@ namespace mdr
             return HandleSafeListeningParamsT2(self, cmd);
         case SAFE_LISTENING_RET_EXTENDED_PARAM:
             return HandleSafeListeningExtendedParamT2(self, cmd);
+        case SYSTEM_RET_STATUS:
+        case SYSTEM_NTFY_STATUS:
+            return HandleSystemStatusT2(self, cmd);
         default:
             MDR_LOG_DEBUG("** Unhandled {}", command);
             break;

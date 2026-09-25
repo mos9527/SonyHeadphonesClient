@@ -232,6 +232,10 @@ namespace mdr
         if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
 
+        /* Wearing status (proximity sensor) */
+        if (state.wearingSensorPossible())
+            SendCommandACK(t2::SystemGetStatus, {.type = t2::SystemInquiredType::WEARING_STATUS_CHECKER});
+
         /* Voice Guidance */
         if (state.mSupport.containsVoiceGuidance())
         {
@@ -322,6 +326,10 @@ namespace mdr
             SendCommandACK(t1::GetPlayStatus,
                            { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
         }
+
+        /* Wearing status (proximity sensor) */
+        if (state.wearingSensorPossible())
+            SendCommandACK(t2::SystemGetStatus, {.type = t2::SystemInquiredType::WEARING_STATUS_CHECKER});
 
         co_return MDR_EVENT_SYNC_COMPLETE;
     }

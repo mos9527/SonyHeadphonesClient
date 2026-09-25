@@ -148,6 +148,22 @@ namespace mdr
         String mPlayTrackArtist;
         v2::t1::PlaybackStatus mPlayPause{};
 
+        // Proximity sensor. The device does not push WEARING_STATUS_CHECKER on its own; the
+        // operation log's unitRemove / unitWear entries raise MDR_EVENT_NEED_SYNC instead, and
+        // RequestSyncV2 re-reads it. OUT_OF_RANGE until the first reply.
+        v2::t2::WearingStatusCode mWearingStatus{v2::t2::WearingStatusCode::OUT_OF_RANGE};
+
+        // Whether the table 2 WEARING_STATUS_CHECKER is worth asking. The WH-1000XM6 (fw 27.02)
+        // answers it but never lists it in its table 2 support functions; it does list the
+        // table 1 pause-when-removed functions, which imply the sensor exists.
+        [[nodiscard]] bool wearingSensorPossible() const
+        {
+            return mProtocol.hasTable2 &&
+                (mSupport.contains(v2::t2::FunctionType::WEARING_STATUS_CHECKER) ||
+                 mSupport.contains(v2::t1::FunctionType::WEARING_STATUS_DETECTOR) ||
+                 mSupport.contains(v2::t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF));
+        }
+
         v2::t1::UpscalingType mUpscalingType{};
         bool mUpscalingAvailable{true};
 

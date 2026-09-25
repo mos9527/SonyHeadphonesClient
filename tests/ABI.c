@@ -34,6 +34,7 @@ MDR_ASSERT_U32(MDRPairedDeviceCommand);
 MDR_ASSERT_U32(MDRGeneralSettingType);
 MDR_ASSERT_U32(MDRAssignableAction);
 MDR_ASSERT_U32(MDRWearingPowerMode);
+MDR_ASSERT_U32(MDRWearingStatus);
 MDR_ASSERT_U32(MDRAudioPriority);
 #undef MDR_ASSERT_U32
 
@@ -2092,6 +2093,94 @@ static void test_v1_preset_and_curve_never_share_a_frame(void)
     session_close(&session);
 }
 
+/*
+ * The proximity sensor lives on table 2 as WEARING_STATUS_CHECKER, and a WH-1000XM6 answers
+ * it without ever advertising it: table 1 lists the pause-when-removed function, table 2
+ * lists nothing at all. It also never pushes the checker on its own - the transitions
+ * arrive as unitRemove / unitWear operation-log entries, and those are what have to send
+ * the reader back for the status.
+ */
+static void test_wearing_status(void)
+{
+    /* PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF only, and an empty table 2. */
+    static const unsigned char table1[] = {0x07, 0x00, 0x01, 0xf1, 0x00};
+    static const unsigned char table2[] = {0x07, 0x00, 0x00};
+    /* SYSTEM_RET_STATUS, WEARING_STATUS_CHECKER, BOTH_NOT_WEAR */
+    static const unsigned char ret_removed[] = {0xf3, 0x00, 0x04};
+    /* SYSTEM_NTFY_STATUS, WEARING_STATUS_CHECKER, NORMAL */
+    static const unsigned char ntfy_worn[] = {0xf5, 0x00, 0x00};
+    /* LOG_NTFY_PARAM, TIME_SERIES_OPERATIONLOG_NOTIFIER, "unitRemove" and no value. */
+    static const unsigned char log_remove[] = {
+        0xc9, 0x01, 0x0a, 'u', 'n', 'i', 't', 'R', 'e', 'm', 'o', 'v', 'e', 0x00, 0x00
+    };
+
+    Session session;
+    Device device;
+    MDRWearingStatus status;
+    MDRFeatureAvailability available = MDR_AVAILABILITY_UNKNOWN;
+    size_t after_log;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+
+    device_run_init(&session, &device);
+    check(
+        device_requested(&device, 2, 0xf2, 0x00), /* SYSTEM_GET_STATUS, WEARING_STATUS_CHECKER */
+        "the checker is asked for where only pause-when-removed is advertised"
+    );
+    check_result(
+        mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_WEARING_STATUS, &available),
+        MDR_RESULT_OK,
+        "the wearing status feature id is within the accepted range"
+    );
+    check(
+        available == MDR_AVAILABILITY_UNAVAILABLE,
+        "an unadvertised checker counts as unavailable until it answers"
+    );
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, ret_removed, sizeof(ret_removed));
+    device_run(&session, &device, MDR_EVENT_WEARING_STATUS_CHANGED, "the checker reply polls");
+    status = MDR_WEARING_STATUS_UNKNOWN;
+    check_result(
+        mdrHeadphonesGetWearingStatus(session.headphones, &status),
+        MDR_RESULT_OK,
+        "the wearing status is readable"
+    );
+    check(status == MDR_WEARING_STATUS_REMOVED, "BOTH_NOT_WEAR reads as removed");
+    mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_WEARING_STATUS, &available);
+    check(
+        available == MDR_AVAILABILITY_AVAILABLE,
+        "a reply makes the wearing status available on a device that never advertised it"
+    );
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, ntfy_worn, sizeof(ntfy_worn));
+    device_run(&session, &device, MDR_EVENT_WEARING_STATUS_CHANGED, "the checker notification polls");
+    mdrHeadphonesGetWearingStatus(session.headphones, &status);
+    check(status == MDR_WEARING_STATUS_WORN, "NORMAL reads as worn");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, log_remove, sizeof(log_remove));
+    device_run(&session, &device, MDR_EVENT_NEED_SYNC, "a unitRemove log entry polls");
+
+    after_log = device.log_size;
+    check_result(
+        mdrHeadphonesRequestSync(session.headphones),
+        MDR_RESULT_OK,
+        "the sync a removal asks for starts"
+    );
+    device_run(&session, &device, MDR_EVENT_SYNC_COMPLETE, "the sync completes");
+    check(
+        device_requested_after(&device, 2, 0xf2, after_log), /* SYSTEM_GET_STATUS */
+        "a sync re-reads the wearing status"
+    );
+    session_close(&session);
+}
+
 int main(void)
 {
     test_abi_version_handshake();
@@ -2115,6 +2204,7 @@ int main(void)
     test_v1_sync_asks_for_the_track_names();
     test_v2_sync_asks_for_the_track_names();
     test_v1_preset_and_curve_never_share_a_frame();
+    test_wearing_status();
 
     if (g_failures != 0)
         fprintf(stderr, "%d test assertion(s) failed\n", g_failures);
