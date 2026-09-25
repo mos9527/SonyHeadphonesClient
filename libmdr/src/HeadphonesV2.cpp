@@ -91,16 +91,15 @@ namespace mdr
         if (state.mSupport.contains(t1::FunctionType::CODEC_INDICATOR))
             SendCommandACK(t1::CommonGetStatus, { .type = t1::CommonInquiredType::AUDIO_CODEC });
 
-        /* Playback Metadata */
-        SendCommandACK(t1::GetPlayParam,
-                       { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
-
-        /* Playback Volume */
-        SendCommandACK(t1::GetPlayParam, { .type = t1::PlayInquiredType::MUSIC_VOLUME });
-
-        /* Play/Pause */
-        SendCommandACK(t1::GetPlayStatus,
-                       { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+        /* Playback Metadata, Volume, Play/Pause */
+        if (state.mSupport.containsPlaybackController())
+        {
+            SendCommandACK(t1::GetPlayParam,
+                           { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+            SendCommandACK(t1::GetPlayParam, { .type = t1::PlayInquiredType::MUSIC_VOLUME });
+            SendCommandACK(t1::GetPlayStatus,
+                           { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+        }
 
         /* NC/AMB */
         if (state.mSupport.contains(
@@ -171,13 +170,28 @@ namespace mdr
         /* Listening Mode */
         if (state.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
         {
-            SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::BGM_MODE_AND_ERRORCODE});
-            SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPMIX_CINEMA});
+            if (state.mSupport.containsBGMMode())
+                SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::BGM_MODE_AND_ERRORCODE});
+            if (state.mSupport.contains(t1::FunctionType::UPMIX_CINEMA))
+                SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPMIX_CINEMA});
+            if (state.mSupport.contains(t1::FunctionType::VOICE_CONTENTS))
+                SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::VOICE_CONTENTS});
+            if (state.mSupport.contains(t1::FunctionType::SOUND_LEAKAGE_REDUCTION))
+                SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::SOUND_LEAKAGE_REDUCTION});
         }
 
         /* Equalizer */
-        SendCommandACK(t1::EqEbbGetStatus, {.type = t1::EqEbbInquiredType::PRESET_EQ});
-        SendCommandACK(t1::EqEbbGetParam);
+        if (state.mSupport.containsEqualizer())
+        {
+            t1::EqEbbInquiredType eqType{};
+            if (EqPresetInquiredType(state, eqType))
+                SendCommandACK(t1::EqEbbGetCapabilityLanguage, {
+                               .eqEbbInquiredType = eqType,
+                               .language = t1::DisplayLanguage::ENGLISH
+                               });
+            SendCommandACK(t1::EqEbbGetStatus, {.type = t1::EqEbbInquiredType::PRESET_EQ});
+            SendCommandACK(t1::EqEbbGetParam);
+        }
 
         /* Connection Quality */
         if (state.mSupport.contains(
@@ -215,10 +229,11 @@ namespace mdr
         }
 
         /* Pause when headphones are removed */
-        SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
+        if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+            SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
 
         /* Voice Guidance */
-        if (state.mProtocol.hasTable2)
+        if (state.mSupport.containsVoiceGuidance())
         {
             /* Enabled */
             SendCommandACK(t2::VoiceGuidanceGetParam,
@@ -228,7 +243,8 @@ namespace mdr
                            });
 
             /* Volume */
-            SendCommandACK(t2::VoiceGuidanceGetParam, {.inquiredType = t2::VoiceGuidanceInquiredType::VOLUME});
+            if (state.mSupport.containsVoiceGuidanceVolume())
+                SendCommandACK(t2::VoiceGuidanceGetParam, {.inquiredType = t2::VoiceGuidanceInquiredType::VOLUME});
         }
 
         /* LOG_SET_STATUS */
@@ -297,6 +313,16 @@ namespace mdr
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
+        /* Playback metadata. Track changes are not always notified. */
+        if (state.mSupport.containsPlaybackController())
+        {
+            SendCommandACK(t1::GetPlayParam,
+                           { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+            SendCommandACK(t1::GetPlayParam, { .type = t1::PlayInquiredType::MUSIC_VOLUME });
+            SendCommandACK(t1::GetPlayStatus,
+                           { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+        }
+
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
@@ -325,6 +351,8 @@ namespace mdr
         state.mBGMModeEnabled.submit();
         state.mBGMModeRoomSize.submit();
         state.mUpmixCinemaEnabled.submit();
+        state.mVoiceContentsEnabled.submit();
+        state.mSoundLeakageReductionEnabled.submit();
         state.mAutoPauseEnabled.submit();
         state.mTouchFunctionLeft.submit();
         state.mTouchFunctionRight.submit();
@@ -598,38 +626,77 @@ namespace mdr
             state.mSpeakToChatDetectSensitivity.commit(), state.mSpeakToModeOutTime.commit();
         }
 
-        /* Listening Mode */
-        if (state.mBGMModeEnabled.pending() || state.mBGMModeRoomSize.pending())
+        /* Listening Mode. Modes are exclusive, so deactivations are sent before activations. */
+        const bool bgmPending = state.mBGMModeEnabled.pending() || state.mBGMModeRoomSize.pending();
+        const bool cinemaPending = state.mUpmixCinemaEnabled.pending();
+        const bool voiceContentsPending = state.mVoiceContentsEnabled.pending();
+        const bool soundLeakageReductionPending = state.mSoundLeakageReductionEnabled.pending();
+        if (bgmPending || cinemaPending || voiceContentsPending || soundLeakageReductionPending)
         {
             using namespace t1;
-            if (state.mSupport.contains(FunctionType::LISTENING_OPTION))
-            {
-                AudioSetParamBGMMode res;
-                res.command = Command::AUDIO_SET_PARAM;
-                res.type = AudioInquiredType::BGM_MODE_AND_ERRORCODE;
-                res.onOffSettingValue = state.mBGMModeEnabled.submitted
-                    ? OnOffSettingValue::ON
-                    : OnOffSettingValue::OFF;
-                res.targetRoomSize = state.mBGMModeRoomSize.submitted;
-                SendCommandACK(AudioSetParamBGMMode, res);
-            }
-            state.mBGMModeEnabled.commit(), state.mBGMModeRoomSize.commit();
-            MDR_LOG("S/W BGM BGM {} ROOM {} UPMIX {}", state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired, state.mUpmixCinemaEnabled.desired);
-        }
-        if (state.mUpmixCinemaEnabled.pending())
-        {
-            using namespace t1;
-            if (state.mSupport.contains(FunctionType::LISTENING_OPTION))
-            {
-                AudioSetParamUpmixCinema res;
-                res.command = Command::AUDIO_SET_PARAM;
-                res.onOffSettingValue = state.mUpmixCinemaEnabled.submitted
-                    ? OnOffSettingValue::ON
-                    : OnOffSettingValue::OFF;
-                SendCommandACK(AudioSetParamUpmixCinema, res);
-            }
+            const bool grouped = state.mSupport.contains(FunctionType::LISTENING_OPTION);
+
+            // Committed before sending, or a read mid-switch sees every mode off (Standard).
+            if (bgmPending)
+                state.mBGMModeEnabled.commit(), state.mBGMModeRoomSize.commit();
             state.mUpmixCinemaEnabled.commit();
-            MDR_LOG("S/W CNE BGM {} ROOM {} UPMIX {}", state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired, state.mUpmixCinemaEnabled.desired);
+            state.mVoiceContentsEnabled.commit();
+            state.mSoundLeakageReductionEnabled.commit();
+
+            for (int activating = 0; activating < 2; ++activating)
+            {
+                if (bgmPending && state.mBGMModeEnabled.submitted == (activating != 0) &&
+                    grouped && state.mSupport.containsBGMMode())
+                {
+                    AudioSetParamBGMMode res;
+                    res.command = Command::AUDIO_SET_PARAM;
+                    res.type = AudioInquiredType::BGM_MODE_AND_ERRORCODE;
+                    res.onOffSettingValue = state.mBGMModeEnabled.submitted
+                        ? OnOffSettingValue::ON
+                        : OnOffSettingValue::OFF;
+                    res.targetRoomSize = state.mBGMModeRoomSize.submitted;
+                    SendCommandACK(AudioSetParamBGMMode, res);
+                }
+                if (cinemaPending && state.mUpmixCinemaEnabled.submitted == (activating != 0) &&
+                    grouped && state.mSupport.contains(FunctionType::UPMIX_CINEMA))
+                {
+                    AudioSetParamUpmixCinema res;
+                    res.command = Command::AUDIO_SET_PARAM;
+                    res.onOffSettingValue = state.mUpmixCinemaEnabled.submitted
+                        ? OnOffSettingValue::ON
+                        : OnOffSettingValue::OFF;
+                    SendCommandACK(AudioSetParamUpmixCinema, res);
+                }
+                if (voiceContentsPending && state.mVoiceContentsEnabled.submitted == (activating != 0) &&
+                    grouped && state.mSupport.contains(FunctionType::VOICE_CONTENTS))
+                {
+                    AudioSetParamVoiceContents res;
+                    res.onOffSettingValue = state.mVoiceContentsEnabled.submitted
+                        ? OnOffSettingValue::ON
+                        : OnOffSettingValue::OFF;
+                    SendCommandACK(AudioSetParamVoiceContents, res);
+                }
+                if (soundLeakageReductionPending &&
+                    state.mSoundLeakageReductionEnabled.submitted == (activating != 0) &&
+                    grouped && state.mSupport.contains(FunctionType::SOUND_LEAKAGE_REDUCTION))
+                {
+                    AudioSetParamSoundLeakageReduction res;
+                    res.onOffSettingValue = state.mSoundLeakageReductionEnabled.submitted
+                        ? OnOffSettingValue::ON
+                        : OnOffSettingValue::OFF;
+                    SendCommandACK(AudioSetParamSoundLeakageReduction, res);
+                }
+            }
+            MDR_LOG("S/W LSN BGM {} ROOM {} UPMIX {} VOICE {} LEAK {}",
+                    state.mBGMModeEnabled.desired, state.mBGMModeRoomSize.desired,
+                    state.mUpmixCinemaEnabled.desired, state.mVoiceContentsEnabled.desired,
+                    state.mSoundLeakageReductionEnabled.desired);
+
+            // Listening modes disable EQ and DSEE; re-read both rather than relying on notifications.
+            if (state.mSupport.containsEqualizer())
+                SendCommandACK(EqEbbGetStatus, {.type = EqEbbInquiredType::PRESET_EQ});
+            if (state.mSupport.contains(FunctionType::UPSCALING_AUTO_OFF))
+                SendCommandACK(AudioGetStatus, {.type = AudioInquiredType::UPSCALING});
         }
 
         /* EQ */
@@ -645,7 +712,16 @@ namespace mdr
             // Ask for a equalizer param update afterwards
             SendCommandACK(EqEbbGetParam);
         }
-        if (state.mEqConfig.pending() || state.mEqClearBass.pending())
+        // Only write bands the caller changed. A preset change moves them on the device too,
+        // and writing that stale snapshot back would switch it to CUSTOM.
+        const bool eqBandsPending = state.mEqConfig.pending() || state.mEqClearBass.pending();
+        const bool eqBandsAsked = state.mEqConfig.dirty() || state.mEqClearBass.dirty();
+        if (eqBandsPending && !eqBandsAsked)
+        {
+            state.mEqConfig.override(state.mEqConfig.current);
+            state.mEqClearBass.override(state.mEqClearBass.current);
+        }
+        else if (eqBandsPending)
         {
             using namespace t1;
             EqEbbSetParamEq res;
@@ -702,6 +778,8 @@ namespace mdr
             {
                 AudioSetParamConnection res;
                 res.command = Command::AUDIO_SET_PARAM;
+                // The struct defaults to CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO.
+                res.type = AudioInquiredType::CONNECTION_MODE;
                 res.settingValue = state.mAudioPriorityMode.submitted;
                 SendCommandACK(AudioSetParamConnection, res);
             }
@@ -931,6 +1009,24 @@ namespace mdr
         co_return MDR_EVENT_APPLY_COMPLETE;
     }
 
+    MDRTask MDRHeadphones::RequestAlertResponseV2(int action)
+    {
+        auto& state = mDetailsV2;
+        if (!state.mAlertAwaitingResponse)
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "The device has not asked anything");
+
+        state.mAlertAwaitingResponse = false;
+
+        using namespace t1;
+        AlertSetParamFixedMessage res;
+        res.type = AlertInquiredType::FIXED_MESSAGE;
+        res.messageType = state.mLastAlertMessage;
+        res.actionType = action == MDR_ALERT_ACTION_POSITIVE ? AlertAction::POSITIVE
+                                                             : AlertAction::NEGATIVE;
+        SendCommandACK(AlertSetParamFixedMessage, res);
+        co_return MDR_EVENT_APPLY_COMPLETE;
+    }
+
     int MDRHeadphones::HandleProtocolInfoV2(Span<const UInt8> command)
     {
         auto& state = mDetailsV2;
@@ -963,7 +1059,8 @@ namespace mdr
             state.mGsParamBool[2].dirty() || state.mGsParamBool[3].dirty() ||
             state.mUpscalingEnabled.dirty() || state.mAudioPriorityMode.dirty() ||
             state.mBGMModeEnabled.dirty() || state.mBGMModeRoomSize.dirty() ||
-            state.mUpmixCinemaEnabled.dirty() || state.mAutoPauseEnabled.dirty() ||
+            state.mUpmixCinemaEnabled.dirty() || state.mVoiceContentsEnabled.dirty() ||
+            state.mSoundLeakageReductionEnabled.dirty() || state.mAutoPauseEnabled.dirty() ||
             state.mTouchFunctionLeft.dirty() || state.mTouchFunctionRight.dirty() ||
             state.mSpeakToChatEnabled.dirty() || state.mSpeakToChatDetectSensitivity.dirty() ||
             state.mSpeakToModeOutTime.dirty() || state.mHeadGestureEnabled.dirty() ||

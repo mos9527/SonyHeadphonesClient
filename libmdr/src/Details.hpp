@@ -273,6 +273,10 @@ namespace mdr
          * @brief Dispatches staged changes to the selected backend.
          */
         MDRTask RequestCommit();
+        /**
+         * @brief Dispatches the answer to a device's alert to the selected backend.
+         */
+        MDRTask RequestAlertResponse(int action);
 
         /**
          * @brief Queues an arbitrary debugger payload through the normal Headphones
@@ -284,6 +288,7 @@ namespace mdr
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();
+        MDRTask RequestAlertResponseV1(int action);
         void SnapshotPropertiesV1();
         void RefreshSupportV1();
 
@@ -305,6 +310,11 @@ namespace mdr
          * @return @ref MDR_EVENT_APPLY_COMPLETE on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommitV2();
+        /**
+         * @brief Answers the confirmation the device asked for with an alert.
+         * @note  To be used with @ref Invoke.
+         */
+        MDRTask RequestAlertResponseV2(int action);
         void SnapshotPropertiesV2();
 #pragma endregion
 
@@ -327,6 +337,7 @@ namespace mdr
         MDRPacketCallback mPacketCallback{};
         void* mPacketCallbackUserData{};
         Deque<UInt8> mRecvBuf, mSendBuf;
+        // Advanced only by @ref HandleAck. Devices drop frames that repeat an acknowledged sequence number.
         MDRCommandSeqNumber mSeqNumber{0};
 
         MDRTask mTask;
@@ -430,12 +441,7 @@ namespace mdr::detail
  *
  * TL;DR, this helps with compiler bloats. Use it well.
  *
- * @note On bumping mSeqNumber. Ignoring transport issues (which is not a thing with RFCOMM backends at least), a
- * timeout can only occur when:
- *       - The device is shutting down
- *       - Or when we actually _missed_ a packet. Which can happen as chunked packets are discared by us _currently_
- *         We should handle this (hence the FIXME). For now retrying by assuming we got another ACK works despite the
- * lack thereof.
+ * @note Retries re-send with the same @ref mSeqNumber.
  */
 #define SendCommandACK(Type, ...)                                                                                      \
     do                                                                                                                 \
@@ -450,7 +456,6 @@ namespace mdr::detail
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
             MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetriesCount);                                     \
-            mSeqNumber ^= 1;                                                                                           \
         }                                                                                                              \
         if (_retries == mACKRetriesCount)                                                                              \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \

@@ -55,10 +55,13 @@ namespace mdr
                 co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device failed to respond to support function request");
 
             /* Equalizer */
-            if (state.mSupport.contains(t1::FunctionType::PRESET_EQ))
+            if (state.mSupport.contains(t1::FunctionType::PRESET_EQ) ||
+                state.mSupport.contains(t1::FunctionType::PRESET_EQ_NONCUSTOMIZABLE))
             {
                 SendCommandACK(t1::GetEqEbbCapability, {
-                    .type = t1::EqEbbInquiredType::PRESET_EQ,
+                    .type = state.mSupport.contains(t1::FunctionType::PRESET_EQ)
+                        ? t1::EqEbbInquiredType::PRESET_EQ
+                        : t1::EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE,
                     .language = t1::DisplayLanguage::ENGLISH
                 });
             }
@@ -451,7 +454,31 @@ namespace mdr
 
     MDRTask MDRHeadphones::RequestSyncV1()
     {
-        // auto& state = mDetailsV1;
+        auto& state = mDetailsV1;
+
+        /* Playback metadata. Track changes are not always notified. */
+        if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
+        {
+            SendCommandACK(t1::GetPlayStatus, {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER});
+
+            SendCommandACK(t1::GetPlayParam, {
+                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                .dataType = t1::PlaybackDetailedDataType::VOLUME
+            });
+            SendCommandACK(t1::GetPlayParam, {
+                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                .dataType = t1::PlaybackDetailedDataType::TRACK_NAME
+            });
+            SendCommandACK(t1::GetPlayParam, {
+                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                .dataType = t1::PlaybackDetailedDataType::ALBUM_NAME
+            });
+            SendCommandACK(t1::GetPlayParam, {
+                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                .dataType = t1::PlaybackDetailedDataType::ARTIST_NAME
+            });
+        }
+
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
@@ -564,16 +591,33 @@ namespace mdr
             state.mPlayControl.override(t1::PlaybackControl::KEY_OFF);
         }
 
-        if (state.mEqPresetId.pending() || state.mEqConfig.pending() || state.mEqClearBass.pending())
+        // Only write what the caller changed; pending() is also true when just the device moved.
+        const bool eqPending = state.mEqPresetId.pending() || state.mEqConfig.pending() ||
+            state.mEqClearBass.pending();
+        const bool eqAsked = state.mEqPresetId.dirty() || state.mEqConfig.dirty() ||
+            state.mEqClearBass.dirty();
+        if (eqPending && !eqAsked)
+        {
+            state.mEqPresetId.override(state.mEqPresetId.current);
+            state.mEqConfig.override(state.mEqConfig.current);
+            state.mEqClearBass.override(state.mEqClearBass.current);
+        }
+        else if (eqPending)
         {
             if (state.mSupport.contains(t1::FunctionType::PRESET_EQ))
             {
+                // Devices drop a frame carrying both a preset and band steps, so send one or the other.
                 t1::SetEqEbbParamEqParam payload;
-                payload.presetId = state.mEqPresetId.submitted;
-                payload.bandSteps.value.push_back(
-                    static_cast<UInt8>(std::clamp(state.mEqClearBass.submitted, -10, 10) + 10));
-                for (const int band : state.mEqConfig.submitted)
-                    payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
+                if (state.mEqConfig.dirty() || state.mEqClearBass.dirty())
+                {
+                    payload.presetId = t1::EqPresetId::UNSPECIFIED;
+                    payload.bandSteps.value.push_back(
+                        static_cast<UInt8>(std::clamp(state.mEqClearBass.submitted, -10, 10) + 10));
+                    for (const int band : state.mEqConfig.submitted)
+                        payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
+                }
+                else
+                    payload.presetId = state.mEqPresetId.submitted;
                 SendCommandACK(t1::SetEqEbbParamEqParam, payload);
             }
             state.mEqPresetId.commit();
@@ -768,6 +812,24 @@ namespace mdr
         };
         Awake(AWAIT_PROTOCOL_INFO);
         return MDR_EVENT_IDENTITY_CHANGED;
+    }
+
+    MDRTask MDRHeadphones::RequestAlertResponseV1(int action)
+    {
+        auto& state = mDetailsV1;
+        if (!state.mAlertAwaitingResponse)
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "The device has not asked anything");
+
+        state.mAlertAwaitingResponse = false;
+
+        using namespace t1;
+        SetAlertParamFixedMessageParam res;
+        res.type = AlertInquiredType::FIXED_MESSAGE;
+        res.messageType = state.mLastAlertMessage;
+        res.action = action == MDR_ALERT_ACTION_POSITIVE ? AlertAction::POSITIVE
+                                                         : AlertAction::NEGATIVE;
+        SendCommandACK(SetAlertParamFixedMessageParam, res);
+        co_return MDR_EVENT_APPLY_COMPLETE;
     }
 
     bool MDRHeadphones::IsDirtyV1() const

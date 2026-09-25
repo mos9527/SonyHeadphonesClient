@@ -71,6 +71,15 @@ namespace mdr
         int HandleVoiceGuidance(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             const Command command = static_cast<Command>(cmd[0]);
+            const bool isParam = command == Command::VOICE_GUIDANCE_NTFY_PARAM
+                              || command == Command::VOICE_GUIDANCE_RET_PARAM;
+            // Only ON_OFF is handled. Parsing other types (e.g. LANGUAGE) as ON_OFF fails and aborts the handshake.
+            if (cmd.size() <= 2)
+                return MDR_EVENT_UNHANDLED;
+            if (isParam ? static_cast<DetailedDataType>(cmd[2]) != DetailedDataType::ON_OFF
+                        : static_cast<StatusType>(cmd[2]) != StatusType::ON_OFF)
+                return MDR_EVENT_UNHANDLED;
+
             if (command == Command::VOICE_GUIDANCE_NTFY_PARAM)
             {
                 Deserialize(NotifyVoiceGuidanceParamSettingOnOff, result, cmd);

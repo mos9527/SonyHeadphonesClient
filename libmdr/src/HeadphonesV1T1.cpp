@@ -208,6 +208,19 @@ namespace mdr
             return MDR_EVENT_UNHANDLED;
         }
 
+        int HandleEqCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            EqEbbInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type) ||
+                (type != EqEbbInquiredType::PRESET_EQ && type != EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE))
+                return MDR_EVENT_UNHANDLED;
+            Deserialize(RetEqEbbCapability_EqCapability, res, cmd);
+            self->mDetailsV1.mEqPresets.clear();
+            for (const auto& preset : res.presetList)
+                self->mDetailsV1.mEqPresets.push_back({preset.presetId, preset.name.value});
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+
         int HandleEq(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             EqEbbInquiredType type{};
@@ -461,6 +474,7 @@ namespace mdr
                 case POSITIVE_NEGATIVE:
                 {
                     self->mDetailsV1.mLastAlertMessage = res.messageType;
+                    self->mDetailsV1.mAlertAwaitingResponse = true;
                     return MDR_EVENT_ALERT;
                 }
                 default:
@@ -507,6 +521,8 @@ namespace mdr
         case Command::NCASM_RET_PARAM:
         case Command::NCASM_NTFY_PARAM:
             return HandleNcAsm(self, cmd);
+        case Command::EQEBB_RET_CAPABILITY:
+            return HandleEqCapability(self, cmd);
         case Command::EQEBB_RET_PARAM:
         case Command::EQEBB_NTFY_PARAM:
             return HandleEq(self, cmd);

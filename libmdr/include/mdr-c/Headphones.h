@@ -51,6 +51,11 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_CONNECTION_MODE ((MDRFeature)27u)
 #define MDR_FEATURE_SAFE_LISTENING ((MDRFeature)28u)
 #define MDR_FEATURE_SOURCE_SWITCH_CONTROL ((MDRFeature)29u)
+/* Individual listening modes offered under MDR_FEATURE_LISTENING_MODE. */
+#define MDR_FEATURE_LISTENING_BACKGROUND_MUSIC ((MDRFeature)30u)
+#define MDR_FEATURE_LISTENING_CINEMA ((MDRFeature)31u)
+#define MDR_FEATURE_LISTENING_VOICE_BOOST ((MDRFeature)32u)
+#define MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRFeature)33u)
 
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
@@ -102,6 +107,8 @@ typedef uint32_t MDRText;
 #define MDR_TEXT_LAST_ALERT ((MDRText)14u)
 #define MDR_TEXT_LAST_INTERACTION ((MDRText)15u)
 #define MDR_TEXT_LAST_DEVICE_MESSAGE ((MDRText)16u)
+/* Indexed like @ref mdrHeadphonesGetEqualizerPresets. */
+#define MDR_TEXT_EQUALIZER_PRESET_NAME ((MDRText)17u)
 
 typedef uint32_t MDRAudioCodec;
 #define MDR_AUDIO_CODEC_UNKNOWN ((MDRAudioCodec)0u)
@@ -176,10 +183,13 @@ typedef uint32_t MDRSpeakTimeout;
 #define MDR_SPEAK_TIMEOUT_LONG ((MDRSpeakTimeout)3u)
 #define MDR_SPEAK_TIMEOUT_MANUAL ((MDRSpeakTimeout)4u)
 
+/* Mutually exclusive. MDR_LISTENING_STANDARD means none is active. */
 typedef uint32_t MDRListeningMode;
 #define MDR_LISTENING_STANDARD ((MDRListeningMode)0u)
 #define MDR_LISTENING_BACKGROUND_MUSIC ((MDRListeningMode)1u)
 #define MDR_LISTENING_CINEMA ((MDRListeningMode)2u)
+#define MDR_LISTENING_VOICE_BOOST ((MDRListeningMode)3u)
+#define MDR_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRListeningMode)4u)
 
 typedef uint32_t MDRRoomSize;
 #define MDR_ROOM_UNKNOWN ((MDRRoomSize)0u)
@@ -232,6 +242,10 @@ typedef uint32_t MDRPairedDeviceCommand;
 #define MDR_PAIRED_DEVICE_DISCONNECT ((MDRPairedDeviceCommand)2u)
 #define MDR_PAIRED_DEVICE_SELECT_PLAYBACK ((MDRPairedDeviceCommand)3u)
 #define MDR_PAIRED_DEVICE_UNPAIR ((MDRPairedDeviceCommand)4u)
+
+typedef uint32_t MDRAlertAction;
+#define MDR_ALERT_ACTION_NEGATIVE ((MDRAlertAction)0u)
+#define MDR_ALERT_ACTION_POSITIVE ((MDRAlertAction)1u)
 
 typedef uint32_t MDRGeneralSettingType;
 #define MDR_GENERAL_SETTING_UNKNOWN ((MDRGeneralSettingType)0u)
@@ -319,6 +333,9 @@ typedef struct MDREqualizer
     uint32_t band_count;
     MDRBoolean dsee_enabled;
     MDRDSEEType dsee_type;
+    /* Whether the device currently accepts changes, e.g. MDR_FALSE while a listening mode is active. */
+    MDRBoolean available;
+    MDRBoolean dsee_available;
 } MDREqualizer;
 
 typedef struct MDRPairedDevice
@@ -503,6 +520,14 @@ MDR_API MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDR
 MDR_API MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, int8_t* bands, uint32_t* inout_count);
 MDR_API MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, const int8_t* bands, uint32_t count);
 
+/**
+ * @brief The equalizer presets the device advertised, in its order. Names are @ref MDR_TEXT_EQUALIZER_PRESET_NAME.
+ * @note  An empty list means the device has not reported one, and @ref mdrHeadphonesSetEqualizer then accepts any
+ *        preset. Otherwise presets outside the list are refused. Unknown ids read MDR_EQ_UNKNOWN.
+ */
+MDR_API MDRResult mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MDREqualizerPreset* presets,
+                                                   uint32_t* inout_count);
+
 /* Paired devices and pairing. Device names/IDs use MDR_TEXT_* with index. */
 MDR_API MDRResult mdrHeadphonesGetPairedDevices(MDRHeadphones* headphones, MDRPairedDevice* devices,
                                                 uint32_t* inout_count);
@@ -534,6 +559,14 @@ MDR_API MDRResult mdrHeadphonesSetSourceSwitchControl(MDRHeadphones* headphones,
  */
 MDR_API MDRResult mdrHeadphonesGetSourceSwitchControlResult(MDRHeadphones* headphones,
                                                             MDRSourceSwitchControlResult* out_result);
+
+/**
+ * @brief Answers the confirmation the device asked for with @ref MDR_EVENT_ALERT (see @ref MDR_TEXT_LAST_ALERT).
+ * @note  The setting that triggered it (e.g. multipoint, connection mode) is not applied until answered with
+ *        @ref MDR_ALERT_ACTION_POSITIVE, which may disconnect the device.
+ * @return @ref MDR_RESULT_ERROR_NOT_FOUND if the device has not asked anything.
+ */
+MDR_API MDRResult mdrHeadphonesRequestRespondToAlert(MDRHeadphones* headphones, MDRAlertAction action);
 
 /* General settings and assignable controls. */
 MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(MDRHeadphones* headphones, MDRGeneralSettingInfo* settings,

@@ -1,7 +1,8 @@
 #pragma once
 #include <stdint.h>
 
-#define MDR_ABI_VERSION 1u
+/* 2: MDREqualizer gained `available` and `dsee_available`. */
+#define MDR_ABI_VERSION 2u
 
 #if !defined(MDR_API)
 #if defined(_WIN32)

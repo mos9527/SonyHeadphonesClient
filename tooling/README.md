@@ -29,6 +29,13 @@ Your `clang` package likely includes the requisite libs already — if not, try 
 ### macOS
 Install `llvm` from Homebrew — CMake will locate it automatically.
 
+## Scrubbing captures
+
+`scrub-capture.py` replaces the personal data in a packet capture - paired
+device names and addresses, track metadata - with same-length placeholders, so
+a capture can be contributed as a test fixture. See
+[Contributing to Tests](../tests/README.md#scrub-personal-data).
+
 ## Credits
 
 `BinaryEmbed.cpp` is adapted from

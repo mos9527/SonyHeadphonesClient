@@ -676,6 +676,42 @@ namespace mdr
             }
             return MDR_EVENT_UNHANDLED;
         }
+        case VOICE_CONTENTS:
+        {
+            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+            {
+                if (command == Command::AUDIO_NTFY_PARAM)
+                {
+                    Deserialize(AudioNotifyParamVoiceContents, res, cmd);
+                    self->mDetailsV2.mVoiceContentsEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
+                }
+                else
+                {
+                    Deserialize(AudioRetParamVoiceContents, res, cmd);
+                    self->mDetailsV2.mVoiceContentsEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
+                }
+                return MDR_EVENT_LISTENING_MODE_CHANGED;
+            }
+            return MDR_EVENT_UNHANDLED;
+        }
+        case SOUND_LEAKAGE_REDUCTION:
+        {
+            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+            {
+                if (command == Command::AUDIO_NTFY_PARAM)
+                {
+                    Deserialize(AudioNotifyParamSoundLeakageReduction, res, cmd);
+                    self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
+                }
+                else
+                {
+                    Deserialize(AudioRetParamSoundLeakageReduction, res, cmd);
+                    self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
+                }
+                return MDR_EVENT_LISTENING_MODE_CHANGED;
+            }
+            return MDR_EVENT_UNHANDLED;
+        }
         default:
             break;
         }
@@ -828,6 +864,40 @@ namespace mdr
         return MDR_EVENT_UNHANDLED;
     }
 
+    int HandleEqEbbCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        EqEbbInquiredType type{};
+        if (!detail::ReadEnumTag(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        auto Store = [&](const auto& presets)
+        {
+            self->mDetailsV2.mEqPresets.clear();
+            for (const auto& preset : presets)
+                self->mDetailsV2.mEqPresets.push_back({preset.presetId, preset.name.value});
+        };
+        using enum EqEbbInquiredType;
+        switch (type)
+        {
+        case PRESET_EQ:
+        case PRESET_EQ_NONCUSTOMIZABLE:
+        case PRESET_EQ_AND_ERRORCODE:
+        {
+            Deserialize(EqEbbRetCapabilityEq, res, cmd);
+            Store(res.eqPresets);
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+        case PRESET_EQ_AND_ULT_MODE:
+        {
+            Deserialize(EqEbbRetCapabilityEqAndUltMode, res, cmd);
+            Store(res.eqPresets);
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+        default:
+            break;
+        }
+        return MDR_EVENT_UNHANDLED;
+    }
+
     int HandleEqEbbParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         EqEbbInquiredType type{};
@@ -939,6 +1009,7 @@ namespace mdr
                 case POSITIVE_NEGATIVE:
                 {
                     self->mDetailsV2.mLastAlertMessage = res.messageType;
+                    self->mDetailsV2.mAlertAwaitingResponse = true;
                     return MDR_EVENT_ALERT;
                 }
                 default:
@@ -1054,6 +1125,8 @@ namespace mdr
         case SYSTEM_RET_EXT_PARAM:
         case SYSTEM_NTFY_EXT_PARAM:
             return HandleSystemExtParamT1(self, cmd);
+        case EQEBB_RET_CAPABILITY:
+            return HandleEqEbbCapabilityT1(self, cmd);
         case EQEBB_RET_STATUS:
         case EQEBB_NTFY_STATUS:
             return HandleEqEbbStatusT1(self, cmd);

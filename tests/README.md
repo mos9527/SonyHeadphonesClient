@@ -21,7 +21,9 @@ non-recursive.
 
 > [!WARNING]
 > Packet captures may contain Bluetooth addresses, device names, media
-> metadata, unique identifiers, and other private information. 
+> metadata, unique identifiers, and other private information. Run
+> `tooling/scrub-capture.py` over a capture before committing it, and check
+> what is left - see [Scrub personal data](#scrub-personal-data).
 
 On-device packet captures for tests are generally welcome.
 
@@ -54,6 +56,28 @@ history without compression. Emscripten starts a browser download directly; othe
 platforms without dialog support use the default filename in the current directory.
 The disconnect error dialog can export either the latest packet or the complete ZIP
 for a bug report; packet captures may contain private device information.
+
+### Scrub personal data
+
+A capture carries more than the protocol exchange. `PERI_*_PARAM` holds the
+paired device list - the names and addresses of every phone, laptop and car kit
+the headphones know about - and `PLAY_*_PARAM` holds whatever was playing.
+
+```sh
+tooling/scrub-capture.py --dry-run <capture-folder>   # report what would change
+tooling/scrub-capture.py <capture-folder>             # rewrite in place
+```
+
+Placeholders are the same length as what they replace, so every length prefix
+and each frame's size field still hold and only the checksum changes. The
+address the device reports for itself is kept, since it identifies the captured
+hardware; pass `--scrub-device-address` to drop that too.
+
+Check the result before committing:
+
+```sh
+cat <capture-folder>/*.bin | strings -n 4
+```
 
 ### Submitting the data
 

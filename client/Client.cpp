@@ -424,6 +424,25 @@ mdr::Vector<int> GetEqualizerBands()
     return values;
 }
 
+mdr::Vector<std::pair<MDREqualizerPreset, mdr::String>> GetEqualizerPresets()
+{
+    uint32_t count = 0;
+    if (!gDevice || mdrHeadphonesGetEqualizerPresets(gDevice, nullptr, &count) != MDR_RESULT_OK || count == 0)
+        return {};
+    mdr::Vector<MDREqualizerPreset> ids(count);
+    if (mdrHeadphonesGetEqualizerPresets(gDevice, ids.data(), &count) != MDR_RESULT_OK)
+        return {};
+    mdr::Vector<std::pair<MDREqualizerPreset, mdr::String>> presets;
+    presets.reserve(count);
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        if (ids[i] == MDR_EQ_UNKNOWN)
+            continue;
+        presets.emplace_back(ids[i], GetText(MDR_TEXT_EQUALIZER_PRESET_NAME, i));
+    }
+    return presets;
+}
+
 void SetEqualizerBands(const mdr::Vector<int>& values)
 {
     mdr::Vector<int8_t> bytes;
@@ -444,6 +463,7 @@ struct ClientState
     MDRListening mListening{};
     MDREqualizer mEqualizer{};
     mdr::Vector<int> mEqualizerBands;
+    mdr::Vector<std::pair<MDREqualizerPreset, mdr::String>> mEqualizerPresets;
     mdr::Vector<MDRPairedDevice> mPairedDevices;
     MDRPairing mPairing{};
     mdr::Vector<std::pair<MDRGeneralSettingInfo, MDRGeneralSetting>> mGeneralSettings;
@@ -481,6 +501,7 @@ void RefreshClientState()
     gState.mListeningAvailable = mdrHeadphonesGetListening(gDevice, &gState.mListening) == MDR_RESULT_OK;
     gState.mEqualizerAvailable = mdrHeadphonesGetEqualizer(gDevice, &gState.mEqualizer) == MDR_RESULT_OK;
     gState.mEqualizerBands = GetEqualizerBands();
+    gState.mEqualizerPresets = GetEqualizerPresets();
     gState.mPairedDevices = GetPairedDevices();
     gState.mPairingAvailable = mdrHeadphonesGetPairing(gDevice, &gState.mPairing) == MDR_RESULT_OK;
     gState.mGeneralSettings = GetGeneralSettings(GetGeneralSettingInfos());
@@ -1411,37 +1432,55 @@ void DrawDeviceControlsSound()
             bool changed = false;
             if (ImGui::RadioButton("Standard", gState.mListening.mode == MDR_LISTENING_STANDARD))
                 gState.mListening.mode = MDR_LISTENING_STANDARD, changed = true;
-            if (ImGui::RadioButton("BGM", gState.mListening.mode == MDR_LISTENING_BACKGROUND_MUSIC))
+
+            const bool haveBackgroundMusic = FeatureAvailable(MDR_FEATURE_LISTENING_BACKGROUND_MUSIC);
+            if (haveBackgroundMusic &&
+                ImGui::RadioButton(
+                    "Ambient Background Music", gState.mListening.mode == MDR_LISTENING_BACKGROUND_MUSIC))
                 gState.mListening.mode = MDR_LISTENING_BACKGROUND_MUSIC, changed = true;
 
-            ImGui::Indent();
-            ImGui::BeginDisabled(gState.mListening.mode != MDR_LISTENING_BACKGROUND_MUSIC);
-            static const std::pair<MDRRoomSize, const char*> kBGMDistanceModes[] = {
-                {MDR_ROOM_SMALL, "My Room"},
-                {MDR_ROOM_MEDIUM, "Living Room"},
-                {MDR_ROOM_LARGE, "Cafe"},
-            };
-            const char* currentDistStr = "Unknown";
-            for (auto const& [k, v] : kBGMDistanceModes)
-                if (k == gState.mListening.background_room)
-                    currentDistStr = v;
-            if (ImGui::BeginCombo("Distance", currentDistStr))
+            if (haveBackgroundMusic)
             {
+                ImGui::Indent();
+                ImGui::BeginDisabled(gState.mListening.mode != MDR_LISTENING_BACKGROUND_MUSIC);
+                static const std::pair<MDRRoomSize, const char*> kBGMDistanceModes[] = {
+                    {MDR_ROOM_SMALL, "My Room"},
+                    {MDR_ROOM_MEDIUM, "Living Room"},
+                    {MDR_ROOM_LARGE, "Cafe"},
+                };
+                const char* currentDistStr = "Unknown";
                 for (auto const& [k, v] : kBGMDistanceModes)
+                    if (k == gState.mListening.background_room)
+                        currentDistStr = v;
+                if (ImGui::BeginCombo("Distance", currentDistStr))
                 {
-                    bool is_selected = k == gState.mListening.background_room;
-                    if (ImGui::Selectable(v, is_selected))
-                        gState.mListening.background_room = k, changed = true;
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
+                    for (auto const& [k, v] : kBGMDistanceModes)
+                    {
+                        bool is_selected = k == gState.mListening.background_room;
+                        if (ImGui::Selectable(v, is_selected))
+                            gState.mListening.background_room = k, changed = true;
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
+                ImGui::EndDisabled();
+                ImGui::Unindent();
             }
-            ImGui::EndDisabled();
-            ImGui::Unindent();
 
-            if (ImGui::RadioButton("Cinema", gState.mListening.mode == MDR_LISTENING_CINEMA))
+            if (FeatureAvailable(MDR_FEATURE_LISTENING_CINEMA) &&
+                ImGui::RadioButton("Cinema", gState.mListening.mode == MDR_LISTENING_CINEMA))
                 gState.mListening.mode = MDR_LISTENING_CINEMA, changed = true;
+
+            if (FeatureAvailable(MDR_FEATURE_LISTENING_VOICE_BOOST) &&
+                ImGui::RadioButton("Voice Boost", gState.mListening.mode == MDR_LISTENING_VOICE_BOOST))
+                gState.mListening.mode = MDR_LISTENING_VOICE_BOOST, changed = true;
+
+            if (FeatureAvailable(MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION) &&
+                ImGui::RadioButton(
+                    "Sound Leakage Reduction",
+                    gState.mListening.mode == MDR_LISTENING_SOUND_LEAKAGE_REDUCTION))
+                gState.mListening.mode = MDR_LISTENING_SOUND_LEAKAGE_REDUCTION, changed = true;
 
             if (changed && gState.mListeningAvailable)
                 mdrHeadphonesSetListening(gDevice, &gState.mListening);
@@ -1452,15 +1491,29 @@ void DrawDeviceControlsSound()
     if (ImGui::TreeNodeEx("Equalizer & DSEE", ImGuiTreeNodeFlags_DefaultOpen))
     {
         bool changed = false;
-        constexpr MDREqualizerPreset kSelections[] = {
-            MDR_EQ_OFF, MDR_EQ_ROCK, MDR_EQ_POP, MDR_EQ_JAZZ, MDR_EQ_DANCE, MDR_EQ_EDM,
-            MDR_EQ_R_AND_B_HIP_HOP, MDR_EQ_ACOUSTIC, MDR_EQ_BRIGHT, MDR_EQ_EXCITED, MDR_EQ_MELLOW,
-            MDR_EQ_RELAXED, MDR_EQ_VOCAL, MDR_EQ_TREBLE, MDR_EQ_BASS, MDR_EQ_SPEECH, MDR_EQ_HEAVY,
-            MDR_EQ_CLEAR, MDR_EQ_HARD, MDR_EQ_SOFT, MDR_EQ_GAMING, MDR_EQ_FPS_1, MDR_EQ_FPS_2,
-            MDR_EQ_FPS_3, MDR_EQ_CUSTOM, MDR_EQ_USER_1, MDR_EQ_USER_2, MDR_EQ_USER_3, MDR_EQ_USER_4,
-            MDR_EQ_USER_5};
-        changed |= ImComboBoxItems(
-            "Preset", std::span{kSelections}, gState.mEqualizer.preset, FormatEqualizerPreset);
+        // Only what the device advertised: an id it never named is one it will not take.
+        mdr::Vector<MDREqualizerPreset> selections;
+        for (const auto& [id, name] : gState.mEqualizerPresets)
+            selections.push_back(id);
+        const auto formatPreset = [](MDREqualizerPreset id) -> const char*
+        {
+            for (const auto& [advertised, name] : gState.mEqualizerPresets)
+                if (advertised == id && !name.empty())
+                    return name.c_str();
+            return FormatEqualizerPreset(id);
+        };
+        const bool equalizerUsable =
+            !gState.mEqualizerAvailable || gState.mEqualizer.available != MDR_FALSE;
+        const bool dseeUsable =
+            !gState.mEqualizerAvailable || gState.mEqualizer.dsee_available != MDR_FALSE;
+        if (!equalizerUsable || !dseeUsable)
+            ImGui::TextDisabled("Unavailable while a listening mode other than Standard is active.");
+        ImGui::BeginDisabled(!equalizerUsable);
+        // An empty list means the device has not answered yet, not that it has no presets.
+        ImGui::BeginDisabled(selections.empty());
+        changed |= ImComboBoxItems<MDREqualizerPreset, std::dynamic_extent>(
+            "Preset", std::span{selections}, gState.mEqualizer.preset, formatPreset);
+        ImGui::EndDisabled();
         if (ImEqualizer(gState.mEqualizerBands))
             SetEqualizerBands(gState.mEqualizerBands);
         if (gState.mEqualizerBands.size() == 5)
@@ -1471,8 +1524,9 @@ void DrawDeviceControlsSound()
             if (ImGui::SliderInt("##", &clearBass, -10, 10))
                 gState.mEqualizer.clear_bass = static_cast<int8_t>(clearBass), changed = true;
         }
+        ImGui::EndDisabled();
         ImGui::SeparatorText("DSEE");
-        ImGui::BeginDisabled(!FeatureAvailable(MDR_FEATURE_DSEE));
+        ImGui::BeginDisabled(!FeatureAvailable(MDR_FEATURE_DSEE) || !dseeUsable);
         if (ImGui::RadioButton("Off", gState.mEqualizer.dsee_enabled == MDR_FALSE))
             gState.mEqualizer.dsee_enabled = MDR_FALSE, changed = true;
         if (ImGui::RadioButton("On (Auto)", gState.mEqualizer.dsee_enabled != MDR_FALSE))
@@ -1829,6 +1883,10 @@ void DrawDeviceControlsAbout()
             {"Adaptive ambient sound", MDR_FEATURE_ADAPTIVE_AMBIENT_SOUND},
             {"Speak to Chat", MDR_FEATURE_SPEAK_TO_CHAT},
             {"Listening mode", MDR_FEATURE_LISTENING_MODE},
+            {"Listening: background music", MDR_FEATURE_LISTENING_BACKGROUND_MUSIC},
+            {"Listening: cinema", MDR_FEATURE_LISTENING_CINEMA},
+            {"Listening: voice boost", MDR_FEATURE_LISTENING_VOICE_BOOST},
+            {"Listening: sound leakage reduction", MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION},
             {"Equalizer", MDR_FEATURE_EQUALIZER},
             {"DSEE", MDR_FEATURE_DSEE},
             {"Paired device management", MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT},

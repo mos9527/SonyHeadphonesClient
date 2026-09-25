@@ -42,6 +42,7 @@ namespace mdr
         v1::t1::AudioCodec mAudioCodec{};
 
         v1::t1::AlertMessageType mLastAlertMessage{};
+        bool mAlertAwaitingResponse{};
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
 
@@ -72,7 +73,7 @@ namespace mdr
         v1::t1::PlaybackStatus mPlayPause{};
 
         v1::t1::UpscalingType mUpscalingType{};
-        bool mUpscalingAvailable{};
+        bool mUpscalingAvailable{true};
 
         Vector<v1::t1::AsCapabilityKey> mAssignableSettingsKeys;
 
@@ -107,7 +108,14 @@ namespace mdr
         MDRProperty<v1::t1::ModeOutTime> mSpeakToModeOutTime;
         v1::t1::CommonOnOffSettingValue mSpeakToChatVoiceFocus{v1::t1::CommonOnOffSettingValue::OFF};
         MDRProperty<bool> mHeadGestureEnabled;
-        MDRProperty<bool> mEqAvailable;
+        struct EqPresetInfo
+        {
+            v1::t1::EqPresetId presetId{};
+            String name;
+        };
+
+        Vector<EqPresetInfo> mEqPresets;
+        MDRProperty<bool> mEqAvailable{true, true, true};
         MDRProperty<v1::t1::EqPresetId> mEqPresetId;
         MDRProperty<int> mEqClearBass;
         MDRProperty<Vector<int>> mEqConfig;
