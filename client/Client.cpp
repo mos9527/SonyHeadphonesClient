@@ -725,16 +725,26 @@ void ImSetNextWindowCentered()
     ImGui::SetNextWindowSize({ImGui::GetIO().DisplaySize.x, 0});
 }
 
-void ImTextWithBorder(const char* text, int color, float rounding = 0.0f, float thickness = 1.0f)
+// Outer size of a bordered text badge: the text plus FramePadding / 2 on every side.
+ImVec2 ImBadgeSize(const char* text)
 {
-    auto& style = ImGui::GetStyle();
-    ImVec2 size = ImGui::CalcTextSize(text);
-    auto [offset, region, draw] = ImWindowDrawOffsetRegionList();
-    ImVec2 pad = style.FramePadding / 2;
-    ImGui::Text("%s", text);
-    offset.y += style.FramePadding.y;
-    draw->AddRect(offset - pad, offset + size + pad, color, rounding, ImDrawFlags_None, thickness);
-    ImGui::Dummy({pad.x, 0});
+    return ImGui::CalcTextSize(text) + ImGui::GetStyle().FramePadding;
+}
+
+bool ImBadge(const char* text, ImVec2 pos, ImU32 borderColor, ImU32 textColor, float rounding = 0.0f,
+             float thickness = 1.0f, bool* hovered = nullptr)
+{
+    const ImVec2 size = ImBadgeSize(text);
+    ImGui::SetCursorScreenPos(pos);
+    ImGui::PushID(text);
+    const bool clicked = ImGui::InvisibleButton("##badge", size);
+    ImGui::PopID();
+    if (hovered)
+        *hovered = ImGui::IsItemHovered();
+    ImDrawList* draw = ImGui::GetWindowDrawList();
+    draw->AddRect(pos, pos + size, borderColor, rounding, ImDrawFlags_None, thickness);
+    draw->AddText(pos + ImGui::GetStyle().FramePadding / 2, textColor, text);
+    return clicked;
 }
 
 template <typename T, size_t Extent, typename Formatter>
@@ -1277,7 +1287,7 @@ void DrawDeviceControlsHeader()
                       true, 1.0f, ImEaseInOutCubic);
         /* Cool Badges */
         // Title, Border Color, Text Color
-        using Badge = std::tuple<const char*, int, int>;
+        using Badge = std::tuple<const char*, ImU32, ImU32>;
         std::array<Badge, 4> badges4;
         Badge *badgeFirst = &badges4[0], *badgeLast = &badges4[0];
         /* Codec */
@@ -1291,23 +1301,34 @@ void DrawDeviceControlsHeader()
             *(badgeLast++) = {FormatDseeType(gState.mEqualizer.dsee_type), ~0u, ~0u};
         }
         std::span<Badge> badges{badgeFirst, static_cast<size_t>(badgeLast - badgeFirst)};
-        // Right-align and draw them
-        // XXX: This is surprisingly painful to do.
-        ImVec2 padding = style.FramePadding;
-        float badgeRegionX = 0, badgeRegionY = 0;
-        ImGui::PushFont(ImGui::GetFont(), style.FontSizeBase - padding.y / 2);
+        /* Manual Sync */
+        constexpr const char* kSyncBadge = PSI_REFRESH " Sync";        
+        ImGui::PushFont(ImGui::GetFont(), style.FontSizeBase - style.FramePadding.y / 2);
+        const float spacing = style.ItemSpacing.x;
+        float badgeRegionX = -spacing;
+        for (auto& [s, border, text] : badges)
+            badgeRegionX += ImBadgeSize(s).x + spacing;
+        badgeRegionX += ImBadgeSize(kSyncBadge).x + spacing;
+        const ImGuiWindow* window = ImGui::GetCurrentWindow();
+        const ImRect bar = window->MenuBarRect();
+        const float inset = std::max(window->WindowPadding.x, style.ItemSpacing.x);
+        const float badgeY = bar.Min.y + (bar.GetHeight() - ImBadgeSize(kSyncBadge).y) * 0.5f;
+        ImVec2 pos{bar.Max.x - inset - badgeRegionX, badgeY};
+        pos.x = std::max(pos.x, ImGui::GetCursorScreenPos().x + spacing);
+        const float rounding = style.FrameRounding;
         for (auto& [s, border, text] : badges)
         {
-            ImVec2 size = ImGui::CalcTextSize(s);
-            badgeRegionX += size.x + padding.x * 2, badgeRegionY = std::max(badgeRegionY, size.y);
+            ImBadge(s, pos, border, text, rounding, 2.0f);
+            pos.x += ImBadgeSize(s).x + spacing;
         }
-        ImGui::SameLine(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - badgeRegionX - padding.x * 2);
-        float rounding = style.FrameRounding;
-        float offsetY = padding.y / 2;
-        for (auto& [s, border, text] : badges)
         {
-            ImGui::SetCursorPosY(offsetY);
-            ImTextWithBorder(s, border, rounding, 2.0f);
+            const bool ready = mdrHeadphonesIsReady(gDevice);
+            const ImU32 color = ready ? ~0u : ImGui::GetColorU32(ImGuiCol_TextDisabled);
+            bool hovered = false;
+            if (ImBadge(kSyncBadge, pos, color, color, rounding, 2.0f, &hovered) && ready)
+                gState.mPendingSync = true;
+            if (hovered)
+                ImGui::SetTooltip("Refresh all states from the headphones.\nThis includes Battery Levels, Now Playing, Wearing Status, and so on.");
         }
         ImGui::PopFont();
         ImGui::EndMenuBar();
