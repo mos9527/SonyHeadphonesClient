@@ -1,4 +1,4 @@
-# MDR Packet Replay Tests
+# Packet Capture and Test Contribution Guide
 
 The `mdr_replay_tests` executable replays the `-rx.` `.bin` packets in one
 directory, and checks on malformed/incompatible payloads.
