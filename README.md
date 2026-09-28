@@ -29,15 +29,16 @@ The following platforms (applies to `libmdr`, `client`) are *natively* supported
 
 For device support, refer to `docs/device-support` to check. If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
-## Notes on Web Platform
+## Running on the Web
 
-The client app is available as a Progressive Web App with exact UI/Feature parity seen in other platforms.
+The client app is available as a Progressive Web App (PWA) with exact UI/Feature parity seen in other platforms.
 
 **Live version is available** at: https://mos9527.com/SonyHeadphonesClient/
 
-A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required - with a minor exception of Chrome on Android where [Web serial over Bluetooth on Android](https://cr-status.appspot.com/feature/5139978918821888) is supported as of Android build 138. You can expect the app to work on all reasonably new Desktop Chrome browsers, and the latest Android Chrome builds.
-
-As always, status reports are welcome - please do submit an Issue if your browser supports the Web version of the client app.
+A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required. You can expect the app to work on:
+- Desktop Chrome (89+), and Chromium derivatives (also 89+, e.g. Edge, Opera)
+- [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
+- [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
 
 ## For Developers
 
@@ -98,3 +99,7 @@ This mostly occurs with multipoint setups, and is mostly an implementation probl
   - [#65](https://github.com/mos9527/SonyHeadphonesClient/pull/65) 
 - Alternatively, the Linux Client App can be used as a fallback. This is introduced in [#63](https://github.com/mos9527/SonyHeadphonesClient/pull/63), where the wearing status of the device is used to control host player status and thus bypassing AVRCP controls. 
 - This is by-default disabled. You can enable this via `--pause-media-on-remove` flag when launch the Client App. Thanks @phedoreanu for the implementation!
+
+---
+
+*This is a personal project, and is not officaly endorsed by Sony Corporation in any capacity.*
