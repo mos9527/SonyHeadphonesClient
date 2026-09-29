@@ -325,12 +325,11 @@ namespace mdr
     }
 
     void MDRHeadphones::HandleAck(MDRCommandSeqNumber seq)
-    {
-        // FIXME Stale ACKs (duplicates, late re-sends) are dropped, not matched to the frame they acknowledge.
+    {        
         const auto expected = static_cast<MDRCommandSeqNumber>(1 - mSeqNumber);
         if (seq != expected)
         {
-            MDR_LOG_DEBUG("Ignoring stale ACK seq {} (awaiting {})", seq, expected);
+            MDR_LOG("FIXME-Stale ACK seq {} expected {}", seq, expected);
             return;
         }
         mSeqNumber = expected;
@@ -479,7 +478,6 @@ namespace
                 state.mSupport.contains(T2::SAFE_LISTENING_TWS_2);
         case MDR_FEATURE_SOURCE_SWITCH_CONTROL: return state.mSupport.contains(T2::SOURCE_SWITCH_CONTROL);
         case MDR_FEATURE_WEARING_STATUS:
-            // Advertised, or proven by a reply: the WH-1000XM6 answers without advertising.
             return state.mSupport.contains(T2::WEARING_STATUS_CHECKER) ||
                 state.mWearingStatus != mdr::v2::t2::WearingStatusCode::OUT_OF_RANGE;
         default: return false;
