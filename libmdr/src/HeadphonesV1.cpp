@@ -434,11 +434,13 @@ namespace mdr
             SendCommandACK(t1::GetGsParam, {.type = t1::GsInquiredType::GENERAL_SETTING3});
         }
 
+        // @mos9527: If you want it, uncomment for device to log JSON messages.
+        //           TODO which events to expect for this one. Or expose this thing for public API?
         /*if (state.mSupport.contains(t1::FunctionType::ACTION_LOG_NOTIFIER))
         {
             SendCommandACK(t1::SetLogStatus, {
                 .type = t1::LogInquiredType::ACTION_LOG_NOTIFIER,
-                .status = CommonStatus::ENABLE // TODO: Fix this struct; add status field
+                .status = CommonStatus::ENABLE 
             });
         }*/
 
