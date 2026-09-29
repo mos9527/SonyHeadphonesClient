@@ -1476,7 +1476,7 @@ namespace mdr::v2::t1 {
         MDR_TRY(size_t, Validate(data));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.logInquiredType, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, (MDRPrefixedString::Write)(data.data, &ptr, maxSize));
+        MDR_TRY_SIZE(size_t, (MDRPrefixedString16BE::Write)(data.data, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
     MDRResult<NotifyLogParamActionLog> NotifyLogParamActionLog::Deserialize(const UInt8* data, size_t maxSize)
@@ -1484,7 +1484,7 @@ namespace mdr::v2::t1 {
         NotifyLogParamActionLog out{};
         MDR_TRY_SIZE(NotifyLogParamActionLog, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(NotifyLogParamActionLog, MDRPod::Read(&data, out.logInquiredType, maxSize));
-        MDR_TRY_SIZE(NotifyLogParamActionLog, (MDRPrefixedString::Read)(&data, out.data, maxSize));
+        MDR_TRY_SIZE(NotifyLogParamActionLog, (MDRPrefixedString16BE::Read)(&data, out.data, maxSize));
         MDR_TRY(NotifyLogParamActionLog, Validate(out));
         return MDRResult<NotifyLogParamActionLog>::Success(std::move(out));
     }

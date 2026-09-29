@@ -340,6 +340,44 @@ namespace
         return EncodesExactly(decoded.value, payload);
     }
 
+    bool CheckV2ActionLogWireLayout()
+    {
+        using namespace mdr;
+        using namespace mdr::v2::t1;
+
+        constexpr UInt8 payload[]{
+            static_cast<UInt8>(Command::LOG_NTFY_PARAM),
+            static_cast<UInt8>(LogInquiredType::ACTION_LOG_NOTIFIER),
+            0x00, 0x02, '{', '}',
+        };
+        const auto decoded = NotifyLogParamActionLog::Deserialize(payload, sizeof(payload));
+        if (!decoded || decoded.value.data.value != "{}" || !EncodesExactly(decoded.value, payload))
+            return false;
+
+        const PacketDescriptor* descriptor{};
+        ForEachDescriptor(
+            [&](const PacketDescriptor& candidate)
+            {
+                if (std::string_view(candidate.name) == "mdr::v2::t1::NotifyLogParamActionLog")
+                    descriptor = &candidate;
+                return true;
+            });
+        if (!descriptor)
+            return false;
+        PacketInstance packet{*descriptor};
+        if (!descriptor->decode(packet.Value(), {payload, sizeof(payload)}) || !descriptor->validate(packet.Value()))
+            return false;
+
+        NotifyLogParamActionLog longLog{};
+        longLog.data.value.assign(300, 'x');
+        UInt8 longBytes[4 + 300]{};
+        const auto longEncoded = NotifyLogParamActionLog::Serialize(longLog, longBytes, sizeof(longBytes));
+        if (!longEncoded || longEncoded.value != sizeof(longBytes) || longBytes[2] != 0x01 || longBytes[3] != 0x2C)
+            return false;
+        const auto longDecoded = NotifyLogParamActionLog::Deserialize(longBytes, sizeof(longBytes));
+        return longDecoded && longDecoded.value.data.value == longLog.data.value;
+    }
+
     bool CheckPeripheralDeviceInfoWireLayouts()
     {
         using namespace mdr;
@@ -571,5 +609,7 @@ int main()
         return 7;
     if (!CheckPacketCollectionZip())
         return 8;
+    if (!CheckV2ActionLogWireLayout())
+        return 9;
     return 0;
 }

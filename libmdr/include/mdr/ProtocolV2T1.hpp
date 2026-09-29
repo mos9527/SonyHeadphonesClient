@@ -5870,7 +5870,7 @@ namespace mdr::v2::t1
         Command command{Command::LOG_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         LogInquiredType logInquiredType{LogInquiredType::ACTION_LOG_NOTIFIER}; // 0x1
-        MDRPrefixedString data; // 0x2
+        MDRPrefixedString16BE data; // 0x2
 
         MDR_DEFINE_EXTERN_SERIALIZATION(NotifyLogParamActionLog);
     };

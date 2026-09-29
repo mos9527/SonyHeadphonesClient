@@ -12465,7 +12465,7 @@ namespace client::debugger {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("logInquiredType", value.logInquiredType, kEnum_mdr__v2__t1__LogInquiredType);
-            changed |= DrawPrefixedString("data", value.data);
+            changed |= DrawString("data", value.data.value, UINT16_MAX);
             return changed;
         }
         mdr::MDRResult<void> Decode_NotifyLogParamActionLog(void* storage, mdr::Span<const mdr::UInt8> bytes)
@@ -12475,7 +12475,7 @@ namespace client::debugger {
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.logInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString::Read)(&ptr, value.data, remaining));
+            MDR_DEBUGGER_TRY_READ(void, (MDRPrefixedString16BE::Read)(&ptr, value.data, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
@@ -12486,7 +12486,7 @@ namespace client::debugger {
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.logInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString::Write)(value.data, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPrefixedString16BE::Write)(value.data, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
         void* Create_NotifyLogParamActionLog() { return Construct<NotifyLogParamActionLog>(); }

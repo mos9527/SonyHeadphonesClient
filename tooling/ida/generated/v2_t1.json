@@ -50891,6 +50891,7 @@
       "discriminator_field": null,
       "discriminator_value": null,
       "evidence": [
+        "isValid proves UInt16BE tail string prefix at byte 2 for THMSGV2T1NotifyLogParamActionLog.data",
         "sub_1012C2AA0",
         "_JreThrowNullPointerException",
         "_create_JavaLangIllegalArgumentException_initWithNSString_",
@@ -50900,8 +50901,8 @@
         "_create_JavaIoByteArrayOutputStream_init",
         "writeWithInt:",
         "writeWithByteArray:withInt:withInt:",
-        "-[THMSGV2T1NotifyLogParamActionLog_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
+        "-[THMSGV2T1NotifyLogParamActionLog_Factory parseBytesWithByteArray:]",
         "inherited wire layout from THMSGV2T1NotifyLogParam"
       ],
       "factory_signature": "LNSString;",
@@ -50927,7 +50928,7 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "MDRPrefixedString",
+          "cpp_type": "MDRPrefixedString16BE",
           "default": null,
           "name": "data",
           "offset": 2,

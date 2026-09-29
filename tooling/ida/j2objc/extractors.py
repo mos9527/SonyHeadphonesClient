@@ -37,6 +37,7 @@ from .model import (
 _ENUM_MEMBER_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 _GETTER_RE = re.compile(r"^(?:get|is)(?P<name>[A-Z][A-Za-z0-9_]*)$")
 _COMMAND_WORDS = {"GET", "RET", "SET", "NTFY"}
+_TAIL_STRING16BE_EVIDENCE = "isValid proves UInt16BE tail string prefix at byte"
 _GENERIC_NAME_TOKENS = {
     "TYPE",
     "STATUS",
@@ -1370,6 +1371,9 @@ class ProtocolExtractor:
         )
         result.payloads = self._inherit_family_layouts(result.payloads)
         result.payloads = self._fill_proven_offset_gaps(result.payloads)
+        result.payloads = self._apply_tail_string16be_prefixes(
+            result.payloads
+        )
         result.payloads = self._infer_discriminator_defaults(
             result.payloads, result.enums
         )
@@ -1597,6 +1601,46 @@ class ProtocolExtractor:
             )
             for payload in output
         ]
+
+    @classmethod
+    def _apply_tail_string16be_prefixes(
+        cls, payloads: list[PayloadDecl]
+    ) -> list[PayloadDecl]:
+        """Widen a tail string once its final wire offset is known."""
+
+        pattern = re.compile(
+            re.escape(_TAIL_STRING16BE_EVIDENCE) + r" (\d+) for \S+\.(\w+)$"
+        )
+        output: list[PayloadDecl] = []
+        for payload in payloads:
+            proven: dict[str, set[int]] = {}
+            for evidence in payload.evidence:
+                match = pattern.match(evidence)
+                if match:
+                    proven.setdefault(match.group(2), set()).add(
+                        int(match.group(1))
+                    )
+            if not proven:
+                output.append(payload)
+                continue
+            fields = list(payload.fields)
+            tail = fields[-1] if fields else None
+            offsets = proven.get(tail.name, set()) if tail is not None else set()
+            if (
+                tail is None
+                or tail.cpp_type != "MDRPrefixedString"
+                or tail.offset not in offsets
+            ):
+                raise ExtractionError(
+                    f"UInt16BE tail string evidence for {payload.objc_name} "
+                    f"does not match final layout: evidence={proven}, tail="
+                    f"{(tail.name, tail.cpp_type, tail.offset) if tail else None}"
+                )
+            fields[-1] = replace(
+                tail, cpp_type="MDRPrefixedString16BE", wire_kind="string"
+            )
+            output.append(replace(payload, fields=tuple(fields)))
+        return output
 
     @classmethod
     def _fill_proven_offset_gaps(
@@ -4349,16 +4393,22 @@ class ProtocolExtractor:
         *,
         command_prefix: bool,
     ) -> tuple[list[FieldDecl], list[str]]:
-        if serializer is None or "writeWithByteArray:" not in self._decompile_text(
-            serializer
-        ):
+        if serializer is None:
             return fields, []
-        parser_text = "\n".join(
-            self._decompile_text(parser) for parser in parsers
+        serializer_text = self._decompile_text(serializer)
+        if "writeWithByteArray:" not in serializer_text:
+            return fields, []
+        parser_texts = [self._decompile_text(parser) for parser in parsers]
+        parser_text = "\n".join(parser_texts)
+        tail_length_checks = (
+            self._tail_length_prefix_checks(parser_texts)
+            if re.search(r">>\s*8\b", serializer_text)
+            else set()
         )
         output: list[FieldDecl] = []
         evidence: list[str] = []
-        for field in fields:
+        last_index = len(fields) - 1
+        for index, field in enumerate(fields):
             if (
                 field.cpp_type != "MDRPrefixedString"
                 or field.offset is None
@@ -4366,6 +4416,16 @@ class ProtocolExtractor:
                 output.append(field)
                 continue
             base = field.offset + (1 if command_prefix else 0)
+            if index == last_index and tail_length_checks:
+                # Factory subclasses do not carry inherited fields yet, so the
+                # wire offset is only checked after family layout inheritance.
+                output.append(field)
+                evidence.extend(
+                    f"{_TAIL_STRING16BE_EVIDENCE} {proven} for "
+                    f"{class_name}.{field.name}"
+                    for proven in sorted(tail_length_checks)
+                )
+                continue
             byte_offsets = {
                 int(value)
                 for value in re.findall(
@@ -4399,6 +4459,57 @@ class ProtocolExtractor:
             else:
                 output.append(field)
         return output, evidence
+
+    @staticmethod
+    def _tail_length_prefix_checks(parser_texts: list[str]) -> set[int]:
+        """Offsets proven to hold a UInt16BE prefix covering the payload tail.
+
+        J2ObjC ``_Factory isValidWithByteArray:`` bodies spill indices into
+        locals (``v14 = 2; v6 = v15[buffer_ + v14];``) and validate
+        ``size == ((hi << 8) | lo) + N``.  A match with ``hi`` at ``N - 2``
+        and ``lo`` at ``N - 1`` proves the string prefix width.
+        """
+
+        proven: set[int] = set()
+        for text in parser_texts:
+            assignments: dict[str, set[int]] = {}
+            for name, value in re.findall(
+                r"\b(v\d+)\s*=\s*(\d+)\s*;", text
+            ):
+                assignments.setdefault(name, set()).add(int(value))
+            constants = {
+                name: next(iter(values))
+                for name, values in assignments.items()
+                if len(values) == 1
+            }
+
+            def resolve(token: str) -> int | None:
+                if token.isdigit():
+                    return int(token)
+                return constants.get(token)
+
+            byte_reads: dict[str, set[int]] = {}
+            for name, token in re.findall(
+                r"\b(v\d+)\s*=\s*[^;\n]*?IOSByteArray_buffer_\s*\+\s*(\w+)",
+                text,
+            ):
+                offset = resolve(token)
+                if offset is not None:
+                    byte_reads.setdefault(name, set()).add(offset)
+            reads = {
+                name: next(iter(offsets))
+                for name, offsets in byte_reads.items()
+                if len(offsets) == 1
+            }
+            for high, low, total in re.findall(
+                r"IOSArray_size_\]\s*==\s*\(\(\s*(\w+)\s*<<\s*8\s*\)\s*\|"
+                r"\s*(\w+)\s*\)\s*\+\s*(\d+)",
+                text,
+            ):
+                base = int(total) - 2
+                if reads.get(high) == base and reads.get(low) == base + 1:
+                    proven.add(base)
+        return proven
 
     def _cpp_type(
         self, descriptor: str, generic: str | None

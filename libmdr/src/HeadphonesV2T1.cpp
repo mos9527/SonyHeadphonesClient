@@ -1026,37 +1026,15 @@ namespace mdr
 
     int HandleLogParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
-        // XXX: Don't have the corresponding struct in the official app yet, and
-        //      these don't get serialized in a way that's consistent with the rest.
-        //      So excuse the rawdogged parsing - FIXME.
         if (cmd.size() < 2)
             return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Malformed log parameter");
 
-        const UInt8* begin = nullptr;
-        size_t remaining = 0;
         switch (cmd[1])
         {
         case 0x00:
         {
-            MDRPrefixedString res;
-            if (cmd.size() > 2 && cmd[2])
-            {
-                begin = &cmd[2]; // key...
-                remaining = cmd.size() - 2;
-            }
-            else if (cmd.size() > 3)
-            {
-                begin = &cmd[3]; // op...
-                remaining = cmd.size() - 3;
-            }
-            else
-            {
-                return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Malformed log parameter");
-            }
-            const auto readResult = MDRPrefixedString::Read(&begin, res, remaining);
-            if (!readResult)
-                return self->SetLastError(readResult.error, "Unable to deserialize log parameter");
-            self->mDetailsV2.mLastDeviceJSONMessage = res.value;
+            Deserialize(NotifyLogParamActionLog, res, cmd);
+            self->mDetailsV2.mLastDeviceJSONMessage = res.data.value;
             return MDR_EVENT_DEVICE_MESSAGE;
         }
         case 0x01:
