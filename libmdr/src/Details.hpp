@@ -116,11 +116,6 @@ namespace mdr
     {
     private:
         MDRConnection* mConn;
-
-        // TODO Make these configurable
-        int mACKRetriesCount = 10u;
-        int mACKRetriesTimeout = 1000u;
-        int mDefaultTimeout = 5000u;
     public:
         enum AwaitType
         {
@@ -205,6 +200,26 @@ namespace mdr
          * @return MDR_RESULT_OK, or the code behind the failure. @ref GetLastError describes it.
          */
         ::MDRResult PollEvents(MDREvent& outEvent);
+
+        ::MDRResult SetTimeout(MDRTimeoutType type, int value) noexcept {
+            if (value <= 0)
+                return MDR_RESULT_ERROR_INVALID_ARGUMENT; 
+            switch (type)
+            {
+            case MDR_TIMEOUT_DEFAULT:
+                mDefaultTimeoutMS = value;
+                return MDR_RESULT_OK;
+            case MDR_TIMEOUT_ACK:
+                mACKRetryTimeoutMS = value;
+                return MDR_RESULT_OK;
+            case MDR_TIMEOUT_ACK_RETRIES:
+                mACKRetryCount = value;
+                return MDR_RESULT_OK;
+            default:
+                return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+            }
+        }
+
         void SetPacketCallback(MDRPacketCallback callback, void* userData) noexcept
         {
             mPacketCallback = callback;
@@ -234,7 +249,7 @@ namespace mdr
          * @param type The type of event to wait for.
          * @param timeoutMS The timeout in milliseconds. If the event does not arrive within this time, the coroutine
          *                  will be resumed with @ref MDR_RESULT_ERROR_TIMEOUT.
-         *                  Defaults to -1, which means @ref mDefaultTimeout is used instead.
+         *                  Defaults to -1, which means @ref mDefaultTimeoutMS is used instead.
          * @note  As always, needs @ref PollEvents
          */
         Awaiter& Await(AwaitType type, int timeoutMS = -1);
@@ -330,18 +345,25 @@ namespace mdr
             SetLastError(error, context);
             return mLastErrorCode;
         }
-
         String mLastError = "N/A";
         ::MDRResult mLastErrorCode{MDR_RESULT_ERROR_GENERAL};
 
+        // Custom callbacks for e.g. @ref Debugger and whatever. Set via @ref mdrHeadphonesSetPacketCallback
         MDRPacketCallback mPacketCallback{};
         void* mPacketCallbackUserData{};
-        Deque<UInt8> mRecvBuf, mSendBuf;
-        // Advanced only by @ref HandleAck. Devices drop frames that repeat an acknowledged sequence number.
+
+        // Connection buffers
+        Deque<UInt8> mRecvBuf, mSendBuf;        
         MDRCommandSeqNumber mSeqNumber{0};
 
+        // Task STM
         MDRTask mTask;
         Array<Awaiter, AWAIT_NUM_TYPES> mAwaiters{};
+
+        // Timeout/retry configs
+        int mACKRetryCount = 10u;
+        int mACKRetryTimeoutMS = 1000u;
+        int mDefaultTimeoutMS = 5000u;
 
         // Friend of PollEvents, so friend of yours too.
         int Receive();
@@ -447,17 +469,17 @@ namespace mdr::detail
     do                                                                                                                 \
     {                                                                                                                  \
         int _retries;                                                                                                  \
-        for (_retries = 0; _retries < mACKRetriesCount; _retries++)                                                    \
+        for (_retries = 0; _retries < mACKRetryCount; _retries++)                                                    \
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
             if (_sendResult != MDR_RESULT_OK)                                                                          \
                 co_return -1u;                                                                                         \
-            int res = co_await Await(AWAIT_ACK, mACKRetriesTimeout);                                                   \
+            int res = co_await Await(AWAIT_ACK, mACKRetryTimeoutMS);                                                   \
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
-            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetriesCount);                                     \
+            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetryCount);                                     \
         }                                                                                                              \
-        if (_retries == mACKRetriesCount)                                                                              \
+        if (_retries == mACKRetryCount)                                                                              \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \
     }                                                                                                                  \
     while (false)

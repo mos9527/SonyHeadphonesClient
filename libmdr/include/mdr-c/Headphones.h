@@ -21,6 +21,11 @@ typedef uint32_t MDRFeatureAvailability;
 #define MDR_AVAILABILITY_UNAVAILABLE ((MDRFeatureAvailability)1u)
 #define MDR_AVAILABILITY_AVAILABLE ((MDRFeatureAvailability)2u)
 
+typedef uint32_t MDRTimeoutType;
+#define MDR_TIMEOUT_DEFAULT ((MDRTimeoutType)0u) // In milliseconds
+#define MDR_TIMEOUT_ACK ((MDRTimeoutType)1u) // In milliseconds
+#define MDR_TIMEOUT_ACK_RETRIES ((MDRTimeoutType)2u) // No. of retries to perform before dropping the connection
+
 typedef uint32_t MDRFeature;
 #define MDR_FEATURE_IDENTITY ((MDRFeature)1u)
 #define MDR_FEATURE_BATTERY_SINGLE ((MDRFeature)2u)
@@ -275,7 +280,6 @@ typedef uint32_t MDRWearingPowerMode;
 #define MDR_WEARING_POWER_DISABLED ((MDRWearingPowerMode)1u)
 #define MDR_WEARING_POWER_WHEN_REMOVED ((MDRWearingPowerMode)2u)
 
-/* Live proximity sensor reading (V2 table 2 WEARING_STATUS_CHECKER). */
 typedef uint32_t MDRWearingStatus;
 #define MDR_WEARING_STATUS_UNKNOWN ((MDRWearingStatus)0u)
 #define MDR_WEARING_STATUS_WORN ((MDRWearingStatus)1u)
@@ -347,7 +351,6 @@ typedef struct MDREqualizer
     uint32_t band_count;
     MDRBoolean dsee_enabled;
     MDRDSEEType dsee_type;
-    /* Whether the device currently accepts changes, e.g. MDR_FALSE while a listening mode is active. */
     MDRBoolean available;
     MDRBoolean dsee_available;
 } MDREqualizer;
@@ -504,6 +507,11 @@ MDR_API MDRResult mdrHeadphonesRequestCommit(MDRHeadphones* headphones);
  * MDR_EVENT_NONE is returned when no command was received.
  */
 MDR_API MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* out_event);
+
+/**
+ * Assign timeout settings by type. The value must be a postive integer.
+ */
+MDR_API MDRResult mdrHeadphonesSetTimeout(MDRHeadphones* headphones, MDRTimeoutType type, int value);
 
 /**
  * Observes raw packets independently of semantic events. Passing NULL disables

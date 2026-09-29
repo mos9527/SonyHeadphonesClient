@@ -12,7 +12,7 @@ namespace mdr
     MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type, int timeoutMS)
     {
         auto& awaiter = mAwaiters[type];
-        awaiter.timeout = timeoutMS > 0 ? timeoutMS : mDefaultTimeout;
+        awaiter.timeout = timeoutMS > 0 ? timeoutMS : mDefaultTimeoutMS;
         return awaiter;
     }
 
@@ -1400,6 +1400,13 @@ MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* outEvent)
     if (!headphones || !outEvent)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     return Impl(headphones)->PollEvents(*outEvent);
+}
+
+MDRResult mdrHeadphonesSetTimeout(MDRHeadphones* headphones, MDRTimeoutType type, int value)
+{
+    if (!headphones)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    return Impl(headphones)->SetTimeout(type, value);
 }
 
 void mdrHeadphonesSetPacketCallback(MDRHeadphones* headphones, MDRPacketCallback callback, void* userData)
