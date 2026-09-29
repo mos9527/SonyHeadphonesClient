@@ -27,10 +27,12 @@ endforeach()
 
 target_sources(
         Client_PlatformEmscripten PRIVATE
-        PlatformEmscripten.cpp
+        ClientPlatform.cpp
 )
 target_link_libraries(
         Client_PlatformEmscripten
         PUBLIC
+        mdr::bt
+        PRIVATE
         mdr
 )

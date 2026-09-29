@@ -34,5 +34,15 @@ If applicable, add screenshots to help explain your problem. Attach `Guru Medita
  - Browser [e.g. stock browser, safari]
  - Version [e.g. Android 16]
 
+**Packet capture (optional)**
+If the bug involves communication with your headphones, follow the
+[packet capture guide](https://github.com/mos9527/SonyHeadphonesClient/blob/HEAD/tests/README.md#capturing--contributing),
+then attach the capture folder to this issue as a `.zip` file. Include the
+headphone model and firmware version in the archive name.
+
+Captures may contain private device or media information. Review and sanitize
+the files before uploading them; do not attach a capture if you are unsure
+what it contains.
+
 **Additional context**
 Add any other context about the problem here.

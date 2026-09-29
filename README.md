@@ -3,14 +3,17 @@ SonyHeadphonesClient
 
 A spiritual successor to  [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
 
-There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview), or use the [Web Version](#notes-on-web-platform).
+There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#notes-on-web-platform).
 
 [![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
-[![Nightly Builds](https://img.shields.io/badge/rewrite-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview)
+[![Nightly Builds](https://img.shields.io/badge/v1compat-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview)
 
 ## Roadmap
 This brach is expected to be merged/released once the following features have been implemented.
 - [ ] Support for legacy (`v1` protocol) devices, e.g. WH-1000XM4, WH-1000XM3
+  - Already WIP. You're looking at it *right now*
+  - Track the progress here: https://github.com/mos9527/SonyHeadphonesClient/pull/56
+  - Feel free to submit support status in new Issues regarding v1 (XM4 and older) devices. We *really* need more volunteers :(
 - [x] Native macOS platform support
 
 ## Compatiblity
@@ -26,15 +29,16 @@ The following platforms (applies to `libmdr`, `client`) are *natively* supported
 
 For device support, refer to `docs/device-support` to check. If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
-## Notes on Web Platform
+## Running on the Web
 
-The client app is available as a Progressive Web App with exact UI/Feature parity seen in other platforms.
+The client app is available as a Progressive Web App (PWA) with exact UI/Feature parity seen in other platforms.
 
 **Live version is available** at: https://mos9527.com/SonyHeadphonesClient/
 
-A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required - with a minor exception of Chrome on Android where [Web serial over Bluetooth on Android](https://cr-status.appspot.com/feature/5139978918821888) is supported as of Android build 138. You can expect the app to work on all reasonably new Desktop Chrome browsers, and the latest Android Chrome builds.
-
-As always, status reports are welcome - please do submit an Issue if your browser supports the Web version of the client app.
+A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required. You can expect the app to work on:
+- Desktop Chrome (89+), and Chromium derivatives (also 89+, e.g. Edge, Opera)
+- [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
+- [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
 
 ## For Developers
 
@@ -85,8 +89,17 @@ then build from there and serve the static content within `<build directory>/cli
 ### Linux
 On Linux, you may not see player metadata (track title, artist, etc.) despite correct output from `playerctl metadata` command
 while your device having proper AVRCP support (e.g. works on other platforms).
+
+This mostly occurs with multipoint setups, and is mostly an implementation problem.
 - You (or your distro) may have misconfigured [MPRIS](https://wiki.archlinux.org/title/MPRIS) service. One way to remedy
   is to manually run `mpris-proxy` (available in `bluez-tools`/`bluez-utils` package) in the background, or as a systemd service.
 - See also
   - https://wiki.archlinux.org/title/MPRIS
-  - https://github.com/bluez/bluez/issues/868 
+  - https://github.com/bluez/bluez/issues/868
+  - [#65](https://github.com/mos9527/SonyHeadphonesClient/pull/65) 
+- Alternatively, the Linux Client App can be used as a fallback. This is introduced in [#63](https://github.com/mos9527/SonyHeadphonesClient/pull/63), where the wearing status of the device is used to control host player status and thus bypassing AVRCP controls. 
+- This is by-default disabled. You can enable this via `--pause-media-on-remove` flag when launch the Client App. Thanks @phedoreanu for the implementation!
+
+---
+
+*This is a personal project, and is not officaly endorsed by Sony Corporation in any capacity.*

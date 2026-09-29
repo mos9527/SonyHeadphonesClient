@@ -6,7 +6,7 @@ name: Deploy Client to GitHub Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["rewrite"]
+    branches: ["v1-compat"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -49,7 +49,7 @@ jobs:
         # This creates the 'build' directory
         # We use 'emcmake' which is a wrapper provided by the Emscripten SDK
         # to configure CMake with the correct Emscripten toolchain.
-        run: emcmake cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -B build -S .
+        run: emcmake cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -B build -S .
 
       - name: Build Project Target
         # This builds your 'SonyHeadphonesClient' target

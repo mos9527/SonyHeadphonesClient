@@ -22,7 +22,7 @@ jobs:
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64"
             script: ""
-          - os: windows-latest
+          - os: windows-11-arm
             arch: arm64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-arm64"
@@ -63,7 +63,7 @@ jobs:
     - name: Configure CMake (Windows)
       working-directory: ${{github.workspace}}/build    
       if: runner.os == 'Windows'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -A ${{ matrix.arch }}
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -A ${{ matrix.arch }}
 
     - name: Configure CMake (Linux)
       env:
@@ -71,18 +71,28 @@ jobs:
         CXX: g++-${{ matrix.gcc }}
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'Linux'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON
 
     - name: Configure CMake (macOS)
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'macOS'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
     
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE --target SonyHeadphonesClient
+
+    - name: Build packet replay runner
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE --target mdr_tests
+
+    - name: Replay packet sets
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ctest --build-config $BUILD_TYPE --output-on-failure --no-tests=error
 
     - name: Strip Symbols (Linux)
       if: runner.os == 'Linux'
