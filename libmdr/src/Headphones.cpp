@@ -19,6 +19,8 @@ namespace mdr
     {
         if (auto& await = mAwaiters[type])
             await.resume_now(MDR_RESULT_OK);
+        else if (type != AWAIT_ACK)
+            await.signaled = true;
     }
 
     MDRTask MDRHeadphones::RequestInit()

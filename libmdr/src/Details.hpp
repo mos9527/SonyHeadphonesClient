@@ -147,8 +147,17 @@ namespace mdr
             int timeout;
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
+            // Set when @ref Awake found nobody waiting, so the next co_await completes at once
+            bool signaled = false;
 
-            static bool await_ready() noexcept { return false; }
+            bool await_ready() noexcept
+            {
+                if (!signaled)
+                    return false;
+                signaled = false;
+                result = MDR_RESULT_OK;
+                return true;
+            }
 
             void await_suspend(std::coroutine_handle<> handle) noexcept
             {
@@ -255,8 +264,20 @@ namespace mdr
         Awaiter& Await(AwaitType type, int timeoutMS = -1);
         /**
          * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
+         * @note  If nothing awaits @p type yet (other than @ref AWAIT_ACK), the signal is kept for
+         *        the next @ref Await of it. Some devices (e.g. WH-1000XM3) reply before they ACK the
+         *        request, so the reply lands while the task is still waiting on the ACK.
          */
         void Awake(AwaitType type);
+        /**
+         * @brief Drop signals kept by @ref Awake, so a reply to an earlier request cannot complete
+         *        an @ref Await for the next one.
+         */
+        void ClearAwakeSignals()
+        {
+            for (auto& awaiter : mAwaiters)
+                awaiter.signaled = false;
+        }
         /**
          * @brief This does what you think it does.
          */
@@ -472,6 +493,7 @@ namespace mdr::detail
     do                                                                                                                 \
     {                                                                                                                  \
         int _retries;                                                                                                  \
+        ClearAwakeSignals();                                                                                           \
         for (_retries = 0; _retries < mACKRetryCount; _retries++)                                                    \
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
