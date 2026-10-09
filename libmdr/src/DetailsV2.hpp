@@ -167,6 +167,8 @@ namespace mdr
         v2::t1::UpscalingType mUpscalingType{};
         bool mUpscalingAvailable{true};
 
+        Vector<v2::t1::AssignableSettingsKey> mAssignableSettingsKeys;
+
         struct GsCapability
         {
             v2::t1::GsSettingType type{};
@@ -197,7 +199,7 @@ namespace mdr
         MDRProperty<bool> mVoiceContentsEnabled;
         MDRProperty<bool> mSoundLeakageReductionEnabled;
         MDRProperty<bool> mAutoPauseEnabled;
-        MDRProperty<v2::t1::Preset> mTouchFunctionLeft, mTouchFunctionRight;
+        MDRProperty<Vector<v2::t1::Preset>> mAssignableSettingsPresets;
         MDRProperty<bool> mSpeakToChatEnabled;
         MDRProperty<v2::t1::DetectSensitivity> mSpeakToChatDetectSensitivity;
         MDRProperty<v2::t1::ModeOutTime> mSpeakToModeOutTime;
@@ -241,6 +243,17 @@ namespace mdr
             return out = PRESET_EQ_AND_ULT_MODE, true;
         if (state.mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE))
             return out = PRESET_EQ_AND_ERRORCODE, true;
+        return false;
+    }
+
+    inline bool AssignableSettingsInquiredType(const DetailsV2& state, v2::t1::SystemInquiredType& out)
+    {
+        using T1 = v2::t1::FunctionType;
+        using enum v2::t1::SystemInquiredType;
+        if (state.mSupport.contains(T1::ASSIGNABLE_SETTING_WITH_LIMITATION))
+            return out = ASSIGNABLE_SETTINGS_WITH_LIMITATION, true;
+        if (state.mSupport.contains(T1::ASSIGNABLE_SETTING))
+            return out = ASSIGNABLE_SETTINGS, true;
         return false;
     }
 
