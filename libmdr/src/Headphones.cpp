@@ -452,7 +452,9 @@ namespace
                 state.mSupport.contains(T1::GENERAL_SETTING_2) ||
                 state.mSupport.contains(T1::GENERAL_SETTING_3) ||
                 state.mSupport.contains(T1::GENERAL_SETTING_4);
-        case MDR_FEATURE_ASSIGNABLE_CONTROLS: return state.mSupport.contains(T1::ASSIGNABLE_SETTING);
+        case MDR_FEATURE_ASSIGNABLE_CONTROLS:
+            return state.mSupport.contains(T1::ASSIGNABLE_SETTING) ||
+                state.mSupport.contains(T1::ASSIGNABLE_SETTING_WITH_LIMITATION);
         case MDR_FEATURE_NOISE_CONTROL_BUTTON:
             return state.mSupport.contains(T1::AMBIENT_SOUND_CONTROL_MODE_SELECT);
         case MDR_FEATURE_AUTO_POWER_OFF:
@@ -1045,6 +1047,51 @@ namespace
         }
     }
 
+    MDRAssignableActionKeyLocation from_protocol(mdr::v2::t1::Key value)
+    {
+        using enum mdr::v2::t1::Key;
+        switch (value)
+        {
+        case LEFT_SIDE: return MDR_ASSIGNABLE_ACTION_KEY_LEFT;
+        case RIGHT_SIDE: return MDR_ASSIGNABLE_ACTION_KEY_RIGHT;
+        case CUSTOM: return MDR_ASSIGNABLE_ACTION_KEY_CUSTOM;
+        case C: return MDR_ASSIGNABLE_ACTION_KEY_C;
+        case NC_AMB_KEY: return MDR_ASSIGNABLE_ACTION_KEY_NC_AMB;
+        case NC_AMBIENT_KEY: return MDR_ASSIGNABLE_ACTION_KEY_NC_AMBIENT;
+        default: return MDR_ASSIGNABLE_ACTION_KEY_UNKNOWN;
+        }
+    }
+
+    MDRAssignableActionKeyType from_protocol(mdr::v2::t1::Type value)
+    {
+        using enum mdr::v2::t1::Type;
+        switch (value)
+        {
+        case TOUCH_SENSOR: return MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR;
+        case BUTTON: return MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON;
+        case FACE_TAP: return MDR_ASSIGNABLE_ACTION_KEY_TYPE_FACE_TAP;
+        default: return MDR_ASSIGNABLE_ACTION_KEY_TYPE_UNKNOWN;
+        }
+    }
+
+    template <typename KeyInfo>
+    MDRAssignableActionKeyType AssignableKeyType(const KeyInfo& keyInfo)
+    {
+        if constexpr (requires { keyInfo.keyType; })
+            return from_protocol(keyInfo.keyType);
+        else
+            return from_protocol(keyInfo.type);
+    }
+
+    template <typename KeyInfo>
+    const auto& AssignablePresets(const KeyInfo& keyInfo)
+    {
+        if constexpr (requires { keyInfo.presets; })
+            return keyInfo.presets;
+        else
+            return keyInfo.assignableSettingsPreset;
+    }
+
     MDRAssignableAction from_protocol(mdr::v1::t1::AssignableSettingsPreset value)
     {
         using enum mdr::v1::t1::AssignableSettingsPreset;
@@ -1081,29 +1128,40 @@ namespace
         using enum mdr::v2::t1::Preset;
         switch (value)
         {
-        case PLAYBACK_CONTROL:
-        case PLAYBACK_CONTROL_VOICE_ASSISTANT_LIMITATION:
-            return MDR_ASSIGNABLE_PLAYBACK;
-        case AMBIENT_SOUND_CONTROL:
-            return MDR_ASSIGNABLE_NOISE_CONTROL;
-        case AMBIENT_SOUND_CONTROL_QUICK_ACCESS:
-            return MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS;
-        case TRACK_CONTROL:
-            return MDR_ASSIGNABLE_TRACK_CONTROL;
-        case VOICE_RECOGNITION:
-            return MDR_ASSIGNABLE_VOICE_RECOGNITION;
-        case GOOGLE_ASSIST:
-            return MDR_ASSIGNABLE_GOOGLE_ASSISTANT;
-        case AMAZON_ALEXA:
-            return MDR_ASSIGNABLE_AMAZON_ALEXA;
-        case TENCENT_XIAOWEI:
-            return MDR_ASSIGNABLE_TENCENT_XIAOWEI;
-        case MS:
-            return MDR_ASSIGNABLE_MICROSOFT_CORTANA;
-        case QUICK_ACCESS:
-            return MDR_ASSIGNABLE_QUICK_ACCESS;
-        default:
-            return MDR_ASSIGNABLE_NONE;
+        case NO_FUNCTION: return MDR_ASSIGNABLE_NONE;
+        case PLAYBACK_CONTROL: return MDR_ASSIGNABLE_PLAYBACK;
+        case AMBIENT_SOUND_CONTROL: return MDR_ASSIGNABLE_NOISE_CONTROL;
+        case AMBIENT_SOUND_CONTROL_QUICK_ACCESS: return MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS;
+        case TRACK_CONTROL: return MDR_ASSIGNABLE_TRACK_CONTROL;
+        case VOICE_RECOGNITION: return MDR_ASSIGNABLE_VOICE_RECOGNITION;
+        case GOOGLE_ASSIST: return MDR_ASSIGNABLE_GOOGLE_ASSISTANT;
+        case AMAZON_ALEXA: return MDR_ASSIGNABLE_AMAZON_ALEXA;
+        case TENCENT_XIAOWEI: return MDR_ASSIGNABLE_TENCENT_XIAOWEI;
+        case MS: return MDR_ASSIGNABLE_MICROSOFT_CORTANA;
+        case QUICK_ACCESS: return MDR_ASSIGNABLE_QUICK_ACCESS;
+        case VOLUME_CONTROL: return MDR_ASSIGNABLE_VOLUME;
+        case PLAYBACK_CONTROL_VOICE_ASSISTANT_LIMITATION: return MDR_ASSIGNABLE_PLAYBACK_VOICE_ASSISTANT_LIMITATION;
+        case TENCENT_XIAOWEI_Q_MSC: return MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC;
+        case TEAMS: return MDR_ASSIGNABLE_TEAMS;
+        case GOOGLE_ASSISTANT_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+            return MDR_ASSIGNABLE_GOOGLE_ASSISTANT_BT_CLASSIC_CAUTION;
+        case AMAZON_ALEXA_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+            return MDR_ASSIGNABLE_AMAZON_ALEXA_BT_CLASSIC_CAUTION;
+        case TENCENT_XIAOWEI_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+            return MDR_ASSIGNABLE_TENCENT_XIAOWEI_BT_CLASSIC_CAUTION;
+        case QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+            return MDR_ASSIGNABLE_QUICK_ACCESS_BT_CLASSIC_CAUTION;
+        case AMBIENT_SOUND_CONTROL_QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+            return MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION;
+        case TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
+            return MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC_BT_CLASSIC_CAUTION;
+        case AMBIENT_SOUND_CONTROL_MIC: return MDR_ASSIGNABLE_NOISE_CONTROL_MIC;
+        case LISTENING_MODE_QUICK_ACCESS: return MDR_ASSIGNABLE_LISTENING_MODE_QUICK_ACCESS;
+        case AMBIENT_SOUND_CONTROL_LISTENING_MODE: return MDR_ASSIGNABLE_NOISE_CONTROL_LISTENING_MODE;
+        case CHAT_MIX: return MDR_ASSIGNABLE_CHAT_MIX;
+        case CUSTOM1: return MDR_ASSIGNABLE_CUSTOM1;
+        case CUSTOM2: return MDR_ASSIGNABLE_CUSTOM2;
+        default: return MDR_ASSIGNABLE_UNKNOWN;
         }
     }
 
@@ -1123,6 +1181,29 @@ namespace
         case MDR_ASSIGNABLE_TENCENT_XIAOWEI: out = TENCENT_XIAOWEI; return true;
         case MDR_ASSIGNABLE_MICROSOFT_CORTANA: out = MS; return true;
         case MDR_ASSIGNABLE_QUICK_ACCESS: out = QUICK_ACCESS; return true;
+        case MDR_ASSIGNABLE_VOLUME: out = VOLUME_CONTROL; return true;
+        case MDR_ASSIGNABLE_PLAYBACK_VOICE_ASSISTANT_LIMITATION:
+            out = PLAYBACK_CONTROL_VOICE_ASSISTANT_LIMITATION; return true;
+        case MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC: out = TENCENT_XIAOWEI_Q_MSC; return true;
+        case MDR_ASSIGNABLE_TEAMS: out = TEAMS; return true;
+        case MDR_ASSIGNABLE_GOOGLE_ASSISTANT_BT_CLASSIC_CAUTION:
+            out = GOOGLE_ASSISTANT_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION; return true;
+        case MDR_ASSIGNABLE_AMAZON_ALEXA_BT_CLASSIC_CAUTION:
+            out = AMAZON_ALEXA_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION; return true;
+        case MDR_ASSIGNABLE_TENCENT_XIAOWEI_BT_CLASSIC_CAUTION:
+            out = TENCENT_XIAOWEI_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION; return true;
+        case MDR_ASSIGNABLE_QUICK_ACCESS_BT_CLASSIC_CAUTION:
+            out = QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION; return true;
+        case MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION:
+            out = AMBIENT_SOUND_CONTROL_QUICK_ACCESS_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION; return true;
+        case MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC_BT_CLASSIC_CAUTION:
+            out = TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION; return true;
+        case MDR_ASSIGNABLE_NOISE_CONTROL_MIC: out = AMBIENT_SOUND_CONTROL_MIC; return true;
+        case MDR_ASSIGNABLE_LISTENING_MODE_QUICK_ACCESS: out = LISTENING_MODE_QUICK_ACCESS; return true;
+        case MDR_ASSIGNABLE_NOISE_CONTROL_LISTENING_MODE: out = AMBIENT_SOUND_CONTROL_LISTENING_MODE; return true;
+        case MDR_ASSIGNABLE_CHAT_MIX: out = CHAT_MIX; return true;
+        case MDR_ASSIGNABLE_CUSTOM1: out = CUSTOM1; return true;
+        case MDR_ASSIGNABLE_CUSTOM2: out = CUSTOM2; return true;
         default: return false;
         }
     }
@@ -2174,10 +2255,8 @@ MDRResult mdrHeadphonesGetAssignableControls(
     auto& h = *Impl(headphones);
     if (!WithDetails(h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_ASSIGNABLE_CONTROLS); }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    // TODO(@amrsatrio): v1 only for now, please work on V2
-    if (h.mProtocolFamily != Headphones::ProtocolFamily::V1)
-        return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    auto& state = h.mDetailsV1;
+    return WithDetails(h, [&](const auto& state) -> MDRResult
+    {
     // Consistency check
     if (state.mAssignableSettingsKeys.size() != state.mAssignableSettingsPresets.current.size())
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
@@ -2198,12 +2277,13 @@ MDRResult mdrHeadphonesGetAssignableControls(
     {
         outControls[i] = {
             .location = from_protocol(state.mAssignableSettingsKeys[i].key),
-            .type = from_protocol(state.mAssignableSettingsKeys[i].keyType),
+            .type = AssignableKeyType(state.mAssignableSettingsKeys[i]),
             .action = from_protocol(state.mAssignableSettingsPresets.current[i])
         };
     }
     *inoutCount = required;
     return MDR_RESULT_OK;
+    });
 }
 
 MDRResult mdrHeadphonesGetAssignableControlActions(
@@ -2215,20 +2295,16 @@ MDRResult mdrHeadphonesGetAssignableControlActions(
     auto& h = *Impl(headphones);
     if (!WithDetails(h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_ASSIGNABLE_CONTROLS); }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    // TODO(@amrsatrio): v1 only for now, please work on V2
-    if (h.mProtocolFamily != Headphones::ProtocolFamily::V1)
-        return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    auto& state = h.mDetailsV1;
-    // Consistency check
-    if (state.mAssignableSettingsKeys.size() != state.mAssignableSettingsPresets.current.size())
-        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    return WithDetails(h, [&](const auto& state) -> MDRResult
+    {
     auto it = std::ranges::find_if(state.mAssignableSettingsKeys, [&](const auto& keyInfo)
     {
         return from_protocol(keyInfo.key) == key;
     });
     if (it == state.mAssignableSettingsKeys.end())
         return MDR_RESULT_ERROR_NOT_FOUND;
-    uint32_t required = static_cast<uint32_t>(it->presets.size());
+    const auto& presets = AssignablePresets(*it);
+    const uint32_t required = static_cast<uint32_t>(presets.size());
     if (!outOptions)
     {
         if (*inoutCount != 0)
@@ -2243,10 +2319,11 @@ MDRResult mdrHeadphonesGetAssignableControlActions(
     }
     for (uint32_t i = 0; i < required; ++i)
     {
-        outOptions[i] = from_protocol(it->presets.value[i].preset);
+        outOptions[i] = from_protocol(presets.value[i].preset);
     }
     *inoutCount = required;
     return MDR_RESULT_OK;
+    });
 }
 
 MDRResult mdrHeadphonesSetAssignableControls(
@@ -2259,24 +2336,39 @@ MDRResult mdrHeadphonesSetAssignableControls(
         return MDR_RESULT_INPROGRESS;
     if (!WithDetails(h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_ASSIGNABLE_CONTROLS); }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    // TODO(@amrsatrio): v1 only for now, please work on V2
-    if (h.mProtocolFamily != Headphones::ProtocolFamily::V1)
-        return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    auto& state = h.mDetailsV1;
+    return WithDetails(h, [&](auto& state) -> MDRResult
+    {
     // Sanity check
     if (state.mAssignableSettingsKeys.size() != state.mAssignableSettingsPresets.current.size())
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     // Check input length
     if (count != state.mAssignableSettingsKeys.size())
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    mdr::Vector<mdr::v1::t1::AssignableSettingsPreset> newPresets = state.mAssignableSettingsPresets.current;
+    decltype(state.mAssignableSettingsPresets.current) newPresets(count);
     for (uint32_t i = 0; i < count; ++i)
     {
-        if (!to_protocol(controls[i].action, newPresets[i]))
+        const auto& control = controls[i];
+        if (control.location == MDR_ASSIGNABLE_ACTION_KEY_UNKNOWN ||
+            control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_UNKNOWN)
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        if (std::ranges::find_if(controls, controls + i, [&](const auto& previous)
+            { return previous.location == control.location; }) != controls + i)
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        const auto key = std::ranges::find_if(state.mAssignableSettingsKeys, [&](const auto& keyInfo)
+            { return from_protocol(keyInfo.key) == control.location; });
+        if (key == state.mAssignableSettingsKeys.end() || AssignableKeyType(*key) != control.type)
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        auto& preset = newPresets[static_cast<size_t>(key - state.mAssignableSettingsKeys.begin())];
+        if (!to_protocol(control.action, preset))
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        const auto& advertised = AssignablePresets(*key);
+        if (std::ranges::find_if(advertised, [&](const auto& option)
+            { return option.preset == preset; }) == advertised.end())
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     }
     state.mAssignableSettingsPresets.stage(std::move(newPresets));
     return MDR_RESULT_OK;
+    });
 }
 
 MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPower* outPower)

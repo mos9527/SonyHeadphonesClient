@@ -235,11 +235,27 @@ const char* FormatAssignableActionKeyLocation(const MDRAssignableControl& contro
     switch (control.location)
     {
     case MDR_ASSIGNABLE_ACTION_KEY_LEFT:
-        return control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR ? Tr(i18n::TextId::LeftTouch) : Tr(i18n::TextId::LeftButton);
+        if (control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_FACE_TAP)
+            return Tr(i18n::TextId::LeftFaceTap);
+        else if (control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR)
+            return Tr(i18n::TextId::LeftTouch);
+        else
+            return Tr(i18n::TextId::LeftButton);
     case MDR_ASSIGNABLE_ACTION_KEY_RIGHT:
-        return control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR ? Tr(i18n::TextId::RightTouch) : Tr(i18n::TextId::RightButton);
+        if (control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_FACE_TAP)
+            return Tr(i18n::TextId::RightFaceTap);
+        else if (control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR)
+            return Tr(i18n::TextId::RightTouch);
+        else
+            return Tr(i18n::TextId::RightButton);
     case MDR_ASSIGNABLE_ACTION_KEY_CUSTOM:
         return Tr(i18n::TextId::CustomButton);
+    case MDR_ASSIGNABLE_ACTION_KEY_C:
+        return Tr(i18n::TextId::CButton);
+    case MDR_ASSIGNABLE_ACTION_KEY_NC_AMB:
+        return Tr(i18n::TextId::NcAmbButton);
+    case MDR_ASSIGNABLE_ACTION_KEY_NC_AMBIENT:
+        return Tr(i18n::TextId::NcAmbientButton);
     default:
         return Tr(i18n::TextId::Unknown);
     }
@@ -266,9 +282,41 @@ const char* FormatAssignableAction(MDRAssignableAction action)
     case MDR_ASSIGNABLE_MICROSOFT_CORTANA:
         return Tr(i18n::TextId::MicrosoftCortana);
     case MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS:
-        return Tr(i18n::TextId::AmbientSoundControl);
+        return Tr(i18n::TextId::AmbientSoundQuickAccess);
     case MDR_ASSIGNABLE_QUICK_ACCESS:
         return Tr(i18n::TextId::QuickAccess);
+    case MDR_ASSIGNABLE_VOLUME:
+        return Tr(i18n::TextId::VolumeControl);
+    case MDR_ASSIGNABLE_PLAYBACK_VOICE_ASSISTANT_LIMITATION:
+        return Tr(i18n::TextId::PlaybackVoiceAssistantLimitation);
+    case MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC:
+        return Tr(i18n::TextId::TencentXiaoweiQMsc);
+    case MDR_ASSIGNABLE_TEAMS:
+        return Tr(i18n::TextId::Teams);
+    case MDR_ASSIGNABLE_GOOGLE_ASSISTANT_BT_CLASSIC_CAUTION:
+        return Tr(i18n::TextId::GoogleAssistantClassicOnly);
+    case MDR_ASSIGNABLE_AMAZON_ALEXA_BT_CLASSIC_CAUTION:
+        return Tr(i18n::TextId::AmazonAlexaClassicOnly);
+    case MDR_ASSIGNABLE_TENCENT_XIAOWEI_BT_CLASSIC_CAUTION:
+        return Tr(i18n::TextId::TencentXiaoweiClassicOnly);
+    case MDR_ASSIGNABLE_QUICK_ACCESS_BT_CLASSIC_CAUTION:
+        return Tr(i18n::TextId::QuickAccessClassicOnly);
+    case MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION:
+        return Tr(i18n::TextId::AmbientSoundQuickAccessClassicOnly);
+    case MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC_BT_CLASSIC_CAUTION:
+        return Tr(i18n::TextId::TencentXiaoweiQMscClassicOnly);
+    case MDR_ASSIGNABLE_NOISE_CONTROL_MIC:
+        return Tr(i18n::TextId::AmbientSoundMic);
+    case MDR_ASSIGNABLE_LISTENING_MODE_QUICK_ACCESS:
+        return Tr(i18n::TextId::ListeningModeQuickAccess);
+    case MDR_ASSIGNABLE_NOISE_CONTROL_LISTENING_MODE:
+        return Tr(i18n::TextId::AmbientSoundListeningMode);
+    case MDR_ASSIGNABLE_CHAT_MIX:
+        return Tr(i18n::TextId::ChatMix);
+    case MDR_ASSIGNABLE_CUSTOM1:
+        return Tr(i18n::TextId::AssignableCustom1);
+    case MDR_ASSIGNABLE_CUSTOM2:
+        return Tr(i18n::TextId::AssignableCustom2);
     case MDR_ASSIGNABLE_NONE:
         return Tr(i18n::TextId::NoFunction);
     default:

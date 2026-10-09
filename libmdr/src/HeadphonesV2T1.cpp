@@ -718,6 +718,35 @@ namespace mdr
         return MDR_EVENT_UNHANDLED;
     }
 
+    int HandleSystemCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        SystemInquiredType type{};
+        if (!detail::ReadEnumTag(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        SystemInquiredType advertisedType{};
+        if (!AssignableSettingsInquiredType(self->mDetailsV2, advertisedType) || type != advertisedType)
+            return MDR_EVENT_UNHANDLED;
+
+        using enum SystemInquiredType;
+        switch (type)
+        {
+        case ASSIGNABLE_SETTINGS:
+        {
+            Deserialize(SystemRetCapabilityAssignableSettings, res, cmd);
+            self->mDetailsV2.mAssignableSettingsKeys = std::move(res.keys.value);
+            return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
+        }
+        case ASSIGNABLE_SETTINGS_WITH_LIMITATION:
+        {
+            Deserialize(SystemRetCapabilityAssignableSettingsWithLimit, res, cmd);
+            self->mDetailsV2.mAssignableSettingsKeys = std::move(res.keys.value);
+            return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
+        }
+        default:
+            return MDR_EVENT_UNHANDLED;
+        }
+    }
+
     int HandleSystemParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         SystemInquiredType type{};
@@ -747,30 +776,39 @@ namespace mdr
             return MDR_EVENT_UNHANDLED;
         }
         case ASSIGNABLE_SETTINGS:
+        case ASSIGNABLE_SETTINGS_WITH_LIMITATION:
         {
-            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
+            SystemInquiredType advertisedType{};
+            if (!AssignableSettingsInquiredType(self->mDetailsV2, advertisedType) || type != advertisedType)
+                return MDR_EVENT_UNHANDLED;
+
+            if (type == ASSIGNABLE_SETTINGS_WITH_LIMITATION)
+            {
+                if (command == Command::SYSTEM_NTFY_PARAM)
+                {
+                    Deserialize(SystemNotifyParamAssignableSettingsWithLimit, res, cmd);
+                    self->mDetailsV2.mAssignableSettingsPresets.overwrite(res.presetList.value);
+                }
+                else
+                {
+                    Deserialize(SystemRetParamAssignableSettingsWithLimit, res, cmd);
+                    self->mDetailsV2.mAssignableSettingsPresets.overwrite(res.presetList.value);
+                }
+            }
+            else
             {
                 if (command == Command::SYSTEM_NTFY_PARAM)
                 {
                     Deserialize(SystemNotifyParamAssignableSettings, res, cmd);
-                    if (res.presetList.size() == 2)
-                    {
-                        self->mDetailsV2.mTouchFunctionLeft.overwrite(res.presetList.value[0]);
-                        self->mDetailsV2.mTouchFunctionRight.overwrite(res.presetList.value[1]);
-                    }
+                    self->mDetailsV2.mAssignableSettingsPresets.overwrite(res.presetList.value);
                 }
                 else
                 {
                     Deserialize(SystemRetParamAssignableSettings, res, cmd);
-                    if (res.presetList.size() == 2)
-                    {
-                        self->mDetailsV2.mTouchFunctionLeft.overwrite(res.presetList.value[0]);
-                        self->mDetailsV2.mTouchFunctionRight.overwrite(res.presetList.value[1]);
-                    }
+                    self->mDetailsV2.mAssignableSettingsPresets.overwrite(res.presetList.value);
                 }
-                return MDR_EVENT_NOISE_CONTROL_CHANGED;
             }
-            return MDR_EVENT_UNHANDLED;
+            return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
         }
         case SMART_TALKING_MODE_TYPE2:
         {
@@ -1100,6 +1138,8 @@ namespace mdr
         case AUDIO_RET_PARAM:
         case AUDIO_NTFY_PARAM:
             return HandleAudioParamT1(self, cmd);
+        case SYSTEM_RET_CAPABILITY:
+            return HandleSystemCapabilityT1(self, cmd);
         case SYSTEM_RET_PARAM:
         case SYSTEM_NTFY_PARAM:
             return HandleSystemParamT1(self, cmd);

@@ -274,6 +274,23 @@ typedef uint32_t MDRAssignableAction;
 #define MDR_ASSIGNABLE_TENCENT_XIAOWEI ((MDRAssignableAction)8u)
 #define MDR_ASSIGNABLE_MICROSOFT_CORTANA ((MDRAssignableAction)9u)
 #define MDR_ASSIGNABLE_QUICK_ACCESS ((MDRAssignableAction)10u)
+#define MDR_ASSIGNABLE_VOLUME ((MDRAssignableAction)11u)
+#define MDR_ASSIGNABLE_PLAYBACK_VOICE_ASSISTANT_LIMITATION ((MDRAssignableAction)12u)
+#define MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC ((MDRAssignableAction)13u)
+#define MDR_ASSIGNABLE_TEAMS ((MDRAssignableAction)14u)
+#define MDR_ASSIGNABLE_GOOGLE_ASSISTANT_BT_CLASSIC_CAUTION ((MDRAssignableAction)15u)
+#define MDR_ASSIGNABLE_AMAZON_ALEXA_BT_CLASSIC_CAUTION ((MDRAssignableAction)16u)
+#define MDR_ASSIGNABLE_TENCENT_XIAOWEI_BT_CLASSIC_CAUTION ((MDRAssignableAction)17u)
+#define MDR_ASSIGNABLE_QUICK_ACCESS_BT_CLASSIC_CAUTION ((MDRAssignableAction)18u)
+#define MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION ((MDRAssignableAction)19u)
+#define MDR_ASSIGNABLE_TENCENT_XIAOWEI_Q_MSC_BT_CLASSIC_CAUTION ((MDRAssignableAction)20u)
+#define MDR_ASSIGNABLE_NOISE_CONTROL_MIC ((MDRAssignableAction)21u)
+#define MDR_ASSIGNABLE_LISTENING_MODE_QUICK_ACCESS ((MDRAssignableAction)22u)
+#define MDR_ASSIGNABLE_NOISE_CONTROL_LISTENING_MODE ((MDRAssignableAction)23u)
+#define MDR_ASSIGNABLE_CHAT_MIX ((MDRAssignableAction)24u)
+#define MDR_ASSIGNABLE_CUSTOM1 ((MDRAssignableAction)25u)
+#define MDR_ASSIGNABLE_CUSTOM2 ((MDRAssignableAction)26u)
+#define MDR_ASSIGNABLE_UNKNOWN ((MDRAssignableAction)27u)
 
 typedef uint32_t MDRWearingPowerMode;
 #define MDR_WEARING_POWER_UNAVAILABLE ((MDRWearingPowerMode)0u)
@@ -393,11 +410,15 @@ typedef uint32_t MDRAssignableActionKeyLocation;
 #define MDR_ASSIGNABLE_ACTION_KEY_LEFT ((MDRAssignableActionKeyLocation)1u)
 #define MDR_ASSIGNABLE_ACTION_KEY_RIGHT ((MDRAssignableActionKeyLocation)2u)
 #define MDR_ASSIGNABLE_ACTION_KEY_CUSTOM ((MDRAssignableActionKeyLocation)3u)
+#define MDR_ASSIGNABLE_ACTION_KEY_C ((MDRAssignableActionKeyLocation)4u)
+#define MDR_ASSIGNABLE_ACTION_KEY_NC_AMB ((MDRAssignableActionKeyLocation)5u)
+#define MDR_ASSIGNABLE_ACTION_KEY_NC_AMBIENT ((MDRAssignableActionKeyLocation)6u)
 
 typedef uint32_t MDRAssignableActionKeyType;
 #define MDR_ASSIGNABLE_ACTION_KEY_TYPE_UNKNOWN ((MDRAssignableActionKeyType)0u)
 #define MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR ((MDRAssignableActionKeyType)1u)
 #define MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON ((MDRAssignableActionKeyType)2u)
+#define MDR_ASSIGNABLE_ACTION_KEY_TYPE_FACE_TAP ((MDRAssignableActionKeyType)3u)
 
 typedef struct MDRAssignableControl
 {

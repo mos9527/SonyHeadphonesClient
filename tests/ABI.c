@@ -793,6 +793,10 @@ typedef struct Device
     /* When set, the handshake is answered the way a V1 headset answers it, and the device
      * replies to voice-guidance requests. Pair it with session_open_family(MDR_PROTOCOL_V1). */
     int protocol_v1;
+    const unsigned char* assignable_capability;
+    size_t assignable_capability_size;
+    const unsigned char* assignable_params;
+    size_t assignable_params_size;
     RequestLog log[REQUEST_LOG_CAPACITY];
     size_t log_size;
 } Device;
@@ -894,6 +898,16 @@ static void device_pump(Device* device)
                 device->eq_notification,
                 device->eq_notification_size
             );
+        }
+        else if (table == 1 && frame.payload[0] == 0xf0 && device->assignable_capability != NULL)
+        {
+            device_send(device, MDR_DATA_TYPE_DATA_MDR, device->assignable_capability,
+                        device->assignable_capability_size);
+        }
+        else if (table == 1 && frame.payload[0] == 0xf6 && device->assignable_params != NULL)
+        {
+            device_send(device, MDR_DATA_TYPE_DATA_MDR, device->assignable_params,
+                        device->assignable_params_size);
         }
     }
 }
@@ -2181,6 +2195,217 @@ static void test_wearing_status(void)
     session_close(&session);
 }
 
+static void test_v2_assignable_controls(int limited)
+{
+    /* Non-left/right capability order, three keys, and distinct V2 preset variants. */
+    static const unsigned char normal_capability[] = {
+        0xf1, 0x03, 3,
+        1, 0, 0xff, 2, 0x22, 1, 0, 0, 0x20, 0xff, 1, 0, 0, 0,
+        2, 1, 0xff, 2, 0x30, 1, 0, 0, 0x30, 0xff, 1, 0, 0, 0,
+        0, 0, 0xff, 2, 0x10, 1, 0, 0, 0x23, 0xff, 1, 0, 0, 0
+    };
+    /* One C button; BT Classic caution preset must not collapse to its plain variant. */
+    static const unsigned char limited_capability[] = {
+        0xf1, 0x0e, 0, 1,
+        3, 1, 0xff, 2, 0x43, 1, 0, 0, 2, 0xff, 1, 0, 0, 0
+    };
+    static const unsigned char normal_params[] = {0xf7, 0x03, 3, 0xff, 0xff, 0xff};
+    static const unsigned char limited_params[] = {0xf7, 0x0e, 1, 0xff};
+    const unsigned char support[] = {0x07, 0x00, 1, (unsigned char)(limited ? 0xfe : 0xf3), 0};
+    static const unsigned char table2[] = {0x07, 0x00, 0};
+    const unsigned char notification[] = {
+        0xf9, (unsigned char)(limited ? 0x0e : 0x03),
+        (unsigned char)(limited ? 1 : 3), (unsigned char)(limited ? 0x43 : 0x22), 0x30, 0x10
+    };
+    const MDRAssignableControl desired[] = {
+        {MDR_ASSIGNABLE_ACTION_KEY_LEFT, MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR, MDR_ASSIGNABLE_VOLUME},
+        {MDR_ASSIGNABLE_ACTION_KEY_CUSTOM, MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON, MDR_ASSIGNABLE_VOICE_RECOGNITION},
+        {MDR_ASSIGNABLE_ACTION_KEY_RIGHT, MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR,
+         MDR_ASSIGNABLE_PLAYBACK_VOICE_ASSISTANT_LIMITATION}
+    };
+    Session session;
+    Device device;
+    MDRAssignableControl controls[3], input[3];
+    MDRAssignableAction options[2];
+    MDRFeatureAvailability availability;
+    uint32_t count, option_count;
+    size_t offset;
+    TxFrame frame;
+    int found = 0;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = support;
+    device.table1_size = sizeof(support);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device.assignable_capability = limited ? limited_capability : normal_capability;
+    device.assignable_capability_size = limited ? sizeof(limited_capability) : sizeof(normal_capability);
+    device.assignable_params = limited ? limited_params : normal_params;
+    device.assignable_params_size = limited ? sizeof(limited_params) : sizeof(normal_params);
+    device_run_init(&session, &device);
+
+    check_result(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_ASSIGNABLE_CONTROLS, &availability),
+                 MDR_RESULT_OK, "assignable feature queries");
+    check(availability == MDR_AVAILABILITY_AVAILABLE, "normal and limited controls are available");
+    count = 0;
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, NULL, &count),
+                 MDR_RESULT_OK, "capability-driven control count queries");
+    check(count == (limited ? 1u : 3u), "control count follows advertised keys");
+    count = 0;
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+                 MDR_RESULT_ERROR_BUFFER_TOO_SMALL, "control copy detects short buffer");
+    check(count == (limited ? 1u : 3u), "short control buffer reports required count");
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+                 MDR_RESULT_OK, "controls read after initialization");
+    check(controls[0].location == (limited ? MDR_ASSIGNABLE_ACTION_KEY_C : MDR_ASSIGNABLE_ACTION_KEY_RIGHT),
+          "controls retain capability order and key identity");
+    check(controls[0].type == (limited ? MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON : MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR),
+          "controls expose advertised key type");
+    check(controls[0].action == MDR_ASSIGNABLE_NONE, "parameter response supplies current assignment");
+    option_count = 2;
+    check_result(mdrHeadphonesGetAssignableControlActions(session.headphones, controls[0].location, options, &option_count),
+                 MDR_RESULT_OK, "key-specific presets read");
+    check(option_count == 2 && options[0] == (limited ? MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION :
+                                            MDR_ASSIGNABLE_PLAYBACK_VOICE_ASSISTANT_LIMITATION) &&
+          options[1] == MDR_ASSIGNABLE_NONE, "distinct V2 variants and NONE retain their identities");
+
+    if (limited)
+    {
+        input[0] = controls[0];
+        input[0].action = MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION;
+    }
+    else
+        memcpy(input, desired, sizeof(input));
+    /* A valid earlier entry must not be staged when a later entry is invalid. */
+    input[count - 1].action = MDR_ASSIGNABLE_GOOGLE_ASSISTANT;
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, input, count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "unadvertised action is rejected transactionally");
+    check(!mdrHeadphonesIsDirty(session.headphones), "invalid assignment leaves no staged state");
+    if (limited)
+        input[0].action = MDR_ASSIGNABLE_NOISE_CONTROL_QUICK_ACCESS_BT_CLASSIC_CAUTION;
+    else
+        memcpy(input, desired, sizeof(input));
+    input[0].type = MDR_ASSIGNABLE_ACTION_KEY_TYPE_UNKNOWN;
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, input, count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "wrong key type is rejected");
+    check(!mdrHeadphonesIsDirty(session.headphones), "wrong type leaves no staged state");
+    input[0].type = limited ? MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON : MDR_ASSIGNABLE_ACTION_KEY_TYPE_TOUCH_SENSOR;
+    if (!limited)
+    {
+        input[1] = input[0];
+        check_result(mdrHeadphonesSetAssignableControls(session.headphones, input, count),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "duplicate key cannot replace a missing key");
+        check(!mdrHeadphonesIsDirty(session.headphones), "duplicate keys leave no staged state");
+        memcpy(input, desired, sizeof(input));
+    }
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, input, count),
+                 MDR_RESULT_OK, "advertised actions stage in arbitrary caller order");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "assignment apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "assignment apply completes");
+    while (next_tx_frame(&session.transport, &offset, &frame))
+    {
+        if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload[0] == 0xf8)
+        {
+            found = 1;
+            check(frame.payload_size == (limited ? 4u : 6u) &&
+                  frame.payload[1] == (limited ? 0x0e : 0x03) &&
+                  frame.payload[2] == count && frame.payload[3] == (limited ? 0x43 : 0x22) &&
+                  (limited || (frame.payload[4] == 0x30 && frame.payload[5] == 0x10)),
+                  "assignment serialization preserves capability order and exact wire presets");
+        }
+    }
+    check(found, "assignment commit transmits a settings update");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, limited ? 4u : sizeof(notification));
+    device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "assignment notification emits its own event");
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+                 MDR_RESULT_OK, "notified assignments read");
+    check(controls[0].action == options[0], "notification preserves distinct preset identity");
+    session_close(&session);
+}
+
+static void test_v1_assignable_controls(void)
+{
+    /* Two buttons in CUSTOM, LEFT order, rather than implicit left/right indices. */
+    static const unsigned char support[] = {0x07, 0, 1, 0xf6};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char capability[] = {
+        0xf1, 6, 2,
+        2, 1, 0, 2, 0, 1, 0, 2, 0x30, 1, 0, 0x30,
+        0, 1, 0x20, 2, 0x20, 1, 0, 0x20, 0xff, 1, 0, 0
+    };
+    static const unsigned char params[] = {0xf7, 6, 2, 0, 0x20};
+    static const unsigned char notification[] = {0xf9, 6, 2, 0x30, 0xff};
+    Session session;
+    Device device;
+    MDRAssignableControl controls[2], desired[2];
+    MDRAssignableAction options[2];
+    uint32_t count = 2, option_count = 2;
+    TxFrame frame;
+    size_t offset;
+    int found = 0;
+
+    if (!session_open_family(&session, MDR_PROTOCOL_V1))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = 1;
+    device.table1 = support;
+    device.table1_size = sizeof(support);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device.assignable_capability = capability;
+    device.assignable_capability_size = sizeof(capability);
+    device.assignable_params = params;
+    device.assignable_params_size = sizeof(params);
+    device_run_init(&session, &device);
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+                 MDR_RESULT_OK, "V1 capability controls read");
+    check(count == 2 && controls[0].location == MDR_ASSIGNABLE_ACTION_KEY_CUSTOM &&
+          controls[0].type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON &&
+          controls[0].action == MDR_ASSIGNABLE_NOISE_CONTROL &&
+          controls[1].location == MDR_ASSIGNABLE_ACTION_KEY_LEFT &&
+          controls[1].action == MDR_ASSIGNABLE_PLAYBACK, "V1 key order, type, and current preset survive");
+    check_result(mdrHeadphonesGetAssignableControlActions(session.headphones, controls[0].location, options, &option_count),
+                 MDR_RESULT_OK, "V1 per-key actions read");
+    check(option_count == 2 && options[0] == MDR_ASSIGNABLE_NOISE_CONTROL &&
+          options[1] == MDR_ASSIGNABLE_VOICE_RECOGNITION, "V1 actions follow each key capability");
+    desired[0] = controls[1];
+    desired[1] = controls[0];
+    desired[0].action = MDR_ASSIGNABLE_NONE;
+    desired[1].action = MDR_ASSIGNABLE_GOOGLE_ASSISTANT;
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, desired, 2),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "V1 rejects an unadvertised action after a valid entry");
+    check(!mdrHeadphonesIsDirty(session.headphones), "V1 rejected batch leaves no staged assignments");
+    desired[1].action = MDR_ASSIGNABLE_VOICE_RECOGNITION;
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, desired, 2),
+                 MDR_RESULT_OK, "V1 accepts reversed caller order");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "V1 assignment apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "V1 assignment apply completes");
+    while (next_tx_frame(&session.transport, &offset, &frame))
+    {
+        if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload[0] == 0xf8)
+        {
+            found = 1;
+            check(frame.payload_size == 5 && frame.payload[1] == 6 && frame.payload[2] == 2 &&
+                  frame.payload[3] == 0x30 && frame.payload[4] == 0xff,
+                  "V1 assignment writes in capability order, not caller order");
+        }
+    }
+    check(found, "V1 assignment reaches the transport");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, sizeof(notification));
+    device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "V1 assignment notification polls");
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+                 MDR_RESULT_OK, "V1 notified assignments read");
+    check(controls[0].action == MDR_ASSIGNABLE_VOICE_RECOGNITION &&
+          controls[1].action == MDR_ASSIGNABLE_NONE, "V1 notification updates both assignments");
+    session_close(&session);
+}
+
 int main(void)
 {
     test_abi_version_handshake();
@@ -2205,6 +2430,9 @@ int main(void)
     test_v2_sync_asks_for_the_track_names();
     test_v1_preset_and_curve_never_share_a_frame();
     test_wearing_status();
+    test_v2_assignable_controls(0);
+    test_v2_assignable_controls(1);
+    test_v1_assignable_controls();
 
     if (g_failures != 0)
         fprintf(stderr, "%d test assertion(s) failed\n", g_failures);

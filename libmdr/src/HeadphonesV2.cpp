@@ -81,6 +81,11 @@ namespace mdr
                 SendCommandACK(t1::AudioGetCapability, {
                            .type = t1::AudioInquiredType::UPSCALING
                            });
+
+            /* Assignable controls */
+            t1::SystemInquiredType assignableType{};
+            if (AssignableSettingsInquiredType(state, assignableType))
+                SendCommandACK(t1::SystemGetCapability, {.type = assignableType});
         }
 
         /* Receive alerts for certain operations like toggling multipoint */
@@ -205,9 +210,10 @@ namespace mdr
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPSCALING});
         }
 
-        /* Touch Sensor */
-        if (state.mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTING))
-            SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::ASSIGNABLE_SETTINGS });
+        /* Assignable controls */
+        t1::SystemInquiredType assignableType{};
+        if (AssignableSettingsInquiredType(state, assignableType))
+            SendCommandACK(t1::SystemGetParam, {.type = assignableType});
 
         /* NC/AMB Toggle */
         if (state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
@@ -362,8 +368,7 @@ namespace mdr
         state.mVoiceContentsEnabled.submit();
         state.mSoundLeakageReductionEnabled.submit();
         state.mAutoPauseEnabled.submit();
-        state.mTouchFunctionLeft.submit();
-        state.mTouchFunctionRight.submit();
+        state.mAssignableSettingsPresets.submit();
         state.mSpeakToChatEnabled.submit();
         state.mSpeakToChatDetectSensitivity.submit();
         state.mSpeakToModeOutTime.submit();
@@ -802,18 +807,27 @@ namespace mdr
             state.mUpscalingEnabled.commit();
         }
 
-        /* Touch Functions */
-        if (state.mTouchFunctionLeft.pending() || state.mTouchFunctionRight.pending())
+        /* Assignable controls */
+        if (state.mAssignableSettingsPresets.pending())
         {
             using namespace t1;
-            if (state.mSupport.contains(FunctionType::ASSIGNABLE_SETTING))
+            SystemInquiredType type{};
+            if (AssignableSettingsInquiredType(state, type))
             {
-                SystemSetParamAssignableSettings res;
-                res.command = Command::SYSTEM_SET_PARAM;
-                res.presetList.value = {state.mTouchFunctionLeft.submitted, state.mTouchFunctionRight.submitted};
-                SendCommandACK(SystemSetParamAssignableSettings, res);
+                if (type == SystemInquiredType::ASSIGNABLE_SETTINGS_WITH_LIMITATION)
+                {
+                    SystemSetParamAssignableSettingsWithLimit res;
+                    res.presetList.value = state.mAssignableSettingsPresets.submitted;
+                    SendCommandACK(SystemSetParamAssignableSettingsWithLimit, res);
+                }
+                else
+                {
+                    SystemSetParamAssignableSettings res;
+                    res.presetList.value = state.mAssignableSettingsPresets.submitted;
+                    SendCommandACK(SystemSetParamAssignableSettings, res);
+                }
             }
-            state.mTouchFunctionLeft.commit(), state.mTouchFunctionRight.commit();
+            state.mAssignableSettingsPresets.commit();
         }
 
         /* Head Gesture */
@@ -1061,7 +1075,7 @@ namespace mdr
             state.mBGMModeEnabled.dirty() || state.mBGMModeRoomSize.dirty() ||
             state.mUpmixCinemaEnabled.dirty() || state.mVoiceContentsEnabled.dirty() ||
             state.mSoundLeakageReductionEnabled.dirty() || state.mAutoPauseEnabled.dirty() ||
-            state.mTouchFunctionLeft.dirty() || state.mTouchFunctionRight.dirty() ||
+            state.mAssignableSettingsPresets.dirty() ||
             state.mSpeakToChatEnabled.dirty() || state.mSpeakToChatDetectSensitivity.dirty() ||
             state.mSpeakToModeOutTime.dirty() || state.mHeadGestureEnabled.dirty() ||
             state.mEqAvailable.dirty() || state.mEqPresetId.dirty() ||
