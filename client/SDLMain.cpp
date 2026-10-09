@@ -130,11 +130,19 @@ void mainLoop()
                     {
                         io.FontDefault = font;
                         gPlatformFontLoaded = true;
+                        MDR_LOG("Loaded {} font: locale {}, face {}",
+                                useFontFallback ? "file" : "platform", locale, faceIndex);
                         break;
                     }
                 }
                 if (useFontFallback)
+                {
                     MDR_LOG("Unable to load font file {}.", gFontFallbackPath);
+                }
+                else
+                {
+                    MDR_LOG("Unable to load platform font: locale {}, face {}", locale, faceIndex);
+                }
             }
             if (useFontFallback || gFontLocale != FontLocale::UNDEFINED ||
                 ++gFontFallbackIndex >= static_cast<int>(FontLocale::NUM_LOCALES))
