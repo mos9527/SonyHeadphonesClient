@@ -19,7 +19,7 @@ struct CachedFont
     int faceIndex{};
 };
 
-std::array<CachedFont, static_cast<size_t>(FontLocale::NUM_LOCALES)> gFonts;
+std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
 
 uint32_t ReadUInt32BE(const unsigned char* data)
 {
@@ -101,7 +101,7 @@ bool LoadFont(FcPattern* font, const FcCharSet* sample, CachedFont& cache)
     return true;
 }
 
-void LocateFont(FontLocale locale, CachedFont& cache)
+void LocateFont(AppLocale locale, CachedFont& cache)
 {
     const char* const sc[] = {"Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", nullptr};
     const char* const tc[] = {"Noto Sans CJK TC", "Noto Sans TC", "Source Han Sans TC", nullptr};
@@ -116,10 +116,10 @@ void LocateFont(FontLocale locale, CachedFont& cache)
     const FcChar32* sample{};
     switch (locale)
     {
-    case FontLocale::SIMPLIFIED_CHINESE: candidates = sc; language = "zh-cn"; sample = scSample; break;
-    case FontLocale::TRADITIONAL_CHINESE: candidates = tc; language = "zh-tw"; sample = tcSample; break;
-    case FontLocale::JAPANESE: candidates = jp; language = "ja"; sample = jpSample; break;
-    case FontLocale::KOREAN: candidates = kr; language = "ko"; sample = krSample; break;
+    case AppLocale::SIMPLIFIED_CHINESE: candidates = sc; language = "zh-cn"; sample = scSample; break;
+    case AppLocale::TRADITIONAL_CHINESE: candidates = tc; language = "zh-tw"; sample = tcSample; break;
+    case AppLocale::JAPANESE: candidates = jp; language = "ja"; sample = jpSample; break;
+    case AppLocale::KOREAN: candidates = kr; language = "ko"; sample = krSample; break;
     default: return;
     }
     FcConfig* config = FcConfigGetCurrent();
@@ -158,7 +158,7 @@ void LocateFont(FontLocale locale, CachedFont& cache)
 }
 
 extern "C" {
-int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex)
+int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex)
 {
     if (outData) *outData = nullptr;
     if (outFaceIndex) *outFaceIndex = 0;

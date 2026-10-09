@@ -23,7 +23,7 @@ struct CachedFont
     int faceIndex{};
 };
 
-std::array<CachedFont, static_cast<size_t>(FontLocale::NUM_LOCALES)> gFonts;
+std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
 
 bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
               const wchar_t* sample, CachedFont& cache)
@@ -93,9 +93,9 @@ bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
     return true;
 }
 
-void LocateFont(FontLocale locale, CachedFont& cache)
+void LocateFont(AppLocale locale, CachedFont& cache)
 {
-    if (locale == FontLocale::UNDEFINED)
+    if (locale == AppLocale::UNDEFINED)
         return;
     ComPtr<IDWriteFactory> factory;
     ComPtr<IDWriteFontCollection> collection;
@@ -111,10 +111,10 @@ void LocateFont(FontLocale locale, CachedFont& cache)
     const wchar_t* sample{};
     switch (locale)
     {
-    case FontLocale::SIMPLIFIED_CHINESE: candidates = sc; sample = L"\u4e2d\u6c49"; break;
-    case FontLocale::TRADITIONAL_CHINESE: candidates = tc; sample = L"\u4e2d\u6f22"; break;
-    case FontLocale::JAPANESE: candidates = jp; sample = L"\u65e5\u3042\u30a2"; break;
-    case FontLocale::KOREAN: candidates = kr; sample = L"\ud55c\uae00"; break;
+    case AppLocale::SIMPLIFIED_CHINESE: candidates = sc; sample = L"\u4e2d\u6c49"; break;
+    case AppLocale::TRADITIONAL_CHINESE: candidates = tc; sample = L"\u4e2d\u6f22"; break;
+    case AppLocale::JAPANESE: candidates = jp; sample = L"\u65e5\u3042\u30a2"; break;
+    case AppLocale::KOREAN: candidates = kr; sample = L"\ud55c\uae00"; break;
     default: return;
     }
     for (; *candidates; ++candidates)
@@ -124,7 +124,7 @@ void LocateFont(FontLocale locale, CachedFont& cache)
 }
 
 extern "C" {
-int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex)
+int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex)
 {
     if (outData) *outData = nullptr;
     if (outFaceIndex) *outFaceIndex = 0;

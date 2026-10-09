@@ -42,7 +42,7 @@ A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required. Yo
 
 ## Fonts & Localization
 
-The Client app uses your system's locale settings to determine the language and font to use.
+The Client app uses your system's locale settings to select its application locale (`AppLocale`) and the default font. UI localization is not implemented yet; the interface currently remains in English.
 
 This can be overridden by using `--locale <locale>`. 
 - For the Web version, this can be manually specified in the URL via `...?locale=jp`, e.g. `https://mos9527.com/SonyHeadphonesClient/?locale=jp`.
@@ -59,7 +59,7 @@ The following locales are supported:
 
 Additionally, for the Desktop (non-Web) client, `--font <file-path>` optionally loads an external font instead of the default font selected for the locale. 
 
-- Running `./SonyHeadphonesClient.exe --locale jp --font NotoSansCJKjp-Regular.otf` makes the app run in Japanese with the specified Noto Sans font.
+- Running `./SonyHeadphonesClient.exe --locale jp --font NotoSansCJKjp-Regular.otf` selects the Japanese application locale and the specified Noto Sans font.
 
 ## For Developers
 

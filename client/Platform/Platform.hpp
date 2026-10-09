@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <mdr-c/Connection.h>
 
-enum class FontLocale
+enum class AppLocale
 {
     UNDEFINED,
     SIMPLIFIED_CHINESE,
@@ -12,21 +12,22 @@ enum class FontLocale
     NUM_LOCALES,
 };
 
-constexpr const char* format_as(FontLocale locale)
+constexpr const char* format_as(AppLocale locale)
 {
     switch (locale)
     {
-    case FontLocale::UNDEFINED: return "Undefined";
-    case FontLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplfied Chinese";
-    case FontLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
-    case FontLocale::JAPANESE: return "日本語/Japanese";
-    case FontLocale::KOREAN: return "한국인/Korean";
-    case FontLocale::NUM_LOCALES: return "NUM_LOCALES";
+    case AppLocale::UNDEFINED: return "Undefined";
+    case AppLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplfied Chinese";
+    case AppLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
+    case AppLocale::JAPANESE: return "日本語/Japanese";
+    case AppLocale::KOREAN: return "한국인/Korean";
+    case AppLocale::NUM_LOCALES: return "NUM_LOCALES";
     default: return "Unknown";
     }
 }
 
-extern FontLocale clientPlatformGetFontLocale();
+extern AppLocale clientGetAppLocale();
+extern void clientSetAppLocale(AppLocale locale);
 
 extern "C" {
     /**
@@ -44,12 +45,12 @@ extern "C" {
 
     /**
      * @brief Locate platform-specific font binary data.
-     * @param locale Requested font locale.
+     * @param locale Application locale used to select the default font.
      * @param outData Required output pointer. Platform-owned until clientPlatformDestroy().
      * @param outFaceIndex Required output pointer for the TTF/OTF/TTC face index.
      * @return Size in bytes, 0 if unavailable, or -1 for in-progress IO
      */
-    extern int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex);
+    extern int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex);
     /**
      * @brief Whether a Bluetooth address belongs to one of this computer's own adapters.
      * @param address Text form, "XX:XX:XX:XX:XX:XX", any case.

@@ -115,9 +115,9 @@ EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData
     return entry.size;
 });
 
-int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex)
+int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex)
 {
-    if (locale <= FontLocale::UNDEFINED || locale >= FontLocale::NUM_LOCALES)
+    if (locale <= AppLocale::UNDEFINED || locale >= AppLocale::NUM_LOCALES)
     {
         if (outData) *outData = nullptr;
         if (outFaceIndex) *outFaceIndex = 0;
@@ -164,7 +164,7 @@ int clientPlatformDownloadFile(
 void __dont_touch_my_garbage_exclamation_marks__() __attribute__((used));
 void __dont_touch_my_garbage_exclamation_marks__()
 {
-    clientPlatformLocateFontBinary(FontLocale::UNDEFINED, nullptr, nullptr);
+    clientPlatformLocateFontBinary(AppLocale::UNDEFINED, nullptr, nullptr);
     clientPlatformDownloadFileImpl(nullptr, nullptr, 0, nullptr);
 }
 }

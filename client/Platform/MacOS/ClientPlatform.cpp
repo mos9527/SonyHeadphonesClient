@@ -29,7 +29,7 @@ struct CachedFont
     int faceIndex{};
 };
 
-std::array<CachedFont, static_cast<size_t>(FontLocale::NUM_LOCALES)> gFonts;
+std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
 
 uint32_t ReadUInt32BE(const unsigned char* data)
 {
@@ -143,7 +143,7 @@ bool LoadFont(CFStringRef requestedName, const UniChar* sample, CFIndex sampleSi
     return true;
 }
 
-void LocateFont(FontLocale locale, CachedFont& cache)
+void LocateFont(AppLocale locale, CachedFont& cache)
 {
     const CFStringRef sc[] = {CFSTR("NotoSansCJKsc-Regular"), CFSTR("PingFangSC-Regular"),
                              CFSTR("STHeitiSC-Medium"), CFSTR("HiraginoSansGB-W4"), nullptr};
@@ -162,10 +162,10 @@ void LocateFont(FontLocale locale, CachedFont& cache)
     CFIndex sampleSize = 2;
     switch (locale)
     {
-    case FontLocale::SIMPLIFIED_CHINESE: candidates = sc; sample = scSample; break;
-    case FontLocale::TRADITIONAL_CHINESE: candidates = tc; sample = tcSample; break;
-    case FontLocale::JAPANESE: candidates = jp; sample = jpSample; sampleSize = 3; break;
-    case FontLocale::KOREAN: candidates = kr; sample = krSample; break;
+    case AppLocale::SIMPLIFIED_CHINESE: candidates = sc; sample = scSample; break;
+    case AppLocale::TRADITIONAL_CHINESE: candidates = tc; sample = tcSample; break;
+    case AppLocale::JAPANESE: candidates = jp; sample = jpSample; sampleSize = 3; break;
+    case AppLocale::KOREAN: candidates = kr; sample = krSample; break;
     default: return;
     }
     for (; *candidates; ++candidates)
@@ -175,7 +175,7 @@ void LocateFont(FontLocale locale, CachedFont& cache)
 }
 
 extern "C" {
-int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex)
+int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex)
 {
     if (outData) *outData = nullptr;
     if (outFaceIndex) *outFaceIndex = 0;

@@ -19,7 +19,7 @@ let noticeTimer;
 
 function renderProgress() {
     const required = [resources.js, resources.wasm];
-    if (startupFontLocale > 0 && resources.font.state !== 'skipped') required.push(resources.font);
+    if (startupAppLocale > 0 && resources.font.state !== 'skipped') required.push(resources.font);
     const loaded = required.reduce((sum, resource) => sum + resource.loaded, 0);
     const known = required.every(resource => resource.total > 0);
     const total = required.reduce((sum, resource) => sum + resource.total, 0);
@@ -91,8 +91,8 @@ async function download(url, id, signal, resource = resources[id]) {
     }
 }
 
-const fontRegions = Object.freeze(['undefined', 'sc', 'tc', 'jp', 'kr']);
-function getPreferredFontLocale() {
+const appLocales = Object.freeze(['undefined', 'sc', 'tc', 'jp', 'kr']);
+function getPreferredAppLocale() {
     const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
     for (const tag of languages) {
         const locale = (tag || '').toLowerCase().replace(/_/g, '-');
@@ -108,14 +108,14 @@ function getPreferredFontLocale() {
 }
 const configuredLocale = new URL(location.href).searchParams.get('locale') ||
     globalThis.SonyHeadphonesClientConfig.locale;
-const startupFontLocale = fontRegions.includes(configuredLocale) ?
-    fontRegions.indexOf(configuredLocale) : getPreferredFontLocale();
+const startupAppLocale = appLocales.includes(configuredLocale) ?
+    appLocales.indexOf(configuredLocale) : getPreferredAppLocale();
 
 const platformFonts = globalThis.SonyHeadphonesClientFonts = {
     entries: new Map(),
     destroyed: false,
     load(locale) {
-        if (this.destroyed || !Number.isInteger(locale) || locale <= 0 || locale >= fontRegions.length)
+        if (this.destroyed || !Number.isInteger(locale) || locale <= 0 || locale >= appLocales.length)
             return Promise.resolve();
         const previous = this.entries.get(locale);
         if (previous) return previous.promise;
@@ -130,7 +130,7 @@ const platformFonts = globalThis.SonyHeadphonesClientFonts = {
 };
 
 async function loadFont(locale, entry) {
-    const startup = locale === startupFontLocale && !runtimeReady;
+    const startup = locale === startupAppLocale && !runtimeReady;
     const resource = startup ? resources.font : { loaded: 0, total: 0, state: 'waiting' };
     const controller = entry.controller;
     const signal = controller.signal;
@@ -151,7 +151,7 @@ async function loadFont(locale, entry) {
         else signal.addEventListener('abort', onAbort, { once: true });
     });
     try {
-        const region = fontRegions[locale];
+        const region = appLocales[locale];
         const url = new URL(globalThis.SonyHeadphonesClientConfig.fonts[region], appBase);
         const buffer = await Promise.race([aborted, (async () => {
             let cache;
@@ -193,11 +193,11 @@ async function loadFont(locale, entry) {
         const cause = signal.aborted ? signal.reason : error;
         const reason = cause?.message || String(cause);
         const intentional = signal.aborted && cause?.name === 'AbortError';
-        const message = `Continuing with the built-in font (${fontRegions[locale]}): ${reason}`;
+        const message = `Continuing with the built-in font (${appLocales[locale]}): ${reason}`;
         if (intentional) console.info(message, cause);
         else console.warn(message, cause);
         if (!intentional && !failed && !platformFonts.destroyed) {
-            showNotice(`Language font (${fontRegions[locale]}) could not be loaded: ${reason}. Continuing with the built-in font; some characters may be missing. Reload to retry.`);
+            showNotice(`Language font (${appLocales[locale]}) could not be loaded: ${reason}. Continuing with the built-in font; some characters may be missing. Reload to retry.`);
         }
     } finally {
         clearTimeout(timeout);
@@ -406,7 +406,7 @@ function installDebuggerFolderDrop() {
 }
 
 var Module = {
-    arguments: ['--locale', fontRegions[startupFontLocale]],
+    arguments: ['--locale', appLocales[startupAppLocale]],
     canvas: elements.canvas,
     locateFile: path => new URL(path, appBase).href,
     print: (...args) => console.log(...args),
@@ -438,7 +438,7 @@ async function start() {
     const [javascript, wasm] = await Promise.all([
         download(new URL('SonyHeadphonesClient.js', appBase), 'js'),
         download(new URL('SonyHeadphonesClient.wasm', appBase), 'wasm'),
-        platformFonts.load(startupFontLocale)
+        platformFonts.load(startupAppLocale)
     ]);
     if (failed) return;
     setStatus('Compiling WebAssembly');

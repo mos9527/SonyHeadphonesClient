@@ -38,9 +38,9 @@ bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
-static FontLocale gFontLocale = FontLocale::UNDEFINED;
+static AppLocale gAppLocale = AppLocale::UNDEFINED;
 static bool gPlatformFontLoaded = false;
-static int gFontFallbackIndex = static_cast<int>(FontLocale::SIMPLIFIED_CHINESE);
+static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
 static char* gFontFallbackData = nullptr;
 static int gFontFallbackSize{};
 static const char* gFontFallbackPath = nullptr;
@@ -54,14 +54,14 @@ static void DestroyFontFallback()
     gFontFallbackPath = nullptr;
 }
 
-FontLocale clientPlatformGetFontLocale()
+AppLocale clientGetAppLocale()
 {
-    return gFontLocale;
+    return gAppLocale;
 }
 
-void clientPlatformSetFontLocale(FontLocale locale)
+void clientSetAppLocale(AppLocale locale)
 {
-    gFontLocale = locale;
+    gAppLocale = locale;
     gPlatformFontLoaded = false;
 }
 
@@ -102,8 +102,8 @@ void mainLoop()
         while (!gPlatformFontLoaded)
         {
             const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
-            const FontLocale locale = !useFontFallback && gFontLocale == FontLocale::UNDEFINED ?
-                static_cast<FontLocale>(gFontFallbackIndex) : gFontLocale;
+            const AppLocale locale = !useFontFallback && gAppLocale == AppLocale::UNDEFINED ?
+                static_cast<AppLocale>(gFontFallbackIndex) : gAppLocale;
             const char* fontData = gFontFallbackData;
             int faceIndex{};
             const int fontSize = useFontFallback ? gFontFallbackSize :
@@ -143,8 +143,8 @@ void mainLoop()
                     MDR_LOG("Unable to load platform font: locale {}, face {}", locale, faceIndex);
                 }
             }
-            if (useFontFallback || gFontLocale != FontLocale::UNDEFINED ||
-                ++gFontFallbackIndex >= static_cast<int>(FontLocale::NUM_LOCALES))
+            if (useFontFallback || gAppLocale != AppLocale::UNDEFINED ||
+                ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
                 gPlatformFontLoaded = true;
         }
         // New frame
@@ -196,12 +196,12 @@ namespace
     }
 #endif
 
-    FontLocale GetPreferredFontLocale()
+    AppLocale GetPreferredAppLocale()
     {
-        FontLocale result = FontLocale::UNDEFINED;
+        AppLocale result = AppLocale::UNDEFINED;
         SDL_Locale** locales = SDL_GetPreferredLocales(nullptr);
         for (SDL_Locale** current = locales;
-             current && *current && result == FontLocale::UNDEFINED; ++current)
+             current && *current && result == AppLocale::UNDEFINED; ++current)
         {
             const auto& locale = **current;
             if (!locale.language)
@@ -212,12 +212,12 @@ namespace
                 const bool traditional = country &&
                     (SDL_strcasecmp(country, "Hant") == 0 || SDL_strcasecmp(country, "TW") == 0 ||
                      SDL_strcasecmp(country, "HK") == 0 || SDL_strcasecmp(country, "MO") == 0);
-                result = traditional ? FontLocale::TRADITIONAL_CHINESE : FontLocale::SIMPLIFIED_CHINESE;
+                result = traditional ? AppLocale::TRADITIONAL_CHINESE : AppLocale::SIMPLIFIED_CHINESE;
             }
             else if (SDL_strcasecmp(locale.language, "ja") == 0)
-                result = FontLocale::JAPANESE;
+                result = AppLocale::JAPANESE;
             else if (SDL_strcasecmp(locale.language, "ko") == 0)
-                result = FontLocale::KOREAN;
+                result = AppLocale::KOREAN;
         }
         SDL_free(locales);
         return result;
@@ -230,7 +230,7 @@ namespace
         const char* fontPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
-        FontLocale locale{FontLocale::UNDEFINED};
+        AppLocale locale{AppLocale::UNDEFINED};
         bool localeSpecified{};
     };
 
@@ -238,8 +238,8 @@ namespace
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
-        MDR_LOG("                            [--locale undefined|sc|tc|jp|kr]\tOverride system locale");
-        MDR_LOG("                            [--font <font-file>]\tLoad an external font without changing locale");
+        MDR_LOG("                            [--locale undefined|sc|tc|jp|kr]\tOverride application locale selected from the system");
+        MDR_LOG("                            [--font <font-file>]\tLoad an external font without changing application locale");
 #ifdef MDR_CLIENT_DEBUGGER
         MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
 #endif
@@ -285,7 +285,7 @@ namespace
                     return false;
                 }
                 constexpr const char* names[] = {"undefined", "sc", "tc", "jp", "kr"};
-                constexpr int localeCount = static_cast<int>(FontLocale::NUM_LOCALES);
+                constexpr int localeCount = static_cast<int>(AppLocale::NUM_LOCALES);
                 static_assert(sizeof(names) / sizeof(names[0]) == localeCount);
                 int locale{};
                 for (; locale < localeCount; ++locale)
@@ -296,7 +296,7 @@ namespace
                     MDR_LOG("Invalid locale: {}. Expected undefined, sc, tc, jp, or kr.", argv[index]);
                     return false;
                 }
-                options.locale = static_cast<FontLocale>(locale);
+                options.locale = static_cast<AppLocale>(locale);
                 options.localeSpecified = true;
                 continue;
             }
@@ -344,9 +344,9 @@ int main(int argc, char** argv)
         PrintUsage();
         return 2;
     }
-    gFontLocale = options.locale;
+    gAppLocale = options.locale;
     gPlatformFontLoaded = false;
-    gFontFallbackIndex = static_cast<int>(FontLocale::SIMPLIFIED_CHINESE);
+    gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
     clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
     if (options.showHelp)
     {
@@ -367,8 +367,8 @@ int main(int argc, char** argv)
         return 1;
     }
     if (!options.localeSpecified)
-        gFontLocale = GetPreferredFontLocale();
-    MDR_LOG("Selected locale: {}", gFontLocale);
+        gAppLocale = GetPreferredAppLocale();
+    MDR_LOG("Selected locale: {}", gAppLocale);
     if (options.recordDirectory)
     {
         if (!clientPayloadRecorderConfigure(options.recordDirectory))
