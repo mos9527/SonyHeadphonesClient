@@ -2,20 +2,6 @@ Client
 ===
 Reference client interface implementation for every platform `libmdr-bt` supports.
 
-## Command-line options
-
-```text
-SonyHeadphonesClient [-con] [--record <capture-folder>]
-SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]
-```
-
-- `-con` opens a console on Windows so diagnostic logs are visible, including in release builds.
-- `--record <capture-folder>` records MDR packets for replay tests. See the
-  [capture guide](../tests/README.md#capturing--contributing) for more info.
-- `--replay <packet-file-or-folder>` replays a `.bin` capture, or a folder containing `.bin` files.
-  - For `--replay` to work, the client must be built with `-DMDR_CLIENT_DEBUGGER=ON` CMake options. 
-  - This is by default `ON` in GitHub CI builds (nightly, releases) and Debug builds.
-
 ## Credits
 The following third-party libraries are used in the implementation.
 

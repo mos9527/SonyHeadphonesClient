@@ -7,16 +7,16 @@
 #include <windows.h>
 #endif
 
-#include <mdr/Protocol.hpp>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_render.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_render.h>
-#include <SDL3/SDL_main.h>
+#include <mdr/Protocol.hpp>
 
-#include "Platform/Platform.hpp"
 #include "PayloadRecorder.hpp"
+#include "Platform/Platform.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -60,8 +60,7 @@ void mainLoop()
             }
             else
             {
-                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to replay %s: %s",
-                             event.drop.data, SDL_GetError());
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to replay %s: %s", event.drop.data, SDL_GetError());
             }
         }
 #endif
@@ -94,7 +93,7 @@ void mainLoop()
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
-    }    
+    }
     gShouldClose |= clientShouldExit();
     // Rendering
     {
@@ -140,17 +139,19 @@ namespace
     void PrintUsage()
     {
         MDR_LOG(
-            "Usage: SonyHeadphonesClient [-con] [--pause-media-on-remove] [--record <capture-folder>]\n"
-            "       SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]\n"
-            "\n"
-            "-con opens a diagnostic console on Windows.\n"
-            "--pause-media-on-remove pauses this computer's media players when the headphones\n"
-            "come off and resumes them when they go back on. Only acts while another device is\n"
-            "connected to the headphones (multipoint), which is when their own auto pause goes\n"
-            "to that device instead of here (wearing sensor required; Linux only for now).\n"
-            "Can also be toggled in the Power section while connected.\n"
-            "Packet replay requires a client build with the debugger enabled."
-        );
+            "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
+#ifdef MDR_CLIENT_DEBUGGER
+        MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
+#endif
+        // Windows specific
+#ifdef _WIN32
+        MDR_LOG("                            [--con]\tOpens console for diagnostic logs");
+#endif
+        // Linux specific (DBus)
+#ifdef __linux__
+        MDR_LOG("                            [--pause-media-on-remove]\tAuto-pause system media playback when device "
+                "is removed when unsupported by OS otherwise.");
+#endif
     }
 
     bool ParseOptions(int argc, char** argv, ClientOptions& options)
@@ -207,7 +208,7 @@ namespace
         }
         return true;
     }
-}
+} // namespace
 
 int main(int argc, char** argv)
 {
@@ -244,7 +245,9 @@ int main(int argc, char** argv)
             SDL_Quit();
             return 1;
         }
-        MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain device addresses, names, and playback metadata.", options.recordDirectory);
+        MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain "
+                "device addresses, names, and playback metadata.",
+                options.recordDirectory);
     }
 #ifdef MDR_CLIENT_DEBUGGER
     if (options.replayPath)
@@ -263,11 +266,9 @@ int main(int argc, char** argv)
     // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md#numeric-example
     // This should only be effective (!=1.0f) on Windows and X11 platforms
     float displayScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    gWindow = SDL_CreateWindow(
-        "SonyHeadphonesClient",
-        CLIENT_WINDOW_WIDTH * displayScale, CLIENT_WINDOW_HEIGHT * displayScale,
-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
-    );
+    gWindow =
+        SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
+                         CLIENT_WINDOW_HEIGHT * displayScale, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
     if (!gWindow)
     {
         SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
