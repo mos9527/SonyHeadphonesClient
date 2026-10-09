@@ -601,7 +601,7 @@ void CloseDevice()
 #define IM_FONTSIZE_HEADING 18
 #define IM_FONTSIZE_SUBHEADING 16
 #define IM_FONTSIZE_BODY 15
-#define IM_FONTSIZE_CAPTION 12
+#define IM_FONTSIZE_CAPTION 14
 
 struct ImStylesRAII
 {
@@ -1155,7 +1155,7 @@ void DrawDeviceDiscovery()
         }
 #ifdef MDR_CLIENT_DEBUGGER
         ImGui::Separator();
-        if (ImModalButton("Protocol Debugger"))
+        if (ImModalButton(PSI_BUG " Protocol Debugger"))
             gDebuggerOpen = true;
 #endif
         ImGui::EndPopup();
@@ -1333,7 +1333,7 @@ void DrawDeviceControlsHeader()
             }
 #ifdef MDR_CLIENT_DEBUGGER
             ImGui::Separator();
-            ImGui::MenuItem("Protocol Debugger", nullptr, &gDebuggerOpen);
+            ImGui::MenuItem(PSI_BUG " Protocol Debugger", nullptr, &gDebuggerOpen);
             if (ImGui::MenuItem(PSI_BUG " Trigger disconnect error"))
                 DisconnectWithModal("Disconnect error manually triggered from the debug menu");
 #endif
@@ -2312,9 +2312,10 @@ void DrawDeviceDisconnect()
     if (ImGui::BeginPopupModal("Disconnected", nullptr, kImWindowFlagsTopMost))
     {
         ImGui::NewLine();
-        ImTextCentered("Device Disconnected", IM_FONTSIZE_TITLE);
-        ImGui::NewLine();
-        ImHeading("Messages");
+        ImTextCentered("Device Disconnected", IM_FONTSIZE_TITLE);        
+        ImSpinner(2000.0f, ImGui::GetContentRegionAvail().x - ImGui::GetStyle().WindowPadding.x * 2.0f,
+                  MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::error),
+                  ImGui::GetFontSize() * 0.25f, true);        
         if (!connectionAttempt.lastError.empty())
             ImGui::TextWrapped("Connection: %s", connectionAttempt.lastError.c_str());
         else if (conn)
@@ -2331,7 +2332,6 @@ void DrawDeviceDisconnect()
         if (*exportStatus)
             ImGui::TextWrapped("Packet export: %s", exportStatus);
 #endif
-        ImGui::NewLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         ImGui::BeginDisabled(
 #ifdef MDR_CLIENT_DEBUGGER
