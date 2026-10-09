@@ -73,7 +73,7 @@ namespace mdr
             const Command command = static_cast<Command>(cmd[0]);
             const bool isParam = command == Command::VOICE_GUIDANCE_NTFY_PARAM
                               || command == Command::VOICE_GUIDANCE_RET_PARAM;
-            // Only ON_OFF is handled. Parsing other types (e.g. LANGUAGE) as ON_OFF fails and aborts the handshake.
+            // TODO: StatusType::LANGUAGE
             if (cmd.size() <= 2)
                 return MDR_EVENT_UNHANDLED;
             if (isParam ? static_cast<DetailedDataType>(cmd[2]) != DetailedDataType::ON_OFF

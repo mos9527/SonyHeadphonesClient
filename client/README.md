@@ -1,6 +1,6 @@
 Client
 ===
-Reference client interface implementation for every platform `libmdr` supports.
+Reference client interface implementation for every platform `libmdr-bt` supports.
 
 ## Command-line options
 
@@ -11,18 +11,10 @@ SonyHeadphonesClient [-con] [--replay <packet-file-or-folder>]
 
 - `-con` opens a console on Windows so diagnostic logs are visible, including in release builds.
 - `--record <capture-folder>` records MDR packets for replay tests. See the
-  [capture guide](../tests/README.md#capturing--contributing) for privacy considerations.
-- `--replay <packet-file-or-folder>` opens the protocol debugger without initializing a
-  headphones connection. It loads either one `.bin` MDR packet or a folder's recorded
-  TX/RX packets in filename order. Either can also be dropped onto a running client window.
-
-Replay mode exposes only the protocol debugger. It is available in Debug builds and
-in other configurations built with `-DMDR_CLIENT_DEBUGGER=ON`; clients built without
-the debugger reject replay arguments. Debugger exports use native save dialogs on
-desktop platforms with `.bin` and `.zip` default filenames. A ZIP export stores the
-complete packet history without compression. Emscripten exports start a browser
-download directly. On other platforms where dialogs are unavailable, exports fall
-back to their default filenames in the current directory.
+  [capture guide](../tests/README.md#capturing--contributing) for more info.
+- `--replay <packet-file-or-folder>` replays a `.bin` capture, or a folder containing `.bin` files.
+  - For `--replay` to work, the client must be built with `-DMDR_CLIENT_DEBUGGER=ON` CMake options. 
+  - This is by default `ON` in GitHub CI builds (nightly, releases) and Debug builds.
 
 ## Credits
 The following third-party libraries are used in the implementation.
@@ -47,6 +39,8 @@ The font `NeoXiHei-Code` is graciously provided by @lxgw, and is the default fon
 - https://github.com/lxgw/NeoXiHei-Code
 
 ## Material You Theme
+
+Contribution by [@salmon-21](https://github.com/salmon-21) in https://github.com/mos9527/SonyHeadphonesClient/pull/41
 
 The client uses a Material You dark theme inspired by Sony Sound Connect. Surface/outline/error colors are fixed values extracted from the Sound Connect APK, while primary accent colors are dynamically selected based on the connected device's `ModelColor`.
 

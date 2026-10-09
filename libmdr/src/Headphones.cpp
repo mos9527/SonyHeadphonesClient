@@ -113,8 +113,6 @@ namespace mdr
             if (r != MDR_RESULT_ERROR_TIMEOUT)
                 return Fail(r, "Unable to poll the connection");
         }
-        // Anything that failed deeper in - a handler, a running task - only reaches us as the
-        // channel's marker, so the code it recorded on the way out is all we have to go on.
         const int raw = MoveNext();
         if (raw == -1)
             return mLastErrorCode;

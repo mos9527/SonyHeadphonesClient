@@ -3,7 +3,7 @@ SonyHeadphonesClient
 
 A spiritual successor to  [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
 
-There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#notes-on-web-platform).
+There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#running-on-the-web).
 
 [![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
 [![Nightly Builds](https://img.shields.io/badge/v1compat-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview)
@@ -22,10 +22,10 @@ The following platforms (applies to `libmdr`, `client`) are *natively* supported
 
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
-| Windows          | Full Support   | @mos9527, @Amrsatrio |
-| Linux            | Full Support   | @mos9527             |
-| macOS            | Full Support   | @mos9527             |
-| Web (Emscripten) | Full Support   | @mos9527             |
+| Windows          | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
+| Linux            | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| macOS            | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| Web (Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
 
 For device support, refer to `docs/device-support` to check. If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
@@ -45,6 +45,8 @@ A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required. Yo
 We have extensive documentations available in the source files. Moreover, refer to the respective README files in each source folder to understand what they do!
 
 A C++20 compliant compiler is required. GCC 14, Clang 21 and MSVC 19 has been used for development and are guanrateed to be supported.
+
+See also [Contributing](./.github/CONTRIBUTING.md) for more info.
 
 ### Building (Regular CMake)
 This is no different from your regular CMake projects.

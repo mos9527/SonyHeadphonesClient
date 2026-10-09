@@ -251,14 +251,14 @@ namespace mdr
                 SendCommandACK(t2::VoiceGuidanceGetParam, {.inquiredType = t2::VoiceGuidanceInquiredType::VOLUME});
         }
 
-        /* LOG_SET_STATUS */
-        // XXX: Figure out if there's a struct for this in the app
-        constexpr UInt8 kLogSetStatusCommand[] = {
-            static_cast<UInt8>(t1::Command::LOG_SET_STATUS),
-            0x01, 0x00
-        };
-        SendCommandImpl(kLogSetStatusCommand, MDRDataType::DATA_MDR, mSeqNumber);
-        co_await Await(AWAIT_ACK);
+        /* Operation logs (NC, play/pause, etc) */
+        SendCommandACK(
+            t1::SetLogStatusTimeSeriesOperationLog,
+            {
+                .type = t1::LogInquiredType::TIME_SERIES_OPERATIONLOG_NOTIFIER,
+                .enableDisable = EnableDisable::ENABLE
+            }
+        );
         mInitialized = true;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
@@ -478,8 +478,6 @@ namespace mdr
             state.mPlayVolume.commit();
         }
         /* Play Control */
-        // A bit of a special case. We reset the value to something else
-        // so simply setting 'desired' repeatedly works as intended
         if (state.mPlayControl.pending())
         {
             using namespace t1;
@@ -489,6 +487,8 @@ namespace mdr
             res.status = EnableDisable::ENABLE;
             res.control = state.mPlayControl.submitted;
             SendCommandACK(SetPlayStatusPlaybackController, res);
+            // A bit of a special case. We reset the value to something else
+            // so simply setting 'desired' repeatedly works as intended
             state.mPlayControl.override(PlaybackControl::KEY_OFF);
         }
 
@@ -634,7 +634,7 @@ namespace mdr
             state.mSpeakToChatDetectSensitivity.commit(), state.mSpeakToModeOutTime.commit();
         }
 
-        /* Listening Mode. Modes are exclusive, so deactivations are sent before activations. */
+        /* Listening Mode */
         const bool bgmPending = state.mBGMModeEnabled.pending() || state.mBGMModeRoomSize.pending();
         const bool cinemaPending = state.mUpmixCinemaEnabled.pending();
         const bool voiceContentsPending = state.mVoiceContentsEnabled.pending();
@@ -695,7 +695,6 @@ namespace mdr
                     SendCommandACK(AudioSetParamSoundLeakageReduction, res);
                 }
             }
-            // Listening modes disable EQ and DSEE; re-read both rather than relying on notifications.
             if (state.mSupport.containsEqualizer())
                 SendCommandACK(EqEbbGetStatus, {.type = EqEbbInquiredType::PRESET_EQ});
             if (state.mSupport.contains(FunctionType::UPSCALING_AUTO_OFF))
@@ -715,8 +714,6 @@ namespace mdr
             // Ask for a equalizer param update afterwards
             SendCommandACK(EqEbbGetParam);
         }
-        // Only write bands the caller changed. A preset change moves them on the device too,
-        // and writing that stale snapshot back would switch it to CUSTOM.
         const bool eqBandsPending = state.mEqConfig.pending() || state.mEqClearBass.pending();
         const bool eqBandsAsked = state.mEqConfig.dirty() || state.mEqClearBass.dirty();
         if (eqBandsPending && !eqBandsAsked)
@@ -1016,7 +1013,7 @@ namespace mdr
     {
         auto& state = mDetailsV2;
         if (!state.mAlertAwaitingResponse)
-            co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "The device has not asked anything");
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "There is no pending alert response.");
 
         state.mAlertAwaitingResponse = false;
 

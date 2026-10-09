@@ -123,8 +123,8 @@ namespace mdr
                 String value;
                 if (command == Command::PLAY_NTFY_PARAM)
                 {
-                    // Notifications carry only the discriminator; request the
-                    // corresponding value with a sync command.
+                    // V1 NTFY payloads doesn't contain the actual NameData...
+                    // Need a GET to get the actual ones, have the caller to sync.
                     return MDR_EVENT_NEED_SYNC;
                 }
                 else
