@@ -19,6 +19,7 @@ let noticeTimer;
 
 function renderProgress() {
     const required = [resources.js, resources.wasm];
+    if (startupFontLocale > 0 && resources.font.state !== 'skipped') required.push(resources.font);
     const loaded = required.reduce((sum, resource) => sum + resource.loaded, 0);
     const known = required.every(resource => resource.total > 0);
     const total = required.reduce((sum, resource) => sum + resource.total, 0);
@@ -44,7 +45,7 @@ function fail(error) {
     elements['status-text'].textContent = `Unable to start: ${error.message || error} ${navigator.onLine ? 'Please retry. If this continues, check that the deployment contains all app files.' : 'You are offline. Connect once to finish saving the app, then retry.'}`;
     elements['retry'].hidden = false;
     elements['skip-font'].hidden = true;
-    fontController?.abort();
+    fontController?.abort(new DOMException('Font loading cancelled because application startup failed', 'AbortError'));
 }
 
 async function download(url, id, signal, resource = resources[id]) {
@@ -137,11 +138,17 @@ async function loadFont(locale, entry) {
         fontController = controller;
         elements['skip-font'].hidden = false;
     }
-    const timeout = setTimeout(() => controller.abort(), 20000);
+    const configuredTimeout = globalThis.SonyHeadphonesClientConfig.fontTimeoutMs;
+    const timeoutMs = Number.isInteger(configuredTimeout) && configuredTimeout > 0 && configuredTimeout <= 0x7fffffff ?
+        configuredTimeout : 20000;
+    const timeout = setTimeout(() => controller.abort(
+        new DOMException(`Font loading timed out after ${timeoutMs / 1000} seconds`, 'TimeoutError')
+    ), timeoutMs);
     let onAbort;
     const aborted = new Promise((resolve, reject) => {
-        onAbort = () => reject(new DOMException('Font loading cancelled', 'AbortError'));
-        signal.addEventListener('abort', onAbort, { once: true });
+        onAbort = () => reject(signal.reason);
+        if (signal.aborted) onAbort();
+        else signal.addEventListener('abort', onAbort, { once: true });
     });
     try {
         const region = fontRegions[locale];
@@ -183,7 +190,15 @@ async function loadFont(locale, entry) {
     } catch (error) {
         entry.state = 'unavailable';
         resource.state = 'skipped';
-        console.warn(`Continuing with the built-in font (${fontRegions[locale]})`, error);
+        const cause = signal.aborted ? signal.reason : error;
+        const reason = cause?.message || String(cause);
+        const intentional = signal.aborted && cause?.name === 'AbortError';
+        const message = `Continuing with the built-in font (${fontRegions[locale]}): ${reason}`;
+        if (intentional) console.info(message, cause);
+        else console.warn(message, cause);
+        if (!intentional && !failed && !platformFonts.destroyed) {
+            showNotice(`Language font (${fontRegions[locale]}) could not be loaded: ${reason}. Continuing with the built-in font; some characters may be missing. Reload to retry.`);
+        }
     } finally {
         clearTimeout(timeout);
         signal.removeEventListener('abort', onAbort);
@@ -254,7 +269,9 @@ if ('serviceWorker' in navigator) {
 }
 
 elements.retry.addEventListener('click', () => location.reload());
-elements['skip-font'].addEventListener('click', () => fontController?.abort());
+elements['skip-font'].addEventListener('click', () => fontController?.abort(
+    new DOMException('Language font skipped by the user', 'AbortError')
+));
 elements['dismiss-notice'].addEventListener('click', () => { elements['pwa-notice'].hidden = true; });
 elements['pwa-retry'].addEventListener('click', async () => {
     if (!registration) return setupOffline();

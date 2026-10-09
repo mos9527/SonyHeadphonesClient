@@ -1,4 +1,5 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
+#include <climits>
 #include <cstdio>
 #include <cstring>
 #ifdef _WIN32
@@ -15,7 +16,7 @@
 #include <imgui_impl_sdlrenderer3.h>
 #include <mdr/Protocol.hpp>
 
-#include "PayloadRecorder.hpp"
+#include "Recorder.hpp"
 #include "Platform/Platform.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -40,6 +41,29 @@ SDL_Renderer* gRenderer = nullptr;
 static FontLocale gFontLocale = FontLocale::UNDEFINED;
 static bool gPlatformFontLoaded = false;
 static int gFontFallbackIndex = static_cast<int>(FontLocale::SIMPLIFIED_CHINESE);
+static char* gFontFallbackData = nullptr;
+static int gFontFallbackSize{};
+static const char* gFontFallbackPath = nullptr;
+static constexpr ImWchar gIconGlyphRanges[] = {0xf000, 0xf2ff, 0};
+
+static void DestroyFontFallback()
+{
+    SDL_free(gFontFallbackData);
+    gFontFallbackData = nullptr;
+    gFontFallbackSize = 0;
+    gFontFallbackPath = nullptr;
+}
+
+FontLocale clientPlatformGetFontLocale()
+{
+    return gFontLocale;
+}
+
+void clientPlatformSetFontLocale(FontLocale locale)
+{
+    gFontLocale = locale;
+    gPlatformFontLoaded = false;
+}
 
 void mainLoop()
 {
@@ -77,28 +101,42 @@ void mainLoop()
     {
         while (!gPlatformFontLoaded)
         {
-            const FontLocale locale = gFontLocale == FontLocale::UNDEFINED ?
-                static_cast<FontLocale>(gFontFallbackIndex) : gFontLocale;
-            const char* fontData = nullptr;
+            const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
+            const FontLocale locale = useFontFallback ? FontLocale::UNDEFINED :
+                (gFontLocale == FontLocale::UNDEFINED ?
+                    static_cast<FontLocale>(gFontFallbackIndex) : gFontLocale);
+            const char* fontData = gFontFallbackData;
             int faceIndex{};
-            const int fontSize = clientPlatformLocateFontBinary(locale, &fontData, &faceIndex);
+            const int fontSize = useFontFallback ? gFontFallbackSize :
+                clientPlatformLocateFontBinary(locale, &fontData, &faceIndex);
             if (fontSize < 0)
                 break;
             if (fontSize > 0 && fontData && faceIndex >= 0)
             {
-                MDR_LOG("Loading platform font: locale {}, {} bytes, face {}", locale, fontSize, faceIndex);
+                MDR_LOG("Loading {} font: locale {}, {} bytes, face {}",
+                        useFontFallback ? "file" : "platform", locale, fontSize, faceIndex);
                 ImFontConfig config{};
-                config.MergeMode = true;
-                config.DstFont = io.FontDefault;
                 config.FontDataOwnedByAtlas = false;
                 config.FontNo = static_cast<ImU32>(faceIndex);
-                if (io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontData), fontSize, 15.0f, &config))
+                config.GlyphExcludeRanges = gIconGlyphRanges;
+                if (ImFont* font = io.Fonts->AddFontFromMemoryTTF(
+                        const_cast<char*>(fontData), fontSize, 15.0f, &config))
                 {
-                    gPlatformFontLoaded = true;
-                    break;
+                    ImFontConfig iconConfig{};
+                    iconConfig.MergeMode = true;
+                    iconConfig.DstFont = font;
+                    if (io.Fonts->AddFontFromMemoryCompressedBase85TTF(
+                            kEmbedFontPlexSansIcon, 15.0f, &iconConfig, gIconGlyphRanges))
+                    {
+                        io.FontDefault = font;
+                        gPlatformFontLoaded = true;
+                        break;
+                    }
                 }
+                if (useFontFallback)
+                    MDR_LOG("Unable to load font file {}.", gFontFallbackPath);
             }
-            if (gFontLocale != FontLocale::UNDEFINED ||
+            if (useFontFallback || gFontLocale != FontLocale::UNDEFINED ||
                 ++gFontFallbackIndex >= static_cast<int>(FontLocale::NUM_LOCALES))
                 gPlatformFontLoaded = true;
         }
@@ -124,6 +162,7 @@ void mainLoop()
         ImGui_ImplSDLRenderer3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
+        DestroyFontFallback();
         SDL_DestroyRenderer(gRenderer);
         SDL_DestroyWindow(gWindow);
         SDL_Quit();
@@ -181,6 +220,7 @@ namespace
     {
         const char* recordDirectory{};
         const char* replayPath{};
+        const char* fontPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
         FontLocale fontLocale{FontLocale::UNDEFINED};
@@ -191,7 +231,7 @@ namespace
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
-        MDR_LOG("                            [--font-locale undefined|sc|tc|jp|kr]");
+        MDR_LOG("                            [--font-locale undefined|sc|tc|jp|kr|<font-file>]\tOverride font locale or load a font file");
 #ifdef MDR_CLIENT_DEBUGGER
         MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
 #endif
@@ -242,10 +282,14 @@ namespace
                         break;
                 if (locale == localeCount)
                 {
-                    MDR_LOG("Invalid font locale: {}", argv[index]);
-                    return false;
+                    options.fontPath = argv[index];
+                    options.fontLocale = FontLocale::UNDEFINED;
                 }
-                options.fontLocale = static_cast<FontLocale>(locale);
+                else
+                {
+                    options.fontPath = nullptr;
+                    options.fontLocale = static_cast<FontLocale>(locale);
+                }
                 options.fontLocaleSpecified = true;
                 continue;
             }
@@ -363,6 +407,27 @@ int main(int argc, char** argv)
         SDL_Log("Error: SDL_CreateRenderer()\n");
         return 1;
     }
+    if (options.fontPath)
+    {
+        size_t fontSize{};
+        char* fontData = static_cast<char*>(SDL_LoadFile(options.fontPath, &fontSize));
+        if (!fontData || fontSize == 0 || fontSize > static_cast<size_t>(INT_MAX))
+        {
+            if (!fontData)
+                MDR_LOG("Unable to read font file {}: {}", options.fontPath, SDL_GetError())
+            else
+                MDR_LOG("Invalid font file size for {}: {} bytes", options.fontPath, fontSize)
+            SDL_free(fontData);
+            SDL_DestroyRenderer(gRenderer);
+            SDL_DestroyWindow(gWindow);
+            SDL_Quit();
+            return 1;
+        }
+        gFontFallbackData = fontData;
+        gFontFallbackSize = static_cast<int>(fontSize);
+        gFontFallbackPath = options.fontPath;
+        gFontLocale = FontLocale::UNDEFINED;
+    }
     // Setup Dear ImGui context
     {
         IMGUI_CHECKVERSION();
@@ -412,6 +477,7 @@ int main(int argc, char** argv)
         ImGui_ImplSDLRenderer3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
+        DestroyFontFallback();
 
         SDL_DestroyRenderer(gRenderer);
         SDL_DestroyWindow(gWindow);

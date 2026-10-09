@@ -53,8 +53,7 @@ target_sources(
         PRIVATE
         SDLMain.cpp
         Client.cpp
-        PacketObserver.cpp
-        PayloadRecorder.cpp
+        Recorder.cpp
         Fonts/PlexSansIcon.c
 )
 

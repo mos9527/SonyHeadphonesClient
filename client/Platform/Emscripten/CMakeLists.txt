@@ -15,6 +15,10 @@ file(
         "${CMAKE_CURRENT_LIST_DIR}/*.png"
 )
 
+target_link_options(SonyHeadphonesClient PRIVATE
+        "-sINCOMING_MODULE_JS_API=['arguments','canvas','locateFile','print','printErr','setStatus','monitorRunDependencies','onAbort','onExit','onRuntimeInitialized','wasmBinary']"
+)
+
 add_library(Client_PlatformEmscripten)
 foreach(FILE IN LISTS STATIC_FILES)
     get_filename_component(FILENAME "${FILE}" NAME)

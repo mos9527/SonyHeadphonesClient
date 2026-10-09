@@ -18,7 +18,7 @@
 #include <mdr/Protocol.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
-#include "PacketObserver.hpp"
+#include "Recorder.hpp"
 #include "Platform/Platform.hpp"
 #ifdef MDR_CLIENT_DEBUGGER
 #include "Debugger.hpp"
@@ -515,13 +515,7 @@ void RefreshClientState()
     gState.mGeneralSettings = GetGeneralSettings(GetGeneralSettingInfos());
 }
 
-// Host-side "pause when removed". With a single connection the headphones deliver their own
-// auto pause (AVRCP) to this computer and the OS handles it. With multipoint they deliver it
-// to the other device instead, regardless of which one holds playback right (a WH-1000XM6
-// reports this computer as the playback-right holder while sending the pause to the phone).
-// So the client steps in exactly when another, non-local device is connected, and stays out
-// of the way otherwise, which keeps it from racing an AVRCP pause that does reach the OS.
-// Off unless enabled with --pause-media-on-remove; there is no persistent config.
+// See https://github.com/mos9527/SonyHeadphonesClient/pull/63
 static bool gPauseMediaOnRemove = false;
 static ClientMediaPause* gMediaPause = nullptr;
 
@@ -588,7 +582,10 @@ void CloseDevice()
         return;
     }
     gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
-    clientPacketObserverDetach();
+    mdrHeadphonesSetPacketCallback(gDevice, nullptr, nullptr);
+#ifdef MDR_CLIENT_DEBUGGER
+    clientDebuggerDetach();
+#endif
     mdrHeadphonesDestroy(gDevice);
     gDevice = nullptr;
     gState = {};
@@ -1027,8 +1024,8 @@ void DrawDeviceDiscovery()
         static MDRDeviceInfo* pDeviceInfo = nullptr;
         static int nDeviceInfo = 0;
         ImTextCentered("SonyHeadphonesClient", ImGui::GetContentRegionAvail().x * 0.05f);
-        ImTextCentered(mdr::Format("Version: {}, Branch: {}, Commit: {}, On {} ({})", CLIENT_VERSION,
-                                   MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS, MDR_PLATFORM_PROCESSOR)
+        ImTextCentered(mdr::Format("Version: {}, Branch: {}, Commit: {}, On {} ({}), {}", CLIENT_VERSION,
+                                   MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS, MDR_PLATFORM_PROCESSOR, clientPlatformGetFontLocale())
                            .c_str(), IM_FONTSIZE_CAPTION);
         // Chose, and have the GATT backend active
         static bool usingBLE = false;
@@ -1252,7 +1249,20 @@ void DrawDeviceConnecting()
             DisconnectWithModal();
             return;
         }
-        clientPacketObserverAttach(gDevice);
+        mdrHeadphonesSetPacketCallback(
+            gDevice,
+            [](void*, MDRPacketDirection direction, const unsigned char* frame, int frameSize)
+            {
+                clientPayloadRecorderObserve(direction, frame, frameSize);
+#ifdef MDR_CLIENT_DEBUGGER
+                clientDebuggerObservePacket(direction, frame, frameSize);
+#endif
+            },
+            nullptr
+        );
+#ifdef MDR_CLIENT_DEBUGGER
+        clientDebuggerAttach(gDevice);
+#endif
         if (mdrHeadphonesRequestInit(gDevice) != MDR_RESULT_OK)
             DisconnectWithModal();
 

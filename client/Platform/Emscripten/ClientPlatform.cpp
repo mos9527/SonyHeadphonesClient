@@ -72,7 +72,7 @@ EM_JS(void, clientPlatformDestroyFonts, (), {
     if (!fonts) return;
     fonts.destroyed = true;
     for (const entry of fonts.entries.values()) {
-        entry.controller.abort();
+        entry.controller.abort(new DOMException('Font loading cancelled because the application is shutting down', 'AbortError'));
         if (entry.ptr) _free(entry.ptr);
         entry.ptr = entry.size = 0;
         entry.data = null;

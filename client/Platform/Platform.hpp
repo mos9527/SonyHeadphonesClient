@@ -16,15 +16,17 @@ constexpr const char* format_as(FontLocale locale)
 {
     switch (locale)
     {
-    case FontLocale::UNDEFINED: return "UNDEFINED";
-    case FontLocale::SIMPLIFIED_CHINESE: return "SIMPLIFIED_CHINESE";
-    case FontLocale::TRADITIONAL_CHINESE: return "TRADITIONAL_CHINESE";
-    case FontLocale::JAPANESE: return "JAPANESE";
-    case FontLocale::KOREAN: return "KOREAN";
+    case FontLocale::UNDEFINED: return "Undefined";
+    case FontLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplfied Chinese";
+    case FontLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
+    case FontLocale::JAPANESE: return "日本語/Japanese";
+    case FontLocale::KOREAN: return "한국인/Korean";
     case FontLocale::NUM_LOCALES: return "NUM_LOCALES";
     default: return "Unknown";
     }
 }
+
+extern FontLocale clientPlatformGetFontLocale();
 
 extern "C" {
     /**
