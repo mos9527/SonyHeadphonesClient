@@ -47,8 +47,7 @@ function fail(error) {
     fontController?.abort();
 }
 
-async function download(url, id, signal) {
-    const resource = resources[id];
+async function download(url, id, signal, resource = resources[id]) {
     resource.state = 'loading';
     renderProgress();
     try {
@@ -91,59 +90,91 @@ async function download(url, id, signal) {
     }
 }
 
-function selectFont() {
-    const locale = (navigator.language || 'zh-CN').toLowerCase();
-    const language = locale.split('-')[0];
-    let region = 'sc';
-    if (language === 'ja') region = 'jp';
-    else if (language === 'ko') region = 'kr';
-    else if (language === 'zh' && /(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(locale)) region = 'tc';
-    return new URL(globalThis.SonyHeadphonesClientConfig.fonts[region], appBase);
-}
+const fontRegions = Object.freeze(['latin', 'sc', 'tc', 'jp', 'kr']);
+const configuredFont = new URL(location.href).searchParams.get('font-locale') ||
+    globalThis.SonyHeadphonesClientConfig.fontLocale || 'sc';
+const startupFontLocale = Math.max(0, fontRegions.indexOf(
+    fontRegions.includes(configuredFont) ? configuredFont : 'sc'));
 
-async function loadFont() {
-    const url = selectFont();
-    navigator.externalFont = url.href;
-    navigator.externalFontManaged = true;
-    fontController = new AbortController();
-    elements['skip-font'].hidden = false;
-    const timeout = setTimeout(() => fontController.abort(), 20000);
+const platformFonts = globalThis.SonyHeadphonesClientFonts = {
+    entries: new Map(),
+    destroyed: false,
+    load(locale) {
+        if (this.destroyed || !Number.isInteger(locale) || locale < 1 || locale > 4)
+            return Promise.resolve();
+        const previous = this.entries.get(locale);
+        if (previous) return previous.promise;
+        const entry = {
+            state: 'loading', data: null, ptr: 0, size: 0,
+            controller: new AbortController(), promise: null
+        };
+        this.entries.set(locale, entry);
+        entry.promise = loadFont(locale, entry);
+        return entry.promise;
+    }
+};
+
+async function loadFont(locale, entry) {
+    const startup = locale === startupFontLocale && !runtimeReady;
+    const resource = startup ? resources.font : { loaded: 0, total: 0, state: 'waiting' };
+    const controller = entry.controller;
+    const signal = controller.signal;
+    if (startup) {
+        fontController = controller;
+        elements['skip-font'].hidden = false;
+    }
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    let onAbort;
+    const aborted = new Promise((resolve, reject) => {
+        onAbort = () => reject(new DOMException('Font loading cancelled', 'AbortError'));
+        signal.addEventListener('abort', onAbort, { once: true });
+    });
     try {
-        let cache;
-        try {
-            cache = await caches.open(fontCacheName);
-            const cached = await cache.match(url.href);
-            if (cached) {
-                const buffer = new Uint8Array(await cached.arrayBuffer());
-                if (buffer.byteLength) {
-                    navigator.externalFontData = buffer;
-                    resources.font.loaded = resources.font.total = buffer.byteLength;
-                    resources.font.state = 'done';
-                    fontSaved = true;
-                    renderProgress();
-                    return;
-                }
-            }
-        } catch (error) {
-            console.warn('Font cache unavailable', error);
-        }
-        const buffer = await download(url, 'font', fontController.signal);
-        navigator.externalFontData = buffer;
-        if (cache) {
+        const region = fontRegions[locale];
+        const url = new URL(globalThis.SonyHeadphonesClientConfig.fonts[region], appBase);
+        const buffer = await Promise.race([aborted, (async () => {
+            let cache;
             try {
-                await cache.put(url.href, new Response(buffer, { headers: { 'Content-Type': 'font/otf' } }));
-                fontSaved = true;
+                cache = await caches.open(fontCacheName);
+                const cached = await cache.match(url.href);
+                if (cached) {
+                    const data = new Uint8Array(await cached.arrayBuffer());
+                    signal.throwIfAborted();
+                    if (data.byteLength) {
+                        if (startup) fontSaved = true;
+                        return data;
+                    }
+                }
             } catch (error) {
-                console.warn('Unable to save language font for offline use', error);
+                signal.throwIfAborted();
+                console.warn('Font cache unavailable', error);
             }
-        }
+            signal.throwIfAborted();
+            const data = await download(url, 'font', signal, resource);
+            signal.throwIfAborted();
+            if (cache) {
+                void cache.put(url.href, new Response(data, { headers: { 'Content-Type': 'font/otf' } }))
+                    .then(() => { if (startup) fontSaved = true; })
+                    .catch(error => console.warn('Unable to save language font for offline use', error));
+            }
+            return data;
+        })()]);
+        signal.throwIfAborted();
+        if (!buffer.byteLength || buffer.byteLength > 0x7fffffff)
+            throw new Error('Invalid font size');
+        entry.data = buffer;
+        entry.state = 'ready';
+        resource.loaded = resource.total = buffer.byteLength;
+        resource.state = 'done';
     } catch (error) {
-        resources.font.state = 'skipped';
-        renderProgress();
-        console.warn('Continuing with the built-in font', error);
+        entry.state = 'unavailable';
+        resource.state = 'skipped';
+        console.warn(`Continuing with the built-in font (${fontRegions[locale]})`, error);
     } finally {
         clearTimeout(timeout);
-        elements['skip-font'].hidden = true;
+        signal.removeEventListener('abort', onAbort);
+        if (startup) elements['skip-font'].hidden = true;
+        renderProgress();
     }
 }
 
@@ -344,6 +375,7 @@ function installDebuggerFolderDrop() {
 }
 
 var Module = {
+    arguments: ['--font-locale', fontRegions[startupFontLocale]],
     canvas: elements.canvas,
     locateFile: path => new URL(path, appBase).href,
     print: (...args) => console.log(...args),
@@ -375,7 +407,7 @@ async function start() {
     const [javascript, wasm] = await Promise.all([
         download(new URL('SonyHeadphonesClient.js', appBase), 'js'),
         download(new URL('SonyHeadphonesClient.wasm', appBase), 'wasm'),
-        loadFont()
+        platformFonts.load(startupFontLocale)
     ]);
     if (failed) return;
     setStatus('Compiling WebAssembly');

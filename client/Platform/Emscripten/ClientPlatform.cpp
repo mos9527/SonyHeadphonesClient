@@ -67,54 +67,57 @@ MDRConnection* clientPlatformConnectionGet()
     [[unlikely]] return nullptr;
 }
 
+EM_JS(void, clientPlatformDestroyFonts, (), {
+    const fonts = globalThis.SonyHeadphonesClientFonts;
+    if (!fonts) return;
+    fonts.destroyed = true;
+    for (const entry of fonts.entries.values()) {
+        entry.controller.abort();
+        if (entry.ptr) _free(entry.ptr);
+        entry.ptr = entry.size = 0;
+        entry.data = null;
+        entry.state = 'unavailable';
+    }
+});
+
 void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();
-    // TODO
+    clientPlatformDestroyFonts();
 }
 
-EM_JS(int, clientPlatformLocateFontBinary, (const char** outData), {
-    if (!outData)
+EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData, int* outFaceIndex), {
+    if (outData) setValue(outData, 0, '*');
+    if (outFaceIndex) setValue(outFaceIndex, 0, 'i32');
+    if (!outData || !outFaceIndex || locale < 1 || locale > 4)
         return 0;
-    if (navigator.externalFontData) {
-        const data = navigator.externalFontData;
-        const dataPtr = _malloc(data.byteLength);
-        if (!dataPtr)
+    const fonts = globalThis.SonyHeadphonesClientFonts;
+    if (!fonts || fonts.destroyed) return 0;
+    fonts.load(locale);
+    const entry = fonts.entries.get(locale);
+    if (!entry || entry.state !== 'ready') return 0;
+    if (entry.data) {
+        const size = entry.data.byteLength;
+        const ptr = _malloc(size);
+        if (!ptr) {
+            entry.data = null;
+            entry.state = 'unavailable';
             return 0;
-        HEAPU8.set(data, dataPtr);
-        navigator.externalFontPtr = dataPtr;
-        navigator.externalFontSize = data.byteLength;
-        delete navigator.externalFontData;
-    }
-    if (navigator.externalFontSize > 0){
-        setValue(outData, navigator.externalFontPtr, '*');
-        return navigator.externalFontSize;
-    }
-    if (navigator.externalFontManaged)
-        return 0;
-    async function fetch_font() {
-        try {
-            const response = await fetch(navigator.externalFont);
-            if (!response.ok)
-                throw new Error(`HTTP ${response.status}`);
-            const arrayBuffer = await response.arrayBuffer();
-            const size = arrayBuffer.byteLength;
-            if (!size)
-                throw new Error('Empty font binary');
-            const dataPtr = _malloc(size);
-            if (!dataPtr)
-                throw new Error('Unable to allocate font memory');
-            HEAPU8.set(new Uint8Array(arrayBuffer), dataPtr);
-            navigator.externalFontPtr = dataPtr;
-            navigator.externalFontSize = size;
-        } catch (error) {
-            console.warn(`Failed to load font from ${navigator.externalFont}`, error);
         }
+        HEAPU8.set(entry.data, ptr);
+        entry.ptr = ptr;
+        entry.size = size;
+        entry.data = null;
     }
-    if (!navigator.externalFontFetch)
-        navigator.externalFontFetch = fetch_font();
-    return 0;
+    if (!entry.ptr || !entry.size) return 0;
+    setValue(outData, entry.ptr, '*');
+    return entry.size;
 });
+
+int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex)
+{
+    return clientPlatformLocateFontBinaryImpl(static_cast<int>(locale), outData, outFaceIndex);
+}
 
 EM_JS(int, clientPlatformDownloadFileImpl,
       (const char* filename, const unsigned char* data, int dataSize, const char* mimeType), {
@@ -154,7 +157,7 @@ int clientPlatformDownloadFile(
 void __dont_touch_my_garbage_exclamation_marks__() __attribute__((used));
 void __dont_touch_my_garbage_exclamation_marks__()
 {
-    clientPlatformLocateFontBinary(nullptr);
+    clientPlatformLocateFontBinary(FontLocale::LATIN, nullptr, nullptr);
     clientPlatformDownloadFileImpl(nullptr, nullptr, 0, nullptr);
 }
 }

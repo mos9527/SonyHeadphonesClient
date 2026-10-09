@@ -37,6 +37,8 @@ bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
+static FontLocale gFontLocale = FontLocale::SIMPLIFIED_CHINESE;
+static bool gPlatformFontLoaded = false;
 
 void mainLoop()
 {
@@ -72,22 +74,28 @@ void mainLoop()
     }
     // Start the Dear ImGui frame
     {
-        // Platform font loading - if available
-        // This is only done once per session. See @ref clientPlatformLocateFontBinary for more info.
-        static int platformFontSize = 0;
-        if (!platformFontSize)
+        if (!gPlatformFontLoaded)
         {
             const char* fontData = nullptr;
-            platformFontSize = clientPlatformLocateFontBinary(&fontData);
-            if (platformFontSize)
+            int faceIndex{};
+            const int fontSize = clientPlatformLocateFontBinary(gFontLocale, &fontData, &faceIndex);
+#ifndef __EMSCRIPTEN__
+            gPlatformFontLoaded = true;
+#endif
+            if (fontSize > 0 && fontData && faceIndex >= 0)
             {
-                SDL_Log("Loading platform font of size %d bytes", platformFontSize);
-                ImFontConfig merge_config{};
-                merge_config.MergeMode = true;
-                // XXX: PlexSansIcon covered latin-1 pages. New ones won't overwrite them.
-                // External fonts are meant to cover missing glyphs e.g. CJK ones anyway - so this is fine.
-                io.Fonts->AddFontFromMemoryTTF((void*)fontData, platformFontSize, 15.0f, &merge_config);
+                SDL_Log("Loading platform font: locale %d, %d bytes, face %d",
+                        static_cast<int>(gFontLocale), fontSize, faceIndex);
+                ImFontConfig config{};
+                config.MergeMode = true;
+                config.DstFont = io.FontDefault;
+                config.FontDataOwnedByAtlas = false;
+                config.FontNo = static_cast<ImU32>(faceIndex);
+                io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontData), fontSize, 15.0f, &config);
+                gPlatformFontLoaded = true;
             }
+            else if (gFontLocale == FontLocale::LATIN)
+                gPlatformFontLoaded = true;
         }
         // New frame
         ImGui_ImplSDLRenderer3_NewFrame();
@@ -106,7 +114,16 @@ void mainLoop()
     }
 #ifdef __EMSCRIPTEN__
     if (gShouldClose)
+    {
         emscripten_cancel_main_loop();
+        ImGui_ImplSDLRenderer3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext();
+        SDL_DestroyRenderer(gRenderer);
+        SDL_DestroyWindow(gWindow);
+        SDL_Quit();
+        clientPlatformDestroy();
+    }
 #endif
 }
 
@@ -134,12 +151,14 @@ namespace
         const char* replayPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
+        FontLocale fontLocale{FontLocale::SIMPLIFIED_CHINESE};
     };
 
     void PrintUsage()
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
+        MDR_LOG("                            [--font-locale latin|sc|tc|jp|kr]");
 #ifdef MDR_CLIENT_DEBUGGER
         MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
 #endif
@@ -174,6 +193,24 @@ namespace
             if (std::strcmp(argument, "--pause-media-on-remove") == 0)
             {
                 options.pauseMediaOnRemove = true;
+                continue;
+            }
+
+            if (std::strcmp(argument, "--font-locale") == 0)
+            {
+                if (++index >= argc)
+                    return false;
+                const char* names[] = {"latin", "sc", "tc", "jp", "kr"};
+                int locale{};
+                for (; locale < 5; ++locale)
+                    if (std::strcmp(argv[index], names[locale]) == 0)
+                        break;
+                if (locale == 5)
+                {
+                    MDR_LOG("Invalid font locale: {}", argv[index]);
+                    return false;
+                }
+                options.fontLocale = static_cast<FontLocale>(locale);
                 continue;
             }
 
@@ -218,6 +255,8 @@ int main(int argc, char** argv)
         PrintUsage();
         return 2;
     }
+    gFontLocale = options.fontLocale;
+    gPlatformFontLoaded = false;
     clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
     if (options.showHelp)
     {

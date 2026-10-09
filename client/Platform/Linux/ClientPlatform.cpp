@@ -1,10 +1,11 @@
+#include "../Platform.hpp"
 #include <mdr-bt/ConnectionLinux.h>
 
 extern "C" {
-int clientPlatformLocateFontBinary(const char** outData)
+int clientPlatformLocateFontBinary(FontLocale, const char** outData, int* outFaceIndex)
 {
-    // TODO: This would be hell.
-    *outData = nullptr;
+    if (outData) *outData = nullptr;
+    if (outFaceIndex) *outFaceIndex = 0;
     return 0;
 }
 

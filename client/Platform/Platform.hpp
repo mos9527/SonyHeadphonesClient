@@ -2,6 +2,15 @@
 #include <cstddef>
 #include <mdr-c/Connection.h>
 
+enum class FontLocale
+{
+    LATIN,
+    SIMPLIFIED_CHINESE,
+    TRADITIONAL_CHINESE,
+    JAPANESE,
+    KOREAN,
+};
+
 extern "C" {
     /**
      * @brief Select and initialize the platform Bluetooth backend.
@@ -17,11 +26,15 @@ extern "C" {
     extern void clientPlatformConnectionDestroy();
 
     /**
-     * @breif Locate platform-specific font binary data
-     * @param outData Pointer to output font data. Must not be freed by caller.
-     * @return Size of font data in bytes, 0 if not available - can be retried.
+     * @brief Locate platform-specific font binary data.
+     * @param locale Requested font locale.
+     * @param outData Required output pointer. Platform-owned until clientPlatformDestroy().
+     * @param outFaceIndex Required output pointer for the TTF/OTF/TTC face index.
+     * @return Size in bytes, or 0 with cleared outputs. Native failures are cached;
+     *         Web requests may be pending and retried. LATIN uses the embedded font.
+     * @note Call on the main thread; destroy the ImGui atlas before platform cleanup.
      */
-    extern int clientPlatformLocateFontBinary(const char** outData);
+    extern int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex);
     /**
      * @brief Whether a Bluetooth address belongs to one of this computer's own adapters.
      * @param address Text form, "XX:XX:XX:XX:XX:XX", any case.

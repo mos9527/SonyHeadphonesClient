@@ -11,4 +11,5 @@ target_link_libraries(Client_PlatformWindows
         mdr
         ws2_32
         rpcrt4
+        dwrite
 )

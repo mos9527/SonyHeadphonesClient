@@ -2,9 +2,10 @@
 #include <mdr-bt/ConnectionMacOS.h>
 
 extern "C" {
-int clientPlatformLocateFontBinary(const char** outData)
+int clientPlatformLocateFontBinary(FontLocale, const char** outData, int* outFaceIndex)
 {
-    *outData = nullptr;
+    if (outData) *outData = nullptr;
+    if (outFaceIndex) *outFaceIndex = 0;
     return 0;
 }
 

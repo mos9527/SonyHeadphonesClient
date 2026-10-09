@@ -2,6 +2,7 @@
 
 globalThis.SonyHeadphonesClientConfig = Object.freeze({
     commit: '@MDR_GIT_COMMIT_HASH@',
+    fontLocale: 'sc',
     fonts: Object.freeze({
         jp: 'https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/OTF/Japanese/NotoSansCJKjp-Regular.otf',
         sc: 'https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf',
