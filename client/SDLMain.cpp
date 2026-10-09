@@ -37,8 +37,9 @@ bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
-static FontLocale gFontLocale = FontLocale::SIMPLIFIED_CHINESE;
+static FontLocale gFontLocale = FontLocale::UNDEFINED;
 static bool gPlatformFontLoaded = false;
+static int gFontFallbackIndex = static_cast<int>(FontLocale::SIMPLIFIED_CHINESE);
 
 void mainLoop()
 {
@@ -74,27 +75,31 @@ void mainLoop()
     }
     // Start the Dear ImGui frame
     {
-        if (!gPlatformFontLoaded)
+        while (!gPlatformFontLoaded)
         {
+            const FontLocale locale = gFontLocale == FontLocale::UNDEFINED ?
+                static_cast<FontLocale>(gFontFallbackIndex) : gFontLocale;
             const char* fontData = nullptr;
             int faceIndex{};
-            const int fontSize = clientPlatformLocateFontBinary(gFontLocale, &fontData, &faceIndex);
-#ifndef __EMSCRIPTEN__
-            gPlatformFontLoaded = true;
-#endif
+            const int fontSize = clientPlatformLocateFontBinary(locale, &fontData, &faceIndex);
+            if (fontSize < 0)
+                break;
             if (fontSize > 0 && fontData && faceIndex >= 0)
             {
-                SDL_Log("Loading platform font: locale %d, %d bytes, face %d",
-                        static_cast<int>(gFontLocale), fontSize, faceIndex);
+                MDR_LOG("Loading platform font: locale {}, {} bytes, face {}", locale, fontSize, faceIndex);
                 ImFontConfig config{};
                 config.MergeMode = true;
                 config.DstFont = io.FontDefault;
                 config.FontDataOwnedByAtlas = false;
                 config.FontNo = static_cast<ImU32>(faceIndex);
-                io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontData), fontSize, 15.0f, &config);
-                gPlatformFontLoaded = true;
+                if (io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontData), fontSize, 15.0f, &config))
+                {
+                    gPlatformFontLoaded = true;
+                    break;
+                }
             }
-            else if (gFontLocale == FontLocale::LATIN)
+            if (gFontLocale != FontLocale::UNDEFINED ||
+                ++gFontFallbackIndex >= static_cast<int>(FontLocale::NUM_LOCALES))
                 gPlatformFontLoaded = true;
         }
         // New frame
@@ -145,20 +150,48 @@ namespace
     }
 #endif
 
+    FontLocale GetPreferredFontLocale()
+    {
+        FontLocale result = FontLocale::UNDEFINED;
+        SDL_Locale** locales = SDL_GetPreferredLocales(nullptr);
+        for (SDL_Locale** current = locales;
+             current && *current && result == FontLocale::UNDEFINED; ++current)
+        {
+            const auto& locale = **current;
+            if (!locale.language)
+                continue;
+            if (SDL_strcasecmp(locale.language, "zh") == 0)
+            {
+                const char* country = locale.country;
+                const bool traditional = country &&
+                    (SDL_strcasecmp(country, "Hant") == 0 || SDL_strcasecmp(country, "TW") == 0 ||
+                     SDL_strcasecmp(country, "HK") == 0 || SDL_strcasecmp(country, "MO") == 0);
+                result = traditional ? FontLocale::TRADITIONAL_CHINESE : FontLocale::SIMPLIFIED_CHINESE;
+            }
+            else if (SDL_strcasecmp(locale.language, "ja") == 0)
+                result = FontLocale::JAPANESE;
+            else if (SDL_strcasecmp(locale.language, "ko") == 0)
+                result = FontLocale::KOREAN;
+        }
+        SDL_free(locales);
+        return result;
+    }
+
     struct ClientOptions
     {
         const char* recordDirectory{};
         const char* replayPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
-        FontLocale fontLocale{FontLocale::SIMPLIFIED_CHINESE};
+        FontLocale fontLocale{FontLocale::UNDEFINED};
+        bool fontLocaleSpecified{};
     };
 
     void PrintUsage()
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
-        MDR_LOG("                            [--font-locale latin|sc|tc|jp|kr]");
+        MDR_LOG("                            [--font-locale undefined|sc|tc|jp|kr]");
 #ifdef MDR_CLIENT_DEBUGGER
         MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
 #endif
@@ -200,17 +233,20 @@ namespace
             {
                 if (++index >= argc)
                     return false;
-                const char* names[] = {"latin", "sc", "tc", "jp", "kr"};
+                constexpr const char* names[] = {"undefined", "sc", "tc", "jp", "kr"};
+                constexpr int localeCount = static_cast<int>(FontLocale::NUM_LOCALES);
+                static_assert(sizeof(names) / sizeof(names[0]) == localeCount);
                 int locale{};
-                for (; locale < 5; ++locale)
+                for (; locale < localeCount; ++locale)
                     if (std::strcmp(argv[index], names[locale]) == 0)
                         break;
-                if (locale == 5)
+                if (locale == localeCount)
                 {
                     MDR_LOG("Invalid font locale: {}", argv[index]);
                     return false;
                 }
                 options.fontLocale = static_cast<FontLocale>(locale);
+                options.fontLocaleSpecified = true;
                 continue;
             }
 
@@ -257,6 +293,7 @@ int main(int argc, char** argv)
     }
     gFontLocale = options.fontLocale;
     gPlatformFontLoaded = false;
+    gFontFallbackIndex = static_cast<int>(FontLocale::SIMPLIFIED_CHINESE);
     clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
     if (options.showHelp)
     {
@@ -276,6 +313,9 @@ int main(int argc, char** argv)
         MDR_LOG("SDL_Init Error: {}", SDL_GetError());
         return 1;
     }
+    if (!options.fontLocaleSpecified)
+        gFontLocale = GetPreferredFontLocale();
+    MDR_LOG("Selected font locale: {}", gFontLocale);
     if (options.recordDirectory)
     {
         if (!clientPayloadRecorderConfigure(options.recordDirectory))

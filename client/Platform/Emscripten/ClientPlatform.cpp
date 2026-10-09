@@ -89,12 +89,13 @@ void clientPlatformDestroy()
 EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData, int* outFaceIndex), {
     if (outData) setValue(outData, 0, '*');
     if (outFaceIndex) setValue(outFaceIndex, 0, 'i32');
-    if (!outData || !outFaceIndex || locale < 1 || locale > 4)
+    if (!outData || !outFaceIndex)
         return 0;
     const fonts = globalThis.SonyHeadphonesClientFonts;
     if (!fonts || fonts.destroyed) return 0;
     fonts.load(locale);
     const entry = fonts.entries.get(locale);
+    if (entry?.state === 'loading') return -1;
     if (!entry || entry.state !== 'ready') return 0;
     if (entry.data) {
         const size = entry.data.byteLength;
@@ -116,6 +117,12 @@ EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData
 
 int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex)
 {
+    if (locale <= FontLocale::UNDEFINED || locale >= FontLocale::NUM_LOCALES)
+    {
+        if (outData) *outData = nullptr;
+        if (outFaceIndex) *outFaceIndex = 0;
+        return 0;
+    }
     return clientPlatformLocateFontBinaryImpl(static_cast<int>(locale), outData, outFaceIndex);
 }
 
@@ -157,7 +164,7 @@ int clientPlatformDownloadFile(
 void __dont_touch_my_garbage_exclamation_marks__() __attribute__((used));
 void __dont_touch_my_garbage_exclamation_marks__()
 {
-    clientPlatformLocateFontBinary(FontLocale::LATIN, nullptr, nullptr);
+    clientPlatformLocateFontBinary(FontLocale::UNDEFINED, nullptr, nullptr);
     clientPlatformDownloadFileImpl(nullptr, nullptr, 0, nullptr);
 }
 }

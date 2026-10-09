@@ -23,7 +23,7 @@ struct CachedFont
     int faceIndex{};
 };
 
-std::array<CachedFont, 5> gFonts;
+std::array<CachedFont, static_cast<size_t>(FontLocale::NUM_LOCALES)> gFonts;
 
 bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
               const wchar_t* sample, CachedFont& cache)
@@ -95,8 +95,7 @@ bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
 
 void LocateFont(FontLocale locale, CachedFont& cache)
 {
-    // LATIN uses the embedded PlexSansIcon font without an external source.
-    if (locale == FontLocale::LATIN)
+    if (locale == FontLocale::UNDEFINED)
         return;
     ComPtr<IDWriteFactory> factory;
     ComPtr<IDWriteFontCollection> collection;

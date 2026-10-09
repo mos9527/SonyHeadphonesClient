@@ -90,17 +90,31 @@ async function download(url, id, signal, resource = resources[id]) {
     }
 }
 
-const fontRegions = Object.freeze(['latin', 'sc', 'tc', 'jp', 'kr']);
+const fontRegions = Object.freeze(['undefined', 'sc', 'tc', 'jp', 'kr']);
+function getPreferredFontLocale() {
+    const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+    for (const tag of languages) {
+        const locale = (tag || '').toLowerCase().replace(/_/g, '-');
+        const language = locale.split('-')[0];
+        if (language === 'zh') {
+            if (/(?:^|-)hans(?:-|$)/.test(locale)) return 1;
+            return /(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(locale) ? 2 : 1;
+        }
+        if (language === 'ja') return 3;
+        if (language === 'ko') return 4;
+    }
+    return 0;
+}
 const configuredFont = new URL(location.href).searchParams.get('font-locale') ||
-    globalThis.SonyHeadphonesClientConfig.fontLocale || 'sc';
-const startupFontLocale = Math.max(0, fontRegions.indexOf(
-    fontRegions.includes(configuredFont) ? configuredFont : 'sc'));
+    globalThis.SonyHeadphonesClientConfig.fontLocale;
+const startupFontLocale = fontRegions.includes(configuredFont) ?
+    fontRegions.indexOf(configuredFont) : getPreferredFontLocale();
 
 const platformFonts = globalThis.SonyHeadphonesClientFonts = {
     entries: new Map(),
     destroyed: false,
     load(locale) {
-        if (this.destroyed || !Number.isInteger(locale) || locale < 1 || locale > 4)
+        if (this.destroyed || !Number.isInteger(locale) || locale <= 0 || locale >= fontRegions.length)
             return Promise.resolve();
         const previous = this.entries.get(locale);
         if (previous) return previous.promise;

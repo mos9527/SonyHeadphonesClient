@@ -4,12 +4,27 @@
 
 enum class FontLocale
 {
-    LATIN,
+    UNDEFINED,
     SIMPLIFIED_CHINESE,
     TRADITIONAL_CHINESE,
     JAPANESE,
     KOREAN,
+    NUM_LOCALES,
 };
+
+constexpr const char* format_as(FontLocale locale)
+{
+    switch (locale)
+    {
+    case FontLocale::UNDEFINED: return "UNDEFINED";
+    case FontLocale::SIMPLIFIED_CHINESE: return "SIMPLIFIED_CHINESE";
+    case FontLocale::TRADITIONAL_CHINESE: return "TRADITIONAL_CHINESE";
+    case FontLocale::JAPANESE: return "JAPANESE";
+    case FontLocale::KOREAN: return "KOREAN";
+    case FontLocale::NUM_LOCALES: return "NUM_LOCALES";
+    default: return "Unknown";
+    }
+}
 
 extern "C" {
     /**
@@ -30,9 +45,7 @@ extern "C" {
      * @param locale Requested font locale.
      * @param outData Required output pointer. Platform-owned until clientPlatformDestroy().
      * @param outFaceIndex Required output pointer for the TTF/OTF/TTC face index.
-     * @return Size in bytes, or 0 with cleared outputs. Native failures are cached;
-     *         Web requests may be pending and retried. LATIN uses the embedded font.
-     * @note Call on the main thread; destroy the ImGui atlas before platform cleanup.
+     * @return Size in bytes, 0 if unavailable, or -1 for in-progress IO
      */
     extern int clientPlatformLocateFontBinary(FontLocale locale, const char** outData, int* outFaceIndex);
     /**
