@@ -55,6 +55,13 @@ target_sources(
         Client.cpp
         Recorder.cpp
         Fonts/PlexSansIcon.c
+        I18N/Strings.hpp
+        I18N/Strings.cpp
+        I18N/English.cpp
+        I18N/SimplifiedChinese.cpp
+        I18N/TraditionalChinese.cpp
+        I18N/Japanese.cpp
+        I18N/Korean.cpp
 )
 
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
