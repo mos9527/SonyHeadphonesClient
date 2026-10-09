@@ -40,6 +40,7 @@ A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required. Yo
 - [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
 - [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
 
+
 ## For Developers
 
 We have extensive documentations available in the source files. Moreover, refer to the respective README files in each source folder to understand what they do!
@@ -54,10 +55,10 @@ Third-party dependencies (see `contrib`) are managed by CMake's `FetchContent` a
 
 **For Developers:** See also `tooling` for codegen dependencies.
 #### Building on Linux
-You need DBus and BlueZ development packages installed.
-- Debian (Ubuntu): `sudo apt install libbluetooth-dev libdbus-1-dev`
-- Fedora: `sudo dnf install bluez-libs-devel dbus-devel`
-- Arch Linux: `sudo pacman -S bluez dbus`
+You need DBus, BlueZ and Fontconfig development packages installed.
+- Debian (Ubuntu): `sudo apt install libbluetooth-dev libdbus-1-dev libfontconfig1-dev`
+- Fedora: `sudo dnf install bluez-libs-devel dbus-devel fontconfig-devel`
+- Arch Linux: `sudo pacman -S bluez dbus fontconfig`
 
 **For Developers:** You may want to have `bluez-tools`/`bluez-utils` installed for testing.
 #### Example

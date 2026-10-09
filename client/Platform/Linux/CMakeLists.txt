@@ -9,6 +9,7 @@ add_library(Client_PlatformLinux STATIC
 # one in libmdr-bt/src/Linux, kept local so this directory stands on its own.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 find_package(DBus REQUIRED)
+find_package(Fontconfig REQUIRED)
 
 target_include_directories(Client_PlatformLinux PRIVATE ${DBus_INCLUDE_DIRS})
 
@@ -18,4 +19,5 @@ target_link_libraries(Client_PlatformLinux
         PRIVATE
         mdr
         ${DBus_LIBRARIES}
+        Fontconfig::Fontconfig
 )
