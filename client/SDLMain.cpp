@@ -102,9 +102,8 @@ void mainLoop()
         while (!gPlatformFontLoaded)
         {
             const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
-            const FontLocale locale = useFontFallback ? FontLocale::UNDEFINED :
-                (gFontLocale == FontLocale::UNDEFINED ?
-                    static_cast<FontLocale>(gFontFallbackIndex) : gFontLocale);
+            const FontLocale locale = !useFontFallback && gFontLocale == FontLocale::UNDEFINED ?
+                static_cast<FontLocale>(gFontFallbackIndex) : gFontLocale;
             const char* fontData = gFontFallbackData;
             int faceIndex{};
             const int fontSize = useFontFallback ? gFontFallbackSize :
@@ -231,15 +230,16 @@ namespace
         const char* fontPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
-        FontLocale fontLocale{FontLocale::UNDEFINED};
-        bool fontLocaleSpecified{};
+        FontLocale locale{FontLocale::UNDEFINED};
+        bool localeSpecified{};
     };
 
     void PrintUsage()
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
-        MDR_LOG("                            [--font-locale undefined|sc|tc|jp|kr|<font-file>]\tOverride font locale or load a font file");
+        MDR_LOG("                            [--locale undefined|sc|tc|jp|kr]\tOverride system locale");
+        MDR_LOG("                            [--font <font-file>]\tLoad an external font without changing locale");
 #ifdef MDR_CLIENT_DEBUGGER
         MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
 #endif
@@ -277,10 +277,13 @@ namespace
                 continue;
             }
 
-            if (std::strcmp(argument, "--font-locale") == 0)
+            if (std::strcmp(argument, "--locale") == 0)
             {
                 if (++index >= argc)
+                {
+                    MDR_LOG("Missing locale after {}.", argument);
                     return false;
+                }
                 constexpr const char* names[] = {"undefined", "sc", "tc", "jp", "kr"};
                 constexpr int localeCount = static_cast<int>(FontLocale::NUM_LOCALES);
                 static_assert(sizeof(names) / sizeof(names[0]) == localeCount);
@@ -290,21 +293,18 @@ namespace
                         break;
                 if (locale == localeCount)
                 {
-                    options.fontPath = argv[index];
-                    options.fontLocale = FontLocale::UNDEFINED;
+                    MDR_LOG("Invalid locale: {}. Expected undefined, sc, tc, jp, or kr.", argv[index]);
+                    return false;
                 }
-                else
-                {
-                    options.fontPath = nullptr;
-                    options.fontLocale = static_cast<FontLocale>(locale);
-                }
-                options.fontLocaleSpecified = true;
+                options.locale = static_cast<FontLocale>(locale);
+                options.localeSpecified = true;
                 continue;
             }
 
             const bool record = std::strcmp(argument, "--record") == 0;
             const bool replay = std::strcmp(argument, "--replay") == 0;
-            if (record || replay)
+            const bool font = std::strcmp(argument, "--font") == 0;
+            if (record || replay || font)
             {
                 if (index + 1 >= argc)
                 {
@@ -312,7 +312,8 @@ namespace
                     return false;
                 }
                 const char* path = argv[++index];
-                const char*& destination = record ? options.recordDirectory : options.replayPath;
+                const char*& destination = font ? options.fontPath :
+                    (record ? options.recordDirectory : options.replayPath);
                 if (destination)
                 {
                     MDR_LOG("{} may only be specified once.", argument);
@@ -343,7 +344,7 @@ int main(int argc, char** argv)
         PrintUsage();
         return 2;
     }
-    gFontLocale = options.fontLocale;
+    gFontLocale = options.locale;
     gPlatformFontLoaded = false;
     gFontFallbackIndex = static_cast<int>(FontLocale::SIMPLIFIED_CHINESE);
     clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
@@ -365,9 +366,9 @@ int main(int argc, char** argv)
         MDR_LOG("SDL_Init Error: {}", SDL_GetError());
         return 1;
     }
-    if (!options.fontLocaleSpecified)
+    if (!options.localeSpecified)
         gFontLocale = GetPreferredFontLocale();
-    MDR_LOG("Selected font locale: {}", gFontLocale);
+    MDR_LOG("Selected locale: {}", gFontLocale);
     if (options.recordDirectory)
     {
         if (!clientPayloadRecorderConfigure(options.recordDirectory))
@@ -434,7 +435,6 @@ int main(int argc, char** argv)
         gFontFallbackData = fontData;
         gFontFallbackSize = static_cast<int>(fontSize);
         gFontFallbackPath = options.fontPath;
-        gFontLocale = FontLocale::UNDEFINED;
     }
     // Setup Dear ImGui context
     {

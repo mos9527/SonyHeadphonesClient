@@ -106,10 +106,10 @@ function getPreferredFontLocale() {
     }
     return 0;
 }
-const configuredFont = new URL(location.href).searchParams.get('font-locale') ||
-    globalThis.SonyHeadphonesClientConfig.fontLocale;
-const startupFontLocale = fontRegions.includes(configuredFont) ?
-    fontRegions.indexOf(configuredFont) : getPreferredFontLocale();
+const configuredLocale = new URL(location.href).searchParams.get('locale') ||
+    globalThis.SonyHeadphonesClientConfig.locale;
+const startupFontLocale = fontRegions.includes(configuredLocale) ?
+    fontRegions.indexOf(configuredLocale) : getPreferredFontLocale();
 
 const platformFonts = globalThis.SonyHeadphonesClientFonts = {
     entries: new Map(),
@@ -406,7 +406,7 @@ function installDebuggerFolderDrop() {
 }
 
 var Module = {
-    arguments: ['--font-locale', fontRegions[startupFontLocale]],
+    arguments: ['--locale', fontRegions[startupFontLocale]],
     canvas: elements.canvas,
     locateFile: path => new URL(path, appBase).href,
     print: (...args) => console.log(...args),

@@ -40,6 +40,26 @@ A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required. Yo
 - [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
 - [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
 
+## Fonts & Localization
+
+The Client app uses your system's locale settings to determine the language and font to use.
+
+This can be overridden by using `--locale <locale>`. 
+- For the Web version, this can be manually specified in the URL via `...?locale=jp`, e.g. `https://mos9527.com/SonyHeadphonesClient/?locale=jp`.
+
+The following locales are supported:
+
+| Locale | Language | Localizer |
+| ------ | -------- | --------- |
+| undefined | Default (English) | - |
+| sc | 简体中文/Simplified Chinese | [@mos9527](https://github.com/mos9527) |
+| tc | 繁体中文/Traditional Chinese | [@mos9527](https://github.com/mos9527) |
+| jp | 日本語/Japanese | TBD |
+| kr | 한국인/Korean | TBD |
+
+Additionally, for the Desktop (non-Web) client, `--font <file-path>` optionally loads an external font instead of the default font selected for the locale. 
+
+- Running `./SonyHeadphonesClient.exe --locale jp --font NotoSansCJKjp-Regular.otf` makes the app run in Japanese with the specified Noto Sans font.
 
 ## For Developers
 
