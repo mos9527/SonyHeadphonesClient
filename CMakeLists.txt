@@ -122,7 +122,7 @@ MDR_DetectGitInfo() # Sets MDR_GIT_COMMIT_HASH and MDR_GIT_BRANCH_NAME
 if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     add_link_options(
             -sALLOW_MEMORY_GROWTH
-            -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAPU8']
+            -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAPU8','FS']
             -sGROWABLE_ARRAYBUFFERS=0
     )
     add_compile_options(-O1)

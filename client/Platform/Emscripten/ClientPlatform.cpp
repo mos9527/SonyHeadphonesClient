@@ -3,6 +3,48 @@
 #include <mdr-bt/ConnectionEmscripten.h>
 #include <emscripten.h>
 
+#ifdef MDR_CLIENT_DEBUGGER
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_video.h>
+#include <string>
+
+static std::string gDroppedDirectory;
+
+extern "C" EMSCRIPTEN_KEEPALIVE bool clientPlatformDropPending()
+{
+    return SDL_HasEvent(SDL_EVENT_DROP_FILE);
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE const char* clientPlatformDropDirectory(const char* path)
+{
+    if (!path || !*path)
+        return "Folder drop path is empty";
+    if (clientPlatformDropPending())
+        return "A file or folder drop is already pending";
+    int count{};
+    SDL_Window** windows = SDL_GetWindows(&count);
+    if (!windows)
+        return SDL_GetError();
+    const SDL_WindowID windowID = count ? SDL_GetWindowID(windows[0]) : 0;
+    SDL_free(windows);
+    if (!windowID)
+        return "No window available for folder drop";
+
+    gDroppedDirectory = path;
+    SDL_Event event{};
+    event.type = SDL_EVENT_DROP_FILE;
+    event.drop.windowID = windowID;
+    event.drop.data = gDroppedDirectory.c_str();
+    if (!SDL_PushEvent(&event))
+    {
+        gDroppedDirectory.clear();
+        return "Unable to queue folder drop";
+    }
+    return nullptr;
+}
+#endif
+
 extern "C" {
 static MDRConnectionEmscripten* gConn = nullptr;
 

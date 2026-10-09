@@ -43,3 +43,11 @@ target_link_libraries(
         PRIVATE
         mdr
 )
+if (MDR_CLIENT_DEBUGGER_TARGET)
+    target_compile_definitions(Client_PlatformEmscripten PRIVATE
+        $<${CLIENT_DEBUGGER_ENABLED}:MDR_CLIENT_DEBUGGER>
+    )
+    target_link_libraries(Client_PlatformEmscripten PRIVATE
+        $<${CLIENT_DEBUGGER_ENABLED}:SDL3::SDL3-static>
+    )
+endif ()

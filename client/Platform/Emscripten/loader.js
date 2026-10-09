@@ -281,6 +281,68 @@ window.addEventListener('unhandledrejection', event => {
     if (!runtimeReady) fail(event.reason || new Error('Application startup failed'));
 });
 
+function installDebuggerFolderDrop() {
+    if (typeof Module._clientPlatformDropDirectory !== 'function') return;
+    let importing = false;
+    const fs = Module.FS;
+    const path = '/tmp/mdr-debugger-import';
+
+    async function collectPackets(entry, packets) {
+        if (entry.isDirectory) {
+            const reader = entry.createReader();
+            while (true) {
+                const batch = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+                if (!batch.length) break;
+                for (const child of batch) await collectPackets(child, packets);
+            }
+        } else if (entry.isFile && entry.name.startsWith('mdr-packet-') &&
+                   entry.name.endsWith('.bin') && /-(?:rx|tx)\./.test(entry.name)) {
+            packets.push(entry);
+        }
+    }
+
+    elements.canvas.addEventListener('drop', event => {
+        const entries = Array.from(event.dataTransfer?.items || [])
+            .filter(item => item.kind === 'file').map(item => item.webkitGetAsEntry?.());
+        if (!entries.some(entry => entry?.isDirectory)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (importing || Module._clientPlatformDropPending() || entries.length !== 1) {
+            showNotice('Drop one capture folder at a time, and wait for the current import to finish.');
+            return;
+        }
+        importing = true;
+        void (async () => {
+            fs.mkdirTree(path);
+            for (const name of fs.readdir(path)) {
+                if (name !== '.' && name !== '..') fs.unlink(`${path}/${name}`);
+            }
+            showNotice('Reading capture folder…');
+            const packets = [];
+            await collectPackets(entries[0], packets);
+            const names = new Set();
+            for (const packet of packets) {
+                if (names.has(packet.name)) throw new Error(`Duplicate packet filename: ${packet.name}`);
+                names.add(packet.name);
+            }
+            for (let offset = 0; offset < packets.length; offset += 32) {
+                showNotice(`Importing packets: ${offset} / ${packets.length}…`);
+                const results = await Promise.allSettled(packets.slice(offset, offset + 32).map(async entry => {
+                    const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+                    fs.writeFile(`${path}/${entry.name}`, new Uint8Array(await file.arrayBuffer()));
+                }));
+                const failure = results.find(result => result.status === 'rejected');
+                if (failure) throw failure.reason;
+            }
+            if (!packets.length) throw new Error('No capture packets found in the dropped folder.');
+            const error = Module.ccall('clientPlatformDropDirectory', 'string', ['string'], [path]);
+            if (error) throw new Error(error);
+            showNotice(`Queued ${packets.length} packet(s) for replay.`);
+        })().catch(error => showNotice(`Unable to import capture: ${error.message || error}`))
+            .finally(() => { importing = false; });
+    }, { capture: true });
+}
+
 var Module = {
     canvas: elements.canvas,
     locateFile: path => new URL(path, appBase).href,
@@ -300,6 +362,7 @@ var Module = {
             elements.canvas.hidden = false;
             elements.preload.hidden = true;
             elements.canvas.focus({ preventScroll: true });
+            installDebuggerFolderDrop();
             syncCanvasSize();
             void setupOffline();
         }));
