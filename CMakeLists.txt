@@ -141,6 +141,9 @@ if (MDR_ENABLE_CODEGEN)
     add_subdirectory(tooling)
 endif()
 
+get_property(MDR_SUPPORTS_SHARED_LIBS GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
+option(MDR_BUILD_SHARED "Build the MDR and Bluetooth shared libraries" ${MDR_SUPPORTS_SHARED_LIBS})
+
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
 add_subdirectory(libmdr-bt)

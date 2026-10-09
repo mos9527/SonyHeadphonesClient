@@ -23,24 +23,27 @@ set(GENERATED_SRCS
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
 add_library(mdr ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
-add_library(mdr_shared SHARED ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
-set_target_properties(mdr_shared PROPERTIES
-    OUTPUT_NAME "mdr-shared"
-)
-target_compile_definitions(mdr_shared
-    PRIVATE MDR_BUILDING_SHARED
-    INTERFACE MDR_USING_SHARED
-)
 target_link_libraries(mdr PUBLIC mdr_Includes)
 target_include_directories(mdr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# The ABI tests provide their own MDRConnection and intentionally exercise the
-# public C surface through a DLL/shared object, without platform backends.
-target_link_libraries(mdr_shared
-    PUBLIC mdr-c
-    PRIVATE mdr_Includes
-)
-target_include_directories(mdr_shared PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+if (MDR_BUILD_SHARED)
+    add_library(mdr_shared SHARED ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
+    set_target_properties(mdr_shared PROPERTIES
+        OUTPUT_NAME "mdr-shared"
+    )
+    target_compile_definitions(mdr_shared
+        PRIVATE MDR_BUILDING_SHARED
+        INTERFACE MDR_USING_SHARED
+    )
+
+    # The ABI tests provide their own MDRConnection and intentionally exercise the
+    # public C surface through a DLL/shared object, without platform backends.
+    target_link_libraries(mdr_shared
+        PUBLIC mdr-c
+        PRIVATE mdr_Includes
+    )
+    target_include_directories(mdr_shared PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+endif ()
 
 if (COMMAND mdr_add_codegen)
     mdr_add_codegen(OUTPUT "${_GEN_INC}/Command.hpp"
@@ -112,7 +115,9 @@ if (COMMAND mdr_add_codegen)
         "${_GEN_INC}/ProtocolV2T2Traits.hpp"
     )
     add_dependencies(mdr mdr_codegen_headers)
-    add_dependencies(mdr_shared mdr_codegen_headers)
+    if (TARGET mdr_shared)
+        add_dependencies(mdr_shared mdr_codegen_headers)
+    endif ()
 
     mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV1T1Serialization.cpp"
         TOOL      tooling_SerializationCodegen

@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.31)
 
+if (NOT TARGET mdr_shared)
+    message(FATAL_ERROR "MDR ABI/replay tests require MDR_BUILD_SHARED=ON; use BUILD_TESTING=OFF for a client-only build.")
+endif ()
+
 add_executable(mdr_replay_tests Replay.cpp)
 target_link_libraries(mdr_replay_tests PRIVATE mdr_shared)
 

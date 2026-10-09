@@ -43,46 +43,48 @@ target_link_libraries(mdr-bt
     PRIVATE mdr_Includes
 )
 
-add_library(mdr-bt_shared SHARED ${SRCS})
-add_library(mdr::bt_shared ALIAS mdr-bt_shared)
+if (MDR_BUILD_SHARED)
+    add_library(mdr-bt_shared SHARED ${SRCS})
+    add_library(mdr::bt_shared ALIAS mdr-bt_shared)
 
-target_include_directories(mdr-bt_shared
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/../include
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)
+    target_include_directories(mdr-bt_shared
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/../include
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+    )
 
-target_link_libraries(mdr-bt_shared
-    PUBLIC  mdr-c
-    PRIVATE mdr_Includes
-)
+    target_link_libraries(mdr-bt_shared
+        PUBLIC  mdr-c
+        PRIVATE mdr_Includes
+    )
 
-target_compile_definitions(mdr-bt_shared
-    PRIVATE MDR_BUILDING_SHARED
-    INTERFACE MDR_USING_SHARED
-)
+    target_compile_definitions(mdr-bt_shared
+        PRIVATE MDR_BUILDING_SHARED
+        INTERFACE MDR_USING_SHARED
+    )
 
-set_target_properties(mdr-bt_shared PROPERTIES OUTPUT_NAME "mdr-bt-shared")
-
-if (WIN32)
-    target_link_libraries(mdr-bt PRIVATE ws2_32 rpcrt4)
-    target_link_libraries(mdr-bt_shared PRIVATE ws2_32 rpcrt4)
-    if (MDR_BLE)
-        target_link_libraries(mdr-bt PRIVATE Bthprops windowsapp)
-        target_link_libraries(mdr-bt_shared PRIVATE Bthprops windowsapp)
-    endif ()
-elseif (MDR_PLATFORM_OS STREQUAL "LINUX")
-    target_include_directories(mdr-bt PRIVATE ${DBus_INCLUDE_DIRS})
-    target_include_directories(mdr-bt_shared PRIVATE ${DBus_INCLUDE_DIRS})
-    target_link_libraries(mdr-bt PRIVATE  ${DBus_LIBRARIES} bluetooth)
-    target_link_libraries(mdr-bt_shared PRIVATE  ${DBus_LIBRARIES} bluetooth)
-elseif (APPLE)
-    if (MDR_BLE)
-        target_link_libraries(mdr-bt PRIVATE ${FOUNDATION_LIB} ${IOBLUETOOTH_LIB})
-        target_link_libraries(mdr-bt_shared PRIVATE ${FOUNDATION_LIB} ${IOBLUETOOTH_LIB})
-    endif ()
-elseif (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
-    target_link_options(mdr-bt PRIVATE -sALLOW_MEMORY_GROWTH)
-    target_link_options(mdr-bt_shared PRIVATE -sALLOW_MEMORY_GROWTH)
+    set_target_properties(mdr-bt_shared PROPERTIES OUTPUT_NAME "mdr-bt-shared")
 endif ()
+
+set(MDR_BT_TARGETS mdr-bt)
+if (TARGET mdr-bt_shared)
+    list(APPEND MDR_BT_TARGETS mdr-bt_shared)
+endif ()
+foreach(MDR_BT_TARGET IN LISTS MDR_BT_TARGETS)
+    if (WIN32)
+        target_link_libraries(${MDR_BT_TARGET} PRIVATE ws2_32 rpcrt4)
+        if (MDR_BLE)
+            target_link_libraries(${MDR_BT_TARGET} PRIVATE Bthprops windowsapp)
+        endif ()
+    elseif (MDR_PLATFORM_OS STREQUAL "LINUX")
+        target_include_directories(${MDR_BT_TARGET} PRIVATE ${DBus_INCLUDE_DIRS})
+        target_link_libraries(${MDR_BT_TARGET} PRIVATE ${DBus_LIBRARIES} bluetooth)
+    elseif (APPLE)
+        if (MDR_BLE)
+            target_link_libraries(${MDR_BT_TARGET} PRIVATE ${FOUNDATION_LIB} ${IOBLUETOOTH_LIB})
+        endif ()
+    elseif (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+        target_link_options(${MDR_BT_TARGET} PRIVATE -sALLOW_MEMORY_GROWTH)
+    endif ()
+endforeach()

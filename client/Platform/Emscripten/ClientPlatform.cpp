@@ -32,10 +32,24 @@ void clientPlatformDestroy()
 }
 
 EM_JS(int, clientPlatformLocateFontBinary, (const char** outData), {
+    if (!outData)
+        return 0;
+    if (navigator.externalFontData) {
+        const data = navigator.externalFontData;
+        const dataPtr = _malloc(data.byteLength);
+        if (!dataPtr)
+            return 0;
+        HEAPU8.set(data, dataPtr);
+        navigator.externalFontPtr = dataPtr;
+        navigator.externalFontSize = data.byteLength;
+        delete navigator.externalFontData;
+    }
     if (navigator.externalFontSize > 0){
         setValue(outData, navigator.externalFontPtr, '*');
         return navigator.externalFontSize;
     }
+    if (navigator.externalFontManaged)
+        return 0;
     async function fetch_font() {
         try {
             const response = await fetch(navigator.externalFont);

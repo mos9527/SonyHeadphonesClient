@@ -1,143 +1,64 @@
 <!doctype html>
-
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Cross-platform Sony Sound Connect (formerly Headphones Connect) implementation">
     <meta name="author" content="mos9527">
     <meta name="keywords" content="Sony, Headphones, Sound Connect, Headphones Connect, SonyHeadphonesClient">
+    <meta name="theme-color" content="#101413">
     <meta property="og:title" content="SonyHeadphonesClient - Web Client">
     <meta property="og:description" content="Cross-platform Sony Sound Connect (formerly Headphones Connect) implementation">
     <meta property="og:type" content="website">
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png" type="image/png">
     <title>SonyHeadphonesClient - Web Client</title>
     <style>
-        body {
-            margin: 0;
-            background-color: black
-        }
-
-        .emscripten {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            margin: 0;
-            border: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            display: block;
-            image-rendering: optimizeSpeed;
-            -ms-interpolation-mode: nearest-neighbor;
-        }
-
+        :root { color-scheme: dark; font-family: sans-serif; background: black; color: white; }
+        * { box-sizing: border-box; }
+        body { margin: 0; }
+        [hidden] { display: none !important; }
+        #canvas { position: fixed; inset: 0; display: block; width: 100% !important; height: 100% !important; margin: 0; border: 0; touch-action: none; }
         #preload {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            color: white;
-            font-family: sans-serif;
-            /* Centering */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; inset: 0; z-index: 2; overflow: auto; display: grid; place-items: center;
+            padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+                max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+            background: black;
         }
-
-        #status-text {
-            margin-bottom: 8px;
-        }
-
-        #progress-bar {
-            width: 300px;
-        }
+        .loader { position: relative; width: 100%; text-align: center; }
+        #status-text { margin: 0 0 8px; overflow-wrap: anywhere; }
+        #progress-bar { display: block; width: min(100%, 300px); margin: 0 auto; }
+        .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+        .loader .actions { position: absolute; top: 100%; left: 0; right: 0; justify-content: center; }
+        button { font: inherit; font-size: 13px; border: 1px solid #777; border-radius: 4px; padding: 8px 12px; background: #eee; color: black; cursor: pointer; }
+        button.secondary { background: transparent; color: #ccc; }
+        button:focus-visible, #canvas:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+        #pwa-notice { position: fixed; z-index: 3; left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); margin: 0 auto; max-width: 540px; padding: 12px 16px; border: 1px solid #555; border-radius: 4px; background: #181818; font-size: 13px; line-height: 1.5; }
+        #pwa-notice .actions { margin-top: 8px; }
     </style>
 </head>
-
 <body>
-    <div id="preload">
-        <div id="status-text"></div>
-        <progress id="progress-bar" value="0" max="100"></progress>
-    </div>
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <script type='text/javascript'>
-        var Module = {
-            preRun: [],
-            postRun: [],
-            print: (function () {
-                return function (text) {
-                    text = Array.prototype.slice.call(arguments).join(' ');
-                    console.log(text);
-                };
-            })(),
-            printErr: function (text) {
-                text = Array.prototype.slice.call(arguments).join(' ');
-                console.info(text);
-            },
-            canvas: (function () {
-                return document.getElementById('canvas');
-            })(),
-            statusTextElement: document.getElementById('status-text'),
-            progressElement: document.getElementById('progress-bar'),
-            setStatus: (text) => {
-                if (!Module.statusTextElement) return;
-
-                if (!text) {
-                    Module.statusTextElement.innerText = "";
-                    Module.progressElement.style.display = 'none';
-                    return;
-                }
-                Module.statusTextElement.innerText = text;
-                const match = text.match(/([\d\.]*)\/([\d\.]*) MB/);
-                if (match) {
-                    const loaded = parseFloat(match[1]);
-                    const total = parseFloat(match[2]);
-                    if (total > 0) {
-                        const percent = (loaded / total) * 100;
-                        Module.progressElement.value = percent;
-                        Module.progressElement.style.display = 'block';
-                    }
-                } else {
-                    Module.progressElement.style.display = 'none';
-                }
-            },
-
-            totalDependencies: 0,
-            monitorRunDependencies: (left) => {
-                Module.totalDependencies = Math.max(Module.totalDependencies, left);
-                Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'All downloads complete.');
-            },
-            onRuntimeInitialized: () => {
-                document.getElementById('preload').remove();
-            }
-        };
-
-        const preventDefault = Event.prototype.preventDefault;
-        Event.prototype.preventDefault = function (event) {
-            // SDL basically prevents all inputs from getting through the
-            // browser. We don't exactly want that - and since we don't use
-            // function keys, etc. anyway, let it all pass.
-        }
-
-        const fontLocale = (navigator.language || "zh-CN").toLowerCase();
-        const fontLanguage = fontLocale.split("-")[0];
-        let fontRegion = "sc";
-        if (fontLanguage === "ja") fontRegion = "jp";
-        else if (fontLanguage === "ko") fontRegion = "kr";
-        else if (fontLanguage === "zh" && /(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(fontLocale)) fontRegion = "tc";
-        const fontDirectories = {
-            jp: "Japanese",
-            sc: "SimplifiedChinese",
-            tc: "TraditionalChinese",
-            kr: "Korean"
-        };
-        navigator.externalFont = `https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/OTF/${fontDirectories[fontRegion]}/NotoSansCJK${fontRegion}-Regular.otf`;
-    </script>
-    <script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
+    <canvas id="canvas" tabindex="0" aria-label="Sony Headphones Client"></canvas>
+    <main id="preload">
+        <section class="loader" aria-label="Application loading">
+            <p id="status-text" role="status" aria-live="polite">Preparing downloads…</p>
+            <progress id="progress-bar" max="1" aria-label="Application download progress"></progress>
+            <div class="actions">
+                <button id="retry" hidden>Retry loading</button>
+                <button id="skip-font" class="secondary" hidden>Continue without language font</button>
+            </div>
+            <noscript><p>JavaScript is required to run this application. Enable it, then reload this page.</p></noscript>
+        </section>
+    </main>
+    <aside id="pwa-notice" role="status" aria-live="polite" hidden>
+        <span id="pwa-text"></span>
+        <div class="actions">
+            <button id="pwa-retry" class="secondary" hidden>Retry offline setup</button>
+            <button id="update" hidden>Reload to update</button>
+            <button id="dismiss-notice" class="secondary">Dismiss</button>
+        </div>
+    </aside>
+    <script src="config.js" defer></script>
+    <script src="loader.js" defer></script>
 </body>
+</html>
