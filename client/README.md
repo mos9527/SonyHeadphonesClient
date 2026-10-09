@@ -34,9 +34,9 @@ The custom font `PlexSansIcon` is created with the following source fonts.
 
 - https://fontforge.org/
 
-The font `NeoXiHei-Code` is graciously provided by @lxgw, and is the default font for non Latin-1 or icon characters in the Web client.
+CJK fonts are covered by `Noto Sans CJK Regular` (Sans 2.004, SIL Open Font License) per locale (jp/sc/tc/lr)
 
-- https://github.com/lxgw/NeoXiHei-Code
+- https://github.com/notofonts/noto-cjk
 
 ## Material You Theme
 

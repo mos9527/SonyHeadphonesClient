@@ -125,8 +125,19 @@
             // function keys, etc. anyway, let it all pass.
         }
 
-        // Copyright reserved by @lxgw: https://github.com/lxgw/NeoXiHei-Code
-        navigator.externalFont = "font-NeoXiHeiCode-Regular.ttf";
+        const fontLocale = (navigator.language || "zh-CN").toLowerCase();
+        const fontLanguage = fontLocale.split("-")[0];
+        let fontRegion = "sc";
+        if (fontLanguage === "ja") fontRegion = "jp";
+        else if (fontLanguage === "ko") fontRegion = "kr";
+        else if (fontLanguage === "zh" && /(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(fontLocale)) fontRegion = "tc";
+        const fontDirectories = {
+            jp: "Japanese",
+            sc: "SimplifiedChinese",
+            tc: "TraditionalChinese",
+            kr: "Korean"
+        };
+        navigator.externalFont = `https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/OTF/${fontDirectories[fontRegion]}/NotoSansCJK${fontRegion}-Regular.otf`;
     </script>
     <script async type="text/javascript" src="SonyHeadphonesClient.js"></script>
 </body>

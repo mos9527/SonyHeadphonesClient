@@ -36,23 +36,25 @@ EM_JS(int, clientPlatformLocateFontBinary, (const char** outData), {
         setValue(outData, navigator.externalFontPtr, '*');
         return navigator.externalFontSize;
     }
-    async function fetch_font(wakeUp) {
-        return fetch(navigator.externalFont)
-            .then(function(response) {
-                if (!response.ok) {
-                    console.log(`Failed to fetch font binary from ${navigator.externalFont}`);
-                    return;
-                }
-                return response.arrayBuffer();
-            })
-            .then(function(arrayBuffer) {
-                var size = arrayBuffer.byteLength;
-                var dataPtr = _malloc(size);
-                HEAPU8.set(new Uint8Array(arrayBuffer), dataPtr);
-                navigator.externalFontPtr = dataPtr;
-                navigator.externalFontSize = size;
-            });
+    async function fetch_font() {
+        try {
+            const response = await fetch(navigator.externalFont);
+            if (!response.ok)
+                throw new Error(`HTTP ${response.status}`);
+            const arrayBuffer = await response.arrayBuffer();
+            const size = arrayBuffer.byteLength;
+            if (!size)
+                throw new Error('Empty font binary');
+            const dataPtr = _malloc(size);
+            if (!dataPtr)
+                throw new Error('Unable to allocate font memory');
+            HEAPU8.set(new Uint8Array(arrayBuffer), dataPtr);
+            navigator.externalFontPtr = dataPtr;
+            navigator.externalFontSize = size;
+        } catch (error) {
+            console.warn(`Failed to load font from ${navigator.externalFont}`, error);
         }
+    }
     if (!navigator.externalFontFetch)
         navigator.externalFontFetch = fetch_font();
     return 0;
