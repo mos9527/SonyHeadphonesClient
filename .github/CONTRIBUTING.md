@@ -1,6 +1,6 @@
 Contributing
 ---
-This document serves as basic guidelines for contributing to this project. Please refer to the [SHC Developer's Guide](../DEVELOPER.md) for development details, and [Docs](../docs/) for indexing into various other documentation.
+This document serves as basic guidelines for contributing to this project. Please refer to the [SHC Developer's Guide](/DEVELOPER.md) for development details, and [Docs](/docs/) for indexing into various other documentation.
 
 Licensing & Credits
 ---
