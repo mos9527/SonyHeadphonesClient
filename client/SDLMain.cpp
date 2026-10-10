@@ -128,12 +128,12 @@ void mainLoop()
                     iconConfig.MergeMode = true;
                     iconConfig.DstFont = font;
                     if (io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-                            kEmbedFontPlexSansIcon, 15.0f, &iconConfig, gIconGlyphRanges))
+    kEmbedFontPlexSansIcon, 15.0f, &iconConfig, gIconGlyphRanges))
                     {
                         io.FontDefault = font;
                         gPlatformFontLoaded = true;
                         MDR_LOG("Loaded {} font: locale {}, face {}",
-                                useFontFallback ? "file" : "platform", locale, faceIndex);
+        useFontFallback ? "file" : "platform", locale, faceIndex);
                         break;
                     }
                 }
@@ -256,27 +256,29 @@ namespace
     void PrintUsage()
     {
         std::fprintf(stderr,
-                     "Usage: SonyHeadphonesClient [--record <capture-folder>] Records device packets automatically to folder\n");
+                     "Usage: SonyHeadphonesClient\n");
         std::fprintf(stderr,
-                     "                            [--locale %s] Override application locale selected from the system\n",
+                     "    [--record <capture-folder>] Records device packets automatically to folder\n");
+        std::fprintf(stderr,
+                     "    [--locale %s] Override application locale selected from the system\n",
                      i18n::kLocaleOptionString);
         std::fprintf(stderr,
-                     "                            [--font <font-file>] Load an external font without changing application locale\n");
+                     "    [--font <font-file>] Load an external font without changing application locale\n");
         std::fprintf(stderr,
-                     "                            [--renderer <renderer>] Specify SDL_HINT_RENDER_DRIVER hint to use\n");
+                     "    [--renderer <renderer>] Specify SDL_HINT_RENDER_DRIVER hint to use\n");
 #ifdef MDR_CLIENT_DEBUGGER
         std::fprintf(stderr,
-                     "                            [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
+                     "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
 #endif
         // Windows specific
 #ifdef _WIN32
         std::fprintf(stderr,
-                     "                            [--con] Opens console for diagnostic logs\n");
+                     "    [--con] Opens console for diagnostic logs\n");
 #endif
         // Linux specific (DBus)
 #ifdef __linux__
         std::fprintf(stderr,
-                     "                            [--pause-media-on-remove] Auto-pause system media playback when device "
+                     "    [--pause-media-on-remove] Auto-pause system media playback when device "
                      "is removed when unsupported by OS otherwise.\n");
 #endif
     }
