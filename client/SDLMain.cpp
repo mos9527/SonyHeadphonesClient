@@ -239,20 +239,20 @@ namespace
 
     void PrintUsage()
     {
-        MDR_LOG(
-            "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
-        MDR_LOG("                            [--locale {}]\tOverride application locale selected from the system", i18n::kLocaleOptionString);
-        MDR_LOG("                            [--font <font-file>]\tLoad an external font without changing application locale");
+        MDR_LOG("Usage: SonyHeadphonesClient [--record <capture-folder>] Records device packets automatically to folder");
+        MDR_LOG("                            [--locale {}] Override application locale selected from the system", i18n::kLocaleOptionString);
+        MDR_LOG("                            [--font <font-file>] Load an external font without changing application locale");
+        MDR_LOG("                            [--renderer <renderer>] Specify SDL_HINT_RENDER_DRIVER hint to use");
 #ifdef MDR_CLIENT_DEBUGGER
-        MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
+        MDR_LOG("                            [--replay <packet-file-or-folder>] Replays devices packets from folder");
 #endif
         // Windows specific
 #ifdef _WIN32
-        MDR_LOG("                            [--con]\tOpens console for diagnostic logs");
+        MDR_LOG("                            [--con] Opens console for diagnostic logs");
 #endif
         // Linux specific (DBus)
 #ifdef __linux__
-        MDR_LOG("                            [--pause-media-on-remove]\tAuto-pause system media playback when device "
+        MDR_LOG("                            [--pause-media-on-remove] Auto-pause system media playback when device "
                 "is removed when unsupported by OS otherwise.");
 #endif
     }
@@ -277,6 +277,21 @@ namespace
             if (std::strcmp(argument, "--pause-media-on-remove") == 0)
             {
                 options.pauseMediaOnRemove = true;
+                continue;
+            }
+
+            if (std::strcmp(argument, "--renderer") == 0)
+            {
+                if (++index >= argc || argv[index][0] == '\0' || argv[index][0] == '-')
+                {
+                    MDR_LOG("Missing renderer after {}.", argument);
+                    return false;
+                }
+                if (!SDL_SetHint(SDL_HINT_RENDER_DRIVER, argv[index]))
+                {
+                    MDR_LOG("Unable to set SDL_HINT_RENDER_DRIVER to {}.", argv[index]);
+                    return false;
+                }
                 continue;
             }
 
@@ -407,12 +422,13 @@ int main(int argc, char** argv)
     clientDebuggerSetWindow(gWindow);
 #endif
     gRenderer = SDL_CreateRenderer(gWindow, nullptr);
-    SDL_SetRenderVSync(gRenderer, 1);
     if (!gRenderer)
     {
-        SDL_Log("Error: SDL_CreateRenderer()\n");
+        SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
         return 1;
     }
+    SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
+    SDL_SetRenderVSync(gRenderer, 1);
     if (options.fontPath)
     {
         void* fontData{};
