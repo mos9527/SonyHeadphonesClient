@@ -1,6 +1,6 @@
 contrib
 ===
 
-The sole `CMakeLists.txt` contains declaration of all third-party libraries used in this project.
+The sole `CMakeLists.txt` contains the declarations of all third-party libraries used in this project.
 
-Respective Credits are given in the other source directories - take a look!
+Respective credits are given in the other source directories - take a look!

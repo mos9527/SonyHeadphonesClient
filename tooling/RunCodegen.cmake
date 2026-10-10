@@ -14,14 +14,19 @@ foreach(_i RANGE 1 3)
     endif()
 endforeach()
 
+set(_temporary_output "${OUTPUT_FILE}.tmp")
+file(REMOVE "${_temporary_output}")
+
 execute_process(
     COMMAND "${TOOL}" ${_args}
-    OUTPUT_FILE "${OUTPUT_FILE}"
+    OUTPUT_FILE "${_temporary_output}"
     RESULT_VARIABLE _result
     ERROR_VARIABLE _error
 )
 
 if(_result)
-    file(REMOVE "${OUTPUT_FILE}")
+    file(REMOVE "${_temporary_output}")
     message(FATAL_ERROR "Codegen failed (exit ${_result}):\n${_error}")
 endif()
+
+file(RENAME "${_temporary_output}" "${OUTPUT_FILE}")

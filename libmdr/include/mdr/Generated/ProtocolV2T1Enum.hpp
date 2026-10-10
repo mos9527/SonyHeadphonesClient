@@ -2,523 +2,228 @@
 #pragma once
 
 namespace mdr::v2::t1 {
-    static const char* format_as(Command value) {
-        using enum Command;
+    static const char* format_as(FunctionType value) {
+        using enum FunctionType;
         switch (value) {
-            case CONNECT_GET_PROTOCOL_INFO: return "CONNECT_GET_PROTOCOL_INFO";
-            case CONNECT_RET_PROTOCOL_INFO: return "CONNECT_RET_PROTOCOL_INFO";
-            case CONNECT_GET_CAPABILITY_INFO: return "CONNECT_GET_CAPABILITY_INFO";
-            case CONNECT_RET_CAPABILITY_INFO: return "CONNECT_RET_CAPABILITY_INFO";
-            case CONNECT_GET_DEVICE_INFO: return "CONNECT_GET_DEVICE_INFO";
-            case CONNECT_RET_DEVICE_INFO: return "CONNECT_RET_DEVICE_INFO";
-            case CONNECT_GET_SUPPORT_FUNCTION: return "CONNECT_GET_SUPPORT_FUNCTION";
-            case CONNECT_RET_SUPPORT_FUNCTION: return "CONNECT_RET_SUPPORT_FUNCTION";
-            case GET_TEST: return "GET_TEST";
-            case COMMON_GET_CAPABILITY: return "COMMON_GET_CAPABILITY";
-            case COMMON_RET_CAPABILITY: return "COMMON_RET_CAPABILITY";
-            case COMMON_GET_STATUS: return "COMMON_GET_STATUS";
-            case COMMON_RET_STATUS: return "COMMON_RET_STATUS";
-            case COMMON_NTFY_STATUS: return "COMMON_NTFY_STATUS";
-            case COMMON_SET_PARAM: return "COMMON_SET_PARAM";
-            case COMMON_NTFY_PARAM: return "COMMON_NTFY_PARAM";
-            case POWER_GET_CAPABILITY: return "POWER_GET_CAPABILITY";
-            case POWER_RET_CAPABILITY: return "POWER_RET_CAPABILITY";
-            case POWER_GET_STATUS: return "POWER_GET_STATUS";
-            case POWER_RET_STATUS: return "POWER_RET_STATUS";
-            case POWER_SET_STATUS: return "POWER_SET_STATUS";
-            case POWER_NTFY_STATUS: return "POWER_NTFY_STATUS";
-            case POWER_GET_PARAM: return "POWER_GET_PARAM";
-            case POWER_RET_PARAM: return "POWER_RET_PARAM";
-            case POWER_SET_PARAM: return "POWER_SET_PARAM";
-            case POWER_NTFY_PARAM: return "POWER_NTFY_PARAM";
-            case UPDT_GET_CAPABILITY: return "UPDT_GET_CAPABILITY";
-            case UPDT_RET_CAPABILITY: return "UPDT_RET_CAPABILITY";
-            case UPDT_GET_STATUS: return "UPDT_GET_STATUS";
-            case UPDT_RET_STATUS: return "UPDT_RET_STATUS";
-            case UPDT_SET_STATUS: return "UPDT_SET_STATUS";
-            case UPDT_NTFY_STATUS: return "UPDT_NTFY_STATUS";
-            case UPDT_GET_PARAM: return "UPDT_GET_PARAM";
-            case UPDT_RET_PARAM: return "UPDT_RET_PARAM";
-            case UPDT_SET_PARAM: return "UPDT_SET_PARAM";
-            case UPDT_NTFY_PARAM: return "UPDT_NTFY_PARAM";
-            case LEA_GET_CAPABILITY: return "LEA_GET_CAPABILITY";
-            case LEA_RET_CAPABILITY: return "LEA_RET_CAPABILITY";
-            case LEA_GET_STATUS: return "LEA_GET_STATUS";
-            case LEA_RET_STATUS: return "LEA_RET_STATUS";
-            case LEA_NTFY_STATUS: return "LEA_NTFY_STATUS";
-            case LEA_GET_PARAM: return "LEA_GET_PARAM";
-            case LEA_RET_PARAM: return "LEA_RET_PARAM";
-            case LEA_SET_PARAM: return "LEA_SET_PARAM";
-            case LEA_NTFY_PARAM: return "LEA_NTFY_PARAM";
-            case EQEBB_GET_STATUS: return "EQEBB_GET_STATUS";
-            case EQEBB_RET_STATUS: return "EQEBB_RET_STATUS";
-            case EQEBB_NTFY_STATUS: return "EQEBB_NTFY_STATUS";
-            case EQEBB_GET_PARAM: return "EQEBB_GET_PARAM";
-            case EQEBB_RET_PARAM: return "EQEBB_RET_PARAM";
-            case EQEBB_SET_PARAM: return "EQEBB_SET_PARAM";
-            case EQEBB_NTFY_PARAM: return "EQEBB_NTFY_PARAM";
-            case EQEBB_GET_EXTENDED_INFO: return "EQEBB_GET_EXTENDED_INFO";
-            case EQEBB_RET_EXTENDED_INFO: return "EQEBB_RET_EXTENDED_INFO";
-            case NCASM_GET_CAPABILITY: return "NCASM_GET_CAPABILITY";
-            case NCASM_RET_CAPABILITY: return "NCASM_RET_CAPABILITY";
-            case NCASM_GET_STATUS: return "NCASM_GET_STATUS";
-            case NCASM_RET_STATUS: return "NCASM_RET_STATUS";
-            case NCASM_SET_STATUS: return "NCASM_SET_STATUS";
-            case NCASM_NTFY_STATUS: return "NCASM_NTFY_STATUS";
-            case NCASM_GET_PARAM: return "NCASM_GET_PARAM";
-            case NCASM_RET_PARAM: return "NCASM_RET_PARAM";
-            case NCASM_SET_PARAM: return "NCASM_SET_PARAM";
-            case NCASM_NTFY_PARAM: return "NCASM_NTFY_PARAM";
-            case SENSE_GET_CAPABILITY: return "SENSE_GET_CAPABILITY";
-            case SENSE_RET_CAPABILITY: return "SENSE_RET_CAPABILITY";
-            case SENSE_SET_STATUS: return "SENSE_SET_STATUS";
-            case SENSE_NTFY_STATUS: return "SENSE_NTFY_STATUS";
-            case SENSE_SET_PARAM: return "SENSE_SET_PARAM";
-            case SENSE_NTFY_PARAM: return "SENSE_NTFY_PARAM";
-            case SENSE_GET_EXT_INFO: return "SENSE_GET_EXT_INFO";
-            case SENSE_RET_EXT_INFO: return "SENSE_RET_EXT_INFO";
-            case OPT_GET_CAPABILITY: return "OPT_GET_CAPABILITY";
-            case OPT_RET_CAPABILITY: return "OPT_RET_CAPABILITY";
-            case OPT_GET_STATUS: return "OPT_GET_STATUS";
-            case OPT_RET_STATUS: return "OPT_RET_STATUS";
-            case OPT_SET_STATUS: return "OPT_SET_STATUS";
-            case OPT_NTFY_STATUS: return "OPT_NTFY_STATUS";
-            case OPT_GET_PARAM: return "OPT_GET_PARAM";
-            case OPT_RET_PARAM: return "OPT_RET_PARAM";
-            case OPT_SET_PARAM: return "OPT_SET_PARAM";
-            case OPT_NTFY_PARAM: return "OPT_NTFY_PARAM";
-            case ALERT_GET_CAPABILITY: return "ALERT_GET_CAPABILITY";
-            case ALERT_RET_CAPABILITY: return "ALERT_RET_CAPABILITY";
-            case ALERT_GET_STATUS: return "ALERT_GET_STATUS";
-            case ALERT_RET_STATUS: return "ALERT_RET_STATUS";
-            case ALERT_SET_STATUS: return "ALERT_SET_STATUS";
-            case ALERT_NTFY_STATUS: return "ALERT_NTFY_STATUS";
-            case ALERT_SET_PARAM: return "ALERT_SET_PARAM";
-            case ALERT_NTFY_PARAM: return "ALERT_NTFY_PARAM";
-            case PLAY_GET_CAPABILITY: return "PLAY_GET_CAPABILITY";
-            case PLAY_RET_CAPABILITY: return "PLAY_RET_CAPABILITY";
-            case PLAY_GET_STATUS: return "PLAY_GET_STATUS";
-            case PLAY_RET_STATUS: return "PLAY_RET_STATUS";
-            case PLAY_SET_STATUS: return "PLAY_SET_STATUS";
-            case PLAY_NTFY_STATUS: return "PLAY_NTFY_STATUS";
-            case PLAY_GET_PARAM: return "PLAY_GET_PARAM";
-            case PLAY_RET_PARAM: return "PLAY_RET_PARAM";
-            case PLAY_SET_PARAM: return "PLAY_SET_PARAM";
-            case PLAY_NTFY_PARAM: return "PLAY_NTFY_PARAM";
-            case SAR_AUTO_PLAY_GET_CAPABILITY: return "SAR_AUTO_PLAY_GET_CAPABILITY";
-            case SAR_AUTO_PLAY_RET_CAPABILITY: return "SAR_AUTO_PLAY_RET_CAPABILITY";
-            case SAR_AUTO_PLAY_GET_STATUS: return "SAR_AUTO_PLAY_GET_STATUS";
-            case SAR_AUTO_PLAY_RET_STATUS: return "SAR_AUTO_PLAY_RET_STATUS";
-            case SAR_AUTO_PLAY_NTFY_STATUS: return "SAR_AUTO_PLAY_NTFY_STATUS";
-            case SAR_AUTO_PLAY_GET_PARAM: return "SAR_AUTO_PLAY_GET_PARAM";
-            case SAR_AUTO_PLAY_RET_PARAM: return "SAR_AUTO_PLAY_RET_PARAM";
-            case SAR_AUTO_PLAY_SET_PARAM: return "SAR_AUTO_PLAY_SET_PARAM";
-            case SAR_AUTO_PLAY_NTFY_PARAM: return "SAR_AUTO_PLAY_NTFY_PARAM";
-            case LOG_SET_STATUS: return "LOG_SET_STATUS";
-            case LOG_NTFY_PARAM: return "LOG_NTFY_PARAM";
-            case GENERAL_SETTING_GET_CAPABILITY: return "GENERAL_SETTING_GET_CAPABILITY";
-            case GENERAL_SETTING_RET_CAPABILITY: return "GENERAL_SETTING_RET_CAPABILITY";
-            case GENERAL_SETTING_GET_STATUS: return "GENERAL_SETTING_GET_STATUS";
-            case GENERAL_SETTING_RET_STATUS: return "GENERAL_SETTING_RET_STATUS";
-            case GENERAL_SETTING_NTFY_STATUS: return "GENERAL_SETTING_NTFY_STATUS";
-            case GENERAL_SETTING_GET_PARAM: return "GENERAL_SETTING_GET_PARAM";
-            case GENERAL_SETTING_RET_PARAM: return "GENERAL_SETTING_RET_PARAM";
-            case GENERAL_SETTING_SET_PARAM: return "GENERAL_SETTING_SET_PARAM";
-            case GENERAL_SETTING_NTFY_PARAM: return "GENERAL_SETTING_NTFY_PARAM";
-            case AUDIO_GET_CAPABILITY: return "AUDIO_GET_CAPABILITY";
-            case AUDIO_RET_CAPABILITY: return "AUDIO_RET_CAPABILITY";
-            case AUDIO_GET_STATUS: return "AUDIO_GET_STATUS";
-            case AUDIO_RET_STATUS: return "AUDIO_RET_STATUS";
-            case AUDIO_NTFY_STATUS: return "AUDIO_NTFY_STATUS";
-            case AUDIO_GET_PARAM: return "AUDIO_GET_PARAM";
-            case AUDIO_RET_PARAM: return "AUDIO_RET_PARAM";
-            case AUDIO_SET_PARAM: return "AUDIO_SET_PARAM";
-            case AUDIO_NTFY_PARAM: return "AUDIO_NTFY_PARAM";
-            case SYSTEM_GET_CAPABILITY: return "SYSTEM_GET_CAPABILITY";
-            case SYSTEM_RET_CAPABILITY: return "SYSTEM_RET_CAPABILITY";
-            case SYSTEM_GET_STATUS: return "SYSTEM_GET_STATUS";
-            case SYSTEM_RET_STATUS: return "SYSTEM_RET_STATUS";
-            case SYSTEM_SET_STATUS: return "SYSTEM_SET_STATUS";
-            case SYSTEM_NTFY_STATUS: return "SYSTEM_NTFY_STATUS";
-            case SYSTEM_GET_PARAM: return "SYSTEM_GET_PARAM";
-            case SYSTEM_RET_PARAM: return "SYSTEM_RET_PARAM";
-            case SYSTEM_SET_PARAM: return "SYSTEM_SET_PARAM";
-            case SYSTEM_NTFY_PARAM: return "SYSTEM_NTFY_PARAM";
-            case SYSTEM_GET_EXT_PARAM: return "SYSTEM_GET_EXT_PARAM";
-            case SYSTEM_RET_EXT_PARAM: return "SYSTEM_RET_EXT_PARAM";
-            case SYSTEM_SET_EXT_PARAM: return "SYSTEM_SET_EXT_PARAM";
-            case SYSTEM_NTFY_EXT_PARAM: return "SYSTEM_NTFY_EXT_PARAM";
-            case UNKNOWN: return "UNKNOWN";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ConnectInquiredType value) {
-        using enum ConnectInquiredType;
-        switch (value) {
-            case FIXED_VALUE: return "FIXED_VALUE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(DeviceInfoType value) {
-        using enum DeviceInfoType;
-        switch (value) {
-            case MODEL_NAME: return "MODEL_NAME";
-            case FW_VERSION: return "FW_VERSION";
-            case SERIES_AND_COLOR_INFO: return "SERIES_AND_COLOR_INFO";
-            case INSTRUCTION_GUIDE: return "INSTRUCTION_GUIDE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ModelColor value) {
-        using enum ModelColor;
-        switch (value) {
-            case DEFAULT: return "DEFAULT";
-            case BLACK: return "BLACK";
-            case WHITE: return "WHITE";
-            case SILVER: return "SILVER";
-            case RED: return "RED";
-            case BLUE: return "BLUE";
-            case PINK: return "PINK";
-            case YELLOW: return "YELLOW";
-            case GREEN: return "GREEN";
-            case GRAY: return "GRAY";
-            case GOLD: return "GOLD";
-            case CREAM: return "CREAM";
-            case ORANGE: return "ORANGE";
-            case BROWN: return "BROWN";
-            case VIOLET: return "VIOLET";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ModelSeriesType value) {
-        using enum ModelSeriesType;
-        switch (value) {
-            case NO_SERIES: return "NO_SERIES";
-            case EXTRA_BASS: return "EXTRA_BASS";
-            case ULT_POWER_SOUND: return "ULT_POWER_SOUND";
-            case HEAR: return "HEAR";
-            case PREMIUM: return "PREMIUM";
-            case SPORTS: return "SPORTS";
-            case CASUAL: return "CASUAL";
-            case LINK_BUDS: return "LINK_BUDS";
-            case NECKBAND: return "NECKBAND";
-            case LINKPOD: return "LINKPOD";
-            case GAMING: return "GAMING";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(CommonInquiredType value) {
-        using enum CommonInquiredType;
-        switch (value) {
-            case CONCIERGE: return "CONCIERGE";
+            case CONCIERGE_DATA: return "CONCIERGE_DATA";
             case CONNECTION_STATUS: return "CONNECTION_STATUS";
-            case AUDIO_CODEC: return "AUDIO_CODEC";
-            case UPSCALING_EFFECT: return "UPSCALING_EFFECT";
+            case CODEC_INDICATOR: return "CODEC_INDICATOR";
+            case UPSCALING_INDICATOR: return "UPSCALING_INDICATOR";
             case BLE_SETUP: return "BLE_SETUP";
+            case TUTORIAL_CONTENTS_SELECT_ON_CONCIERGE: return "TUTORIAL_CONTENTS_SELECT_ON_CONCIERGE";
             case CONNECTION_ESTABLISHED_TIME: return "CONNECTION_ESTABLISHED_TIME";
+            case UNNECESSARY_AUTO_RECONNECTION: return "UNNECESSARY_AUTO_RECONNECTION";
             case DEVICE_SPECIAL_MODE: return "DEVICE_SPECIAL_MODE";
-            case SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION_FOR_CLASSIC: return "SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION_FOR_CLASSIC";
+            case PHONE_AND_CONNECTED_DEVICE_INFOMATION_FOR_CLASSIC: return "PHONE_AND_CONNECTED_DEVICE_INFOMATION_FOR_CLASSIC";
             case TANDEM_RECONNECTION_REQUEST: return "TANDEM_RECONNECTION_REQUEST";
             case DISPLAY_FW_VERSION: return "DISPLAY_FW_VERSION";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(AudioCodec value) {
-        using enum AudioCodec;
-        switch (value) {
-            case UNSETTLED: return "UNSETTLED";
-            case SBC: return "SBC";
-            case AAC: return "AAC";
-            case LDAC: return "LDAC";
-            case APT_X: return "APT_X";
-            case APT_X_HD: return "APT_X_HD";
-            case LC3: return "LC3";
-            case OTHER: return "OTHER";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(PowerInquiredType value) {
-        using enum PowerInquiredType;
-        switch (value) {
-            case BATTERY: return "BATTERY";
-            case LEFT_RIGHT_BATTERY: return "LEFT_RIGHT_BATTERY";
-            case CRADLE_BATTERY: return "CRADLE_BATTERY";
+            case BATTERY_LEVEL_INDICATOR: return "BATTERY_LEVEL_INDICATOR";
+            case LEFT_RIGHT_BATTERY_LEVEL_INDICATOR: return "LEFT_RIGHT_BATTERY_LEVEL_INDICATOR";
+            case CRADLE_BATTERY_LEVEL_INDICATOR: return "CRADLE_BATTERY_LEVEL_INDICATOR";
             case POWER_OFF: return "POWER_OFF";
             case AUTO_POWER_OFF: return "AUTO_POWER_OFF";
-            case AUTO_POWER_OFF_WEARING_DETECTION: return "AUTO_POWER_OFF_WEARING_DETECTION";
-            case POWER_SAVE_MODE: return "POWER_SAVE_MODE";
-            case LINK_CONTROL: return "LINK_CONTROL";
-            case BATTERY_WITH_THRESHOLD: return "BATTERY_WITH_THRESHOLD";
-            case LR_BATTERY_WITH_THRESHOLD: return "LR_BATTERY_WITH_THRESHOLD";
-            case CRADLE_BATTERY_WITH_THRESHOLD: return "CRADLE_BATTERY_WITH_THRESHOLD";
+            case AUTO_POWER_OFF_WITH_WEARING_DETECTION: return "AUTO_POWER_OFF_WITH_WEARING_DETECTION";
+            case POWER_SAVING_MODE_ON_OFF: return "POWER_SAVING_MODE_ON_OFF";
+            case TANDEM_KEEP_ALIVE: return "TANDEM_KEEP_ALIVE";
+            case BATTERY_LEVEL_WITH_THRESHOLD: return "BATTERY_LEVEL_WITH_THRESHOLD";
+            case LR_BATTERY_LEVEL_WITH_THRESHOLD: return "LR_BATTERY_LEVEL_WITH_THRESHOLD";
+            case CRADLE_BATTERY_LEVEL_WITH_THRESHOLD: return "CRADLE_BATTERY_LEVEL_WITH_THRESHOLD";
             case BATTERY_SAFE_MODE: return "BATTERY_SAFE_MODE";
             case CARING_CHARGE: return "CARING_CHARGE";
             case BT_STANDBY: return "BT_STANDBY";
             case STAMINA: return "STAMINA";
             case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF: return "AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(BatteryChargingStatus value) {
-        using enum BatteryChargingStatus;
-        switch (value) {
-            case NOT_CHARGING: return "NOT_CHARGING";
-            case CHARGING: return "CHARGING";
-            case UNKNOWN: return "UNKNOWN";
-            case CHARGED: return "CHARGED";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(PowerOffSettingValue value) {
-        using enum PowerOffSettingValue;
-        switch (value) {
-            case USER_POWER_OFF: return "USER_POWER_OFF";
-            case FACTORY_POWER_OFF: return "FACTORY_POWER_OFF";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(AutoPowerOffElements value) {
-        using enum AutoPowerOffElements;
-        switch (value) {
-            case POWER_OFF_IN_5_MIN: return "POWER_OFF_IN_5_MIN";
-            case POWER_OFF_IN_30_MIN: return "POWER_OFF_IN_30_MIN";
-            case POWER_OFF_IN_60_MIN: return "POWER_OFF_IN_60_MIN";
-            case POWER_OFF_IN_180_MIN: return "POWER_OFF_IN_180_MIN";
-            case POWER_OFF_IN_15_MIN: return "POWER_OFF_IN_15_MIN";
-            case POWER_OFF_DISABLE: return "POWER_OFF_DISABLE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(AutoPowerOffWearingDetectionElements value) {
-        using enum AutoPowerOffWearingDetectionElements;
-        switch (value) {
-            case POWER_OFF_IN_5_MIN: return "POWER_OFF_IN_5_MIN";
-            case POWER_OFF_IN_30_MIN: return "POWER_OFF_IN_30_MIN";
-            case POWER_OFF_IN_60_MIN: return "POWER_OFF_IN_60_MIN";
-            case POWER_OFF_IN_180_MIN: return "POWER_OFF_IN_180_MIN";
-            case POWER_OFF_IN_15_MIN: return "POWER_OFF_IN_15_MIN";
-            case POWER_OFF_WHEN_REMOVED_FROM_EARS: return "POWER_OFF_WHEN_REMOVED_FROM_EARS";
-            case POWER_OFF_DISABLE: return "POWER_OFF_DISABLE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(EqEbbInquiredType value) {
-        using enum EqEbbInquiredType;
-        switch (value) {
+            case FW_UPDATE_TANDEM: return "FW_UPDATE_TANDEM";
+            case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION: return "FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION";
+            case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION_AUTO_UPDATE: return "FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION_AUTO_UPDATE";
+            case FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE: return "FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE";
+            case FW_UPDATE_MTK_TRANSFER_WITH_AC_CONNECTION_CHECK: return "FW_UPDATE_MTK_TRANSFER_WITH_AC_CONNECTION_CHECK";
+            case FW_UPDATE_TANDEM_TRANSFER_USING_COMMON_TABLE: return "FW_UPDATE_TANDEM_TRANSFER_USING_COMMON_TABLE";
+            case FW_UPDATE_USING_MC_APP: return "FW_UPDATE_USING_MC_APP";
+            case TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD: return "TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD";
+            case HBS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD: return "HBS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD";
+            case CLASSIC_ONLY_LE_CLASSIC_SETTING: return "CLASSIC_ONLY_LE_CLASSIC_SETTING";
+            case TWS_SUPPORTS_LEA_UNI_LEA_BROAD: return "TWS_SUPPORTS_LEA_UNI_LEA_BROAD";
+            case CHANGE_TANDEM_CONNECTION_PROFILE_FOR_ANDROID: return "CHANGE_TANDEM_CONNECTION_PROFILE_FOR_ANDROID";
+            case BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION: return "BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case HEAD_TRACKER_CANT_BE_USED_WITH_LEA_CONNECTION: return "HEAD_TRACKER_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case PAIRING_DEVICE_MANAGEMENT_CANT_BE_USED_WITH_LEA_CONNECTION: return "PAIRING_DEVICE_MANAGEMENT_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case SOUND_AR_CANT_BE_USED_WITH_LEA_CONNECTION: return "SOUND_AR_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION: return "AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case GATT_CONNECTABLE_CANT_BE_USED_WITH_LEA_CONNECTION: return "GATT_CONNECTABLE_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case SOUND_AR_OPTIMIZATION_CANT_BE_USED_WITH_LEA_CONNECTION: return "SOUND_AR_OPTIMIZATION_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case QUICK_ACCESS_CANT_BE_USED_WITH_LEA_CONNECTION: return "QUICK_ACCESS_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case CONNECTION_MODE_CANT_BE_USED_WITH_LEA_CONNECTION: return "CONNECTION_MODE_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case VOICE_ASSISTANT_SETTINGS_CANT_BE_USED_WITH_LEA_CONNECTION: return "VOICE_ASSISTANT_SETTINGS_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case VOICE_ASSISTANT_WAKE_WORD_CANT_BE_USED_WITH_LEA_CONNECTION: return "VOICE_ASSISTANT_WAKE_WORD_CANT_BE_USED_WITH_LEA_CONNECTION";
             case PRESET_EQ: return "PRESET_EQ";
             case EBB: return "EBB";
-            case PRESET_EQ_NONCUSTOMIZABLE: return "PRESET_EQ_NONCUSTOMIZABLE";
+            case PRESET_EQ_NON_CUSTOMIZABLE: return "PRESET_EQ_NON_CUSTOMIZABLE";
             case PRESET_EQ_AND_ULT_MODE: return "PRESET_EQ_AND_ULT_MODE";
-            case PRESET_EQ_AND_ERRORCODE: return "PRESET_EQ_AND_ERRORCODE";
             case SOUND_EFFECT: return "SOUND_EFFECT";
             case CUSTOM_EQ: return "CUSTOM_EQ";
             case TURN_KEY_EQ: return "TURN_KEY_EQ";
+            case PRESET_EQ_AND_ERRORCODE: return "PRESET_EQ_AND_ERRORCODE";
+            case ULT_SOUND_EFFECT_ASSIGN: return "ULT_SOUND_EFFECT_ASSIGN";
+            case CUSTOMIZABLE_SOUND_EFFECT: return "CUSTOMIZABLE_SOUND_EFFECT";
+            case NOISE_CANCELLING_ONOFF: return "NOISE_CANCELLING_ONOFF";
+            case NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF: return "NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF";
+            case NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF: return "NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF";
+            case NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT: return "NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT";
+            case NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT: return "NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT";
+            case AMBIENT_SOUND_MODE_ONOFF: return "AMBIENT_SOUND_MODE_ONOFF";
+            case AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT: return "AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT";
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT: return "MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT";
+            case AMBIENT_SOUND_CONTROL_MODE_SELECT: return "AMBIENT_SOUND_CONTROL_MODE_SELECT";
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT: return "MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT";
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT: return "MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT";
+            case MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE: return "MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE";
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION: return "MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION";
+            case AUTO_NCASM: return "AUTO_NCASM";
+            case ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION: return "ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION";
+            case HEART_RATE_SENSOR_SETTING: return "HEART_RATE_SENSOR_SETTING";
+            case HEART_RATE_PROFILE_SETTING: return "HEART_RATE_PROFILE_SETTING";
+            case HEART_RATE_SENSOR_TEST: return "HEART_RATE_SENSOR_TEST";
+            case HEART_RATE_SENSOR_GREEN_LIGHT: return "HEART_RATE_SENSOR_GREEN_LIGHT";
+            case NC_OPTIMIZER_PERSONAL_BAROMETRIC: return "NC_OPTIMIZER_PERSONAL_BAROMETRIC";
+            case NC_OPTIMIZER_PERSONAL: return "NC_OPTIMIZER_PERSONAL";
+            case NC_OPTIMIZER_BAROMETRIC: return "NC_OPTIMIZER_BAROMETRIC";
+            case SOUND_FIELD_OPTIMIZATION: return "SOUND_FIELD_OPTIMIZATION";
+            case TV_SOUND_BOOSTER: return "TV_SOUND_BOOSTER";
+            case FIXED_MESSAGE: return "FIXED_MESSAGE";
+            case VIBRATOR_ALERT_NOTIFICATION: return "VIBRATOR_ALERT_NOTIFICATION";
+            case FIXED_MESSAGE_WITH_LR_SELECTION: return "FIXED_MESSAGE_WITH_LR_SELECTION";
+            case VOICE_ASSISTANT_ALERT_NOTIFICATION: return "VOICE_ASSISTANT_ALERT_NOTIFICATION";
+            case LE_AUDIO_ALERT_NOTIFICATION: return "LE_AUDIO_ALERT_NOTIFICATION";
+            case PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT: return "PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT";
+            case PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_MUTE: return "PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_MUTE";
+            case PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE: return "PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE";
+            case PLAYBACK_CONTROLLER_WITH_FUNCTION_CHANGE: return "PLAYBACK_CONTROLLER_WITH_FUNCTION_CHANGE";
+            case SAR: return "SAR";
+            case AUTO_PLAY: return "AUTO_PLAY";
+            case GATT_CONNECTABLE: return "GATT_CONNECTABLE";
+            case SAR_OPTIMIZATION_COMPASS_ACCEL_TYPE: return "SAR_OPTIMIZATION_COMPASS_ACCEL_TYPE";
+            case HEAD_TRACKER_COMPASS_ACCEL_TYPE: return "HEAD_TRACKER_COMPASS_ACCEL_TYPE";
+            case SAR_OPTIMIZATION_ACCEL_TYPE: return "SAR_OPTIMIZATION_ACCEL_TYPE";
+            case HEAD_TRACKER_ACCEL_TYPE: return "HEAD_TRACKER_ACCEL_TYPE";
+            case INTEGRATED_AUTO_PLAY: return "INTEGRATED_AUTO_PLAY";
+            case ACTION_LOG_NOTIFIER: return "ACTION_LOG_NOTIFIER";
+            case TIME_SERIES_OPERATIONLOG_NOTIFIER: return "TIME_SERIES_OPERATIONLOG_NOTIFIER";
+            case SOUND_DROPOUT_NOTIFIER: return "SOUND_DROPOUT_NOTIFIER";
+            case GENERAL_SETTING_1: return "GENERAL_SETTING_1";
+            case GENERAL_SETTING_2: return "GENERAL_SETTING_2";
+            case GENERAL_SETTING_3: return "GENERAL_SETTING_3";
+            case GENERAL_SETTING_4: return "GENERAL_SETTING_4";
+            case CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY: return "CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY";
+            case UPSCALING_AUTO_OFF: return "UPSCALING_AUTO_OFF";
+            case CONNECTION_MODE_SOUND_QUALITY_SOUND_WITH_LDAC_STATUS_QUALITY_CONNECTION_QUALITY: return "CONNECTION_MODE_SOUND_QUALITY_SOUND_WITH_LDAC_STATUS_QUALITY_CONNECTION_QUALITY";
+            case BGM_MODE_SMALL_MIDDLE_LARGE: return "BGM_MODE_SMALL_MIDDLE_LARGE";
+            case UPMIX_CINEMA: return "UPMIX_CINEMA";
+            case LISTENING_OPTION: return "LISTENING_OPTION";
+            case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO: return "CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO";
+            case VOICE_CONTENTS: return "VOICE_CONTENTS";
+            case SOUND_LEAKAGE_REDUCTION: return "SOUND_LEAKAGE_REDUCTION";
+            case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE: return "LISTENING_OPTION_ASSIGN_CUSTOMIZABLE";
+            case BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE: return "BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE";
+            case UPMIX_SERIES: return "UPMIX_SERIES";
+            case UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON: return "UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON";
+            case VIBRATOR_ON_OFF: return "VIBRATOR_ON_OFF";
+            case PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF: return "PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF";
+            case SMART_TALKING_MODE_TYPE1: return "SMART_TALKING_MODE_TYPE1";
+            case ASSIGNABLE_SETTING: return "ASSIGNABLE_SETTING";
+            case VOICE_ASSISTANT_SETTINGS: return "VOICE_ASSISTANT_SETTINGS";
+            case VOICE_ASSISTANT_WAKE_WORD_ON_OFF: return "VOICE_ASSISTANT_WAKE_WORD_ON_OFF";
+            case WEARING_STATUS_DETECTOR: return "WEARING_STATUS_DETECTOR";
+            case EARPIECE_SELECTION: return "EARPIECE_SELECTION";
+            case CALL_SETTINGS: return "CALL_SETTINGS";
+            case RESET_SETTINGS: return "RESET_SETTINGS";
+            case AUTO_VOLUME: return "AUTO_VOLUME";
+            case FACE_TAP_TEST_MODE: return "FACE_TAP_TEST_MODE";
+            case SMART_TALKING_MODE_TYPE2: return "SMART_TALKING_MODE_TYPE2";
+            case QUICK_ACCESS: return "QUICK_ACCESS";
+            case ASSIGNABLE_SETTING_WITH_LIMITATION: return "ASSIGNABLE_SETTING_WITH_LIMITATION";
+            case HEAD_GESTURE_ON_OFF_TRAINING: return "HEAD_GESTURE_ON_OFF_TRAINING";
             default: return "Unknown";
         }
     }
-    static const char* format_as(EqPresetId value) {
-        using enum EqPresetId;
+    static const char* format_as(Action value) {
+        using enum Action;
         switch (value) {
-            case OFF: return "OFF";
-            case ROCK: return "ROCK";
-            case POP: return "POP";
-            case JAZZ: return "JAZZ";
-            case DANCE: return "DANCE";
-            case EDM: return "EDM";
-            case R_AND_B_HIP_HOP: return "R_AND_B_HIP_HOP";
-            case ACOUSTIC: return "ACOUSTIC";
-            case RESERVED_FOR_FUTURE_NO8: return "RESERVED_FOR_FUTURE_NO8";
-            case RESERVED_FOR_FUTURE_NO9: return "RESERVED_FOR_FUTURE_NO9";
-            case RESERVED_FOR_FUTURE_NO10: return "RESERVED_FOR_FUTURE_NO10";
-            case RESERVED_FOR_FUTURE_NO11: return "RESERVED_FOR_FUTURE_NO11";
-            case RESERVED_FOR_FUTURE_NO12: return "RESERVED_FOR_FUTURE_NO12";
-            case RESERVED_FOR_FUTURE_NO13: return "RESERVED_FOR_FUTURE_NO13";
-            case RESERVED_FOR_FUTURE_NO14: return "RESERVED_FOR_FUTURE_NO14";
-            case RESERVED_FOR_FUTURE_NO15: return "RESERVED_FOR_FUTURE_NO15";
-            case BRIGHT: return "BRIGHT";
-            case EXCITED: return "EXCITED";
-            case MELLOW: return "MELLOW";
-            case RELAXED: return "RELAXED";
-            case VOCAL: return "VOCAL";
-            case TREBLE: return "TREBLE";
-            case BASS: return "BASS";
-            case SPEECH: return "SPEECH";
-            case RESERVED_FOR_FUTURE_NO24: return "RESERVED_FOR_FUTURE_NO24";
-            case RESERVED_FOR_FUTURE_NO25: return "RESERVED_FOR_FUTURE_NO25";
-            case RESERVED_FOR_FUTURE_NO26: return "RESERVED_FOR_FUTURE_NO26";
-            case RESERVED_FOR_FUTURE_NO27: return "RESERVED_FOR_FUTURE_NO27";
-            case RESERVED_FOR_FUTURE_NO28: return "RESERVED_FOR_FUTURE_NO28";
-            case RESERVED_FOR_FUTURE_NO29: return "RESERVED_FOR_FUTURE_NO29";
-            case RESERVED_FOR_FUTURE_NO30: return "RESERVED_FOR_FUTURE_NO30";
-            case RESERVED_FOR_FUTURE_NO31: return "RESERVED_FOR_FUTURE_NO31";
-            case GAMING_EQ: return "GAMING_EQ";
-            case FPS_1: return "FPS_1";
-            case FPS_2: return "FPS_2";
-            case FPS_3: return "FPS_3";
-            case HEAVY: return "HEAVY";
-            case CLEAR: return "CLEAR";
-            case HARD: return "HARD";
-            case SOFT: return "SOFT";
-            case CUSTOM: return "CUSTOM";
-            case USER_SETTING1: return "USER_SETTING1";
-            case USER_SETTING2: return "USER_SETTING2";
-            case USER_SETTING3: return "USER_SETTING3";
-            case USER_SETTING4: return "USER_SETTING4";
-            case USER_SETTING5: return "USER_SETTING5";
-            case ARTIST_COLLAB1: return "ARTIST_COLLAB1";
-            case ARTIST_COLLAB2: return "ARTIST_COLLAB2";
-            case ARTIST_COLLAB3: return "ARTIST_COLLAB3";
-            case ARTIST_COLLAB4: return "ARTIST_COLLAB4";
-            case ARTIST_COLLAB5: return "ARTIST_COLLAB5";
-            case ARTIST_COLLAB6: return "ARTIST_COLLAB6";
-            case ARTIST_COLLAB7: return "ARTIST_COLLAB7";
-            case ARTIST_COLLAB8: return "ARTIST_COLLAB8";
-            case ARTIST_COLLAB9: return "ARTIST_COLLAB9";
-            case ARTIST_COLLAB10: return "ARTIST_COLLAB10";
-            case ARTIST_COLLAB11: return "ARTIST_COLLAB11";
-            case ARTIST_COLLAB12: return "ARTIST_COLLAB12";
-            case UNSPECIFIED: return "UNSPECIFIED";
+            case SINGLE_TAP: return "SINGLE_TAP";
+            case DOUBLE_TAP: return "DOUBLE_TAP";
+            case TRIPLE_TAP: return "TRIPLE_TAP";
+            case REPEAT_TAP: return "REPEAT_TAP";
+            case SINGLE_TAP_AND_HOLD: return "SINGLE_TAP_AND_HOLD";
+            case DOUBLE_TAP_AND_HOLD: return "DOUBLE_TAP_AND_HOLD";
+            case LONG_PRESS_THEN_ACTIVATE: return "LONG_PRESS_THEN_ACTIVATE";
+            case LONG_PRESS_DURING_ACTIVATE: return "LONG_PRESS_DURING_ACTIVATE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(EqUltMode value) {
-        using enum EqUltMode;
+    static const char* format_as(AdjustSynchronizationStatus value) {
+        using enum AdjustSynchronizationStatus;
         switch (value) {
-            case OFF: return "OFF";
-            case ULT_1: return "ULT_1";
-            case ULT_2: return "ULT_2";
+            case ENABLE: return "ENABLE";
+            case DISABLE: return "DISABLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(SoundEffectType value) {
-        using enum SoundEffectType;
+    static const char* format_as(AdjustSynchronizationValue value) {
+        using enum AdjustSynchronizationValue;
         switch (value) {
-            case SOUND_EFFECT_OFF: return "SOUND_EFFECT_OFF";
-            case SOUND_EFFECT_ULT: return "SOUND_EFFECT_ULT";
-            case SOUND_EFFECT_ULT1: return "SOUND_EFFECT_ULT1";
-            case SOUND_EFFECT_ULT2: return "SOUND_EFFECT_ULT2";
-            case SOUND_EFFECT_CUSTOM: return "SOUND_EFFECT_CUSTOM";
-            case SOUND_EFFECT_NONE: return "SOUND_EFFECT_NONE";
+            case MSEC_0: return "MSEC_0";
+            case MSEC_10: return "MSEC_10";
+            case MSEC_20: return "MSEC_20";
+            case MSEC_30: return "MSEC_30";
+            case MSEC_40: return "MSEC_40";
+            case MSEC_50: return "MSEC_50";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(PresetEqErrorCodeType value) {
-        using enum PresetEqErrorCodeType;
+    static const char* format_as(AlertAction value) {
+        using enum AlertAction;
         switch (value) {
-            case CALLING: return "CALLING";
-            case DEMO_MODE: return "DEMO_MODE";
-            case LISTENING_MODE: return "LISTENING_MODE";
-            case OTHER: return "OTHER";
+            case NEGATIVE: return "NEGATIVE";
+            case POSITIVE: return "POSITIVE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(NcAsmInquiredType value) {
-        using enum NcAsmInquiredType;
+    static const char* format_as(AlertActionType value) {
+        using enum AlertActionType;
         switch (value) {
-            case NC_ON_OFF: return "NC_ON_OFF";
-            case NC_ON_OFF_AND_ASM_ON_OFF: return "NC_ON_OFF_AND_ASM_ON_OFF";
-            case NC_MODE_SWITCH_AND_ASM_ON_OFF: return "NC_MODE_SWITCH_AND_ASM_ON_OFF";
-            case NC_ON_OFF_AND_ASM_SEAMLESS: return "NC_ON_OFF_AND_ASM_SEAMLESS";
-            case NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "NC_MODE_SWITCH_AND_ASM_SEAMLESS";
-            case MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
-            case MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
-            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
-            case MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
-            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA: return "MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA";
-            case ASM_ON_OFF: return "ASM_ON_OFF";
-            case ASM_SEAMLESS: return "ASM_SEAMLESS";
-            case NC_AMB_TOGGLE: return "NC_AMB_TOGGLE";
-            case NC_TEST_MODE: return "NC_TEST_MODE";
+            case CONFIRMATION_ONLY: return "CONFIRMATION_ONLY";
+            case POSITIVE_NEGATIVE: return "POSITIVE_NEGATIVE";
+            case POSITIVE_CONFIRMATION_WITH_REPLY: return "POSITIVE_CONFIRMATION_WITH_REPLY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(ValueChangeStatus value) {
-        using enum ValueChangeStatus;
+    static const char* format_as(AlertFlexibleMessageType value) {
+        using enum AlertFlexibleMessageType;
         switch (value) {
-            case UNDER_CHANGING: return "UNDER_CHANGING";
-            case CHANGED: return "CHANGED";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(NcAsmOnOffValue value) {
-        using enum NcAsmOnOffValue;
-        switch (value) {
-            case OFF: return "OFF";
-            case ON: return "ON";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(NcAsmMode value) {
-        using enum NcAsmMode;
-        switch (value) {
-            case NC: return "NC";
-            case ASM: return "ASM";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(AmbientSoundMode value) {
-        using enum AmbientSoundMode;
-        switch (value) {
-            case NORMAL: return "NORMAL";
-            case VOICE: return "VOICE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(NoiseAdaptiveSensitivity value) {
-        using enum NoiseAdaptiveSensitivity;
-        switch (value) {
-            case STANDARD: return "STANDARD";
-            case HIGH: return "HIGH";
-            case LOW: return "LOW";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(Function value) {
-        using enum Function;
-        switch (value) {
-            case NO_FUNCTION: return "NO_FUNCTION";
-            case NC_ASM_OFF: return "NC_ASM_OFF";
-            case NC_ASM: return "NC_ASM";
-            case NC_OFF: return "NC_OFF";
-            case ASM_OFF: return "ASM_OFF";
-            case QUICK_ATTENTION: return "QUICK_ATTENTION";
-            case NC_OPTIMIZER: return "NC_OPTIMIZER";
-            case PLAY_PAUSE: return "PLAY_PAUSE";
-            case NEXT_TRACK: return "NEXT_TRACK";
-            case PREV_TRACK: return "PREV_TRACK";
-            case VOLUME_UP: return "VOLUME_UP";
-            case VOLUME_DOWN: return "VOLUME_DOWN";
-            case VOICE_RECOGNITION: return "VOICE_RECOGNITION";
-            case GET_YOUR_NOTIFICATION: return "GET_YOUR_NOTIFICATION";
-            case TALK_TO_GOOGLE_ASSISTANT: return "TALK_TO_GOOGLE_ASSISTANT";
-            case STOP_GOOGLE_ASSISTANT: return "STOP_GOOGLE_ASSISTANT";
-            case VOICE_INPUT_CANCEL: return "VOICE_INPUT_CANCEL";
-            case TALK_TO_TENCENT_XIAOWEI: return "TALK_TO_TENCENT_XIAOWEI";
-            case CANCEL_VOICE_RECOGNITION: return "CANCEL_VOICE_RECOGNITION";
-            case VOICE_INPUT_AMAZON_ALEXA: return "VOICE_INPUT_AMAZON_ALEXA";
-            case CANCEL_AMAZON_ALEXA: return "CANCEL_AMAZON_ALEXA";
-            case CANCEL_TENCENT_XIAOWEI: return "CANCEL_TENCENT_XIAOWEI";
-            case LAUNCH_MLP: return "LAUNCH_MLP";
-            case TALK_TO_YOUR_MLP: return "TALK_TO_YOUR_MLP";
-            case SPTF_ONE_TOUCH: return "SPTF_ONE_TOUCH";
-            case QUICK_ACCESS1: return "QUICK_ACCESS1";
-            case QUICK_ACCESS2: return "QUICK_ACCESS2";
-            case TALK_TO_TENCENT_XIAOWEI_CANCEL: return "TALK_TO_TENCENT_XIAOWEI_CANCEL";
-            case Q_MSC_ONE_TOUCH: return "Q_MSC_ONE_TOUCH";
-            case TEAMS: return "TEAMS";
-            case TEAMS_VOICE_SKILLS: return "TEAMS_VOICE_SKILLS";
-            case NC_NCSS_ASM_OFF: return "NC_NCSS_ASM_OFF";
-            case NC_NCSS_ASM: return "NC_NCSS_ASM";
-            case NC_NCSS_OFF: return "NC_NCSS_OFF";
-            case NCSS_ASM_OFF: return "NCSS_ASM_OFF";
-            case NC_NCSS: return "NC_NCSS";
-            case NCSS_ASM: return "NCSS_ASM";
-            case NCSS_OFF: return "NCSS_OFF";
-            case AMB_SETTING: return "AMB_SETTING";
-            case STANDARD_VOICE_SOUND: return "STANDARD_VOICE_SOUND";
-            case MIC_MUTE: return "MIC_MUTE";
-            case GAME_UP: return "GAME_UP";
-            case CHAT_UP: return "CHAT_UP";
+            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS: return "BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION";
+            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION: return "BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE";
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ";
+            case CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF: return "CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF";
+            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE: return "BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE";
+            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION: return "DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION";
+            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION: return "DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION";
+            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY: return "DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY";
+            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC: return "DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC";
+            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE: return "DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE";
+            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION: return "DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -532,6 +237,17 @@ namespace mdr::v2::t1 {
             case APP_BECOMES_FOREGROUND: return "APP_BECOMES_FOREGROUND";
             case LE_AUDIO_ALERT_NOTIFICATION: return "LE_AUDIO_ALERT_NOTIFICATION";
             case FLEXIBLE_MESSAGE: return "FLEXIBLE_MESSAGE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(AlertLeftRightAction value) {
+        using enum AlertLeftRightAction;
+        switch (value) {
+            case NEGATIVE: return "NEGATIVE";
+            case LEFT: return "LEFT";
+            case RIGHT: return "RIGHT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -620,6 +336,8 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_CALLING_WHEN_SVA_TRAINING: return "CAUTION_FOR_CALLING_WHEN_SVA_TRAINING";
             case CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_ENABLE_REPEAT_TAP: return "CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_ENABLE_REPEAT_TAP";
             case CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_DISABLE_REPEAT_TAP: return "CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_DISABLE_REPEAT_TAP";
+            case CAUTION_FOR_CHANGE_HEART_RATE_PROFILE_TO_ON: return "CAUTION_FOR_CHANGE_HEART_RATE_PROFILE_TO_ON";
+            case CAUTION_FOR_CHANGE_HEART_RATE_SENSOR_GREEN_LIGHT_TO_OFF: return "CAUTION_FOR_CHANGE_HEART_RATE_SENSOR_GREEN_LIGHT_TO_OFF";
             case CAUTION_FOR_ENABLING_2_DEVICES_CONNECTION_WITH_LDAC: return "CAUTION_FOR_ENABLING_2_DEVICES_CONNECTION_WITH_LDAC";
             case CAUTION_FOR_CHANGING_TO_QUALITY_PRIOR_CONNECTION_MODE_WITH_2_DEVICES_CONNECTION: return "CAUTION_FOR_CHANGING_TO_QUALITY_PRIOR_CONNECTION_MODE_WITH_2_DEVICES_CONNECTION";
             case CAUTION_FOR_CONNECTED_2_DEVICES_IN_BACKGROUND_WITH_LDAC: return "CAUTION_FOR_CONNECTED_2_DEVICES_IN_BACKGROUND_WITH_LDAC";
@@ -641,62 +359,9 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_NOT_CHARGING: return "CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_NOT_CHARGING";
             case CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN: return "CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN";
             case TURN_KEY_EQ_SUCCESS: return "TURN_KEY_EQ_SUCCESS";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(AlertFlexibleMessageType value) {
-        using enum AlertFlexibleMessageType;
-        switch (value) {
-            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS: return "BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION";
-            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION: return "BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE";
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ: return "CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ";
-            case CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF: return "CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF";
-            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE: return "BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE";
-            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION: return "DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION";
-            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION: return "DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION";
-            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY: return "DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY";
-            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC: return "DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC";
-            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE: return "DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE";
-            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION: return "DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(VoiceAssistantType value) {
-        using enum VoiceAssistantType;
-        switch (value) {
-            case GOOGLE_ASSISTANT: return "GOOGLE_ASSISTANT";
-            case AMAZON_ALEXA: return "AMAZON_ALEXA";
-            case TENCENT_XIAOWEI: return "TENCENT_XIAOWEI";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ConfirmationType value) {
-        using enum ConfirmationType;
-        switch (value) {
-            case CONFIRMED: return "CONFIRMED";
-            case CONFIRMED_DONT_SHOW_AGAIN: return "CONFIRMED_DONT_SHOW_AGAIN";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(AlertAction value) {
-        using enum AlertAction;
-        switch (value) {
-            case NEGATIVE: return "NEGATIVE";
-            case POSITIVE: return "POSITIVE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(VibrationType value) {
-        using enum VibrationType;
-        switch (value) {
-            case NO_PATTERN_SPECIFIED: return "NO_PATTERN_SPECIFIED";
+            case CAUTION_FOR_USB_OVERHEAT_DETECTION_DURING_NOT_CHARGING: return "CAUTION_FOR_USB_OVERHEAT_DETECTION_DURING_NOT_CHARGING";
+            case CAUTION_FOR_USB_OVERHEAT_DETECTION_DURING_CASE_IN: return "CAUTION_FOR_USB_OVERHEAT_DETECTION_DURING_CASE_IN";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -709,24 +374,433 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_SENSOR: return "CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_SENSOR";
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON: return "CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON";
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR: return "CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(AlertLeftRightAction value) {
-        using enum AlertLeftRightAction;
+    static const char* format_as(AmbientSoundMode value) {
+        using enum AmbientSoundMode;
         switch (value) {
-            case NEGATIVE: return "NEGATIVE";
-            case LEFT: return "LEFT";
-            case RIGHT: return "RIGHT";
+            case NORMAL: return "NORMAL";
+            case VOICE: return "VOICE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(AlertActionType value) {
-        using enum AlertActionType;
+    static const char* format_as(AudioCodec value) {
+        using enum AudioCodec;
         switch (value) {
-            case CONFIRMATION_ONLY: return "CONFIRMATION_ONLY";
-            case POSITIVE_NEGATIVE: return "POSITIVE_NEGATIVE";
-            case POSITIVE_CONFIRMATION_WITH_REPLY: return "POSITIVE_CONFIRMATION_WITH_REPLY";
+            case UNSETTLED: return "UNSETTLED";
+            case SBC: return "SBC";
+            case AAC: return "AAC";
+            case LDAC: return "LDAC";
+            case APT_X: return "APT_X";
+            case APT_X_HD: return "APT_X_HD";
+            case LC3: return "LC3";
+            case OTHER: return "OTHER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(AudioExclusiveFunctionType value) {
+        using enum AudioExclusiveFunctionType;
+        switch (value) {
+            case EQUALIZER: return "EQUALIZER";
+            case DSEE: return "DSEE";
+            case HEAD_TRACKER: return "HEAD_TRACKER";
+            case LE_AUDIO: return "LE_AUDIO";
+            case IMMERSIVE_AUDIO: return "IMMERSIVE_AUDIO";
+            case SAR_OPTIMIZATION: return "SAR_OPTIMIZATION";
+            case GOOGLE_ASSISTANT: return "GOOGLE_ASSISTANT";
+            case SPATIAL_AUDIO: return "SPATIAL_AUDIO";
+            case BGM_MODE: return "BGM_MODE";
+            case UPMIX_CINEMA: return "UPMIX_CINEMA";
+            case SONY_VOICE_ASSISTANT: return "SONY_VOICE_ASSISTANT";
+            case TENCENT_XIAOWEI: return "TENCENT_XIAOWEI";
+            case VOICE_CONTENTS: return "VOICE_CONTENTS";
+            case SOUND_LEAKAGE_REDUCTION: return "SOUND_LEAKAGE_REDUCTION";
+            case BRAVIA_3D_SURROUND: return "BRAVIA_3D_SURROUND";
+            case UPMIX_SERIES: return "UPMIX_SERIES";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(AudioInquiredType value) {
+        using enum AudioInquiredType;
+        switch (value) {
+            case CONNECTION_MODE: return "CONNECTION_MODE";
+            case UPSCALING: return "UPSCALING";
+            case CONNECTION_MODE_WITH_LDAC_STATUS: return "CONNECTION_MODE_WITH_LDAC_STATUS";
+            case BGM_MODE: return "BGM_MODE";
+            case UPMIX_CINEMA: return "UPMIX_CINEMA";
+            case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO: return "CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO";
+            case VOICE_CONTENTS: return "VOICE_CONTENTS";
+            case SOUND_LEAKAGE_REDUCTION: return "SOUND_LEAKAGE_REDUCTION";
+            case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE: return "LISTENING_OPTION_ASSIGN_CUSTOMIZABLE";
+            case BGM_MODE_AND_ERRORCODE: return "BGM_MODE_AND_ERRORCODE";
+            case UPMIX_SERIES: return "UPMIX_SERIES";
+            case UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON: return "UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(AutoPowerOffElements value) {
+        using enum AutoPowerOffElements;
+        switch (value) {
+            case POWER_OFF_IN_5_MIN: return "POWER_OFF_IN_5_MIN";
+            case POWER_OFF_IN_30_MIN: return "POWER_OFF_IN_30_MIN";
+            case POWER_OFF_IN_60_MIN: return "POWER_OFF_IN_60_MIN";
+            case POWER_OFF_IN_180_MIN: return "POWER_OFF_IN_180_MIN";
+            case POWER_OFF_IN_15_MIN: return "POWER_OFF_IN_15_MIN";
+            case POWER_OFF_DISABLE: return "POWER_OFF_DISABLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(AutoPowerOffWearingDetectionElements value) {
+        using enum AutoPowerOffWearingDetectionElements;
+        switch (value) {
+            case POWER_OFF_IN_5_MIN: return "POWER_OFF_IN_5_MIN";
+            case POWER_OFF_IN_30_MIN: return "POWER_OFF_IN_30_MIN";
+            case POWER_OFF_IN_60_MIN: return "POWER_OFF_IN_60_MIN";
+            case POWER_OFF_IN_180_MIN: return "POWER_OFF_IN_180_MIN";
+            case POWER_OFF_IN_15_MIN: return "POWER_OFF_IN_15_MIN";
+            case POWER_OFF_WHEN_REMOVED_FROM_EARS: return "POWER_OFF_WHEN_REMOVED_FROM_EARS";
+            case POWER_OFF_DISABLE: return "POWER_OFF_DISABLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(BarometricPressure value) {
+        using enum BarometricPressure;
+        switch (value) {
+            case UNMEASURED: return "UNMEASURED";
+            case MEASURED_0_7: return "MEASURED_0_7";
+            case MEASURED_0_8: return "MEASURED_0_8";
+            case MEASURED_0_9: return "MEASURED_0_9";
+            case MEASURED_1_0: return "MEASURED_1_0";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(BatteryChargingStatus value) {
+        using enum BatteryChargingStatus;
+        switch (value) {
+            case NOT_CHARGING: return "NOT_CHARGING";
+            case CHARGING: return "CHARGING";
+            case UNKNOWN: return "UNKNOWN";
+            case CHARGED: return "CHARGED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(BatterySafeModeEffectStatusControl value) {
+        using enum BatterySafeModeEffectStatusControl;
+        switch (value) {
+            case NOT_TO_CHANGE: return "NOT_TO_CHANGE";
+            case TURN_OFF_THE_EFFECT: return "TURN_OFF_THE_EFFECT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CallSettingsCallingStatus value) {
+        using enum CallSettingsCallingStatus;
+        switch (value) {
+            case IN_CALLING: return "IN_CALLING";
+            case OUT_OF_CALLING: return "OUT_OF_CALLING";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CallSettingsModeOperation value) {
+        using enum CallSettingsModeOperation;
+        switch (value) {
+            case MODE_START: return "MODE_START";
+            case MODE_FINISH: return "MODE_FINISH";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CallSettingsSettingModeStatus value) {
+        using enum CallSettingsSettingModeStatus;
+        switch (value) {
+            case MODE_OUT: return "MODE_OUT";
+            case MODE_IN: return "MODE_IN";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CallSettingsTestSoundControl value) {
+        using enum CallSettingsTestSoundControl;
+        switch (value) {
+            case START: return "START";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CallSettingsTestSoundControlAck value) {
+        using enum CallSettingsTestSoundControlAck;
+        switch (value) {
+            case ACK: return "ACK";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CallSettingsTestSoundStatus value) {
+        using enum CallSettingsTestSoundStatus;
+        switch (value) {
+            case TEST_SOUND_ENABLED: return "TEST_SOUND_ENABLED";
+            case TEST_SOUND_DISABLED: return "TEST_SOUND_DISABLED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ChangeType value) {
+        using enum ChangeType;
+        switch (value) {
+            case SETTING_AND_CONNECTION_METHOD_CHANGE: return "SETTING_AND_CONNECTION_METHOD_CHANGE";
+            case SETTING_CHANGE: return "SETTING_CHANGE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(Command value) {
+        using enum Command;
+        switch (value) {
+            case CONNECT_GET_PROTOCOL_INFO: return "CONNECT_GET_PROTOCOL_INFO";
+            case CONNECT_RET_PROTOCOL_INFO: return "CONNECT_RET_PROTOCOL_INFO";
+            case CONNECT_GET_CAPABILITY_INFO: return "CONNECT_GET_CAPABILITY_INFO";
+            case CONNECT_RET_CAPABILITY_INFO: return "CONNECT_RET_CAPABILITY_INFO";
+            case CONNECT_GET_DEVICE_INFO: return "CONNECT_GET_DEVICE_INFO";
+            case CONNECT_RET_DEVICE_INFO: return "CONNECT_RET_DEVICE_INFO";
+            case CONNECT_GET_SUPPORT_FUNCTION: return "CONNECT_GET_SUPPORT_FUNCTION";
+            case CONNECT_RET_SUPPORT_FUNCTION: return "CONNECT_RET_SUPPORT_FUNCTION";
+            case GET_TEST: return "GET_TEST";
+            case COMMON_GET_CAPABILITY: return "COMMON_GET_CAPABILITY";
+            case COMMON_RET_CAPABILITY: return "COMMON_RET_CAPABILITY";
+            case COMMON_GET_STATUS: return "COMMON_GET_STATUS";
+            case COMMON_RET_STATUS: return "COMMON_RET_STATUS";
+            case COMMON_NTFY_STATUS: return "COMMON_NTFY_STATUS";
+            case COMMON_SET_PARAM: return "COMMON_SET_PARAM";
+            case COMMON_NTFY_PARAM: return "COMMON_NTFY_PARAM";
+            case POWER_GET_CAPABILITY: return "POWER_GET_CAPABILITY";
+            case POWER_RET_CAPABILITY: return "POWER_RET_CAPABILITY";
+            case POWER_GET_STATUS: return "POWER_GET_STATUS";
+            case POWER_RET_STATUS: return "POWER_RET_STATUS";
+            case POWER_SET_STATUS: return "POWER_SET_STATUS";
+            case POWER_NTFY_STATUS: return "POWER_NTFY_STATUS";
+            case POWER_GET_PARAM: return "POWER_GET_PARAM";
+            case POWER_RET_PARAM: return "POWER_RET_PARAM";
+            case POWER_SET_PARAM: return "POWER_SET_PARAM";
+            case POWER_NTFY_PARAM: return "POWER_NTFY_PARAM";
+            case UPDT_GET_CAPABILITY: return "UPDT_GET_CAPABILITY";
+            case UPDT_RET_CAPABILITY: return "UPDT_RET_CAPABILITY";
+            case UPDT_GET_STATUS: return "UPDT_GET_STATUS";
+            case UPDT_RET_STATUS: return "UPDT_RET_STATUS";
+            case UPDT_SET_STATUS: return "UPDT_SET_STATUS";
+            case UPDT_NTFY_STATUS: return "UPDT_NTFY_STATUS";
+            case UPDT_GET_PARAM: return "UPDT_GET_PARAM";
+            case UPDT_RET_PARAM: return "UPDT_RET_PARAM";
+            case UPDT_SET_PARAM: return "UPDT_SET_PARAM";
+            case UPDT_NTFY_PARAM: return "UPDT_NTFY_PARAM";
+            case UPDT_TRANSFER_DATA: return "UPDT_TRANSFER_DATA";
+            case UPDT_NTFY_MESSAGE: return "UPDT_NTFY_MESSAGE";
+            case LEA_GET_CAPABILITY: return "LEA_GET_CAPABILITY";
+            case LEA_RET_CAPABILITY: return "LEA_RET_CAPABILITY";
+            case LEA_GET_STATUS: return "LEA_GET_STATUS";
+            case LEA_RET_STATUS: return "LEA_RET_STATUS";
+            case LEA_NTFY_STATUS: return "LEA_NTFY_STATUS";
+            case LEA_GET_PARAM: return "LEA_GET_PARAM";
+            case LEA_RET_PARAM: return "LEA_RET_PARAM";
+            case LEA_SET_PARAM: return "LEA_SET_PARAM";
+            case LEA_NTFY_PARAM: return "LEA_NTFY_PARAM";
+            case LEA_GET_EXTENDED_PARAM: return "LEA_GET_EXTENDED_PARAM";
+            case LEA_RET_EXTENDED_PARAM: return "LEA_RET_EXTENDED_PARAM";
+            case LEA_SET_EXTENDED_PARAM: return "LEA_SET_EXTENDED_PARAM";
+            case LEA_NTFY_EXTENDED_PARAM: return "LEA_NTFY_EXTENDED_PARAM";
+            case EQEBB_GET_CAPABILITY: return "EQEBB_GET_CAPABILITY";
+            case EQEBB_RET_CAPABILITY: return "EQEBB_RET_CAPABILITY";
+            case EQEBB_GET_STATUS: return "EQEBB_GET_STATUS";
+            case EQEBB_RET_STATUS: return "EQEBB_RET_STATUS";
+            case EQEBB_NTFY_STATUS: return "EQEBB_NTFY_STATUS";
+            case EQEBB_GET_PARAM: return "EQEBB_GET_PARAM";
+            case EQEBB_RET_PARAM: return "EQEBB_RET_PARAM";
+            case EQEBB_SET_PARAM: return "EQEBB_SET_PARAM";
+            case EQEBB_NTFY_PARAM: return "EQEBB_NTFY_PARAM";
+            case EQEBB_GET_EXTENDED_INFO: return "EQEBB_GET_EXTENDED_INFO";
+            case EQEBB_RET_EXTENDED_INFO: return "EQEBB_RET_EXTENDED_INFO";
+            case NCASM_GET_CAPABILITY: return "NCASM_GET_CAPABILITY";
+            case NCASM_RET_CAPABILITY: return "NCASM_RET_CAPABILITY";
+            case NCASM_GET_STATUS: return "NCASM_GET_STATUS";
+            case NCASM_RET_STATUS: return "NCASM_RET_STATUS";
+            case NCASM_SET_STATUS: return "NCASM_SET_STATUS";
+            case NCASM_NTFY_STATUS: return "NCASM_NTFY_STATUS";
+            case NCASM_GET_PARAM: return "NCASM_GET_PARAM";
+            case NCASM_RET_PARAM: return "NCASM_RET_PARAM";
+            case NCASM_SET_PARAM: return "NCASM_SET_PARAM";
+            case NCASM_NTFY_PARAM: return "NCASM_NTFY_PARAM";
+            case SENSE_GET_CAPABILITY: return "SENSE_GET_CAPABILITY";
+            case SENSE_RET_CAPABILITY: return "SENSE_RET_CAPABILITY";
+            case SENSE_SET_STATUS: return "SENSE_SET_STATUS";
+            case SENSE_NTFY_STATUS: return "SENSE_NTFY_STATUS";
+            case SENSE_SET_PARAM: return "SENSE_SET_PARAM";
+            case SENSE_NTFY_PARAM: return "SENSE_NTFY_PARAM";
+            case SENSE_GET_EXT_INFO: return "SENSE_GET_EXT_INFO";
+            case SENSE_RET_EXT_INFO: return "SENSE_RET_EXT_INFO";
+            case OPT_GET_CAPABILITY: return "OPT_GET_CAPABILITY";
+            case OPT_RET_CAPABILITY: return "OPT_RET_CAPABILITY";
+            case OPT_GET_STATUS: return "OPT_GET_STATUS";
+            case OPT_RET_STATUS: return "OPT_RET_STATUS";
+            case OPT_SET_STATUS: return "OPT_SET_STATUS";
+            case OPT_NTFY_STATUS: return "OPT_NTFY_STATUS";
+            case OPT_GET_PARAM: return "OPT_GET_PARAM";
+            case OPT_RET_PARAM: return "OPT_RET_PARAM";
+            case OPT_SET_PARAM: return "OPT_SET_PARAM";
+            case OPT_NTFY_PARAM: return "OPT_NTFY_PARAM";
+            case ALERT_GET_CAPABILITY: return "ALERT_GET_CAPABILITY";
+            case ALERT_RET_CAPABILITY: return "ALERT_RET_CAPABILITY";
+            case ALERT_GET_STATUS: return "ALERT_GET_STATUS";
+            case ALERT_RET_STATUS: return "ALERT_RET_STATUS";
+            case ALERT_SET_STATUS: return "ALERT_SET_STATUS";
+            case ALERT_NTFY_STATUS: return "ALERT_NTFY_STATUS";
+            case ALERT_SET_PARAM: return "ALERT_SET_PARAM";
+            case ALERT_NTFY_PARAM: return "ALERT_NTFY_PARAM";
+            case PLAY_GET_CAPABILITY: return "PLAY_GET_CAPABILITY";
+            case PLAY_RET_CAPABILITY: return "PLAY_RET_CAPABILITY";
+            case PLAY_GET_STATUS: return "PLAY_GET_STATUS";
+            case PLAY_RET_STATUS: return "PLAY_RET_STATUS";
+            case PLAY_SET_STATUS: return "PLAY_SET_STATUS";
+            case PLAY_NTFY_STATUS: return "PLAY_NTFY_STATUS";
+            case PLAY_GET_PARAM: return "PLAY_GET_PARAM";
+            case PLAY_RET_PARAM: return "PLAY_RET_PARAM";
+            case PLAY_SET_PARAM: return "PLAY_SET_PARAM";
+            case PLAY_NTFY_PARAM: return "PLAY_NTFY_PARAM";
+            case SAR_AUTO_PLAY_GET_CAPABILITY: return "SAR_AUTO_PLAY_GET_CAPABILITY";
+            case SAR_AUTO_PLAY_RET_CAPABILITY: return "SAR_AUTO_PLAY_RET_CAPABILITY";
+            case SAR_AUTO_PLAY_GET_STATUS: return "SAR_AUTO_PLAY_GET_STATUS";
+            case SAR_AUTO_PLAY_RET_STATUS: return "SAR_AUTO_PLAY_RET_STATUS";
+            case SAR_AUTO_PLAY_NTFY_STATUS: return "SAR_AUTO_PLAY_NTFY_STATUS";
+            case SAR_AUTO_PLAY_GET_PARAM: return "SAR_AUTO_PLAY_GET_PARAM";
+            case SAR_AUTO_PLAY_RET_PARAM: return "SAR_AUTO_PLAY_RET_PARAM";
+            case SAR_AUTO_PLAY_SET_PARAM: return "SAR_AUTO_PLAY_SET_PARAM";
+            case SAR_AUTO_PLAY_NTFY_PARAM: return "SAR_AUTO_PLAY_NTFY_PARAM";
+            case LOG_SET_STATUS: return "LOG_SET_STATUS";
+            case LOG_NTFY_PARAM: return "LOG_NTFY_PARAM";
+            case GENERAL_SETTING_GET_CAPABILITY: return "GENERAL_SETTING_GET_CAPABILITY";
+            case GENERAL_SETTING_RET_CAPABILITY: return "GENERAL_SETTING_RET_CAPABILITY";
+            case GENERAL_SETTING_GET_STATUS: return "GENERAL_SETTING_GET_STATUS";
+            case GENERAL_SETTING_RET_STATUS: return "GENERAL_SETTING_RET_STATUS";
+            case GENERAL_SETTING_NTFY_STATUS: return "GENERAL_SETTING_NTFY_STATUS";
+            case GENERAL_SETTING_GET_PARAM: return "GENERAL_SETTING_GET_PARAM";
+            case GENERAL_SETTING_RET_PARAM: return "GENERAL_SETTING_RET_PARAM";
+            case GENERAL_SETTING_SET_PARAM: return "GENERAL_SETTING_SET_PARAM";
+            case GENERAL_SETTING_NTNY_PARAM: return "GENERAL_SETTING_NTNY_PARAM";
+            case AUDIO_GET_CAPABILITY: return "AUDIO_GET_CAPABILITY";
+            case AUDIO_RET_CAPABILITY: return "AUDIO_RET_CAPABILITY";
+            case AUDIO_GET_STATUS: return "AUDIO_GET_STATUS";
+            case AUDIO_RET_STATUS: return "AUDIO_RET_STATUS";
+            case AUDIO_NTFY_STATUS: return "AUDIO_NTFY_STATUS";
+            case AUDIO_GET_PARAM: return "AUDIO_GET_PARAM";
+            case AUDIO_RET_PARAM: return "AUDIO_RET_PARAM";
+            case AUDIO_SET_PARAM: return "AUDIO_SET_PARAM";
+            case AUDIO_NTFY_PARAM: return "AUDIO_NTFY_PARAM";
+            case SYSTEM_GET_CAPABILITY: return "SYSTEM_GET_CAPABILITY";
+            case SYSTEM_RET_CAPABILITY: return "SYSTEM_RET_CAPABILITY";
+            case SYSTEM_GET_STATUS: return "SYSTEM_GET_STATUS";
+            case SYSTEM_RET_STATUS: return "SYSTEM_RET_STATUS";
+            case SYSTEM_SET_STATUS: return "SYSTEM_SET_STATUS";
+            case SYSTEM_NTFY_STATUS: return "SYSTEM_NTFY_STATUS";
+            case SYSTEM_GET_PARAM: return "SYSTEM_GET_PARAM";
+            case SYSTEM_RET_PARAM: return "SYSTEM_RET_PARAM";
+            case SYSTEM_SET_PARAM: return "SYSTEM_SET_PARAM";
+            case SYSTEM_NTFY_PARAM: return "SYSTEM_NTFY_PARAM";
+            case SYSTEM_GET_EXT_PARAM: return "SYSTEM_GET_EXT_PARAM";
+            case SYSTEM_RET_EXT_PARAM: return "SYSTEM_RET_EXT_PARAM";
+            case SYSTEM_SET_EXT_PARAM: return "SYSTEM_SET_EXT_PARAM";
+            case SYSTEM_NTFY_EXT_PARAM: return "SYSTEM_NTFY_EXT_PARAM";
+            case UNKNOWN: return "UNKNOWN";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CommonConnectionStatus value) {
+        using enum CommonConnectionStatus;
+        switch (value) {
+            case NOT_CONNECTED: return "NOT_CONNECTED";
+            case CONNECTED: return "CONNECTED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(CommonInquiredType value) {
+        using enum CommonInquiredType;
+        switch (value) {
+            case CONCIERGE: return "CONCIERGE";
+            case CONNECTION_STATUS: return "CONNECTION_STATUS";
+            case AUDIO_CODEC: return "AUDIO_CODEC";
+            case UPSCALING_EFFECT: return "UPSCALING_EFFECT";
+            case BLE_SETUP: return "BLE_SETUP";
+            case CONNECTION_ESTABLISHED_TIME: return "CONNECTION_ESTABLISHED_TIME";
+            case DEVICE_SPECIAL_MODE: return "DEVICE_SPECIAL_MODE";
+            case SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION: return "SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION";
+            case TANDEM_RECONNECTION_REQUEST: return "TANDEM_RECONNECTION_REQUEST";
+            case DISPLAY_FW_VERSION: return "DISPLAY_FW_VERSION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ConfirmationType value) {
+        using enum ConfirmationType;
+        switch (value) {
+            case CONFIRMED: return "CONFIRMED";
+            case CONFIRMED_DONT_SHOW_AGAIN: return "CONFIRMED_DONT_SHOW_AGAIN";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ConnectInquiredType value) {
+        using enum ConnectInquiredType;
+        switch (value) {
+            case FIXED_VALUE: return "FIXED_VALUE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ConnectionEstablishedTimeStatus value) {
+        using enum ConnectionEstablishedTimeStatus;
+        switch (value) {
+            case VALID: return "VALID";
+            case INVALID: return "INVALID";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ConnectionStandbyModeChangeAction value) {
+        using enum ConnectionStandbyModeChangeAction;
+        switch (value) {
+            case DISCONNECT_CLASSIC_BY_CONNECT_LE: return "DISCONNECT_CLASSIC_BY_CONNECT_LE";
+            case DISCONNECT_LE_BY_CONNECT_CLASSIC: return "DISCONNECT_LE_BY_CONNECT_CLASSIC";
+            case DISCONNECT_CLASSIC_BY_PAIRING_LE: return "DISCONNECT_CLASSIC_BY_PAIRING_LE";
+            case DISCONNECT_LE_BY_PAIRING_CLASSIC: return "DISCONNECT_LE_BY_PAIRING_CLASSIC";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ConnectionStandbyModeResult value) {
+        using enum ConnectionStandbyModeResult;
+        switch (value) {
+            case WILL_DISCONNECT: return "WILL_DISCONNECT";
+            case DISCONNECT_USER_CANCEL: return "DISCONNECT_USER_CANCEL";
+            case DISCONNECT_BY_USER_OPERATION: return "DISCONNECT_BY_USER_OPERATION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ConnectionType value) {
+        using enum ConnectionType;
+        switch (value) {
+            case SPP: return "SPP";
+            case BLE_GATT: return "BLE_GATT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -735,101 +809,42 @@ namespace mdr::v2::t1 {
         switch (value) {
             case LEFT: return "LEFT";
             case RIGHT: return "RIGHT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(PlayInquiredType value) {
-        using enum PlayInquiredType;
+    static const char* format_as(DetectSensitivity value) {
+        using enum DetectSensitivity;
         switch (value) {
-            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT: return "PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT";
-            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE: return "PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE";
-            case PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE: return "PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE";
-            case MUSIC_VOLUME: return "MUSIC_VOLUME";
-            case CALL_VOLUME: return "CALL_VOLUME";
-            case MUSIC_VOLUME_WITH_MUTE: return "MUSIC_VOLUME_WITH_MUTE";
-            case CALL_VOLUME_WITH_MUTE: return "CALL_VOLUME_WITH_MUTE";
-            case PLAY_MODE: return "PLAY_MODE";
+            case AUTO: return "AUTO";
+            case HIGH: return "HIGH";
+            case LOW: return "LOW";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(PlaybackStatus value) {
-        using enum PlaybackStatus;
+    static const char* format_as(DeviceInfoType value) {
+        using enum DeviceInfoType;
         switch (value) {
-            case UNSETTLED: return "UNSETTLED";
-            case PLAY: return "PLAY";
-            case PAUSE: return "PAUSE";
-            case STOP: return "STOP";
+            case MODEL_NAME: return "MODEL_NAME";
+            case FW_VERSION: return "FW_VERSION";
+            case SERIES_AND_COLOR_INFO: return "SERIES_AND_COLOR_INFO";
+            case INSTRUCTION_GUIDE: return "INSTRUCTION_GUIDE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(MusicCallStatus value) {
-        using enum MusicCallStatus;
+    static const char* format_as(DeviceSpecialMode value) {
+        using enum DeviceSpecialMode;
         switch (value) {
-            case MUSIC: return "MUSIC";
-            case CALL: return "CALL";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(PlaybackControl value) {
-        using enum PlaybackControl;
-        switch (value) {
-            case KEY_OFF: return "KEY_OFF";
-            case PAUSE: return "PAUSE";
-            case TRACK_UP: return "TRACK_UP";
-            case TRACK_DOWN: return "TRACK_DOWN";
-            case GROUP_UP: return "GROUP_UP";
-            case GROUP_DOWN: return "GROUP_DOWN";
-            case STOP: return "STOP";
-            case PLAY: return "PLAY";
-            case FAST_FORWARD: return "FAST_FORWARD";
-            case FAST_REWIND: return "FAST_REWIND";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(PlaybackNameStatus value) {
-        using enum PlaybackNameStatus;
-        switch (value) {
-            case UNSETTLED: return "UNSETTLED";
-            case NOTHING: return "NOTHING";
-            case SETTLED: return "SETTLED";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(PlayMode value) {
-        using enum PlayMode;
-        switch (value) {
-            case PLAY_MODE_OFF: return "PLAY_MODE_OFF";
-            case PLAY_FOLDER: return "PLAY_FOLDER";
-            case REPEAT_ALL: return "REPEAT_ALL";
-            case REPEAT_FOLDER: return "REPEAT_FOLDER";
-            case REPEAT_TRACK: return "REPEAT_TRACK";
-            case SHUFFLE_ALL: return "SHUFFLE_ALL";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(GsInquiredType value) {
-        using enum GsInquiredType;
-        switch (value) {
-            case GENERAL_SETTING1: return "GENERAL_SETTING1";
-            case GENERAL_SETTING2: return "GENERAL_SETTING2";
-            case GENERAL_SETTING3: return "GENERAL_SETTING3";
-            case GENERAL_SETTING4: return "GENERAL_SETTING4";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(GsSettingType value) {
-        using enum GsSettingType;
-        switch (value) {
-            case BOOLEAN_TYPE: return "BOOLEAN_TYPE";
-            case LIST_TYPE: return "LIST_TYPE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(GsSettingValue value) {
-        using enum GsSettingValue;
-        switch (value) {
-            case ON: return "ON";
-            case OFF: return "OFF";
+            case NORMAL: return "NORMAL";
+            case TWO_DEVICES_CONNECTION_MODE: return "TWO_DEVICES_CONNECTION_MODE";
+            case STEREO_PAIR: return "STEREO_PAIR";
+            case USB_DONGLE: return "USB_DONGLE";
+            case PARTY_CONNECT: return "PARTY_CONNECT";
+            case PARTY_CHAIN_TRANSMITTER: return "PARTY_CHAIN_TRANSMITTER";
+            case PARTY_CHAIN_RECEIVER: return "PARTY_CHAIN_RECEIVER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -853,6 +868,359 @@ namespace mdr::v2::t1 {
             case TRADITIONAL_CHINESE: return "TRADITIONAL_CHINESE";
             case KOREAN: return "KOREAN";
             case TURKISH: return "TURKISH";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceFittingDetectionModeResultCode value) {
+        using enum EarpieceFittingDetectionModeResultCode;
+        switch (value) {
+            case NO_ERROR: return "NO_ERROR";
+            case FORCEFULLY_CHANGED_FROM_ACC_BY_GENERAL_ERROR: return "FORCEFULLY_CHANGED_FROM_ACC_BY_GENERAL_ERROR";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceFittingDetectionModeStatus value) {
+        using enum EarpieceFittingDetectionModeStatus;
+        switch (value) {
+            case MODE_OUT: return "MODE_OUT";
+            case MODE_IN: return "MODE_IN";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceFittingDetectionOperation value) {
+        using enum EarpieceFittingDetectionOperation;
+        switch (value) {
+            case DETECTION_START: return "DETECTION_START";
+            case DETECTION_CANCEL: return "DETECTION_CANCEL";
+            case DETECTION_START_FORCEFUL: return "DETECTION_START_FORCEFUL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceFittingDetectionOperationErrorCode value) {
+        using enum EarpieceFittingDetectionOperationErrorCode;
+        switch (value) {
+            case NO_ERROR: return "NO_ERROR";
+            case LEFT_CONNECTION_ERROR: return "LEFT_CONNECTION_ERROR";
+            case RIGHT_CONNECTION_ERROR: return "RIGHT_CONNECTION_ERROR";
+            case FUNCTION_UNAVAILABLE_ERROR: return "FUNCTION_UNAVAILABLE_ERROR";
+            case LEFT_FITTING_ERROR: return "LEFT_FITTING_ERROR";
+            case RIGHT_FITTING_ERROR: return "RIGHT_FITTING_ERROR";
+            case BOTH_FITTING_ERROR: return "BOTH_FITTING_ERROR";
+            case MEASURING_ERROR: return "MEASURING_ERROR";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceFittingDetectionOperationStatus value) {
+        using enum EarpieceFittingDetectionOperationStatus;
+        switch (value) {
+            case DETECTION_IS_NOT_STARTED: return "DETECTION_IS_NOT_STARTED";
+            case DETECTION_STARTED: return "DETECTION_STARTED";
+            case DETECTION_COMPLETED_SUCCESSFULLY: return "DETECTION_COMPLETED_SUCCESSFULLY";
+            case DETECTION_COMPLETED_UNSUCCESSFULLY: return "DETECTION_COMPLETED_UNSUCCESSFULLY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceFittingDetectionResult value) {
+        using enum EarpieceFittingDetectionResult;
+        switch (value) {
+            case GOOD: return "GOOD";
+            case POOR: return "POOR";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceSeries value) {
+        using enum EarpieceSeries;
+        switch (value) {
+            case OTHER: return "OTHER";
+            case POLYURETHANE: return "POLYURETHANE";
+            case HYBRID: return "HYBRID";
+            case SOFT_FITTING_FOR_LINKBUDS_FIT: return "SOFT_FITTING_FOR_LINKBUDS_FIT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            case NOT_DETERMINED: return "NOT_DETERMINED";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EarpieceSize value) {
+        using enum EarpieceSize;
+        switch (value) {
+            case SS: return "SS";
+            case S: return "S";
+            case M: return "M";
+            case L: return "L";
+            case LL: return "LL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            case NOT_DETERMINED: return "NOT_DETERMINED";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EqBandInformationType value) {
+        using enum EqBandInformationType;
+        switch (value) {
+            case NO_INFORMATION: return "NO_INFORMATION";
+            case HZ: return "HZ";
+            case KHZ: return "KHZ";
+            case SPECIFIC_INFORMATION: return "SPECIFIC_INFORMATION";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EqEbbInquiredType value) {
+        using enum EqEbbInquiredType;
+        switch (value) {
+            case PRESET_EQ: return "PRESET_EQ";
+            case EBB: return "EBB";
+            case PRESET_EQ_NONCUSTOMIZABLE: return "PRESET_EQ_NONCUSTOMIZABLE";
+            case PRESET_EQ_AND_ULT_MODE: return "PRESET_EQ_AND_ULT_MODE";
+            case PRESET_EQ_AND_ERRORCODE: return "PRESET_EQ_AND_ERRORCODE";
+            case SOUND_EFFECT: return "SOUND_EFFECT";
+            case CUSTOM_EQ: return "CUSTOM_EQ";
+            case TURN_KEY_EQ: return "TURN_KEY_EQ";
+            case CUSTOMIZABLE_SOUND_EFFECT_SELECT: return "CUSTOMIZABLE_SOUND_EFFECT_SELECT";
+            case CUSTOMIZABLE_SOUND_EFFECT_RESET: return "CUSTOMIZABLE_SOUND_EFFECT_RESET";
+            case CUSTOMIZABLE_SOUND_EFFECT_CUSTOM: return "CUSTOMIZABLE_SOUND_EFFECT_CUSTOM";
+            case CUSTOMIZABLE_SOUND_EFFECT_EXTERNAL_UPDATE: return "CUSTOMIZABLE_SOUND_EFFECT_EXTERNAL_UPDATE";
+            case ULT_BTN_SOUND_EFFECT_ASSIGN: return "ULT_BTN_SOUND_EFFECT_ASSIGN";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EqPresetId value) {
+        using enum EqPresetId;
+        switch (value) {
+            case OFF: return "OFF";
+            case ROCK: return "ROCK";
+            case POP: return "POP";
+            case JAZZ: return "JAZZ";
+            case DANCE: return "DANCE";
+            case EDM: return "EDM";
+            case R_AND_B_HIP_HOP: return "R_AND_B_HIP_HOP";
+            case ACOUSTIC: return "ACOUSTIC";
+            case RESERVED_FOR_FUTURE_NO8: return "RESERVED_FOR_FUTURE_NO8";
+            case RESERVED_FOR_FUTURE_NO9: return "RESERVED_FOR_FUTURE_NO9";
+            case RESERVED_FOR_FUTURE_NO10: return "RESERVED_FOR_FUTURE_NO10";
+            case RESERVED_FOR_FUTURE_NO11: return "RESERVED_FOR_FUTURE_NO11";
+            case RESERVED_FOR_FUTURE_NO12: return "RESERVED_FOR_FUTURE_NO12";
+            case RESERVED_FOR_FUTURE_NO13: return "RESERVED_FOR_FUTURE_NO13";
+            case RESERVED_FOR_FUTURE_NO14: return "RESERVED_FOR_FUTURE_NO14";
+            case RESERVED_FOR_FUTURE_NO15: return "RESERVED_FOR_FUTURE_NO15";
+            case BRIGHT: return "BRIGHT";
+            case EXCITED: return "EXCITED";
+            case MELLOW: return "MELLOW";
+            case RELAXED: return "RELAXED";
+            case VOCAL: return "VOCAL";
+            case TREBLE: return "TREBLE";
+            case BASS: return "BASS";
+            case SPEECH: return "SPEECH";
+            case RESERVED_FOR_FUTURE_NO24: return "RESERVED_FOR_FUTURE_NO24";
+            case RESERVED_FOR_FUTURE_NO25: return "RESERVED_FOR_FUTURE_NO25";
+            case RESERVED_FOR_FUTURE_NO26: return "RESERVED_FOR_FUTURE_NO26";
+            case RESERVED_FOR_FUTURE_NO27: return "RESERVED_FOR_FUTURE_NO27";
+            case RESERVED_FOR_FUTURE_NO28: return "RESERVED_FOR_FUTURE_NO28";
+            case RESERVED_FOR_FUTURE_NO29: return "RESERVED_FOR_FUTURE_NO29";
+            case RESERVED_FOR_FUTURE_NO30: return "RESERVED_FOR_FUTURE_NO30";
+            case RESERVED_FOR_FUTURE_NO31: return "RESERVED_FOR_FUTURE_NO31";
+            case GAMING_EQ: return "GAMING_EQ";
+            case FPS_1: return "FPS_1";
+            case FPS_2: return "FPS_2";
+            case FPS_3: return "FPS_3";
+            case HEAVY: return "HEAVY";
+            case CLEAR: return "CLEAR";
+            case HARD: return "HARD";
+            case SOFT: return "SOFT";
+            case CUSTOM: return "CUSTOM";
+            case USER_SETTING1: return "USER_SETTING1";
+            case USER_SETTING2: return "USER_SETTING2";
+            case USER_SETTING3: return "USER_SETTING3";
+            case USER_SETTING4: return "USER_SETTING4";
+            case USER_SETTING5: return "USER_SETTING5";
+            case ARTIST_COLLAB1: return "ARTIST_COLLAB1";
+            case ARTIST_COLLAB2: return "ARTIST_COLLAB2";
+            case ARTIST_COLLAB3: return "ARTIST_COLLAB3";
+            case ARTIST_COLLAB4: return "ARTIST_COLLAB4";
+            case ARTIST_COLLAB5: return "ARTIST_COLLAB5";
+            case ARTIST_COLLAB6: return "ARTIST_COLLAB6";
+            case ARTIST_COLLAB7: return "ARTIST_COLLAB7";
+            case ARTIST_COLLAB8: return "ARTIST_COLLAB8";
+            case ARTIST_COLLAB9: return "ARTIST_COLLAB9";
+            case ARTIST_COLLAB10: return "ARTIST_COLLAB10";
+            case ARTIST_COLLAB11: return "ARTIST_COLLAB11";
+            case ARTIST_COLLAB12: return "ARTIST_COLLAB12";
+            case UNSPECIFIED: return "UNSPECIFIED";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(EqUltModeStatus value) {
+        using enum EqUltModeStatus;
+        switch (value) {
+            case OFF: return "OFF";
+            case ULT_1: return "ULT_1";
+            case ULT_2: return "ULT_2";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ExclusiveFunctionId value) {
+        using enum ExclusiveFunctionId;
+        switch (value) {
+            case STAMINA: return "STAMINA";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(FaceTapAction value) {
+        using enum FaceTapAction;
+        switch (value) {
+            case DOUBLE_TAP: return "DOUBLE_TAP";
+            case TRIPLE_TAP: return "TRIPLE_TAP";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(FaceTapKey value) {
+        using enum FaceTapKey;
+        switch (value) {
+            case LEFT_SIDE_KEY: return "LEFT_SIDE_KEY";
+            case RIGHT_SIDE_KEY: return "RIGHT_SIDE_KEY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(FaceTapTestModeOperation value) {
+        using enum FaceTapTestModeOperation;
+        switch (value) {
+            case TEST_MODE_START: return "TEST_MODE_START";
+            case TEST_MODE_FINISH: return "TEST_MODE_FINISH";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(FaceTapTestModeStatus value) {
+        using enum FaceTapTestModeStatus;
+        switch (value) {
+            case IN_TEST_MODE: return "IN_TEST_MODE";
+            case OUT_OF_TEST_MODE: return "OUT_OF_TEST_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(FlexibleMessageItemId value) {
+        using enum FlexibleMessageItemId;
+        switch (value) {
+            case EQUALIZER: return "EQUALIZER";
+            case DSEE: return "DSEE";
+            case SPEAK_TO_CHAT: return "SPEAK_TO_CHAT";
+            case AUTO_VOLUME_CONTROL: return "AUTO_VOLUME_CONTROL";
+            case ACTIVATE_VOICE_ASSISTANT_WITH_YOUR_VOICE: return "ACTIVATE_VOICE_ASSISTANT_WITH_YOUR_VOICE";
+            case GATT: return "GATT";
+            case LDAC: return "LDAC";
+            case SOUND_QUALITY_PRIOR: return "SOUND_QUALITY_PRIOR";
+            case GOOGLE_ASSISTANT: return "GOOGLE_ASSISTANT";
+            case VOICE_ASSISTANT: return "VOICE_ASSISTANT";
+            case FW_UPDATE: return "FW_UPDATE";
+            case MULTI_POINT: return "MULTI_POINT";
+            case VOICE_ASSISTANT_WAKE_WORD: return "VOICE_ASSISTANT_WAKE_WORD";
+            case BGM_MODE: return "BGM_MODE";
+            case BATTERY_SAFE_MODE: return "BATTERY_SAFE_MODE";
+            case HEAD_TRACKING: return "HEAD_TRACKING";
+            case LE_AUDIO: return "LE_AUDIO";
+            case IMMERSIVE_AUDIO: return "IMMERSIVE_AUDIO";
+            case LINK_AUTO_SWITCHING: return "LINK_AUTO_SWITCHING";
+            case AUTO_PLAY_PARTIAL_FUNCTION: return "AUTO_PLAY_PARTIAL_FUNCTION";
+            case NOISE_CANCELLING: return "NOISE_CANCELLING";
+            case SOUND_AR: return "SOUND_AR";
+            case VOICE_UI: return "VOICE_UI";
+            case QUICK_ACCESS: return "QUICK_ACCESS";
+            case CONNECTION_MODE: return "CONNECTION_MODE";
+            case AUTO_PLAY: return "AUTO_PLAY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(Function value) {
+        using enum Function;
+        switch (value) {
+            case NO_FUNCTION: return "NO_FUNCTION";
+            case NC_ASM_OFF: return "NC_ASM_OFF";
+            case NC_ASM: return "NC_ASM";
+            case NC_OFF: return "NC_OFF";
+            case ASM_OFF: return "ASM_OFF";
+            case QUICK_ATTENTION: return "QUICK_ATTENTION";
+            case NC_OPTIMIZER: return "NC_OPTIMIZER";
+            case PLAY_PAUSE: return "PLAY_PAUSE";
+            case NEXT_TRACK: return "NEXT_TRACK";
+            case PREV_TRACK: return "PREV_TRACK";
+            case VOLUME_UP: return "VOLUME_UP";
+            case VOLUME_DOWN: return "VOLUME_DOWN";
+            case VOICE_RECOGNITION: return "VOICE_RECOGNITION";
+            case GET_YOUR_NOTIFICATION: return "GET_YOUR_NOTIFICATION";
+            case TALK_TO_GOOGLE_ASSISTANT: return "TALK_TO_GOOGLE_ASSISTANT";
+            case STOP_GOOGLE_ASSISTANT: return "STOP_GOOGLE_ASSISTANT";
+            case VOICE_INPUT_CANCEL: return "VOICE_INPUT_CANCEL";
+            case TALK_TO_TENCENT_XIAOWEI: return "TALK_TO_TENCENT_XIAOWEI";
+            case CANCEL_VOICE_RECOGNITION: return "CANCEL_VOICE_RECOGNITION";
+            case VOICE_INPUT_AMAZON_ALEXA: return "VOICE_INPUT_AMAZON_ALEXA";
+            case CANCEL_AMAZON_ALEXA: return "CANCEL_AMAZON_ALEXA";
+            case CANCEL_TENCENT_XIAOWEI: return "CANCEL_TENCENT_XIAOWEI";
+            case NEXT_TRACK_STOP_GEMINI_LIVE: return "NEXT_TRACK_STOP_GEMINI_LIVE";
+            case PREV_TRACK_STOP_GEMINI_LIVE: return "PREV_TRACK_STOP_GEMINI_LIVE";
+            case LAUNCH_MLP: return "LAUNCH_MLP";
+            case TALK_TO_YOUR_MLP: return "TALK_TO_YOUR_MLP";
+            case SPTF_ONE_TOUCH: return "SPTF_ONE_TOUCH";
+            case QUICK_ACCESS1: return "QUICK_ACCESS1";
+            case QUICK_ACCESS2: return "QUICK_ACCESS2";
+            case TALK_TO_TENCENT_XIAOWEI_CANCEL: return "TALK_TO_TENCENT_XIAOWEI_CANCEL";
+            case Q_MSC_ONE_TOUCH: return "Q_MSC_ONE_TOUCH";
+            case TEAMS: return "TEAMS";
+            case TEAMS_VOICE_SKILLS: return "TEAMS_VOICE_SKILLS";
+            case NC_NCSS_ASM_OFF: return "NC_NCSS_ASM_OFF";
+            case NC_NCSS_ASM: return "NC_NCSS_ASM";
+            case NC_NCSS_OFF: return "NC_NCSS_OFF";
+            case NCSS_ASM_OFF: return "NCSS_ASM_OFF";
+            case NC_NCSS: return "NC_NCSS";
+            case NCSS_ASM: return "NCSS_ASM";
+            case NCSS_OFF: return "NCSS_OFF";
+            case AMB_SETTING: return "AMB_SETTING";
+            case STANDARD_VOICE_SOUND: return "STANDARD_VOICE_SOUND";
+            case LISTENING_MODE: return "LISTENING_MODE";
+            case MIC_MUTE: return "MIC_MUTE";
+            case GAME_UP: return "GAME_UP";
+            case CHAT_UP: return "CHAT_UP";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(GsInquiredType value) {
+        using enum GsInquiredType;
+        switch (value) {
+            case GENERAL_SETTING1: return "GENERAL_SETTING1";
+            case GENERAL_SETTING2: return "GENERAL_SETTING2";
+            case GENERAL_SETTING3: return "GENERAL_SETTING3";
+            case GENERAL_SETTING4: return "GENERAL_SETTING4";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(GsSettingType value) {
+        using enum GsSettingType;
+        switch (value) {
+            case BOOLEAN_TYPE: return "BOOLEAN_TYPE";
+            case LIST_TYPE: return "LIST_TYPE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(GsSettingValue value) {
+        using enum GsSettingValue;
+        switch (value) {
+            case ON: return "ON";
+            case OFF: return "OFF";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -861,49 +1229,102 @@ namespace mdr::v2::t1 {
         switch (value) {
             case RAW_NAME: return "RAW_NAME";
             case ENUM_NAME: return "ENUM_NAME";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(AudioInquiredType value) {
-        using enum AudioInquiredType;
+    static const char* format_as(GuidanceCategory value) {
+        using enum GuidanceCategory;
         switch (value) {
-            case CONNECTION_MODE: return "CONNECTION_MODE";
-            case UPSCALING: return "UPSCALING";
-            case CONNECTION_MODE_WITH_LDAC_STATUS: return "CONNECTION_MODE_WITH_LDAC_STATUS";
-            case BGM_MODE: return "BGM_MODE";
-            case UPMIX_CINEMA: return "UPMIX_CINEMA";
-            case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO: return "CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO";
-            case VOICE_CONTENTS: return "VOICE_CONTENTS";
-            case SOUND_LEAKAGE_REDUCTION: return "SOUND_LEAKAGE_REDUCTION";
-            case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE: return "LISTENING_OPTION_ASSIGN_CUSTOMIZABLE";
-            case BGM_MODE_AND_ERRORCODE: return "BGM_MODE_AND_ERRORCODE";
-            case UPMIX_SERIES: return "UPMIX_SERIES";
+            case CHANGE_EARPIECE: return "CHANGE_EARPIECE";
+            case CHANGE_EARPIECE_WITH_EARPIECE_ASSISTANT: return "CHANGE_EARPIECE_WITH_EARPIECE_ASSISTANT";
+            case WEAR_EARPHONE: return "WEAR_EARPHONE";
+            case PLAY_BUTTON_OPERATION: return "PLAY_BUTTON_OPERATION";
+            case TOUCH_PAD_OPERATION: return "TOUCH_PAD_OPERATION";
+            case FACE_TAP_OPERATION: return "FACE_TAP_OPERATION";
+            case MAIN_BODY_OPERATION: return "MAIN_BODY_OPERATION";
+            case FIXED_LEFT_KEY_OPERATION: return "FIXED_LEFT_KEY_OPERATION";
+            case FIXED_RIGHT_KEY_OPERATION: return "FIXED_RIGHT_KEY_OPERATION";
+            case QUICK_ATTENTION: return "QUICK_ATTENTION";
+            case ASSIGNABLE_BUTTON_SETTINGS: return "ASSIGNABLE_BUTTON_SETTINGS";
+            case SPEAK_TO_CHAT: return "SPEAK_TO_CHAT";
+            case TWS_ONE_SIDE_USE: return "TWS_ONE_SIDE_USE";
+            case AUTO_NC_OPTIMIZER: return "AUTO_NC_OPTIMIZER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(PriorMode value) {
-        using enum PriorMode;
+    static const char* format_as(HeadGestureAction value) {
+        using enum HeadGestureAction;
         switch (value) {
-            case SOUND_QUALITY_PRIOR: return "SOUND_QUALITY_PRIOR";
-            case CONNECTION_QUALITY_PRIOR: return "CONNECTION_QUALITY_PRIOR";
-            case LOW_LATENCY_PRIOR_BETA: return "LOW_LATENCY_PRIOR_BETA";
+            case NOD: return "NOD";
+            case SWING: return "SWING";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(UpscalingTypeAutoOff value) {
-        using enum UpscalingTypeAutoOff;
+    static const char* format_as(HeadGestureTrainingModeStatus value) {
+        using enum HeadGestureTrainingModeStatus;
         switch (value) {
-            case OFF: return "OFF";
-            case AUTO: return "AUTO";
+            case IN_TEST_MODE: return "IN_TEST_MODE";
+            case OUT_OF_TEST_MODE: return "OUT_OF_TEST_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(RoomSize value) {
-        using enum RoomSize;
+    static const char* format_as(Key value) {
+        using enum Key;
         switch (value) {
-            case SMALL: return "SMALL";
-            case MIDDLE: return "MIDDLE";
-            case LARGE: return "LARGE";
+            case LEFT_SIDE: return "LEFT_SIDE";
+            case RIGHT_SIDE: return "RIGHT_SIDE";
+            case CUSTOM: return "CUSTOM";
+            case C: return "C";
+            case NC_AMB_KEY: return "NC_AMB_KEY";
+            case NC_AMBIENT_KEY: return "NC_AMBIENT_KEY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(LDACExclusiveFeature value) {
+        using enum LDACExclusiveFeature;
+        switch (value) {
+            case GATT_CONNECTABLE: return "GATT_CONNECTABLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(LEAInquiredType value) {
+        using enum LEAInquiredType;
+        switch (value) {
+            case TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD: return "TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD";
+            case HBS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD: return "HBS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD";
+            case TWS_SUPPORTS_LEA_UNI_LEA_BROAD: return "TWS_SUPPORTS_LEA_UNI_LEA_BROAD";
+            case CLASSIC_ONLY_LE_CLASSIC_SETTING: return "CLASSIC_ONLY_LE_CLASSIC_SETTING";
+            case EXECUTE_TANDEM_TARGET_CHANGE: return "EXECUTE_TANDEM_TARGET_CHANGE";
+            case CHANGE_TANDEM_CONNECTION_PROFILE_FOR_ANDROID: return "CHANGE_TANDEM_CONNECTION_PROFILE_FOR_ANDROID";
+            case NOTIFY_DISCONNECTING_TANDEM: return "NOTIFY_DISCONNECTING_TANDEM";
+            case BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION: return "BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case HEAD_TRACKER_CANT_BE_USED_WITH_LEA_CONNECTION: return "HEAD_TRACKER_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case PAIRING_DEVICE_MANAGEMENT_CANT_BE_USED_WITH_LEA_CONNECTION: return "PAIRING_DEVICE_MANAGEMENT_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case SOUND_AR_CANT_BE_USED_WITH_LEA_CONNECTION: return "SOUND_AR_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION: return "AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case GATT_CONNECTABLE_CANT_BE_USED_WITH_LEA_CONNECTION: return "GATT_CONNECTABLE_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case SOUND_AR_OPTIMIZATION_CANT_BE_USED_WITH_LEA_CONNECTION: return "SOUND_AR_OPTIMIZATION_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case QUICK_ACCESS_CANT_BE_USED_WITH_LEA_CONNECTION: return "QUICK_ACCESS_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case CONNECTION_MODE_CANT_BE_USED_WITH_LEA_CONNECTION: return "CONNECTION_MODE_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case VOICE_ASSISTANT_SETTINGS_CANT_BE_USED_WITH_LEA_CONNECTION: return "VOICE_ASSISTANT_SETTINGS_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case VOICE_ASSISTANT_WAKE_WORD_CANT_BE_USED_WITH_LEA_CONNECTION: return "VOICE_ASSISTANT_WAKE_WORD_CANT_BE_USED_WITH_LEA_CONNECTION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(LimitationType value) {
+        using enum LimitationType;
+        switch (value) {
+            case NO_DESCRIPTION: return "NO_DESCRIPTION";
+            case CANT_USE_VOICE_ASSISTANT_PRESET_WHILE_LE_AUDIO_CONNECTION: return "CANT_USE_VOICE_ASSISTANT_PRESET_WHILE_LE_AUDIO_CONNECTION";
+            case CANT_USE_VOICE_ASSISTANT_FUNCTION_UNDER_PLAYBACK_CONTROL_WHILE_LE_AUDIO_CONNECTION: return "CANT_USE_VOICE_ASSISTANT_FUNCTION_UNDER_PLAYBACK_CONTROL_WHILE_LE_AUDIO_CONNECTION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -915,58 +1336,366 @@ namespace mdr::v2::t1 {
             case UPMIX_CINEMA: return "UPMIX_CINEMA";
             case UPMIX_GAME: return "UPMIX_GAME";
             case UPMIX_MUSIC: return "UPMIX_MUSIC";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(UpmixItemId value) {
-        using enum UpmixItemId;
+    static const char* format_as(ListeningOptionAssignFlexibility value) {
+        using enum ListeningOptionAssignFlexibility;
+        switch (value) {
+            case FIXED: return "FIXED";
+            case FLEXIBLE: return "FLEXIBLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ListeningOptionAssignIsMandatory value) {
+        using enum ListeningOptionAssignIsMandatory;
+        switch (value) {
+            case MANDATORY: return "MANDATORY";
+            case NOT_MANDATORY: return "NOT_MANDATORY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(LogInquiredType value) {
+        using enum LogInquiredType;
+        switch (value) {
+            case ACTION_LOG_NOTIFIER: return "ACTION_LOG_NOTIFIER";
+            case TIME_SERIES_OPERATIONLOG_NOTIFIER: return "TIME_SERIES_OPERATIONLOG_NOTIFIER";
+            case SOUND_DROPOUT_NOTIFIER: return "SOUND_DROPOUT_NOTIFIER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(MacType value) {
+        using enum MacType;
         switch (value) {
             case NONE: return "NONE";
-            case CINEMA: return "CINEMA";
-            case GAME: return "GAME";
+            case MD5: return "MD5";
+            case SHA1: return "SHA1";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(MessageType value) {
+        using enum MessageType;
+        switch (value) {
+            case NO_USE: return "NO_USE";
+            case FW_UPDATE_COMPLETED: return "FW_UPDATE_COMPLETED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ModeOutTime value) {
+        using enum ModeOutTime;
+        switch (value) {
+            case FAST: return "FAST";
+            case MID: return "MID";
+            case SLOW: return "SLOW";
+            case NONE: return "NONE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ModelSeries value) {
+        using enum ModelSeries;
+        switch (value) {
+            case NO_SERIES: return "NO_SERIES";
+            case EXTRA_BASS: return "EXTRA_BASS";
+            case ULT_POWER_SOUND: return "ULT_POWER_SOUND";
+            case HEAR: return "HEAR";
+            case PREMIUM: return "PREMIUM";
+            case SPORTS: return "SPORTS";
+            case CASUAL: return "CASUAL";
+            case LINK_BUDS: return "LINK_BUDS";
+            case NECKBAND: return "NECKBAND";
+            case LINKPOD: return "LINKPOD";
+            case GAMING: return "GAMING";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(MusicCallStatus value) {
+        using enum MusicCallStatus;
+        switch (value) {
             case MUSIC: return "MUSIC";
+            case CALL: return "CALL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(SwitchingStream value) {
-        using enum SwitchingStream;
+    static const char* format_as(NcAsmInquiredType value) {
+        using enum NcAsmInquiredType;
+        switch (value) {
+            case NC_ON_OFF: return "NC_ON_OFF";
+            case NC_ON_OFF_AND_ASM_ON_OFF: return "NC_ON_OFF_AND_ASM_ON_OFF";
+            case NC_MODE_SWITCH_AND_ASM_ON_OFF: return "NC_MODE_SWITCH_AND_ASM_ON_OFF";
+            case NC_ON_OFF_AND_ASM_SEAMLESS: return "NC_ON_OFF_AND_ASM_SEAMLESS";
+            case NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA: return "MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA";
+            case ASM_ON_OFF: return "ASM_ON_OFF";
+            case ASM_SEAMLESS: return "ASM_SEAMLESS";
+            case NC_AMB_TOGGLE: return "NC_AMB_TOGGLE";
+            case NC_TEST_MODE: return "NC_TEST_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NcAsmMode value) {
+        using enum NcAsmMode;
+        switch (value) {
+            case NC: return "NC";
+            case ASM: return "ASM";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NcAsmOnOffValue value) {
+        using enum NcAsmOnOffValue;
+        switch (value) {
+            case OFF: return "OFF";
+            case ON: return "ON";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NcNcssAsmMode value) {
+        using enum NcNcssAsmMode;
+        switch (value) {
+            case NC: return "NC";
+            case ASM: return "ASM";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NcTestModeOperation value) {
+        using enum NcTestModeOperation;
+        switch (value) {
+            case TEST_MODE_START: return "TEST_MODE_START";
+            case TEST_MODE_FINISH: return "TEST_MODE_FINISH";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NcTestModeStatus value) {
+        using enum NcTestModeStatus;
+        switch (value) {
+            case IN_TEST_MODE: return "IN_TEST_MODE";
+            case OUT_OF_TEST_MODE: return "OUT_OF_TEST_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NcValue value) {
+        using enum NcValue;
+        switch (value) {
+            case OFF: return "OFF";
+            case ON_SINGLE: return "ON_SINGLE";
+            case ON_DUAL: return "ON_DUAL";
+            case AUTO: return "AUTO";
+            case AUTO_SINGLE: return "AUTO_SINGLE";
+            case AUTO_DUAL: return "AUTO_DUAL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NoiseAdaptiveMode value) {
+        using enum NoiseAdaptiveMode;
+        switch (value) {
+            case ON: return "ON";
+            case OFF: return "OFF";
+            case PAUSED: return "PAUSED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(NoiseAdaptiveSensitivity value) {
+        using enum NoiseAdaptiveSensitivity;
+        switch (value) {
+            case STANDARD: return "STANDARD";
+            case HIGH: return "HIGH";
+            case LOW: return "LOW";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(OptExclusiveFunctionType value) {
+        using enum OptExclusiveFunctionType;
         switch (value) {
             case NONE: return "NONE";
-            case LE_AUDIO: return "LE_AUDIO";
-            case CLASSIC_AUDIO: return "CLASSIC_AUDIO";
+            case SOUND_EFFECT_CUSTOM: return "SOUND_EFFECT_CUSTOM";
+            case SOUND_FIELD_OPTIMIZATION: return "SOUND_FIELD_OPTIMIZATION";
+            case STAMINA: return "STAMINA";
+            case STEREO_PAIR: return "STEREO_PAIR";
+            case TV_SOUND_BOOSTER: return "TV_SOUND_BOOSTER";
+            case PARTY_CONNECT: return "PARTY_CONNECT";
+            case HANDSFREE: return "HANDSFREE";
+            case PARTY_CHAIN_TRANSMITTER: return "PARTY_CHAIN_TRANSMITTER";
+            case PARTY_CHAIN_RECEIVER: return "PARTY_CHAIN_RECEIVER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(UpscalingType value) {
-        using enum UpscalingType;
+    static const char* format_as(OptInquiredType value) {
+        using enum OptInquiredType;
         switch (value) {
-            case DSEE_HX: return "DSEE_HX";
-            case DSEE: return "DSEE";
-            case DSEE_HX_AI: return "DSEE_HX_AI";
-            case DSEE_ULTIMATE: return "DSEE_ULTIMATE";
+            case NC_OPTIMIZER_PERSONAL_BAROMETRIC: return "NC_OPTIMIZER_PERSONAL_BAROMETRIC";
+            case NC_OPTIMIZER_PERSONAL: return "NC_OPTIMIZER_PERSONAL";
+            case NC_OPTIMIZER_BAROMETRIC: return "NC_OPTIMIZER_BAROMETRIC";
+            case SOUND_FIELD_OPTIMIZATION: return "SOUND_FIELD_OPTIMIZATION";
+            case TV_SOUND_BOOSTER: return "TV_SOUND_BOOSTER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(SystemInquiredType value) {
-        using enum SystemInquiredType;
+    static const char* format_as(OptimizerControl value) {
+        using enum OptimizerControl;
         switch (value) {
-            case VIBRATOR: return "VIBRATOR";
-            case PLAYBACK_CONTROL_BY_WEARING: return "PLAYBACK_CONTROL_BY_WEARING";
-            case SMART_TALKING_MODE_TYPE1: return "SMART_TALKING_MODE_TYPE1";
-            case ASSIGNABLE_SETTINGS: return "ASSIGNABLE_SETTINGS";
-            case VOICE_ASSISTANT_SETTINGS: return "VOICE_ASSISTANT_SETTINGS";
-            case VOICE_ASSISTANT_WAKE_WORD: return "VOICE_ASSISTANT_WAKE_WORD";
-            case WEARING_STATUS_DETECTOR: return "WEARING_STATUS_DETECTOR";
-            case EARPIECE_SELECTION: return "EARPIECE_SELECTION";
-            case CALL_SETTINGS: return "CALL_SETTINGS";
-            case RESET_SETTINGS: return "RESET_SETTINGS";
-            case AUTO_VOLUME: return "AUTO_VOLUME";
-            case FACE_TAP_TEST_MODE: return "FACE_TAP_TEST_MODE";
-            case SMART_TALKING_MODE_TYPE2: return "SMART_TALKING_MODE_TYPE2";
-            case QUICK_ACCESS: return "QUICK_ACCESS";
-            case ASSIGNABLE_SETTINGS_WITH_LIMITATION: return "ASSIGNABLE_SETTINGS_WITH_LIMITATION";
-            case HEAD_GESTURE_ON_OFF: return "HEAD_GESTURE_ON_OFF";
-            case HEAD_GESTURE_TRAINING: return "HEAD_GESTURE_TRAINING";
+            case CANCEL: return "CANCEL";
+            case START: return "START";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(OptimizerStatus value) {
+        using enum OptimizerStatus;
+        switch (value) {
+            case IDLE: return "IDLE";
+            case IN_PROGRESS_OF_PERSONAL: return "IN_PROGRESS_OF_PERSONAL";
+            case IN_PROGRESS_OF_BAROMETRIC_PRESSURE: return "IN_PROGRESS_OF_BAROMETRIC_PRESSURE";
+            case OPTIMIZING: return "OPTIMIZING";
+            case OPTIMIZER_END: return "OPTIMIZER_END";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PersonalValue value) {
+        using enum PersonalValue;
+        switch (value) {
+            case UNMEASURED: return "UNMEASURED";
+            case MEASURED: return "MEASURED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PlayInquiredType value) {
+        using enum PlayInquiredType;
+        switch (value) {
+            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT: return "PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT";
+            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE: return "PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE";
+            case PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE: return "PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE";
+            case MUSIC_VOLUME: return "MUSIC_VOLUME";
+            case CALL_VOLUME: return "CALL_VOLUME";
+            case MUSIC_VOLUME_WITH_MUTE: return "MUSIC_VOLUME_WITH_MUTE";
+            case CALL_VOLUME_WITH_MUTE: return "CALL_VOLUME_WITH_MUTE";
+            case PLAY_MODE: return "PLAY_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PlayMode value) {
+        using enum PlayMode;
+        switch (value) {
+            case PLAY_MODE_OFF: return "PLAY_MODE_OFF";
+            case PLAY_FOLDER: return "PLAY_FOLDER";
+            case REPEAT_ALL: return "REPEAT_ALL";
+            case REPEAT_FOLDER: return "REPEAT_FOLDER";
+            case REPEAT_TRACK: return "REPEAT_TRACK";
+            case SHUFFLE_ALL: return "SHUFFLE_ALL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PlaybackControl value) {
+        using enum PlaybackControl;
+        switch (value) {
+            case KEY_OFF: return "KEY_OFF";
+            case PAUSE: return "PAUSE";
+            case TRACK_UP: return "TRACK_UP";
+            case TRACK_DOWN: return "TRACK_DOWN";
+            case GROUP_UP: return "GROUP_UP";
+            case GROUP_DOWN: return "GROUP_DOWN";
+            case STOP: return "STOP";
+            case PLAY: return "PLAY";
+            case FAST_FORWARD: return "FAST_FORWARD";
+            case FAST_REWIND: return "FAST_REWIND";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PlaybackNameStatus value) {
+        using enum PlaybackNameStatus;
+        switch (value) {
+            case UNSETTLED: return "UNSETTLED";
+            case NOTHING: return "NOTHING";
+            case SETTLED: return "SETTLED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PlaybackStatus value) {
+        using enum PlaybackStatus;
+        switch (value) {
+            case UNSETTLED: return "UNSETTLED";
+            case PLAY: return "PLAY";
+            case PAUSE: return "PAUSE";
+            case STOP: return "STOP";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PowerExclusiveFunctionType value) {
+        using enum PowerExclusiveFunctionType;
+        switch (value) {
+            case SOUND_EFFECT: return "SOUND_EFFECT";
+            case LIGHTING_MODE: return "LIGHTING_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PowerInquiredType value) {
+        using enum PowerInquiredType;
+        switch (value) {
+            case BATTERY: return "BATTERY";
+            case LEFT_RIGHT_BATTERY: return "LEFT_RIGHT_BATTERY";
+            case CRADLE_BATTERY: return "CRADLE_BATTERY";
+            case POWER_OFF: return "POWER_OFF";
+            case AUTO_POWER_OFF: return "AUTO_POWER_OFF";
+            case AUTO_POWER_OFF_WEARING_DETECTION: return "AUTO_POWER_OFF_WEARING_DETECTION";
+            case POWER_SAVE_MODE: return "POWER_SAVE_MODE";
+            case LINK_CONTROL: return "LINK_CONTROL";
+            case BATTERY_WITH_THRESHOLD: return "BATTERY_WITH_THRESHOLD";
+            case LR_BATTERY_WITH_THRESHOLD: return "LR_BATTERY_WITH_THRESHOLD";
+            case CRADLE_BATTERY_WITH_THRESHOLD: return "CRADLE_BATTERY_WITH_THRESHOLD";
+            case BATTERY_SAFE_MODE: return "BATTERY_SAFE_MODE";
+            case CARING_CHARGE: return "CARING_CHARGE";
+            case BT_STANDBY: return "BT_STANDBY";
+            case STAMINA: return "STAMINA";
+            case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF: return "AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PowerOffSettingValue value) {
+        using enum PowerOffSettingValue;
+        switch (value) {
+            case USER_POWER_OFF: return "USER_POWER_OFF";
+            case FACTORY_POWER_OFF: return "FACTORY_POWER_OFF";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PreferredSoundEffect value) {
+        using enum PreferredSoundEffect;
+        switch (value) {
+            case MDR_UPMIX: return "MDR_UPMIX";
+            case BRAVIA_3D_SURROUND: return "BRAVIA_3D_SURROUND";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
@@ -995,10 +1724,435 @@ namespace mdr::v2::t1 {
             case TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION: return "TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION";
             case AMBIENT_SOUND_CONTROL_MIC: return "AMBIENT_SOUND_CONTROL_MIC";
             case LISTENING_MODE_QUICK_ACCESS: return "LISTENING_MODE_QUICK_ACCESS";
+            case AMBIENT_SOUND_CONTROL_LISTENING_MODE: return "AMBIENT_SOUND_CONTROL_LISTENING_MODE";
             case CHAT_MIX: return "CHAT_MIX";
             case CUSTOM1: return "CUSTOM1";
             case CUSTOM2: return "CUSTOM2";
             case NO_FUNCTION: return "NO_FUNCTION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PresetEqErrorCodeType value) {
+        using enum PresetEqErrorCodeType;
+        switch (value) {
+            case CALLING: return "CALLING";
+            case DEMO_MODE: return "DEMO_MODE";
+            case LISTENING_MODE: return "LISTENING_MODE";
+            case OTHER: return "OTHER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(PriorMode value) {
+        using enum PriorMode;
+        switch (value) {
+            case SOUND_QUALITY_PRIOR: return "SOUND_QUALITY_PRIOR";
+            case CONNECTION_QUALITY_PRIOR: return "CONNECTION_QUALITY_PRIOR";
+            case LOW_LATENCY_PRIOR_BETA: return "LOW_LATENCY_PRIOR_BETA";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(QuickAccessKey value) {
+        using enum QuickAccessKey;
+        switch (value) {
+            case L_R_KEY: return "L_R_KEY";
+            case NC_AMB_KEY: return "NC_AMB_KEY";
+            case FIXED_QUICK_ACCESS_KEY: return "FIXED_QUICK_ACCESS_KEY";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(RequestType value) {
+        using enum RequestType;
+        switch (value) {
+            case UNDER_CONFIRMATION: return "UNDER_CONFIRMATION";
+            case EXECUTE: return "EXECUTE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ResetResult value) {
+        using enum ResetResult;
+        switch (value) {
+            case SUCCESS: return "SUCCESS";
+            case ERROR_CONNECTION_LEFT: return "ERROR_CONNECTION_LEFT";
+            case ERROR_CONNECTION_RIGHT: return "ERROR_CONNECTION_RIGHT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ResetType value) {
+        using enum ResetType;
+        switch (value) {
+            case SETTINGS_ONLY: return "SETTINGS_ONLY";
+            case FACTORY_RESET: return "FACTORY_RESET";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(RoomSize value) {
+        using enum RoomSize;
+        switch (value) {
+            case SMALL: return "SMALL";
+            case MIDDLE: return "MIDDLE";
+            case LARGE: return "LARGE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SARAutoPlayExclusiveFunction value) {
+        using enum SARAutoPlayExclusiveFunction;
+        switch (value) {
+            case FW_UPDATE: return "FW_UPDATE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SARAutoPlayInquiredType value) {
+        using enum SARAutoPlayInquiredType;
+        switch (value) {
+            case SAR: return "SAR";
+            case AUTO_PLAY: return "AUTO_PLAY";
+            case INTEGRATED_AUTO_PLAY: return "INTEGRATED_AUTO_PLAY";
+            case GATT_CONNECTABLE: return "GATT_CONNECTABLE";
+            case SAR_OPTIMIZATION_COMPASS_ACCEL_TYPE: return "SAR_OPTIMIZATION_COMPASS_ACCEL_TYPE";
+            case SAR_OPTIMIZATION_ACCEL_TYPE: return "SAR_OPTIMIZATION_ACCEL_TYPE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SARAutoPlaySensorCalibrationState value) {
+        using enum SARAutoPlaySensorCalibrationState;
+        switch (value) {
+            case ACCEL_MEASURING_START: return "ACCEL_MEASURING_START";
+            case ACCEL_MEASURING_FAIL: return "ACCEL_MEASURING_FAIL";
+            case ACCEL_MEASURING_SUCCESS: return "ACCEL_MEASURING_SUCCESS";
+            case COMPASS_MEASURING_START: return "COMPASS_MEASURING_START";
+            case COMPASS_MEASURING_FAIL: return "COMPASS_MEASURING_FAIL";
+            case COMPASS_MEASURING_SUCCESS: return "COMPASS_MEASURING_SUCCESS";
+            case MEASURING_FINISH: return "MEASURING_FINISH";
+            case MEASURING_INTERRUPTED: return "MEASURING_INTERRUPTED";
+            case ACCEL_MEASURING_FAIL_L_R_ARE_REVERSED: return "ACCEL_MEASURING_FAIL_L_R_ARE_REVERSED";
+            case ACCEL_MEASURING_FAIL_SWING_ANGLE_INSUFFICIENT: return "ACCEL_MEASURING_FAIL_SWING_ANGLE_INSUFFICIENT";
+            case ACCEL_MEASURING_FAIL_KEEP_TIME_OF_PEEK_OF_SWING_INSUFFICIENT: return "ACCEL_MEASURING_FAIL_KEEP_TIME_OF_PEEK_OF_SWING_INSUFFICIENT";
+            case MEASURING_INTERRUPTED_DISCONNECT_L: return "MEASURING_INTERRUPTED_DISCONNECT_L";
+            case MEASURING_INTERRUPTED_DISCONNECT_R: return "MEASURING_INTERRUPTED_DISCONNECT_R";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SARAutoPlaySensorCalibrationValue value) {
+        using enum SARAutoPlaySensorCalibrationValue;
+        switch (value) {
+            case UNOPTIMIZED: return "UNOPTIMIZED";
+            case OPTIMIZED: return "OPTIMIZED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SARAutoPlaySupportedAutoPlayService value) {
+        using enum SARAutoPlaySupportedAutoPlayService;
+        switch (value) {
+            case MS: return "MS";
+            case SPTF: return "SPTF";
+            case EDL: return "EDL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SARAutoPlaySupportedSARService value) {
+        using enum SARAutoPlaySupportedSARService;
+        switch (value) {
+            case LOCA_APP: return "LOCA_APP";
+            case SSCP: return "SSCP";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SenseApplicableFunction value) {
+        using enum SenseApplicableFunction;
+        switch (value) {
+            case NC_ON_OFF_AND_ASM_ON_OFF: return "NC_ON_OFF_AND_ASM_ON_OFF";
+            case NC_MODE_SWITCH_AND_ASM_ON_OFF: return "NC_MODE_SWITCH_AND_ASM_ON_OFF";
+            case NC_ON_OFF_AND_ASM_SEAMLESS: return "NC_ON_OFF_AND_ASM_SEAMLESS";
+            case NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS: return "MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS";
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA: return "MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA";
+            case EQ_PRESET_ID: return "EQ_PRESET_ID";
+            case SMART_TALKING_MODE: return "SMART_TALKING_MODE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SenseInquiredType value) {
+        using enum SenseInquiredType;
+        switch (value) {
+            case ADAPTIVE_CONTROL: return "ADAPTIVE_CONTROL";
+            case ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION: return "ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SenseSettingControl value) {
+        using enum SenseSettingControl;
+        switch (value) {
+            case START_SETTING: return "START_SETTING";
+            case END_SETTING: return "END_SETTING";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SmartTalkingModeEffectStatus value) {
+        using enum SmartTalkingModeEffectStatus;
+        switch (value) {
+            case NOT_ACTIVE: return "NOT_ACTIVE";
+            case ACTIVE: return "ACTIVE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SmartTalkingModePreviewType value) {
+        using enum SmartTalkingModePreviewType;
+        switch (value) {
+            case NOT_SUPPORT: return "NOT_SUPPORT";
+            case SUPPORT: return "SUPPORT";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SoundEffectType value) {
+        using enum SoundEffectType;
+        switch (value) {
+            case SOUND_EFFECT_OFF: return "SOUND_EFFECT_OFF";
+            case SOUND_EFFECT_ULT: return "SOUND_EFFECT_ULT";
+            case SOUND_EFFECT_ULT1: return "SOUND_EFFECT_ULT1";
+            case SOUND_EFFECT_ULT2: return "SOUND_EFFECT_ULT2";
+            case SOUND_EFFECT_CUSTOM: return "SOUND_EFFECT_CUSTOM";
+            case SOUND_EFFECT_FLAT: return "SOUND_EFFECT_FLAT";
+            case SOUND_EFFECT_LIVE: return "SOUND_EFFECT_LIVE";
+            case SOUND_EFFECT_NONE: return "SOUND_EFFECT_NONE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(StatusErrorCodeType value) {
+        using enum StatusErrorCodeType;
+        switch (value) {
+            case CALLING: return "CALLING";
+            case DEMO_MODE: return "DEMO_MODE";
+            case LE_AUDIO_CONNECTED: return "LE_AUDIO_CONNECTED";
+            case LE_AUDION_MUSIC_PLAYING: return "LE_AUDION_MUSIC_PLAYING";
+            case TANDEM_OVER_GATT_CONNECTED: return "TANDEM_OVER_GATT_CONNECTED";
+            case VOICE_UI_GOOGLE: return "VOICE_UI_GOOGLE";
+            case VOICE_UI_SONY: return "VOICE_UI_SONY";
+            case VOICE_UI_TENCENT: return "VOICE_UI_TENCENT";
+            case UPMIX_CINEMA: return "UPMIX_CINEMA";
+            case UPMIX_GAME: return "UPMIX_GAME";
+            case UPMIX_MUSIC: return "UPMIX_MUSIC";
+            case LISTENING_MODE_IS_NOT_STANDARD: return "LISTENING_MODE_IS_NOT_STANDARD";
+            case OTHER: return "OTHER";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SwitchingStream value) {
+        using enum SwitchingStream;
+        switch (value) {
+            case NONE: return "NONE";
+            case LE_AUDIO: return "LE_AUDIO";
+            case CLASSIC_AUDIO: return "CLASSIC_AUDIO";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(SystemInquiredType value) {
+        using enum SystemInquiredType;
+        switch (value) {
+            case VIBRATOR: return "VIBRATOR";
+            case PLAYBACK_CONTROL_BY_WEARING: return "PLAYBACK_CONTROL_BY_WEARING";
+            case SMART_TALKING_MODE_TYPE1: return "SMART_TALKING_MODE_TYPE1";
+            case ASSIGNABLE_SETTINGS: return "ASSIGNABLE_SETTINGS";
+            case VOICE_ASSISTANT_SETTINGS: return "VOICE_ASSISTANT_SETTINGS";
+            case VOICE_ASSISTANT_WAKE_WORD: return "VOICE_ASSISTANT_WAKE_WORD";
+            case WEARING_STATUS_DETECTOR: return "WEARING_STATUS_DETECTOR";
+            case EARPIECE_SELECTION: return "EARPIECE_SELECTION";
+            case CALL_SETTINGS: return "CALL_SETTINGS";
+            case RESET_SETTINGS: return "RESET_SETTINGS";
+            case AUTO_VOLUME: return "AUTO_VOLUME";
+            case FACE_TAP_TEST_MODE: return "FACE_TAP_TEST_MODE";
+            case SMART_TALKING_MODE_TYPE2: return "SMART_TALKING_MODE_TYPE2";
+            case QUICK_ACCESS: return "QUICK_ACCESS";
+            case ASSIGNABLE_SETTINGS_WITH_LIMITATION: return "ASSIGNABLE_SETTINGS_WITH_LIMITATION";
+            case HEAD_GESTURE_ON_OFF: return "HEAD_GESTURE_ON_OFF";
+            case HEAD_GESTURE_TRAINING: return "HEAD_GESTURE_TRAINING";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(TandemFotaCommand value) {
+        using enum TandemFotaCommand;
+        switch (value) {
+            case ENTER_FW_UPDATE_MODE: return "ENTER_FW_UPDATE_MODE";
+            case EXIT_FW_UPDATE_MODE: return "EXIT_FW_UPDATE_MODE";
+            case START_TRANSFER: return "START_TRANSFER";
+            case FINISH_TRANSFER: return "FINISH_TRANSFER";
+            case CANCEL_TRANSFER: return "CANCEL_TRANSFER";
+            case EXECUTE_FW_UPDATE: return "EXECUTE_FW_UPDATE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(TandemFotaResult value) {
+        using enum TandemFotaResult;
+        switch (value) {
+            case OK: return "OK";
+            case ERROR_OTHER_THAN_SPECIFIC_ERROR: return "ERROR_OTHER_THAN_SPECIFIC_ERROR";
+            case ERROR_ILLEGAL_STATE: return "ERROR_ILLEGAL_STATE";
+            case ERROR_ILLEGAL_ARGUMENTS: return "ERROR_ILLEGAL_ARGUMENTS";
+            case ERROR_NO_NEED_OF_DATA_TRANSFER: return "ERROR_NO_NEED_OF_DATA_TRANSFER";
+            case ERROR_FIRMWARE_TRANSFER_INCOMPLETED: return "ERROR_FIRMWARE_TRANSFER_INCOMPLETED";
+            case ERROR_NEED_POWER_CABLE_CONNECTED_AND_ENOUGH_BATTERY: return "ERROR_NEED_POWER_CABLE_CONNECTED_AND_ENOUGH_BATTERY";
+            case ERROR_TEMPERATURE_IS_TOO_HIGH: return "ERROR_TEMPERATURE_IS_TOO_HIGH";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(TandemFotaStatus value) {
+        using enum TandemFotaStatus;
+        switch (value) {
+            case INVALID: return "INVALID";
+            case IDLE: return "IDLE";
+            case NOT_READY: return "NOT_READY";
+            case DATA_RECEIVING: return "DATA_RECEIVING";
+            case UPDATING: return "UPDATING";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(Topology value) {
+        using enum Topology;
+        switch (value) {
+            case SINGLE_SPEAKER: return "SINGLE_SPEAKER";
+            case TWS: return "TWS";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(TrainingModeOperation value) {
+        using enum TrainingModeOperation;
+        switch (value) {
+            case TRAINING_MODE_START: return "TRAINING_MODE_START";
+            case TRAINING_MODE_FINISH: return "TRAINING_MODE_FINISH";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(TurnKeyEqResult value) {
+        using enum TurnKeyEqResult;
+        switch (value) {
+            case SUCCESS: return "SUCCESS";
+            case NOT_SUPPORTED: return "NOT_SUPPORTED";
+            case JUDGEMENT_FAIL: return "JUDGEMENT_FAIL";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(Type value) {
+        using enum Type;
+        switch (value) {
+            case TOUCH_SENSOR: return "TOUCH_SENSOR";
+            case BUTTON: return "BUTTON";
+            case FACE_TAP: return "FACE_TAP";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UpdtInquiredType value) {
+        using enum UpdtInquiredType;
+        switch (value) {
+            case FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION: return "FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION";
+            case FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION_AUTO_UPDATE: return "FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION_AUTO_UPDATE";
+            case FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE: return "FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE";
+            case FW_UPDATE_MTK_TRANSFER_WITH_AC_CONNECTION_CHECK: return "FW_UPDATE_MTK_TRANSFER_WITH_AC_CONNECTION_CHECK";
+            case FW_UPDATE_USING_MC_APP: return "FW_UPDATE_USING_MC_APP";
+            case FW_UPDATE_TANDEM_PART1: return "FW_UPDATE_TANDEM_PART1";
+            case FW_UPDATE_TANDEM_PART2: return "FW_UPDATE_TANDEM_PART2";
+            case FW_UPDATE_TANDEM_PART3: return "FW_UPDATE_TANDEM_PART3";
+            case FW_UPDATE_TANDEM_PART4: return "FW_UPDATE_TANDEM_PART4";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UpmixItemId value) {
+        using enum UpmixItemId;
+        switch (value) {
+            case NONE: return "NONE";
+            case CINEMA: return "CINEMA";
+            case GAME: return "GAME";
+            case MUSIC: return "MUSIC";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UpscalingEffectStatus value) {
+        using enum UpscalingEffectStatus;
+        switch (value) {
+            case OFF: return "OFF";
+            case VALID: return "VALID";
+            case INVALID: return "INVALID";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UpscalingEffectType value) {
+        using enum UpscalingEffectType;
+        switch (value) {
+            case DSEE_HX: return "DSEE_HX";
+            case DSEE: return "DSEE";
+            case DSEE_HX_AI: return "DSEE_HX_AI";
+            case DSEE_ULTIMATE: return "DSEE_ULTIMATE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UpscalingType value) {
+        using enum UpscalingType;
+        switch (value) {
+            case DSEE_HX: return "DSEE_HX";
+            case DSEE: return "DSEE";
+            case DSEE_HX_AI: return "DSEE_HX_AI";
+            case DSEE_ULTIMATE: return "DSEE_ULTIMATE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(UpscalingTypeAutoOff value) {
+        using enum UpscalingTypeAutoOff;
+        switch (value) {
+            case OFF: return "OFF";
+            case AUTO: return "AUTO";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(ValueChangeStatus value) {
+        using enum ValueChangeStatus;
+        switch (value) {
+            case UNDER_CHANGING: return "UNDER_CHANGING";
+            case CHANGED: return "CHANGED";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
+            default: return "Unknown";
+        }
+    }
+    static const char* format_as(VibrationType value) {
+        using enum VibrationType;
+        switch (value) {
+            case NO_PATTERN_SPECIFIED: return "NO_PATTERN_SPECIFIED";
             default: return "Unknown";
         }
     }
@@ -1011,725 +2165,276 @@ namespace mdr::v2::t1 {
             case TENCENT_XIAOWEI: return "TENCENT_XIAOWEI";
             case SONY_VOICE_ASSISTANT: return "SONY_VOICE_ASSISTANT";
             case VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE: return "VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             case NO_FUNCTION: return "NO_FUNCTION";
             default: return "Unknown";
         }
     }
-    static const char* format_as(EarpieceFittingDetectionOperationStatus value) {
-        using enum EarpieceFittingDetectionOperationStatus;
+    static const char* format_as(VoiceAssistantKeyType value) {
+        using enum VoiceAssistantKeyType;
         switch (value) {
-            case DETECTION_IS_NOT_STARTED: return "DETECTION_IS_NOT_STARTED";
-            case DETECTION_STARTED: return "DETECTION_STARTED";
-            case DETECTION_COMPLETED_SUCCESSFULLY: return "DETECTION_COMPLETED_SUCCESSFULLY";
-            case DETECTION_COMPLETED_UNSUCCESSFULLY: return "DETECTION_COMPLETED_UNSUCCESSFULLY";
+            case FIXED_BUTTON: return "FIXED_BUTTON";
+            case TOUCH_SENSOR_CONTROL_PANEL: return "TOUCH_SENSOR_CONTROL_PANEL";
+            case ASSIGNABLE_BUTTON: return "ASSIGNABLE_BUTTON";
+            case ASSIGNABLE_SENSOR: return "ASSIGNABLE_SENSOR";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(EarpieceFittingDetectionOperationErrorCode value) {
-        using enum EarpieceFittingDetectionOperationErrorCode;
+    static const char* format_as(VoiceAssistantType value) {
+        using enum VoiceAssistantType;
         switch (value) {
-            case NO_ERROR: return "NO_ERROR";
-            case LEFT_CONNECTION_ERROR: return "LEFT_CONNECTION_ERROR";
-            case RIGHT_CONNECTION_ERROR: return "RIGHT_CONNECTION_ERROR";
-            case FUNCTION_UNAVAILABLE_ERROR: return "FUNCTION_UNAVAILABLE_ERROR";
-            case LEFT_FITTING_ERROR: return "LEFT_FITTING_ERROR";
-            case RIGHT_FITTING_ERROR: return "RIGHT_FITTING_ERROR";
-            case BOTH_FITTING_ERROR: return "BOTH_FITTING_ERROR";
-            case MEASURING_ERROR: return "MEASURING_ERROR";
+            case GOOGLE_ASSISTANT: return "GOOGLE_ASSISTANT";
+            case AMAZON_ALEXA: return "AMAZON_ALEXA";
+            case TENCENT_XIAOWEI: return "TENCENT_XIAOWEI";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(EarpieceSeries value) {
-        using enum EarpieceSeries;
+    static const char* format_as(VoiceAssistantWakeWordStatus value) {
+        using enum VoiceAssistantWakeWordStatus;
         switch (value) {
-            case OTHER: return "OTHER";
-            case POLYURETHANE: return "POLYURETHANE";
-            case HYBRID: return "HYBRID";
-            case SOFT_FITTING_FOR_LINKBUDS_FIT: return "SOFT_FITTING_FOR_LINKBUDS_FIT";
-            case NOT_DETERMINED: return "NOT_DETERMINED";
+            case ENABLE: return "ENABLE";
+            case DISABLE: return "DISABLE";
+            case INVISIBLE: return "INVISIBLE";
+            case OUT_OF_RANGE: return "OUT_OF_RANGE";
             default: return "Unknown";
         }
     }
-    static const char* format_as(EarpieceSize value) {
-        using enum EarpieceSize;
+    static bool is_valid(FunctionType value) {
+        using enum FunctionType;
         switch (value) {
-            case SS: return "SS";
-            case S: return "S";
-            case M: return "M";
-            case L: return "L";
-            case LL: return "LL";
-            case NOT_DETERMINED: return "NOT_DETERMINED";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(EarpieceFittingDetectionOperation value) {
-        using enum EarpieceFittingDetectionOperation;
-        switch (value) {
-            case DETECTION_START: return "DETECTION_START";
-            case DETECTION_CANCEL: return "DETECTION_CANCEL";
-            case DETECTION_START_FORCEFUL: return "DETECTION_START_FORCEFUL";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ResetType value) {
-        using enum ResetType;
-        switch (value) {
-            case SETTINGS_ONLY: return "SETTINGS_ONLY";
-            case FACTORY_RESET: return "FACTORY_RESET";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ResetResult value) {
-        using enum ResetResult;
-        switch (value) {
-            case SUCCESS: return "SUCCESS";
-            case ERROR_CONNECTION_LEFT: return "ERROR_CONNECTION_LEFT";
-            case ERROR_CONNECTION_RIGHT: return "ERROR_CONNECTION_RIGHT";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(FaceTapKey value) {
-        using enum FaceTapKey;
-        switch (value) {
-            case LEFT_SIDE_KEY: return "LEFT_SIDE_KEY";
-            case RIGHT_SIDE_KEY: return "RIGHT_SIDE_KEY";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(FaceTapAction value) {
-        using enum FaceTapAction;
-        switch (value) {
-            case DOUBLE_TAP: return "DOUBLE_TAP";
-            case TRIPLE_TAP: return "TRIPLE_TAP";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(HeadGestureAction value) {
-        using enum HeadGestureAction;
-        switch (value) {
-            case NOD: return "NOD";
-            case SWING: return "SWING";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(DetectSensitivity value) {
-        using enum DetectSensitivity;
-        switch (value) {
-            case AUTO: return "AUTO";
-            case HIGH: return "HIGH";
-            case LOW: return "LOW";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(ModeOutTime value) {
-        using enum ModeOutTime;
-        switch (value) {
-            case FAST: return "FAST";
-            case MID: return "MID";
-            case SLOW: return "SLOW";
-            case NONE: return "NONE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(Action value) {
-        using enum Action;
-        switch (value) {
-            case SINGLE_TAP: return "SINGLE_TAP";
-            case DOUBLE_TAP: return "DOUBLE_TAP";
-            case TRIPLE_TAP: return "TRIPLE_TAP";
-            case REPEAT_TAP: return "REPEAT_TAP";
-            case SINGLE_TAP_AND_HOLD: return "SINGLE_TAP_AND_HOLD";
-            case DOUBLE_TAP_AND_HOLD: return "DOUBLE_TAP_AND_HOLD";
-            case LONG_PRESS_THEN_ACTIVATE: return "LONG_PRESS_THEN_ACTIVATE";
-            case LONG_PRESS_DURING_ACTIVATE: return "LONG_PRESS_DURING_ACTIVATE";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(EarpieceFittingDetectionResult value) {
-        using enum EarpieceFittingDetectionResult;
-        switch (value) {
-            case GOOD: return "GOOD";
-            case POOR: return "POOR";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(CallSettingsTestSoundControl value) {
-        using enum CallSettingsTestSoundControl;
-        switch (value) {
-            case START: return "START";
-            default: return "Unknown";
-        }
-    }
-    static const char* format_as(CallSettingsTestSoundControlAck value) {
-        using enum CallSettingsTestSoundControlAck;
-        switch (value) {
-            case ACK: return "ACK";
-            default: return "Unknown";
-        }
-    }
-    static bool is_valid(Command value) {
-        using enum Command;
-        switch (value) {
-            case CONNECT_GET_PROTOCOL_INFO:
-            case CONNECT_RET_PROTOCOL_INFO:
-            case CONNECT_GET_CAPABILITY_INFO:
-            case CONNECT_RET_CAPABILITY_INFO:
-            case CONNECT_GET_DEVICE_INFO:
-            case CONNECT_RET_DEVICE_INFO:
-            case CONNECT_GET_SUPPORT_FUNCTION:
-            case CONNECT_RET_SUPPORT_FUNCTION:
-            case GET_TEST:
-            case COMMON_GET_CAPABILITY:
-            case COMMON_RET_CAPABILITY:
-            case COMMON_GET_STATUS:
-            case COMMON_RET_STATUS:
-            case COMMON_NTFY_STATUS:
-            case COMMON_SET_PARAM:
-            case COMMON_NTFY_PARAM:
-            case POWER_GET_CAPABILITY:
-            case POWER_RET_CAPABILITY:
-            case POWER_GET_STATUS:
-            case POWER_RET_STATUS:
-            case POWER_SET_STATUS:
-            case POWER_NTFY_STATUS:
-            case POWER_GET_PARAM:
-            case POWER_RET_PARAM:
-            case POWER_SET_PARAM:
-            case POWER_NTFY_PARAM:
-            case UPDT_GET_CAPABILITY:
-            case UPDT_RET_CAPABILITY:
-            case UPDT_GET_STATUS:
-            case UPDT_RET_STATUS:
-            case UPDT_SET_STATUS:
-            case UPDT_NTFY_STATUS:
-            case UPDT_GET_PARAM:
-            case UPDT_RET_PARAM:
-            case UPDT_SET_PARAM:
-            case UPDT_NTFY_PARAM:
-            case LEA_GET_CAPABILITY:
-            case LEA_RET_CAPABILITY:
-            case LEA_GET_STATUS:
-            case LEA_RET_STATUS:
-            case LEA_NTFY_STATUS:
-            case LEA_GET_PARAM:
-            case LEA_RET_PARAM:
-            case LEA_SET_PARAM:
-            case LEA_NTFY_PARAM:
-            case EQEBB_GET_STATUS:
-            case EQEBB_RET_STATUS:
-            case EQEBB_NTFY_STATUS:
-            case EQEBB_GET_PARAM:
-            case EQEBB_RET_PARAM:
-            case EQEBB_SET_PARAM:
-            case EQEBB_NTFY_PARAM:
-            case EQEBB_GET_EXTENDED_INFO:
-            case EQEBB_RET_EXTENDED_INFO:
-            case NCASM_GET_CAPABILITY:
-            case NCASM_RET_CAPABILITY:
-            case NCASM_GET_STATUS:
-            case NCASM_RET_STATUS:
-            case NCASM_SET_STATUS:
-            case NCASM_NTFY_STATUS:
-            case NCASM_GET_PARAM:
-            case NCASM_RET_PARAM:
-            case NCASM_SET_PARAM:
-            case NCASM_NTFY_PARAM:
-            case SENSE_GET_CAPABILITY:
-            case SENSE_RET_CAPABILITY:
-            case SENSE_SET_STATUS:
-            case SENSE_NTFY_STATUS:
-            case SENSE_SET_PARAM:
-            case SENSE_NTFY_PARAM:
-            case SENSE_GET_EXT_INFO:
-            case SENSE_RET_EXT_INFO:
-            case OPT_GET_CAPABILITY:
-            case OPT_RET_CAPABILITY:
-            case OPT_GET_STATUS:
-            case OPT_RET_STATUS:
-            case OPT_SET_STATUS:
-            case OPT_NTFY_STATUS:
-            case OPT_GET_PARAM:
-            case OPT_RET_PARAM:
-            case OPT_SET_PARAM:
-            case OPT_NTFY_PARAM:
-            case ALERT_GET_CAPABILITY:
-            case ALERT_RET_CAPABILITY:
-            case ALERT_GET_STATUS:
-            case ALERT_RET_STATUS:
-            case ALERT_SET_STATUS:
-            case ALERT_NTFY_STATUS:
-            case ALERT_SET_PARAM:
-            case ALERT_NTFY_PARAM:
-            case PLAY_GET_CAPABILITY:
-            case PLAY_RET_CAPABILITY:
-            case PLAY_GET_STATUS:
-            case PLAY_RET_STATUS:
-            case PLAY_SET_STATUS:
-            case PLAY_NTFY_STATUS:
-            case PLAY_GET_PARAM:
-            case PLAY_RET_PARAM:
-            case PLAY_SET_PARAM:
-            case PLAY_NTFY_PARAM:
-            case SAR_AUTO_PLAY_GET_CAPABILITY:
-            case SAR_AUTO_PLAY_RET_CAPABILITY:
-            case SAR_AUTO_PLAY_GET_STATUS:
-            case SAR_AUTO_PLAY_RET_STATUS:
-            case SAR_AUTO_PLAY_NTFY_STATUS:
-            case SAR_AUTO_PLAY_GET_PARAM:
-            case SAR_AUTO_PLAY_RET_PARAM:
-            case SAR_AUTO_PLAY_SET_PARAM:
-            case SAR_AUTO_PLAY_NTFY_PARAM:
-            case LOG_SET_STATUS:
-            case LOG_NTFY_PARAM:
-            case GENERAL_SETTING_GET_CAPABILITY:
-            case GENERAL_SETTING_RET_CAPABILITY:
-            case GENERAL_SETTING_GET_STATUS:
-            case GENERAL_SETTING_RET_STATUS:
-            case GENERAL_SETTING_NTFY_STATUS:
-            case GENERAL_SETTING_GET_PARAM:
-            case GENERAL_SETTING_RET_PARAM:
-            case GENERAL_SETTING_SET_PARAM:
-            case GENERAL_SETTING_NTFY_PARAM:
-            case AUDIO_GET_CAPABILITY:
-            case AUDIO_RET_CAPABILITY:
-            case AUDIO_GET_STATUS:
-            case AUDIO_RET_STATUS:
-            case AUDIO_NTFY_STATUS:
-            case AUDIO_GET_PARAM:
-            case AUDIO_RET_PARAM:
-            case AUDIO_SET_PARAM:
-            case AUDIO_NTFY_PARAM:
-            case SYSTEM_GET_CAPABILITY:
-            case SYSTEM_RET_CAPABILITY:
-            case SYSTEM_GET_STATUS:
-            case SYSTEM_RET_STATUS:
-            case SYSTEM_SET_STATUS:
-            case SYSTEM_NTFY_STATUS:
-            case SYSTEM_GET_PARAM:
-            case SYSTEM_RET_PARAM:
-            case SYSTEM_SET_PARAM:
-            case SYSTEM_NTFY_PARAM:
-            case SYSTEM_GET_EXT_PARAM:
-            case SYSTEM_RET_EXT_PARAM:
-            case SYSTEM_SET_EXT_PARAM:
-            case SYSTEM_NTFY_EXT_PARAM:
-            case UNKNOWN:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ConnectInquiredType value) {
-        using enum ConnectInquiredType;
-        switch (value) {
-            case FIXED_VALUE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(DeviceInfoType value) {
-        using enum DeviceInfoType;
-        switch (value) {
-            case MODEL_NAME:
-            case FW_VERSION:
-            case SERIES_AND_COLOR_INFO:
-            case INSTRUCTION_GUIDE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ModelColor value) {
-        using enum ModelColor;
-        switch (value) {
-            case DEFAULT:
-            case BLACK:
-            case WHITE:
-            case SILVER:
-            case RED:
-            case BLUE:
-            case PINK:
-            case YELLOW:
-            case GREEN:
-            case GRAY:
-            case GOLD:
-            case CREAM:
-            case ORANGE:
-            case BROWN:
-            case VIOLET:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ModelSeriesType value) {
-        using enum ModelSeriesType;
-        switch (value) {
-            case NO_SERIES:
-            case EXTRA_BASS:
-            case ULT_POWER_SOUND:
-            case HEAR:
-            case PREMIUM:
-            case SPORTS:
-            case CASUAL:
-            case LINK_BUDS:
-            case NECKBAND:
-            case LINKPOD:
-            case GAMING:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(CommonInquiredType value) {
-        using enum CommonInquiredType;
-        switch (value) {
-            case CONCIERGE:
+            case CONCIERGE_DATA:
             case CONNECTION_STATUS:
-            case AUDIO_CODEC:
-            case UPSCALING_EFFECT:
+            case CODEC_INDICATOR:
+            case UPSCALING_INDICATOR:
             case BLE_SETUP:
+            case TUTORIAL_CONTENTS_SELECT_ON_CONCIERGE:
             case CONNECTION_ESTABLISHED_TIME:
+            case UNNECESSARY_AUTO_RECONNECTION:
             case DEVICE_SPECIAL_MODE:
-            case SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION_FOR_CLASSIC:
+            case PHONE_AND_CONNECTED_DEVICE_INFOMATION_FOR_CLASSIC:
             case TANDEM_RECONNECTION_REQUEST:
             case DISPLAY_FW_VERSION:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(AudioCodec value) {
-        using enum AudioCodec;
-        switch (value) {
-            case UNSETTLED:
-            case SBC:
-            case AAC:
-            case LDAC:
-            case APT_X:
-            case APT_X_HD:
-            case LC3:
-            case OTHER:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(PowerInquiredType value) {
-        using enum PowerInquiredType;
-        switch (value) {
-            case BATTERY:
-            case LEFT_RIGHT_BATTERY:
-            case CRADLE_BATTERY:
+            case BATTERY_LEVEL_INDICATOR:
+            case LEFT_RIGHT_BATTERY_LEVEL_INDICATOR:
+            case CRADLE_BATTERY_LEVEL_INDICATOR:
             case POWER_OFF:
             case AUTO_POWER_OFF:
-            case AUTO_POWER_OFF_WEARING_DETECTION:
-            case POWER_SAVE_MODE:
-            case LINK_CONTROL:
-            case BATTERY_WITH_THRESHOLD:
-            case LR_BATTERY_WITH_THRESHOLD:
-            case CRADLE_BATTERY_WITH_THRESHOLD:
+            case AUTO_POWER_OFF_WITH_WEARING_DETECTION:
+            case POWER_SAVING_MODE_ON_OFF:
+            case TANDEM_KEEP_ALIVE:
+            case BATTERY_LEVEL_WITH_THRESHOLD:
+            case LR_BATTERY_LEVEL_WITH_THRESHOLD:
+            case CRADLE_BATTERY_LEVEL_WITH_THRESHOLD:
             case BATTERY_SAFE_MODE:
             case CARING_CHARGE:
             case BT_STANDBY:
             case STAMINA:
             case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(BatteryChargingStatus value) {
-        using enum BatteryChargingStatus;
-        switch (value) {
-            case NOT_CHARGING:
-            case CHARGING:
-            case UNKNOWN:
-            case CHARGED:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(PowerOffSettingValue value) {
-        using enum PowerOffSettingValue;
-        switch (value) {
-            case USER_POWER_OFF:
-            case FACTORY_POWER_OFF:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(AutoPowerOffElements value) {
-        using enum AutoPowerOffElements;
-        switch (value) {
-            case POWER_OFF_IN_5_MIN:
-            case POWER_OFF_IN_30_MIN:
-            case POWER_OFF_IN_60_MIN:
-            case POWER_OFF_IN_180_MIN:
-            case POWER_OFF_IN_15_MIN:
-            case POWER_OFF_DISABLE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(AutoPowerOffWearingDetectionElements value) {
-        using enum AutoPowerOffWearingDetectionElements;
-        switch (value) {
-            case POWER_OFF_IN_5_MIN:
-            case POWER_OFF_IN_30_MIN:
-            case POWER_OFF_IN_60_MIN:
-            case POWER_OFF_IN_180_MIN:
-            case POWER_OFF_IN_15_MIN:
-            case POWER_OFF_WHEN_REMOVED_FROM_EARS:
-            case POWER_OFF_DISABLE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(EqEbbInquiredType value) {
-        using enum EqEbbInquiredType;
-        switch (value) {
+            case FW_UPDATE_TANDEM:
+            case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION:
+            case FW_UPDATE_MTK_TRANSFER_WITHOUT_DISCONNECTION_AUTO_UPDATE:
+            case FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE:
+            case FW_UPDATE_MTK_TRANSFER_WITH_AC_CONNECTION_CHECK:
+            case FW_UPDATE_TANDEM_TRANSFER_USING_COMMON_TABLE:
+            case FW_UPDATE_USING_MC_APP:
+            case TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD:
+            case HBS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD:
+            case CLASSIC_ONLY_LE_CLASSIC_SETTING:
+            case TWS_SUPPORTS_LEA_UNI_LEA_BROAD:
+            case CHANGE_TANDEM_CONNECTION_PROFILE_FOR_ANDROID:
+            case BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case HEAD_TRACKER_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case PAIRING_DEVICE_MANAGEMENT_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case SOUND_AR_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case GATT_CONNECTABLE_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case SOUND_AR_OPTIMIZATION_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case QUICK_ACCESS_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case CONNECTION_MODE_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case VOICE_ASSISTANT_SETTINGS_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case VOICE_ASSISTANT_WAKE_WORD_CANT_BE_USED_WITH_LEA_CONNECTION:
             case PRESET_EQ:
             case EBB:
-            case PRESET_EQ_NONCUSTOMIZABLE:
+            case PRESET_EQ_NON_CUSTOMIZABLE:
             case PRESET_EQ_AND_ULT_MODE:
-            case PRESET_EQ_AND_ERRORCODE:
             case SOUND_EFFECT:
             case CUSTOM_EQ:
             case TURN_KEY_EQ:
+            case PRESET_EQ_AND_ERRORCODE:
+            case ULT_SOUND_EFFECT_ASSIGN:
+            case CUSTOMIZABLE_SOUND_EFFECT:
+            case NOISE_CANCELLING_ONOFF:
+            case NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF:
+            case NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF:
+            case NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT:
+            case NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT:
+            case AMBIENT_SOUND_MODE_ONOFF:
+            case AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT:
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT:
+            case AMBIENT_SOUND_CONTROL_MODE_SELECT:
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT:
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT:
+            case MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE:
+            case MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION:
+            case AUTO_NCASM:
+            case ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION:
+            case HEART_RATE_SENSOR_SETTING:
+            case HEART_RATE_PROFILE_SETTING:
+            case HEART_RATE_SENSOR_TEST:
+            case HEART_RATE_SENSOR_GREEN_LIGHT:
+            case NC_OPTIMIZER_PERSONAL_BAROMETRIC:
+            case NC_OPTIMIZER_PERSONAL:
+            case NC_OPTIMIZER_BAROMETRIC:
+            case SOUND_FIELD_OPTIMIZATION:
+            case TV_SOUND_BOOSTER:
+            case FIXED_MESSAGE:
+            case VIBRATOR_ALERT_NOTIFICATION:
+            case FIXED_MESSAGE_WITH_LR_SELECTION:
+            case VOICE_ASSISTANT_ALERT_NOTIFICATION:
+            case LE_AUDIO_ALERT_NOTIFICATION:
+            case PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT:
+            case PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_MUTE:
+            case PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE:
+            case PLAYBACK_CONTROLLER_WITH_FUNCTION_CHANGE:
+            case SAR:
+            case AUTO_PLAY:
+            case GATT_CONNECTABLE:
+            case SAR_OPTIMIZATION_COMPASS_ACCEL_TYPE:
+            case HEAD_TRACKER_COMPASS_ACCEL_TYPE:
+            case SAR_OPTIMIZATION_ACCEL_TYPE:
+            case HEAD_TRACKER_ACCEL_TYPE:
+            case INTEGRATED_AUTO_PLAY:
+            case ACTION_LOG_NOTIFIER:
+            case TIME_SERIES_OPERATIONLOG_NOTIFIER:
+            case SOUND_DROPOUT_NOTIFIER:
+            case GENERAL_SETTING_1:
+            case GENERAL_SETTING_2:
+            case GENERAL_SETTING_3:
+            case GENERAL_SETTING_4:
+            case CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY:
+            case UPSCALING_AUTO_OFF:
+            case CONNECTION_MODE_SOUND_QUALITY_SOUND_WITH_LDAC_STATUS_QUALITY_CONNECTION_QUALITY:
+            case BGM_MODE_SMALL_MIDDLE_LARGE:
+            case UPMIX_CINEMA:
+            case LISTENING_OPTION:
+            case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO:
+            case VOICE_CONTENTS:
+            case SOUND_LEAKAGE_REDUCTION:
+            case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE:
+            case BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE:
+            case UPMIX_SERIES:
+            case UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON:
+            case VIBRATOR_ON_OFF:
+            case PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF:
+            case SMART_TALKING_MODE_TYPE1:
+            case ASSIGNABLE_SETTING:
+            case VOICE_ASSISTANT_SETTINGS:
+            case VOICE_ASSISTANT_WAKE_WORD_ON_OFF:
+            case WEARING_STATUS_DETECTOR:
+            case EARPIECE_SELECTION:
+            case CALL_SETTINGS:
+            case RESET_SETTINGS:
+            case AUTO_VOLUME:
+            case FACE_TAP_TEST_MODE:
+            case SMART_TALKING_MODE_TYPE2:
+            case QUICK_ACCESS:
+            case ASSIGNABLE_SETTING_WITH_LIMITATION:
+            case HEAD_GESTURE_ON_OFF_TRAINING:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(EqPresetId value) {
-        using enum EqPresetId;
+    static bool is_valid(Action value) {
+        using enum Action;
         switch (value) {
-            case OFF:
-            case ROCK:
-            case POP:
-            case JAZZ:
-            case DANCE:
-            case EDM:
-            case R_AND_B_HIP_HOP:
-            case ACOUSTIC:
-            case RESERVED_FOR_FUTURE_NO8:
-            case RESERVED_FOR_FUTURE_NO9:
-            case RESERVED_FOR_FUTURE_NO10:
-            case RESERVED_FOR_FUTURE_NO11:
-            case RESERVED_FOR_FUTURE_NO12:
-            case RESERVED_FOR_FUTURE_NO13:
-            case RESERVED_FOR_FUTURE_NO14:
-            case RESERVED_FOR_FUTURE_NO15:
-            case BRIGHT:
-            case EXCITED:
-            case MELLOW:
-            case RELAXED:
-            case VOCAL:
-            case TREBLE:
-            case BASS:
-            case SPEECH:
-            case RESERVED_FOR_FUTURE_NO24:
-            case RESERVED_FOR_FUTURE_NO25:
-            case RESERVED_FOR_FUTURE_NO26:
-            case RESERVED_FOR_FUTURE_NO27:
-            case RESERVED_FOR_FUTURE_NO28:
-            case RESERVED_FOR_FUTURE_NO29:
-            case RESERVED_FOR_FUTURE_NO30:
-            case RESERVED_FOR_FUTURE_NO31:
-            case GAMING_EQ:
-            case FPS_1:
-            case FPS_2:
-            case FPS_3:
-            case HEAVY:
-            case CLEAR:
-            case HARD:
-            case SOFT:
-            case CUSTOM:
-            case USER_SETTING1:
-            case USER_SETTING2:
-            case USER_SETTING3:
-            case USER_SETTING4:
-            case USER_SETTING5:
-            case ARTIST_COLLAB1:
-            case ARTIST_COLLAB2:
-            case ARTIST_COLLAB3:
-            case ARTIST_COLLAB4:
-            case ARTIST_COLLAB5:
-            case ARTIST_COLLAB6:
-            case ARTIST_COLLAB7:
-            case ARTIST_COLLAB8:
-            case ARTIST_COLLAB9:
-            case ARTIST_COLLAB10:
-            case ARTIST_COLLAB11:
-            case ARTIST_COLLAB12:
-            case UNSPECIFIED:
+            case SINGLE_TAP:
+            case DOUBLE_TAP:
+            case TRIPLE_TAP:
+            case REPEAT_TAP:
+            case SINGLE_TAP_AND_HOLD:
+            case DOUBLE_TAP_AND_HOLD:
+            case LONG_PRESS_THEN_ACTIVATE:
+            case LONG_PRESS_DURING_ACTIVATE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(EqUltMode value) {
-        using enum EqUltMode;
+    static bool is_valid(AdjustSynchronizationStatus value) {
+        using enum AdjustSynchronizationStatus;
         switch (value) {
-            case OFF:
-            case ULT_1:
-            case ULT_2:
+            case ENABLE:
+            case DISABLE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(SoundEffectType value) {
-        using enum SoundEffectType;
+    static bool is_valid(AdjustSynchronizationValue value) {
+        using enum AdjustSynchronizationValue;
         switch (value) {
-            case SOUND_EFFECT_OFF:
-            case SOUND_EFFECT_ULT:
-            case SOUND_EFFECT_ULT1:
-            case SOUND_EFFECT_ULT2:
-            case SOUND_EFFECT_CUSTOM:
-            case SOUND_EFFECT_NONE:
+            case MSEC_0:
+            case MSEC_10:
+            case MSEC_20:
+            case MSEC_30:
+            case MSEC_40:
+            case MSEC_50:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(PresetEqErrorCodeType value) {
-        using enum PresetEqErrorCodeType;
+    static bool is_valid(AlertAction value) {
+        using enum AlertAction;
         switch (value) {
-            case CALLING:
-            case DEMO_MODE:
-            case LISTENING_MODE:
-            case OTHER:
+            case NEGATIVE:
+            case POSITIVE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(NcAsmInquiredType value) {
-        using enum NcAsmInquiredType;
+    static bool is_valid(AlertActionType value) {
+        using enum AlertActionType;
         switch (value) {
-            case NC_ON_OFF:
-            case NC_ON_OFF_AND_ASM_ON_OFF:
-            case NC_MODE_SWITCH_AND_ASM_ON_OFF:
-            case NC_ON_OFF_AND_ASM_SEAMLESS:
-            case NC_MODE_SWITCH_AND_ASM_SEAMLESS:
-            case MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
-            case MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
-            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
-            case MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
-            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA:
-            case ASM_ON_OFF:
-            case ASM_SEAMLESS:
-            case NC_AMB_TOGGLE:
-            case NC_TEST_MODE:
+            case CONFIRMATION_ONLY:
+            case POSITIVE_NEGATIVE:
+            case POSITIVE_CONFIRMATION_WITH_REPLY:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(ValueChangeStatus value) {
-        using enum ValueChangeStatus;
+    static bool is_valid(AlertFlexibleMessageType value) {
+        using enum AlertFlexibleMessageType;
         switch (value) {
-            case UNDER_CHANGING:
-            case CHANGED:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(NcAsmOnOffValue value) {
-        using enum NcAsmOnOffValue;
-        switch (value) {
-            case OFF:
-            case ON:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(NcAsmMode value) {
-        using enum NcAsmMode;
-        switch (value) {
-            case NC:
-            case ASM:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(AmbientSoundMode value) {
-        using enum AmbientSoundMode;
-        switch (value) {
-            case NORMAL:
-            case VOICE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(NoiseAdaptiveSensitivity value) {
-        using enum NoiseAdaptiveSensitivity;
-        switch (value) {
-            case STANDARD:
-            case HIGH:
-            case LOW:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(Function value) {
-        using enum Function;
-        switch (value) {
-            case NO_FUNCTION:
-            case NC_ASM_OFF:
-            case NC_ASM:
-            case NC_OFF:
-            case ASM_OFF:
-            case QUICK_ATTENTION:
-            case NC_OPTIMIZER:
-            case PLAY_PAUSE:
-            case NEXT_TRACK:
-            case PREV_TRACK:
-            case VOLUME_UP:
-            case VOLUME_DOWN:
-            case VOICE_RECOGNITION:
-            case GET_YOUR_NOTIFICATION:
-            case TALK_TO_GOOGLE_ASSISTANT:
-            case STOP_GOOGLE_ASSISTANT:
-            case VOICE_INPUT_CANCEL:
-            case TALK_TO_TENCENT_XIAOWEI:
-            case CANCEL_VOICE_RECOGNITION:
-            case VOICE_INPUT_AMAZON_ALEXA:
-            case CANCEL_AMAZON_ALEXA:
-            case CANCEL_TENCENT_XIAOWEI:
-            case LAUNCH_MLP:
-            case TALK_TO_YOUR_MLP:
-            case SPTF_ONE_TOUCH:
-            case QUICK_ACCESS1:
-            case QUICK_ACCESS2:
-            case TALK_TO_TENCENT_XIAOWEI_CANCEL:
-            case Q_MSC_ONE_TOUCH:
-            case TEAMS:
-            case TEAMS_VOICE_SKILLS:
-            case NC_NCSS_ASM_OFF:
-            case NC_NCSS_ASM:
-            case NC_NCSS_OFF:
-            case NCSS_ASM_OFF:
-            case NC_NCSS:
-            case NCSS_ASM:
-            case NCSS_OFF:
-            case AMB_SETTING:
-            case STANDARD_VOICE_SOUND:
-            case MIC_MUTE:
-            case GAME_UP:
-            case CHAT_UP:
+            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION:
+            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE:
+            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ:
+            case CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF:
+            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE:
+            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
+            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
+            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY:
+            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC:
+            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE:
+            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -1745,6 +2450,19 @@ namespace mdr::v2::t1 {
             case APP_BECOMES_FOREGROUND:
             case LE_AUDIO_ALERT_NOTIFICATION:
             case FLEXIBLE_MESSAGE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(AlertLeftRightAction value) {
+        using enum AlertLeftRightAction;
+        switch (value) {
+            case NEGATIVE:
+            case LEFT:
+            case RIGHT:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -1835,6 +2553,8 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_CALLING_WHEN_SVA_TRAINING:
             case CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_ENABLE_REPEAT_TAP:
             case CAUTION_FOR_CHANGE_KEY_ASSIGN_TO_BE_DISABLE_REPEAT_TAP:
+            case CAUTION_FOR_CHANGE_HEART_RATE_PROFILE_TO_ON:
+            case CAUTION_FOR_CHANGE_HEART_RATE_SENSOR_GREEN_LIGHT_TO_OFF:
             case CAUTION_FOR_ENABLING_2_DEVICES_CONNECTION_WITH_LDAC:
             case CAUTION_FOR_CHANGING_TO_QUALITY_PRIOR_CONNECTION_MODE_WITH_2_DEVICES_CONNECTION:
             case CAUTION_FOR_CONNECTED_2_DEVICES_IN_BACKGROUND_WITH_LDAC:
@@ -1856,72 +2576,9 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_NOT_CHARGING:
             case CAUTION_FOR_USB_SUBMERSION_MONITOR_DURING_CASE_IN:
             case TURN_KEY_EQ_SUCCESS:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(AlertFlexibleMessageType value) {
-        using enum AlertFlexibleMessageType;
-        switch (value) {
-            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_MULTI_POINT:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_VOICE_ASSISTANT:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_NO_RIGHT_SIDE_LIMITATION:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_GATT_WITHOUT_REBOOT_NO_RIGHT_SIDE_LIMITATION:
-            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_SIMULTANEOUS_3_SETTINGS_REPLY_CONFIMATION:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_BGM_MODE:
-            case CAUTION_FOR_FEATURES_EXCLUSIVE_TO_EQ:
-            case CAUTION_FOR_FUNCTIONS_THAT_ARE_EXCLUSIVE_WITH_BT_STANDBY_OFF:
-            case BATTERY_CONSUMPTION_INCREASE_DUE_TO_ALL_SETTING_ACTIVATE:
-            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
-            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
-            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_CLASSIC_ONLY:
-            case DISCONNECT_CAUSED_BY_CHANGING_CONNECTION_STANDBY_MODE_LE_AUDIO_CLASSIC:
-            case DISCONNECT_CAUSED_BY_ENTER_PAIRING_MODE_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION_SETTING_ON_CONNECTION_MODE:
-            case DISCONNECT_CAUSED_BY_CHANGE_CONNECTION_TO_LE_AUDIO_WITH_FOLLOWING_FOR_LE_AUDIO_LIMITATION:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(VoiceAssistantType value) {
-        using enum VoiceAssistantType;
-        switch (value) {
-            case GOOGLE_ASSISTANT:
-            case AMAZON_ALEXA:
-            case TENCENT_XIAOWEI:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ConfirmationType value) {
-        using enum ConfirmationType;
-        switch (value) {
-            case CONFIRMED:
-            case CONFIRMED_DONT_SHOW_AGAIN:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(AlertAction value) {
-        using enum AlertAction;
-        switch (value) {
-            case NEGATIVE:
-            case POSITIVE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(VibrationType value) {
-        using enum VibrationType;
-        switch (value) {
-            case NO_PATTERN_SPECIFIED:
+            case CAUTION_FOR_USB_OVERHEAT_DETECTION_DURING_NOT_CHARGING:
+            case CAUTION_FOR_USB_OVERHEAT_DETECTION_DURING_CASE_IN:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -1936,28 +2593,483 @@ namespace mdr::v2::t1 {
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITHOUT_REBOOT_ASSIGNABLE_SENSOR:
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_BUTTON:
             case CAUTION_FOR_CHANGE_VOICE_ASSISTANT_WITH_SVA_ASSIGNABLE_SENSOR:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(AlertLeftRightAction value) {
-        using enum AlertLeftRightAction;
+    static bool is_valid(AmbientSoundMode value) {
+        using enum AmbientSoundMode;
         switch (value) {
-            case NEGATIVE:
-            case LEFT:
-            case RIGHT:
+            case NORMAL:
+            case VOICE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(AlertActionType value) {
-        using enum AlertActionType;
+    static bool is_valid(AudioCodec value) {
+        using enum AudioCodec;
         switch (value) {
-            case CONFIRMATION_ONLY:
-            case POSITIVE_NEGATIVE:
-            case POSITIVE_CONFIRMATION_WITH_REPLY:
+            case UNSETTLED:
+            case SBC:
+            case AAC:
+            case LDAC:
+            case APT_X:
+            case APT_X_HD:
+            case LC3:
+            case OTHER:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(AudioExclusiveFunctionType value) {
+        using enum AudioExclusiveFunctionType;
+        switch (value) {
+            case EQUALIZER:
+            case DSEE:
+            case HEAD_TRACKER:
+            case LE_AUDIO:
+            case IMMERSIVE_AUDIO:
+            case SAR_OPTIMIZATION:
+            case GOOGLE_ASSISTANT:
+            case SPATIAL_AUDIO:
+            case BGM_MODE:
+            case UPMIX_CINEMA:
+            case SONY_VOICE_ASSISTANT:
+            case TENCENT_XIAOWEI:
+            case VOICE_CONTENTS:
+            case SOUND_LEAKAGE_REDUCTION:
+            case BRAVIA_3D_SURROUND:
+            case UPMIX_SERIES:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(AudioInquiredType value) {
+        using enum AudioInquiredType;
+        switch (value) {
+            case CONNECTION_MODE:
+            case UPSCALING:
+            case CONNECTION_MODE_WITH_LDAC_STATUS:
+            case BGM_MODE:
+            case UPMIX_CINEMA:
+            case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO:
+            case VOICE_CONTENTS:
+            case SOUND_LEAKAGE_REDUCTION:
+            case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE:
+            case BGM_MODE_AND_ERRORCODE:
+            case UPMIX_SERIES:
+            case UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(AutoPowerOffElements value) {
+        using enum AutoPowerOffElements;
+        switch (value) {
+            case POWER_OFF_IN_5_MIN:
+            case POWER_OFF_IN_30_MIN:
+            case POWER_OFF_IN_60_MIN:
+            case POWER_OFF_IN_180_MIN:
+            case POWER_OFF_IN_15_MIN:
+            case POWER_OFF_DISABLE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(AutoPowerOffWearingDetectionElements value) {
+        using enum AutoPowerOffWearingDetectionElements;
+        switch (value) {
+            case POWER_OFF_IN_5_MIN:
+            case POWER_OFF_IN_30_MIN:
+            case POWER_OFF_IN_60_MIN:
+            case POWER_OFF_IN_180_MIN:
+            case POWER_OFF_IN_15_MIN:
+            case POWER_OFF_WHEN_REMOVED_FROM_EARS:
+            case POWER_OFF_DISABLE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(BarometricPressure value) {
+        using enum BarometricPressure;
+        switch (value) {
+            case UNMEASURED:
+            case MEASURED_0_7:
+            case MEASURED_0_8:
+            case MEASURED_0_9:
+            case MEASURED_1_0:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(BatteryChargingStatus value) {
+        using enum BatteryChargingStatus;
+        switch (value) {
+            case NOT_CHARGING:
+            case CHARGING:
+            case UNKNOWN:
+            case CHARGED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(BatterySafeModeEffectStatusControl value) {
+        using enum BatterySafeModeEffectStatusControl;
+        switch (value) {
+            case NOT_TO_CHANGE:
+            case TURN_OFF_THE_EFFECT:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CallSettingsCallingStatus value) {
+        using enum CallSettingsCallingStatus;
+        switch (value) {
+            case IN_CALLING:
+            case OUT_OF_CALLING:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CallSettingsModeOperation value) {
+        using enum CallSettingsModeOperation;
+        switch (value) {
+            case MODE_START:
+            case MODE_FINISH:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CallSettingsSettingModeStatus value) {
+        using enum CallSettingsSettingModeStatus;
+        switch (value) {
+            case MODE_OUT:
+            case MODE_IN:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CallSettingsTestSoundControl value) {
+        using enum CallSettingsTestSoundControl;
+        switch (value) {
+            case START:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CallSettingsTestSoundControlAck value) {
+        using enum CallSettingsTestSoundControlAck;
+        switch (value) {
+            case ACK:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CallSettingsTestSoundStatus value) {
+        using enum CallSettingsTestSoundStatus;
+        switch (value) {
+            case TEST_SOUND_ENABLED:
+            case TEST_SOUND_DISABLED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ChangeType value) {
+        using enum ChangeType;
+        switch (value) {
+            case SETTING_AND_CONNECTION_METHOD_CHANGE:
+            case SETTING_CHANGE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(Command value) {
+        using enum Command;
+        switch (value) {
+            case CONNECT_GET_PROTOCOL_INFO:
+            case CONNECT_RET_PROTOCOL_INFO:
+            case CONNECT_GET_CAPABILITY_INFO:
+            case CONNECT_RET_CAPABILITY_INFO:
+            case CONNECT_GET_DEVICE_INFO:
+            case CONNECT_RET_DEVICE_INFO:
+            case CONNECT_GET_SUPPORT_FUNCTION:
+            case CONNECT_RET_SUPPORT_FUNCTION:
+            case GET_TEST:
+            case COMMON_GET_CAPABILITY:
+            case COMMON_RET_CAPABILITY:
+            case COMMON_GET_STATUS:
+            case COMMON_RET_STATUS:
+            case COMMON_NTFY_STATUS:
+            case COMMON_SET_PARAM:
+            case COMMON_NTFY_PARAM:
+            case POWER_GET_CAPABILITY:
+            case POWER_RET_CAPABILITY:
+            case POWER_GET_STATUS:
+            case POWER_RET_STATUS:
+            case POWER_SET_STATUS:
+            case POWER_NTFY_STATUS:
+            case POWER_GET_PARAM:
+            case POWER_RET_PARAM:
+            case POWER_SET_PARAM:
+            case POWER_NTFY_PARAM:
+            case UPDT_GET_CAPABILITY:
+            case UPDT_RET_CAPABILITY:
+            case UPDT_GET_STATUS:
+            case UPDT_RET_STATUS:
+            case UPDT_SET_STATUS:
+            case UPDT_NTFY_STATUS:
+            case UPDT_GET_PARAM:
+            case UPDT_RET_PARAM:
+            case UPDT_SET_PARAM:
+            case UPDT_NTFY_PARAM:
+            case UPDT_TRANSFER_DATA:
+            case UPDT_NTFY_MESSAGE:
+            case LEA_GET_CAPABILITY:
+            case LEA_RET_CAPABILITY:
+            case LEA_GET_STATUS:
+            case LEA_RET_STATUS:
+            case LEA_NTFY_STATUS:
+            case LEA_GET_PARAM:
+            case LEA_RET_PARAM:
+            case LEA_SET_PARAM:
+            case LEA_NTFY_PARAM:
+            case LEA_GET_EXTENDED_PARAM:
+            case LEA_RET_EXTENDED_PARAM:
+            case LEA_SET_EXTENDED_PARAM:
+            case LEA_NTFY_EXTENDED_PARAM:
+            case EQEBB_GET_CAPABILITY:
+            case EQEBB_RET_CAPABILITY:
+            case EQEBB_GET_STATUS:
+            case EQEBB_RET_STATUS:
+            case EQEBB_NTFY_STATUS:
+            case EQEBB_GET_PARAM:
+            case EQEBB_RET_PARAM:
+            case EQEBB_SET_PARAM:
+            case EQEBB_NTFY_PARAM:
+            case EQEBB_GET_EXTENDED_INFO:
+            case EQEBB_RET_EXTENDED_INFO:
+            case NCASM_GET_CAPABILITY:
+            case NCASM_RET_CAPABILITY:
+            case NCASM_GET_STATUS:
+            case NCASM_RET_STATUS:
+            case NCASM_SET_STATUS:
+            case NCASM_NTFY_STATUS:
+            case NCASM_GET_PARAM:
+            case NCASM_RET_PARAM:
+            case NCASM_SET_PARAM:
+            case NCASM_NTFY_PARAM:
+            case SENSE_GET_CAPABILITY:
+            case SENSE_RET_CAPABILITY:
+            case SENSE_SET_STATUS:
+            case SENSE_NTFY_STATUS:
+            case SENSE_SET_PARAM:
+            case SENSE_NTFY_PARAM:
+            case SENSE_GET_EXT_INFO:
+            case SENSE_RET_EXT_INFO:
+            case OPT_GET_CAPABILITY:
+            case OPT_RET_CAPABILITY:
+            case OPT_GET_STATUS:
+            case OPT_RET_STATUS:
+            case OPT_SET_STATUS:
+            case OPT_NTFY_STATUS:
+            case OPT_GET_PARAM:
+            case OPT_RET_PARAM:
+            case OPT_SET_PARAM:
+            case OPT_NTFY_PARAM:
+            case ALERT_GET_CAPABILITY:
+            case ALERT_RET_CAPABILITY:
+            case ALERT_GET_STATUS:
+            case ALERT_RET_STATUS:
+            case ALERT_SET_STATUS:
+            case ALERT_NTFY_STATUS:
+            case ALERT_SET_PARAM:
+            case ALERT_NTFY_PARAM:
+            case PLAY_GET_CAPABILITY:
+            case PLAY_RET_CAPABILITY:
+            case PLAY_GET_STATUS:
+            case PLAY_RET_STATUS:
+            case PLAY_SET_STATUS:
+            case PLAY_NTFY_STATUS:
+            case PLAY_GET_PARAM:
+            case PLAY_RET_PARAM:
+            case PLAY_SET_PARAM:
+            case PLAY_NTFY_PARAM:
+            case SAR_AUTO_PLAY_GET_CAPABILITY:
+            case SAR_AUTO_PLAY_RET_CAPABILITY:
+            case SAR_AUTO_PLAY_GET_STATUS:
+            case SAR_AUTO_PLAY_RET_STATUS:
+            case SAR_AUTO_PLAY_NTFY_STATUS:
+            case SAR_AUTO_PLAY_GET_PARAM:
+            case SAR_AUTO_PLAY_RET_PARAM:
+            case SAR_AUTO_PLAY_SET_PARAM:
+            case SAR_AUTO_PLAY_NTFY_PARAM:
+            case LOG_SET_STATUS:
+            case LOG_NTFY_PARAM:
+            case GENERAL_SETTING_GET_CAPABILITY:
+            case GENERAL_SETTING_RET_CAPABILITY:
+            case GENERAL_SETTING_GET_STATUS:
+            case GENERAL_SETTING_RET_STATUS:
+            case GENERAL_SETTING_NTFY_STATUS:
+            case GENERAL_SETTING_GET_PARAM:
+            case GENERAL_SETTING_RET_PARAM:
+            case GENERAL_SETTING_SET_PARAM:
+            case GENERAL_SETTING_NTNY_PARAM:
+            case AUDIO_GET_CAPABILITY:
+            case AUDIO_RET_CAPABILITY:
+            case AUDIO_GET_STATUS:
+            case AUDIO_RET_STATUS:
+            case AUDIO_NTFY_STATUS:
+            case AUDIO_GET_PARAM:
+            case AUDIO_RET_PARAM:
+            case AUDIO_SET_PARAM:
+            case AUDIO_NTFY_PARAM:
+            case SYSTEM_GET_CAPABILITY:
+            case SYSTEM_RET_CAPABILITY:
+            case SYSTEM_GET_STATUS:
+            case SYSTEM_RET_STATUS:
+            case SYSTEM_SET_STATUS:
+            case SYSTEM_NTFY_STATUS:
+            case SYSTEM_GET_PARAM:
+            case SYSTEM_RET_PARAM:
+            case SYSTEM_SET_PARAM:
+            case SYSTEM_NTFY_PARAM:
+            case SYSTEM_GET_EXT_PARAM:
+            case SYSTEM_RET_EXT_PARAM:
+            case SYSTEM_SET_EXT_PARAM:
+            case SYSTEM_NTFY_EXT_PARAM:
+            case UNKNOWN:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CommonConnectionStatus value) {
+        using enum CommonConnectionStatus;
+        switch (value) {
+            case NOT_CONNECTED:
+            case CONNECTED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(CommonInquiredType value) {
+        using enum CommonInquiredType;
+        switch (value) {
+            case CONCIERGE:
+            case CONNECTION_STATUS:
+            case AUDIO_CODEC:
+            case UPSCALING_EFFECT:
+            case BLE_SETUP:
+            case CONNECTION_ESTABLISHED_TIME:
+            case DEVICE_SPECIAL_MODE:
+            case SMART_PHONE_AND_CONNECTED_DEVICE_INFORMATION:
+            case TANDEM_RECONNECTION_REQUEST:
+            case DISPLAY_FW_VERSION:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ConfirmationType value) {
+        using enum ConfirmationType;
+        switch (value) {
+            case CONFIRMED:
+            case CONFIRMED_DONT_SHOW_AGAIN:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ConnectInquiredType value) {
+        using enum ConnectInquiredType;
+        switch (value) {
+            case FIXED_VALUE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ConnectionEstablishedTimeStatus value) {
+        using enum ConnectionEstablishedTimeStatus;
+        switch (value) {
+            case VALID:
+            case INVALID:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ConnectionStandbyModeChangeAction value) {
+        using enum ConnectionStandbyModeChangeAction;
+        switch (value) {
+            case DISCONNECT_CLASSIC_BY_CONNECT_LE:
+            case DISCONNECT_LE_BY_CONNECT_CLASSIC:
+            case DISCONNECT_CLASSIC_BY_PAIRING_LE:
+            case DISCONNECT_LE_BY_PAIRING_CLASSIC:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ConnectionStandbyModeResult value) {
+        using enum ConnectionStandbyModeResult;
+        switch (value) {
+            case WILL_DISCONNECT:
+            case DISCONNECT_USER_CANCEL:
+            case DISCONNECT_BY_USER_OPERATION:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ConnectionType value) {
+        using enum ConnectionType;
+        switch (value) {
+            case SPP:
+            case BLE_GATT:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -1968,119 +3080,48 @@ namespace mdr::v2::t1 {
         switch (value) {
             case LEFT:
             case RIGHT:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(PlayInquiredType value) {
-        using enum PlayInquiredType;
+    static bool is_valid(DetectSensitivity value) {
+        using enum DetectSensitivity;
         switch (value) {
-            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
-            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE:
-            case PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE:
-            case MUSIC_VOLUME:
-            case CALL_VOLUME:
-            case MUSIC_VOLUME_WITH_MUTE:
-            case CALL_VOLUME_WITH_MUTE:
-            case PLAY_MODE:
+            case AUTO:
+            case HIGH:
+            case LOW:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(PlaybackStatus value) {
-        using enum PlaybackStatus;
+    static bool is_valid(DeviceInfoType value) {
+        using enum DeviceInfoType;
         switch (value) {
-            case UNSETTLED:
-            case PLAY:
-            case PAUSE:
-            case STOP:
+            case MODEL_NAME:
+            case FW_VERSION:
+            case SERIES_AND_COLOR_INFO:
+            case INSTRUCTION_GUIDE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(MusicCallStatus value) {
-        using enum MusicCallStatus;
+    static bool is_valid(DeviceSpecialMode value) {
+        using enum DeviceSpecialMode;
         switch (value) {
-            case MUSIC:
-            case CALL:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(PlaybackControl value) {
-        using enum PlaybackControl;
-        switch (value) {
-            case KEY_OFF:
-            case PAUSE:
-            case TRACK_UP:
-            case TRACK_DOWN:
-            case GROUP_UP:
-            case GROUP_DOWN:
-            case STOP:
-            case PLAY:
-            case FAST_FORWARD:
-            case FAST_REWIND:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(PlaybackNameStatus value) {
-        using enum PlaybackNameStatus;
-        switch (value) {
-            case UNSETTLED:
-            case NOTHING:
-            case SETTLED:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(PlayMode value) {
-        using enum PlayMode;
-        switch (value) {
-            case PLAY_MODE_OFF:
-            case PLAY_FOLDER:
-            case REPEAT_ALL:
-            case REPEAT_FOLDER:
-            case REPEAT_TRACK:
-            case SHUFFLE_ALL:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(GsInquiredType value) {
-        using enum GsInquiredType;
-        switch (value) {
-            case GENERAL_SETTING1:
-            case GENERAL_SETTING2:
-            case GENERAL_SETTING3:
-            case GENERAL_SETTING4:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(GsSettingType value) {
-        using enum GsSettingType;
-        switch (value) {
-            case BOOLEAN_TYPE:
-            case LIST_TYPE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(GsSettingValue value) {
-        using enum GsSettingValue;
-        switch (value) {
-            case ON:
-            case OFF:
+            case NORMAL:
+            case TWO_DEVICES_CONNECTION_MODE:
+            case STEREO_PAIR:
+            case USB_DONGLE:
+            case PARTY_CONNECT:
+            case PARTY_CHAIN_TRANSMITTER:
+            case PARTY_CHAIN_RECEIVER:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -2106,6 +3147,403 @@ namespace mdr::v2::t1 {
             case TRADITIONAL_CHINESE:
             case KOREAN:
             case TURKISH:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceFittingDetectionModeResultCode value) {
+        using enum EarpieceFittingDetectionModeResultCode;
+        switch (value) {
+            case NO_ERROR:
+            case FORCEFULLY_CHANGED_FROM_ACC_BY_GENERAL_ERROR:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceFittingDetectionModeStatus value) {
+        using enum EarpieceFittingDetectionModeStatus;
+        switch (value) {
+            case MODE_OUT:
+            case MODE_IN:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceFittingDetectionOperation value) {
+        using enum EarpieceFittingDetectionOperation;
+        switch (value) {
+            case DETECTION_START:
+            case DETECTION_CANCEL:
+            case DETECTION_START_FORCEFUL:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceFittingDetectionOperationErrorCode value) {
+        using enum EarpieceFittingDetectionOperationErrorCode;
+        switch (value) {
+            case NO_ERROR:
+            case LEFT_CONNECTION_ERROR:
+            case RIGHT_CONNECTION_ERROR:
+            case FUNCTION_UNAVAILABLE_ERROR:
+            case LEFT_FITTING_ERROR:
+            case RIGHT_FITTING_ERROR:
+            case BOTH_FITTING_ERROR:
+            case MEASURING_ERROR:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceFittingDetectionOperationStatus value) {
+        using enum EarpieceFittingDetectionOperationStatus;
+        switch (value) {
+            case DETECTION_IS_NOT_STARTED:
+            case DETECTION_STARTED:
+            case DETECTION_COMPLETED_SUCCESSFULLY:
+            case DETECTION_COMPLETED_UNSUCCESSFULLY:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceFittingDetectionResult value) {
+        using enum EarpieceFittingDetectionResult;
+        switch (value) {
+            case GOOD:
+            case POOR:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceSeries value) {
+        using enum EarpieceSeries;
+        switch (value) {
+            case OTHER:
+            case POLYURETHANE:
+            case HYBRID:
+            case SOFT_FITTING_FOR_LINKBUDS_FIT:
+            case OUT_OF_RANGE:
+            case NOT_DETERMINED:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EarpieceSize value) {
+        using enum EarpieceSize;
+        switch (value) {
+            case SS:
+            case S:
+            case M:
+            case L:
+            case LL:
+            case OUT_OF_RANGE:
+            case NOT_DETERMINED:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EqBandInformationType value) {
+        using enum EqBandInformationType;
+        switch (value) {
+            case NO_INFORMATION:
+            case HZ:
+            case KHZ:
+            case SPECIFIC_INFORMATION:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EqEbbInquiredType value) {
+        using enum EqEbbInquiredType;
+        switch (value) {
+            case PRESET_EQ:
+            case EBB:
+            case PRESET_EQ_NONCUSTOMIZABLE:
+            case PRESET_EQ_AND_ULT_MODE:
+            case PRESET_EQ_AND_ERRORCODE:
+            case SOUND_EFFECT:
+            case CUSTOM_EQ:
+            case TURN_KEY_EQ:
+            case CUSTOMIZABLE_SOUND_EFFECT_SELECT:
+            case CUSTOMIZABLE_SOUND_EFFECT_RESET:
+            case CUSTOMIZABLE_SOUND_EFFECT_CUSTOM:
+            case CUSTOMIZABLE_SOUND_EFFECT_EXTERNAL_UPDATE:
+            case ULT_BTN_SOUND_EFFECT_ASSIGN:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EqPresetId value) {
+        using enum EqPresetId;
+        switch (value) {
+            case OFF:
+            case ROCK:
+            case POP:
+            case JAZZ:
+            case DANCE:
+            case EDM:
+            case R_AND_B_HIP_HOP:
+            case ACOUSTIC:
+            case RESERVED_FOR_FUTURE_NO8:
+            case RESERVED_FOR_FUTURE_NO9:
+            case RESERVED_FOR_FUTURE_NO10:
+            case RESERVED_FOR_FUTURE_NO11:
+            case RESERVED_FOR_FUTURE_NO12:
+            case RESERVED_FOR_FUTURE_NO13:
+            case RESERVED_FOR_FUTURE_NO14:
+            case RESERVED_FOR_FUTURE_NO15:
+            case BRIGHT:
+            case EXCITED:
+            case MELLOW:
+            case RELAXED:
+            case VOCAL:
+            case TREBLE:
+            case BASS:
+            case SPEECH:
+            case RESERVED_FOR_FUTURE_NO24:
+            case RESERVED_FOR_FUTURE_NO25:
+            case RESERVED_FOR_FUTURE_NO26:
+            case RESERVED_FOR_FUTURE_NO27:
+            case RESERVED_FOR_FUTURE_NO28:
+            case RESERVED_FOR_FUTURE_NO29:
+            case RESERVED_FOR_FUTURE_NO30:
+            case RESERVED_FOR_FUTURE_NO31:
+            case GAMING_EQ:
+            case FPS_1:
+            case FPS_2:
+            case FPS_3:
+            case HEAVY:
+            case CLEAR:
+            case HARD:
+            case SOFT:
+            case CUSTOM:
+            case USER_SETTING1:
+            case USER_SETTING2:
+            case USER_SETTING3:
+            case USER_SETTING4:
+            case USER_SETTING5:
+            case ARTIST_COLLAB1:
+            case ARTIST_COLLAB2:
+            case ARTIST_COLLAB3:
+            case ARTIST_COLLAB4:
+            case ARTIST_COLLAB5:
+            case ARTIST_COLLAB6:
+            case ARTIST_COLLAB7:
+            case ARTIST_COLLAB8:
+            case ARTIST_COLLAB9:
+            case ARTIST_COLLAB10:
+            case ARTIST_COLLAB11:
+            case ARTIST_COLLAB12:
+            case UNSPECIFIED:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(EqUltModeStatus value) {
+        using enum EqUltModeStatus;
+        switch (value) {
+            case OFF:
+            case ULT_1:
+            case ULT_2:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ExclusiveFunctionId value) {
+        using enum ExclusiveFunctionId;
+        switch (value) {
+            case STAMINA:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(FaceTapAction value) {
+        using enum FaceTapAction;
+        switch (value) {
+            case DOUBLE_TAP:
+            case TRIPLE_TAP:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(FaceTapKey value) {
+        using enum FaceTapKey;
+        switch (value) {
+            case LEFT_SIDE_KEY:
+            case RIGHT_SIDE_KEY:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(FaceTapTestModeOperation value) {
+        using enum FaceTapTestModeOperation;
+        switch (value) {
+            case TEST_MODE_START:
+            case TEST_MODE_FINISH:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(FaceTapTestModeStatus value) {
+        using enum FaceTapTestModeStatus;
+        switch (value) {
+            case IN_TEST_MODE:
+            case OUT_OF_TEST_MODE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(FlexibleMessageItemId value) {
+        using enum FlexibleMessageItemId;
+        switch (value) {
+            case EQUALIZER:
+            case DSEE:
+            case SPEAK_TO_CHAT:
+            case AUTO_VOLUME_CONTROL:
+            case ACTIVATE_VOICE_ASSISTANT_WITH_YOUR_VOICE:
+            case GATT:
+            case LDAC:
+            case SOUND_QUALITY_PRIOR:
+            case GOOGLE_ASSISTANT:
+            case VOICE_ASSISTANT:
+            case FW_UPDATE:
+            case MULTI_POINT:
+            case VOICE_ASSISTANT_WAKE_WORD:
+            case BGM_MODE:
+            case BATTERY_SAFE_MODE:
+            case HEAD_TRACKING:
+            case LE_AUDIO:
+            case IMMERSIVE_AUDIO:
+            case LINK_AUTO_SWITCHING:
+            case AUTO_PLAY_PARTIAL_FUNCTION:
+            case NOISE_CANCELLING:
+            case SOUND_AR:
+            case VOICE_UI:
+            case QUICK_ACCESS:
+            case CONNECTION_MODE:
+            case AUTO_PLAY:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(Function value) {
+        using enum Function;
+        switch (value) {
+            case NO_FUNCTION:
+            case NC_ASM_OFF:
+            case NC_ASM:
+            case NC_OFF:
+            case ASM_OFF:
+            case QUICK_ATTENTION:
+            case NC_OPTIMIZER:
+            case PLAY_PAUSE:
+            case NEXT_TRACK:
+            case PREV_TRACK:
+            case VOLUME_UP:
+            case VOLUME_DOWN:
+            case VOICE_RECOGNITION:
+            case GET_YOUR_NOTIFICATION:
+            case TALK_TO_GOOGLE_ASSISTANT:
+            case STOP_GOOGLE_ASSISTANT:
+            case VOICE_INPUT_CANCEL:
+            case TALK_TO_TENCENT_XIAOWEI:
+            case CANCEL_VOICE_RECOGNITION:
+            case VOICE_INPUT_AMAZON_ALEXA:
+            case CANCEL_AMAZON_ALEXA:
+            case CANCEL_TENCENT_XIAOWEI:
+            case NEXT_TRACK_STOP_GEMINI_LIVE:
+            case PREV_TRACK_STOP_GEMINI_LIVE:
+            case LAUNCH_MLP:
+            case TALK_TO_YOUR_MLP:
+            case SPTF_ONE_TOUCH:
+            case QUICK_ACCESS1:
+            case QUICK_ACCESS2:
+            case TALK_TO_TENCENT_XIAOWEI_CANCEL:
+            case Q_MSC_ONE_TOUCH:
+            case TEAMS:
+            case TEAMS_VOICE_SKILLS:
+            case NC_NCSS_ASM_OFF:
+            case NC_NCSS_ASM:
+            case NC_NCSS_OFF:
+            case NCSS_ASM_OFF:
+            case NC_NCSS:
+            case NCSS_ASM:
+            case NCSS_OFF:
+            case AMB_SETTING:
+            case STANDARD_VOICE_SOUND:
+            case LISTENING_MODE:
+            case MIC_MUTE:
+            case GAME_UP:
+            case CHAT_UP:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(GsInquiredType value) {
+        using enum GsInquiredType;
+        switch (value) {
+            case GENERAL_SETTING1:
+            case GENERAL_SETTING2:
+            case GENERAL_SETTING3:
+            case GENERAL_SETTING4:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(GsSettingType value) {
+        using enum GsSettingType;
+        switch (value) {
+            case BOOLEAN_TYPE:
+            case LIST_TYPE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(GsSettingValue value) {
+        using enum GsSettingValue;
+        switch (value) {
+            case ON:
+            case OFF:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -2116,57 +3554,116 @@ namespace mdr::v2::t1 {
         switch (value) {
             case RAW_NAME:
             case ENUM_NAME:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(AudioInquiredType value) {
-        using enum AudioInquiredType;
+    static bool is_valid(GuidanceCategory value) {
+        using enum GuidanceCategory;
         switch (value) {
-            case CONNECTION_MODE:
-            case UPSCALING:
-            case CONNECTION_MODE_WITH_LDAC_STATUS:
-            case BGM_MODE:
-            case UPMIX_CINEMA:
-            case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO:
-            case VOICE_CONTENTS:
-            case SOUND_LEAKAGE_REDUCTION:
-            case LISTENING_OPTION_ASSIGN_CUSTOMIZABLE:
-            case BGM_MODE_AND_ERRORCODE:
-            case UPMIX_SERIES:
+            case CHANGE_EARPIECE:
+            case CHANGE_EARPIECE_WITH_EARPIECE_ASSISTANT:
+            case WEAR_EARPHONE:
+            case PLAY_BUTTON_OPERATION:
+            case TOUCH_PAD_OPERATION:
+            case FACE_TAP_OPERATION:
+            case MAIN_BODY_OPERATION:
+            case FIXED_LEFT_KEY_OPERATION:
+            case FIXED_RIGHT_KEY_OPERATION:
+            case QUICK_ATTENTION:
+            case ASSIGNABLE_BUTTON_SETTINGS:
+            case SPEAK_TO_CHAT:
+            case TWS_ONE_SIDE_USE:
+            case AUTO_NC_OPTIMIZER:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(PriorMode value) {
-        using enum PriorMode;
+    static bool is_valid(HeadGestureAction value) {
+        using enum HeadGestureAction;
         switch (value) {
-            case SOUND_QUALITY_PRIOR:
-            case CONNECTION_QUALITY_PRIOR:
-            case LOW_LATENCY_PRIOR_BETA:
+            case NOD:
+            case SWING:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(UpscalingTypeAutoOff value) {
-        using enum UpscalingTypeAutoOff;
+    static bool is_valid(HeadGestureTrainingModeStatus value) {
+        using enum HeadGestureTrainingModeStatus;
         switch (value) {
-            case OFF:
-            case AUTO:
+            case IN_TEST_MODE:
+            case OUT_OF_TEST_MODE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(RoomSize value) {
-        using enum RoomSize;
+    static bool is_valid(Key value) {
+        using enum Key;
         switch (value) {
-            case SMALL:
-            case MIDDLE:
-            case LARGE:
+            case LEFT_SIDE:
+            case RIGHT_SIDE:
+            case CUSTOM:
+            case C:
+            case NC_AMB_KEY:
+            case NC_AMBIENT_KEY:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(LDACExclusiveFeature value) {
+        using enum LDACExclusiveFeature;
+        switch (value) {
+            case GATT_CONNECTABLE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(LEAInquiredType value) {
+        using enum LEAInquiredType;
+        switch (value) {
+            case TWS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD:
+            case HBS_SUPPORTS_A2DP_LEA_UNI_LEA_BROAD_WITH_CTKD:
+            case TWS_SUPPORTS_LEA_UNI_LEA_BROAD:
+            case CLASSIC_ONLY_LE_CLASSIC_SETTING:
+            case EXECUTE_TANDEM_TARGET_CHANGE:
+            case CHANGE_TANDEM_CONNECTION_PROFILE_FOR_ANDROID:
+            case NOTIFY_DISCONNECTING_TANDEM:
+            case BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case HEAD_TRACKER_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case PAIRING_DEVICE_MANAGEMENT_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case SOUND_AR_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case GATT_CONNECTABLE_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case SOUND_AR_OPTIMIZATION_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case QUICK_ACCESS_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case CONNECTION_MODE_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case VOICE_ASSISTANT_SETTINGS_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case VOICE_ASSISTANT_WAKE_WORD_CANT_BE_USED_WITH_LEA_CONNECTION:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(LimitationType value) {
+        using enum LimitationType;
+        switch (value) {
+            case NO_DESCRIPTION:
+            case CANT_USE_VOICE_ASSISTANT_PRESET_WHILE_LE_AUDIO_CONNECTION:
+            case CANT_USE_VOICE_ASSISTANT_FUNCTION_UNDER_PLAYBACK_CONTROL_WHILE_LE_AUDIO_CONNECTION:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -2180,66 +3677,428 @@ namespace mdr::v2::t1 {
             case UPMIX_CINEMA:
             case UPMIX_GAME:
             case UPMIX_MUSIC:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(UpmixItemId value) {
-        using enum UpmixItemId;
+    static bool is_valid(ListeningOptionAssignFlexibility value) {
+        using enum ListeningOptionAssignFlexibility;
+        switch (value) {
+            case FIXED:
+            case FLEXIBLE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ListeningOptionAssignIsMandatory value) {
+        using enum ListeningOptionAssignIsMandatory;
+        switch (value) {
+            case MANDATORY:
+            case NOT_MANDATORY:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(LogInquiredType value) {
+        using enum LogInquiredType;
+        switch (value) {
+            case ACTION_LOG_NOTIFIER:
+            case TIME_SERIES_OPERATIONLOG_NOTIFIER:
+            case SOUND_DROPOUT_NOTIFIER:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(MacType value) {
+        using enum MacType;
         switch (value) {
             case NONE:
-            case CINEMA:
-            case GAME:
+            case MD5:
+            case SHA1:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(MessageType value) {
+        using enum MessageType;
+        switch (value) {
+            case NO_USE:
+            case FW_UPDATE_COMPLETED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ModeOutTime value) {
+        using enum ModeOutTime;
+        switch (value) {
+            case FAST:
+            case MID:
+            case SLOW:
+            case NONE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ModelSeries value) {
+        using enum ModelSeries;
+        switch (value) {
+            case NO_SERIES:
+            case EXTRA_BASS:
+            case ULT_POWER_SOUND:
+            case HEAR:
+            case PREMIUM:
+            case SPORTS:
+            case CASUAL:
+            case LINK_BUDS:
+            case NECKBAND:
+            case LINKPOD:
+            case GAMING:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(MusicCallStatus value) {
+        using enum MusicCallStatus;
+        switch (value) {
             case MUSIC:
+            case CALL:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(SwitchingStream value) {
-        using enum SwitchingStream;
+    static bool is_valid(NcAsmInquiredType value) {
+        using enum NcAsmInquiredType;
+        switch (value) {
+            case NC_ON_OFF:
+            case NC_ON_OFF_AND_ASM_ON_OFF:
+            case NC_MODE_SWITCH_AND_ASM_ON_OFF:
+            case NC_ON_OFF_AND_ASM_SEAMLESS:
+            case NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA:
+            case ASM_ON_OFF:
+            case ASM_SEAMLESS:
+            case NC_AMB_TOGGLE:
+            case NC_TEST_MODE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NcAsmMode value) {
+        using enum NcAsmMode;
+        switch (value) {
+            case NC:
+            case ASM:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NcAsmOnOffValue value) {
+        using enum NcAsmOnOffValue;
+        switch (value) {
+            case OFF:
+            case ON:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NcNcssAsmMode value) {
+        using enum NcNcssAsmMode;
+        switch (value) {
+            case NC:
+            case ASM:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NcTestModeOperation value) {
+        using enum NcTestModeOperation;
+        switch (value) {
+            case TEST_MODE_START:
+            case TEST_MODE_FINISH:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NcTestModeStatus value) {
+        using enum NcTestModeStatus;
+        switch (value) {
+            case IN_TEST_MODE:
+            case OUT_OF_TEST_MODE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NcValue value) {
+        using enum NcValue;
+        switch (value) {
+            case OFF:
+            case ON_SINGLE:
+            case ON_DUAL:
+            case AUTO:
+            case AUTO_SINGLE:
+            case AUTO_DUAL:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NoiseAdaptiveMode value) {
+        using enum NoiseAdaptiveMode;
+        switch (value) {
+            case ON:
+            case OFF:
+            case PAUSED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(NoiseAdaptiveSensitivity value) {
+        using enum NoiseAdaptiveSensitivity;
+        switch (value) {
+            case STANDARD:
+            case HIGH:
+            case LOW:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(OptExclusiveFunctionType value) {
+        using enum OptExclusiveFunctionType;
         switch (value) {
             case NONE:
-            case LE_AUDIO:
-            case CLASSIC_AUDIO:
+            case SOUND_EFFECT_CUSTOM:
+            case SOUND_FIELD_OPTIMIZATION:
+            case STAMINA:
+            case STEREO_PAIR:
+            case TV_SOUND_BOOSTER:
+            case PARTY_CONNECT:
+            case HANDSFREE:
+            case PARTY_CHAIN_TRANSMITTER:
+            case PARTY_CHAIN_RECEIVER:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(UpscalingType value) {
-        using enum UpscalingType;
+    static bool is_valid(OptInquiredType value) {
+        using enum OptInquiredType;
         switch (value) {
-            case DSEE_HX:
-            case DSEE:
-            case DSEE_HX_AI:
-            case DSEE_ULTIMATE:
+            case NC_OPTIMIZER_PERSONAL_BAROMETRIC:
+            case NC_OPTIMIZER_PERSONAL:
+            case NC_OPTIMIZER_BAROMETRIC:
+            case SOUND_FIELD_OPTIMIZATION:
+            case TV_SOUND_BOOSTER:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(SystemInquiredType value) {
-        using enum SystemInquiredType;
+    static bool is_valid(OptimizerControl value) {
+        using enum OptimizerControl;
         switch (value) {
-            case VIBRATOR:
-            case PLAYBACK_CONTROL_BY_WEARING:
-            case SMART_TALKING_MODE_TYPE1:
-            case ASSIGNABLE_SETTINGS:
-            case VOICE_ASSISTANT_SETTINGS:
-            case VOICE_ASSISTANT_WAKE_WORD:
-            case WEARING_STATUS_DETECTOR:
-            case EARPIECE_SELECTION:
-            case CALL_SETTINGS:
-            case RESET_SETTINGS:
-            case AUTO_VOLUME:
-            case FACE_TAP_TEST_MODE:
-            case SMART_TALKING_MODE_TYPE2:
-            case QUICK_ACCESS:
-            case ASSIGNABLE_SETTINGS_WITH_LIMITATION:
-            case HEAD_GESTURE_ON_OFF:
-            case HEAD_GESTURE_TRAINING:
+            case CANCEL:
+            case START:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(OptimizerStatus value) {
+        using enum OptimizerStatus;
+        switch (value) {
+            case IDLE:
+            case IN_PROGRESS_OF_PERSONAL:
+            case IN_PROGRESS_OF_BAROMETRIC_PRESSURE:
+            case OPTIMIZING:
+            case OPTIMIZER_END:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PersonalValue value) {
+        using enum PersonalValue;
+        switch (value) {
+            case UNMEASURED:
+            case MEASURED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PlayInquiredType value) {
+        using enum PlayInquiredType;
+        switch (value) {
+            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
+            case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE:
+            case PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE:
+            case MUSIC_VOLUME:
+            case CALL_VOLUME:
+            case MUSIC_VOLUME_WITH_MUTE:
+            case CALL_VOLUME_WITH_MUTE:
+            case PLAY_MODE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PlayMode value) {
+        using enum PlayMode;
+        switch (value) {
+            case PLAY_MODE_OFF:
+            case PLAY_FOLDER:
+            case REPEAT_ALL:
+            case REPEAT_FOLDER:
+            case REPEAT_TRACK:
+            case SHUFFLE_ALL:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PlaybackControl value) {
+        using enum PlaybackControl;
+        switch (value) {
+            case KEY_OFF:
+            case PAUSE:
+            case TRACK_UP:
+            case TRACK_DOWN:
+            case GROUP_UP:
+            case GROUP_DOWN:
+            case STOP:
+            case PLAY:
+            case FAST_FORWARD:
+            case FAST_REWIND:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PlaybackNameStatus value) {
+        using enum PlaybackNameStatus;
+        switch (value) {
+            case UNSETTLED:
+            case NOTHING:
+            case SETTLED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PlaybackStatus value) {
+        using enum PlaybackStatus;
+        switch (value) {
+            case UNSETTLED:
+            case PLAY:
+            case PAUSE:
+            case STOP:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PowerExclusiveFunctionType value) {
+        using enum PowerExclusiveFunctionType;
+        switch (value) {
+            case SOUND_EFFECT:
+            case LIGHTING_MODE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PowerInquiredType value) {
+        using enum PowerInquiredType;
+        switch (value) {
+            case BATTERY:
+            case LEFT_RIGHT_BATTERY:
+            case CRADLE_BATTERY:
+            case POWER_OFF:
+            case AUTO_POWER_OFF:
+            case AUTO_POWER_OFF_WEARING_DETECTION:
+            case POWER_SAVE_MODE:
+            case LINK_CONTROL:
+            case BATTERY_WITH_THRESHOLD:
+            case LR_BATTERY_WITH_THRESHOLD:
+            case CRADLE_BATTERY_WITH_THRESHOLD:
+            case BATTERY_SAFE_MODE:
+            case CARING_CHARGE:
+            case BT_STANDBY:
+            case STAMINA:
+            case AUTOMATIC_TOUCH_PANEL_BACKLIGHT_TURN_OFF:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PowerOffSettingValue value) {
+        using enum PowerOffSettingValue;
+        switch (value) {
+            case USER_POWER_OFF:
+            case FACTORY_POWER_OFF:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PreferredSoundEffect value) {
+        using enum PreferredSoundEffect;
+        switch (value) {
+            case MDR_UPMIX:
+            case BRAVIA_3D_SURROUND:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
@@ -2270,10 +4129,509 @@ namespace mdr::v2::t1 {
             case TENCENT_XIAOWEI_Q_MSC_WITH_AVAILABLE_ONLY_ON_BT_CLASSIC_CONNECTION_CAUTION:
             case AMBIENT_SOUND_CONTROL_MIC:
             case LISTENING_MODE_QUICK_ACCESS:
+            case AMBIENT_SOUND_CONTROL_LISTENING_MODE:
             case CHAT_MIX:
             case CUSTOM1:
             case CUSTOM2:
             case NO_FUNCTION:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PresetEqErrorCodeType value) {
+        using enum PresetEqErrorCodeType;
+        switch (value) {
+            case CALLING:
+            case DEMO_MODE:
+            case LISTENING_MODE:
+            case OTHER:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(PriorMode value) {
+        using enum PriorMode;
+        switch (value) {
+            case SOUND_QUALITY_PRIOR:
+            case CONNECTION_QUALITY_PRIOR:
+            case LOW_LATENCY_PRIOR_BETA:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(QuickAccessKey value) {
+        using enum QuickAccessKey;
+        switch (value) {
+            case L_R_KEY:
+            case NC_AMB_KEY:
+            case FIXED_QUICK_ACCESS_KEY:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(RequestType value) {
+        using enum RequestType;
+        switch (value) {
+            case UNDER_CONFIRMATION:
+            case EXECUTE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ResetResult value) {
+        using enum ResetResult;
+        switch (value) {
+            case SUCCESS:
+            case ERROR_CONNECTION_LEFT:
+            case ERROR_CONNECTION_RIGHT:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ResetType value) {
+        using enum ResetType;
+        switch (value) {
+            case SETTINGS_ONLY:
+            case FACTORY_RESET:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(RoomSize value) {
+        using enum RoomSize;
+        switch (value) {
+            case SMALL:
+            case MIDDLE:
+            case LARGE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SARAutoPlayExclusiveFunction value) {
+        using enum SARAutoPlayExclusiveFunction;
+        switch (value) {
+            case FW_UPDATE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SARAutoPlayInquiredType value) {
+        using enum SARAutoPlayInquiredType;
+        switch (value) {
+            case SAR:
+            case AUTO_PLAY:
+            case INTEGRATED_AUTO_PLAY:
+            case GATT_CONNECTABLE:
+            case SAR_OPTIMIZATION_COMPASS_ACCEL_TYPE:
+            case SAR_OPTIMIZATION_ACCEL_TYPE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SARAutoPlaySensorCalibrationState value) {
+        using enum SARAutoPlaySensorCalibrationState;
+        switch (value) {
+            case ACCEL_MEASURING_START:
+            case ACCEL_MEASURING_FAIL:
+            case ACCEL_MEASURING_SUCCESS:
+            case COMPASS_MEASURING_START:
+            case COMPASS_MEASURING_FAIL:
+            case COMPASS_MEASURING_SUCCESS:
+            case MEASURING_FINISH:
+            case MEASURING_INTERRUPTED:
+            case ACCEL_MEASURING_FAIL_L_R_ARE_REVERSED:
+            case ACCEL_MEASURING_FAIL_SWING_ANGLE_INSUFFICIENT:
+            case ACCEL_MEASURING_FAIL_KEEP_TIME_OF_PEEK_OF_SWING_INSUFFICIENT:
+            case MEASURING_INTERRUPTED_DISCONNECT_L:
+            case MEASURING_INTERRUPTED_DISCONNECT_R:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SARAutoPlaySensorCalibrationValue value) {
+        using enum SARAutoPlaySensorCalibrationValue;
+        switch (value) {
+            case UNOPTIMIZED:
+            case OPTIMIZED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SARAutoPlaySupportedAutoPlayService value) {
+        using enum SARAutoPlaySupportedAutoPlayService;
+        switch (value) {
+            case MS:
+            case SPTF:
+            case EDL:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SARAutoPlaySupportedSARService value) {
+        using enum SARAutoPlaySupportedSARService;
+        switch (value) {
+            case LOCA_APP:
+            case SSCP:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SenseApplicableFunction value) {
+        using enum SenseApplicableFunction;
+        switch (value) {
+            case NC_ON_OFF_AND_ASM_ON_OFF:
+            case NC_MODE_SWITCH_AND_ASM_ON_OFF:
+            case NC_ON_OFF_AND_ASM_SEAMLESS:
+            case NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_AUTO_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_DUAL_SINGLE_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_NCSS_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
+            case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA:
+            case EQ_PRESET_ID:
+            case SMART_TALKING_MODE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SenseInquiredType value) {
+        using enum SenseInquiredType;
+        switch (value) {
+            case ADAPTIVE_CONTROL:
+            case ADAPTIVE_CONTROL_WITH_PARAMETER_NOTIFICATION:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SenseSettingControl value) {
+        using enum SenseSettingControl;
+        switch (value) {
+            case START_SETTING:
+            case END_SETTING:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SmartTalkingModeEffectStatus value) {
+        using enum SmartTalkingModeEffectStatus;
+        switch (value) {
+            case NOT_ACTIVE:
+            case ACTIVE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SmartTalkingModePreviewType value) {
+        using enum SmartTalkingModePreviewType;
+        switch (value) {
+            case NOT_SUPPORT:
+            case SUPPORT:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SoundEffectType value) {
+        using enum SoundEffectType;
+        switch (value) {
+            case SOUND_EFFECT_OFF:
+            case SOUND_EFFECT_ULT:
+            case SOUND_EFFECT_ULT1:
+            case SOUND_EFFECT_ULT2:
+            case SOUND_EFFECT_CUSTOM:
+            case SOUND_EFFECT_FLAT:
+            case SOUND_EFFECT_LIVE:
+            case SOUND_EFFECT_NONE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(StatusErrorCodeType value) {
+        using enum StatusErrorCodeType;
+        switch (value) {
+            case CALLING:
+            case DEMO_MODE:
+            case LE_AUDIO_CONNECTED:
+            case LE_AUDION_MUSIC_PLAYING:
+            case TANDEM_OVER_GATT_CONNECTED:
+            case VOICE_UI_GOOGLE:
+            case VOICE_UI_SONY:
+            case VOICE_UI_TENCENT:
+            case UPMIX_CINEMA:
+            case UPMIX_GAME:
+            case UPMIX_MUSIC:
+            case LISTENING_MODE_IS_NOT_STANDARD:
+            case OTHER:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SwitchingStream value) {
+        using enum SwitchingStream;
+        switch (value) {
+            case NONE:
+            case LE_AUDIO:
+            case CLASSIC_AUDIO:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(SystemInquiredType value) {
+        using enum SystemInquiredType;
+        switch (value) {
+            case VIBRATOR:
+            case PLAYBACK_CONTROL_BY_WEARING:
+            case SMART_TALKING_MODE_TYPE1:
+            case ASSIGNABLE_SETTINGS:
+            case VOICE_ASSISTANT_SETTINGS:
+            case VOICE_ASSISTANT_WAKE_WORD:
+            case WEARING_STATUS_DETECTOR:
+            case EARPIECE_SELECTION:
+            case CALL_SETTINGS:
+            case RESET_SETTINGS:
+            case AUTO_VOLUME:
+            case FACE_TAP_TEST_MODE:
+            case SMART_TALKING_MODE_TYPE2:
+            case QUICK_ACCESS:
+            case ASSIGNABLE_SETTINGS_WITH_LIMITATION:
+            case HEAD_GESTURE_ON_OFF:
+            case HEAD_GESTURE_TRAINING:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(TandemFotaCommand value) {
+        using enum TandemFotaCommand;
+        switch (value) {
+            case ENTER_FW_UPDATE_MODE:
+            case EXIT_FW_UPDATE_MODE:
+            case START_TRANSFER:
+            case FINISH_TRANSFER:
+            case CANCEL_TRANSFER:
+            case EXECUTE_FW_UPDATE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(TandemFotaResult value) {
+        using enum TandemFotaResult;
+        switch (value) {
+            case OK:
+            case ERROR_OTHER_THAN_SPECIFIC_ERROR:
+            case ERROR_ILLEGAL_STATE:
+            case ERROR_ILLEGAL_ARGUMENTS:
+            case ERROR_NO_NEED_OF_DATA_TRANSFER:
+            case ERROR_FIRMWARE_TRANSFER_INCOMPLETED:
+            case ERROR_NEED_POWER_CABLE_CONNECTED_AND_ENOUGH_BATTERY:
+            case ERROR_TEMPERATURE_IS_TOO_HIGH:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(TandemFotaStatus value) {
+        using enum TandemFotaStatus;
+        switch (value) {
+            case INVALID:
+            case IDLE:
+            case NOT_READY:
+            case DATA_RECEIVING:
+            case UPDATING:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(Topology value) {
+        using enum Topology;
+        switch (value) {
+            case SINGLE_SPEAKER:
+            case TWS:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(TrainingModeOperation value) {
+        using enum TrainingModeOperation;
+        switch (value) {
+            case TRAINING_MODE_START:
+            case TRAINING_MODE_FINISH:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(TurnKeyEqResult value) {
+        using enum TurnKeyEqResult;
+        switch (value) {
+            case SUCCESS:
+            case NOT_SUPPORTED:
+            case JUDGEMENT_FAIL:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(Type value) {
+        using enum Type;
+        switch (value) {
+            case TOUCH_SENSOR:
+            case BUTTON:
+            case FACE_TAP:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UpdtInquiredType value) {
+        using enum UpdtInquiredType;
+        switch (value) {
+            case FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION:
+            case FW_UPDATE_MTK_TRANSFER_WO_DISCONNECTION_AUTO_UPDATE:
+            case FW_UPDATE_MTK_TRANSFER_WITH_REPAIR_MODE:
+            case FW_UPDATE_MTK_TRANSFER_WITH_AC_CONNECTION_CHECK:
+            case FW_UPDATE_USING_MC_APP:
+            case FW_UPDATE_TANDEM_PART1:
+            case FW_UPDATE_TANDEM_PART2:
+            case FW_UPDATE_TANDEM_PART3:
+            case FW_UPDATE_TANDEM_PART4:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UpmixItemId value) {
+        using enum UpmixItemId;
+        switch (value) {
+            case NONE:
+            case CINEMA:
+            case GAME:
+            case MUSIC:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UpscalingEffectStatus value) {
+        using enum UpscalingEffectStatus;
+        switch (value) {
+            case OFF:
+            case VALID:
+            case INVALID:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UpscalingEffectType value) {
+        using enum UpscalingEffectType;
+        switch (value) {
+            case DSEE_HX:
+            case DSEE:
+            case DSEE_HX_AI:
+            case DSEE_ULTIMATE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UpscalingType value) {
+        using enum UpscalingType;
+        switch (value) {
+            case DSEE_HX:
+            case DSEE:
+            case DSEE_HX_AI:
+            case DSEE_ULTIMATE:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(UpscalingTypeAutoOff value) {
+        using enum UpscalingTypeAutoOff;
+        switch (value) {
+            case OFF:
+            case AUTO:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(ValueChangeStatus value) {
+        using enum ValueChangeStatus;
+        switch (value) {
+            case UNDER_CHANGING:
+            case CHANGED:
+            case OUT_OF_RANGE:
+            return true;
+        default:
+           return false;
+        }
+    }
+    static bool is_valid(VibrationType value) {
+        using enum VibrationType;
+        switch (value) {
+            case NO_PATTERN_SPECIFIED:
             return true;
         default:
            return false;
@@ -2288,191 +4646,45 @@ namespace mdr::v2::t1 {
             case TENCENT_XIAOWEI:
             case SONY_VOICE_ASSISTANT:
             case VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE:
+            case OUT_OF_RANGE:
             case NO_FUNCTION:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(EarpieceFittingDetectionOperationStatus value) {
-        using enum EarpieceFittingDetectionOperationStatus;
+    static bool is_valid(VoiceAssistantKeyType value) {
+        using enum VoiceAssistantKeyType;
         switch (value) {
-            case DETECTION_IS_NOT_STARTED:
-            case DETECTION_STARTED:
-            case DETECTION_COMPLETED_SUCCESSFULLY:
-            case DETECTION_COMPLETED_UNSUCCESSFULLY:
+            case FIXED_BUTTON:
+            case TOUCH_SENSOR_CONTROL_PANEL:
+            case ASSIGNABLE_BUTTON:
+            case ASSIGNABLE_SENSOR:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(EarpieceFittingDetectionOperationErrorCode value) {
-        using enum EarpieceFittingDetectionOperationErrorCode;
+    static bool is_valid(VoiceAssistantType value) {
+        using enum VoiceAssistantType;
         switch (value) {
-            case NO_ERROR:
-            case LEFT_CONNECTION_ERROR:
-            case RIGHT_CONNECTION_ERROR:
-            case FUNCTION_UNAVAILABLE_ERROR:
-            case LEFT_FITTING_ERROR:
-            case RIGHT_FITTING_ERROR:
-            case BOTH_FITTING_ERROR:
-            case MEASURING_ERROR:
+            case GOOGLE_ASSISTANT:
+            case AMAZON_ALEXA:
+            case TENCENT_XIAOWEI:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;
         }
     }
-    static bool is_valid(EarpieceSeries value) {
-        using enum EarpieceSeries;
+    static bool is_valid(VoiceAssistantWakeWordStatus value) {
+        using enum VoiceAssistantWakeWordStatus;
         switch (value) {
-            case OTHER:
-            case POLYURETHANE:
-            case HYBRID:
-            case SOFT_FITTING_FOR_LINKBUDS_FIT:
-            case NOT_DETERMINED:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(EarpieceSize value) {
-        using enum EarpieceSize;
-        switch (value) {
-            case SS:
-            case S:
-            case M:
-            case L:
-            case LL:
-            case NOT_DETERMINED:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(EarpieceFittingDetectionOperation value) {
-        using enum EarpieceFittingDetectionOperation;
-        switch (value) {
-            case DETECTION_START:
-            case DETECTION_CANCEL:
-            case DETECTION_START_FORCEFUL:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ResetType value) {
-        using enum ResetType;
-        switch (value) {
-            case SETTINGS_ONLY:
-            case FACTORY_RESET:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ResetResult value) {
-        using enum ResetResult;
-        switch (value) {
-            case SUCCESS:
-            case ERROR_CONNECTION_LEFT:
-            case ERROR_CONNECTION_RIGHT:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(FaceTapKey value) {
-        using enum FaceTapKey;
-        switch (value) {
-            case LEFT_SIDE_KEY:
-            case RIGHT_SIDE_KEY:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(FaceTapAction value) {
-        using enum FaceTapAction;
-        switch (value) {
-            case DOUBLE_TAP:
-            case TRIPLE_TAP:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(HeadGestureAction value) {
-        using enum HeadGestureAction;
-        switch (value) {
-            case NOD:
-            case SWING:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(DetectSensitivity value) {
-        using enum DetectSensitivity;
-        switch (value) {
-            case AUTO:
-            case HIGH:
-            case LOW:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(ModeOutTime value) {
-        using enum ModeOutTime;
-        switch (value) {
-            case FAST:
-            case MID:
-            case SLOW:
-            case NONE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(Action value) {
-        using enum Action;
-        switch (value) {
-            case SINGLE_TAP:
-            case DOUBLE_TAP:
-            case TRIPLE_TAP:
-            case REPEAT_TAP:
-            case SINGLE_TAP_AND_HOLD:
-            case DOUBLE_TAP_AND_HOLD:
-            case LONG_PRESS_THEN_ACTIVATE:
-            case LONG_PRESS_DURING_ACTIVATE:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(EarpieceFittingDetectionResult value) {
-        using enum EarpieceFittingDetectionResult;
-        switch (value) {
-            case GOOD:
-            case POOR:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(CallSettingsTestSoundControl value) {
-        using enum CallSettingsTestSoundControl;
-        switch (value) {
-            case START:
-            return true;
-        default:
-           return false;
-        }
-    }
-    static bool is_valid(CallSettingsTestSoundControlAck value) {
-        using enum CallSettingsTestSoundControlAck;
-        switch (value) {
-            case ACK:
+            case ENABLE:
+            case DISABLE:
+            case INVISIBLE:
+            case OUT_OF_RANGE:
             return true;
         default:
            return false;

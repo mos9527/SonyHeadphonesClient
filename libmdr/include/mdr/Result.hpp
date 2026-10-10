@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <utility>
 
-#if defined(MDR_DEBUG)
+#if defined(MDR_DEBUG_TRAPS)
 #if defined(_MSC_VER)
 #define MDR_TRAP() __debugbreak()
 #elif defined(__clang__) && __has_builtin(__builtin_debugtrap)
@@ -17,6 +17,15 @@
 #define MDR_TRAP() ((void)0)
 #endif
 
+#define MDR_STRINGIFY_IMPL(value) #value
+#define MDR_STRINGIFY(value) MDR_STRINGIFY_IMPL(value)
+#if defined(MDR_ENABLE_LOG) && MDR_ENABLE_LOG
+#define MDR_SOURCE_LOCATION(message) \
+    message " [" __FILE__ ":" MDR_STRINGIFY(__LINE__) "]"
+#else
+#define MDR_SOURCE_LOCATION(message) nullptr
+#endif
+
 #define MDR_CHECK(expr) do { \
 if (!(expr)) [[unlikely]] { \
 MDR_TRAP(); \
@@ -24,8 +33,14 @@ std::abort(); \
 } \
 } while (false);
 
+#if defined(MDR_VALIDATION_NO_DEBUG_TRAPS)
+#define MDR_VALIDATION_TRAP() ((void)0)
+#else
+#define MDR_VALIDATION_TRAP() MDR_TRAP()
+#endif
+
 namespace mdr
-{    
+{
     template <typename T>
     struct [[nodiscard]] MDRResult
     {
@@ -89,7 +104,8 @@ namespace mdr
         { \
             MDR_TRAP(); \
             return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
-                                                         mdrResult.errMessage ? mdrResult.errMessage : #__VA_ARGS__); \
+                                                         mdrResult.errMessage ? mdrResult.errMessage :                 \
+                                                         MDR_SOURCE_LOCATION(#__VA_ARGS__));                           \
         } \
     } while (false)
 
@@ -101,7 +117,8 @@ namespace mdr
         { \
             MDR_TRAP(); \
             return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
-                                                         mdrResult.errMessage ? mdrResult.errMessage : #__VA_ARGS__); \
+                                                         mdrResult.errMessage ? mdrResult.errMessage :                 \
+                                                         MDR_SOURCE_LOCATION(#__VA_ARGS__));                           \
         } \
         maxSize -= mdrResult.value; \
     } while (false)
@@ -110,7 +127,10 @@ namespace mdr
     do { \
         if (!(__VA_ARGS__)) \
         { \
-            MDR_TRAP(); \
-            return ::mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Validation failed: " #__VA_ARGS__); \
+        MDR_VALIDATION_TRAP(); \
+            return ::mdr::MDRResult<void>::Failure(                                                                    \
+                MDR_RESULT_ERROR_MALFORMED_PAYLOAD,                                                                    \
+                MDR_SOURCE_LOCATION("Validation failed: " #__VA_ARGS__)                                               \
+            ); \
         } \
     } while (false)

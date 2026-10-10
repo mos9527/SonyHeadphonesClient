@@ -21,7 +21,7 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem. Attach `Guru Meditation` screen shots if there is one. 
+If applicable, add screenshots to help explain your problem. Attach `Guru Meditation` screenshots if there are any.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
@@ -33,6 +33,16 @@ If applicable, add screenshots to help explain your problem. Attach `Guru Medita
  - OS: [e.g. OneUI 8.0]
  - Browser [e.g. stock browser, safari]
  - Version [e.g. Android 16]
+
+**Packet capture (optional)**
+If the bug involves communication with your headphones, follow the
+[packet capture guide](../../tests/README.md),
+then attach the capture folder to this issue as a `.zip` file. Include the
+headphone model and firmware version in the archive name.
+
+Captures may contain private device or media information. Review and sanitize
+the files before uploading them; do not attach a capture if you are unsure
+what it contains.
 
 **Additional context**
 Add any other context about the problem here.

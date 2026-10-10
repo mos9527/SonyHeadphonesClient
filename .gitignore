@@ -64,6 +64,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+out/
 
 
 # Installer logs
@@ -535,3 +536,17 @@ cmake-build*/
 # Visual Studio Generator files
 *.sln
 *.vcxproj
+
+captures/
+/tests/*/*-tx.*.bin
+tooling/ida/input/
+*.ipa
+*.idb
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+
+build-*/

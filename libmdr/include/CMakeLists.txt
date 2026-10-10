@@ -16,7 +16,7 @@ file(
         "${CMAKE_CURRENT_SOURCE_DIR}/mdr/*.hpp"
 )
 add_library(mdr_Includes INTERFACE ${INCLUDES})
-target_link_libraries(mdr_Includes INTERFACE mdr-c)
+target_link_libraries(mdr_Includes INTERFACE mdr-c fmt::fmt)
 target_include_directories(
         mdr_Includes
         INTERFACE

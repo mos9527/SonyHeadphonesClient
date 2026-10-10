@@ -88,9 +88,9 @@ inline void Apply(const Theme& theme) {
     c[ImGuiCol_TextDisabled]     = ArgbToImVec4(FixedSurfaceColors::onSurfaceVariant);
 
     // Borders (fixed)
-    c[ImGuiCol_Border]           = ArgbToImVec4(FixedSurfaceColors::outline);
+    c[ImGuiCol_Border]           = ImVec4(0, 0, 0, 0);
     c[ImGuiCol_BorderShadow]     = ImVec4(0, 0, 0, 0);
-    c[ImGuiCol_Separator]        = ArgbToImVec4(FixedSurfaceColors::outlineVariant);
+    c[ImGuiCol_Separator]        = ArgbToImVec4(FixedSurfaceColors::outline, 0.10f);
     c[ImGuiCol_SeparatorHovered] = ArgbToImVec4(theme.primary, 0.78f);
     c[ImGuiCol_SeparatorActive]  = ArgbToImVec4(theme.primary);
     c[ImGuiCol_TableHeaderBg]    = ArgbToImVec4(FixedSurfaceColors::surfaceContainerHighest);

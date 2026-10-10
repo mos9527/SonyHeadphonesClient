@@ -1,92 +1,90 @@
 SonyHeadphonesClient
 ===
 
-A spiritual successor to  [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
+A spiritual successor to [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
 
-There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview), or use the [Web Version](#notes-on-web-platform).
+There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#running-on-the-web).
 
-[![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml) 
-[![Nightly Builds](https://img.shields.io/badge/rewrite-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/rewrite?preview)
+[![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml)
+[![Nightly Builds](https://img.shields.io/badge/v1compat-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview)
 
 ## Roadmap
-This brach is expected to be merged/released once the following features have been implemented.
+This branch is expected to be merged/released once the following features have been implemented.
 - [ ] Support for legacy (`v1` protocol) devices, e.g. WH-1000XM4, WH-1000XM3
+  - Already WIP. You're looking at it *right now*
+  - Track the progress here: https://github.com/mos9527/SonyHeadphonesClient/pull/56
+  - Feel free to submit support status in new Issues regarding v1 (XM4 and older) devices. We *really* need more volunteers :(
 - [x] Native macOS platform support
 
-## Compatiblity
+## Compatibility
 
 The following platforms (applies to `libmdr`, `client`) are *natively* supported with first-party effort.
 
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
-| Windows          | Full Support   | @mos9527, @Amrsatrio |
-| Linux            | Full Support   | @mos9527             |
-| macOS            | Full Support   | @mos9527             |
-| Web (Emscripten) | Full Support   | @mos9527             |
+| Windows          | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
+| Linux            | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| macOS            | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| Web (Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
 
-For device support, refer to `docs/device-support` to check. If the feature support status for your own device is missing/incorrect/untested here, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
+For device support, refer to [`docs/device-support`](./docs/device-support/). If the feature support status for your own device is missing/incorrect/untested there, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
-## Notes on Web Platform
+## Running on the Web
 
-The client app is available as a Progressive Web App with exact UI/Feature parity seen in other platforms.
+The client app is available as a Progressive Web App (PWA) with full UI/feature parity with other platforms.
 
 **Live version is available** at: https://mos9527.com/SonyHeadphonesClient/
 
-A [Web Serial](https://caniuse.com/wf-serial) supporting browser is required - with a minor exception of Chrome on Android where [Web serial over Bluetooth on Android](https://cr-status.appspot.com/feature/5139978918821888) is supported as of Android build 138. You can expect the app to work on all reasonably new Desktop Chrome browsers, and the latest Android Chrome builds.
+A [Web Serial](https://caniuse.com/wf-serial)-supporting browser is required. You can expect the app to work on:
+- Desktop Chrome (89+), and Chromium derivatives (also 89+, e.g. Edge, Opera)
+- [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
+- [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
 
-As always, status reports are welcome - please do submit an Issue if your browser supports the Web version of the client app.
+## Fonts & Localization
+
+The Client app uses your system's locale settings to select its application locale (`AppLocale`) and the default font your OS provides.
+
+Locale can overridden by using `--locale <locale>`.
+- For the Web version, this can be manually specified in the URL via `...?locale=jp`, e.g. `https://mos9527.com/SonyHeadphonesClient/?locale=jp`.
+
+The following locales are supported:
+
+| Locale | Language | Localizer |
+| ------ | -------- | --------- |
+| default | Default (English) | - |
+| en | Default (English) | - |
+| sc | 简体中文/Simplified Chinese | [@mos9527](https://github.com/mos9527) |
+| tc | 繁体中文/Traditional Chinese | [@mos9527](https://github.com/mos9527) |
+| jp | 日本語/Japanese | TBD |
+| kr | 한국어/Korean | TBD |
+
+Additionally, for the Desktop (non-Web) client, `--font <file-path>` optionally loads an external font instead of the default font selected for the locale.
+
+- Running `./SonyHeadphonesClient.exe --locale jp --font NotoSansCJKjp-Regular.otf` selects the Japanese application locale and the specified Noto Sans font.
 
 ## For Developers
 
-We have extensive documentations available in the source files. Moreover, refer to the respective README files in each source folder to understand what they do!
+See the [SHC Developer's Guide](./DEVELOPER.md) for [building instructions](./DEVELOPER.md#building) and development details.
 
-A C++20 compliant compiler is required. GCC 14, Clang 21 and MSVC 19 has been used for development and are guanrateed to be supported.
+See also [Contributing](./.github/CONTRIBUTING.md) for basic guidelines.
 
-### Building (Regular CMake)
-This is no different from your regular CMake projects.
-Third-party dependencies (see `contrib`) are managed by CMake's `FetchContent` and are always statically linked, so no worries - Expect things to *just work*.
-
-**For Developers:** See also `tooling` for codegen dependencies.
-#### Building on Linux
-You need DBus and BlueZ development packages installed.
-- Debian (Ubuntu): `sudo apt install libbluetooth-dev libdbus-1-dev`
-- Fedora: `sudo dnf install bluez-libs-devel dbus-devel`
-- Arch Linux: `sudo pacman -S bluez dbus`
-
-**For Developers:** You may want to have `bluez-tools`/`bluez-utils` installed for testing.
-#### Example
-```bash
-mkdir build
-cd build
-cmake ..
-cmake --build . --target SonyHeadphonesClient
-```
-
-### Building (emscripten)
-- Install the SDK with `emsdk` and verify your installation - https://emscripten.org/docs/getting_started/downloads.html
-- Run `emcmake cmake ...` in place of configuration.
-  - Or, set up CMake Toolchain variables manually with e.g. 
-  ```-DCMAKE_TOOLCHAIN_FILE=/usr/lib/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_CROSSCOMPILING_EMULATOR=/usr/lib/emsdk/node/20.18.0_64bit/bin/node```
-- No extra dependencies are required.
-- Example usage
-```bash
-mkdir build
-cd build
-emcmake cmake ..
-cmake --build . --target SonyHeadphonesClient
-```
-- Run the generated page with `emrun client/index.html` - or host it with any static HTTP server.
-
-### IntelliJ CLion/Rider (emscripten)
-Set up CMake Toolchain variables with a new CMake Profile (in CMake options) - you can 
-then build from there and serve the static content within `<build directory>/client/` with any static HTTP server.
+Extensive documentation is also available in the source files. Refer to the respective README files in each source folder to understand what they do!
 
 ## Platform Quirks
 ### Linux
-On Linux, you may not see player metadata (track title, artist, etc.) despite correct output from `playerctl metadata` command
-while your device having proper AVRCP support (e.g. works on other platforms).
-- You (or your distro) may have misconfigured [MPRIS](https://wiki.archlinux.org/title/MPRIS) service. One way to remedy
-  is to manually run `mpris-proxy` (available in `bluez-tools`/`bluez-utils` package) in the background, or as a systemd service.
+On Linux, you may not see player metadata (track title, artist, etc.) despite correct output from the `playerctl metadata` command,
+while your device has proper AVRCP support (e.g. it works on other platforms).
+
+This mostly occurs with multipoint setups, and is mostly an implementation problem.
+- You (or your distro) may have a misconfigured [MPRIS](https://wiki.archlinux.org/title/MPRIS) service. One way to remedy this
+  is to manually run `mpris-proxy` (available in the `bluez-tools`/`bluez-utils` package) in the background, or as a systemd service.
 - See also
   - https://wiki.archlinux.org/title/MPRIS
-  - https://github.com/bluez/bluez/issues/868 
+  - https://github.com/bluez/bluez/issues/868
+  - [#65](https://github.com/mos9527/SonyHeadphonesClient/pull/65)
+- Alternatively, the Linux Client App can be used as a fallback. This was introduced in [#63](https://github.com/mos9527/SonyHeadphonesClient/pull/63), where the wearing status of the device is used to control the host player status, thus bypassing AVRCP controls.
+- This is disabled by default. You can enable it via the `--pause-media-on-remove` flag when launching the Client App. Thanks @phedoreanu for the implementation!
+
+---
+
+*This is a personal project, and is not officially endorsed by Sony Corporation in any capacity.*

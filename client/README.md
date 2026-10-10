@@ -1,6 +1,6 @@
 Client
 ===
-Reference client interface implementation for every platform `libmdr` supports.
+Reference client interface implementation for every platform `libmdr-bt` supports.
 
 ## Credits
 The following third-party libraries are used in the implementation.
@@ -20,11 +20,13 @@ The custom font `PlexSansIcon` is created with the following source fonts.
 
 - https://fontforge.org/
 
-The font `NeoXiHei-Code` is graciously provided by @lxgw, and is the default font for non Latin-1 or icon characters in the Web client.
+CJK fonts are covered by `Noto Sans CJK Regular` (Sans 2.004, SIL Open Font License) per locale (jp/sc/tc/kr)
 
-- https://github.com/lxgw/NeoXiHei-Code
+- https://github.com/notofonts/noto-cjk
 
 ## Material You Theme
+
+Contribution by [@salmon-21](https://github.com/salmon-21) in https://github.com/mos9527/SonyHeadphonesClient/pull/41
 
 The client uses a Material You dark theme inspired by Sony Sound Connect. Surface/outline/error colors are fixed values extracted from the Sound Connect APK, while primary accent colors are dynamically selected based on the connected device's `ModelColor`.
 
