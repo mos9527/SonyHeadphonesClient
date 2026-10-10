@@ -23,7 +23,7 @@ constexpr const char* format_as(AppLocale locale)
     case AppLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplified Chinese";
     case AppLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
     case AppLocale::JAPANESE: return "日本語/Japanese";
-    case AppLocale::KOREAN: return "한국인/Korean";
+    case AppLocale::KOREAN: return "한국어/Korean";
     case AppLocale::NUM_LOCALES: return "NUM_LOCALES";
     default: return "Unknown";
     }

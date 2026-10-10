@@ -55,7 +55,7 @@ The following locales are supported:
 | sc | 简体中文/Simplified Chinese | [@mos9527](https://github.com/mos9527) |
 | tc | 繁体中文/Traditional Chinese | [@mos9527](https://github.com/mos9527) |
 | jp | 日本語/Japanese | TBD |
-| kr | 한국인/Korean | TBD |
+| kr | 한국어/Korean | TBD |
 
 Additionally, for the Desktop (non-Web) client, `--font <file-path>` optionally loads an external font instead of the default font selected for the locale. 
 
