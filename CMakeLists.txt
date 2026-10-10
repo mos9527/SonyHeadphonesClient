@@ -3,7 +3,12 @@ project(SonyHeadphonesClient C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
+
 if (MSVC)
+    option(MDR_STATIC_CRT "Statically link the MSVC runtime (/MT)" ON)
+    if (MDR_STATIC_CRT AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif ()
     if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
         add_compile_options("/Zc:preprocessor")
@@ -23,7 +28,7 @@ if (MDR_NO_EXCEPTIONS)
     # - _HAS_EXCEPTIONS=0 barely works.
     # - With cases like these - in the end you'd be linking to MSVCP*.dll, VCRUNTIME*.dll 
     #   since _Xlen checks are always performed.
-    # - TODO Workarounds
+    # - MDR_STATIC_CRT (default ON) can be used to avoid VCRUNTIME entirely.
     if (MSVC) # True for both MSVC and Clang-cl
         string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
         add_compile_options(/EHs-c-)
