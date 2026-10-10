@@ -187,15 +187,31 @@ void mainLoop()
 namespace
 {
 #ifdef _WIN32
-    void OpenConsole()
+    void OpenConsole(bool allocateIfUnavailable)
     {
-        if (!AllocConsole() && GetLastError() != ERROR_ACCESS_DENIED)
+        const HANDLE standardError = GetStdHandle(STD_ERROR_HANDLE);
+        if (standardError && standardError != INVALID_HANDLE_VALUE)
+            return;
+
+        bool attached = AttachConsole(ATTACH_PARENT_PROCESS) != FALSE;
+        const DWORD attachError = attached ? ERROR_SUCCESS : GetLastError();
+        if (!attached && attachError == ERROR_ACCESS_DENIED)
+            attached = true;
+
+        bool allocated = false;
+        if (!attached && allocateIfUnavailable)
+        {
+            allocated = AllocConsole() != FALSE;
+            attached = allocated;
+        }
+        if (!attached)
             return;
 
         std::freopen("CONOUT$", "w", stdout);
         std::freopen("CONOUT$", "w", stderr);
         std::freopen("CONIN$", "r", stdin);
-        SetConsoleOutputCP(CP_UTF8);
+        if (allocated)
+            SetConsoleOutputCP(CP_UTF8);
     }
 #endif
 
@@ -239,21 +255,29 @@ namespace
 
     void PrintUsage()
     {
-        MDR_LOG("Usage: SonyHeadphonesClient [--record <capture-folder>] Records device packets automatically to folder");
-        MDR_LOG("                            [--locale {}] Override application locale selected from the system", i18n::kLocaleOptionString);
-        MDR_LOG("                            [--font <font-file>] Load an external font without changing application locale");
-        MDR_LOG("                            [--renderer <renderer>] Specify SDL_HINT_RENDER_DRIVER hint to use");
+        std::fprintf(stderr,
+                     "Usage: SonyHeadphonesClient [--record <capture-folder>] Records device packets automatically to folder\n");
+        std::fprintf(stderr,
+                     "                            [--locale %s] Override application locale selected from the system\n",
+                     i18n::kLocaleOptionString);
+        std::fprintf(stderr,
+                     "                            [--font <font-file>] Load an external font without changing application locale\n");
+        std::fprintf(stderr,
+                     "                            [--renderer <renderer>] Specify SDL_HINT_RENDER_DRIVER hint to use\n");
 #ifdef MDR_CLIENT_DEBUGGER
-        MDR_LOG("                            [--replay <packet-file-or-folder>] Replays devices packets from folder");
+        std::fprintf(stderr,
+                     "                            [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
 #endif
         // Windows specific
 #ifdef _WIN32
-        MDR_LOG("                            [--con] Opens console for diagnostic logs");
+        std::fprintf(stderr,
+                     "                            [--con] Opens console for diagnostic logs\n");
 #endif
         // Linux specific (DBus)
 #ifdef __linux__
-        MDR_LOG("                            [--pause-media-on-remove] Auto-pause system media playback when device "
-                "is removed when unsupported by OS otherwise.");
+        std::fprintf(stderr,
+                     "                            [--pause-media-on-remove] Auto-pause system media playback when device "
+                     "is removed when unsupported by OS otherwise.\n");
 #endif
     }
 
@@ -267,10 +291,10 @@ namespace
                 options.showHelp = true;
                 continue;
             }
-            if (std::strcmp(argument, "-con") == 0)
+            if (std::strcmp(argument, "--con") == 0 || std::strcmp(argument, "-con") == 0)
             {
 #ifdef _WIN32
-                OpenConsole();
+                OpenConsole(true);
 #endif
                 continue;
             }
@@ -350,6 +374,9 @@ namespace
 
 int main(int argc, char** argv)
 {
+#ifdef _WIN32
+    OpenConsole(false);
+#endif
     ClientOptions options;
     if (!ParseOptions(argc, argv, options))
     {

@@ -42,9 +42,9 @@ A [Web Serial](https://caniuse.com/wf-serial)-supporting browser is required. Yo
 
 ## Fonts & Localization
 
-The Client app uses your system's locale settings to select its application locale (`AppLocale`) and the default font. UI localization is not implemented yet; the interface currently remains in English.
+The Client app uses your system's locale settings to select its application locale (`AppLocale`) and the default font your OS provides.
 
-This can be overridden by using `--locale <locale>`.
+Locale can overridden by using `--locale <locale>`.
 - For the Web version, this can be manually specified in the URL via `...?locale=jp`, e.g. `https://mos9527.com/SonyHeadphonesClient/?locale=jp`.
 
 The following locales are supported:
