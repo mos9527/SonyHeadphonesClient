@@ -19,7 +19,7 @@ constexpr const char* format_as(AppLocale locale)
 {
     switch (locale)
     {
-    case AppLocale::DEFAULT: return "Default";
+    case AppLocale::DEFAULT: return "Default/English";
     case AppLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplified Chinese";
     case AppLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
     case AppLocale::JAPANESE: return "日本語/Japanese";
@@ -32,10 +32,11 @@ constexpr const char* format_as(AppLocale locale)
 namespace i18n
 {
     
-constexpr const char* kLocaleOptionString = "default, sc, tc, jp, kr";
+constexpr const char* kLocaleOptionString = "default , en, sc, tc, jp, kr";
 [[nodiscard]] constexpr std::optional<AppLocale> ParseLocale(std::string_view code)
 {
-    if (code == "default") return AppLocale::DEFAULT;
+    if (code == "default" || code == "en")
+        return AppLocale::DEFAULT;
     if (code == "sc") return AppLocale::SIMPLIFIED_CHINESE;
     if (code == "tc") return AppLocale::TRADITIONAL_CHINESE;
     if (code == "jp") return AppLocale::JAPANESE;

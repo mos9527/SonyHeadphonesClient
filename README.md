@@ -52,6 +52,7 @@ The following locales are supported:
 | Locale | Language | Localizer |
 | ------ | -------- | --------- |
 | default | Default (English) | - |
+| en | Default (English) | - |
 | sc | 简体中文/Simplified Chinese | [@mos9527](https://github.com/mos9527) |
 | tc | 繁体中文/Traditional Chinese | [@mos9527](https://github.com/mos9527) |
 | jp | 日本語/Japanese | TBD |
