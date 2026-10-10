@@ -1,6 +1,5 @@
 // ReSharper disable CppParameterMayBeConstPtrOrRef
 #include <ranges>
-#include <fmt/base.h>
 #include <algorithm>
 #include <cstring>
 #include <limits>
@@ -1568,10 +1567,7 @@ MDRResult mdrHeadphonesGetText(
             return CopyText({value.data(), value.size()}, buffer, inoutSize);
         }
     case MDR_TEXT_LAST_ALERT:
-        {
-            const auto value = mdr::Format("{}", static_cast<unsigned>(state.mLastAlertMessage));
-            return CopyText({value.data(), value.size()}, buffer, inoutSize);
-        }
+        return CopyText(format_as(state.mLastAlertMessage), buffer, inoutSize);
     case MDR_TEXT_LAST_INTERACTION:
         return CopyText({state.mLastInteractionMessage.data(), state.mLastInteractionMessage.size()}, buffer, inoutSize);
     case MDR_TEXT_LAST_DEVICE_MESSAGE:

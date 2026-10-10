@@ -19,8 +19,12 @@
 
 #define MDR_STRINGIFY_IMPL(value) #value
 #define MDR_STRINGIFY(value) MDR_STRINGIFY_IMPL(value)
+#if defined(MDR_ENABLE_LOG) && MDR_ENABLE_LOG
 #define MDR_SOURCE_LOCATION(message) \
     message " [" __FILE__ ":" MDR_STRINGIFY(__LINE__) "]"
+#else
+#define MDR_SOURCE_LOCATION(message) nullptr
+#endif
 
 #define MDR_CHECK(expr) do { \
 if (!(expr)) [[unlikely]] { \

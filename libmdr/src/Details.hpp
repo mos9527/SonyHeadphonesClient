@@ -266,7 +266,10 @@ namespace mdr
          */
         int SetLastError(int error, const char* context)
         {
-            mLastError = mdr::Format("{} ({})", context, mdrResultString(error));
+            mLastError = context ? context : "";
+            mLastError += " (";
+            mLastError += mdrResultString(error);
+            mLastError += ')';
             mLastErrorCode = static_cast<::MDRResult>(error);
             return -1; // NOTE: convenience only for co_return SetLastError(...);
         }

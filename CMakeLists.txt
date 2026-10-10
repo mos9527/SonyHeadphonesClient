@@ -6,16 +6,27 @@ set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
     option(MDR_STATIC_CRT "Statically link the MSVC runtime (/MT)" ON)
+    option(MDR_DYNAMIC_UCRT "With MDR_STATIC_CRT on, keep UCRT linked dynamically in non-Debug builds" ON)
     if (MDR_STATIC_CRT AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        if (MDR_DYNAMIC_UCRT)
+            add_link_options(
+                $<$<NOT:$<CONFIG:Debug>>:/NODEFAULTLIB:libucrt.lib>
+                $<$<NOT:$<CONFIG:Debug>>:/DEFAULTLIB:ucrt.lib>
+            )
+        endif ()
     endif ()
     if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         # https://developercommunity.visualstudio.com/t/__VA_OPT__-should-be-enabled-by-std:c/10565399
         add_compile_options("/Zc:preprocessor")
+        # https://developercommunity.visualstudio.com/t/absolute-paths-for-associated-pdb-files-are-record/573023#T-N623156
+        file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" MDR_SOURCE_PREFIX)
+        add_compile_options("/d1trimfile:${MDR_SOURCE_PREFIX}")
     endif ()
     add_compile_options("/utf-8")
 else()
     add_compile_options("-Wall" "-Wno-unused-function" "-Wno-unused-variable" "-Wno-unused-but-set-global")
+    add_compile_options("-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
 endif()
 
 option(MDR_NO_EXCEPTIONS "Do not use C++ exceptions" ON)
@@ -60,28 +71,6 @@ else()
     endif()
 endif()
 
-option(MDR_ENABLE_LOG "Enable MDR_LOG logging output" ON)
-if (MDR_ENABLE_LOG)
-    message(STATUS "MDR_LOG logging output is ON.")
-    add_compile_definitions(MDR_ENABLE_LOG=1)
-else()
-    add_compile_definitions(MDR_ENABLE_LOG=0)
-endif()
-
-# LTO
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
-if (ipo_ok)
-    if (MSVC AND NOT MDR_ENABLE_LOG)
-        message(STATUS "FIXME-MSVC LTCG Workaround https://developercommunity.visualstudio.com/t/Coroutines-emit-warning-C4737-without-/11131702")
-    else()        
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-    endif()
-else()
-    message(STATUS "LTO not supported: ${ipo_msg}")
-endif()
-
 option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
     if (MSVC)
@@ -111,6 +100,23 @@ add_compile_definitions(
 if (MDR_DEBUG)
     message(STATUS "Debugging features enabled.")
 endif ()
+
+option(MDR_ENABLE_LOG "Enable MDR_LOG logging output in non-Debug builds" OFF)
+set(MDR_LOG_NON_DEBUG OFF)
+if (MDR_ENABLE_LOG OR MDR_DEBUG)
+    set(MDR_LOG_NON_DEBUG ON)
+endif ()
+add_compile_definitions(MDR_ENABLE_LOG=$<IF:$<OR:$<CONFIG:Debug>,$<BOOL:${MDR_LOG_NON_DEBUG}>>,1,0>)
+
+# LTCG/IPO
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
+if (ipo_ok)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+else()
+    message(STATUS "LTO not supported: ${ipo_msg}")
+endif()
 
 option(MDR_BLE "Build with BLE Backend support" ON)
 if (MDR_BLE)
