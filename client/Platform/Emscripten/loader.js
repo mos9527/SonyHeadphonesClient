@@ -91,7 +91,7 @@ async function download(url, id, signal, resource = resources[id]) {
     }
 }
 
-const appLocales = Object.freeze(['default', 'sc', 'tc', 'jp', 'kr']);
+const appLocales = Object.freeze(['en', 'sc', 'tc', 'jp', 'kr']);
 function getPreferredAppLocale() {
     const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
     for (const tag of languages) {
@@ -108,8 +108,8 @@ function getPreferredAppLocale() {
 }
 const configuredLocale = new URL(location.href).searchParams.get('locale') ||
     globalThis.SonyHeadphonesClientConfig.locale;
-const startupAppLocale = appLocales.includes(configuredLocale) ?
-    appLocales.indexOf(configuredLocale) : getPreferredAppLocale();
+const startupAppLocale = configuredLocale === 'default' ? 0 : (appLocales.includes(configuredLocale) ?
+    appLocales.indexOf(configuredLocale) : getPreferredAppLocale());
 
 const platformFonts = globalThis.SonyHeadphonesClientFonts = {
     entries: new Map(),
