@@ -2,32 +2,7 @@
 #include <cstddef>
 #include <mdr-c/Connection.h>
 
-enum class AppLocale
-{
-    UNDEFINED,
-    SIMPLIFIED_CHINESE,
-    TRADITIONAL_CHINESE,
-    JAPANESE,
-    KOREAN,
-    NUM_LOCALES,
-};
-
-constexpr const char* format_as(AppLocale locale)
-{
-    switch (locale)
-    {
-    case AppLocale::UNDEFINED: return "Undefined";
-    case AppLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplfied Chinese";
-    case AppLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
-    case AppLocale::JAPANESE: return "日本語/Japanese";
-    case AppLocale::KOREAN: return "한국인/Korean";
-    case AppLocale::NUM_LOCALES: return "NUM_LOCALES";
-    default: return "Unknown";
-    }
-}
-
-extern AppLocale clientGetAppLocale();
-extern void clientSetAppLocale(AppLocale locale);
+#include "../I18N/Strings.hpp"
 
 extern "C" {
     /**
@@ -56,6 +31,7 @@ extern "C" {
      * @param address Text form, "XX:XX:XX:XX:XX:XX", any case.
      * @param outIsLocal Receives 1 or 0.
      * @return MDR_RESULT_OK, or MDR_RESULT_ERROR_NOT_SUPPORTED where the platform cannot tell.
+     * @note This is only implemented for the Linux platform. See https://github.com/mos9527/SonyHeadphonesClient/pull/63
      */
     extern int clientPlatformIsLocalBluetoothAddress(const char* address, int* outIsLocal);
     /**
@@ -63,12 +39,14 @@ extern "C" {
      * @return A record of what was paused, owned by the caller and handed back to
      *         @ref clientPlatformMediaResume, or NULL when nothing was playing or the platform
      *         has no media control.
+     * @note This is only implemented for the Linux platform. See https://github.com/mos9527/SonyHeadphonesClient/pull/63
      */
     struct ClientMediaPause;
     extern struct ClientMediaPause* clientPlatformMediaPause();
     /**
      * @brief Resume the players in a @ref clientPlatformMediaPause record that are still paused,
      *        and free the record. NULL is accepted and ignored.
+     * @note This is only implemented for the Linux platform. See https://github.com/mos9527/SonyHeadphonesClient/pull/63
      */
     extern void clientPlatformMediaResume(struct ClientMediaPause* pause);
 #ifdef __EMSCRIPTEN__

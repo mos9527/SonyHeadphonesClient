@@ -22,6 +22,9 @@
 #include "Platform/Platform.hpp"
 #include "I18N/Strings.hpp"
 
+extern AppLocale clientGetAppLocale();
+extern void clientSetAppLocale(AppLocale locale);
+
 static mdr::String ImTextLabel(i18n::TextId id, const char* icon = "")
 {
     return mdr::Format("{}{}{}###{}", icon, *icon ? " " : "",

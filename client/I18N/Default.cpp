@@ -6,7 +6,7 @@ namespace
 {
 // Q: Why not constinit here?
 // A: See the static_assert that comes after this. You should use it in other localizations.
-constexpr StringTable MakeEnglish()
+constexpr StringTable MakeDefault()
 {
     StringTable strings{};
     _Def(Unknown, "Unknown")
@@ -269,12 +269,12 @@ constexpr StringTable MakeEnglish()
 
 static_assert([]
 {
-    for (const char* text : MakeEnglish())
+    for (const char* text : MakeDefault())
         if (!text || !*text)
             return false;
     return true;
 }(), "Every text ID must have an English fallback.");
 }
 
-constinit const StringTable kEnglish = MakeEnglish();
+constinit const StringTable kDefault = MakeDefault();
 }

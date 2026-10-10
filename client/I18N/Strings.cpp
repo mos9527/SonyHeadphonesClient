@@ -7,7 +7,7 @@ namespace
 constexpr std::array<const StringTable*, static_cast<std::size_t>(AppLocale::NUM_LOCALES)> kStringTables = []
 {
     std::array<const StringTable*, static_cast<std::size_t>(AppLocale::NUM_LOCALES)> tables{};
-    tables[static_cast<std::size_t>(AppLocale::UNDEFINED)] = &kEnglish;
+    tables[static_cast<std::size_t>(AppLocale::DEFAULT)] = &kDefault;
     tables[static_cast<std::size_t>(AppLocale::SIMPLIFIED_CHINESE)] = &kSimplifiedChinese;
     tables[static_cast<std::size_t>(AppLocale::TRADITIONAL_CHINESE)] = &kTraditionalChinese;
     tables[static_cast<std::size_t>(AppLocale::JAPANESE)] = &kJapanese;
@@ -16,23 +16,24 @@ constexpr std::array<const StringTable*, static_cast<std::size_t>(AppLocale::NUM
 }();
 }
 
+const StringTable* GetStringTable(AppLocale locale)
+{
+    const std::size_t localeIndex = static_cast<std::size_t>(locale);
+    return localeIndex < kStringTables.size() ? kStringTables[localeIndex] : nullptr;
+}
+
 const char* Translate(TextId id, AppLocale locale)
 {
     const std::size_t index = Index(id);
-    if (index >= kEnglish.size())
+    if (index >= kDefault.size())
         return "";
 
-    const std::size_t localeIndex = static_cast<std::size_t>(locale);
-    if (localeIndex < kStringTables.size())
+    if (const StringTable* table = GetStringTable(locale))
     {
-        const StringTable* table = kStringTables[localeIndex];
-        if (table)
-        {
-            const char* text = (*table)[index];
-            if (text && *text)
-                return text;
-        }
+        const char* text = (*table)[index];
+        if (text && *text)
+            return text;
     }
-    return kEnglish[index];
+    return kDefault[index];
 }
 }

@@ -95,7 +95,7 @@ bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
 
 void LocateFont(AppLocale locale, CachedFont& cache)
 {
-    if (locale == AppLocale::UNDEFINED)
+    if (locale == AppLocale::DEFAULT)
         return;
     ComPtr<IDWriteFactory> factory;
     ComPtr<IDWriteFontCollection> collection;

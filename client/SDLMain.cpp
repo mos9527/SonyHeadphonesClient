@@ -18,6 +18,8 @@
 
 #include "Recorder.hpp"
 #include "Platform/Platform.hpp"
+#include "I18N/Strings.hpp"
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -34,11 +36,12 @@ extern void clientSetPauseMediaOnRemove(bool enabled);
 extern void clientEnterDebuggerReplayMode();
 #endif
 
+
 bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
-static AppLocale gAppLocale = AppLocale::UNDEFINED;
+static AppLocale gAppLocale = AppLocale::DEFAULT;
 static bool gPlatformFontLoaded = false;
 static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
 static char* gFontFallbackData = nullptr;
@@ -102,7 +105,7 @@ void mainLoop()
         while (!gPlatformFontLoaded)
         {
             const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
-            const AppLocale locale = !useFontFallback && gAppLocale == AppLocale::UNDEFINED ?
+            const AppLocale locale = !useFontFallback && gAppLocale == AppLocale::DEFAULT ?
                 static_cast<AppLocale>(gFontFallbackIndex) : gAppLocale;
             const char* fontData = gFontFallbackData;
             int faceIndex{};
@@ -143,7 +146,7 @@ void mainLoop()
                     MDR_LOG("Unable to load platform font: locale {}, face {}", locale, faceIndex);
                 }
             }
-            if (useFontFallback || gAppLocale != AppLocale::UNDEFINED ||
+            if (useFontFallback || gAppLocale != AppLocale::DEFAULT ||
                 ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
                 gPlatformFontLoaded = true;
         }
@@ -198,10 +201,10 @@ namespace
 
     AppLocale GetPreferredAppLocale()
     {
-        AppLocale result = AppLocale::UNDEFINED;
+        AppLocale result = AppLocale::DEFAULT;
         SDL_Locale** locales = SDL_GetPreferredLocales(nullptr);
         for (SDL_Locale** current = locales;
-             current && *current && result == AppLocale::UNDEFINED; ++current)
+             current && *current && result == AppLocale::DEFAULT; ++current)
         {
             const auto& locale = **current;
             if (!locale.language)
@@ -230,7 +233,7 @@ namespace
         const char* fontPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
-        AppLocale locale{AppLocale::UNDEFINED};
+        AppLocale locale{AppLocale::DEFAULT};
         bool localeSpecified{};
     };
 
@@ -238,7 +241,7 @@ namespace
     {
         MDR_LOG(
             "Usage: SonyHeadphonesClient [--record <capture-folder>]\tRecords device packets automatically to folder");
-        MDR_LOG("                            [--locale undefined|sc|tc|jp|kr]\tOverride application locale selected from the system");
+        MDR_LOG("                            [--locale {}]\tOverride application locale selected from the system", i18n::kLocaleOptionString);
         MDR_LOG("                            [--font <font-file>]\tLoad an external font without changing application locale");
 #ifdef MDR_CLIENT_DEBUGGER
         MDR_LOG("                            [--replay <packet-file-or-folder>]\tReplays devices packets from folder");
@@ -284,19 +287,13 @@ namespace
                     MDR_LOG("Missing locale after {}.", argument);
                     return false;
                 }
-                constexpr const char* names[] = {"undefined", "sc", "tc", "jp", "kr"};
-                constexpr int localeCount = static_cast<int>(AppLocale::NUM_LOCALES);
-                static_assert(sizeof(names) / sizeof(names[0]) == localeCount);
-                int locale{};
-                for (; locale < localeCount; ++locale)
-                    if (std::strcmp(argv[index], names[locale]) == 0)
-                        break;
-                if (locale == localeCount)
+                const auto locale = i18n::ParseLocale(argv[index]);
+                if (!locale)
                 {
-                    MDR_LOG("Invalid locale: {}. Expected undefined, sc, tc, jp, or kr.", argv[index]);
+                    MDR_LOG("Invalid locale: {}. Expected default, sc, tc, jp, or kr.", argv[index]);
                     return false;
                 }
-                options.locale = static_cast<AppLocale>(locale);
+                options.locale = *locale;
                 options.localeSpecified = true;
                 continue;
             }

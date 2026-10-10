@@ -91,7 +91,7 @@ async function download(url, id, signal, resource = resources[id]) {
     }
 }
 
-const appLocales = Object.freeze(['undefined', 'sc', 'tc', 'jp', 'kr']);
+const appLocales = Object.freeze(['default', 'sc', 'tc', 'jp', 'kr']);
 function getPreferredAppLocale() {
     const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
     for (const tag of languages) {

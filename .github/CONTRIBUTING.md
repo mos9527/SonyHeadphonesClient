@@ -31,3 +31,7 @@ If you don't know what these mean, check out `tooling/`, `AGENTS.md` for more in
 Tests
 ---
 See the [Packet Capture and Test Contribution Guide](../tests/README.md) for more info.
+
+Localization
+---
+See the [Contributing to Client Localization Guide](../client/I18N/README.md) for more info.

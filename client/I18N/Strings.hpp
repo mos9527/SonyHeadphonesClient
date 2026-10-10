@@ -2,11 +2,47 @@
 
 #include <array>
 #include <cstddef>
+#include <optional>
+#include <string_view>
 
-#include "../Platform/Platform.hpp"
+enum class AppLocale
+{
+    DEFAULT,
+    SIMPLIFIED_CHINESE,
+    TRADITIONAL_CHINESE,
+    JAPANESE,
+    KOREAN,
+    NUM_LOCALES,
+};
+
+constexpr const char* format_as(AppLocale locale)
+{
+    switch (locale)
+    {
+    case AppLocale::DEFAULT: return "Default";
+    case AppLocale::SIMPLIFIED_CHINESE: return "简体中文/Simplified Chinese";
+    case AppLocale::TRADITIONAL_CHINESE: return "繁体中文/Traditional Chinese";
+    case AppLocale::JAPANESE: return "日本語/Japanese";
+    case AppLocale::KOREAN: return "한국인/Korean";
+    case AppLocale::NUM_LOCALES: return "NUM_LOCALES";
+    default: return "Unknown";
+    }
+}
 
 namespace i18n
 {
+    
+constexpr const char* kLocaleOptionString = "default, sc, tc, jp, kr";
+[[nodiscard]] constexpr std::optional<AppLocale> ParseLocale(std::string_view code)
+{
+    if (code == "default") return AppLocale::DEFAULT;
+    if (code == "sc") return AppLocale::SIMPLIFIED_CHINESE;
+    if (code == "tc") return AppLocale::TRADITIONAL_CHINESE;
+    if (code == "jp") return AppLocale::JAPANESE;
+    if (code == "kr") return AppLocale::KOREAN;
+    return std::nullopt;
+}
+
 enum class TextId
 {
     Unknown,
@@ -274,12 +310,13 @@ constexpr std::size_t Index(TextId id)
     return static_cast<std::size_t>(id);
 }
 
-extern const StringTable kEnglish;
+extern const StringTable kDefault;
 extern const StringTable kSimplifiedChinese;
 extern const StringTable kTraditionalChinese;
 extern const StringTable kJapanese;
 extern const StringTable kKorean;
 
+[[nodiscard]] const StringTable* GetStringTable(AppLocale locale);
 [[nodiscard]] const char* Translate(TextId id, AppLocale locale);
 }
 
