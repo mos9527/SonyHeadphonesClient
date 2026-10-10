@@ -797,6 +797,9 @@ typedef struct Device
     size_t assignable_capability_size;
     const unsigned char* assignable_params;
     size_t assignable_params_size;
+    /* When set, a reply goes out ahead of the ACK for the request it answers, the way a
+     * WH-1000XM3 orders them. */
+    int reply_before_ack;
     RequestLog log[REQUEST_LOG_CAPACITY];
     size_t log_size;
 } Device;
@@ -838,7 +841,8 @@ static void device_pump(Device* device)
         }
 
         ack_size = pack_frame(MDR_DATA_TYPE_ACK, (unsigned char)(1 - frame.sequence), NULL, 0, ack);
-        mock_append(device->transport, ack, ack_size);
+        if (!device->reply_before_ack)
+            mock_append(device->transport, ack, ack_size);
 
         if (table == 1 && frame.payload[0] == 0x00) /* CONNECT_GET_PROTOCOL_INFO */
         {
@@ -909,6 +913,9 @@ static void device_pump(Device* device)
             device_send(device, MDR_DATA_TYPE_DATA_MDR, device->assignable_params,
                         device->assignable_params_size);
         }
+
+        if (device->reply_before_ack)
+            mock_append(device->transport, ack, ack_size);
     }
 }
 
@@ -1883,6 +1890,39 @@ static void test_v1_voice_guidance_detail_is_not_the_switch(void)
     session_close(&session);
 }
 
+/*
+ * A WH-1000XM3 answers CONNECT_GET_PROTOCOL_INFO before it acknowledges the request, so the
+ * reply lands while initialization is still waiting on the ACK. It must not be lost there.
+ */
+static void test_v1_reply_before_ack(void)
+{
+    /* VOICE_GUIDANCE only - which is also what gives this device a second table. */
+    static const unsigned char table1[] = {0x07, 0x00, 0x01, 0x39};
+
+    Session session;
+    Device device;
+
+    if (!session_open_family(&session, MDR_PROTOCOL_V1))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = 1;
+    device.reply_before_ack = 1;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+
+    device_run_init(&session, &device);
+    check(
+        mdrHeadphonesIsInitialized(session.headphones) != MDR_FALSE,
+        "a reply that arrives ahead of its ACK still completes initialization"
+    );
+    check(
+        device_requested(&device, 1, 0x06, -1), /* CONNECT_GET_SUPPORT_FUNCTION */
+        "initialization moves past the protocol handshake"
+    );
+    session_close(&session);
+}
+
 /* Whether a request of that shape was transmitted at or after `from`. */
 static int device_requested_after(const Device* device, unsigned char table, unsigned char command, size_t from)
 {
@@ -2426,6 +2466,7 @@ int main(void)
     test_staging_is_rejected_during_apply();
     test_connection_mode_names_its_inquired_type();
     test_v1_voice_guidance_detail_is_not_the_switch();
+    test_v1_reply_before_ack();
     test_v1_sync_asks_for_the_track_names();
     test_v2_sync_asks_for_the_track_names();
     test_v1_preset_and_curve_never_share_a_frame();
