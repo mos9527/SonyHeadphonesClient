@@ -12,16 +12,10 @@ enum class ValidationVerb
     Range,
     Field,
     Ignore,
-#ifdef CODEGEN_ENUM_BITMASK
-    Bitmask
-#endif
 };
 
 constexpr uint32_t kValidationFlagNONE = 0;
 constexpr uint32_t kValidationFlagIGNORE = 1u << 0;
-#ifdef CODEGEN_ENUM_BITMASK
-constexpr uint32_t kValidationFlagBITMASK = 1u << 1;
-#endif
 
 std::map<std::string, ValidationVerb> kCodegenTokens = {
     // emitCodegenCheck
@@ -31,9 +25,6 @@ std::map<std::string, ValidationVerb> kCodegenTokens = {
     {"Field", ValidationVerb::Field},
     // collectCodegenFlags
     {"Ignore", ValidationVerb::Ignore},
-#ifdef CODEGEN_ENUM_BITMASK
-    {"Bitmask", ValidationVerb::Bitmask},
-#endif
 };
 
 const char* kCODEGEN = "CODEGEN";
@@ -120,13 +111,6 @@ CodegenFlags collectCodegenFlags(CXCursor, std::string const& check)
                 result.ignoreReason = std::move(reason);
                 return result;
             }
-#ifdef CODEGEN_ENUM_BITMASK
-        case ValidationVerb::Bitmask:
-            {
-                result.flags |= kValidationFlagBITMASK;
-                break;
-            }
-#endif
         default:
             break;
         }
@@ -236,12 +220,7 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
         {
         case CXCursor_EnumDecl:
         {
-#ifdef CODEGEN_ENUM_BITMASK
-            if ((fieldValidation.flags & kValidationFlagBITMASK))
-                println("{}MDR_VALIDATE(is_valid_bitmask({}));", emitIndent(), newParentName);
-            else
-#endif
-                println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
+            println("{}MDR_VALIDATE(is_valid({}));", emitIndent(), newParentName);
             break;
         }
         case CXCursor_StructDecl:

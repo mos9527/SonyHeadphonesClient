@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <cstring>
 #include <span>
-#include <string>
 #include <tuple>
 #include <utility>
 
@@ -987,9 +986,9 @@ struct ConnectionAttemptState
 {
     static constexpr uint64_t kAttemptTimeoutMs = 10'000;
 
-    std::string address;
+    mdr::String address;
     std::array<const char*, 2> services{};
-    std::string lastError;
+    mdr::String lastError;
     size_t serviceCount{};
     size_t serviceIndex{};
     uint64_t deadlineMs{};

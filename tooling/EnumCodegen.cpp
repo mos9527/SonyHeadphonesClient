@@ -63,38 +63,20 @@ CXChildVisitResult enumNameOut(CXCursor, CXCursor, CXClientData)
     return CXChildVisit_Continue;
 }
 // XXX: This would probably never be used.
-#ifdef CODEGEN_ENUM_BITMASK
-uint8_t gEnumRangeBitmask = 0u;
-bool gEnumIsBitmask = true;
-uint32_t gEnumCount = 0;
-std::string gEnumCursorName;
-#endif
 CXChildVisitResult enumRangeIn(CXCursor c, CXCursor, CXClientData)
 {
     CXString name = clang_getCursorSpelling(c);
     println("    static bool is_valid({} value) {{", clang_getCString(name));
     println("        using enum {};", clang_getCString(name));
     println("        switch (value) {{");
-#ifdef CODEGEN_ENUM_BITMASK
-    gEnumRangeBitmask = 0u;
-    gEnumIsBitmask = true;
-    gEnumCursorName = clang_getCString(name);
-    gEnumCount = 0u;
-#endif
     clang_disposeString(name);
     return CXChildVisit_Continue;
 }
 CXChildVisitResult enumRangeVisit(CXCursor c, CXCursor, CXClientData)
 {
     CXString enumName = clang_getCursorDisplayName(c);
-    uint8_t enumVal = static_cast<uint8_t>(clang_getEnumConstantDeclUnsignedValue(c));
-    println("            case {}:", clang_getCString(enumName), clang_getCString(enumName));
-#ifdef CODEGEN_ENUM_BITMASK
-    gEnumIsBitmask &= (enumVal == 0 || (enumVal & (enumVal - 1)) == 0); // power of 2
-    gEnumRangeBitmask |= enumVal;
-    gEnumCount++;
+    println("            case {}:", clang_getCString(enumName));
     clang_disposeString(enumName);
-#endif
     return CXChildVisit_Continue;
 }
 CXChildVisitResult enumRangeOut(CXCursor, CXCursor, CXClientData)
@@ -104,17 +86,6 @@ CXChildVisitResult enumRangeOut(CXCursor, CXCursor, CXClientData)
     println("           return false;");
     println("        }}");
     println("    }}");
-#ifdef CODEGEN_ENUM_BITMASK
-    // Bitmask version
-    // Not always generated. Only when all enum values are powers of 2 and we have more than 1 value
-    if (gEnumIsBitmask && gEnumCount > 1)
-    {
-        println("    static bool is_valid_bitmask({} value) {{", gEnumCursorName);
-        println("           return !(static_cast<uint8_t>(value) & 0x{:02x});",
-                static_cast<uint8_t>(~gEnumRangeBitmask) /* flipped for subset test */);
-        println("    }}");
-    }
-#endif
     return CXChildVisit_Continue;
 }
 int main(int argc, char** argv)

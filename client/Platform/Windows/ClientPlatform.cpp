@@ -6,7 +6,6 @@
 #include <array>
 #include <climits>
 #include <cstdint>
-#include <string>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionWindows.h>
 
@@ -94,12 +93,12 @@ bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
         FAILED(loader.As(&localLoader)) ||
         FAILED(localLoader->GetFilePathLengthFromKey(key, keySize, &pathLength)))
         return false;
-    std::wstring path(pathLength + 1, L'\0');
+    mdr::Vector<wchar_t> path(pathLength + 1, L'\0');
     if (FAILED(localLoader->GetFilePathFromKey(key, keySize, path.data(), pathLength + 1)))
         return false;
     void* addr{};
     size_t size{};
-    if (MapFile(path.c_str(), &addr, &size) != MDR_RESULT_OK)
+    if (MapFile(path.data(), &addr, &size) != MDR_RESULT_OK)
         return false;
     if (size > static_cast<size_t>(INT_MAX))
     {
@@ -170,10 +169,10 @@ int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSiz
     const int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, nullptr, 0);
     if (length <= 0)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    std::wstring widePath(static_cast<size_t>(length), L'\0');
+    mdr::Vector<wchar_t> widePath(static_cast<size_t>(length), L'\0');
     if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, widePath.data(), length) != length)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    return MapFile(widePath.c_str(), outAddr, outSize);
+    return MapFile(widePath.data(), outAddr, outSize);
 }
 
 void clientPlatformMemoryUnmapFile(void* addr, size_t)

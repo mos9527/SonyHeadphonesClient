@@ -6,10 +6,7 @@ please do so.
 */
 #import <Foundation/Foundation.h>
 #import <IOBluetooth/IOBluetooth.h>
-#include <deque>
-#include <vector>
 #include <mutex>
-#include <string>
 
 #include "../Utils.hpp"
 #include <mdr-bt/ConnectionMacOS.h>

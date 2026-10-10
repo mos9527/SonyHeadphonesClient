@@ -21,7 +21,7 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem. Attach `Guru Meditation` screen shots if there is one. 
+If applicable, add screenshots to help explain your problem. Attach `Guru Meditation` screenshots if there are any.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
@@ -36,7 +36,7 @@ If applicable, add screenshots to help explain your problem. Attach `Guru Medita
 
 **Packet capture (optional)**
 If the bug involves communication with your headphones, follow the
-[packet capture guide](https://github.com/mos9527/SonyHeadphonesClient/blob/HEAD/tests/README.md#capturing--contributing),
+[packet capture guide](../../tests/README.md),
 then attach the capture folder to this issue as a `.zip` file. Include the
 headphone model and firmware version in the archive name.
 

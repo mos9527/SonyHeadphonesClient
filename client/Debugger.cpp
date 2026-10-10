@@ -159,7 +159,7 @@ namespace
             else
                 result = SDL_GetError();
         }
-        delete request;
+        mdr::Destruct(request);
         SetExportResult(std::move(result));
     }
 #endif
@@ -202,7 +202,7 @@ namespace
             return true;
         }
 
-        auto* request = new ExportRequest;
+        auto* request = mdr::Construct<ExportRequest>();
         request->data.assign(data.begin(), data.end());
         request->defaultPath = defaultPath;
         request->extension = mdr::Format(".{}", filterExtension);

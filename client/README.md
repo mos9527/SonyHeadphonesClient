@@ -20,7 +20,7 @@ The custom font `PlexSansIcon` is created with the following source fonts.
 
 - https://fontforge.org/
 
-CJK fonts are covered by `Noto Sans CJK Regular` (Sans 2.004, SIL Open Font License) per locale (jp/sc/tc/lr)
+CJK fonts are covered by `Noto Sans CJK Regular` (Sans 2.004, SIL Open Font License) per locale (jp/sc/tc/kr)
 
 - https://github.com/notofonts/noto-cjk
 

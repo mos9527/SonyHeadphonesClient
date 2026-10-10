@@ -1,23 +1,6 @@
 # Packet Capture and Test Contribution Guide
 
-The `mdr_replay_tests` executable replays the `-rx.` `.bin` packets in one
-directory, and checks on malformed/incompatible payloads.
-
-The separate, pure-C `mdr_abi_tests` executable checks the public ABI,
-state staging, operation serialization, event delivery, and protocol
-bootstrap behavior through the shared libmdr test library.
-
-## Usage
-
-```sh
-mdr_replay_tests <packet-directory>
-```
-
-Each immediate subdirectory of `tests/` is registered as a separate CTest
-test named after that directory. Packet lookup inside those directories is
-non-recursive.
-
-## Capturing & Contributing
+On-device packet captures for tests are always welcome. This guide also provides instructions for debugging malformed packets, which usually implies a bug in our protocol implementation (and you should report it too!).
 
 > [!WARNING]
 > Packet captures may contain Bluetooth addresses, device names, media
@@ -25,39 +8,42 @@ non-recursive.
 > `tooling/scrub-capture.py` over a capture before committing it, and check
 > what is left - see [Scrub personal data](#scrub-personal-data).
 
-On-device packet captures for tests are generally welcome.
 
-### Capture a session
+## Capture a session
+
+When the device is disconnected with an error, you will be *prompted* to dump either the last packet or your entire session to a folder, regardless of the `--record` option.
+
+You can manually trigger this by selecting **Trigger disconnect error** in the top-left drop-down menu.
+
+Furthermore, the Client always includes the functionality to record a session. Run the client with the `--record` option:
 
 ```powershell
 .\SonyHeadphonesClient.exe --record capture-folder
 ```
 
-The client creates the directory if needed and deletes existing
-`mdr-packet-*.bin` files in it at startup.
+**NOTE:** Existing captures within the same folder are always overwritten.
 
-### Inspect a recorded session
+## Replay Test Usage
 
-When the client includes the protocol debugger (a Debug build, or a build configured
-with `-DMDR_CLIENT_DEBUGGER=ON`), replay a capture without connecting to headphones:
-
-```powershell
-.\SonyHeadphonesClient.exe --replay capture-folder
+```sh
+mdr_replay_tests <packet-directory>
 ```
 
-A single `.bin` packet can be supplied instead of the folder, and either path can
-also be dropped onto a running client window. Replay mode loads both TX and RX
-packet files in filename order and exposes only the debugger interface. Use
-**Quit replay** to return to the device-selection panel.
+The `mdr_replay_tests`, once built, replays the entire TX-RX packet history from the specified directory, and returns non-zero codes should any errors occur.
 
-The debugger's export actions open native save dialogs on desktop platforms with
-`.bin` and `.zip` default filenames. **Export ZIP** stores the complete packet
-history without compression. Emscripten starts a browser download directly; other
-platforms without dialog support use the default filename in the current directory.
-The disconnect error dialog can export either the latest packet or the complete ZIP
-for a bug report; packet captures may contain private device information.
+Within the source tree, each immediate subdirectory of `tests/` is registered as a separate CTest test named after it. See existing tests for details.
 
-### Scrub personal data
+## With The Protocol Debugger
+
+When the client includes the protocol debugger (a Debug build, or a build configured with `-DMDR_CLIENT_DEBUGGER=ON`), you can replay a capture without connecting to headphones.
+
+```powershell
+.\SonyHeadphonesClient.exe --replay <capture-folder/packet-bin-file>
+```
+
+Also, at any time, you can drag-and-drop the folder/bin file to the Client's viewport to replay the captures immediately. This works for both the Desktop and the Web client.
+
+## Scrub personal data
 
 A capture carries more than the protocol exchange. `PERI_*_PARAM` holds the
 paired device list - the names and addresses of every phone, laptop and car kit
@@ -79,7 +65,7 @@ Check the result before committing:
 cat <capture-folder>/*.bin | strings -n 4
 ```
 
-### Submitting the data
+## Submitting the data
 
 - Create an immediate subdirectory in the source tree named `<model>-<firmware version>` under
    `tests/`, for example `tests/WF-1000XM5-6.1.0/`

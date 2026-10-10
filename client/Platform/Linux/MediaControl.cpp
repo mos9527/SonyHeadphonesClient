@@ -7,13 +7,15 @@
 #include <dbus/dbus.h>
 
 #include <cstring>
-#include <string>
+#include <string_view>
 #include <strings.h>
-#include <vector>
+#include <utility>
+
+#include <mdr/Protocol.hpp>
 
 struct ClientMediaPause
 {
-    std::vector<std::string> players;
+    mdr::Vector<mdr::String> players;
 };
 
 namespace
@@ -42,9 +44,9 @@ namespace
         return reply;
     }
 
-    std::vector<std::string> ListPlayers(DBusConnection* bus)
+    mdr::Vector<mdr::String> ListPlayers(DBusConnection* bus)
     {
-        std::vector<std::string> players;
+        mdr::Vector<mdr::String> players;
         DBusMessage* reply = Call(bus, dbus_message_new_method_call(
             "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames"));
         if (!reply)
@@ -66,7 +68,7 @@ namespace
         return players;
     }
 
-    std::string PlaybackStatus(DBusConnection* bus, const std::string& player)
+    mdr::String PlaybackStatus(DBusConnection* bus, const mdr::String& player)
     {
         DBusMessage* request = dbus_message_new_method_call(
             player.c_str(), kMprisPath, "org.freedesktop.DBus.Properties", "Get");
@@ -77,7 +79,7 @@ namespace
         DBusMessage* reply = Call(bus, request);
         if (!reply)
             return {};
-        std::string status;
+        mdr::String status;
         DBusMessageIter iter, variant;
         if (dbus_message_iter_init(reply, &iter) && dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_VARIANT)
         {
@@ -94,7 +96,7 @@ namespace
         return status;
     }
 
-    void CallPlayer(DBusConnection* bus, const std::string& player, const char* method)
+    void CallPlayer(DBusConnection* bus, const mdr::String& player, const char* method)
     {
         DBusMessage* reply = Call(bus, dbus_message_new_method_call(player.c_str(), kMprisPath, kPlayerInterface, method));
         if (reply)
@@ -102,9 +104,9 @@ namespace
     }
 
     // Addresses of every org.bluez.Adapter1 on the system bus, via ObjectManager.
-    std::vector<std::string> AdapterAddresses(DBusConnection* bus)
+    mdr::Vector<mdr::String> AdapterAddresses(DBusConnection* bus)
     {
-        std::vector<std::string> addresses;
+        mdr::Vector<mdr::String> addresses;
         DBusMessage* reply = Call(bus, dbus_message_new_method_call(
             "org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects"));
         if (!reply)
@@ -170,7 +172,7 @@ int clientPlatformIsLocalBluetoothAddress(const char* address, int* outIsLocal)
     if (!bus)
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     *outIsLocal = 0;
-    for (const std::string& adapter : AdapterAddresses(bus))
+    for (const mdr::String& adapter : AdapterAddresses(bus))
     {
         if (strcasecmp(adapter.c_str(), address) == 0)
         {
@@ -186,19 +188,17 @@ struct ClientMediaPause* clientPlatformMediaPause()
     DBusConnection* bus = Bus(DBUS_BUS_SESSION);
     if (!bus)
         return nullptr;
-    auto* pause = new (std::nothrow) ClientMediaPause{};
-    if (!pause)
-        return nullptr;
-    for (const std::string& player : ListPlayers(bus))
+    auto* pause = mdr::Construct<ClientMediaPause>();
+    for (mdr::String& player : ListPlayers(bus))
     {
         if (PlaybackStatus(bus, player) != "Playing")
             continue;
         CallPlayer(bus, player, "Pause");
-        pause->players.push_back(player);
+        pause->players.push_back(std::move(player));
     }
     if (pause->players.empty())
     {
-        delete pause;
+        mdr::Destruct(pause);
         return nullptr;
     }
     return pause;
@@ -210,12 +210,12 @@ void clientPlatformMediaResume(struct ClientMediaPause* pause)
         return;
     if (DBusConnection* bus = Bus(DBUS_BUS_SESSION))
     {
-        for (const std::string& player : pause->players)
+        for (const mdr::String& player : pause->players)
         {
             if (PlaybackStatus(bus, player) == "Paused")
                 CallPlayer(bus, player, "Play");
         }
     }
-    delete pause;
+    mdr::Destruct(pause);
 }
 }

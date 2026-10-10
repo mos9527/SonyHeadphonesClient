@@ -12,7 +12,6 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
-#include <vector>
 
 namespace
 {
@@ -502,10 +501,10 @@ namespace
             std::filesystem::temp_directory_path() / "mdr-debugger-export-test.bin";
         const bool exported = clientDebuggerWritePacketFile(
             exportPath.string().c_str(), frame.data(), frame.size());
-        const std::vector<char> exportedBytes = [&]
+        const mdr::Vector<char> exportedBytes = [&]
         {
             std::ifstream input(exportPath, std::ios::binary);
-            return std::vector<char>(
+            return mdr::Vector<char>(
                 std::istreambuf_iterator<char>(input),
                 std::istreambuf_iterator<char>());
         }();
@@ -558,7 +557,7 @@ namespace
             return false;
 
         std::ifstream input(path, std::ios::binary);
-        const std::vector<UInt8> bytes{
+        const Vector<UInt8> bytes{
             std::istreambuf_iterator<char>(input),
             std::istreambuf_iterator<char>()};
         input.close();
