@@ -170,6 +170,17 @@ void __dont_touch_my_garbage_exclamation_marks__()
 }
 
 extern "C" {
+int clientPlatformMemoryMapFile(const char*, void** outAddr, size_t* outSize)
+{
+    if (outAddr) *outAddr = nullptr;
+    if (outSize) *outSize = 0;
+    return MDR_RESULT_ERROR_NOT_SUPPORTED;
+}
+
+void clientPlatformMemoryUnmapFile(void*, size_t)
+{
+}
+
 int clientPlatformIsLocalBluetoothAddress(const char*, int*)
 {
     return MDR_RESULT_ERROR_NOT_SUPPORTED;

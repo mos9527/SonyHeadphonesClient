@@ -1,11 +1,13 @@
 #include "../Platform.hpp"
 #include <fontconfig/fontconfig.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <array>
 #include <climits>
 #include <cstdint>
-#include <cstdio>
 #include <memory>
-#include <new>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionLinux.h>
 
@@ -14,7 +16,7 @@ namespace
 struct CachedFont
 {
     bool queried{};
-    std::unique_ptr<char[]> data;
+    void* data{};
     int size{};
     int faceIndex{};
 };
@@ -79,22 +81,18 @@ bool LoadFont(FcPattern* font, const FcCharSet* sample, CachedFont& cache)
         FcPatternGetCharSet(font, FC_CHARSET, 0, &charset) != FcResultMatch ||
         !FcCharSetIsSubset(sample, charset) || faceIndex < 0 || faceIndex > 0xffff)
         return false;
-    std::unique_ptr<FILE, int (*)(FILE*)> file(
-        std::fopen(reinterpret_cast<const char*>(path), "rb"), &std::fclose);
-    if (!file || std::fseek(file.get(), 0, SEEK_END) != 0)
+    void* addr{};
+    size_t size{};
+    if (clientPlatformMemoryMapFile(reinterpret_cast<const char*>(path), &addr, &size) != MDR_RESULT_OK)
         return false;
-    const long size = std::ftell(file.get());
-    if (size <= 0 || size > INT_MAX || std::fseek(file.get(), 0, SEEK_SET) != 0)
-        return false;
-    std::unique_ptr<char[]> data(new (std::nothrow) char[static_cast<size_t>(size)]);
-    if (!data || std::fread(data.get(), 1, static_cast<size_t>(size), file.get()) != static_cast<size_t>(size))
-        return false;
-    if (!HasCompatibleOutlines(data.get(), static_cast<size_t>(size), faceIndex))
+    if (size > static_cast<size_t>(INT_MAX) ||
+        !HasCompatibleOutlines(static_cast<const char*>(addr), size, faceIndex))
     {
-        MDR_LOG("Skipping font without STB-compatible outlines: {}", reinterpret_cast<const char*>(path));
+        MDR_LOG("Skipping incompatible font: {}", reinterpret_cast<const char*>(path));
+        clientPlatformMemoryUnmapFile(addr, size);
         return false;
     }
-    cache.data = std::move(data);
+    cache.data = addr;
     cache.size = static_cast<int>(size);
     cache.faceIndex = faceIndex;
     MDR_LOG("Located Linux font: {}, {} bytes, face {}", reinterpret_cast<const char*>(path), cache.size, cache.faceIndex);
@@ -171,9 +169,38 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
         cache.queried = true;
         LocateFont(locale, cache);
     }
-    *outData = cache.data.get();
+    *outData = static_cast<const char*>(cache.data);
     *outFaceIndex = cache.faceIndex;
     return cache.size;
+}
+
+int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSize)
+{
+    if (outAddr) *outAddr = nullptr;
+    if (outSize) *outSize = 0;
+    if (!path || !outAddr || !outSize)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd < 0)
+        return MDR_RESULT_ERROR_NOT_FOUND;
+    struct stat st{};
+    void* addr = MAP_FAILED;
+    if (fstat(fd, &st) == 0 && S_ISREG(st.st_mode) && st.st_size > 0 &&
+        static_cast<uintmax_t>(st.st_size) <= SIZE_MAX)
+        addr = mmap(nullptr, static_cast<size_t>(st.st_size), PROT_READ, MAP_PRIVATE, fd, 0);
+    close(fd);
+    if (addr == MAP_FAILED)
+        return MDR_RESULT_ERROR_GENERAL;
+    *outAddr = addr;
+    *outSize = static_cast<size_t>(st.st_size);
+    madvise(addr, *outSize, MADV_RANDOM);
+    return MDR_RESULT_OK;
+}
+
+void clientPlatformMemoryUnmapFile(void* addr, size_t size)
+{
+    if (addr)
+        munmap(addr, size);
 }
 
 static MDRConnectionLinux* gConn = nullptr;
@@ -201,6 +228,9 @@ void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
+    {
+        clientPlatformMemoryUnmapFile(font.data, static_cast<size_t>(font.size));
         font = CachedFont{};
+    }
 }
 }

@@ -4,10 +4,9 @@
 #include <dwrite.h>
 #include <wrl/client.h>
 #include <array>
-#include <cstring>
 #include <climits>
-#include <memory>
-#include <new>
+#include <cstdint>
+#include <string>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionWindows.h>
 
@@ -18,10 +17,33 @@ using Microsoft::WRL::ComPtr;
 struct CachedFont
 {
     bool queried{};
-    std::unique_ptr<char[]> data;
+    void* data{};
     int size{};
     int faceIndex{};
 };
+
+int MapFile(const wchar_t* path, void** outAddr, size_t* outSize)
+{
+    HANDLE file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr,
+                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, nullptr);
+    if (file == INVALID_HANDLE_VALUE)
+        return MDR_RESULT_ERROR_NOT_FOUND;
+    LARGE_INTEGER size{};
+    HANDLE mapping{};
+    if (GetFileSizeEx(file, &size) && size.QuadPart > 0 &&
+        static_cast<unsigned long long>(size.QuadPart) <= SIZE_MAX)
+        mapping = CreateFileMappingW(file, nullptr, PAGE_READONLY, 0, 0, nullptr);
+    CloseHandle(file);
+    if (!mapping)
+        return MDR_RESULT_ERROR_GENERAL;
+    void* view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+    CloseHandle(mapping);
+    if (!view)
+        return MDR_RESULT_ERROR_GENERAL;
+    *outAddr = view;
+    *outSize = static_cast<size_t>(size.QuadPart);
+    return MDR_RESULT_OK;
+}
 
 std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
 
@@ -65,29 +87,26 @@ bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
         return false;
     const void* key{};
     UINT32 keySize{};
+    UINT32 pathLength{};
     ComPtr<IDWriteFontFileLoader> loader;
     ComPtr<IDWriteLocalFontFileLoader> localLoader;
-    ComPtr<IDWriteFontFileStream> stream;
     if (FAILED(file->GetReferenceKey(&key, &keySize)) || FAILED(file->GetLoader(&loader)) ||
         FAILED(loader.As(&localLoader)) ||
-        FAILED(localLoader->CreateStreamFromKey(key, keySize, &stream)))
+        FAILED(localLoader->GetFilePathLengthFromKey(key, keySize, &pathLength)))
         return false;
-    UINT64 size{};
-    if (FAILED(stream->GetFileSize(&size)) || !size || size > static_cast<UINT64>(INT_MAX))
+    std::wstring path(pathLength + 1, L'\0');
+    if (FAILED(localLoader->GetFilePathFromKey(key, keySize, path.data(), pathLength + 1)))
         return false;
-    std::unique_ptr<char[]> data(new (std::nothrow) char[static_cast<size_t>(size)]);
-    if (!data)
+    void* addr{};
+    size_t size{};
+    if (MapFile(path.c_str(), &addr, &size) != MDR_RESULT_OK)
         return false;
-    const void* fragment{};
-    void* context{};
-    if (FAILED(stream->ReadFileFragment(&fragment, 0, size, &context)))
+    if (size > static_cast<size_t>(INT_MAX))
+    {
+        clientPlatformMemoryUnmapFile(addr, size);
         return false;
-    if (fragment)
-        std::memcpy(data.get(), fragment, static_cast<size_t>(size));
-    stream->ReleaseFileFragment(context);
-    if (!fragment)
-        return false;
-    cache.data = std::move(data);
+    }
+    cache.data = addr;
     cache.size = static_cast<int>(size);
     cache.faceIndex = static_cast<int>(face->GetIndex());
     return true;
@@ -137,9 +156,30 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
         cache.queried = true;
         LocateFont(locale, cache);
     }
-    *outData = cache.data.get();
+    *outData = static_cast<const char*>(cache.data);
     *outFaceIndex = cache.faceIndex;
     return cache.size;
+}
+
+int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSize)
+{
+    if (outAddr) *outAddr = nullptr;
+    if (outSize) *outSize = 0;
+    if (!path || !outAddr || !outSize)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, nullptr, 0);
+    if (length <= 0)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    std::wstring widePath(static_cast<size_t>(length), L'\0');
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, widePath.data(), length) != length)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    return MapFile(widePath.c_str(), outAddr, outSize);
+}
+
+void clientPlatformMemoryUnmapFile(void* addr, size_t)
+{
+    if (addr)
+        UnmapViewOfFile(addr);
 }
 
 static MDRConnectionWindows* gConnClassic = nullptr;
@@ -195,7 +235,10 @@ void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
+    {
+        clientPlatformMemoryUnmapFile(font.data, static_cast<size_t>(font.size));
         font = {};
+    }
 }
 }
 

@@ -51,7 +51,7 @@ static constexpr ImWchar gIconGlyphRanges[] = {0xf000, 0xf2ff, 0};
 
 static void DestroyFontFallback()
 {
-    SDL_free(gFontFallbackData);
+    clientPlatformMemoryUnmapFile(gFontFallbackData, static_cast<size_t>(gFontFallbackSize));
     gFontFallbackData = nullptr;
     gFontFallbackSize = 0;
     gFontFallbackPath = nullptr;
@@ -415,21 +415,22 @@ int main(int argc, char** argv)
     }
     if (options.fontPath)
     {
+        void* fontData{};
         size_t fontSize{};
-        char* fontData = static_cast<char*>(SDL_LoadFile(options.fontPath, &fontSize));
-        if (!fontData || fontSize == 0 || fontSize > static_cast<size_t>(INT_MAX))
+        const int result = clientPlatformMemoryMapFile(options.fontPath, &fontData, &fontSize);
+        if (result != MDR_RESULT_OK || fontSize > static_cast<size_t>(INT_MAX))
         {
-            if (!fontData)
-                MDR_LOG("Unable to read font file {}: {}", options.fontPath, SDL_GetError())
+            if (result != MDR_RESULT_OK)
+                MDR_LOG("Unable to map font file {}: error {}", options.fontPath, result)
             else
                 MDR_LOG("Invalid font file size for {}: {} bytes", options.fontPath, fontSize)
-            SDL_free(fontData);
+            clientPlatformMemoryUnmapFile(fontData, fontSize);
             SDL_DestroyRenderer(gRenderer);
             SDL_DestroyWindow(gWindow);
             SDL_Quit();
             return 1;
         }
-        gFontFallbackData = fontData;
+        gFontFallbackData = static_cast<char*>(fontData);
         gFontFallbackSize = static_cast<int>(fontSize);
         gFontFallbackPath = options.fontPath;
     }

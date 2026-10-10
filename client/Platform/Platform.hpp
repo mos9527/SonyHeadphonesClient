@@ -27,6 +27,21 @@ extern "C" {
      */
     extern int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex);
     /**
+     * @brief Map a whole file read-only into memory.
+     * @param path UTF-8 file path.
+     * @param outAddr Required output pointer. Receives the base address, or NULL on failure.
+     *                Pages are read-only; writing to them is undefined.
+     * @param outSize Required output pointer. Receives the file size in bytes, or 0 on failure.
+     * @return MDR_RESULT_OK, or an error code. Empty files are rejected.
+     *         MDR_RESULT_ERROR_NOT_SUPPORTED on Emscripten.
+     */
+    extern int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSize);
+    /**
+     * @brief Release a mapping from @ref clientPlatformMemoryMapFile. NULL is accepted and ignored.
+     * @param size The size returned alongside @p addr.
+     */
+    extern void clientPlatformMemoryUnmapFile(void* addr, size_t size);
+    /**
      * @brief Whether a Bluetooth address belongs to one of this computer's own adapters.
      * @param address Text form, "XX:XX:XX:XX:XX:XX", any case.
      * @param outIsLocal Receives 1 or 0.
@@ -51,7 +66,7 @@ extern "C" {
     extern void clientPlatformMediaResume(struct ClientMediaPause* pause);
 #ifdef __EMSCRIPTEN__
     /**
-     * @brief Download bytes through the browser.
+     * @brief Download bytes through the browser. Emscripten only.
      * @return Non-zero when the browser download was started.
      */
     extern int clientPlatformDownloadFile(
