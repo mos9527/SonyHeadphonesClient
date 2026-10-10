@@ -270,15 +270,6 @@ namespace mdr
          */
         void Awake(AwaitType type);
         /**
-         * @brief Drop signals kept by @ref Awake, so a reply to an earlier request cannot complete
-         *        an @ref Await for the next one.
-         */
-        void ClearAwakeSignals()
-        {
-            for (auto& awaiter : mAwaiters)
-                awaiter.signaled = false;
-        }
-        /**
          * @brief This does what you think it does.
          */
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
@@ -493,7 +484,6 @@ namespace mdr::detail
     do                                                                                                                 \
     {                                                                                                                  \
         int _retries;                                                                                                  \
-        ClearAwakeSignals();                                                                                           \
         for (_retries = 0; _retries < mACKRetryCount; _retries++)                                                    \
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
