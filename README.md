@@ -18,7 +18,7 @@ This branch is expected to be merged/released once the following features have b
 
 ## Compatibility
 
-The following platforms (applies to `libmdr`, `client`) are *natively* supported with first-party effort.
+The following platforms (applies to `libmdr-bt`, `client`; `libmdr` itself is platform agnostic) are *natively* supported with first-party effort.
 
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
