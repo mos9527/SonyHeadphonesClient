@@ -7,6 +7,7 @@ on:
 
 env:
   BUILD_TYPE: MinSizeRel
+  CMAKE_BUILD_PARALLEL_LEVEL: '4'
 
 # NOTE NOTE NOTE MANUALLY KEEP WINDOWS BUILD TYPE IN SYNC
 #                           vvvvvvvvvvvvvvvvvvvvv since this apparently does NOT work
@@ -34,7 +35,7 @@ jobs:
       - name: Compare codegen output with checked-in generated files
         id: generated-headers
         run: |
-          cmake --build build-codegen --target mdr_codegen --parallel 2
+          cmake --build build-codegen --target mdr_codegen
           git diff --exit-code -- libmdr/include/mdr/Generated libmdr/src/Generated client/Generated
 
   build:
@@ -141,7 +142,7 @@ jobs:
 
   emscripten:
     needs: pre-check
-    name: Build Emscripten
+    name: Build emscripten (Web)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
