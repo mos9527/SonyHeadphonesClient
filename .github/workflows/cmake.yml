@@ -111,12 +111,12 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE --target SonyHeadphonesClient
 
-    - name: Build packet replay runner
+    - name: Build ABI and packet replay tests
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: cmake --build . --config $BUILD_TYPE --target mdr_tests
 
-    - name: Replay packet sets
+    - name: Run ABI and packet replay tests
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: ctest --build-config $BUILD_TYPE --output-on-failure --no-tests=error

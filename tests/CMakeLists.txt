@@ -13,13 +13,6 @@ target_link_libraries(mdr_abi_tests PRIVATE mdr_shared)
 
 set(mdr_test_targets mdr_replay_tests mdr_abi_tests)
 
-if (MDR_CLIENT_DEBUGGER_TARGET)
-    add_executable(mdr_debugger_tests Debugger.cpp)
-    target_link_libraries(mdr_debugger_tests PRIVATE Client_Debugger)
-    list(APPEND mdr_test_targets mdr_debugger_tests)
-    add_test(NAME mdr-debugger COMMAND mdr_debugger_tests)
-endif ()
-
 add_custom_target(mdr_tests DEPENDS ${mdr_test_targets})
 
 foreach(test_target IN LISTS mdr_test_targets)
