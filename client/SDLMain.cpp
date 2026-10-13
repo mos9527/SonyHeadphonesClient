@@ -264,8 +264,6 @@ namespace
                      i18n::kLocaleOptionString);
         std::fprintf(stderr,
                      "    [--font <font-file>] Load an external font without changing application locale\n");
-        std::fprintf(stderr,
-                     "    [--renderer <renderer>] Specify SDL_HINT_RENDER_DRIVER hint to use\n");
 #ifdef MDR_CLIENT_DEBUGGER
         std::fprintf(stderr,
                      "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
@@ -303,21 +301,6 @@ namespace
             if (std::strcmp(argument, "--pause-media-on-remove") == 0)
             {
                 options.pauseMediaOnRemove = true;
-                continue;
-            }
-
-            if (std::strcmp(argument, "--renderer") == 0)
-            {
-                if (++index >= argc || argv[index][0] == '\0' || argv[index][0] == '-')
-                {
-                    MDR_LOG("Missing renderer after {}.", argument);
-                    return false;
-                }
-                if (!SDL_SetHint(SDL_HINT_RENDER_DRIVER, argv[index]))
-                {
-                    MDR_LOG("Unable to set SDL_HINT_RENDER_DRIVER to {}.", argv[index]);
-                    return false;
-                }
                 continue;
             }
 

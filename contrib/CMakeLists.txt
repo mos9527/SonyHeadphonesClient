@@ -1,5 +1,6 @@
 set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
+find_package(Git REQUIRED)
 
 FetchContent_Declare(
         fmt
@@ -13,6 +14,9 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/libsdl-org/SDL
         GIT_TAG release-3.2.26
         GIT_SHALLOW TRUE
+        PATCH_COMMAND 
+            "${GIT_EXECUTABLE}" reset --hard
+            COMMAND "${GIT_EXECUTABLE}" apply "${CMAKE_CURRENT_SOURCE_DIR}/SDL-disable-dynapi.patch"
 )
 
 FetchContent_Declare(
