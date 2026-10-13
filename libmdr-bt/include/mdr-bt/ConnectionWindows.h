@@ -16,7 +16,7 @@ MDR_API struct MDRConnectionWindows* mdrConnectionWindowsCreate();
 MDR_API MDRConnection* mdrConnectionWindowsGet(struct MDRConnectionWindows* conn);
 MDR_API void mdrConnectionWindowsDestroy(struct MDRConnectionWindows* conn);
 
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
 // Bluetooth Low Energy Windows connection.
 struct MDRConnectionWindowsBLE;
 MDR_API struct MDRConnectionWindowsBLE* mdrConnectionWindowsBLECreate();

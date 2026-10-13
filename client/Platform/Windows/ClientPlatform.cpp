@@ -182,21 +182,21 @@ void clientPlatformMemoryUnmapFile(void* addr, size_t)
 }
 
 static MDRConnectionWindows* gConnClassic = nullptr;
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
 static MDRConnectionWindowsBLE* gConnBLE = nullptr;
 #endif
 
 int clientPlatformConnectionInit(int flags)
 {
     if (gConnClassic != nullptr
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
         || gConnBLE != nullptr
 #endif
     )
         return MDR_RESULT_ERROR_GENERAL;
 
     if (flags & MDR_INIT_BT_BLE) {
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
         gConnBLE = mdrConnectionWindowsBLECreate();
         gConnClassic = nullptr;
 #else
@@ -204,7 +204,7 @@ int clientPlatformConnectionInit(int flags)
 #endif
     } else {
         gConnClassic = mdrConnectionWindowsCreate();
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
         gConnBLE = nullptr;
 #endif
     }
@@ -213,7 +213,7 @@ int clientPlatformConnectionInit(int flags)
 
 void clientPlatformConnectionDestroy()
 {
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
     if (gConnBLE) { mdrConnectionWindowsBLEDestroy(gConnBLE); gConnBLE = nullptr; }
 #endif
     if (gConnClassic) { mdrConnectionWindowsDestroy(gConnClassic); gConnClassic = nullptr; }
@@ -223,7 +223,7 @@ MDRConnection* clientPlatformConnectionGet()
 {
     if (gConnClassic != nullptr)
         return mdrConnectionWindowsGet(gConnClassic);
-#ifdef MDR_BLE
+#ifdef MDR_BT_BLE_SUPPORT
     if (gConnBLE != nullptr)
         return mdrConnectionWindowsBLEGet(gConnBLE);
 #endif

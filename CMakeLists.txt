@@ -5,11 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 
 if (MSVC)
-    option(MDR_STATIC_CRT "Statically link the MSVC runtime (/MT)" ON)
-    option(MDR_DYNAMIC_UCRT "With MDR_STATIC_CRT on, keep UCRT linked dynamically in non-Debug builds" ON)
-    if (MDR_STATIC_CRT AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+    option(MDR_MSVC_STATIC_CRT "Statically link the MSVC runtime (/MT)" ON)
+    option(MDR_MSVC_DYNAMIC_UCRT "With MDR_MSVC_STATIC_CRT on, keep UCRT linked dynamically in non-Debug builds" ON)
+    if (MDR_MSVC_STATIC_CRT AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-        if (MDR_DYNAMIC_UCRT)
+        if (MDR_MSVC_DYNAMIC_UCRT)
             add_link_options(
                 $<$<NOT:$<CONFIG:Debug>>:/NODEFAULTLIB:libucrt.lib>
                 $<$<NOT:$<CONFIG:Debug>>:/DEFAULTLIB:ucrt.lib>
@@ -39,7 +39,7 @@ if (MDR_NO_EXCEPTIONS)
     # - _HAS_EXCEPTIONS=0 barely works.
     # - With cases like these - in the end you'd be linking to MSVCP*.dll, VCRUNTIME*.dll 
     #   since _Xlen checks are always performed.
-    # - MDR_STATIC_CRT (default ON) can be used to avoid VCRUNTIME entirely.
+    # - MDR_MSVC_STATIC_CRT (default ON) can be used to avoid VCRUNTIME entirely.
     if (MSVC) # True for both MSVC and Clang-cl
         string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
         add_compile_options(/EHs-c-)
@@ -83,8 +83,17 @@ endif ()
 
 option(MDR_DEBUG "Build with debug flags enabled (also always on for Debug builds)" OFF)
 option(MDR_DEBUG_TRAPS "Break into the debugger when MDR operations fail in Debug builds" OFF)
+option(MDR_BUILD_BT "Build the platform Bluetooth backends" ON)
 option(MDR_BUILD_CLIENT "Build the Sony Headphones Client and platform backends" ON)
+option(MDR_BUILD_TESTING "Build the MDR ABI and packet replay tests" ON)
+option(MDR_BUILD_CODEGEN "Build codegen tools and targets (requires LLVM)" ON)
 option(MDR_CLIENT_DEBUGGER "Build the ImGui packet debugger in all configurations" OFF)
+if (MDR_BUILD_CLIENT AND NOT MDR_BUILD_BT)
+    message(FATAL_ERROR "MDR_BUILD_CLIENT requires MDR_BUILD_BT=ON; set MDR_BUILD_CLIENT=OFF to build without Bluetooth backends")
+endif ()
+if (MDR_BUILD_CODEGEN AND CMAKE_CROSSCOMPILING)
+    message(FATAL_ERROR "MDR_BUILD_CODEGEN requires a native toolchain; set MDR_BUILD_CODEGEN=OFF when cross-compiling")
+endif ()
 set(MDR_CLIENT_DEBUGGER_TARGET OFF)
 if (MDR_BUILD_CLIENT AND
     (MDR_CLIENT_DEBUGGER OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_CONFIGURATION_TYPES))
@@ -118,10 +127,10 @@ else()
     message(STATUS "LTO not supported: ${ipo_msg}")
 endif()
 
-option(MDR_BLE "Build with BLE Backend support" ON)
-if (MDR_BLE)
+option(MDR_BT_BLE_SUPPORT "Build libmdr-bt with BLE Backend support" ON)
+if (MDR_BUILD_BT AND MDR_BT_BLE_SUPPORT)
 	message(STATUS "BLE Backend support is ON.")
-    add_compile_definitions(MDR_BLE)
+    add_compile_definitions(MDR_BT_BLE_SUPPORT)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -147,18 +156,11 @@ add_subdirectory(contrib)
 # tooling comes before libmdr so codegen targets exist when libmdr declares its generated files.
 # mdr_add_codegen() is only defined when LLVM was detected and codegen is not disabled;
 # libmdr guards on (COMMAND mdr_add_codegen).
-option(MDR_ENABLE_CODEGEN "Enable codegen targets (requires LLVM)" ON)
-option(MDR_CODEGEN_ONLY "Configure only protocol codegen tools and generated files" OFF)
-if (MDR_CODEGEN_ONLY AND (NOT MDR_ENABLE_CODEGEN OR CMAKE_CROSSCOMPILING))
-    message(FATAL_ERROR "MDR_CODEGEN_ONLY requires MDR_ENABLE_CODEGEN=ON and a native toolchain")
-endif ()
-if (MDR_ENABLE_CODEGEN)
+if (MDR_BUILD_CODEGEN)
     add_subdirectory(tooling)
 endif()
-if (NOT MDR_CODEGEN_ONLY)
-    if (MDR_BUILD_CLIENT OR NOT CMAKE_CROSSCOMPILING)
-        add_subdirectory(client/I18N)
-    endif ()
+if (MDR_BUILD_CLIENT)
+    add_subdirectory(client/I18N)
     if (NOT CMAKE_CROSSCOMPILING)
         add_subdirectory(tooling/i18n-check)
     endif ()
@@ -166,22 +168,25 @@ endif ()
 
 get_property(MDR_SUPPORTS_SHARED_LIBS GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
 option(MDR_BUILD_SHARED "Build the MDR and Bluetooth shared libraries" ${MDR_SUPPORTS_SHARED_LIBS})
+if (MDR_BUILD_TESTING AND NOT MDR_BUILD_SHARED)
+    message(FATAL_ERROR "MDR_BUILD_TESTING requires MDR_BUILD_SHARED=ON; set MDR_BUILD_TESTING=OFF to build without shared libraries")
+endif ()
 
 include(tooling/Codegen.cmake)
 add_subdirectory(libmdr)
-if (MDR_CODEGEN_ONLY)
+if (MDR_BUILD_BT)
+    add_subdirectory(libmdr-bt)
+endif ()
+if (MDR_BUILD_CLIENT OR MDR_BUILD_CODEGEN)
     add_subdirectory(client)
+endif ()
+if (MDR_BUILD_CODEGEN)
     add_custom_target(mdr_codegen)
     add_dependencies(mdr_codegen mdr_codegen_headers mdr_codegen_sources mdr_codegen_debugger)
-    return()
-endif ()
-add_subdirectory(libmdr-bt)
-if (MDR_BUILD_CLIENT)
-    add_subdirectory(client)
 endif ()
 
-include(CTest)
-if (BUILD_TESTING)
+if (MDR_BUILD_TESTING)
+    enable_testing()
     add_subdirectory(tests)
     add_test(
         NAME mdr-c-abi

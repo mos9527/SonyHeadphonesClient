@@ -10,7 +10,7 @@ A C++20 compliant compiler and CMake 3.31+ are required. GCC 14, Clang 21 and MS
 
 Third-party dependencies (see [`contrib`](./contrib/)) are managed by CMake's `FetchContent` and are always statically linked.
 
-**Codegen:** `MDR_ENABLE_CODEGEN` is `ON` by default and requires LLVM/libclang - configuration fails if it cannot be found. See [tooling](./tooling/README.md#setting-up-llvm) for setting up LLVM, or pass `-DMDR_ENABLE_CODEGEN=OFF` to build with the checked-in generated sources.
+**Codegen:** `MDR_BUILD_CODEGEN` is `ON` by default and requires a native toolchain and LLVM/libclang - configuration fails if these requirements are not met. See [tooling](./tooling/README.md#setting-up-llvm) for setting up LLVM, or pass `-DMDR_BUILD_CODEGEN=OFF` to build with the checked-in generated sources.
 
 ### Desktop (Windows, macOS, Linux)
 
@@ -41,14 +41,15 @@ cmake --build . --target SonyHeadphonesClient
     -DCMAKE_TOOLCHAIN_FILE=/usr/lib/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_CROSSCOMPILING_EMULATOR=/usr/lib/emsdk/node/20.18.0_64bit/bin/node
     ```
 - No extra dependencies are required.
-- Shared libraries are unavailable on Emscripten, so `MDR_BUILD_SHARED` defaults to `OFF` and the tests must be disabled with `-DBUILD_TESTING=OFF`.
+- Shared libraries are unavailable on Emscripten, so `MDR_BUILD_SHARED` defaults to `OFF` and the tests must be disabled with `-DMDR_BUILD_TESTING=OFF`.
+- Codegen tools require a native toolchain; disable them with `-DMDR_BUILD_CODEGEN=OFF` when cross-compiling.
 
 #### Example
 
 ```bash
 mkdir build
 cd build
-emcmake cmake .. -DBUILD_TESTING=OFF
+emcmake cmake .. -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF
 cmake --build . --target SonyHeadphonesClient
 ```
 
@@ -60,22 +61,50 @@ Set up the CMake Toolchain variables above in a new CMake Profile (in CMake opti
 
 ### CMake Options
 
+
+#### Common
+
+These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
+
 | Option | Default | Description |
 | --- | --- | --- |
-| `MDR_BUILD_CLIENT` | `ON` | Build the Client app and its platform backends. |
-| `MDR_CLIENT_DEBUGGER` | `OFF` | Build the [Protocol Debugger](#the-protocol-debugger) in all configurations. Always built for `Debug` builds and multi-config generators (requires `MDR_BUILD_CLIENT`). |
+| `MDR_NO_EXCEPTIONS` | `ON` | Compile without C++ exceptions. See also [`noexcept` Container Usage](#noexcept-container-usage-libmdr-libmdr-bt-client). |
 | `MDR_DEBUG` | `OFF` | Define `MDR_DEBUG` (debug features) in all configurations. Forced `ON` for `Debug` builds; also implies `MDR_ENABLE_LOG`. |
-| `MDR_DEBUG_TRAPS` | `OFF` | Break into the debugger (`MDR_TRAP`) when MDR operations / `MDR_CHECK`s fail. `Debug` builds only. |
 | `MDR_ENABLE_LOG` | `OFF` | Enable `MDR_LOG` output and source locations in non-`Debug` builds. Always on for `Debug` builds. |
-| `MDR_NO_EXCEPTIONS` | `ON` | Compile without C++ exceptions. See [`noexcept` Container Usage](#noexcept-container-usage-libmdr-libmdr-bt-client). |
-| `MDR_BUILD_WITH_ASAN` | `OFF` | Build with AddressSanitizer. |
-| `MDR_BLE` | `ON` | Build with BLE backend support (defines `MDR_BLE`). |
-| `MDR_BUILD_SHARED` | Platform-dependent | Also build `mdr` and `mdr-bt` as shared libraries. Defaults to `ON` where shared libraries are supported (i.e. not Emscripten). Required by the tests. |
-| `MDR_ENABLE_CODEGEN` | `ON` | Enable [codegen](./tooling/) targets. Requires LLVM/libclang; configuration fails if LLVM is not found. Set to `OFF` to use the checked-in generated sources. |
-| `MDR_STATIC_CRT` | `ON` | **MSVC only.** Statically link the MSVC runtime (`/MT`). Ignored if `CMAKE_MSVC_RUNTIME_LIBRARY` is set. |
-| `MDR_DYNAMIC_UCRT` | `ON` | **MSVC only.** With `MDR_STATIC_CRT`, keep the UCRT dynamically linked in non-`Debug` builds. |
-| `BUILD_TESTING` | `ON` | Standard CTest option. Builds the C ABI and [replay tests](./tests/) (plus the debugger tests when the Protocol Debugger is built); requires `MDR_BUILD_SHARED=ON`. |
-| `MDR_CODEGEN_ONLY` | `OFF` | Build only the codegen targets, used by CI for idempotency checks. |
+| `MDR_DEBUG_TRAPS` | `OFF` | Define `MDR_DEBUG_TRAPS`. Break into the debugger (`MDR_TRAP`) when MDR operations / `MDR_CHECK`s fail. `Debug` builds only. |
+
+#### Building
+| Option | Default | Description |
+| --- | --- | --- |
+| `MDR_BUILD_TESTING` | `ON` | Build and register the C ABI and [replay tests](./tests/) with CTest. Requires `MDR_BUILD_SHARED=ON`. |
+| `MDR_BUILD_SHARED` | Platform-dependent | Also build the `mdr_shared` target and, with `MDR_BUILD_BT=ON`, the `mdr-bt_shared` target. Outputs to `mdr-shared` and `mdr-bt-shared`. Defaults to `ON` where shared libraries are supported (i.e. **not** Emscripten). Required by the tests. |
+| `MDR_BUILD_CODEGEN` | `ON` | Build [codegen](./tooling/) tools and targets, including `mdr_codegen` for all generated protocol and debugger files. Requires a native toolchain and LLVM/libclang. Set to `OFF` to use the checked-in generated sources. |
+| `MDR_BUILD_WITH_ASAN` | `OFF` | Build with AddressSanitizer enabled. |
+| `MDR_MSVC_STATIC_CRT` | `ON` | **MSVC only.** Statically link the MSVC runtime (`/MT`). Ignored if `CMAKE_MSVC_RUNTIME_LIBRARY` is set. |
+| `MDR_MSVC_DYNAMIC_UCRT` | `ON` | **MSVC only.** With `MDR_MSVC_STATIC_CRT`, keep the UCRT dynamically linked in non-`Debug` builds. |
+
+#### `libmdr-bt`
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `MDR_BUILD_BT` | `ON` | Build `libmdr-bt` and its platform Bluetooth backends.  |
+| `MDR_BT_BLE_SUPPORT` | `ON` | With `MDR_BUILD_BT=ON`, define `MDR_BT_BLE_SUPPORT` and build optional Bluetooth LE backends alongside Classic Bluetooth backends. |
+
+#### `client`
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `MDR_BUILD_CLIENT` | `ON` | Build the Client app and its platform backends. Requires `MDR_BUILD_BT=ON`. |
+| `MDR_CLIENT_DEBUGGER` | `OFF` | With `MDR_BUILD_CLIENT=ON`, build, link and enable the [Protocol Debugger](#the-protocol-debugger), defining `MDR_CLIENT_DEBUGGER`, in all configurations. Always enabled in `Debug` builds. |
+
+
+#### Example Configurations
+
+| Configuration | Options |
+| --- | --- |
+| Client with checked-in generated sources | `MDR_BUILD_CLIENT=ON`, `MDR_BUILD_BT=ON`, `MDR_BUILD_CODEGEN=OFF` |
+| Protocol library without Bluetooth backends | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=OFF`, `MDR_BUILD_TESTING=OFF` |
+| Codegen targets only | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=ON`, `MDR_BUILD_TESTING=OFF`; build target `mdr_codegen` |
 
 ## Debugging (libmdr, libmdr-bt, client)
 

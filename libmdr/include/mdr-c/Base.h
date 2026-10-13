@@ -8,7 +8,7 @@
 #if defined(_WIN32)
 #if defined(MDR_BUILDING_SHARED)
 #define MDR_API __declspec(dllexport)
-#elif defined(MDR_USING_SHARED)
+#elif defined(MDR_USE_SHARED)
 #define MDR_API __declspec(dllimport)
 #else
 #define MDR_API

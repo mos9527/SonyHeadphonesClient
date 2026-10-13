@@ -54,7 +54,7 @@ if (MDR_BUILD_SHARED)
     )
     target_compile_definitions(mdr_shared
         PRIVATE MDR_BUILDING_SHARED
-        INTERFACE MDR_USING_SHARED
+        INTERFACE MDR_USE_SHARED
     )
 
     # The ABI tests provide their own MDRConnection and intentionally exercise the

@@ -12,14 +12,14 @@ if (MDR_PLATFORM_OS STREQUAL "LINUX")
 elseif (WIN32)
     list(APPEND SRCS
         Windows/ConnectionWindows.cpp)
-    if (MDR_BLE)
+    if (MDR_BT_BLE_SUPPORT)
         list(APPEND SRCS
             Windows/ConnectionWindowsBLE.cpp)
     endif ()
 elseif (APPLE)
     list(APPEND SRCS
         MacOS/ConnectionMacOS.mm)
-    if (MDR_BLE)
+    if (MDR_BT_BLE_SUPPORT)
         find_library(FOUNDATION_LIB Foundation REQUIRED)
         find_library(IOBLUETOOTH_LIB IOBluetooth REQUIRED)
     endif ()
@@ -61,7 +61,7 @@ if (MDR_BUILD_SHARED)
 
     target_compile_definitions(mdr-bt_shared
         PRIVATE MDR_BUILDING_SHARED
-        INTERFACE MDR_USING_SHARED
+        INTERFACE MDR_USE_SHARED
     )
 
     set_target_properties(mdr-bt_shared PROPERTIES OUTPUT_NAME "mdr-bt-shared")
@@ -73,15 +73,15 @@ if (TARGET mdr-bt_shared)
 endif ()
 foreach(MDR_BT_TARGET IN LISTS MDR_BT_TARGETS)
     if (WIN32)
-        target_link_libraries(${MDR_BT_TARGET} PRIVATE ws2_32 rpcrt4)
-        if (MDR_BLE)
-            target_link_libraries(${MDR_BT_TARGET} PRIVATE Bthprops windowsapp)
+        target_link_libraries(${MDR_BT_TARGET} PRIVATE ws2_32 rpcrt4 Bthprops)
+        if (MDR_BT_BLE_SUPPORT)
+            target_link_libraries(${MDR_BT_TARGET} PRIVATE windowsapp)
         endif ()
     elseif (MDR_PLATFORM_OS STREQUAL "LINUX")
         target_include_directories(${MDR_BT_TARGET} PRIVATE ${DBus_INCLUDE_DIRS})
         target_link_libraries(${MDR_BT_TARGET} PRIVATE ${DBus_LIBRARIES} bluetooth)
     elseif (APPLE)
-        if (MDR_BLE)
+        if (MDR_BT_BLE_SUPPORT)
             target_link_libraries(${MDR_BT_TARGET} PRIVATE ${FOUNDATION_LIB} ${IOBLUETOOTH_LIB})
         endif ()
     elseif (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")

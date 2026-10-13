@@ -7,7 +7,7 @@ set(CLIENT_DEBUGGER_GENERATED_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T2Debugger.cpp"
 )
 
-if ((MDR_CLIENT_DEBUGGER_TARGET OR MDR_CODEGEN_ONLY) AND COMMAND mdr_add_codegen)
+if (COMMAND mdr_add_codegen)
     mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T1Debugger.cpp"
         TOOL      tooling_DebuggerCodegen
         INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/ProtocolV1T1.hpp"
@@ -28,10 +28,10 @@ if ((MDR_CLIENT_DEBUGGER_TARGET OR MDR_CODEGEN_ONLY) AND COMMAND mdr_add_codegen
         INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/ProtocolV2T2.hpp"
         NAMESPACE "mdr::v2::t2"
         INCLUDE   "mdr/ProtocolV2T2.hpp")
+    add_custom_target(mdr_codegen_debugger DEPENDS ${CLIENT_DEBUGGER_GENERATED_SOURCES})
 endif ()
 
-if (MDR_CODEGEN_ONLY)
-    add_custom_target(mdr_codegen_debugger DEPENDS ${CLIENT_DEBUGGER_GENERATED_SOURCES})
+if (NOT MDR_BUILD_CLIENT)
     return()
 endif ()
 
