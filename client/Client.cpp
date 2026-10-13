@@ -1056,7 +1056,7 @@ MDRResult StartConnection(MDRConnection* conn, const char* address, bool usingBL
     connectionAttempt.ble = usingBLE;
     if (usingBLE)
     {
-        connectionAttempt.services[0] = MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC;
+        connectionAttempt.services[0] = MDR_SERVICE_UUID_BLE;
         connectionAttempt.serviceCount = 1;
     }
     else if (deviceType == DEVICE_TYPE_AUTO)

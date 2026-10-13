@@ -35,8 +35,6 @@ if (MDR_CODEGEN_ONLY)
     return()
 endif ()
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES})
-
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
     add_executable(SonyHeadphonesClient)
     # Console for Debug / MDR_DEBUG; WIN32 (GUI) otherwise — works with multi-config generators

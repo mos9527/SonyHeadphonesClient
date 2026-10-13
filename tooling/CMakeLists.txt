@@ -1,9 +1,4 @@
 cmake_minimum_required(VERSION 3.31)
-file(
-    GLOB_RECURSE INCLUDES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
-
 # On macOS, Homebrew's LLVM isn't on the default search path.
 # Prepend its cmake dir so find_package(Clang) can locate ClangConfig.cmake.
 if (APPLE)

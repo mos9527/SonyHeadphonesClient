@@ -82,7 +82,6 @@ namespace mdr
         bool awaitAck
     )
     {
-        // Adopt the debugger's sequence number so its ACK is recognized.
         mSeqNumber = static_cast<MDRCommandSeqNumber>(sequence & 1u);
         SendCommandImpl(payload, type, mSeqNumber);
         if (awaitAck)

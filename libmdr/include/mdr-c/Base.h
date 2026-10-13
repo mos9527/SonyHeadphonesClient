@@ -43,13 +43,12 @@ typedef uint32_t MDRResult;
 #define MDR_RESULT_ERROR_INVALID_ARGUMENT 11
 #define MDR_RESULT_ERROR_ABI_MISMATCH 12
 // Service UUIDs
-// XM5s and newer (Bluetooth Classic RFCOMM)
+// XM5s and newer (SDP service UUID)
 #define MDR_SERVICE_UUID_XM5 "956C7B26-D49A-4BA8-B03F-B17D393CB6E2"
-// XM4s and older (Bluetooth Classic RFCOMM)
+// XM4s and older (SDP service UUID)
 #define MDR_SERVICE_UUID_LEGACY "96CC203E-5068-46AD-B32D-E316F5E069BA"
-// BLE GATT service UUID for TANDEM_OVER_BLE_HPC_SERVICE
-// See: Sony SongPal smali ServiceUuid.TANDEM_OVER_BLE_HPC_SERVICE
-#define MDR_BLE_SERVICE_UUID_TANDEM_OVER_BLE_HPC "5B833E20-6BC7-4802-8E9A-723CECA4BD8F"
+// XM5s and newer (BLE GATT service UUID)
+#define MDR_SERVICE_UUID_BLE "5B833E20-6BC7-4802-8E9A-723CECA4BD8F"
 #ifdef __cplusplus
 extern "C" {
 #endif

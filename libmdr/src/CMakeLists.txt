@@ -4,8 +4,23 @@ set(_INC "${CMAKE_CURRENT_SOURCE_DIR}/../include/mdr")
 set(_GEN_INC "${_INC}/Generated")
 set(_GEN_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Generated")
 
-file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
+set(MDR_CORE_SOURCES
+    Command.cpp
+    HeadphonesV1.cpp
+    HeadphonesV1T1.cpp
+    HeadphonesV1T2.cpp
+    HeadphonesV2.cpp
+    HeadphonesV2T1.cpp
+    HeadphonesV2T2.cpp
+    ProtocolV1T1Serialization.cpp
+    ProtocolV1T2Serialization.cpp
+    ProtocolV2T1Serialization.cpp
+    ProtocolV2T2Serialization.cpp
+    Details.hpp
+    DetailsV1.hpp
+    DetailsV2.hpp
+    Property.hpp
+)
 
 include(FetchContent)
 FetchContent_MakeAvailable(fmt)
@@ -21,13 +36,19 @@ set(GENERATED_SRCS
     "${_GEN_SRC}/ProtocolV2T2Validation.cpp"
 )
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
-add_library(mdr ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
+add_library(mdr_core OBJECT ${MDR_CORE_SOURCES} ${GENERATED_SRCS})
+set_target_properties(mdr_core PROPERTIES
+    POSITION_INDEPENDENT_CODE ${MDR_BUILD_SHARED}
+    CXX_SCAN_FOR_MODULES OFF
+)
+target_link_libraries(mdr_core PRIVATE mdr_Includes)
+
+add_library(mdr STATIC Headphones.cpp $<TARGET_OBJECTS:mdr_core>)
 target_link_libraries(mdr PUBLIC mdr_Includes)
 target_include_directories(mdr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if (MDR_BUILD_SHARED)
-    add_library(mdr_shared SHARED ${SOURCES} ${INCLUDES} ${GENERATED_SRCS})
+    add_library(mdr_shared SHARED Headphones.cpp $<TARGET_OBJECTS:mdr_core>)
     set_target_properties(mdr_shared PROPERTIES
         OUTPUT_NAME "mdr-shared"
     )
@@ -114,10 +135,7 @@ if (COMMAND mdr_add_codegen)
         "${_GEN_INC}/ProtocolV2T1Traits.hpp"
         "${_GEN_INC}/ProtocolV2T2Traits.hpp"
     )
-    add_dependencies(mdr mdr_codegen_headers)
-    if (TARGET mdr_shared)
-        add_dependencies(mdr_shared mdr_codegen_headers)
-    endif ()
+    add_dependencies(mdr_core mdr_codegen_headers)    
 
     mdr_add_codegen(OUTPUT "${_GEN_SRC}/ProtocolV1T1Serialization.cpp"
         TOOL      tooling_SerializationCodegen
@@ -168,8 +186,5 @@ if (COMMAND mdr_add_codegen)
         INCLUDE   "mdr/ProtocolV2T2.hpp")
 
     add_custom_target(mdr_codegen_sources DEPENDS ${GENERATED_SRCS})
-    add_dependencies(mdr mdr_codegen_sources)
-    if (TARGET mdr_shared)
-        add_dependencies(mdr_shared mdr_codegen_sources)
-    endif ()
+    add_dependencies(mdr_core mdr_codegen_sources)
 endif ()
