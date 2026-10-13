@@ -2,13 +2,13 @@
 
 namespace mdr::v2::t1
 {
-    /***
-    /* These come in:
-    /* [count settingsActions] [count customizableActions] 
-    /* [settingsActions...] [customizableActions...]
     /*
-    /* Absolute madness. Thanks to @Amrsatrio for finding this.
-    ***/
+     * These come in:
+     * [count settingsActions] [count customizableActions]
+     * [settingsActions...] [customizableActions...]
+     *
+     * Absolute madness. Thanks to @Amrsatrio for finding this.
+     */
     MDRResult<size_t> AssignableSettingsPresetCapability::Write(
         const AssignableSettingsPresetCapability& data,
         UInt8** ppDstBuffer,

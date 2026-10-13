@@ -49,6 +49,7 @@ function(mdr_add_codegen)
         OUTPUT  "${ARG_OUTPUT}"
         COMMAND "${CMAKE_COMMAND}" ${_cmake_args} -P "${MDR_CODEGEN_RUNNER}"
         DEPENDS "${ARG_TOOL}" "${ARG_INPUT}" "${MDR_CODEGEN_RUNNER}"
+        DEPENDS_EXPLICIT_ONLY
         COMMENT "Codegen: ${ARG_TOOL} -> ${ARG_OUTPUT} (${_cmake_args})"
         CODEGEN
         VERBATIM

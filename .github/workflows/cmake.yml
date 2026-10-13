@@ -26,15 +26,15 @@ jobs:
       - name: Install codegen dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-18 llvm-18-dev libclang-18-dev ninja-build libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev
+          sudo apt-get install -y clang-18 llvm-18-dev libclang-18-dev ninja-build
 
       - name: Configure codegen
-        run: cmake -S . -B build-codegen -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=ON -DMDR_CLIENT_DEBUGGER=ON -DMDR_BUILD_SHARED=OFF -DBUILD_TESTING=OFF -DClang_DIR=/usr/lib/llvm-18/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-18/lib/cmake/llvm
+        run: cmake -S . -B build-codegen -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_CODEGEN_ONLY=ON -DClang_DIR=/usr/lib/llvm-18/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-18/lib/cmake/llvm
 
       - name: Compare codegen output with checked-in generated files
         id: generated-headers
         run: |
-          cmake --build build-codegen --target codegen --parallel 2
+          cmake --build build-codegen --target mdr_codegen --parallel 2
           git diff --exit-code -- libmdr/include/mdr/Generated libmdr/src/Generated client/Generated
 
   build:

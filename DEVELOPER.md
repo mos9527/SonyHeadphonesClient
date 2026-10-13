@@ -75,6 +75,7 @@ Set up the CMake Toolchain variables above in a new CMake Profile (in CMake opti
 | `MDR_STATIC_CRT` | `ON` | **MSVC only.** Statically link the MSVC runtime (`/MT`). Ignored if `CMAKE_MSVC_RUNTIME_LIBRARY` is set. |
 | `MDR_DYNAMIC_UCRT` | `ON` | **MSVC only.** With `MDR_STATIC_CRT`, keep the UCRT dynamically linked in non-`Debug` builds. |
 | `BUILD_TESTING` | `ON` | Standard CTest option. Builds the C ABI and [replay tests](./tests/) (plus the debugger tests when the Protocol Debugger is built); requires `MDR_BUILD_SHARED=ON`. |
+| `MDR_CODEGEN_ONLY` | `OFF` | Build only the codegen targets, used by CI for idempotency checks. |
 
 ## Debugging (libmdr, libmdr-bt, client)
 
