@@ -230,13 +230,12 @@ namespace mdr
     {
         // Awaiter timeouts
         {
-            using namespace std::literals;
-            clock_t now = clock();            
+            const auto now = std::chrono::steady_clock::now();
             for (auto& awaiter : mAwaiters)
             {
                 if (!awaiter) continue;
-                auto duration = (now - awaiter.tick) / (CLOCKS_PER_SEC / 1000u);
-                if (duration > awaiter.timeout)
+                const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - awaiter.tick);
+                if (duration.count() > awaiter.timeout)
                     awaiter.resume_now(MDR_RESULT_ERROR_TIMEOUT);
             }
             int taskResult;

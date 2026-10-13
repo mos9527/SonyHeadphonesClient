@@ -3,12 +3,12 @@
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
+#include <SDL3/SDL_time.h>
 #include <mdr/Command.hpp>
 #include <mdr/ProtocolV2T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
 #include <atomic>
-#include <chrono>
 #include <string_view>
 
 namespace
@@ -92,11 +92,17 @@ namespace
             ) == mdr::MDRUnpackResult::OK;
         const mdr::UInt8 command =
             unpacked && !payload.empty() ? payload.front() : 0;
-        const auto timestamp = std::chrono::duration_cast<
-            std::chrono::milliseconds
-        >(
-            std::chrono::system_clock::now().time_since_epoch()
-        ).count();
+        SDL_Time now{};
+        if (!SDL_GetCurrentTime(&now))
+        {
+            SDL_LogError(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "Unable to timestamp payload capture: %s",
+                SDL_GetError()
+            );
+            return;
+        }
+        const auto timestamp = now / 1'000'000;
         const uint64_t counter = gCaptureCounter.fetch_add(
             1, std::memory_order_relaxed
         );

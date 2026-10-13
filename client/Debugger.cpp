@@ -11,13 +11,13 @@
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
+#include <SDL3/SDL_time.h>
 #include <imgui.h>
 #include <mdr/Command.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cctype>
-#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <iterator>
@@ -939,11 +939,13 @@ namespace
         return archive;
     }
 
-    std::int64_t ExportTimestamp()
+    bool ExportTimestamp(std::int64_t& timestamp)
     {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::system_clock::now().time_since_epoch())
-            .count();
+        SDL_Time now{};
+        if (!SDL_GetCurrentTime(&now))
+            return false;
+        timestamp = now / 1'000'000;
+        return true;
     }
 
     struct ReplayCapture
@@ -1147,7 +1149,12 @@ bool clientDebuggerExportPacketCollection()
         gExportStatus = gStatus = "No packets available to export";
         return false;
     }
-    const std::int64_t timestamp = ExportTimestamp();
+    std::int64_t timestamp{};
+    if (!ExportTimestamp(timestamp))
+    {
+        gExportStatus = gStatus = mdr::Format("Unable to timestamp packet collection: {}", SDL_GetError());
+        return false;
+    }
     const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
     const mdr::String defaultPath = mdr::Format("mdr-debugger-packets-{}.zip", timestamp);
     return RequestExport(archive, defaultPath.c_str(), "zip");
@@ -1159,7 +1166,10 @@ bool clientDebuggerWritePacketCollectionFile(const char* path)
         return SDL_SetError("Packet collection export path is empty");
     if (gHistory.empty())
         return SDL_SetError("No packets available to export");
-    const mdr::MDRBuffer archive = BuildHistoryZip(ExportTimestamp());
+    std::int64_t timestamp{};
+    if (!ExportTimestamp(timestamp))
+        return false;
+    const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
     return WriteCaptureFile(path, archive);
 }
 

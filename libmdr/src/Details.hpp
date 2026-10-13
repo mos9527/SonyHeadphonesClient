@@ -7,8 +7,8 @@
 #include "DetailsV1.hpp"
 #include "DetailsV2.hpp"
 
+#include <chrono>
 #include <coroutine>
-#include <time.h>
 
 namespace mdr
 {
@@ -141,8 +141,8 @@ namespace mdr
             AwaitType type;
 
             std::coroutine_handle<> h = nullptr;
-            // Timepoint when Awaiter is invoked in milliseconds
-            clock_t tick;
+            // Monotonic timepoint when Awaiter is invoked
+            std::chrono::steady_clock::time_point tick;
             // Timeout in milliseconds
             int timeout;
             // co_await Result on resumption
@@ -164,7 +164,7 @@ namespace mdr
                 if (h) [[unlikely]]
                     std::terminate(); // Misuse. Only _one_ task is allowed at a time
                 if (handle)
-                    h = std::move(handle), tick = clock();
+                    h = std::move(handle), tick = std::chrono::steady_clock::now();
             }
 
             int await_resume() noexcept { return result; }
