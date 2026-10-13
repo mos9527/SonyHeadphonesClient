@@ -1251,17 +1251,14 @@ void clientDebuggerDraw(bool* open, bool replayMode)
     ImGui::SetNextWindowSize({displaySize.x, displaySize.y * 0.8f}, ImGuiCond_Appearing);
     ImGui::SetNextWindowSizeConstraints({displaySize.x, 0.0f},
                                         {displaySize.x, std::numeric_limits<float>::max()});
-    ImGui::SetNextWindowPos({displaySize.x * 0.5f, displaySize.y * 0.5f}, ImGuiCond_Appearing, {0.5f, 0.5f});
+    ImGui::SetNextWindowPos({displaySize.x * 0.5f, displaySize.y * 0.5f}, ImGuiCond_Always, {0.5f, 0.5f});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {20.0f, 16.0f});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8.0f, 8.0f});
-    if (!ImGui::BeginPopupModal("Debugger", open, ImGuiWindowFlags_NoTitleBar))
+    if (!ImGui::BeginPopupModal("Debugger", open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
     {
         ImGui::PopStyleVar(2);
         return;
     }
-
-    if (const ImVec2 windowPos = ImGui::GetWindowPos(); windowPos.x != 0.0f)
-        ImGui::SetWindowPos({0.0f, windowPos.y});
 
     if (open && ImGui::IsKeyPressed(ImGuiKey_Escape))
     {
