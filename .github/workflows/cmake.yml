@@ -12,21 +12,37 @@ env:
 #                           vvvvvvvvvvvvvvvvvvvvv since this apparently does NOT work
 # binary_path: build/client/${{ env.build_type }}/SonyHeadphonesClient.exe
 jobs:
+  pre-check:
+    name: Check generated files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compare rendered headers with checked-in headers
+        run: python -m tooling.ida.j2objc.render --check
+
+      - name: Install codegen dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 llvm-18-dev libclang-18-dev ninja-build libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev
+
+      - name: Configure codegen
+        run: cmake -S . -B build-codegen -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=ON -DMDR_CLIENT_DEBUGGER=ON -DMDR_BUILD_SHARED=OFF -DBUILD_TESTING=OFF -DClang_DIR=/usr/lib/llvm-18/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-18/lib/cmake/llvm
+
+      - name: Compare codegen output with checked-in generated files
+        id: generated-headers
+        run: |
+          cmake --build build-codegen --target codegen --parallel 2
+          git diff --exit-code -- libmdr/include/mdr/Generated libmdr/src/Generated client/Generated
+
   build:
+    needs: pre-check
     name: Build ${{ matrix.os }} ${{ matrix.arch }}
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            arch: x64
-            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-x64"
-            script: ""
-          - os: windows-11-arm
-            arch: arm64
-            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
-            artifact_name: "SonyHeadphonesClient-win-arm64"
-            script: ""
           - os: ubuntu-latest
             arch: x64
             binary_path: build/client/SonyHeadphonesClient
@@ -39,6 +55,16 @@ jobs:
             artifact_name: "SonyHeadphonesClient-linux-arm64"
             script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
             gcc: 14
+          - os: windows-latest
+            arch: x64
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x64"
+            script: ""
+          - os: windows-11-arm
+            arch: arm64
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-arm64"
+            script: ""
           - os: macos-latest
             arch: universal
             binary_path: build/client/SonyHeadphonesClient.zip
@@ -112,3 +138,59 @@ jobs:
         name: ${{ matrix.artifact_name }}
         # A file, directory or wildcard pattern that describes what to upload
         path: ${{github.workspace}}/${{matrix.binary_path}}
+
+  emscripten:
+    needs: pre-check
+    name: Build Emscripten
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Configure CMake
+        run: emcmake cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DMDR_BUILD_SHARED=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON -DBUILD_TESTING=OFF -B build -S .
+
+      - name: Build Project Target
+        run: cmake --build build --target SonyHeadphonesClient
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonyHeadphonesClient-emscripten
+          path: build/client/
+
+      - name: Upload Pages artifact
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/v1-compat') || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/client/
+
+  deploy:
+    name: Deploy Client to GitHub Pages
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/v1-compat') || github.event_name == 'workflow_dispatch'
+    needs: emscripten
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

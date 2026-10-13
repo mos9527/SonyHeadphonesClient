@@ -5,9 +5,12 @@ from __future__ import annotations
 import argparse
 from collections import defaultdict
 from dataclasses import replace
+from difflib import unified_diff
 import json
 import re
 from pathlib import Path
+import sys
+from tempfile import TemporaryDirectory
 
 from .model import EnumDecl, FieldDecl, PayloadDecl, TableIR, read_table
 
@@ -569,6 +572,42 @@ def render_all(
             )
 
 
+def check_headers(
+    ir_directory: Path,
+    include_directory: Path,
+    overrides_path: Path | None = None,
+) -> bool:
+    matches = True
+    with TemporaryDirectory(prefix="mdr-headers-") as temporary:
+        rendered_directory = Path(temporary)
+        render_all(ir_directory, rendered_directory, overrides_path)
+        for rendered in sorted(rendered_directory.glob("*.hpp")):
+            checked_in = include_directory / rendered.name
+            if not checked_in.is_file():
+                print(f"Missing generated header: {checked_in}", file=sys.stderr)
+                matches = False
+                continue
+            expected = rendered.read_text(encoding="utf-8")
+            actual = checked_in.read_text(encoding="utf-8")
+            if actual == expected:
+                continue
+            matches = False
+            sys.stderr.writelines(unified_diff(
+                actual.splitlines(keepends=True),
+                expected.splitlines(keepends=True),
+                fromfile=str(checked_in),
+                tofile=f"IR-generated/{rendered.name}",
+            ))
+    if matches:
+        print("OK. Generated headers match checked-in headers.")
+    else:
+        print(
+            "Regenerate with: python -m tooling.ida.j2objc.render",
+            file=sys.stderr,
+        )
+    return matches
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     repository = Path(__file__).resolve().parents[3]
@@ -593,12 +632,25 @@ def main() -> None:
             / "render_overrides.json"
         ),
     )
-    arguments = parser.parse_args()
-    render_all(
-        arguments.ir,
-        arguments.include,
-        arguments.overrides,
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Compare IR-generated headers without modifying checked-in files",
     )
+    arguments = parser.parse_args()
+    if arguments.check:
+        if not check_headers(
+            arguments.ir,
+            arguments.include,
+            arguments.overrides,
+        ):
+            raise SystemExit(1)
+    else:
+        render_all(
+            arguments.ir,
+            arguments.include,
+            arguments.overrides,
+        )
 
 
 if __name__ == "__main__":
