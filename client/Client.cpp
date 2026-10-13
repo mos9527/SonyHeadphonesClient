@@ -1319,7 +1319,7 @@ void DrawNCOptimizerConfirmation()
         ImGui::CloseCurrentPopup();
     }
     ImGui::BeginDisabled(!NCOptimizerCanStart());
-    const bool start = ImModalButton(TrLable(i18n::TextId::NCOptimizerOK), 1, 2);
+    const bool start = ImModalButton(TrLable(i18n::TextId::OK), 1, 2);
     ImGui::EndDisabled();
     if (start && gNCOptimizerConfirmationDevice == gDevice)
     {
