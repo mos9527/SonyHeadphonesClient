@@ -8,11 +8,26 @@ namespace mdr
     int HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(ConnectRetSupportFunction, res, cmd);
-        std::ranges::fill(self->mDetailsV2.mSupport.table1Functions, false);
+        auto& state = self->mDetailsV2;
+        std::ranges::fill(state.mSupport.table1Functions, false);
+        state.mGsDiscoveryOrderSize = 0;
         for (auto fun : res.supportFunctions)
-            self->mDetailsV2.mSupport.table1Functions[static_cast<UInt8>(fun.functionType)] = true;
-        self->mDetailsV2.mSupport.provenance = DetailsV2::SupportStates::Provenance::ADVERTISED;
-        self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
+        {
+            const auto value = static_cast<UInt8>(fun.functionType);
+            state.mSupport.table1Functions[value] = true;
+            if (value >= static_cast<UInt8>(GsInquiredType::GENERAL_SETTING1) &&
+                value <= static_cast<UInt8>(GsInquiredType::GENERAL_SETTING4) &&
+                state.mGsDiscoveryOrderSize < state.mGsDiscoveryOrder.size())
+                state.mGsDiscoveryOrder[state.mGsDiscoveryOrderSize++] = static_cast<GsInquiredType>(value);
+        }
+        const int version = state.mProtocol.version;
+        if (version == 0x3000000 || version == 0x3002005 || version == 0x3002006)
+        {
+            state.mSupport.table1Functions[static_cast<UInt8>(FunctionType::AUTO_PLAY)] = false;
+            state.mSupport.table1Functions[static_cast<UInt8>(FunctionType::AUTO_PLAY_CANT_BE_USED_WITH_LEA_CONNECTION)] = false;
+            state.mSupport.table1Functions[static_cast<UInt8>(FunctionType::INTEGRATED_AUTO_PLAY)] = false;
+        }
+        state.mSupport.provenance = DetailsV2::SupportStates::Provenance::ADVERTISED;
         return MDR_EVENT_IDENTITY_CHANGED;
     }
 
@@ -343,6 +358,8 @@ namespace mdr
         switch (type)
         {
         case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT:
+        case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE:
+        case PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE:
         {
             if (command == Command::PLAY_NTFY_PARAM)
             {
@@ -361,16 +378,33 @@ namespace mdr
             return MDR_EVENT_PLAYBACK_CHANGED;
         }
         case MUSIC_VOLUME:
+        case MUSIC_VOLUME_WITH_MUTE:
         {
             if (command == Command::PLAY_NTFY_PARAM)
             {
-                Deserialize(NotifyPlayParamPlaybackControllerVolume, res, cmd);
-                self->mDetailsV2.mPlayVolume.overwrite(res.volumeValue);
+                if (type == MUSIC_VOLUME_WITH_MUTE)
+                {
+                    Deserialize(NotifyPlayParamPlaybackControllerVolumeWithMute, res, cmd);
+                    self->mDetailsV2.mPlayVolume.overwrite(res.volumeValue);
+                }
+                else
+                {
+                    Deserialize(NotifyPlayParamPlaybackControllerVolume, res, cmd);
+                    self->mDetailsV2.mPlayVolume.overwrite(res.volumeValue);
+                }
             }
             else
             {
-                Deserialize(RetPlayParamPlaybackControllerVolume, res, cmd);
-                self->mDetailsV2.mPlayVolume.overwrite(res.volumeValue);
+                if (type == MUSIC_VOLUME_WITH_MUTE)
+                {
+                    Deserialize(RetPlayParamPlaybackControllerVolumeWithMute, res, cmd);
+                    self->mDetailsV2.mPlayVolume.overwrite(res.volumeValue);
+                }
+                else
+                {
+                    Deserialize(RetPlayParamPlaybackControllerVolume, res, cmd);
+                    self->mDetailsV2.mPlayVolume.overwrite(res.volumeValue);
+                }
             }
             return MDR_EVENT_PLAYBACK_CHANGED;
         }
@@ -453,6 +487,34 @@ namespace mdr
             }
             return MDR_EVENT_PLAYBACK_CHANGED;
         }
+        case PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE:
+        {
+            if (command == Command::PLAY_NTFY_STATUS)
+            {
+                Deserialize(NotifyPlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, res, cmd);
+                self->mDetailsV2.mPlayPause = res.playbackStatus;
+            }
+            else
+            {
+                Deserialize(RetPlayStatusPlaybackControlWithCallVolumeAdjustmentAndFunctionChange, res, cmd);
+                self->mDetailsV2.mPlayPause = res.playbackStatus;
+            }
+            return MDR_EVENT_PLAYBACK_CHANGED;
+        }
+        case PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE:
+        {
+            if (command == Command::PLAY_NTFY_STATUS)
+            {
+                Deserialize(NotifyPlayStatusPlaybackControlWithFunctionChange, res, cmd);
+                self->mDetailsV2.mPlayPause = res.playbackStatus;
+            }
+            else
+            {
+                Deserialize(RetPlayStatusPlaybackControlWithFunctionChange, res, cmd);
+                self->mDetailsV2.mPlayPause = res.playbackStatus;
+            }
+            return MDR_EVENT_PLAYBACK_CHANGED;
+        }
         default:
             break;
         }
@@ -497,6 +559,8 @@ namespace mdr
         if (!detail::ReadEnumTag(cmd, type))
             return MDR_EVENT_UNHANDLED;
         const auto command = static_cast<Command>(cmd[0]);
+        if (cmd.size() < 3 || cmd[2] != static_cast<UInt8>(GsSettingType::BOOLEAN_TYPE))
+            return MDR_EVENT_UNHANDLED;
         using enum GsInquiredType;
         auto Write = [&](MDRProperty<bool>& dstBool) -> int
         {
@@ -585,6 +649,36 @@ namespace mdr
             }
             return MDR_EVENT_UNHANDLED;
         }
+        case BGM_MODE:
+        {
+            if (static_cast<Command>(cmd[0]) == Command::AUDIO_NTFY_STATUS)
+            {
+                Deserialize(AudioNotifyStatusCommon, res, cmd);
+                self->mDetailsV2.mBGMModeAvailable = res.status == EnableDisable::ENABLE;
+            }
+            else
+            {
+                Deserialize(AudioRetStatusCommon, res, cmd);
+                self->mDetailsV2.mBGMModeAvailable = res.status == EnableDisable::ENABLE;
+            }
+            return MDR_EVENT_LISTENING_MODE_CHANGED;
+        }
+        case BGM_MODE_AND_ERRORCODE:
+        {
+            if (static_cast<Command>(cmd[0]) == Command::AUDIO_NTFY_STATUS)
+            {
+                Deserialize(AudioNotifyStatusBGMModeErrorCode, res, cmd);
+                self->mDetailsV2.mBGMModeAvailable = res.status == EnableDisable::ENABLE;
+                self->mDetailsV2.mBGMErrorCodeCount = static_cast<UInt8>(res.errorCodeList.size());
+            }
+            else
+            {
+                Deserialize(AudioRetStatusBGMModeErrorCode, res, cmd);
+                self->mDetailsV2.mBGMModeAvailable = res.status == EnableDisable::ENABLE;
+                self->mDetailsV2.mBGMErrorCodeCount = static_cast<UInt8>(res.errorCodeList.size());
+            }
+            return MDR_EVENT_LISTENING_MODE_CHANGED;
+        }
         default:
             break;
         }
@@ -640,7 +734,7 @@ namespace mdr
         case BGM_MODE:
         case BGM_MODE_AND_ERRORCODE:
         {
-            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+            if (self->mDetailsV2.mSupport.containsBGMMode())
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -660,7 +754,7 @@ namespace mdr
         }
         case UPMIX_CINEMA:
         {
-            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+            if (self->mDetailsV2.mSupport.contains(FunctionType::UPMIX_CINEMA))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -678,7 +772,7 @@ namespace mdr
         }
         case VOICE_CONTENTS:
         {
-            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+            if (self->mDetailsV2.mSupport.contains(FunctionType::VOICE_CONTENTS))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -696,7 +790,7 @@ namespace mdr
         }
         case SOUND_LEAKAGE_REDUCTION:
         {
-            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+            if (self->mDetailsV2.mSupport.contains(FunctionType::SOUND_LEAKAGE_REDUCTION))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -723,9 +817,6 @@ namespace mdr
         SystemInquiredType type{};
         if (!detail::ReadEnumTag(cmd, type))
             return MDR_EVENT_UNHANDLED;
-        SystemInquiredType advertisedType{};
-        if (!AssignableSettingsInquiredType(self->mDetailsV2, advertisedType) || type != advertisedType)
-            return MDR_EVENT_UNHANDLED;
 
         using enum SystemInquiredType;
         switch (type)
@@ -733,12 +824,22 @@ namespace mdr
         case ASSIGNABLE_SETTINGS:
         {
             Deserialize(SystemRetCapabilityAssignableSettings, res, cmd);
+            self->mDetailsV2.mAssignableHasCustomizableActions[0] = std::ranges::any_of(res.keys, [](const auto& key) {
+                return std::ranges::any_of(key.assignableSettingsPreset, [](const auto& preset) {
+                    return preset.settingsCustomizableActions.size() != 0;
+                });
+            });
             self->mDetailsV2.mAssignableSettingsKeys = std::move(res.keys.value);
             return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
         }
         case ASSIGNABLE_SETTINGS_WITH_LIMITATION:
         {
             Deserialize(SystemRetCapabilityAssignableSettingsWithLimit, res, cmd);
+            self->mDetailsV2.mAssignableHasCustomizableActions[1] = std::ranges::any_of(res.keys, [](const auto& key) {
+                return std::ranges::any_of(key.assignableSettingsPreset, [](const auto& preset) {
+                    return preset.settingsCustomizableActions.size() != 0;
+                });
+            });
             self->mDetailsV2.mAssignableSettingsKeys = std::move(res.keys.value);
             return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
         }
@@ -857,6 +958,8 @@ namespace mdr
         if (!self->mDetailsV2.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
             return MDR_EVENT_UNHANDLED;
 
+        if (cmd.size() < 2 || cmd[1] != static_cast<UInt8>(SystemInquiredType::SMART_TALKING_MODE_TYPE2))
+            return MDR_EVENT_UNHANDLED;
         const auto command = static_cast<Command>(cmd[0]);
         if (command == Command::SYSTEM_NTFY_EXT_PARAM)
         {
@@ -882,6 +985,8 @@ namespace mdr
         switch (type)
         {
         case PRESET_EQ:
+        case PRESET_EQ_NONCUSTOMIZABLE:
+        case PRESET_EQ_AND_ULT_MODE:
         {
             const auto command = static_cast<Command>(cmd[0]);
             if (command == Command::EQEBB_NTFY_STATUS)
@@ -893,6 +998,22 @@ namespace mdr
             {
                 Deserialize(EqEbbRetStatus, res, cmd);
                 self->mDetailsV2.mEqAvailable.overwrite(res.enableDisable == EnableDisable::ENABLE);
+            }
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+        case PRESET_EQ_AND_ERRORCODE:
+        {
+            if (static_cast<Command>(cmd[0]) == Command::EQEBB_NTFY_STATUS)
+            {
+                Deserialize(EqEbbNtfyStatusErrorCode, res, cmd);
+                self->mDetailsV2.mEqAvailable.overwrite(res.enableDisable == EnableDisable::ENABLE);
+                self->mDetailsV2.mEqErrorCodeCount = static_cast<UInt8>(res.errorCodeList.size());
+            }
+            else
+            {
+                Deserialize(EqEbbRetStatusErrorCode, res, cmd);
+                self->mDetailsV2.mEqAvailable.overwrite(res.enableDisable == EnableDisable::ENABLE);
+                self->mDetailsV2.mEqErrorCodeCount = static_cast<UInt8>(res.errorCodeList.size());
             }
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
@@ -922,12 +1043,16 @@ namespace mdr
         {
             Deserialize(EqEbbRetCapabilityEq, res, cmd);
             Store(res.eqPresets);
+            self->mDetailsV2.mEqCustomizable = type != PRESET_EQ_NONCUSTOMIZABLE;
+            self->mDetailsV2.mEqErrorCodeMode = type == PRESET_EQ_AND_ERRORCODE;
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
         case PRESET_EQ_AND_ULT_MODE:
         {
             Deserialize(EqEbbRetCapabilityEqAndUltMode, res, cmd);
             Store(res.eqPresets);
+            self->mDetailsV2.mEqCanUseUltMode = true;
+            self->mDetailsV2.mEqCustomizable = true;
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
         default:
@@ -941,91 +1066,60 @@ namespace mdr
         EqEbbInquiredType type{};
         if (!detail::ReadEnumTag(cmd, type))
             return MDR_EVENT_UNHANDLED;
+        auto Store = [&](const auto& parameter)
+        {
+            auto& state = self->mDetailsV2;
+            state.mEqPresetId.overwrite(parameter.presetId);
+            const auto& bands = parameter.bandSteps.value;
+            if (bands.size() == 6)
+            {
+                state.mEqClearBass.overwrite(bands[0] - 10);
+                state.mEqConfig.overwrite({bands[1] - 10, bands[2] - 10, bands[3] - 10,
+                                          bands[4] - 10, bands[5] - 10});
+            }
+            else if (bands.size() == 10)
+            {
+                state.mEqClearBass.overwrite(0);
+                state.mEqConfig.overwrite({bands[0] - 6, bands[1] - 6, bands[2] - 6,
+                                          bands[3] - 6, bands[4] - 6, bands[5] - 6,
+                                          bands[6] - 6, bands[7] - 6, bands[8] - 6, bands[9] - 6});
+            }
+        };
+        const bool notify = static_cast<Command>(cmd[0]) == Command::EQEBB_NTFY_PARAM;
         using enum EqEbbInquiredType;
         switch (type)
         {
         case PRESET_EQ:
-        {
-            const auto command = static_cast<Command>(cmd[0]);
-            if (command == Command::EQEBB_NTFY_PARAM)
+        case PRESET_EQ_NONCUSTOMIZABLE:
+        case PRESET_EQ_AND_ERRORCODE:
+            if (notify)
             {
                 Deserialize(EqEbbNtfyParamEq, res, cmd);
-                self->mDetailsV2.mEqPresetId.overwrite(res.parameter.presetId);
-                switch (res.parameter.bandSteps.size())
-                {
-                case 0:
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 6:
-                    self->mDetailsV2.mEqClearBass.overwrite(res.parameter.bandSteps.value[0] - 10);
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[1] - 10, // 400
-                        res.parameter.bandSteps.value[2] - 10, // 1k
-                        res.parameter.bandSteps.value[3] - 10, // 2.5k
-                        res.parameter.bandSteps.value[4] - 10, // 6.3k
-                        res.parameter.bandSteps.value[5] - 10, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 10:
-                    self->mDetailsV2.mEqClearBass.overwrite(0); // Unavailable
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[0] - 6, // 31
-                        res.parameter.bandSteps.value[1] - 6, // 63
-                        res.parameter.bandSteps.value[2] - 6, // 125
-                        res.parameter.bandSteps.value[3] - 6, // 250
-                        res.parameter.bandSteps.value[4] - 6, // 500
-                        res.parameter.bandSteps.value[5] - 6, // 1k
-                        res.parameter.bandSteps.value[6] - 6, // 2k
-                        res.parameter.bandSteps.value[7] - 6, // 4k
-                        res.parameter.bandSteps.value[8] - 6, // 8k
-                        res.parameter.bandSteps.value[9] - 6, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                default:
-                    break;
-                }
+                Store(res.parameter);
             }
             else
             {
                 Deserialize(EqEbbRetParamEq, res, cmd);
-                self->mDetailsV2.mEqPresetId.overwrite(res.parameter.presetId);
-                switch (res.parameter.bandSteps.size())
-                {
-                case 0:
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 6:
-                    self->mDetailsV2.mEqClearBass.overwrite(res.parameter.bandSteps.value[0] - 10);
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[1] - 10, // 400
-                        res.parameter.bandSteps.value[2] - 10, // 1k
-                        res.parameter.bandSteps.value[3] - 10, // 2.5k
-                        res.parameter.bandSteps.value[4] - 10, // 6.3k
-                        res.parameter.bandSteps.value[5] - 10, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 10:
-                    self->mDetailsV2.mEqClearBass.overwrite(0); // Unavailable
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[0] - 6, // 31
-                        res.parameter.bandSteps.value[1] - 6, // 63
-                        res.parameter.bandSteps.value[2] - 6, // 125
-                        res.parameter.bandSteps.value[3] - 6, // 250
-                        res.parameter.bandSteps.value[4] - 6, // 500
-                        res.parameter.bandSteps.value[5] - 6, // 1k
-                        res.parameter.bandSteps.value[6] - 6, // 2k
-                        res.parameter.bandSteps.value[7] - 6, // 4k
-                        res.parameter.bandSteps.value[8] - 6, // 8k
-                        res.parameter.bandSteps.value[9] - 6, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                default:
-                    break;
-                }
+                Store(res.parameter);
             }
-        }
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        case PRESET_EQ_AND_ULT_MODE:
+            if (notify)
+            {
+                Deserialize(EqEbbNtfyParamEqAndUltMode, res, cmd);
+                Store(res.parameter);
+                self->mDetailsV2.mEqUltMode = res.parameter.eqUltModeStatus;
+            }
+            else
+            {
+                Deserialize(EqEbbRetParamEqAndUltMode, res, cmd);
+                Store(res.parameter);
+                self->mDetailsV2.mEqUltMode = res.parameter.eqUltModeStatus;
+            }
+            return MDR_EVENT_EQUALIZER_CHANGED;
         default:
-            break;
+            return MDR_EVENT_UNHANDLED;
         }
-        return MDR_EVENT_UNHANDLED;
     }
 
     int HandleAlertParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -1113,6 +1207,15 @@ namespace mdr
         case NCASM_RET_PARAM:
         case NCASM_NTFY_PARAM:
             return HandleNcAsmParamT1(self, cmd);
+        case POWER_RET_CAPABILITY:
+        {
+            PowerInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type) || type != PowerInquiredType::AUTO_POWER_OFF)
+                return MDR_EVENT_UNHANDLED;
+            Deserialize(PowerRetCapabilityAutoPowerOff, res, cmd);
+            self->mDetailsV2.mAutoPowerOffCandidates = std::move(res.candidateElements.value);
+            return MDR_EVENT_POWER_CHANGED;
+        }
         case POWER_RET_STATUS:
         case POWER_NTFY_STATUS:
             return HandlePowerStatusT1(self, cmd);

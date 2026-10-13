@@ -1250,8 +1250,6 @@ MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilit
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.dataContinue ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
-    MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
     for (const auto& data_elem : data.data) {
     }
     return MDRResult<void>::Success();
@@ -1603,7 +1601,7 @@ MDRResult<void> VoiceGuidanceGetCapability::Validate(const VoiceGuidanceGetCapab
 }
 MDRResult<void> VoiceGuidanceGetExtendedParam::Validate(const VoiceGuidanceGetExtendedParam& data) {
     MDR_VALIDATE(is_valid(data.command));
-    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_PARAM);
+    MDR_VALIDATE(data.command == Command::VOICE_GUIDANCE_GET_EXTENDED_PARAM);
     // data.inquiredType ignored: OUT_OF_RANGE is expected
     return MDRResult<void>::Success();
 }

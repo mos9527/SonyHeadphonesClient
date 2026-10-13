@@ -95,12 +95,12 @@ namespace mdr
             else if (command == Command::VOICE_GUIDANCE_NTFY_STATUS)
             {
                 Deserialize(NotifyVoiceGuidanceStatusSettingOnOff, result, cmd);
-                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
+                self->mDetailsV1.mVoiceGuidanceAvailable = result.status == v1::CommonStatus::ENABLE;
             }
             else
             {
                 Deserialize(RetVoiceGuidanceStatusSettingOnOff, result, cmd);
-                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(result.status == v1::CommonStatus::ENABLE);
+                self->mDetailsV1.mVoiceGuidanceAvailable = result.status == v1::CommonStatus::ENABLE;
             }
             return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
         }
@@ -119,6 +119,21 @@ namespace mdr
         case Command::PERIPHERAL_RET_PARAM:
         case Command::PERIPHERAL_NTFY_PARAM:
             return HandlePeripheralParam(self, cmd);
+        case Command::VOICE_GUIDANCE_RET_CAPABILITY:
+        {
+            // Sony accepts unknown language bytes and omits the list when switching is unsupported.
+            if (cmd.size() < 4 || cmd[1] != static_cast<UInt8>(VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING) ||
+                cmd[2] > static_cast<UInt8>(SupportsSwitch::SUPPORT) ||
+                cmd[3] > static_cast<UInt8>(SupportsSwitch::SUPPORT))
+                return MDR_EVENT_UNHANDLED;
+            const bool language = cmd[3] == static_cast<UInt8>(SupportsSwitch::SUPPORT);
+            if ((!language && cmd.size() != 4) ||
+                (language && (cmd.size() < 5 || cmd.size() != static_cast<size_t>(cmd[4]) + 5)))
+                return MDR_EVENT_UNHANDLED;
+            self->mDetailsV1.mVoiceGuidanceSupportsOnOff = cmd[2] == static_cast<UInt8>(SupportsSwitch::SUPPORT);
+            self->mDetailsV1.mVoiceGuidanceSupportsLanguage = language;
+            return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+        }
         case Command::VOICE_GUIDANCE_RET_PARAM:
         case Command::VOICE_GUIDANCE_NTFY_PARAM:
         case Command::VOICE_GUIDANCE_RET_STATUS:

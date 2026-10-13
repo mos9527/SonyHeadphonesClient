@@ -117,14 +117,15 @@ namespace mdr
     private:
         MDRConnection* mConn;
     public:
-        enum AwaitType
+        enum AwaitType : UInt64
         {
             // Wait for an immediate ACK from the device on the current task
             AWAIT_ACK = 0,
             AWAIT_PROTOCOL_INFO = 1,
             AWAIT_SUPPORT_FUNCTION = 2,
             AWAIT_MODEL_INFO = 3,
-            AWAIT_NUM_TYPES = 4
+            AWAIT_RESPONSE = 4,
+            AWAIT_NUM_TYPES = 5
         };
 
         enum class ProtocolFamily
@@ -147,11 +148,15 @@ namespace mdr
             int timeout;
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
-            // Set when @ref Awake found nobody waiting, so the next co_await completes at once
+            // Legacy event/ACK latch; response waits use generation completion.
             bool signaled = false;
+            UInt64 requested = 0;
+            UInt64 completed = 0;
 
             bool await_ready() noexcept
             {
+                if (type >= AWAIT_NUM_TYPES)
+                    return requested != 0 && completed == requested;
                 if (!signaled)
                     return false;
                 signaled = false;
@@ -175,6 +180,8 @@ namespace mdr
             {
                 auto handle = h;
                 h = nullptr;
+                if (type >= AWAIT_NUM_TYPES)
+                    completed = requested;
                 result = await_result;
                 handle.resume();
             }
@@ -269,6 +276,16 @@ namespace mdr
          *        request, so the reply lands while the task is still waiting on the ACK.
          */
         void Awake(AwaitType type);
+
+        [[nodiscard]] static AwaitType ResponseType(MDRDataType table, UInt8 command,
+                                                  int inquiry = -1, int detail = -1)
+        {
+            return static_cast<AwaitType>(0x100000000ULL |
+                (static_cast<UInt64>(table) << 26) | (static_cast<UInt64>(command) << 18) |
+                (static_cast<UInt64>(inquiry + 1) << 9) | static_cast<UInt64>(detail + 1));
+        }
+        void BeginAwait(AwaitType response);
+        void CancelAwait(AwaitType response, int result);
         /**
          * @brief This does what you think it does.
          */
@@ -376,6 +393,8 @@ namespace mdr
         MDRTask mTask;
         Array<Awaiter, AWAIT_NUM_TYPES> mAwaiters{};
 
+        void CompleteResponse(MDRDataType table, Span<const UInt8> payload);
+
         // Timeout/retry configs
         int mACKRetryCount = 10u;
         int mACKRetryTimeoutMS = 1000u;
@@ -438,6 +457,8 @@ namespace mdr
         int HandleProtocolInfo(Span<const UInt8> command);
         int HandleProtocolInfoV1(Span<const UInt8> command);
         int HandleProtocolInfoV2(Span<const UInt8> command);
+        bool AcceptInitResponseV1(MDRDataType type, Span<const UInt8> command);
+        bool AcceptInitResponseV2(MDRDataType type, Span<const UInt8> command);
         int HandleCommandV1T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
         int HandleCommandV1T2(Span<const UInt8> cmd, MDRCommandSeqNumber seq);
         int HandleCommandV2T1(Span<const UInt8> cmd, MDRCommandSeqNumber seq);

@@ -128,6 +128,12 @@ namespace client::debugger {
             {"VOICE_GUIDANCE_GET_PARAM", UINT64_C(70)},
             {"VOICE_GUIDANCE_RET_PARAM", UINT64_C(71)},
             {"VOICE_GUIDANCE_SET_PARAM", UINT64_C(72)},
+            {"VOICE_GUIDANCE_NTFY_PARAM", UINT64_C(73)},
+            {"VOICE_GUIDANCE_GET_EXTENDED_PARAM", UINT64_C(74)},
+            {"VOICE_GUIDANCE_RET_EXTENDED_PARAM", UINT64_C(75)},
+            {"SAFE_LISTENING_GET_CAPABILITY", UINT64_C(80)},
+            {"SAFE_LISTENING_RET_CAPABILITY", UINT64_C(81)},
+            {"SAFE_LISTENING_GET_STATUS", UINT64_C(82)},
             {"SAFE_LISTENING_RET_STATUS", UINT64_C(83)},
             {"SAFE_LISTENING_SET_STATUS", UINT64_C(84)},
             {"SAFE_LISTENING_NTFY_STATUS", UINT64_C(85)},
@@ -278,6 +284,8 @@ namespace client::debugger {
             {"DJ_CONTROL_WITH_STATUS_DISABLE_REASON", UINT64_C(115)},
             {"KARAOKE_WITH_STATUS_DISABLE_REASON", UINT64_C(116)},
             {"LIVE_KARAOKE", UINT64_C(117)},
+            {"AURACAST_RECEIVER_ASSISTANT", UINT64_C(118)},
+            {"AURACAST_RECEIVER_ASSISTANT_CAN_NOT_BE_USED_WITH_CLASSIC_ONLY", UINT64_C(119)},
             {"WEARING_STATUS_CHECKER", UINT64_C(240)},
             {"REPEAT_TAP_TRAINING_MODE", UINT64_C(241)},
             {"QUICK_ACCESS_EASY_SETTING", UINT64_C(242)},
@@ -7406,7 +7414,6 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t2__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v2__t2__SystemInquiredType);
             changed |= DrawEnum("dataContinue", value.dataContinue, kEnum_mdr__v2__t2__DataContinue);
-            changed |= DrawScalar("dataLength", value.dataLength);
             changed |= DrawSequence("data", value.data.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
@@ -7425,7 +7432,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataContinue, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataLength, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.data, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -7438,7 +7444,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataContinue, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataLength, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.data, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }

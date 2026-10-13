@@ -671,6 +671,8 @@ MDR_API MDRResult mdrHeadphonesSetAssignableControls(MDRHeadphones* headphones, 
 
 /* Power, wearing behavior, voice guidance, and related system settings. */
 MDR_API MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPower* out_power);
+MDR_API MDRResult mdrHeadphonesGetAutoPowerOffTimers(MDRHeadphones* headphones, uint32_t* minutes,
+                                                     uint32_t* inout_count);
 MDR_API MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power);
 MDR_API MDRResult mdrHeadphonesGetVoiceGuidance(MDRHeadphones* headphones, MDRVoiceGuidance* out_voice_guidance);
 MDR_API MDRResult mdrHeadphonesSetVoiceGuidance(MDRHeadphones* headphones, const MDRVoiceGuidance* voice_guidance);

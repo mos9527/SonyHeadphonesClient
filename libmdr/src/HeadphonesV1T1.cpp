@@ -14,6 +14,7 @@ namespace mdr
             std::ranges::fill(self->mDetailsV1.mSupport.functions, false);
             for (const FunctionType function : result.supportFunctions)
                 self->mDetailsV1.mSupport.functions[static_cast<UInt8>(function)] = true;
+            self->mDetailsV1.mSupport.order = std::move(result.supportFunctions.value);
             self->mDetailsV1.mSupport.provenance = DetailsV1::SupportStates::Provenance::ADVERTISED;
             self->RefreshSupportV1();
             self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
@@ -73,6 +74,27 @@ namespace mdr
                     self->mDetailsV1.mBatteryL = {result.level, 0xFF, result.chargingStatus};
                 }
                 return MDR_EVENT_BATTERY_CHANGED;
+            case BatteryInquiredType::LEFT_RIGHT_BATTERY:
+            {
+                LeftRightBatteryParam result{};
+                const UInt8* data = cmd.data() + 2;
+                auto read = LeftRightBatteryParam::Read(&data, result, cmd.size() - 2);
+                if (!read)
+                    return self->SetLastError(read.error, read.errMessage);
+                self->mDetailsV1.mBatteryL = {result.leftLevel, 0xFF, result.leftChargingStatus};
+                self->mDetailsV1.mBatteryR = {result.rightLevel, 0xFF, result.rightChargingStatus};
+                return MDR_EVENT_BATTERY_CHANGED;
+            }
+            case BatteryInquiredType::CRADLE_BATTERY:
+            {
+                CradleBatteryParam result{};
+                const UInt8* data = cmd.data() + 2;
+                auto read = CradleBatteryParam::Read(&data, result, cmd.size() - 2);
+                if (!read)
+                    return self->SetLastError(read.error, read.errMessage);
+                self->mDetailsV1.mBatteryCase = {result.level, 0xFF, result.chargingStatus};
+                return MDR_EVENT_BATTERY_CHANGED;
+            }
             default:
                 return MDR_EVENT_UNHANDLED;
             }
@@ -118,7 +140,8 @@ namespace mdr
             }
             if (detailedDataType == PlaybackDetailedDataType::TRACK_NAME ||
                 detailedDataType == PlaybackDetailedDataType::ALBUM_NAME ||
-                detailedDataType == PlaybackDetailedDataType::ARTIST_NAME)
+                detailedDataType == PlaybackDetailedDataType::ARTIST_NAME ||
+                detailedDataType == PlaybackDetailedDataType::GENRE_NAME)
             {
                 String value;
                 if (command == Command::PLAY_NTFY_PARAM)
@@ -136,8 +159,10 @@ namespace mdr
                     self->mDetailsV1.mPlayTrackTitle = std::move(value);
                 else if (detailedDataType == PlaybackDetailedDataType::ALBUM_NAME)
                     self->mDetailsV1.mPlayTrackAlbum = std::move(value);
-                else
+                else if (detailedDataType == PlaybackDetailedDataType::ARTIST_NAME)
                     self->mDetailsV1.mPlayTrackArtist = std::move(value);
+                else
+                    self->mDetailsV1.mPlayTrackGenre = std::move(value);
                 return MDR_EVENT_PLAYBACK_CHANGED;
             }
             return MDR_EVENT_UNHANDLED;
@@ -149,11 +174,13 @@ namespace mdr
             {
                 Deserialize(NotifyPlayStatus, result, cmd);
                 self->mDetailsV1.mPlayPause = result.playbackStatus;
+                self->mDetailsV1.mPlayAvailable = result.status == CommonStatus::ENABLE;
             }
             else
             {
                 Deserialize(RetPlayStatus, result, cmd);
                 self->mDetailsV1.mPlayPause = result.playbackStatus;
+                self->mDetailsV1.mPlayAvailable = result.status == CommonStatus::ENABLE;
             }
             return MDR_EVENT_PLAYBACK_CHANGED;
         }
@@ -173,6 +200,25 @@ namespace mdr
             if (!detail::ReadEnumTag(cmd, type))
                 return MDR_EVENT_UNHANDLED;
             const bool notify = static_cast<Command>(cmd[0]) == Command::NCASM_NTFY_PARAM;
+            if (type == NcAsmInquiredType::NOISE_CANCELLING)
+            {
+                NcSettingValue value;
+                if (notify)
+                {
+                    Deserialize(NotifyNcAsmParamcParam, result, cmd);
+                    self->mDetailsV1.mNcSettingType = result.ncSettingType;
+                    value = result.ncSettingValue;
+                }
+                else
+                {
+                    Deserialize(RetNcAsmParamNcParam, result, cmd);
+                    self->mDetailsV1.mNcSettingType = result.ncSettingType;
+                    value = result.ncSettingValue;
+                }
+                self->mDetailsV1.mNcAsmEnabled.overwrite(value == NcSettingValue::ON);
+                self->mDetailsV1.mNcAsmLevel.overwrite(value == NcSettingValue::ON ? -1 : 0);
+                return MDR_EVENT_NOISE_CONTROL_CHANGED;
+            }
             if (type == NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE)
             {
                 if (notify)
@@ -256,6 +302,10 @@ namespace mdr
         void ApplyOptimizerParameters(MDRHeadphones* self, const T& result)
         {
             auto& optimizer = self->mDetailsV1.mNCOptimizer;
+            if (optimizer.capabilityKnown &&
+                (result.personalType != optimizer.capability.personalType ||
+                 result.barometricType != optimizer.capability.barometricType))
+                return;
             optimizer.parameters = {
                 .type = result.type,
                 .personalType = result.personalType,
@@ -288,49 +338,107 @@ namespace mdr
         int HandleEqCapability(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             EqEbbInquiredType type{};
-            if (!detail::ReadEnumTag(cmd, type) ||
-                (type != EqEbbInquiredType::PRESET_EQ && type != EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE))
+            if (!detail::ReadEnumTag(cmd, type))
+                return MDR_EVENT_UNHANDLED;
+            if (type == EqEbbInquiredType::EBB)
+            {
+                Deserialize(RetEqEbbCapability_EbbCapability, result, cmd);
+                self->mDetailsV1.mEbbCapability = result;
+                // Sony's capability builder normalizes Java byte -128 independently of the parameter holder.
+                auto& capability = self->mDetailsV1.mEbbCapability;
+                if (capability.minValue == -128) capability.minValue = -127;
+                if (capability.maxValue == -128) capability.maxValue = -127;
+                return MDR_EVENT_EQUALIZER_CHANGED;
+            }
+            if (type != EqEbbInquiredType::PRESET_EQ && type != EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE)
                 return MDR_EVENT_UNHANDLED;
             Deserialize(RetEqEbbCapability_EqCapability, res, cmd);
-            self->mDetailsV1.mEqPresets.clear();
+            auto& state = self->mDetailsV1;
+            state.mEqType = type;
+            state.mEqBandCount = res.band;
+            state.mEqStepCount = res.step;
+            state.mEqBandInformation.clear();
+            state.mEqBandSteps.clear();
+            state.mEqClearBassBand = -1;
+            state.mEqPresets.clear();
+            state.mEqPresets.reserve(res.presetList.size());
             for (const auto& preset : res.presetList)
-                self->mDetailsV1.mEqPresets.push_back({preset.presetId, preset.name.value});
+                state.mEqPresets.push_back({preset.presetId, preset.name.value});
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+
+        void ApplyEqBands(DetailsV1& state)
+        {
+            // The extended RET identifies Clear Bass; its position is not fixed.
+            if (state.mEqBandSteps.size() != state.mEqBandInformation.size())
+                return;
+            Vector<int> bands;
+            bands.reserve(state.mEqBandSteps.size());
+            state.mEqClearBassBand = -1;
+            const int center = (static_cast<int>(state.mEqStepCount) - 1) / 2;
+            for (size_t i = 0; i < state.mEqBandSteps.size(); ++i)
+            {
+                const auto& info = state.mEqBandInformation[i];
+                const int value = static_cast<int>(state.mEqBandSteps[i]) - center;
+                if (info.infoType == EqBandInformationType::SPECIFIC_INFORMATION &&
+                    static_cast<int>(info.valueAsFrequency) == 1)
+                {
+                    state.mEqClearBassBand = static_cast<int>(i);
+                    state.mEqClearBass.overwrite(value);
+                }
+                else
+                    bands.push_back(value);
+            }
+            state.mEqConfig.overwrite(std::move(bands));
+        }
+
+        int HandleEqExtendedInfo(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            Deserialize(RetEqEbbExtendedInfoEqExtendedInfo, result, cmd);
+            auto& state = self->mDetailsV1;
+            if (result.type != state.mEqType || result.bandInfos.size() != state.mEqBandSteps.size())
+                return MDR_EVENT_UNHANDLED;
+            state.mEqBandInformation = std::move(result.bandInfos.value);
+            ApplyEqBands(state);
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
 
         int HandleEq(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             EqEbbInquiredType type{};
-            if (!detail::ReadEnumTag(cmd, type) || type != EqEbbInquiredType::PRESET_EQ)
+            if (!detail::ReadEnumTag(cmd, type))
                 return MDR_EVENT_UNHANDLED;
             const bool notify = static_cast<Command>(cmd[0]) == Command::EQEBB_NTFY_PARAM;
+            auto& state = self->mDetailsV1;
+            if (type == EqEbbInquiredType::EBB)
+            {
+                if (notify)
+                {
+                    Deserialize(NotifyEqEbbParamEbbParam, result, cmd);
+                    state.mEqClearBass.overwrite(result.level);
+                }
+                else
+                {
+                    Deserialize(RetEqEbbParamEbbParam, result, cmd);
+                    state.mEqClearBass.overwrite(result.level == -128 ? -127 : result.level);
+                }
+                return MDR_EVENT_EQUALIZER_CHANGED;
+            }
+            if (type != EqEbbInquiredType::PRESET_EQ && type != EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE)
+                return MDR_EVENT_UNHANDLED;
             if (notify)
             {
                 Deserialize(NotifyEqEbbParamEqParam, result, cmd);
-                self->mDetailsV1.mEqPresetId.overwrite(result.presetId);
-                if (!result.bandSteps.value.empty())
-                {
-                    self->mDetailsV1.mEqClearBass.overwrite(static_cast<int>(result.bandSteps.value[0]) - 10);
-                    Vector<int> bands;
-                    for (size_t i = 1; i < result.bandSteps.size(); ++i)
-                        bands.push_back(static_cast<int>(result.bandSteps.value[i]) - 10);
-                    self->mDetailsV1.mEqConfig.overwrite(std::move(bands));
-                }
+                state.mEqPresetId.overwrite(result.presetId);
+                state.mEqBandSteps = std::move(result.bandSteps.value);
             }
             else
             {
                 Deserialize(RetEqEbbParamEqParam, result, cmd);
-                self->mDetailsV1.mEqPresetId.overwrite(result.presetId);
-                if (!result.bandSteps.value.empty())
-                {
-                    self->mDetailsV1.mEqClearBass.overwrite(static_cast<int>(result.bandSteps.value[0]) - 10);
-                    Vector<int> bands;
-                    for (size_t i = 1; i < result.bandSteps.size(); ++i)
-                        bands.push_back(static_cast<int>(result.bandSteps.value[i]) - 10);
-                    self->mDetailsV1.mEqConfig.overwrite(std::move(bands));
-                }
+                state.mEqPresetId.overwrite(result.presetId);
+                state.mEqBandSteps = std::move(result.bandSteps.value);
             }
-            self->mDetailsV1.mEqAvailable.overwrite(true);
+            ApplyEqBands(state);
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
 
@@ -418,6 +526,24 @@ namespace mdr
             default:
                 return MDR_EVENT_UNHANDLED;
             }
+            const int capabilityIndex = static_cast<UInt8>(type) - static_cast<UInt8>(GsInquiredType::GENERAL_SETTING1);
+            if (cmd.size() <= 2 || static_cast<GsSettingType>(cmd[2]) != self->mDetailsV1.mGsCapability[capabilityIndex].type)
+                return MDR_EVENT_UNHANDLED;
+            if (cmd.size() > 2 && static_cast<GsSettingType>(cmd[2]) == GsSettingType::LIST_TYPE)
+            {
+                const int index = static_cast<UInt8>(type) - static_cast<UInt8>(GsInquiredType::GENERAL_SETTING1);
+                if (static_cast<Command>(cmd[0]) == Command::GENERAL_SETTING_NTNY_PARAM)
+                {
+                    Deserialize(NotifyGsParamGsListTypeValue, result, cmd);
+                    self->mDetailsV1.mGsListIndex[index] = result.currentElementIndex;
+                }
+                else
+                {
+                    Deserialize(RetGsParamGsListTypeValue, result, cmd);
+                    self->mDetailsV1.mGsListIndex[index] = result.currentElementIndex;
+                }
+                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+            }
             if (static_cast<Command>(cmd[0]) == Command::GENERAL_SETTING_NTNY_PARAM)
             {
                 Deserialize(NotifyGsParamGsBooleanTypeValue, result, cmd);
@@ -431,6 +557,176 @@ namespace mdr
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
 
+        int HandleEqStatus(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            EqEbbInquiredType type{};
+            CommonStatus status{};
+            if (static_cast<Command>(cmd[0]) == Command::EQEBB_NTFY_STATUS)
+            {
+                Deserialize(NotifyEqEbbStatus, result, cmd);
+                type = result.type;
+                status = result.commonStatus;
+            }
+            else
+            {
+                Deserialize(RetEqEbbStatus, result, cmd);
+                type = result.type;
+                status = result.status;
+            }
+            if (type == EqEbbInquiredType::EBB)
+                self->mDetailsV1.mEbbAvailable = status == CommonStatus::ENABLE;
+            else if (type == EqEbbInquiredType::PRESET_EQ || type == EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE)
+                self->mDetailsV1.mEqAvailable.overwrite(status == CommonStatus::ENABLE);
+            else
+                return MDR_EVENT_UNHANDLED;
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+
+        int HandleNcCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            NcAsmInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type)) return MDR_EVENT_UNHANDLED;
+            auto& state = self->mDetailsV1;
+            if (type == NcAsmInquiredType::NOISE_CANCELLING)
+            {
+                Deserialize(RetNcAsmCapability_NcCapability, result, cmd);
+                state.mNcSettingType = result.settingType;
+            }
+            else if (type == NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE)
+            {
+                Deserialize(RetNcAsmCapability_NcAsmCapability, result, cmd);
+                state.mNcAsmSettingType = result.ncSettingType;
+                state.mNcStep = result.ncStep;
+                state.mAsmSettingType = result.asmSettingType;
+                state.mAsmCapabilities = std::move(result.asmList.value);
+            }
+            else if (type == NcAsmInquiredType::AMBIENT_SOUND_MODE)
+            {
+                Deserialize(RetNcAsmCapability_AsmCapability, result, cmd);
+                state.mAsmSettingType = result.asmSettingType;
+                state.mAsmCapabilities = std::move(result.asmList.value);
+            }
+            else return MDR_EVENT_UNHANDLED;
+            return MDR_EVENT_NOISE_CONTROL_CHANGED;
+        }
+
+        int HandleNcStatus(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            if (static_cast<Command>(cmd[0]) == Command::NCASM_NTFY_STATUS)
+            {
+                Deserialize(NotifyNcAsmStatus, result, cmd);
+                self->mDetailsV1.mNcAsmAvailable = result.status == CommonStatus::ENABLE;
+            }
+            else
+            {
+                Deserialize(RetNcAsmStatus, result, cmd);
+                self->mDetailsV1.mNcAsmAvailable = result.status == CommonStatus::ENABLE;
+            }
+            return MDR_EVENT_NOISE_CONTROL_CHANGED;
+        }
+
+        int HandleAudioStatus(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            AudioInquiredType type{};
+            CommonStatus status{};
+            if (static_cast<Command>(cmd[0]) == Command::AUDIO_NTFY_STATUS)
+            {
+                Deserialize(NotifyAudioStatus, result, cmd);
+                type = result.type;
+                status = result.status;
+            }
+            else
+            {
+                Deserialize(RetAudioStatus, result, cmd);
+                type = result.type;
+                status = result.status;
+            }
+            if (type == AudioInquiredType::CONNECTION_MODE)
+                self->mDetailsV1.mAudioPriorityAvailable = status == CommonStatus::ENABLE;
+            else if (type == AudioInquiredType::UPSCALING)
+                self->mDetailsV1.mUpscalingAvailable = status == CommonStatus::ENABLE;
+            else return MDR_EVENT_UNHANDLED;
+            return MDR_EVENT_CONNECTION_MODE_CHANGED;
+        }
+
+        int HandleSystemStatus(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            SystemInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type)) return MDR_EVENT_UNHANDLED;
+            const bool notify = static_cast<Command>(cmd[0]) == Command::SYSTEM_NTFY_STATUS;
+            if (type == SystemInquiredType::ASSIGNABLE_SETTINGS)
+            {
+                if (notify)
+                {
+                    Deserialize(NotifySystemStatusAssignableSettingsStatus, result, cmd);
+                    self->mDetailsV1.mSystemAvailable[static_cast<UInt8>(type)] =
+                        std::ranges::any_of(result.allStatus, [](CommonStatus s) { return s == CommonStatus::ENABLE; });
+                }
+                else
+                {
+                    Deserialize(RetSystemStatusAssignableSettingsStatus, result, cmd);
+                    self->mDetailsV1.mSystemAvailable[static_cast<UInt8>(type)] =
+                        std::ranges::any_of(result.allStatus, [](CommonStatus s) { return s == CommonStatus::ENABLE; });
+                }
+                return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
+            }
+            if (type == SystemInquiredType::SMART_TALKING_MODE)
+            {
+                if (notify)
+                {
+                    Deserialize(NotifySystemStatusSmartTalkingModeStatus, result, cmd);
+                    self->mDetailsV1.mSystemAvailable[static_cast<UInt8>(type)] = result.status == CommonStatus::ENABLE;
+                }
+                else
+                {
+                    Deserialize(RetSystemStatusSmartTalkingModeStatus, result, cmd);
+                    self->mDetailsV1.mSystemAvailable[static_cast<UInt8>(type)] = result.status == CommonStatus::ENABLE;
+                }
+                return MDR_EVENT_SPEAK_TO_CHAT_CHANGED;
+            }
+            // Each non-assignable V1 system status has the same typed common-status body.
+            if (notify)
+            {
+                Deserialize(NotifySystemStatusAutoPowerOffStatus, result, cmd);
+                self->mDetailsV1.mSystemAvailable[static_cast<UInt8>(type)] = result.status == CommonStatus::ENABLE;
+            }
+            else
+            {
+                Deserialize(RetSystemStatusAutoPowerOffStatus, result, cmd);
+                self->mDetailsV1.mSystemAvailable[static_cast<UInt8>(type)] = result.status == CommonStatus::ENABLE;
+            }
+            return MDR_EVENT_POWER_CHANGED;
+        }
+
+        int HandleGsStatus(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            GsInquiredType type{};
+            CommonStatus status{};
+            if (static_cast<Command>(cmd[0]) == Command::GENERAL_SETTING_NTFY_STATUS)
+            {
+                Deserialize(NotifyGsStatus, result, cmd);
+                type = result.type;
+                status = result.status;
+            }
+            else
+            {
+                Deserialize(RetGsStatus, result, cmd);
+                type = result.type;
+                status = result.status;
+            }
+            const int index = static_cast<UInt8>(type) - static_cast<UInt8>(GsInquiredType::GENERAL_SETTING1);
+            if (index < 0 || index >= 3) return MDR_EVENT_UNHANDLED;
+            self->mDetailsV1.mGsAvailable[index] = status == CommonStatus::ENABLE;
+            return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+        }
+
+        int HandleSportsCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            Deserialize(RetSportsCapability, result, cmd);
+            self->mDetailsV1.mTrainingEffect = result.trainingCapability.availableEffectType;
+            return MDR_EVENT_UNHANDLED;
+        }
+
         int HandleSystemCapability(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             SystemInquiredType type{};
@@ -438,6 +734,12 @@ namespace mdr
                 return MDR_EVENT_UNHANDLED;
             switch (type)
             {
+            case SystemInquiredType::AUTO_POWER_OFF:
+            {
+                Deserialize(RetSystemCapability_AutoPowerOffCapability, result, cmd);
+                self->mDetailsV1.mAutoPowerOffCandidates = std::move(result.candidateElements.value);
+                return MDR_EVENT_POWER_CHANGED;
+            }
             case SystemInquiredType::ASSIGNABLE_SETTINGS:
             {
                 Deserialize(RetSystemCapability_AssignableSettingsCapability, result, cmd);
@@ -454,7 +756,8 @@ namespace mdr
             SystemInquiredType type{};
             if (!detail::ReadEnumTag(cmd, type))
                 return MDR_EVENT_UNHANDLED;
-            const bool notify = static_cast<Command>(cmd[0]) == Command::SYSTEM_NTFY_PARAM;
+            const Command command = static_cast<Command>(cmd[0]);
+            const bool notify = command == Command::SYSTEM_NTFY_PARAM || command == Command::SYSTEM_NTFY_EXTENDED_PARAM;
             switch (type)
             {
             case SystemInquiredType::CONTROL_BY_WEARING:
@@ -476,11 +779,13 @@ namespace mdr
                 {
                     Deserialize(NotifySystemParamAutoPowerOffParam, result, cmd);
                     self->mDetailsV1.mPowerAutoOff.overwrite(result.activeElementId);
+                    self->mDetailsV1.mPowerAutoOffSelectedTime.overwrite(result.selectTimeElementId);
                 }
                 else
                 {
                     Deserialize(RetSystemParamAutoPowerOffParam, result, cmd);
                     self->mDetailsV1.mPowerAutoOff.overwrite(result.activeElementId);
+                    self->mDetailsV1.mPowerAutoOffSelectedTime.overwrite(result.selectTimeElementId);
                 }
                 return MDR_EVENT_POWER_CHANGED;
             case SystemInquiredType::ASSIGNABLE_SETTINGS:
@@ -586,15 +891,44 @@ namespace mdr
         case Command::COMMON_RET_BATTERY_LEVEL:
         case Command::COMMON_NTFY_BATTERY_LEVEL:
             return HandleBattery(self, cmd);
+        case Command::COMMON_RET_UPSCALING_EFFECT:
+        {
+            Deserialize(RetUpscalingEffect, result, cmd);
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+        case Command::COMMON_NTFY_UPSCALING_EFFECT:
+        {
+            Deserialize(NotifyUpscalingEffect, result, cmd);
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
         case Command::COMMON_RET_AUDIO_CODEC:
         case Command::COMMON_NTFY_AUDIO_CODEC:
             return HandleAudioCodec(self, cmd);
+        case Command::COMMON_RET_CONNECTION_STATUS:
+        {
+            Deserialize(RetConnectionStatusLeftRightConnectionStatusParam, result, cmd);
+            self->mDetailsV1.mConnectionL = result.leftConnectionStatus;
+            self->mDetailsV1.mConnectionR = result.rightConnectionStatus;
+            return MDR_EVENT_IDENTITY_CHANGED;
+        }
+        case Command::COMMON_NTFY_CONNECTION_STATUS:
+        {
+            Deserialize(NotifyConnectionStatusLeftRightConnectionStatusParam, result, cmd);
+            self->mDetailsV1.mConnectionL = result.leftConnectionStatus;
+            self->mDetailsV1.mConnectionR = result.rightConnectionStatus;
+            return MDR_EVENT_IDENTITY_CHANGED;
+        }
         case Command::PLAY_RET_PARAM:
         case Command::PLAY_NTFY_PARAM:
             return HandlePlayParam(self, cmd);
         case Command::PLAY_RET_STATUS:
         case Command::PLAY_NTFY_STATUS:
             return HandlePlayStatus(self, cmd);
+        case Command::NCASM_RET_CAPABILITY:
+            return HandleNcCapability(self, cmd);
+        case Command::NCASM_RET_STATUS:
+        case Command::NCASM_NTFY_STATUS:
+            return HandleNcStatus(self, cmd);
         case Command::NCASM_RET_PARAM:
         case Command::NCASM_NTFY_PARAM:
             return HandleNcAsm(self, cmd);
@@ -608,21 +942,56 @@ namespace mdr
             return HandleOptimizerParameters(self, cmd);
         case Command::EQEBB_RET_CAPABILITY:
             return HandleEqCapability(self, cmd);
+        case Command::EQEBB_RET_EXTENDED_INFO:
+            return HandleEqExtendedInfo(self, cmd);
+        case Command::EQEBB_RET_STATUS:
+        case Command::EQEBB_NTFY_STATUS:
+            return HandleEqStatus(self, cmd);
         case Command::EQEBB_RET_PARAM:
         case Command::EQEBB_NTFY_PARAM:
             return HandleEq(self, cmd);
+        case Command::AUDIO_RET_CAPABILITY:
+        {
+            AudioInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type)) return MDR_EVENT_UNHANDLED;
+            if (type == AudioInquiredType::UPSCALING)
+            {
+                Deserialize(RetAudioCapability_UpscalingCapability, result, cmd);
+                self->mDetailsV1.mUpscalingType = result.upscalingType;
+                return MDR_EVENT_EQUALIZER_CHANGED;
+            }
+            if (type == AudioInquiredType::CONNECTION_MODE)
+            {
+                Deserialize(RetAudioCapability_ConnectionModeCapability, result, cmd);
+                return MDR_EVENT_CONNECTION_MODE_CHANGED;
+            }
+            return MDR_EVENT_UNHANDLED;
+        }
+        case Command::AUDIO_RET_STATUS:
+        case Command::AUDIO_NTFY_STATUS:
+            return HandleAudioStatus(self, cmd);
         case Command::AUDIO_RET_PARAM:
         case Command::AUDIO_NTFY_PARAM:
             return HandleAudioParam(self, cmd);
+        case Command::GENERAL_SETTING_RET_STATUS:
+        case Command::GENERAL_SETTING_NTFY_STATUS:
+            return HandleGsStatus(self, cmd);
         case Command::GENERAL_SETTING_RET_CAPABILITY:
             return HandleGsCapability(self, cmd);
         case Command::GENERAL_SETTING_RET_PARAM:
         case Command::GENERAL_SETTING_NTNY_PARAM:
             return HandleGsParam(self, cmd);
+        case Command::SPORTS_RET_CAPABILITY:
+            return HandleSportsCapability(self, cmd);
+        case Command::SYSTEM_RET_STATUS:
+        case Command::SYSTEM_NTFY_STATUS:
+            return HandleSystemStatus(self, cmd);
         case Command::SYSTEM_RET_CAPABILITY:
             return HandleSystemCapability(self, cmd);
         case Command::SYSTEM_RET_PARAM:
         case Command::SYSTEM_NTFY_PARAM:
+        case Command::SYSTEM_RET_EXTENDED_PARAM:
+        case Command::SYSTEM_NTFY_EXTENDED_PARAM:
             return HandleSystemParam(self, cmd);
         case Command::ALERT_NTFY_PARAM:
             return HandleAlertParam(self, cmd);

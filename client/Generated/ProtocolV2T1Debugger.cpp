@@ -903,6 +903,8 @@ namespace client::debugger {
             {"PHONE_AND_CONNECTED_DEVICE_INFOMATION_FOR_CLASSIC", UINT64_C(25)},
             {"TANDEM_RECONNECTION_REQUEST", UINT64_C(26)},
             {"DISPLAY_FW_VERSION", UINT64_C(27)},
+            {"DISCONNECT_TANDEM_GATT_REQUEST", UINT64_C(28)},
+            {"RESTRICT_APP_BACKGROUND_FUNCTIONS", UINT64_C(29)},
             {"BATTERY_LEVEL_INDICATOR", UINT64_C(32)},
             {"LEFT_RIGHT_BATTERY_LEVEL_INDICATOR", UINT64_C(33)},
             {"CRADLE_BATTERY_LEVEL_INDICATOR", UINT64_C(34)},
@@ -952,6 +954,8 @@ namespace client::debugger {
             {"PRESET_EQ_AND_ERRORCODE", UINT64_C(87)},
             {"ULT_SOUND_EFFECT_ASSIGN", UINT64_C(88)},
             {"CUSTOMIZABLE_SOUND_EFFECT", UINT64_C(89)},
+            {"LR_BALANCE_CORRECTION", UINT64_C(90)},
+            {"TURN_KEY_EQ_CONTROLLER", UINT64_C(91)},
             {"NOISE_CANCELLING_ONOFF", UINT64_C(97)},
             {"NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF", UINT64_C(98)},
             {"NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF", UINT64_C(99)},
@@ -971,6 +975,7 @@ namespace client::debugger {
             {"HEART_RATE_PROFILE_SETTING", UINT64_C(115)},
             {"HEART_RATE_SENSOR_TEST", UINT64_C(116)},
             {"HEART_RATE_SENSOR_GREEN_LIGHT", UINT64_C(117)},
+            {"HEART_RATE_SENSOR_INFORMATION", UINT64_C(118)},
             {"NC_OPTIMIZER_PERSONAL_BAROMETRIC", UINT64_C(128)},
             {"NC_OPTIMIZER_PERSONAL", UINT64_C(129)},
             {"NC_OPTIMIZER_BAROMETRIC", UINT64_C(130)},
@@ -1013,6 +1018,8 @@ namespace client::debugger {
             {"BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE", UINT64_C(235)},
             {"UPMIX_SERIES", UINT64_C(236)},
             {"UPSCALING_AUTO_OFF_WITH_STATUS_DISABLE_REASON", UINT64_C(237)},
+            {"AUDIO_360_UPMIX_OPTIMIZATION", UINT64_C(238)},
+            {"AUDIO_360_UPMIX_HEADTRACKING", UINT64_C(239)},
             {"VIBRATOR_ON_OFF", UINT64_C(240)},
             {"PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF", UINT64_C(241)},
             {"SMART_TALKING_MODE_TYPE1", UINT64_C(242)},
@@ -1728,6 +1735,8 @@ namespace client::debugger {
             {"DJ_CONTROL_WITH_STATUS_DISABLE_REASON", UINT64_C(115)},
             {"KARAOKE_WITH_STATUS_DISABLE_REASON", UINT64_C(116)},
             {"LIVE_KARAOKE", UINT64_C(117)},
+            {"AURACAST_RECEIVER_ASSISTANT", UINT64_C(118)},
+            {"AURACAST_RECEIVER_ASSISTANT_CAN_NOT_BE_USED_WITH_CLASSIC_ONLY", UINT64_C(119)},
             {"WEARING_STATUS_CHECKER", UINT64_C(240)},
             {"REPEAT_TAP_TRAINING_MODE", UINT64_C(241)},
             {"QUICK_ACCESS_EASY_SETTING", UINT64_C(242)},
@@ -2920,7 +2929,6 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v2__t1__AudioInquiredType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v2__EnableDisable);
-            changed |= DrawScalar("numberOfErrorCode", value.numberOfErrorCode);
             changed |= DrawSequence("errorCodeList", value.errorCodeList.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
@@ -2939,7 +2947,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.numberOfErrorCode, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<StatusErrorCodeType>::Read)(&ptr, value.errorCodeList, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -2952,7 +2959,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.numberOfErrorCode, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<StatusErrorCodeType>::Write)(value.errorCodeList, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -4258,7 +4264,6 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v2__t1__AudioInquiredType);
             changed |= DrawEnum("status", value.status, kEnum_mdr__v2__EnableDisable);
-            changed |= DrawScalar("numberOfErrorCode", value.numberOfErrorCode);
             changed |= DrawSequence("errorCodeList", value.errorCodeList.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
@@ -4277,7 +4282,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.status, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.numberOfErrorCode, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<StatusErrorCodeType>::Read)(&ptr, value.errorCodeList, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -4290,7 +4294,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.status, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.numberOfErrorCode, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<StatusErrorCodeType>::Write)(value.errorCodeList, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -6723,7 +6726,6 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v2__t1__EqEbbInquiredType);
             changed |= DrawEnum("enableDisable", value.enableDisable, kEnum_mdr__v2__EnableDisable);
-            changed |= DrawScalar("numberOfErrorCode", value.numberOfErrorCode);
             changed |= DrawSequence("errorCodeList", value.errorCodeList.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
@@ -6742,7 +6744,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.enableDisable, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.numberOfErrorCode, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<PresetEqErrorCodeType>::Read)(&ptr, value.errorCodeList, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -6755,7 +6756,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.enableDisable, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.numberOfErrorCode, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<PresetEqErrorCodeType>::Write)(value.errorCodeList, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
@@ -7303,7 +7303,6 @@ namespace client::debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v2__t1__EqEbbInquiredType);
             changed |= DrawEnum("enableDisable", value.enableDisable, kEnum_mdr__v2__EnableDisable);
-            changed |= DrawScalar("numberOfErrorCode", value.numberOfErrorCode);
             changed |= DrawSequence("errorCodeList", value.errorCodeList.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
@@ -7322,7 +7321,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.enableDisable, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.numberOfErrorCode, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<PresetEqErrorCodeType>::Read)(&ptr, value.errorCodeList, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -7335,7 +7333,6 @@ namespace client::debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.enableDisable, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.numberOfErrorCode, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<PresetEqErrorCodeType>::Write)(value.errorCodeList, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }

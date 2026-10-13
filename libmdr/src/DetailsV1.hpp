@@ -26,6 +26,7 @@ namespace mdr
             };
 
             Array<bool, 256> functions{};
+            Vector<v1::t1::FunctionType> order;
             Provenance provenance{Provenance::UNKNOWN};
 
             [[nodiscard]] constexpr bool contains(v1::t1::FunctionType value) const
@@ -70,6 +71,7 @@ namespace mdr
         String mPlayTrackTitle;
         String mPlayTrackAlbum;
         String mPlayTrackArtist;
+        String mPlayTrackGenre;
         v1::t1::PlaybackStatus mPlayPause{};
 
         v1::t1::UpscalingType mUpscalingType{};
@@ -99,6 +101,42 @@ namespace mdr
                     status.optimizerStatus == OPTIMIZING);
             }
         } mNCOptimizer;
+        // Capability-derived selectors used by Sony's initial holder reloads.
+        v1::t1::EqEbbInquiredType mEqType{v1::t1::EqEbbInquiredType::NO_USE};
+        UInt8 mEqBandCount{};
+        UInt8 mEqStepCount{};
+        Vector<UInt8> mEqBandSteps;
+        int mEqClearBassBand{-1};
+        Vector<v1::t1::EqBandInformation> mEqBandInformation;
+        v1::t1::RetEqEbbCapability_EbbCapability mEbbCapability{};
+        bool mEbbAvailable{};
+        bool mNcAsmAvailable{};
+        bool mAudioPriorityAvailable{};
+        v1::t1::NcSettingType mNcSettingType{};
+        v1::t1::NcAsmSettingType mNcAsmSettingType{};
+        v1::t1::AsmSettingType mAsmSettingType{};
+        UInt8 mNcStep{};
+        Vector<v1::t1::Asm> mAsmCapabilities;
+        v1::t1::ConnectionStatus mConnectionL{}, mConnectionR{};
+        bool mPlayAvailable{};
+        bool mVoiceGuidanceSupportsOnOff{};
+        bool mVoiceGuidanceSupportsLanguage{};
+        bool mVoiceGuidanceAvailable{};
+        v1::t1::TrainingModeAvailableEffectType mTrainingEffect{};
+        Vector<v1::t1::AutoPowerOffElementId> mAutoPowerOffCandidates;
+
+        [[nodiscard]] bool wearingPowerPossible() const
+        {
+            if (!mSupport.contains(v1::t1::FunctionType::AUTO_POWER_OFF))
+                return false;
+            for (auto value : mAutoPowerOffCandidates)
+                if (value == v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS)
+                    return true;
+            return false;
+        }
+        Array<bool, 256> mSystemAvailable{};
+        Array<bool, 3> mGsAvailable{};
+        Array<UInt8, 3> mGsListIndex{};
 
         Vector<v1::t1::AsCapabilityKey> mAssignableSettingsKeys;
 
@@ -117,7 +155,7 @@ namespace mdr
         MDRProperty<bool> mNcAsmChangingLevel;
         MDRProperty<UInt8> mNcAsmButtonFunction;
         MDRProperty<v1::t1::AutoPowerOffElementId> mPowerAutoOff;
-        MDRProperty<UInt8> mPowerAutoOffWearingDetection;
+        MDRProperty<v1::t1::AutoPowerOffElementId> mPowerAutoOffSelectedTime;
         MDRProperty<int> mPlayVolume;
         MDRProperty<v1::t1::PlaybackControl> mPlayControl;
         MDRProperty<bool> mGsParamBool[3];

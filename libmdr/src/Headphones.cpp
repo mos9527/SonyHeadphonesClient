@@ -10,21 +10,66 @@ namespace mdr
 {
     MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type, int timeoutMS)
     {
-        auto& awaiter = mAwaiters[type];
+        auto& awaiter = mAwaiters[type >= AWAIT_NUM_TYPES ? AWAIT_RESPONSE : type];
         awaiter.timeout = timeoutMS > 0 ? timeoutMS : mDefaultTimeoutMS;
         return awaiter;
     }
 
     void MDRHeadphones::Awake(AwaitType type)
     {
-        if (auto& await = mAwaiters[type])
-            await.resume_now(MDR_RESULT_OK);
+        auto& awaiter = mAwaiters[type >= AWAIT_NUM_TYPES ? AWAIT_RESPONSE : type];
+        if (type >= AWAIT_NUM_TYPES)
+        {
+            if (awaiter.type != type || awaiter.completed == awaiter.requested)
+                return;
+            awaiter.completed = awaiter.requested;
+            awaiter.result = MDR_RESULT_OK;
+            if (awaiter)
+                awaiter.resume_now(MDR_RESULT_OK);
+        }
+        else if (awaiter)
+            awaiter.resume_now(MDR_RESULT_OK);
         else if (type != AWAIT_ACK)
-            await.signaled = true;
+            awaiter.signaled = true;
+    }
+
+    void MDRHeadphones::BeginAwait(AwaitType response)
+    {
+        auto& awaiter = mAwaiters[AWAIT_RESPONSE];
+        if (response < AWAIT_NUM_TYPES || awaiter || awaiter.requested != awaiter.completed)
+            std::terminate();
+        awaiter.type = response;
+        ++awaiter.requested;
+        awaiter.result = MDR_RESULT_OK;
+    }
+
+    void MDRHeadphones::CancelAwait(AwaitType response, int result)
+    {
+        auto& awaiter = mAwaiters[AWAIT_RESPONSE];
+        if (awaiter.type != response)
+            return;
+        awaiter.completed = awaiter.requested;
+        awaiter.result = result;
+        if (awaiter)
+            awaiter.resume_now(result);
+    }
+
+    void MDRHeadphones::CompleteResponse(MDRDataType table, Span<const UInt8> payload)
+    {
+        if (payload.empty())
+            return;
+        const auto response = mAwaiters[AWAIT_RESPONSE].type;
+        const int inquiry = payload.size() > 1 ? payload[1] : -1;
+        const int detail = payload.size() > 2 ? payload[2] : -1;
+        if (response == ResponseType(table, payload[0], inquiry, detail) ||
+            response == ResponseType(table, payload[0], inquiry) ||
+            response == ResponseType(table, payload[0]))
+            Awake(response);
     }
 
     MDRTask MDRHeadphones::RequestInit()
     {
+        mInitialized = false;
         switch (mProtocolFamily)
         {
         case ProtocolFamily::V1:
@@ -266,7 +311,19 @@ namespace mdr
         {
         case MDRUnpackResult::OK:
             mRecvBuf.erase(mRecvBuf.begin(), commandEnd + 1);
-            return Handle(command, type, seqNum);
+            {
+                if ((type == MDRDataType::DATA_MDR || type == MDRDataType::DATA_MDR_NO2) &&
+                    ((mProtocolFamily == ProtocolFamily::V1 && !AcceptInitResponseV1(type, command)) ||
+                     (mProtocolFamily == ProtocolFamily::V2 && !AcceptInitResponseV2(type, command))))
+                {
+                    SendACK(seqNum);
+                    return MDR_EVENT_UNHANDLED;
+                }
+                const int event = Handle(command, type, seqNum);
+                if (event >= 0)
+                    CompleteResponse(type, command);
+                return event;
+            }
         case MDRUnpackResult::INCOMPLETE:
             // Incomplete. Nop.
             break;
@@ -298,6 +355,8 @@ namespace mdr
             return false;
         result = mTask.coroutine.promise().result;
         mTask = {};
+        auto& response = mAwaiters[AWAIT_RESPONSE];
+        response.completed = response.requested;
         return true;
     }
 
@@ -397,6 +456,7 @@ namespace
         case MDR_FEATURE_ASSIGNABLE_CONTROLS: return state.mSupport.contains(F::ASSIGNABLE_SETTINGS);
         case MDR_FEATURE_AUTO_POWER_OFF: return state.mSupport.contains(F::AUTO_POWER_OFF);
         case MDR_FEATURE_WEARING_DETECTION:
+            return state.mSupport.contains(F::CONTROL_BY_WEARING) || state.wearingPowerPossible();
         case MDR_FEATURE_AUTO_PAUSE: return state.mSupport.contains(F::CONTROL_BY_WEARING);
         case MDR_FEATURE_VOICE_GUIDANCE: return state.mSupport.contains(F::VOICE_GUIDANCE);
         case MDR_FEATURE_SHUTDOWN: return state.mSupport.contains(F::POWER_OFF);
@@ -433,16 +493,17 @@ namespace
             return state.mSupport.contains(
                 T1::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
         case MDR_FEATURE_SPEAK_TO_CHAT: return state.mSupport.contains(T1::SMART_TALKING_MODE_TYPE2);
-        case MDR_FEATURE_LISTENING_MODE: return state.mSupport.contains(T1::LISTENING_OPTION);
+        case MDR_FEATURE_LISTENING_MODE:
+            return state.mSupport.containsBGMMode() || state.mSupport.contains(T1::UPMIX_CINEMA) ||
+                state.mSupport.contains(T1::VOICE_CONTENTS) || state.mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION);
         case MDR_FEATURE_LISTENING_BACKGROUND_MUSIC:
-            return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.containsBGMMode();
+            return state.mSupport.containsBGMMode();
         case MDR_FEATURE_LISTENING_CINEMA:
-            return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.contains(T1::UPMIX_CINEMA);
+            return state.mSupport.contains(T1::UPMIX_CINEMA);
         case MDR_FEATURE_LISTENING_VOICE_BOOST:
-            return state.mSupport.contains(T1::LISTENING_OPTION) && state.mSupport.contains(T1::VOICE_CONTENTS);
+            return state.mSupport.contains(T1::VOICE_CONTENTS);
         case MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION:
-            return state.mSupport.contains(T1::LISTENING_OPTION) &&
-                state.mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION);
+            return state.mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION);
         case MDR_FEATURE_EQUALIZER: return state.mSupport.containsEqualizer();
         case MDR_FEATURE_DSEE: return state.mSupport.contains(T1::UPSCALING_AUTO_OFF);
         case MDR_FEATURE_PAIRED_DEVICE_MANAGEMENT:
@@ -466,7 +527,7 @@ namespace
         case MDR_FEATURE_AUTO_PAUSE:
             return state.mSupport.contains(T1::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF);
         case MDR_FEATURE_HEAD_GESTURE: return state.mSupport.contains(T1::HEAD_GESTURE_ON_OFF_TRAINING);
-        case MDR_FEATURE_VOICE_GUIDANCE: return state.mSupport.containsVoiceGuidance();
+        case MDR_FEATURE_VOICE_GUIDANCE: return state.voiceGuidanceOnOffPossible();
         case MDR_FEATURE_VOICE_GUIDANCE_VOLUME: return state.mSupport.containsVoiceGuidanceVolume();
         case MDR_FEATURE_SHUTDOWN: return state.mSupport.contains(T1::POWER_OFF);
         case MDR_FEATURE_CONNECTION_MODE:
@@ -1969,13 +2030,22 @@ MDRResult mdrHeadphonesGetEqualizer(
     const auto& h = *Impl(headphones);
     return WithDetails(h, [&](const auto& state) -> MDRResult
     {
+        bool available = state.mEqAvailable.current;
+        if constexpr (requires { state.mEbbAvailable; })
+        {
+            if (state.mEqType == mdr::v1::t1::EqEbbInquiredType::NO_USE &&
+                state.mSupport.contains(mdr::v1::t1::FunctionType::EBB))
+                available = state.mEbbAvailable;
+        }
+        if (state.mEqClearBass.current < -128 || state.mEqClearBass.current > 127)
+            return MDR_RESULT_ERROR_NOT_SUPPORTED;
         *outEqualizer = {
             .preset = from_protocol(state.mEqPresetId.current),
             .clear_bass = static_cast<int8_t>(state.mEqClearBass.current),
             .band_count = static_cast<uint32_t>(state.mEqConfig.current.size()),
             .dsee_enabled = static_cast<MDRBoolean>(state.mUpscalingEnabled.current),
             .dsee_type = from_protocol(state.mUpscalingType),
-            .available = static_cast<MDRBoolean>(state.mEqAvailable.current),
+            .available = static_cast<MDRBoolean>(available),
             .dsee_available = static_cast<MDRBoolean>(state.mUpscalingAvailable)
         };
         return MDR_RESULT_OK;
@@ -2464,7 +2534,9 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPower* outPower)
         const auto& state = h.mDetailsV1;
         *outPower = {
             .auto_power_off_minutes = AutoPowerMinutes(state.mPowerAutoOff.current),
-            .wearing_power = MDR_WEARING_POWER_UNAVAILABLE,
+            .wearing_power = !state.wearingPowerPossible() ? MDR_WEARING_POWER_UNAVAILABLE :
+                state.mPowerAutoOff.current == mdr::v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS
+                    ? MDR_WEARING_POWER_WHEN_REMOVED : MDR_WEARING_POWER_DISABLED,
             .auto_pause = static_cast<MDRBoolean>(state.mAutoPauseEnabled.current),
             .head_gesture = static_cast<MDRBoolean>(state.mHeadGestureEnabled.current),
             .shutdown_requested = static_cast<MDRBoolean>(state.mShutdown.current)
@@ -2488,6 +2560,42 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPower* outPower)
     return MDR_RESULT_OK;
 }
 
+MDRResult mdrHeadphonesGetAutoPowerOffTimers(
+    MDRHeadphones* headphones, uint32_t* minutes, uint32_t* inoutCount)
+{
+    if (!headphones || !inoutCount || (!minutes && *inoutCount != 0))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    return WithDetails(*Impl(headphones), [&](const auto& state) -> MDRResult
+    {
+        using Element = typename std::remove_cvref_t<decltype(state.mAutoPowerOffCandidates)>::value_type;
+        const auto& candidates = state.mAutoPowerOffCandidates;
+        const bool timed = SupportsFeature(state, MDR_FEATURE_AUTO_POWER_OFF) &&
+            std::ranges::any_of(candidates, [](auto value) { return AutoPowerMinutes(value) != 0; });
+        uint32_t required = 0;
+        if (timed)
+            for (auto value : candidates)
+                if (AutoPowerMinutes(value) != 0 || value == Element::POWER_OFF_DISABLE)
+                    ++required;
+        if (!minutes)
+        {
+            *inoutCount = required;
+            return MDR_RESULT_OK;
+        }
+        if (*inoutCount < required)
+        {
+            *inoutCount = required;
+            return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
+        }
+        uint32_t index = 0;
+        if (timed)
+            for (auto value : candidates)
+                if (AutoPowerMinutes(value) != 0 || value == Element::POWER_OFF_DISABLE)
+                    minutes[index++] = AutoPowerMinutes(value);
+        *inoutCount = required;
+        return MDR_RESULT_OK;
+    });
+}
+
 MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power)
 {
     if (!headphones || !power ||
@@ -2499,11 +2607,19 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
-        auto value = h->mDetailsV1.mPowerAutoOff.desired;
-        if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value) ||
-            power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
+        auto& state = h->mDetailsV1;
+        auto value = state.mPowerAutoOff.desired;
+        if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value))
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-        h->mDetailsV1.mPowerAutoOff.stage(value);
+        if (power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
+        {
+            if (!state.wearingPowerPossible())
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            value = mdr::v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS;
+        }
+        state.mPowerAutoOff.stage(value);
+        if (AutoPowerMinutes(value) != 0)
+            state.mPowerAutoOffSelectedTime.stage(value);
         h->mDetailsV1.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
         h->mDetailsV1.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
         h->mDetailsV1.mShutdown.stage(power->shutdown_requested != MDR_FALSE);

@@ -485,6 +485,18 @@ mdr::Vector<int> GetEqualizerBands()
     return values;
 }
 
+mdr::Vector<uint32_t> GetAutoPowerOffTimers()
+{
+    uint32_t count = 0;
+    if (!gDevice || mdrHeadphonesGetAutoPowerOffTimers(gDevice, nullptr, &count) != MDR_RESULT_OK || count == 0)
+        return {};
+    mdr::Vector<uint32_t> timers(count);
+    if (mdrHeadphonesGetAutoPowerOffTimers(gDevice, timers.data(), &count) != MDR_RESULT_OK)
+        return {};
+    timers.resize(count);
+    return timers;
+}
+
 mdr::Vector<std::pair<MDREqualizerPreset, mdr::String>> GetEqualizerPresets()
 {
     uint32_t count = 0;
@@ -526,6 +538,7 @@ struct ClientState
     MDREqualizer mEqualizer{};
     mdr::Vector<int> mEqualizerBands;
     mdr::Vector<std::pair<MDREqualizerPreset, mdr::String>> mEqualizerPresets;
+    mdr::Vector<uint32_t> mAutoPowerOffTimers;
     mdr::Vector<MDRPairedDevice> mPairedDevices;
     MDRPairing mPairing{};
     MDRWearingStatus mWearingStatus{};
@@ -572,6 +585,7 @@ void RefreshClientState()
     gState.mEqualizerAvailable = mdrHeadphonesGetEqualizer(gDevice, &gState.mEqualizer) == MDR_RESULT_OK;
     gState.mEqualizerBands = GetEqualizerBands();
     gState.mEqualizerPresets = GetEqualizerPresets();
+    gState.mAutoPowerOffTimers = GetAutoPowerOffTimers();
     gState.mPairedDevices = GetPairedDevices();
     gState.mPairingAvailable = mdrHeadphonesGetPairing(gDevice, &gState.mPairing) == MDR_RESULT_OK;
     gState.mWearingStatusAvailable = FeatureAvailable(MDR_FEATURE_WEARING_STATUS) &&
@@ -2169,21 +2183,26 @@ void DrawDeviceControlsSystem()
         ImGui::TreePop();
     }
     /* Auto Power Off */
-    if (FeatureAvailable(MDR_FEATURE_AUTO_POWER_OFF) &&
+    if (!gState.mAutoPowerOffTimers.empty() &&
         ImHeadingTreeNode(TrLable(i18n::TextId::AutoPowerOff), ImGuiTreeNodeFlags_DefaultOpen))
     {
-        constexpr uint32_t kSelections[] = {0, 5, 15, 30, 60, 180};
-        bool changed =
-            ImComboBoxItems(TrLable(i18n::TextId::Time), std::span{kSelections}, power.auto_power_off_minutes, FormatAutoPowerOff);
-        if (FeatureAvailable(MDR_FEATURE_WEARING_DETECTION) && power.wearing_power != MDR_WEARING_POWER_UNAVAILABLE)
-        {
-            bool whenRemoved = power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED;
-            if (ImGui::Checkbox(TrLable(i18n::TextId::PowerOffRemoved), &whenRemoved))
-                power.wearing_power = whenRemoved ? MDR_WEARING_POWER_WHEN_REMOVED : MDR_WEARING_POWER_DISABLED,
-                changed = true;
-        }
+        ImGui::BeginDisabled(!havePower);
+        const bool changed = ImComboBoxItems(TrLable(i18n::TextId::Time), std::span<const uint32_t>{gState.mAutoPowerOffTimers},
+                                            power.auto_power_off_minutes, FormatAutoPowerOff);
+        ImGui::EndDisabled();
         if (changed && havePower)
             mdrHeadphonesSetPower(gDevice, &power);
+        ImGui::TreePop();
+    }
+    if (FeatureAvailable(MDR_FEATURE_WEARING_DETECTION) && power.wearing_power != MDR_WEARING_POWER_UNAVAILABLE &&
+        ImHeadingTreeNode(TrLable(i18n::TextId::PowerOffRemoved), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        bool whenRemoved = power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED;
+        if (ImGui::Checkbox(TrLable(i18n::TextId::Enabled), &whenRemoved) && havePower)
+        {
+            power.wearing_power = whenRemoved ? MDR_WEARING_POWER_WHEN_REMOVED : MDR_WEARING_POWER_DISABLED;
+            mdrHeadphonesSetPower(gDevice, &power);
+        }
         ImGui::TreePop();
     }
     /* Auto Pause */
@@ -2398,6 +2417,9 @@ void DrawDeviceControls()
         break;
     case MDR_EVENT_PLAYBACK_CHANGED:
         RefreshPlaybackState();
+        break;
+    case MDR_EVENT_POWER_CHANGED:
+        gState.mAutoPowerOffTimers = GetAutoPowerOffTimers();
         break;
     case MDR_EVENT_NOISE_CONTROL_CHANGED:
         gState.mNoiseAvailable = mdrHeadphonesGetNoiseControl(gDevice, &gState.mNoise) == MDR_RESULT_OK;

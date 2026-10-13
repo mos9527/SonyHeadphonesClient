@@ -54,6 +54,12 @@ namespace mdr::v2::t2
         VOICE_GUIDANCE_GET_PARAM = 0x46,
         VOICE_GUIDANCE_RET_PARAM = 0x47,
         VOICE_GUIDANCE_SET_PARAM = 0x48,
+        VOICE_GUIDANCE_NTFY_PARAM = 0x49,
+        VOICE_GUIDANCE_GET_EXTENDED_PARAM = 0x4A,
+        VOICE_GUIDANCE_RET_EXTENDED_PARAM = 0x4B,
+        SAFE_LISTENING_GET_CAPABILITY = 0x50,
+        SAFE_LISTENING_RET_CAPABILITY = 0x51,
+        SAFE_LISTENING_GET_STATUS = 0x52,
         SAFE_LISTENING_RET_STATUS = 0x53,
         SAFE_LISTENING_SET_STATUS = 0x54,
         SAFE_LISTENING_NTFY_STATUS = 0x55,
@@ -2216,7 +2222,7 @@ namespace mdr::v2::t2
     // THMSGV2T2SafeListeningGetCapability
     struct SafeListeningGetCapability
     {
-        Command command2{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
+        Command command2{Command::SAFE_LISTENING_GET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SafeListeningInquiredType inquiredType{SafeListeningInquiredType::SAFE_LISTENING_HBS_1}; // 0x1
 
@@ -2248,7 +2254,7 @@ namespace mdr::v2::t2
     // THMSGV2T2SafeListeningGetStatus
     struct SafeListeningGetStatus
     {
-        Command command2{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
+        Command command2{Command::SAFE_LISTENING_GET_STATUS}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SafeListeningInquiredType inquiredType{SafeListeningInquiredType::SAFE_LISTENING_HBS_1}; // 0x1
 
@@ -2357,7 +2363,7 @@ namespace mdr::v2::t2
     // THMSGV2T2SafeListeningRetCapability
     struct SafeListeningRetCapability
     {
-        Command command2{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
+        Command command2{Command::SAFE_LISTENING_RET_CAPABILITY}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         SafeListeningInquiredType inquiredType{SafeListeningInquiredType::SAFE_LISTENING_HBS_1}; // 0x1
 
@@ -3109,9 +3115,7 @@ namespace mdr::v2::t2
         SystemInquiredType type{SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DataContinue dataContinue{DataContinue::NOT_CONTINUE_DATA}; // 0x2
-        // CODEGEN Range 0 255
-        UInt8 dataLength{}; // 0x3
-        MDRPodArray<UInt8> data; // 0x4
+        MDRPodArray<UInt8> data; // 0x3 length, 0x4 values
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemRetCapabilitySVACommand);
     };
@@ -3767,8 +3771,8 @@ namespace mdr::v2::t2
     // THMSGV2T2VoiceGuidanceGetExtendedParam
     struct VoiceGuidanceGetExtendedParam
     {
-        // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_PARAM
-        Command command{Command::VOICE_GUIDANCE_GET_PARAM}; // 0x0
+        // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_EXTENDED_PARAM
+        Command command{Command::VOICE_GUIDANCE_GET_EXTENDED_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH}; // 0x1
 
@@ -3824,7 +3828,7 @@ namespace mdr::v2::t2
     // THMSGV2T2VoiceGuidanceNotifyParam
     struct VoiceGuidanceNotifyParam
     {
-        Command command2{Command::CONNECT_GET_SUPPORT_FUNCTION}; // 0x0
+        Command command2{Command::VOICE_GUIDANCE_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         VoiceGuidanceInquiredType inquiredType{VoiceGuidanceInquiredType::BATTERY_LV_VOICE}; // 0x1
 

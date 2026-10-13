@@ -1587,7 +1587,7 @@ MDRResult<void> RetEqEbbCapability_EqCapability::Validate(const RetEqEbbCapabili
     MDR_VALIDATE(is_valid(data.command));
     MDR_VALIDATE(data.command == Command::EQEBB_RET_CAPABILITY);
     MDR_VALIDATE(is_valid(data.base.type));
-    MDR_VALIDATE(data.base.type == EqEbbInquiredType::PRESET_EQ);
+    MDR_VALIDATE(data.base.type == EqEbbInquiredType::PRESET_EQ || data.base.type == EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE);
     for (const auto& presetList_elem : data.presetList) {
         MDR_VALIDATE(is_valid(presetList_elem.presetId));
     }

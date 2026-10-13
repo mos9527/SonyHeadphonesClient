@@ -781,7 +781,6 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataContinue, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.dataLength, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<UInt8>::Write)(data.data, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -791,7 +790,6 @@ namespace mdr::v2::t2 {
         MDR_TRY_SIZE(SystemRetCapabilitySVACommand, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(SystemRetCapabilitySVACommand, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(SystemRetCapabilitySVACommand, MDRPod::Read(&data, out.dataContinue, maxSize));
-        MDR_TRY_SIZE(SystemRetCapabilitySVACommand, MDRPod::Read(&data, out.dataLength, maxSize));
         MDR_TRY_SIZE(SystemRetCapabilitySVACommand, (MDRPodArray<UInt8>::Read)(&data, out.data, maxSize));
         MDR_TRY(SystemRetCapabilitySVACommand, Validate(out));
         return MDRResult<SystemRetCapabilitySVACommand>::Success(std::move(out));

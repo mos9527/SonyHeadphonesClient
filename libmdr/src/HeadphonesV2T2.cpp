@@ -17,12 +17,70 @@ namespace mdr
     int HandleSupportFunctionT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(ConnectRetSupportFunction, res, cmd);
-        std::ranges::fill(self->mDetailsV2.mSupport.table2Functions, false);
+        auto& state = self->mDetailsV2;
+        std::ranges::fill(state.mSupport.table2Functions, false);
+        bool replacedWearingPosition = false;
         for (auto fun : res.supportFunctions)
-            self->mDetailsV2.mSupport.table2Functions[static_cast<UInt8>(fun.functionType)] = true;
-        self->mDetailsV2.mSupport.provenance = DetailsV2::SupportStates::Provenance::ADVERTISED;
-        self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
+        {
+            auto type = fun.functionType;
+            if (!replacedWearingPosition && type == FunctionType::WEARING_POSITION &&
+                (state.mProtocol.version == 0x3003002 || state.mProtocol.version == 0x3003033))
+            {
+                type = FunctionType::WEARING_POSITION_WITHOUT_FITTING_SUPPORTER;
+                replacedWearingPosition = true;
+            }
+            state.mSupport.table2Functions[static_cast<UInt8>(type)] = true;
+        }
+        state.mSupport.provenance = DetailsV2::SupportStates::Provenance::ADVERTISED;
         return MDR_EVENT_IDENTITY_CHANGED;
+    }
+
+    int HandleVoiceGuidanceCapabilityT2(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        VoiceGuidanceInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        auto& state = self->mDetailsV2;
+        switch (type)
+        {
+        case VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH:
+        {
+            Deserialize(VoiceGuidanceRetCapabilitySettingMtkNotSupportLangSwitch, res, cmd);
+            state.mVoiceGuidanceOnOffSupported[0] = res.supportOnOffSwitch == VoiceGuidanceSupportsSwitch::SUPPORT;
+            return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+        }
+        case VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
+        {
+            Deserialize(VoiceGuidanceRetCapabilitySettingMtkSupportLangSwitch, res, cmd);
+            state.mVoiceGuidanceOnOffSupported[1] = res.supportOnOffSwitch == VoiceGuidanceSupportsSwitch::SUPPORT;
+            return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+        }
+        case VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH:
+        {
+            Deserialize(VoiceGuidanceRetCapabilitySettingSupportLangSwitch, res, cmd);
+            state.mVoiceGuidanceOnOffSupported[2] = res.supportOnOffSwitch == VoiceGuidanceSupportsSwitch::SUPPORT;
+            return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+        }
+        default:
+            return MDR_EVENT_UNHANDLED;
+        }
+    }
+
+    int HandleSystemCapabilityT2(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        SystemInquiredType type{};
+        if (!ReadInquiredType(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        if (type == SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND)
+        {
+            Deserialize(SystemRetCapabilitySVACommand, res, cmd);
+            if (res.dataContinue != DataContinue::NOT_CONTINUE_DATA && res.dataContinue != DataContinue::HAS_CONTINUE_DATA)
+                return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Invalid Sony voice-assistant continuation");
+            self->mDetailsV2.mSvaPartLength = static_cast<UInt8>(res.data.size());
+            self->mDetailsV2.mSvaDataContinue = res.dataContinue;
+            return MDR_EVENT_NONE;
+        }
+        return MDR_EVENT_UNHANDLED;
     }
 
     int HandleVoiceGuidanceParamT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -30,16 +88,51 @@ namespace mdr
         VoiceGuidanceInquiredType type{};
         if (!ReadInquiredType(cmd, type))
             return MDR_EVENT_UNHANDLED;
+        if (static_cast<Command>(cmd[0]) == Command::VOICE_GUIDANCE_NTFY_PARAM)
+        {
+            if (cmd.size() < 3)
+                return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Invalid voice-guidance notification");
+            switch (type)
+            {
+            case VoiceGuidanceInquiredType::SUPPORT_LANGUAGE_SWITCH:
+                if (cmd.size() < 4)
+                    return self->SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Invalid voice-guidance language notification");
+                self->mDetailsV2.mVoiceGuidanceLanguage = static_cast<VoiceGuidanceLanguage>(cmd[3]);
+                self->mDetailsV2.mVoiceGuidanceEnabled.overwrite(cmd[2] == static_cast<UInt8>(OnOffSettingValue::ON));
+                return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+            case VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
+            case VoiceGuidanceInquiredType::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH:
+            case VoiceGuidanceInquiredType::ONLY_ON_OFF_SETTING:
+                self->mDetailsV2.mVoiceGuidanceEnabled.overwrite(cmd[2] == static_cast<UInt8>(OnOffSettingValue::ON));
+                return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+            case VoiceGuidanceInquiredType::VOLUME:
+            case VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS:
+                self->mDetailsV2.mVoiceGuidanceVolume.overwrite(static_cast<Int8>(cmd[2]));
+                return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+            default:
+                return MDR_EVENT_UNHANDLED;
+            }
+        }
         using enum VoiceGuidanceInquiredType;
         switch (type)
         {
         case MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH:
+        case SUPPORT_LANGUAGE_SWITCH:
+        {
+            Deserialize(VoiceGuidanceRetParamSettingMtkSupportLangSwitchAndSupportLangSwitch, res, cmd);
+            self->mDetailsV2.mVoiceGuidanceEnabled.overwrite(res.settingValue == OnOffSettingValue::ON);
+            self->mDetailsV2.mVoiceGuidanceLanguage = res.currentLanguage;
+            return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
+        }
+        case MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH:
+        case ONLY_ON_OFF_SETTING:
         {
             Deserialize(VoiceGuidanceRetParamSettingMtk, res, cmd);
             self->mDetailsV2.mVoiceGuidanceEnabled.overwrite(res.settingValue == OnOffSettingValue::ON);
             return MDR_EVENT_VOICE_GUIDANCE_CHANGED;
         }
         case VOLUME:
+        case VOLUME_SETTING_FIXED_TO_5_STEPS:
         {
             Deserialize(VoiceGuidanceRetParamVolume, res, cmd);
             self->mDetailsV2.mVoiceGuidanceVolume.overwrite(res.volumeValue);
@@ -60,6 +153,7 @@ namespace mdr
         switch (type)
         {
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
+        case PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT:
         {
             const auto command = static_cast<Command>(cmd[0]);
             if (command == Command::PERI_NTFY_STATUS)
@@ -277,7 +371,12 @@ namespace mdr
         {
         case CONNECT_RET_SUPPORT_FUNCTION:
             return HandleSupportFunctionT2(self, cmd);
+        case VOICE_GUIDANCE_RET_CAPABILITY:
+            return HandleVoiceGuidanceCapabilityT2(self, cmd);
+        case SYSTEM_RET_CAPABILITY:
+            return HandleSystemCapabilityT2(self, cmd);
         case VOICE_GUIDANCE_RET_PARAM:
+        case VOICE_GUIDANCE_NTFY_PARAM:
             return HandleVoiceGuidanceParamT2(self, cmd);
         case PERI_RET_STATUS:
         case PERI_NTFY_STATUS:

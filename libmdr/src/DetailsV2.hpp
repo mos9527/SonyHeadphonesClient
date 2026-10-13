@@ -22,7 +22,6 @@ namespace mdr
             {
                 UNKNOWN,
                 ADVERTISED,
-                LEGACY_PROFILE
             };
 
             Array<bool, 256> table1Functions{};
@@ -43,8 +42,7 @@ namespace mdr
             {
                 using F = v2::t1::FunctionType;
                 return contains(F::BGM_MODE_SMALL_MIDDLE_LARGE) ||
-                    contains(F::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE) ||
-                    contains(F::BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION);
+                    contains(F::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE);
             }
 
             [[nodiscard]] constexpr bool containsPlaybackController() const
@@ -59,26 +57,15 @@ namespace mdr
             [[nodiscard]] constexpr bool containsNoiseCancelling() const
             {
                 using F = v2::t1::FunctionType;
-                return contains(F::NOISE_CANCELLING_ONOFF) ||
-                    contains(F::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
-                    contains(F::NOISE_CANCELLING_DUAL_SINGLE_OFF_AND_AMBIENT_SOUND_MODE_ONOFF) ||
-                    contains(F::NOISE_CANCELLING_ONOFF_AND_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-                    contains(F::NOISE_CANCELLING_DUAL_SINGLE_OFF_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-                    contains(F::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AUTO_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-                    contains(F::MODE_NC_ASM_NOISE_CANCELLING_DUAL_SINGLE_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-                    contains(F::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
-                    contains(
-                        F::MODE_NC_NCSS_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_WITH_TEST_MODE) ||
+                return contains(F::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT) ||
                     contains(F::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION);
             }
 
             [[nodiscard]] constexpr bool containsEqualizer() const
             {
                 using F = v2::t1::FunctionType;
-                return contains(F::PRESET_EQ) || contains(F::CUSTOM_EQ) ||
-                    contains(F::PRESET_EQ_NON_CUSTOMIZABLE) || contains(F::PRESET_EQ_AND_ULT_MODE) ||
-                    contains(F::SOUND_EFFECT) || contains(F::TURN_KEY_EQ) ||
-                    contains(F::PRESET_EQ_AND_ERRORCODE) || contains(F::CUSTOMIZABLE_SOUND_EFFECT);
+                return contains(F::PRESET_EQ) || contains(F::PRESET_EQ_NON_CUSTOMIZABLE) ||
+                    contains(F::PRESET_EQ_AND_ULT_MODE) || contains(F::PRESET_EQ_AND_ERRORCODE);
             }
 
             [[nodiscard]] constexpr bool containsVoiceGuidance() const
@@ -88,7 +75,6 @@ namespace mdr
                     contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH) ||
                     contains(
                         F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT) ||
-                    contains(F::VOICE_GUIDANCE_VOLUME_SETTING_MTK_FIXED_TO_5_STEPS) ||
                     contains(F::VOICE_GUIDANCE_SETTING_SUPPORT_LANGUAGE_SWITCH) ||
                     contains(F::VOICE_GUIDANCE_SETTING_ONLY_ON_OFF_SWITCH);
             }
@@ -153,15 +139,9 @@ namespace mdr
         // RequestSyncV2 re-reads it. OUT_OF_RANGE until the first reply.
         v2::t2::WearingStatusCode mWearingStatus{v2::t2::WearingStatusCode::OUT_OF_RANGE};
 
-        // Whether the table 2 WEARING_STATUS_CHECKER is worth asking. The WH-1000XM6 (fw 27.02)
-        // answers it but never lists it in its table 2 support functions; it does list the
-        // table 1 pause-when-removed functions, which imply the sensor exists.
         [[nodiscard]] bool wearingSensorPossible() const
         {
-            return mProtocol.hasTable2 &&
-                (mSupport.contains(v2::t2::FunctionType::WEARING_STATUS_CHECKER) ||
-                 mSupport.contains(v2::t1::FunctionType::WEARING_STATUS_DETECTOR) ||
-                 mSupport.contains(v2::t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF));
+            return mProtocol.hasTable2 && mSupport.contains(v2::t2::FunctionType::WEARING_STATUS_CHECKER);
         }
 
         v2::t1::UpscalingType mUpscalingType{};
@@ -176,6 +156,31 @@ namespace mdr
         };
 
         GsCapability mGsCapability[4];
+        Vector<v2::t1::AutoPowerOffElements> mAutoPowerOffCandidates;
+
+        Array<v2::t1::GsInquiredType, 4> mGsDiscoveryOrder{};
+        UInt8 mGsDiscoveryOrderSize{};
+        Array<bool, 3> mVoiceGuidanceOnOffSupported{};
+        v2::t2::VoiceGuidanceLanguage mVoiceGuidanceLanguage{};
+        UInt16 mSvaReceivedLength{};
+        UInt8 mSvaPartLength{};
+        v2::t2::DataContinue mSvaDataContinue{v2::t2::DataContinue::NOT_CONTINUE_DATA};
+
+        [[nodiscard]] bool voiceGuidanceOnOffPossible() const
+        {
+            using F = v2::t2::FunctionType;
+            return mSupport.contains(F::VOICE_GUIDANCE_SETTING_ONLY_ON_OFF_SWITCH) ||
+                (mSupport.contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH) && mVoiceGuidanceOnOffSupported[0]) ||
+                ((mSupport.contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH) ||
+                  mSupport.contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT)) && mVoiceGuidanceOnOffSupported[1]) ||
+                (mSupport.contains(F::VOICE_GUIDANCE_SETTING_SUPPORT_LANGUAGE_SWITCH) && mVoiceGuidanceOnOffSupported[2]);
+        }
+        Array<bool, 2> mAssignableHasCustomizableActions{};
+        bool mEqCustomizable{};
+        bool mEqCanUseUltMode{};
+        bool mEqErrorCodeMode{};
+        UInt8 mEqErrorCodeCount{};
+        v2::t1::EqUltModeStatus mEqUltMode{};
 
         MDRProperty<bool> mShutdown;
         MDRProperty<bool> mNcAsmEnabled;
@@ -195,6 +200,8 @@ namespace mdr
         MDRProperty<v2::t1::PriorMode> mAudioPriorityMode;
         MDRProperty<bool> mBGMModeEnabled;
         MDRProperty<v2::t1::RoomSize> mBGMModeRoomSize;
+        bool mBGMModeAvailable{};
+        UInt8 mBGMErrorCodeCount{};
         MDRProperty<bool> mUpmixCinemaEnabled;
         MDRProperty<bool> mVoiceContentsEnabled;
         MDRProperty<bool> mSoundLeakageReductionEnabled;
@@ -235,14 +242,12 @@ namespace mdr
     {
         using T1 = v2::t1::FunctionType;
         using enum v2::t1::EqEbbInquiredType;
-        if (state.mSupport.contains(T1::PRESET_EQ))
-            return out = PRESET_EQ, true;
-        if (state.mSupport.contains(T1::PRESET_EQ_NON_CUSTOMIZABLE))
-            return out = PRESET_EQ_NONCUSTOMIZABLE, true;
-        if (state.mSupport.contains(T1::PRESET_EQ_AND_ULT_MODE))
+        if (state.mEqCanUseUltMode)
             return out = PRESET_EQ_AND_ULT_MODE, true;
-        if (state.mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE))
+        if (state.mEqErrorCodeMode)
             return out = PRESET_EQ_AND_ERRORCODE, true;
+        if (state.mSupport.containsEqualizer())
+            return out = state.mEqCustomizable ? PRESET_EQ : PRESET_EQ_NONCUSTOMIZABLE, true;
         return false;
     }
 
@@ -255,6 +260,51 @@ namespace mdr
         if (state.mSupport.contains(T1::ASSIGNABLE_SETTING))
             return out = ASSIGNABLE_SETTINGS, true;
         return false;
+    }
+
+    inline v2::t1::PlayInquiredType PlaybackInquiredType(const DetailsV2& state)
+    {
+        using F = v2::t1::FunctionType;
+        using T = v2::t1::PlayInquiredType;
+        if (state.mSupport.contains(F::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE))
+            return T::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT_AND_FUNCTION_CHANGE;
+        if (state.mSupport.contains(F::PLAYBACK_CONTROLLER_WITH_FUNCTION_CHANGE))
+            return T::PLAYBACK_CONTROL_WITH_FUNCTION_CHANGE;
+        return T::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT;
+    }
+
+    inline v2::t1::PlayInquiredType MusicVolumeInquiredType(const DetailsV2& state)
+    {
+        return state.mSupport.contains(v2::t1::FunctionType::PLAYBACK_CONTROLLER_WITH_CALL_VOLUME_ADJUSTMENT_AND_MUTE)
+            ? v2::t1::PlayInquiredType::MUSIC_VOLUME_WITH_MUTE : v2::t1::PlayInquiredType::MUSIC_VOLUME;
+    }
+
+    inline v2::t1::AudioInquiredType BGMInquiredType(const DetailsV2& state)
+    {
+        return state.mSupport.contains(v2::t1::FunctionType::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE)
+            ? v2::t1::AudioInquiredType::BGM_MODE_AND_ERRORCODE : v2::t1::AudioInquiredType::BGM_MODE;
+    }
+
+    inline v2::t2::VoiceGuidanceInquiredType VoiceGuidanceSettingInquiredType(const DetailsV2& state)
+    {
+        using F = v2::t2::FunctionType;
+        using T = v2::t2::VoiceGuidanceInquiredType;
+        if ((state.mSupport.contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH) ||
+             state.mSupport.contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH_AND_VOLUME_ADJUSTMENT)) &&
+            state.mVoiceGuidanceOnOffSupported[1])
+            return T::MTK_TRANSFER_WO_DISCONNECTION_SUPPORT_LANGUAGE_SWITCH;
+        if (state.mSupport.contains(F::VOICE_GUIDANCE_SETTING_MTK_TRANSFER_WITHOUT_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH) &&
+            state.mVoiceGuidanceOnOffSupported[0])
+            return T::MTK_TRANSFER_WO_DISCONNECTION_NOT_SUPPORT_LANGUAGE_SWITCH;
+        if (state.mSupport.contains(F::VOICE_GUIDANCE_SETTING_SUPPORT_LANGUAGE_SWITCH) && state.mVoiceGuidanceOnOffSupported[2])
+            return T::SUPPORT_LANGUAGE_SWITCH;
+        return T::ONLY_ON_OFF_SETTING;
+    }
+
+    inline v2::t2::VoiceGuidanceInquiredType VoiceGuidanceVolumeInquiredType(const DetailsV2& state)
+    {
+        return state.mSupport.contains(v2::t2::FunctionType::VOICE_GUIDANCE_VOLUME_SETTING_MTK_FIXED_TO_5_STEPS)
+            ? v2::t2::VoiceGuidanceInquiredType::VOLUME_SETTING_FIXED_TO_5_STEPS : v2::t2::VoiceGuidanceInquiredType::VOLUME;
     }
 
 } // namespace mdr

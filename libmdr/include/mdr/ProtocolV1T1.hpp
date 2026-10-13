@@ -1158,7 +1158,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x0
-        UInt8 level{}; // 0x1
+        Int8 level{}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(EbbParam);
     };
@@ -1903,7 +1903,7 @@ namespace mdr::v1::t1
         Command command{Command::EQEBB_NTFY_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
-        UInt8 level{}; // 0x2
+        Int8 level{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyEqEbbParamEbbParam);
     };
@@ -2650,7 +2650,7 @@ namespace mdr::v1::t1
         Command command{Command::EQEBB_RET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
-        UInt8 level{}; // 0x2
+        Int8 level{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetEqEbbParamEbbParam);
     };
@@ -3354,7 +3354,7 @@ namespace mdr::v1::t1
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
-        UInt8 level{}; // 0x2
+        Int8 level{}; // 0x2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetEqEbbParamEbbParam);
     };
@@ -3379,8 +3379,8 @@ namespace mdr::v1::t1
         Command command{Command::EQEBB_SET_PARAM}; // 0x0
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EqEbbInquiredType type{EqEbbInquiredType::EBB}; // 0x1
-        UInt8 minValue{}; // 0x2
-        UInt8 maxValue{}; // 0x3
+        Int8 minValue{}; // 0x2
+        Int8 maxValue{}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetEqEbbParamRetEqEbbCapability_EbbCapability);
     };
@@ -4507,8 +4507,8 @@ namespace mdr::v1::t1
         Command command{Command::EQEBB_RET_CAPABILITY}; // 0x0
         // CODEGEN Field type EnumRange EqEbbInquiredType::EBB
         RetEqEbbCapability_EqEbbCapabilityBase base{EqEbbInquiredType::EBB};
-        UInt8 minValue{}; // 0x2
-        UInt8 maxValue{}; // 0x3
+        Int8 minValue{}; // 0x2
+        Int8 maxValue{}; // 0x3
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetEqEbbCapability_EbbCapability);
     };
@@ -4518,7 +4518,7 @@ namespace mdr::v1::t1
     {
         // CODEGEN EnumRange Command::EQEBB_RET_CAPABILITY
         Command command{Command::EQEBB_RET_CAPABILITY}; // 0x0
-        // CODEGEN Field type EnumRange EqEbbInquiredType::PRESET_EQ
+        // CODEGEN Field type EnumRange EqEbbInquiredType::PRESET_EQ EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE
         RetEqEbbCapability_EqEbbCapabilityBase base{EqEbbInquiredType::PRESET_EQ};
         UInt8 band{}; // 0x2
         UInt8 step{}; // 0x3
