@@ -19,29 +19,65 @@ if (APPLE)
     endif ()
 endif ()
 
-find_package(Clang)
-if (NOT Clang_FOUND)
-    # Windows LLVM installer doesn't come with FindClang.cmake.
-    # As per tooling README, fall back to finding the include dir manually.
-    # The official installer defaults to C:\Program Files\LLVM, which is not on
-    # CMake's default search path on Windows, so probe it explicitly.
-    if (WIN32)
-        find_path(LLVM_DIR clang-c
-            HINTS
-                "C:/Program Files/LLVM/include"
-                "C:/Program Files (x86)/LLVM/include"
-        )
-    else ()
-        find_path(LLVM_DIR clang-c)
+set(_MDR_LLVM_PREFIXES)
+foreach(_dir IN ITEMS "${Clang_DIR}" "${LLVM_DIR}")
+    if (IS_DIRECTORY "${_dir}")
+        if (EXISTS "${_dir}/clang-c/Index.h")
+            get_filename_component(_prefix "${_dir}/.." ABSOLUTE)
+        else ()
+            get_filename_component(_prefix "${_dir}/../../.." ABSOLUTE)
+        endif ()
+        list(APPEND _MDR_LLVM_PREFIXES "${_prefix}")
     endif ()
-    message(STATUS "LLVM_DIR=${LLVM_DIR}")
-    if (NOT LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND")
-        link_directories("${LLVM_DIR}/../lib")
+endforeach ()
+file(GLOB _MDR_LLVM_VERSIONED_PREFIXES LIST_DIRECTORIES true
+    "/usr/lib/llvm-*"
+    "/usr/local/lib/llvm-*"
+    "/opt/llvm-*"
+    "/opt/homebrew/opt/llvm*"
+    "/usr/local/opt/llvm*"
+)
+list(SORT _MDR_LLVM_VERSIONED_PREFIXES COMPARE NATURAL ORDER DESCENDING)
+list(APPEND _MDR_LLVM_PREFIXES
+    ${_MDR_LLVM_VERSIONED_PREFIXES}
+    "C:/Program Files/LLVM"
+    "C:/Program Files (x86)/LLVM"
+)
+
+find_package(Clang QUIET CONFIG
+    HINTS ${_MDR_LLVM_PREFIXES}
+    PATH_SUFFIXES lib/cmake/clang lib64/cmake/clang share/clang/cmake
+)
+if (TARGET libclang)
+    set(_MDR_LIBCLANG_TARGET libclang)
+else ()
+    find_path(MDR_CLANG_INCLUDE_DIR clang-c/Index.h
+        HINTS ${CLANG_INCLUDE_DIRS} "${LLVM_DIR}" ${_MDR_LLVM_PREFIXES}
+        PATH_SUFFIXES include
+    )
+    if (MDR_CLANG_INCLUDE_DIR)
+        find_library(MDR_CLANG_LIBRARY NAMES clang libclang
+            HINTS "${MDR_CLANG_INCLUDE_DIR}/../lib" "${MDR_CLANG_INCLUDE_DIR}/../lib64"
+            NO_DEFAULT_PATH
+        )
+        find_library(MDR_CLANG_LIBRARY NAMES clang libclang
+            HINTS ${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS} ${_MDR_LLVM_PREFIXES}
+            PATH_SUFFIXES lib lib64
+        )
+        if (MDR_CLANG_LIBRARY)
+            add_library(mdr_libclang UNKNOWN IMPORTED)
+            set_target_properties(mdr_libclang PROPERTIES
+                IMPORTED_LOCATION "${MDR_CLANG_LIBRARY}"
+                INTERFACE_INCLUDE_DIRECTORIES "${MDR_CLANG_INCLUDE_DIR}"
+            )
+            set(_MDR_LIBCLANG_TARGET mdr_libclang)
+            message(STATUS "libclang: ${MDR_CLANG_LIBRARY} (include: ${MDR_CLANG_INCLUDE_DIR})")
+        endif ()
     endif ()
 endif ()
 
 # Expose detection result to parent scope via a cache variable.
-if (Clang_FOUND OR (LLVM_DIR AND NOT LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND"))
+if (_MDR_LIBCLANG_TARGET)
     set(MDR_LLVM_FOUND TRUE CACHE BOOL "LLVM/libclang was found; codegen tools are available" FORCE)
 else ()
     set(MDR_LLVM_FOUND FALSE CACHE BOOL "LLVM/libclang was found; codegen tools are available" FORCE)
@@ -53,11 +89,9 @@ FetchContent_MakeAvailable(fmt)
 # Codegen tools — only built when LLVM is available.
 if (MDR_LLVM_FOUND)
     add_library(tooling_CodegenCommon INTERFACE)
-    target_link_libraries(tooling_CodegenCommon INTERFACE fmt::fmt libclang)
+    target_link_libraries(tooling_CodegenCommon INTERFACE fmt::fmt ${_MDR_LIBCLANG_TARGET})
     if (Clang_FOUND)
         target_include_directories(tooling_CodegenCommon INTERFACE ${CLANG_INCLUDE_DIRS})
-    else ()
-        target_include_directories(tooling_CodegenCommon INTERFACE ${LLVM_DIR})
     endif ()
 
     add_executable(tooling_EnumCodegen EnumCodegen.cpp)
