@@ -1,5 +1,5 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
-#include <climits>
+#include <atomic>
 #include <cstdio>
 #include <cstring>
 #ifdef _WIN32
@@ -24,61 +24,60 @@
 #include <emscripten.h>
 #endif
 
-#include "Fonts/PlexSansIcon.h"
-#include "MaterialYouTheme.hpp"
 #ifdef MDR_CLIENT_DEBUGGER
 #include "Debugger.hpp"
 #endif
-// Implemented by Client.cpp
-extern bool clientShouldExit();
-extern void clientSetPauseMediaOnRemove(bool enabled);
-#ifdef MDR_CLIENT_DEBUGGER
-extern void clientEnterDebuggerReplayMode();
-#endif
-
 
 bool gShouldClose = false;
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
-static AppLocale gAppLocale = AppLocale::DEFAULT;
-static bool gPlatformFontLoaded = false;
-static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
-static char* gFontFallbackData = nullptr;
-static int gFontFallbackSize{};
-static const char* gFontFallbackPath = nullptr;
-static constexpr ImWchar gIconGlyphRanges[] = {0xf000, 0xf2ff, 0};
 
-static void DestroyFontFallback()
+int64_t clientGetUnixEpochMS()
 {
-    clientPlatformMemoryUnmapFile(gFontFallbackData, static_cast<size_t>(gFontFallbackSize));
-    gFontFallbackData = nullptr;
-    gFontFallbackSize = 0;
-    gFontFallbackPath = nullptr;
+    SDL_Time now{};
+    if (!SDL_GetCurrentTime(&now))
+        return -1;
+    return now / 1'000'000;
 }
 
-AppLocale clientGetAppLocale()
+namespace
 {
-    return gAppLocale;
-}
+    bool gClientInitialized{};
+    bool gPlatformBackendInitialized{};
+    bool gRendererBackendInitialized{};
+    std::atomic_bool gAppActive{true};
+    float gAppliedDisplayScale{1.0f};
 
-void clientSetAppLocale(AppLocale locale)
-{
-    gAppLocale = locale;
-    gPlatformFontLoaded = false;
-}
+    void ShutdownClient()
+    {
+        if (gRendererBackendInitialized)
+            ImGui_ImplSDLRenderer3_Shutdown();
+        if (gPlatformBackendInitialized)
+            ImGui_ImplSDL3_Shutdown();
+        if (gClientInitialized)
+            clientDestroy();
+        gRendererBackendInitialized = false;
+        gPlatformBackendInitialized = false;
+        gClientInitialized = false;
+        SDL_DestroyRenderer(gRenderer);
+        SDL_DestroyWindow(gWindow);
+        gRenderer = nullptr;
+        gWindow = nullptr;
+        SDL_Quit();
+        clientPlatformDestroy();
+    }
 
-void mainLoop()
-{
-    ImGuiIO& io = ImGui::GetIO();
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
+    bool ProcessClientEvent(SDL_Event& event)
     {
         ImGui_ImplSDL3_ProcessEvent(&event);
-        if (event.type == SDL_EVENT_QUIT)
-            gShouldClose = true;
-        if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(gWindow))
-            gShouldClose = true;
+        if (event.type == SDL_EVENT_QUIT ||
+            (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(gWindow)))
+            return true;
+        if (event.type == SDL_EVENT_WILL_ENTER_BACKGROUND)
+            gAppActive = false;
+        if (event.type == SDL_EVENT_DID_ENTER_FOREGROUND)
+            gAppActive = true;
 #ifdef MDR_CLIENT_DEBUGGER
         if (event.type == SDL_EVENT_DROP_FILE && event.drop.windowID == SDL_GetWindowID(gWindow))
         {
@@ -94,71 +93,38 @@ void mainLoop()
             }
         }
 #endif
+        return false;
     }
-    if (SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED)
+}
+
+void mainLoop()
+{
+    ImGuiIO& io = ImGui::GetIO();
+#ifndef SDL_MAIN_USE_CALLBACKS
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+        gShouldClose |= ProcessClientEvent(event);
+#endif
+    if (!gAppActive || (SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED))
     {
+#ifndef SDL_MAIN_USE_CALLBACKS
         SDL_Delay(10);
+#endif
         return;
     }
-    // Start the Dear ImGui frame
+    const float displayScale = clientPlatformGetDisplayScale();
+    if (displayScale != gAppliedDisplayScale)
     {
-        while (!gPlatformFontLoaded)
-        {
-            const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
-            const AppLocale locale = !useFontFallback && gAppLocale == AppLocale::DEFAULT ?
-                static_cast<AppLocale>(gFontFallbackIndex) : gAppLocale;
-            const char* fontData = gFontFallbackData;
-            int faceIndex{};
-            const int fontSize = useFontFallback ? gFontFallbackSize :
-                clientPlatformLocateFontBinary(locale, &fontData, &faceIndex);
-            if (fontSize < 0)
-                break;
-            if (fontSize > 0 && fontData && faceIndex >= 0)
-            {
-                MDR_LOG("Loading {} font: locale {}, {} bytes, face {}",
-                        useFontFallback ? "file" : "platform", locale, fontSize, faceIndex);
-                ImFontConfig config{};
-                config.FontDataOwnedByAtlas = false;
-                config.FontNo = static_cast<ImU32>(faceIndex);
-                config.GlyphExcludeRanges = gIconGlyphRanges;
-                if (ImFont* font = io.Fonts->AddFontFromMemoryTTF(
-                        const_cast<char*>(fontData), fontSize, 15.0f, &config))
-                {
-                    ImFontConfig iconConfig{};
-                    iconConfig.MergeMode = true;
-                    iconConfig.DstFont = font;
-                    if (io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-    kEmbedFontPlexSansIcon, 15.0f, &iconConfig, gIconGlyphRanges))
-                    {
-                        io.FontDefault = font;
-                        gPlatformFontLoaded = true;
-                        MDR_LOG("Loaded {} font: locale {}, face {}",
-        useFontFallback ? "file" : "platform", locale, faceIndex);
-                        break;
-                    }
-                }
-                if (useFontFallback)
-                {
-                    MDR_LOG("Unable to load font file {}.", gFontFallbackPath);
-                }
-                else
-                {
-                    MDR_LOG("Unable to load platform font: locale {}, face {}", locale, faceIndex);
-                }
-            }
-            if (useFontFallback || gAppLocale != AppLocale::DEFAULT ||
-                ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
-                gPlatformFontLoaded = true;
-        }
-        // New frame
-        ImGui_ImplSDLRenderer3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
+        ImGui::GetStyle().ScaleAllSizes(displayScale / gAppliedDisplayScale);
+        ImGui::GetStyle().FontScaleDpi = displayScale;
+        gAppliedDisplayScale = displayScale;
     }
+    clientPrepareFrame();
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
     gShouldClose |= clientShouldExit();
     // Rendering
     {
-        ImGui::Render();
         SDL_SetRenderScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
         SDL_RenderClear(gRenderer);
@@ -169,14 +135,7 @@ void mainLoop()
     if (gShouldClose)
     {
         emscripten_cancel_main_loop();
-        ImGui_ImplSDLRenderer3_Shutdown();
-        ImGui_ImplSDL3_Shutdown();
-        ImGui::DestroyContext();
-        DestroyFontFallback();
-        SDL_DestroyRenderer(gRenderer);
-        SDL_DestroyWindow(gWindow);
-        SDL_Quit();
-        clientPlatformDestroy();
+        ShutdownClient();
     }
 #endif
 }
@@ -357,7 +316,7 @@ namespace
     }
 } // namespace
 
-int main(int argc, char** argv)
+static int InitializeClient(int argc, char** argv)
 {
 #ifdef _WIN32
     OpenConsole(false);
@@ -368,9 +327,7 @@ int main(int argc, char** argv)
         PrintUsage();
         return 2;
     }
-    gAppLocale = options.locale;
-    gPlatformFontLoaded = false;
-    gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
+    clientSetAppLocale(options.locale);
     clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
     if (options.showHelp)
     {
@@ -391,14 +348,13 @@ int main(int argc, char** argv)
         return 1;
     }
     if (!options.localeSpecified)
-        gAppLocale = GetPreferredAppLocale();
-    MDR_LOG("Selected locale: {}", gAppLocale);
+        clientSetAppLocale(GetPreferredAppLocale());
+    MDR_LOG("Selected locale: {}", clientGetAppLocale());
     if (options.recordDirectory)
     {
         if (!clientPayloadRecorderConfigure(options.recordDirectory))
         {
             MDR_LOG("Unable to prepare capture folder {}: {}", options.recordDirectory, SDL_GetError());
-            SDL_Quit();
             return 1;
         }
         MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain "
@@ -412,16 +368,13 @@ int main(int argc, char** argv)
         if (!clientDebuggerReplayPath(options.replayPath, &replayed))
         {
             MDR_LOG("Unable to replay packet path {}: {}", options.replayPath, SDL_GetError());
-            SDL_Quit();
             return 1;
         }
         clientEnterDebuggerReplayMode();
         MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayPath);
     }
 #endif
-    // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md#numeric-example
-    // This should only be effective (!=1.0f) on Windows and X11 platforms
-    float displayScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    const float displayScale = clientPlatformGetDisplayScale();
     gWindow =
         SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
                          CLIENT_WINDOW_HEIGHT * displayScale, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
@@ -441,83 +394,65 @@ int main(int argc, char** argv)
     }
     SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
     SDL_SetRenderVSync(gRenderer, 1);
-    if (options.fontPath)
+    if (!clientInit(displayScale, options.fontPath))
+        return 1;
+    gClientInitialized = true;
+    gAppliedDisplayScale = displayScale;
+    gPlatformBackendInitialized = ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
+    if (!gPlatformBackendInitialized)
     {
-        void* fontData{};
-        size_t fontSize{};
-        const int result = clientPlatformMemoryMapFile(options.fontPath, &fontData, &fontSize);
-        if (result != MDR_RESULT_OK || fontSize > static_cast<size_t>(INT_MAX))
-        {
-            if (result != MDR_RESULT_OK)
-                MDR_LOG("Unable to map font file {}: error {}", options.fontPath, result)
-            else
-                MDR_LOG("Invalid font file size for {}: {} bytes", options.fontPath, fontSize)
-            clientPlatformMemoryUnmapFile(fontData, fontSize);
-            SDL_DestroyRenderer(gRenderer);
-            SDL_DestroyWindow(gWindow);
-            SDL_Quit();
-            return 1;
-        }
-        gFontFallbackData = static_cast<char*>(fontData);
-        gFontFallbackSize = static_cast<int>(fontSize);
-        gFontFallbackPath = options.fontPath;
+        SDL_Log("Error: ImGui_ImplSDL3_InitForSDLRenderer()");
+        return 1;
     }
-    // Setup Dear ImGui context
+    gRendererBackendInitialized = ImGui_ImplSDLRenderer3_Init(gRenderer);
+    if (!gRendererBackendInitialized)
     {
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+        SDL_Log("Error: ImGui_ImplSDLRenderer3_Init()");
+        return 1;
     }
-    ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr;
-    // Setup Material You theme (Sony Sound Connect style)
-    ImGui::StyleColorsDark(); // Base fallback
-    MaterialYouTheme::ApplyDefault();
-    auto& style = ImGui::GetStyle();
-    style.ScaleAllSizes(displayScale);
-    style.FontScaleDpi = displayScale;
-    style.FrameRounding = 8.0f;
-    style.CircleTessellationMaxError = 0.01f;
-    style.FramePadding = ImVec2(8.0f, 8.0f);
-    // Setup Platform/Renderer backends
-    {
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-        io.ConfigErrorRecoveryEnableAssert = true; // Don't assert on errors
-        ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
-        ImGui_ImplSDLRenderer3_Init(gRenderer);
-    }
-    // Load our default font
-    {
-        io.Fonts->Clear();
-#ifdef MDR_CLIENT_DEBUGGER
-        ImFont* monospaceFont = io.Fonts->AddFontDefault();
-#endif
-        io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
-#ifdef MDR_CLIENT_DEBUGGER
-        clientDebuggerSetMonospaceFont(monospaceFont);
-#endif
-    }
-    // Main loop
+    return 0;
+}
 
+#ifdef SDL_MAIN_USE_CALLBACKS
+SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
+{
+    *appstate = nullptr;
+    if (InitializeClient(argc, argv) != 0)
+        return SDL_APP_FAILURE;
+    return gClientInitialized ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
+}
+
+SDL_AppResult SDL_AppEvent(void*, SDL_Event* event)
+{
+    return ProcessClientEvent(*event) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppIterate(void*)
+{
+    mainLoop();
+    return gShouldClose ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
+}
+
+void SDL_AppQuit(void*, SDL_AppResult)
+{
+    ShutdownClient();
+}
+#else
+int main(int argc, char** argv)
+{
+    const int result = InitializeClient(argc, argv);
+    if (result != 0 || !gClientInitialized)
+    {
+        ShutdownClient();
+        return result;
+    }
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainLoop, 0, 1);
 #else
     while (!gShouldClose)
         mainLoop();
+    ShutdownClient();
 #endif
-
-    // Cleanup
-    {
-        ImGui_ImplSDLRenderer3_Shutdown();
-        ImGui_ImplSDL3_Shutdown();
-        ImGui::DestroyContext();
-        DestroyFontFallback();
-
-        SDL_DestroyRenderer(gRenderer);
-        SDL_DestroyWindow(gWindow);
-        SDL_Quit();
-
-        clientPlatformDestroy();
-    }
     return 0;
 }
+#endif

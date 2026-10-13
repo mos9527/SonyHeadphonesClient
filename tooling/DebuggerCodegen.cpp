@@ -98,7 +98,7 @@ namespace
     std::vector<std::string> StructMacros(CXCursor cursor)
     {
         const auto [startLine, endLine] = getCursorExtents(cursor);
-        auto current = std::ranges::lower_bound(gMacros, MacroLocation{startLine, ""});
+        auto current = std::lower_bound(gMacros.begin(), gMacros.end(), MacroLocation{startLine, ""});
         std::vector<std::string> result;
         while (current != gMacros.end() && current->first < endLine)
         {
@@ -110,7 +110,7 @@ namespace
 
     bool Contains(const std::vector<std::string>& values, std::string_view value)
     {
-        return std::ranges::find(values, value) != values.end();
+        return std::find(values.begin(), values.end(), value) != values.end();
     }
 
     CXChildVisitResult ReadWriteTypeVisitor(CXCursor cursor, CXCursor parent, CXClientData)
@@ -602,7 +602,7 @@ int main(int argc, char** argv)
     Check(unit != nullptr, "Unable to parse translation unit");
     CXCursor root = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(root, MacroVisitor, nullptr);
-    std::ranges::sort(gMacros);
+    std::sort(gMacros.begin(), gMacros.end());
     clang_visitChildren(root, ReadWriteTypeVisitor, nullptr);
     clang_visitChildren(root, CollectPacketEnumsVisitor, nullptr);
 

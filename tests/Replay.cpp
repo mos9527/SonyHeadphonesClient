@@ -168,10 +168,10 @@ namespace
         {
             const auto frame = ReadPacket(path);
             // Frames are bounded by '>' (SOF) ... '<' (EOF).
-            const auto sof = std::ranges::find(frame, static_cast<uint8_t>(0x3Eu));
+            const auto sof = std::find(frame.begin(), frame.end(), static_cast<uint8_t>(0x3Eu));
             if (sof == frame.end())
                 continue;
-            const auto eof = std::ranges::find(sof + 1, frame.end(), static_cast<uint8_t>(0x3Cu));
+            const auto eof = std::find(sof + 1, frame.end(), static_cast<uint8_t>(0x3Cu));
             if (eof == frame.end() || sof + 1 >= eof)
                 continue;
             // Unescape the framed payload ('=' sentinel introduces 0x2C/0x2D/0x2E for <, =, >).
@@ -251,7 +251,7 @@ namespace
         }
         Check(!error, "replay directory traversal succeeds");
         Check(!packets.empty(), "replay directory contains RX .bin packets");
-        std::ranges::sort(packets);
+        std::sort(packets.begin(), packets.end());
 
         MockTransport transport;
         MDRHeadphones* headphones = nullptr;

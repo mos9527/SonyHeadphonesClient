@@ -1,7 +1,7 @@
 #include "Debugger.hpp"
 
 #include "DebuggerDetails.hpp"
-#include "Details.hpp"
+#include "../libmdr/src/Details.hpp"
 
 #include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
@@ -11,7 +11,6 @@
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
-#include <SDL3/SDL_time.h>
 #include <imgui.h>
 #include <mdr/Command.hpp>
 
@@ -90,15 +89,16 @@ namespace
 #ifndef __EMSCRIPTEN__
     bool EndsWithCaseInsensitive(std::string_view value, std::string_view suffix)
     {
-        return value.size() >= suffix.size() &&
-            std::ranges::equal(
-                value.substr(value.size() - suffix.size()),
-                suffix,
-                [](char lhs, char rhs)
-                {
-                    return std::tolower(static_cast<unsigned char>(lhs)) ==
-                        std::tolower(static_cast<unsigned char>(rhs));
-                });
+        if (value.size() < suffix.size())
+            return false;
+        const std::string_view tail = value.substr(value.size() - suffix.size());
+        return std::equal(
+            tail.begin(), tail.end(), suffix.begin(),
+            [](char lhs, char rhs)
+            {
+                return std::tolower(static_cast<unsigned char>(lhs)) ==
+                    std::tolower(static_cast<unsigned char>(rhs));
+            });
     }
 
     mdr::String ExportPathWithExtension(const char* path, std::string_view extension)
@@ -255,13 +255,12 @@ namespace
     {
         if (query.empty())
             return true;
-        return std::ranges::search(value, query,
-                                   [](char lhs, char rhs)
-                                   {
-                                       return std::tolower(static_cast<unsigned char>(lhs)) ==
-                                           std::tolower(static_cast<unsigned char>(rhs));
-                                   })
-                   .begin() != value.end();
+        return std::search(value.begin(), value.end(), query.begin(), query.end(),
+                           [](char lhs, char rhs)
+                           {
+                               return std::tolower(static_cast<unsigned char>(lhs)) ==
+                                   std::tolower(static_cast<unsigned char>(rhs));
+                           }) != value.end();
     }
 
     bool ContainsAllTokens(std::string_view value, std::string_view query)
@@ -328,7 +327,8 @@ namespace
 
     CapturedPacket* FindCapture(std::uint64_t id)
     {
-        const auto found = std::ranges::find(gHistory, id, &CapturedPacket::id);
+        const auto found = std::find_if(gHistory.begin(), gHistory.end(),
+                                        [id](const CapturedPacket& packet) { return packet.id == id; });
         return found == gHistory.end() ? nullptr : &*found;
     }
 
@@ -941,10 +941,10 @@ namespace
 
     bool ExportTimestamp(std::int64_t& timestamp)
     {
-        SDL_Time now{};
-        if (!SDL_GetCurrentTime(&now))
+        const std::int64_t now = clientGetUnixEpochMS();
+        if (now == -1)
             return false;
-        timestamp = now / 1'000'000;
+        timestamp = now;
         return true;
     }
 
@@ -983,9 +983,8 @@ namespace
         if (path.size() < extension.size())
             return false;
         const std::string_view suffix = path.substr(path.size() - extension.size());
-        return std::ranges::equal(
-            suffix,
-            extension,
+        return std::equal(
+            suffix.begin(), suffix.end(), extension.begin(),
             [](char lhs, char rhs)
             {
                 return std::tolower(static_cast<unsigned char>(lhs)) ==
@@ -1217,7 +1216,8 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
     }
     SDL_free(entries);
 
-    std::ranges::sort(captures, {}, &ReplayCapture::filename);
+    std::sort(captures.begin(), captures.end(),
+              [](const ReplayCapture& lhs, const ReplayCapture& rhs) { return lhs.filename < rhs.filename; });
     if (captures.empty())
         return SDL_SetError("Replay folder contains no mdr-packet-*-rx/tx .bin files: %s", directory);
 

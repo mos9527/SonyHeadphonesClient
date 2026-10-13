@@ -8,20 +8,28 @@ It's recommended that you read [CONTRIBUTING.md](./.github/CONTRIBUTING.md) firs
 
 A C++20 compliant compiler and CMake 3.31+ are required. GCC 14, Clang 21 and MSVC 19 have been used for development and are guaranteed to be supported.
 
-Third-party dependencies (see [`contrib`](./contrib/)) are managed by CMake's `FetchContent` and are always statically linked.
+**Third-party dependencies** (see [`contrib`](./contrib/)) are managed by CMake's `FetchContent` and are always statically linked.
 
-**Codegen:** `MDR_BUILD_CODEGEN` is `ON` by default and requires a native toolchain and LLVM/libclang - configuration fails if these requirements are not met. See [tooling](./tooling/README.md#setting-up-llvm) for setting up LLVM, or pass `-DMDR_BUILD_CODEGEN=OFF` to build with the checked-in generated sources.
+**OS-level dependencies** beyond C/C++ runtime are required **for and only for** `libmdr-bt` and `client` targets. Other build targets are always platform-agnostic (including `libmdr`).
 
 ### Desktop (Windows, macOS, Linux)
 
-#### Linux Dependencies
+For these platforms, you can build SHC with relative ease using CMake. Check out the offical [Getting Started with CMake](https://cmake.org/cmake/help/latest/guide/tutorial/Getting%20Started%20with%20CMake.html#build-and-run) guide if you're unfamiliar with the process!
+
+#### Windows
+
+Windows SDK (8.1 and up required for BLE, 7 and up required when `MDR_BT_BLE_SUPPORT` is off) is required.
+
+#### macOS
+
+Xcode (14.0+) is required for C++20 support.
+
+#### Linux
 
 You need DBus, BlueZ and Fontconfig development packages installed.
 - Debian (Ubuntu): `sudo apt install libbluetooth-dev libdbus-1-dev libfontconfig1-dev`
 - Fedora: `sudo dnf install bluez-libs-devel dbus-devel fontconfig-devel`
 - Arch Linux: `sudo pacman -S bluez dbus fontconfig`
-
-You may also want `bluez-tools`/`bluez-utils` installed for testing.
 
 #### Example
 
@@ -34,15 +42,16 @@ cmake --build . --target SonyHeadphonesClient
 
 ### Web (Emscripten)
 
-- Install the SDK with `emsdk` and verify your installation - https://emscripten.org/docs/getting_started/downloads.html
+Install the Emscripten SDK with `emsdk` or other means (e.g. `winget`, `brew`...) and verify your installation - https://emscripten.org/docs/getting_started/downloads.html
+
 - Run `emcmake cmake ...` in place of configuration.
   - Or, set up CMake Toolchain variables manually, e.g.
     ```
     -DCMAKE_TOOLCHAIN_FILE=/usr/lib/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_CROSSCOMPILING_EMULATOR=/usr/lib/emsdk/node/20.18.0_64bit/bin/node
     ```
+  - You can also do this in your IDEs to build Emscripten targets directly in situ.
 - No extra dependencies are required.
-- Shared libraries are unavailable on Emscripten, so `MDR_BUILD_SHARED` defaults to `OFF` and the tests must be disabled with `-DMDR_BUILD_TESTING=OFF`.
-- Codegen tools require a native toolchain; disable them with `-DMDR_BUILD_CODEGEN=OFF` when cross-compiling.
+- Shared libraries are unavailable on Emscripten, so `MDR_BUILD_SHARED` defaults to `OFF` and the tests **must** be disabled with `-DMDR_BUILD_TESTING=OFF`.
 
 #### Example
 
@@ -55,12 +64,18 @@ cmake --build . --target SonyHeadphonesClient
 
 Run the generated page with `emrun client/index.html` - or host it with any static HTTP server.
 
-#### IntelliJ CLion/Rider
 
-Set up the CMake Toolchain variables above in a new CMake Profile (in CMake options). You can then build from there, and serve the static content within `<build directory>/client/` with any static HTTP server.
+### OpenHarmony (DevEco Studio)
+
+Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.com/consumer/cn/deveco-studio/). OpenHarmony SDK API Version 20 (6.0) or later is required.
+
+[Signing](https://developer.huawei.com/consumer/cn/doc/doccenter-deveco-studio/ide-signing) is required for this to run on a actual device.
+
+**NOTE:** As the Bluetooth functions are only provided via `ArkTS` interop, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
+
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is not available on this platform yet.
 
 ### CMake Options
-
 
 #### Common
 
@@ -116,7 +131,12 @@ The Protocol Debugger allows you to *view, replay, modify and send* manipulated 
 
 See the [Packet Capture and Test Contribution Guide](./tests/) for usage, bug reporting, and what to do when the device disconnects unexpectedly.
 
-## `noexcept` Container Usage (libmdr, libmdr-bt, client)
+
+## Coding Style
+
+### Exception Handling
+
+**C++ Exceptions are optional, and should be considered disabled by default.**
 
 SHC's user-facing components, `libmdr`, `libmdr-bt` and `client`, may be compiled w/o exception handling (on supported platforms), with respect to the `MDR_NO_EXCEPTIONS` CMake option, which is `ON` by default.
 
@@ -132,9 +152,14 @@ This in turn means that:
 
 For `tooling` and non-project specific code, there is no restriction on memory management nor exception handling.
 
-## Client Localization (client)
+### `std::ranges`, `std::views` Libraries
 
-See [Contributing to Client Localization](./client/I18N/README.md) for more info.
+**No usage whatsoever is allowed.** 
+
+- Portability is a *requirement* for SHC. Some platforms we support (e.g. older Linuxes) are stuck with [older compilers](https://cppreference.com/cpp/compiler_support) that only offered partial coverage for these libraries.
+- Furthermore, usage of which *inadvertently* lead to compile-time, codegen bloat and sometimes runtime performance regressions due to excessive template instantiation and heavy header parsing that's otherwise unnecessary.
+
+Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick with standard `<algorithm>` library and for-loops that's both easier to write/comprehend and faster to compile/run.
 
 ## Payload Struct Implementation Details (libmdr)
 

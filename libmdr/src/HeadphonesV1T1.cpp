@@ -11,7 +11,7 @@ namespace mdr
         int HandleSupport(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             Deserialize(RetSupportFunction, result, cmd);
-            std::ranges::fill(self->mDetailsV1.mSupport.functions, false);
+            std::fill(self->mDetailsV1.mSupport.functions.begin(), self->mDetailsV1.mSupport.functions.end(), false);
             for (const FunctionType function : result.supportFunctions)
                 self->mDetailsV1.mSupport.functions[static_cast<UInt8>(function)] = true;
             self->mDetailsV1.mSupport.provenance = DetailsV1::SupportStates::Provenance::ADVERTISED;
