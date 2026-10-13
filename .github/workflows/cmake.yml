@@ -40,7 +40,7 @@ jobs:
 
   build:
     needs: pre-check
-    name: Build ${{ matrix.os }} ${{ matrix.arch }}
+    name: Build ${{ matrix.artifact_name }}
     strategy:
       matrix:
         include:
@@ -61,6 +61,12 @@ jobs:
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64"
             script: ""
+          - os: windows-latest
+            arch: x64
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x64-compatibility"
+            script: ""
+            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF"
           - os: windows-11-arm
             arch: arm64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
@@ -90,7 +96,7 @@ jobs:
     - name: Configure CMake (Windows)
       working-directory: ${{github.workspace}}/build    
       if: runner.os == 'Windows'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON -A ${{ matrix.arch }}
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON -A ${{ matrix.arch }} ${{ matrix.cmake_args }}
 
     - name: Configure CMake (Linux)
       env:
@@ -142,7 +148,7 @@ jobs:
 
   emscripten:
     needs: pre-check
-    name: Build emscripten (Web)
+    name: Build SonyHeadphonesClient-emscripten (Web)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

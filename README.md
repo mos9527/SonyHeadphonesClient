@@ -3,7 +3,7 @@ SonyHeadphonesClient
 
 A spiritual successor to [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
 
-There's no release build yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#running-on-the-web).
+There's no [Release](https://github.com/mos9527/SonyHeadphonesClient/releases) build for this branch yet - but you can always grab the latest [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview), or use the [Web Version](#running-on-the-web).
 
 [![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml)
 [![Nightly Builds](https://img.shields.io/badge/v1compat-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview)
@@ -22,7 +22,7 @@ The following platforms (applies to `libmdr-bt`, `client`; `libmdr` itself is pl
 
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
-| Windows          | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
+| Windows (x64, [Windows 7](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
 | Linux            | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | macOS            | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | Web (Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
@@ -39,6 +39,16 @@ A [Web Serial](https://caniuse.com/wf-serial)-supporting browser is required. Yo
 - Desktop Chrome (89+), and Chromium derivatives (also 89+, e.g. Edge, Opera)
 - [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
 - [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
+
+## Running Compatiblity Builds
+
+Compatibility builds are offered for certain platforms, where limited sets of features are made available to make it run there.
+
+These builds are suffixed with `-compatibility`, and are available in [nightly](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview) and [Releases (TBD)](https://github.com/mos9527/SonyHeadphonesClient/releases).
+
+Currently, the following compatibility builds are available:
+- `SonyHeadphonesClient-win-x64-compatibility.exe`
+  For Windows 7 (x64) and Windows 8 (x64). This build has no Bluetooth LE support, which is only introduced in [Windows 8.1 and above](https://learn.microsoft.com/en-us/windows-hardware/drivers/bluetooth/bluetooth-support-in-previous-windows-versions).
 
 ## Fonts & Localization
 
