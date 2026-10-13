@@ -208,6 +208,83 @@ namespace mdr
             return MDR_EVENT_UNHANDLED;
         }
 
+        int HandleOptimizerCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            OptimizerInquiredType type{};
+            if (!self->mDetailsV1.mSupport.contains(FunctionType::NC_OPTIMIZER) ||
+                !detail::ReadEnumTag(cmd, type) || type != OptimizerInquiredType::NC_OPTIMIZER)
+                return MDR_EVENT_UNHANDLED;
+            Deserialize(RetOptimizerCapability, result, cmd);
+            auto& optimizer = self->mDetailsV1.mNCOptimizer;
+            optimizer.capability = result;
+            optimizer.capabilityKnown = true;
+            return MDR_EVENT_NC_OPTIMIZER_CHANGED;
+        }
+
+        template <typename T>
+        void ApplyOptimizerStatus(MDRHeadphones* self, const T& result)
+        {
+            auto& optimizer = self->mDetailsV1.mNCOptimizer;
+            optimizer.status = {
+                .type = result.type,
+                .status = result.status,
+                .optimizerStatus = result.optimizerStatus
+            };
+            optimizer.statusKnown = true;
+        }
+
+        int HandleOptimizerStatus(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            OptimizerInquiredType type{};
+            if (!self->mDetailsV1.mSupport.contains(FunctionType::NC_OPTIMIZER) ||
+                !detail::ReadEnumTag(cmd, type) || type != OptimizerInquiredType::NC_OPTIMIZER)
+                return MDR_EVENT_UNHANDLED;
+            if (static_cast<Command>(cmd[0]) == Command::OPT_NTFY_STATUS)
+            {
+                Deserialize(NotifyOptimizerStatus, result, cmd);
+                ApplyOptimizerStatus(self, result);
+            }
+            else
+            {
+                Deserialize(RetOptimizerStatus, result, cmd);
+                ApplyOptimizerStatus(self, result);
+            }
+            return MDR_EVENT_NC_OPTIMIZER_CHANGED;
+        }
+
+        template <typename T>
+        void ApplyOptimizerParameters(MDRHeadphones* self, const T& result)
+        {
+            auto& optimizer = self->mDetailsV1.mNCOptimizer;
+            optimizer.parameters = {
+                .type = result.type,
+                .personalType = result.personalType,
+                .personalValue = result.personalValue,
+                .barometricType = result.barometricType,
+                .barometricValue = result.barometricValue
+            };
+            optimizer.parametersKnown = true;
+        }
+
+        int HandleOptimizerParameters(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            OptimizerInquiredType type{};
+            if (!self->mDetailsV1.mSupport.contains(FunctionType::NC_OPTIMIZER) ||
+                !detail::ReadEnumTag(cmd, type) || type != OptimizerInquiredType::NC_OPTIMIZER)
+                return MDR_EVENT_UNHANDLED;
+            if (static_cast<Command>(cmd[0]) == Command::OPT_NTFY_PARAM)
+            {
+                Deserialize(NotifyOptimizerParam, result, cmd);
+                ApplyOptimizerParameters(self, result);
+            }
+            else
+            {
+                Deserialize(RetOptimizerParam, result, cmd);
+                ApplyOptimizerParameters(self, result);
+            }
+            return MDR_EVENT_NC_OPTIMIZER_CHANGED;
+        }
+
         int HandleEqCapability(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             EqEbbInquiredType type{};
@@ -521,6 +598,14 @@ namespace mdr
         case Command::NCASM_RET_PARAM:
         case Command::NCASM_NTFY_PARAM:
             return HandleNcAsm(self, cmd);
+        case Command::OPT_RET_CAPABILITY:
+            return HandleOptimizerCapability(self, cmd);
+        case Command::OPT_RET_STATUS:
+        case Command::OPT_NTFY_STATUS:
+            return HandleOptimizerStatus(self, cmd);
+        case Command::OPT_RET_PARAM:
+        case Command::OPT_NTFY_PARAM:
+            return HandleOptimizerParameters(self, cmd);
         case Command::EQEBB_RET_CAPABILITY:
             return HandleEqCapability(self, cmd);
         case Command::EQEBB_RET_PARAM:

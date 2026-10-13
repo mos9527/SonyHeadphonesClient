@@ -522,6 +522,7 @@ struct ClientState
     MDRNoiseControl mNoise{};
     MDRSpeakToChat mSpeakToChat{};
     MDRListening mListening{};
+    MDRNCOptimizer mNCOptimizer{};
     MDREqualizer mEqualizer{};
     mdr::Vector<int> mEqualizerBands;
     mdr::Vector<std::pair<MDREqualizerPreset, mdr::String>> mEqualizerPresets;
@@ -533,6 +534,7 @@ struct ClientState
     bool mNoiseAvailable;
     bool mSpeakToChatAvailable;
     bool mListeningAvailable;
+    bool mNCOptimizerAvailable;
     bool mEqualizerAvailable;
     bool mPairingAvailable;
     bool mWearingStatusAvailable;
@@ -543,6 +545,7 @@ struct ClientState
 
 static bool gAlertPending{};
 static mdr::String gAlertMessage;
+static MDRHeadphones* gNCOptimizerConfirmationDevice{};
 
 void RefreshPlaybackState()
 {
@@ -565,6 +568,7 @@ void RefreshClientState()
     gState.mNoiseAvailable = mdrHeadphonesGetNoiseControl(gDevice, &gState.mNoise) == MDR_RESULT_OK;
     gState.mSpeakToChatAvailable = mdrHeadphonesGetSpeakToChat(gDevice, &gState.mSpeakToChat) == MDR_RESULT_OK;
     gState.mListeningAvailable = mdrHeadphonesGetListening(gDevice, &gState.mListening) == MDR_RESULT_OK;
+    gState.mNCOptimizerAvailable = mdrHeadphonesGetNCOptimizer(gDevice, &gState.mNCOptimizer) == MDR_RESULT_OK;
     gState.mEqualizerAvailable = mdrHeadphonesGetEqualizer(gDevice, &gState.mEqualizer) == MDR_RESULT_OK;
     gState.mEqualizerBands = GetEqualizerBands();
     gState.mEqualizerPresets = GetEqualizerPresets();
@@ -635,6 +639,7 @@ void OnWearingStatusChanged()
 
 void CloseDevice()
 {
+    gNCOptimizerConfirmationDevice = nullptr;
     if (!gDevice)
     {
         gAlertPending = false;
@@ -1270,6 +1275,120 @@ void DrawDeviceAlert()
     ImGui::EndPopup();
 }
 
+bool NCOptimizerRunning()
+{
+    const MDRNCOptimizerStatus status = gState.mNCOptimizer.status;
+    return status == MDR_NC_OPTIMIZER_STATUS_PERSONAL || status == MDR_NC_OPTIMIZER_STATUS_BAROMETRIC ||
+        status == MDR_NC_OPTIMIZER_STATUS_OPTIMIZING;
+}
+
+bool NCOptimizerCanStart()
+{
+    return gDevice && ConnectionProtocolVersion() == MDR_PROTOCOL_V1 &&
+        FeatureAvailable(MDR_FEATURE_NC_OPTIMIZER) && gState.mNCOptimizerAvailable &&
+        gState.mNCOptimizer.available != MDR_FALSE && !NCOptimizerRunning() && mdrHeadphonesIsReady(gDevice);
+}
+
+void DrawNCOptimizerConfirmation()
+{
+    constexpr const char* popup = "NC optimizer confirmation";
+    if (gNCOptimizerConfirmationDevice)
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->GetCenter(), ImGuiCond_Always, {0.5f, 0.5f});
+        ImGui::SetNextWindowSize({viewport->Size.x, 0.0f});
+        ImGui::OpenPopup(popup);
+    }
+    if (!ImGui::BeginPopupModal(popup, nullptr, kImWindowFlagsTopMost | ImGuiWindowFlags_AlwaysAutoResize))
+        return;
+    if (!gNCOptimizerConfirmationDevice || gNCOptimizerConfirmationDevice != gDevice ||
+        !FeatureAvailable(MDR_FEATURE_NC_OPTIMIZER))
+    {
+        gNCOptimizerConfirmationDevice = nullptr;
+        ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+        return;
+    }
+
+    ImHeading(Tr(i18n::TextId::NCOptimizer));
+    ImGui::TextWrapped("%s", Tr(i18n::TextId::NCOptimizerWarning));
+    ImGui::NewLine();
+    if (ImModalButton(TrLable(i18n::TextId::Cancel), 0, 2))
+    {
+        gNCOptimizerConfirmationDevice = nullptr;
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::BeginDisabled(!NCOptimizerCanStart());
+    const bool start = ImModalButton(TrLable(i18n::TextId::NCOptimizerOK), 1, 2);
+    ImGui::EndDisabled();
+    if (start && gNCOptimizerConfirmationDevice == gDevice)
+    {
+        const MDRResult result = mdrHeadphonesRequestStartNCOptimizer(gDevice);
+        gNCOptimizerConfirmationDevice = nullptr;
+        ImGui::CloseCurrentPopup();
+        if (result != MDR_RESULT_OK && result != MDR_RESULT_INPROGRESS)
+        {
+            ImGui::EndPopup();
+            DisconnectWithModal();
+            return;
+        }
+    }
+    ImGui::EndPopup();
+}
+
+void DrawNCOptimizerResult(MDRNCOptimizerResult result, bool running, bool barometric)
+{
+    if (running)
+        ImGui::TextUnformatted(Tr(i18n::TextId::NCOptimizerOptimizing));
+    else if (result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED)
+    {
+        if (barometric)
+            ImGui::Text(Tr(i18n::TextId::NCOptimizerPressureResult), PSI_OK,
+                        gState.mNCOptimizer.pressure_tenths_atm / 10.0);
+        else
+            ImGui::Text("%s %s", PSI_OK, Tr(i18n::TextId::NCOptimizerOptimized));
+    }
+    else
+        ImGui::TextUnformatted(Tr(result == MDR_NC_OPTIMIZER_RESULT_UNMEASURED ?
+            i18n::TextId::NCOptimizerUnmeasured : i18n::TextId::Unknown));
+}
+
+void DrawNCOptimizer()
+{
+    if (ConnectionProtocolVersion() != MDR_PROTOCOL_V1 || !FeatureAvailable(MDR_FEATURE_NC_OPTIMIZER))
+        return;
+    if (!ImHeadingTreeNode(TrLable(i18n::TextId::NCOptimizer), ImGuiTreeNodeFlags_DefaultOpen))
+        return;
+
+    ImGui::TextWrapped("%s", Tr(i18n::TextId::NCOptimizerDescription));
+    const bool running = NCOptimizerRunning();
+    if (gState.mNCOptimizer.personal_supported != MDR_FALSE)
+    {
+        ImHeading(Tr(i18n::TextId::NCOptimizerPersonal), IM_FONTSIZE_SUBHEADING);
+        DrawNCOptimizerResult(gState.mNCOptimizer.personal_result, running, false);
+    }
+    if (gState.mNCOptimizer.barometric_supported != MDR_FALSE)
+    {
+        ImHeading(Tr(i18n::TextId::NCOptimizerBarometric), IM_FONTSIZE_SUBHEADING);
+        DrawNCOptimizerResult(gState.mNCOptimizer.barometric_result, running, true);
+    }
+    const i18n::TextId status =
+        gState.mNCOptimizer.status == MDR_NC_OPTIMIZER_STATUS_PERSONAL ? i18n::TextId::NCOptimizerPersonal :
+        gState.mNCOptimizer.status == MDR_NC_OPTIMIZER_STATUS_BAROMETRIC ? i18n::TextId::NCOptimizerBarometric :
+        running ? i18n::TextId::NCOptimizerOptimizing :
+        gState.mNCOptimizer.status == MDR_NC_OPTIMIZER_STATUS_COMPLETE ? i18n::TextId::NCOptimizerComplete :
+        gState.mNCOptimizer.status == MDR_NC_OPTIMIZER_STATUS_IDLE ? i18n::TextId::NCOptimizerIdle :
+        i18n::TextId::Unknown;
+    ImGui::TextUnformatted(Tr(status));
+    if (!gState.mNCOptimizerAvailable || gState.mNCOptimizer.available == MDR_FALSE)
+        ImGui::TextDisabled("%s", Tr(i18n::TextId::NCOptimizerUnavailable));
+    ImGui::BeginDisabled(!NCOptimizerCanStart());
+    if (ImModalButton(TrLable(i18n::TextId::NCOptimizerStart)))
+        gNCOptimizerConfirmationDevice = gDevice;
+    ImGui::EndDisabled();
+    ImGui::TreePop();
+}
+
 void DrawDeviceConnecting()
 {
     assert(connState == CONN_STATE_CONNECTING);
@@ -1713,6 +1832,7 @@ void DrawDeviceControlsSound()
             ImGui::TreePop();
         }
     }
+    DrawNCOptimizer();
     /* Listening Mode */
     if (FeatureAvailable(MDR_FEATURE_LISTENING_MODE))
     {
@@ -2174,6 +2294,7 @@ void DrawDeviceControlsAbout()
             {i18n::TextId::AmbientSound, MDR_FEATURE_AMBIENT_SOUND},
             {i18n::TextId::AdaptiveAmbientSound, MDR_FEATURE_ADAPTIVE_AMBIENT_SOUND},
             {i18n::TextId::SpeakToChat, MDR_FEATURE_SPEAK_TO_CHAT},
+            {i18n::TextId::NCOptimizer, MDR_FEATURE_NC_OPTIMIZER},
             {i18n::TextId::ListeningMode, MDR_FEATURE_LISTENING_MODE},
             {i18n::TextId::ListeningBackgroundFeature, MDR_FEATURE_LISTENING_BACKGROUND_MUSIC},
             {i18n::TextId::ListeningCinemaFeature, MDR_FEATURE_LISTENING_CINEMA},
@@ -2284,6 +2405,9 @@ void DrawDeviceControls()
     case MDR_EVENT_SPEAK_TO_CHAT_CHANGED:
         gState.mSpeakToChatAvailable = mdrHeadphonesGetSpeakToChat(gDevice, &gState.mSpeakToChat) == MDR_RESULT_OK;
         break;
+    case MDR_EVENT_NC_OPTIMIZER_CHANGED:
+        gState.mNCOptimizerAvailable = mdrHeadphonesGetNCOptimizer(gDevice, &gState.mNCOptimizer) == MDR_RESULT_OK;
+        break;
     case MDR_EVENT_LISTENING_MODE_CHANGED:
         gState.mListeningAvailable = mdrHeadphonesGetListening(gDevice, &gState.mListening) == MDR_RESULT_OK;
         break;
@@ -2329,6 +2453,9 @@ void DrawDeviceControls()
     ImGui::EndDisabled();
     ImScrollWhenDraggingAnywhere(ImGui::GetIO().MouseDelta, ImGuiMouseButton_Left);
     ImGui::EndChild();
+    DrawNCOptimizerConfirmation();
+    if (!gDevice)
+        return;
 
     if (mdrHeadphonesIsReady(gDevice))
     {

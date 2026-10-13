@@ -260,6 +260,20 @@ constinit const StringTable kJapanese = []
     _Def(ExportLatest, "最新をエクスポート")
     _Def(ExportZip, "ZIP をエクスポート")
     _Def(PacketReplayMode, "パケットリプレイモード")
+    _Def(NCOptimizer, "ノイズキャンセリングの最適化")
+    _Def(NCOptimizerDescription, "装着時の個人差と周囲の気圧状態を測定し、ノイズキャンセリング機能を最適化します。")
+    _Def(NCOptimizerPersonal, "装着状態に最適化")
+    _Def(NCOptimizerBarometric, "周囲の気圧状態に最適化")
+    _Def(NCOptimizerWarning, "いつもどおりにヘッドホンを装着した状態で開始してください。装着状態や周囲の気圧の状態が変化したときは、再度実行してください。")
+    _Def(NCOptimizerStart, "開始")
+    _Def(NCOptimizerOK, "OK")
+    _Def(NCOptimizerIdle, "開始できます")
+    _Def(NCOptimizerOptimizing, "最適化中…")
+    _Def(NCOptimizerComplete, "最適化完了")
+    _Def(NCOptimizerOptimized, "最適化されています。")
+    _Def(NCOptimizerUnmeasured, "未測定")
+    _Def(NCOptimizerUnavailable, "ノイズキャンセリングの最適化を利用できません")
+    _Def(NCOptimizerPressureResult, "%s %.1f 気圧で最適化されています。")
     return strings;
 }();
 }

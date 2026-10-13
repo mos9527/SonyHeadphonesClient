@@ -11,6 +11,8 @@ namespace mdr
         state.mProtocol.hasTable2 =
             state.mSupport.contains(t1::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
             state.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE);
+        if (!state.mSupport.contains(t1::FunctionType::NC_OPTIMIZER))
+            state.mNCOptimizer = {};
     }
 
     namespace
@@ -32,6 +34,7 @@ namespace mdr
             co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V1");
 
         state.mProtocol = {};
+        state.mNCOptimizer = {};
         SendCommandACK(t1::GetProtocolInfo);
         const int protocolResult = co_await Await(AWAIT_PROTOCOL_INFO);
         if (protocolResult != MDR_RESULT_OK)
@@ -831,6 +834,16 @@ namespace mdr
         res.action = action == MDR_ALERT_ACTION_POSITIVE ? AlertAction::POSITIVE
                                                          : AlertAction::NEGATIVE;
         SendCommandACK(SetAlertParamFixedMessageParam, res);
+        co_return MDR_EVENT_APPLY_COMPLETE;
+    }
+
+    MDRTask MDRHeadphones::RequestStartNCOptimizerV1()
+    {
+        SendCommandACK(t1::SetOptimizerStatus, {
+            .optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER,
+            .status = CommonStatus::ENABLE,
+            .optimizerControl = t1::OptimizerControl::START
+        });
         co_return MDR_EVENT_APPLY_COMPLETE;
     }
 

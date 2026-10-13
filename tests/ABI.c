@@ -26,6 +26,8 @@ MDR_ASSERT_U32(MDRAdaptiveSensitivity);
 MDR_ASSERT_U32(MDRNoiseButtonMode);
 MDR_ASSERT_U32(MDRSpeechSensitivity);
 MDR_ASSERT_U32(MDRSpeakTimeout);
+MDR_ASSERT_U32(MDRNCOptimizerStatus);
+MDR_ASSERT_U32(MDRNCOptimizerResult);
 MDR_ASSERT_U32(MDRListeningMode);
 MDR_ASSERT_U32(MDRRoomSize);
 MDR_ASSERT_U32(MDREqualizerPreset);
@@ -37,6 +39,13 @@ MDR_ASSERT_U32(MDRWearingPowerMode);
 MDR_ASSERT_U32(MDRWearingStatus);
 MDR_ASSERT_U32(MDRAudioPriority);
 #undef MDR_ASSERT_U32
+static_assert(MDR_ABI_VERSION == 2u, "optimizer extension keeps ABI version 2");
+static_assert(MDR_FEATURE_NC_OPTIMIZER == 35u, "optimizer feature id is appended");
+static_assert(MDR_FEATURE_MAX_VALUE == MDR_FEATURE_NC_OPTIMIZER, "optimizer feature is queryable");
+static_assert(MDR_EVENT_NC_OPTIMIZER_CHANGED == 25u, "optimizer event id is appended");
+static_assert(sizeof(MDRNCOptimizer) == 32u, "optimizer C struct has a stable layout");
+static_assert(offsetof(MDRNCOptimizer, pressure_tenths_atm) == 24u, "optimizer pressure offset is stable");
+static_assert(offsetof(MDRNCOptimizer, optimization_seconds) == 28u, "optimizer duration offset is stable");
 
 #undef MDR_ASSERT_C_STRUCT
 
@@ -2446,6 +2455,251 @@ static void test_v1_assignable_controls(void)
     session_close(&session);
 }
 
+static void test_v1_nc_optimizer(void)
+{
+    static const unsigned char support[] = {0x07, 0x00, 0x01, 0x81};
+    /* WH-1000XM4 firmware 2.5.0 replies, including the actual 0.9 atm measurement. */
+    static const unsigned char capability[] = {0x81, 0x01, 0x02, 0x01, 0x09, 0x01, 0x02};
+    static const unsigned char idle[] = {0x83, 0x01, 0x00, 0x00};
+    static const unsigned char parameters[] = {0x87, 0x01, 0x01, 0x01, 0x01, 0x09};
+    static const unsigned char disabled[] = {0x85, 0x01, 0x01, 0x00};
+    static const unsigned char unknown_status[] = {0x85, 0x01, 0xff, 0x00};
+    static const unsigned char unmeasured[] = {0x89, 0x01, 0x01, 0x00, 0x01, 0x00};
+    static const unsigned char measured[] = {0x89, 0x01, 0x01, 0x01, 0x01, 0x09};
+    static const unsigned char unknown_results[] = {0x89, 0x01, 0x01, 0x7f, 0x01, 0x7f};
+    static const unsigned char unsupported_types[] = {0x89, 0x01, 0xff, 0x01, 0xff, 0x09};
+    static const unsigned char unknown_capability[] = {0x81, 0x01, 0x02, 0xff, 0x09, 0xff, 0x02};
+    static const unsigned char other_optimizer[] = {0x89, 0x02, 0x01, 0x00, 0x01, 0x00};
+    static const unsigned char no_support[] = {0x07, 0x00, 0x00};
+    static const unsigned char phases[] = {0x01, 0x02, 0x10, 0x11};
+    static const MDRNCOptimizerStatus phase_statuses[] = {
+        MDR_NC_OPTIMIZER_STATUS_PERSONAL, MDR_NC_OPTIMIZER_STATUS_BAROMETRIC,
+        MDR_NC_OPTIMIZER_STATUS_OPTIMIZING, MDR_NC_OPTIMIZER_STATUS_COMPLETE
+    };
+    Session session;
+    Device device;
+    MDRNCOptimizer optimizer;
+    MDRFeatureAvailability availability;
+    TxFrame frame;
+    size_t offset;
+    size_t requests_before;
+    size_t index;
+    int found = 0;
+
+    if (!session_open_family(&session, MDR_PROTOCOL_V1))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = 1;
+    device.table1 = support;
+    device.table1_size = sizeof(support);
+    check_result(mdrHeadphonesGetNCOptimizer(NULL, &optimizer), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "optimizer getter rejects a null device");
+    check_result(mdrHeadphonesGetNCOptimizer(session.headphones, NULL), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "optimizer getter rejects a null output");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(NULL), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "optimizer start rejects a null device");
+    check_result(mdrHeadphonesRequestInit(session.headphones), MDR_RESULT_OK, "optimizer initialization starts");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_INPROGRESS,
+                 "optimizer start cannot overlap initialization");
+    device_run(&session, &device, MDR_EVENT_INITIALIZE_COMPLETE, "optimizer initialization completes");
+    check_result(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_NC_OPTIMIZER, &availability),
+                 MDR_RESULT_OK, "advertised optimizer feature is queryable");
+    check(availability == MDR_AVAILABILITY_AVAILABLE, "V1 advertised optimizer is supported");
+    check(device_requested(&device, 1, 0x80, 1) && device_requested(&device, 1, 0x82, 1) &&
+          device_requested(&device, 1, 0x86, 1), "initialization requests optimizer capability, status and results");
+    check_result(mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer), MDR_RESULT_OK,
+                 "advertised optimizer is readable before its replies");
+    check(optimizer.available == MDR_FALSE && optimizer.status == MDR_NC_OPTIMIZER_STATUS_UNKNOWN &&
+          optimizer.personal_supported == MDR_FALSE && optimizer.barometric_supported == MDR_FALSE &&
+          optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN &&
+          optimizer.barometric_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN &&
+          optimizer.pressure_tenths_atm == 0 && optimizer.optimization_seconds == 0,
+          "missing optimizer replies do not manufacture enabled state or measurements");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "missing optimizer capability cannot start");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, idle, sizeof(idle));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "optimizer return status polls");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.status == MDR_NC_OPTIMIZER_STATUS_IDLE && optimizer.available == MDR_FALSE,
+          "an enabled idle status does not replace missing capability");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "enabled status without capability cannot start");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, parameters, sizeof(parameters));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "optimizer return measurements poll");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED &&
+          optimizer.barometric_result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED &&
+          optimizer.pressure_tenths_atm == 9 && optimizer.available == MDR_FALSE,
+          "measurements are retained independently of capability and include 0.9 atm");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, capability, sizeof(capability));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "optimizer return capability polls");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.available == MDR_TRUE && optimizer.personal_supported == MDR_TRUE &&
+          optimizer.barometric_supported == MDR_TRUE && optimizer.optimization_seconds == 2 &&
+          optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED && optimizer.pressure_tenths_atm == 9,
+          "capability enables optimizer without resetting measurements or inventing a total timer");
+
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_OK, "optimizer start schedules");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_INPROGRESS,
+                 "a second optimizer start cannot overlap its acknowledgment");
+    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_INPROGRESS,
+                 "optimizer start occupies the existing operation slot");
+    check(mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE, "optimizer start does not stage settings");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.status == MDR_NC_OPTIMIZER_STATUS_IDLE, "start does not manufacture a running status");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "optimizer start acknowledgment completes apply");
+    while (next_tx_frame(&session.transport, &offset, &frame))
+    {
+        if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload_size > 0 && frame.payload[0] == 0x84)
+        {
+            ++found;
+            check(frame.payload_size == 4 && frame.payload[1] == 1 && frame.payload[2] == 0 &&
+                  frame.payload[3] == 1, "optimizer start sends OPT_SET_STATUS NC_OPTIMIZER ENABLE START");
+        }
+    }
+    check(found == 1, "optimizer start reaches the transport exactly once");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.status == MDR_NC_OPTIMIZER_STATUS_IDLE,
+          "command acknowledgment does not imply progress or physical completion");
+    for (index = 0; index < sizeof(phases); ++index)
+    {
+        const unsigned char notification[] = {0x85, 0x01, 0x00, phases[index]};
+        requests_before = device.log_size;
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, sizeof(notification));
+        device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "optimizer received phase polls");
+        mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+        check(optimizer.status == phase_statuses[index], "optimizer phases and END map from actual notifications");
+        check(optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED && optimizer.pressure_tenths_atm == 9,
+              "phase notifications do not overwrite independent measurements");
+        if (index + 1 < sizeof(phases))
+        {
+            check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_INPROGRESS,
+                         "received running phase prevents a duplicate start after ACK");
+            check(device.log_size == requests_before, "a busy optimizer start sends no command");
+        }
+    }
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_OK,
+                 "received END permits another optimization");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "second optimizer command is acknowledged");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.status == MDR_NC_OPTIMIZER_STATUS_COMPLETE, "a new start does not overwrite received END");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, unmeasured, sizeof(unmeasured));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "unmeasured notification polls");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_UNMEASURED &&
+          optimizer.barometric_result == MDR_NC_OPTIMIZER_RESULT_UNMEASURED && optimizer.pressure_tenths_atm == 0 &&
+          optimizer.status == MDR_NC_OPTIMIZER_STATUS_COMPLETE, "END alone does not manufacture successful results");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, measured, sizeof(measured));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "optimized result notification polls");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED &&
+          optimizer.barometric_result == MDR_NC_OPTIMIZER_RESULT_OPTIMIZED &&
+          optimizer.pressure_tenths_atm == 9 && optimizer.status == MDR_NC_OPTIMIZER_STATUS_COMPLETE,
+          "received optimized results distinguish a successful completed measurement");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, unknown_results, sizeof(unknown_results));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "unknown measurement values poll");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN &&
+          optimizer.barometric_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN && optimizer.pressure_tenths_atm == 0,
+          "unknown measurement values are not success or unmeasured");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, unsupported_types, sizeof(unsupported_types));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "unknown measurement types poll");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN &&
+          optimizer.barometric_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN,
+          "unknown measurement types do not claim known optimized results");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, other_optimizer, sizeof(other_optimizer));
+    device_run(&session, &device, MDR_EVENT_UNHANDLED, "different optimizer inquiry is not misinterpreted");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, disabled, sizeof(disabled));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "disabled optimizer notification polls");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.available == MDR_FALSE, "disabled optimizer becomes unavailable");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "disabled optimizer refuses start");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, unknown_status, sizeof(unknown_status));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "unknown availability status polls");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.available == MDR_FALSE, "unknown enable status is not availability");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, idle, sizeof(idle));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "optimizer is enabled again");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, unknown_capability, sizeof(unknown_capability));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "unknown capability types poll");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.available == MDR_FALSE && optimizer.personal_supported == MDR_FALSE &&
+          optimizer.barometric_supported == MDR_FALSE, "unknown capability does not claim support");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "optimizer with no supported measurement capability refuses start");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, no_support, sizeof(no_support));
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "optimizer advertisement is removed");
+    check_result(mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "optimizer getter follows the current advertised functions");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, support, sizeof(support));
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "optimizer advertisement returns");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.available == MDR_FALSE && optimizer.status == MDR_NC_OPTIMIZER_STATUS_UNKNOWN &&
+          optimizer.personal_result == MDR_NC_OPTIMIZER_RESULT_UNKNOWN,
+          "removed capability cannot leave stale optimizer state when re-advertised");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, capability, sizeof(capability));
+    device_run(&session, &device, MDR_EVENT_NC_OPTIMIZER_CHANGED, "capability arrives before status");
+    mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer);
+    check(optimizer.available == MDR_FALSE && optimizer.status == MDR_NC_OPTIMIZER_STATUS_UNKNOWN &&
+          optimizer.personal_supported == MDR_TRUE && optimizer.barometric_supported == MDR_TRUE,
+          "capability alone cannot manufacture enabled availability or idle status");
+    check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "known capability without enabled status cannot start");
+    session_close(&session);
+}
+
+static void test_nc_optimizer_rejects_unsupported_families(void)
+{
+    static const unsigned char no_support[] = {0x07, 0x00, 0x00};
+    static const unsigned char capability[] = {0x81, 0x01, 0x02, 0x01, 0x09, 0x01, 0x02};
+    MDRProtocolVersion family;
+    for (family = MDR_PROTOCOL_V1; family <= MDR_PROTOCOL_V2; ++family)
+    {
+        Session session;
+        Device device;
+        MDRNCOptimizer optimizer;
+        MDRFeatureAvailability availability;
+        size_t requests_before;
+        if (!session_open_family(&session, family))
+            continue;
+        memset(&device, 0, sizeof(device));
+        device.transport = &session.transport;
+        device.protocol_v1 = family == MDR_PROTOCOL_V1;
+        device.table1 = no_support;
+        device.table1_size = sizeof(no_support);
+        device.table2 = no_support;
+        device.table2_size = sizeof(no_support);
+        device_run_init(&session, &device);
+        check_result(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_NC_OPTIMIZER, &availability),
+                     MDR_RESULT_OK, "unsupported optimizer feature remains a valid feature id");
+        check(availability == MDR_AVAILABILITY_UNAVAILABLE, "unadvertised V1 and all V2 optimizers are unsupported");
+        check(!device_requested(&device, 1, 0x80, 1) && !device_requested(&device, 1, 0x82, 1) &&
+              !device_requested(&device, 1, 0x86, 1), "unsupported initialization sends no optimizer commands");
+        check_result(mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                     "unsupported optimizer getter refuses");
+        requests_before = device.log_size;
+        check_result(mdrHeadphonesRequestStartNCOptimizer(session.headphones), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                     "unsupported optimizer start refuses");
+        check(!device_requested_after(&device, 1, 0x84, requests_before),
+              "unsupported start sends no optimizer command");
+        if (family == MDR_PROTOCOL_V1)
+        {
+            device_send(&device, MDR_DATA_TYPE_DATA_MDR, capability, sizeof(capability));
+            device_run(&session, &device, MDR_EVENT_UNHANDLED, "unsolicited unadvertised capability is ignored");
+            check_result(mdrHeadphonesGetNCOptimizer(session.headphones, &optimizer), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                         "unsolicited capability cannot bypass advertised V1 support");
+        }
+        session_close(&session);
+    }
+}
+
 int main(void)
 {
     test_abi_version_handshake();
@@ -2474,6 +2728,8 @@ int main(void)
     test_v2_assignable_controls(0);
     test_v2_assignable_controls(1);
     test_v1_assignable_controls();
+    test_v1_nc_optimizer();
+    test_nc_optimizer_rejects_unsupported_families();
 
     if (g_failures != 0)
         fprintf(stderr, "%d test assertion(s) failed\n", g_failures);

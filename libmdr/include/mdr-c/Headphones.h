@@ -62,7 +62,8 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_LISTENING_VOICE_BOOST ((MDRFeature)32u)
 #define MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRFeature)33u)
 #define MDR_FEATURE_WEARING_STATUS ((MDRFeature)34u)
-#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_WEARING_STATUS
+#define MDR_FEATURE_NC_OPTIMIZER ((MDRFeature)35u)
+#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_NC_OPTIMIZER
 
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
@@ -96,6 +97,7 @@ typedef uint32_t MDREvent;
 #define MDR_EVENT_NEED_SYNC ((MDREvent)22u)
 #define MDR_EVENT_UNHANDLED ((MDREvent)23u)
 #define MDR_EVENT_WEARING_STATUS_CHANGED ((MDREvent)24u)
+#define MDR_EVENT_NC_OPTIMIZER_CHANGED ((MDREvent)25u)
 
 typedef uint32_t MDRPacketDirection;
 #define MDR_PACKET_DIRECTION_RX ((MDRPacketDirection)0u)
@@ -308,6 +310,33 @@ typedef uint32_t MDRAudioPriority;
 #define MDR_AUDIO_PRIORITY_UNKNOWN ((MDRAudioPriority)0u)
 #define MDR_AUDIO_PRIORITY_QUALITY ((MDRAudioPriority)1u)
 #define MDR_AUDIO_PRIORITY_STABILITY ((MDRAudioPriority)2u)
+
+typedef uint32_t MDRNCOptimizerStatus;
+#define MDR_NC_OPTIMIZER_STATUS_UNKNOWN ((MDRNCOptimizerStatus)0u)
+#define MDR_NC_OPTIMIZER_STATUS_IDLE ((MDRNCOptimizerStatus)1u)
+#define MDR_NC_OPTIMIZER_STATUS_PERSONAL ((MDRNCOptimizerStatus)2u)
+#define MDR_NC_OPTIMIZER_STATUS_BAROMETRIC ((MDRNCOptimizerStatus)3u)
+#define MDR_NC_OPTIMIZER_STATUS_OPTIMIZING ((MDRNCOptimizerStatus)4u)
+#define MDR_NC_OPTIMIZER_STATUS_COMPLETE ((MDRNCOptimizerStatus)5u)
+
+typedef uint32_t MDRNCOptimizerResult;
+#define MDR_NC_OPTIMIZER_RESULT_UNKNOWN ((MDRNCOptimizerResult)0u)
+#define MDR_NC_OPTIMIZER_RESULT_UNMEASURED ((MDRNCOptimizerResult)1u)
+#define MDR_NC_OPTIMIZER_RESULT_OPTIMIZED ((MDRNCOptimizerResult)2u)
+
+typedef struct MDRNCOptimizer
+{
+    MDRBoolean available;
+    MDRNCOptimizerStatus status;
+    MDRBoolean personal_supported;
+    MDRBoolean barometric_supported;
+    MDRNCOptimizerResult personal_result;
+    MDRNCOptimizerResult barometric_result;
+    /* Meaningful only when barometric_result is OPTIMIZED; 9 denotes 0.9 atm. */
+    uint8_t pressure_tenths_atm;
+    /* Optimization duration advertised by the device, not an elapsed-time estimate. */
+    uint32_t optimization_seconds;
+} MDRNCOptimizer;
 
 
 typedef struct MDRModel
@@ -558,6 +587,19 @@ MDR_API MDRResult mdrHeadphonesGetNoiseControl(MDRHeadphones* headphones, MDRNoi
 MDR_API MDRResult mdrHeadphonesSetNoiseControl(MDRHeadphones* headphones, const MDRNoiseControl* noise_control);
 MDR_API MDRResult mdrHeadphonesGetSpeakToChat(MDRHeadphones* headphones, MDRSpeakToChat* out_speak_to_chat);
 MDR_API MDRResult mdrHeadphonesSetSpeakToChat(MDRHeadphones* headphones, const MDRSpeakToChat* speak_to_chat);
+/**
+ * @brief Reads V1 NC optimizer state. Unknown fields remain unknown until device replies.
+ * @return MDR_RESULT_ERROR_NOT_SUPPORTED unless V1 advertises MDR_FEATURE_NC_OPTIMIZER.
+ */
+MDR_API MDRResult mdrHeadphonesGetNCOptimizer(MDRHeadphones* headphones, MDRNCOptimizer* out_optimizer);
+/**
+ * @brief Starts optimization immediately, without staging or RequestCommit.
+ * @note MDR_EVENT_APPLY_COMPLETE means the start command was acknowledged, not that measurement finished.
+ *       Progress, completion, and results arrive through MDR_EVENT_NC_OPTIMIZER_CHANGED.
+ * @return MDR_RESULT_INPROGRESS while another operation or optimization is active;
+ *         MDR_RESULT_ERROR_NOT_SUPPORTED if capability is missing or the optimizer is unavailable.
+ */
+MDR_API MDRResult mdrHeadphonesRequestStartNCOptimizer(MDRHeadphones* headphones);
 MDR_API MDRResult mdrHeadphonesGetListening(MDRHeadphones* headphones, MDRListening* out_listening);
 MDR_API MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListening* listening);
 MDR_API MDRResult mdrHeadphonesGetEqualizer(MDRHeadphones* headphones, MDREqualizer* out_equalizer);

@@ -319,6 +319,7 @@ namespace mdr
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();
         MDRTask RequestAlertResponseV1(int action);
+        MDRTask RequestStartNCOptimizerV1();
         void SnapshotPropertiesV1();
         void RefreshSupportV1();
 

@@ -260,6 +260,20 @@ constinit const StringTable kSimplifiedChinese = []
     _Def(ExportLatest, "导出最新数据包")
     _Def(ExportZip, "导出 ZIP")
     _Def(PacketReplayMode, "数据包回放模式")
+    _Def(NCOptimizer, "降噪优化器")
+    _Def(NCOptimizerDescription, "通过测量个人佩戴差异和周围的大气压力来优化降噪效果。")
+    _Def(NCOptimizerPersonal, "个人优化")
+    _Def(NCOptimizerBarometric, "大气压力优化")
+    _Def(NCOptimizerWarning, "请按平时的方式佩戴耳机后开始。如果佩戴状态或周围的大气压力发生变化，请重新执行此过程。")
+    _Def(NCOptimizerStart, "开始")
+    _Def(NCOptimizerOK, "确定")
+    _Def(NCOptimizerIdle, "就绪")
+    _Def(NCOptimizerOptimizing, "正在优化…")
+    _Def(NCOptimizerComplete, "优化完成")
+    _Def(NCOptimizerOptimized, "已优化")
+    _Def(NCOptimizerUnmeasured, "未测量")
+    _Def(NCOptimizerUnavailable, "优化器不可用")
+    _Def(NCOptimizerPressureResult, "%s 已优化至 %.1f 个标准大气压")
     return strings;
 }();
 }

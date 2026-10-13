@@ -260,6 +260,20 @@ constinit const StringTable kKorean = []
     _Def(ExportLatest, "최신 항목 내보내기")
     _Def(ExportZip, "ZIP 내보내기")
     _Def(PacketReplayMode, "패킷 재생 모드")
+    _Def(NCOptimizer, "노이즈 캔슬링 최적화")
+    _Def(NCOptimizerDescription, "개인별 착용 차이와 주변 기압을 측정하여 노이즈 캔슬링을 최적화합니다.")
+    _Def(NCOptimizerPersonal, "개인 최적화")
+    _Def(NCOptimizerBarometric, "기압 최적화")
+    _Def(NCOptimizerWarning, "평소처럼 헤드폰을 착용한 상태에서 시작하세요. 착용 상태와 주변 기압이 달라지면 이 과정을 다시 실행하세요.")
+    _Def(NCOptimizerStart, "시작")
+    _Def(NCOptimizerOK, "확인")
+    _Def(NCOptimizerIdle, "준비됨")
+    _Def(NCOptimizerOptimizing, "최적화 중…")
+    _Def(NCOptimizerComplete, "최적화 완료")
+    _Def(NCOptimizerOptimized, "최적화됨")
+    _Def(NCOptimizerUnmeasured, "측정되지 않음")
+    _Def(NCOptimizerUnavailable, "최적화를 사용할 수 없음")
+    _Def(NCOptimizerPressureResult, "%s %.1f기압으로 최적화됨")
     return strings;
 }();
 }

@@ -75,6 +75,31 @@ namespace mdr
         v1::t1::UpscalingType mUpscalingType{};
         bool mUpscalingAvailable{true};
 
+        struct NCOptimizerState
+        {
+            v1::t1::RetOptimizerCapability capability{};
+            v1::t1::RetOptimizerStatus status{};
+            v1::t1::RetOptimizerParam parameters{};
+            bool capabilityKnown{};
+            bool statusKnown{};
+            bool parametersKnown{};
+
+            [[nodiscard]] bool available() const
+            {
+                return capabilityKnown && statusKnown && status.status == v1::CommonStatus::ENABLE &&
+                    (capability.personalType == v1::t1::PersonalMeasureType::PERSONAL ||
+                     capability.barometricType == v1::t1::BarometricMeasureType::BAROMETRIC_PRESSURE);
+            }
+
+            [[nodiscard]] bool running() const
+            {
+                using enum v1::t1::OptimizerStatus;
+                return statusKnown && (status.optimizerStatus == IN_PROGRESS_OF_PERSONAL ||
+                    status.optimizerStatus == IN_PROGRESS_OF_BAROMETRIC_PRESSURE ||
+                    status.optimizerStatus == OPTIMIZING);
+            }
+        } mNCOptimizer;
+
         Vector<v1::t1::AsCapabilityKey> mAssignableSettingsKeys;
 
         struct GsCapability

@@ -260,6 +260,20 @@ constinit const StringTable kTraditionalChinese = []
     _Def(ExportLatest, "匯出最新封包")
     _Def(ExportZip, "匯出 ZIP")
     _Def(PacketReplayMode, "封包重播模式")
+    _Def(NCOptimizer, "降噪最佳化工具")
+    _Def(NCOptimizerDescription, "透過測量個人配戴差異與周圍的大氣壓力來最佳化降噪效果。")
+    _Def(NCOptimizerPersonal, "個人最佳化")
+    _Def(NCOptimizerBarometric, "大氣壓力最佳化")
+    _Def(NCOptimizerWarning, "請按照平時的方式配戴耳機後開始。如果配戴狀態或周圍的大氣壓力改變，請重新執行此程序。")
+    _Def(NCOptimizerStart, "開始")
+    _Def(NCOptimizerOK, "確定")
+    _Def(NCOptimizerIdle, "就緒")
+    _Def(NCOptimizerOptimizing, "正在最佳化…")
+    _Def(NCOptimizerComplete, "最佳化完成")
+    _Def(NCOptimizerOptimized, "已最佳化")
+    _Def(NCOptimizerUnmeasured, "尚未測量")
+    _Def(NCOptimizerUnavailable, "最佳化工具無法使用")
+    _Def(NCOptimizerPressureResult, "%s 已最佳化至 %.1f 個標準大氣壓")
     return strings;
 }();
 }

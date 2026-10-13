@@ -382,6 +382,7 @@ namespace
             return state.mSupport.contains(F::AMBIENT_SOUND_MODE) ||
                 state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE);
         case MDR_FEATURE_SPEAK_TO_CHAT: return state.mSupport.contains(F::SMART_TALKING_MODE);
+        case MDR_FEATURE_NC_OPTIMIZER: return state.mSupport.contains(F::NC_OPTIMIZER);
         case MDR_FEATURE_EQUALIZER:
             return state.mSupport.contains(F::PRESET_EQ) || state.mSupport.contains(F::EBB) ||
                 state.mSupport.contains(F::PRESET_EQ_NONCUSTOMIZABLE);
@@ -1473,6 +1474,24 @@ MDRResult mdrHeadphonesRequestRespondToAlert(MDRHeadphones* headphones, MDRAlert
     return h->Invoke(h->RequestAlertResponse(static_cast<int>(action)));
 }
 
+MDRResult mdrHeadphonesRequestStartNCOptimizer(MDRHeadphones* headphones)
+{
+    if (!headphones)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    auto* h = Impl(headphones);
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
+    if (h->mProtocolFamily != Headphones::ProtocolFamily::V1 ||
+        !h->mDetailsV1.mSupport.contains(mdr::v1::t1::FunctionType::NC_OPTIMIZER))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    const auto& optimizer = h->mDetailsV1.mNCOptimizer;
+    if (optimizer.running())
+        return MDR_RESULT_INPROGRESS;
+    if (!optimizer.available())
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    return h->Invoke(h->RequestStartNCOptimizerV1());
+}
+
 MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* outEvent)
 {
     if (!headphones || !outEvent)
@@ -1691,6 +1710,74 @@ MDRResult mdrHeadphonesPlayback(MDRHeadphones* headphones, const MDRPlaybackComm
         state.mPlayControl.stage(value);
         return MDR_RESULT_OK;
     });
+}
+
+MDRResult mdrHeadphonesGetNCOptimizer(MDRHeadphones* headphones, MDRNCOptimizer* outOptimizer)
+{
+    if (!headphones || !outOptimizer)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const auto& h = *Impl(headphones);
+    if (h.mProtocolFamily != Headphones::ProtocolFamily::V1 ||
+        !h.mDetailsV1.mSupport.contains(mdr::v1::t1::FunctionType::NC_OPTIMIZER))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+
+    using namespace mdr::v1::t1;
+    const auto& optimizer = h.mDetailsV1.mNCOptimizer;
+    *outOptimizer = {};
+    outOptimizer->available = optimizer.available() ? MDR_TRUE : MDR_FALSE;
+    if (optimizer.capabilityKnown)
+    {
+        outOptimizer->personal_supported =
+            optimizer.capability.personalType == PersonalMeasureType::PERSONAL ? MDR_TRUE : MDR_FALSE;
+        outOptimizer->barometric_supported =
+            optimizer.capability.barometricType == BarometricMeasureType::BAROMETRIC_PRESSURE ? MDR_TRUE : MDR_FALSE;
+        outOptimizer->optimization_seconds = optimizer.capability.optimizationTime;
+    }
+    if (optimizer.statusKnown)
+    {
+        switch (optimizer.status.optimizerStatus)
+        {
+        case OptimizerStatus::IDLE: outOptimizer->status = MDR_NC_OPTIMIZER_STATUS_IDLE; break;
+        case OptimizerStatus::IN_PROGRESS_OF_PERSONAL: outOptimizer->status = MDR_NC_OPTIMIZER_STATUS_PERSONAL; break;
+        case OptimizerStatus::IN_PROGRESS_OF_BAROMETRIC_PRESSURE:
+            outOptimizer->status = MDR_NC_OPTIMIZER_STATUS_BAROMETRIC;
+            break;
+        case OptimizerStatus::OPTIMIZING: outOptimizer->status = MDR_NC_OPTIMIZER_STATUS_OPTIMIZING; break;
+        case OptimizerStatus::OPTIMIZER_END: outOptimizer->status = MDR_NC_OPTIMIZER_STATUS_COMPLETE; break;
+        default: break;
+        }
+    }
+    if (optimizer.parametersKnown)
+    {
+        const auto& parameters = optimizer.parameters;
+        if (parameters.personalType == PersonalMeasureType::PERSONAL)
+        {
+            switch (static_cast<PersonalValue>(parameters.personalValue))
+            {
+            case PersonalValue::UNMEASURED: outOptimizer->personal_result = MDR_NC_OPTIMIZER_RESULT_UNMEASURED; break;
+            case PersonalValue::MEASURED: outOptimizer->personal_result = MDR_NC_OPTIMIZER_RESULT_OPTIMIZED; break;
+            default: break;
+            }
+        }
+        if (parameters.barometricType == BarometricMeasureType::BAROMETRIC_PRESSURE)
+        {
+            switch (static_cast<BarometricPressureValue>(parameters.barometricValue))
+            {
+            case BarometricPressureValue::UNMEASURED:
+                outOptimizer->barometric_result = MDR_NC_OPTIMIZER_RESULT_UNMEASURED;
+                break;
+            case BarometricPressureValue::MEASURED_07:
+            case BarometricPressureValue::MEASURED_08:
+            case BarometricPressureValue::MEASURED_09:
+            case BarometricPressureValue::MEASURED_10:
+                outOptimizer->barometric_result = MDR_NC_OPTIMIZER_RESULT_OPTIMIZED;
+                outOptimizer->pressure_tenths_atm = parameters.barometricValue;
+                break;
+            default: break;
+            }
+        }
+    }
+    return MDR_RESULT_OK;
 }
 
 MDRResult mdrHeadphonesGetNoiseControl(
