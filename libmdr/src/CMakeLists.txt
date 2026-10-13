@@ -166,4 +166,10 @@ if (COMMAND mdr_add_codegen)
         INPUT     "${_INC}/ProtocolV2T2.hpp"
         NAMESPACE "mdr::v2::t2"
         INCLUDE   "mdr/ProtocolV2T2.hpp")
+
+    add_custom_target(mdr_codegen_sources DEPENDS ${GENERATED_SRCS})
+    add_dependencies(mdr mdr_codegen_sources)
+    if (TARGET mdr_shared)
+        add_dependencies(mdr_shared mdr_codegen_sources)
+    endif ()
 endif ()
