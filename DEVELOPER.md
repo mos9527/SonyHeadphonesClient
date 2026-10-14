@@ -65,6 +65,14 @@ cmake --build . --target SonyHeadphonesClient
 Run the generated page with `emrun client/index.html` - or host it with any static HTTP server.
 
 
+### Android (Android Studio)
+
+Open `client/Platform/Android` in Android Studio, or build with the Gradle wrapper from the command line. The app targets Android 5.0 (API 21) and later. Android SDK Platform 35, NDK `28.2.13676358`, CMake 3.31+, and Gradle 8.10.2 (via the checked-in wrapper) are recommended.
+
+**NOTE:** Bluetooth is implemented via Java/JNI in the `client` only; there is no dedicated `libmdr-bt` backend. Only paired devices using Classic Bluetooth (RFCOMM) are supported; Bluetooth LE is not implemented.
+
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is disabled by default, including in debug APKs. The Android CMake project has an opt-in `MDR_CLIENT_DEBUGGER` option.
+
 ### OpenHarmony (DevEco Studio)
 
 Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.com/consumer/cn/deveco-studio/). OpenHarmony SDK API Version 20 (6.0) or later is required.

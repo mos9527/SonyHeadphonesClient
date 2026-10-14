@@ -557,3 +557,7 @@ build-*/
 /client/Platform/OpenHarmony/entry/oh_modules/
 /client/Platform/OpenHarmony/entry/.cxx/
 /client/Platform/OpenHarmony/local.properties
+
+/client/Platform/Android/.gradle/
+/client/Platform/Android/app/.cxx/
+/client/Platform/Android/local.properties
