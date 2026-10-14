@@ -46,7 +46,8 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DFETCHCONTENT_SOURCE_DIR_SDL3=${sdlSource.absolutePath.replace('\\', '/')}",
-                          '-DANDROID_STL=c++_shared'
+                          '-DANDROID_STL=c++_shared',
+                          '-DMDR_CLIENT_DEBUGGER=ON'
                 ['fmt', 'imgui'].each { dependency ->
                     def directory = providers.gradleProperty("${dependency}SourceDir")
                     if (directory.isPresent()) {

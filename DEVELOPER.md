@@ -67,11 +67,11 @@ Run the generated page with `emrun client/index.html` - or host it with any stat
 
 ### Android (Android Studio)
 
-Open `client/Platform/Android` in Android Studio, or build with the Gradle wrapper from the command line. The app targets Android 5.0 (API 21) and later. Android SDK Platform 35, NDK `28.2.13676358`, CMake 3.31+, and Gradle 8.10.2 (via the checked-in wrapper) are recommended.
+Open `client/Platform/Android` in Android Studio. The app targets Android 5.0 (API 21) and later. Android SDK Platform 35, NDK `28.2.13676358`, CMake 3.31+ are recommended, and should be installed through the Android Studio SDK Manager.
 
-**NOTE:** Bluetooth is implemented via Java/JNI in the `client` only; there is no dedicated `libmdr-bt` backend. Only paired devices using Classic Bluetooth (RFCOMM) are supported; Bluetooth LE is not implemented.
+**NOTE:** As the Bluetooth functions are only provided via Java/JNI, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is disabled by default, including in debug APKs. The Android CMake project has an opt-in `MDR_CLIENT_DEBUGGER` option.
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented.
 
 ### OpenHarmony (DevEco Studio)
 
@@ -81,7 +81,7 @@ Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.c
 
 **NOTE:** As the Bluetooth functions are only provided via `ArkTS` interop, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is not available on this platform yet.
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented.
 
 ### CMake Options
 
