@@ -167,7 +167,7 @@ For `tooling` and non-project specific code, there is no restriction on memory m
 **No usage whatsoever is allowed.** 
 
 - Portability is a *requirement* for SHC. Some platforms we support (e.g. older Linuxes) are stuck with [older compilers](https://cppreference.com/cpp/compiler_support) that only offered partial coverage for these libraries.
-- Furthermore, usage of which *inadvertently* lead to compile-time, codegen bloat and sometimes runtime performance regressions due to excessive template instantiation and heavy header parsing that's otherwise unnecessary.
+- Furthermore, usage of which *inadvertently* lead to compile-time, codegen bloat and sometimes runtime performance regressions due to excessive template instantiation, heavy header parsing, and possible runtime cost (e.g. `std::views::filter_view`) that's otherwise avoidable.
 
 Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick with standard `<algorithm>` library and for-loops that's both easier to write/comprehend and faster to compile/run.
 
