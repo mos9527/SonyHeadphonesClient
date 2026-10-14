@@ -26,6 +26,7 @@ The following platforms (applies to `libmdr-bt`, `client`; `libmdr` itself is pl
 | Linux            | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | macOS            | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | Web (Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| HarmonyOS (OpenHarmony) | Supported, [manual build required](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/DEVELOPER.md#openharmony-deveco-studio) | [@mos9527](https://github.com/mos9527)             |
 
 For device support, refer to [`docs/device-support`](./docs/device-support/). If the feature support status for your own device is missing/incorrect/untested there, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
