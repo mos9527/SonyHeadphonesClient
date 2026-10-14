@@ -67,8 +67,10 @@ Run the generated page with `emrun client/index.html` - or host it with any stat
 
 ### Android (Android Studio)
 
-Open `client/Platform/Android` in Android Studio. The app targets Android 5.0 (API 21) and later. Android SDK Platform 35, NDK `28.2.13676358`, CMake 3.31+ are recommended, and should be installed through the Android Studio SDK Manager.
+Open `client/Platform/Android` in Android Studio. Relatively new Android SDK, NDK, and CMake should be installed through the Android Studio SDK Manager.
 
+The app targets Android 5.0 (API 21) and later, and by default builds for ARMv7 and ARM64 architectures.
+ 
 **NOTE:** As the Bluetooth functions are only provided via Java/JNI, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
 **NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented.
