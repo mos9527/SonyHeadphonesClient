@@ -1,0 +1,81 @@
+plugins {
+    id 'com.android.application'
+}
+
+def sdlVersion = '3.2.26'
+def sdlSource = providers.gradleProperty('sdlSourceDir').map { file(it) }
+    .getOrElse(rootProject.layout.buildDirectory.dir("vendor/SDL-release-${sdlVersion}").get().asFile)
+
+def prepareSdl = tasks.register('prepareSdl') {
+    inputs.property('version', sdlVersion)
+    outputs.file(new File(sdlSource, 'CMakeLists.txt'))
+    doLast {
+        if (!new File(sdlSource, 'CMakeLists.txt').exists()) {
+            if (providers.gradleProperty('sdlSourceDir').isPresent()) {
+                throw new GradleException("SDL source directory does not exist: ${sdlSource}")
+            }
+            def archive = rootProject.layout.buildDirectory.file("vendor/SDL-${sdlVersion}.zip").get().asFile
+            archive.parentFile.mkdirs()
+            new URI("https://github.com/libsdl-org/SDL/archive/refs/tags/release-${sdlVersion}.zip")
+                .toURL().withInputStream { input -> archive.withOutputStream { it << input } }
+            copy {
+                from zipTree(archive)
+                into archive.parentFile
+            }
+        }
+        if (!new File(sdlSource, 'android-project/app/src/main/java/org/libsdl/app/SDLActivity.java').exists()) {
+            throw new GradleException("SDL Android Java sources are missing: ${sdlSource}")
+        }
+    }
+}
+
+android {
+    namespace 'com.mos9527.sonyheadphonesclient'
+    compileSdk 35
+    ndkVersion '28.2.13676358'
+
+    defaultConfig {
+        applicationId 'com.mos9527.sonyheadphonesclient'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '2.0.0'
+        ndk {
+            abiFilters.addAll(providers.gradleProperty('androidAbis').getOrElse('arm64-v8a,armeabi-v7a').split(','))
+        }
+        externalNativeBuild {
+            cmake {
+                arguments "-DFETCHCONTENT_SOURCE_DIR_SDL3=${sdlSource.absolutePath.replace('\\', '/')}",
+                          '-DANDROID_STL=c++_shared'
+                ['fmt', 'imgui'].each { dependency ->
+                    def directory = providers.gradleProperty("${dependency}SourceDir")
+                    if (directory.isPresent()) {
+                        arguments "-DFETCHCONTENT_SOURCE_DIR_${dependency.toUpperCase()}=${file(directory.get()).absolutePath.replace('\\', '/')}"
+                    }
+                }
+                targets 'main', 'SDL3-shared'
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('../CMakeLists.txt')
+        }
+    }
+    sourceSets.main.java.srcDir new File(sdlSource, 'android-project/app/src/main/java')
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == 'preBuild' || name.startsWith('configureCMake') || name.startsWith('buildCMake')) {
+        dependsOn prepareSdl
+    }
+}

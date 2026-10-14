@@ -789,9 +789,27 @@ void ImTextCentered(const char* text, float fontSize = 0.0f)
 {
     ImStylesRAII scope;
     scope.PushFont(fontSize);
-    ImVec2 size = ImGui::CalcTextSize(text);
-    ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - size.x / 2 + ImGui::GetStyle().FramePadding.x);
-    ImGui::Text("%s", text);
+    const float startX = ImGui::GetCursorPosX();
+    const float width = std::max(1.0f, ImGui::GetContentRegionAvail().x);
+    const float textWidth = ImGui::CalcTextSize(text).x;
+    ImGui::SetCursorPosX(startX + std::max(0.0f, (width - textWidth) * 0.5f));
+    ImGui::PushTextWrapPos(startX + width);
+    ImGui::TextUnformatted(text);
+    ImGui::PopTextWrapPos();
+}
+
+void ImTextCenteredFit(const char* text, float fontSize)
+{
+    ImStylesRAII scope;
+    scope.PushFont(fontSize);
+    const float width = std::max(1.0f, ImGui::GetContentRegionAvail().x);
+    const float textWidth = ImGui::CalcTextSize(text).x;
+    if (textWidth > width)
+    {
+        const float size = std::max(1.0f, std::floor(ImGui::GetFontSize() * (width - 1.0f) / textWidth));
+        scope.PushFont(ImGui::GetStyle().FontSizeBase * size / ImGui::GetFontSize());
+    }
+    ImTextCentered(text);
 }
 
 // Generate linear, monotonous ints of [0, count - 1] at interval of intervalMS
@@ -1115,7 +1133,7 @@ void DrawDeviceDiscovery()
     {
         MDRDeviceInfo*& pDeviceInfo = gDiscoveryDevices;
         int& nDeviceInfo = gDiscoveryDeviceCount;
-        ImTextCentered(Tr(i18n::TextId::AppName), ImGui::GetContentRegionAvail().x * 0.05f);
+        ImTextCenteredFit(Tr(i18n::TextId::AppName), ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::VersionInfo)), CLIENT_VERSION,
                                    MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS, MDR_PLATFORM_PROCESSOR, clientGetAppLocale())
                            .c_str(), IM_FONTSIZE_CAPTION);
@@ -1249,7 +1267,8 @@ void DrawDeviceDiscovery()
         {
             ImStylesRAII scope;
             scope.PushFont(IM_FONTSIZE_CAPTION);
-            ImGui::SeparatorText(mdr::Format(PSI_INFO_SIGN_ALT " {}", Tr(i18n::TextId::ConnectionHelp)).c_str());
+            ImGui::Separator();
+            ImTextCentered(mdr::Format(PSI_INFO_SIGN_ALT " {}", Tr(i18n::TextId::ConnectionHelp)).c_str());
             ImTextCentered(mdr::Format(PSI_WARNING_SIGN " {} " PSI_WARNING_SIGN, Tr(i18n::TextId::Disclaimer)).c_str());
         }
 #ifdef MDR_CLIENT_DEBUGGER
