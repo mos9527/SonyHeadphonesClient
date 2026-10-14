@@ -10,6 +10,13 @@
 #include <memory>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionLinux.h>
+#include <SDL3/SDL_video.h>
+
+float clientPlatformGetDisplayScale()
+{
+    const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    return scale > 0.0f ? scale : 1.0f;
+}
 
 namespace
 {

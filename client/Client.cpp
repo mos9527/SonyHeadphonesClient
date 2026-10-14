@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <array>
+#include <chrono>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -9,7 +11,6 @@
 #include <utility>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <SDL3/SDL.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -21,8 +22,32 @@
 #include "Platform/Platform.hpp"
 #include "I18N/Strings.hpp"
 
-extern AppLocale clientGetAppLocale();
-extern void clientSetAppLocale(AppLocale locale);
+static AppLocale gAppLocale = AppLocale::DEFAULT;
+static bool gPlatformFontLoaded = false;
+static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
+static char* gFontFallbackData = nullptr;
+static int gFontFallbackSize{};
+static mdr::String gFontFallbackPath;
+static constexpr ImWchar gIconGlyphRanges[] = {0xf000, 0xf2ff, 0};
+
+static void DestroyFontFallback()
+{
+    clientPlatformMemoryUnmapFile(gFontFallbackData, static_cast<size_t>(gFontFallbackSize));
+    gFontFallbackData = nullptr;
+    gFontFallbackSize = 0;
+    gFontFallbackPath.clear();
+}
+
+AppLocale clientGetAppLocale()
+{
+    return gAppLocale;
+}
+
+void clientSetAppLocale(AppLocale locale)
+{
+    gAppLocale = locale;
+    gPlatformFontLoaded = false;
+}
 
 static mdr::String ImTextLabel(i18n::TextId id, const char* icon = "")
 {
@@ -984,18 +1009,24 @@ enum DEVICE_TYPE
 
 struct ConnectionAttemptState
 {
-    static constexpr uint64_t kAttemptTimeoutMs = 10'000;
+    static constexpr std::chrono::milliseconds kAttemptTimeout{10'000};
 
     mdr::String address;
     std::array<const char*, 2> services{};
     mdr::String lastError;
     size_t serviceCount{};
     size_t serviceIndex{};
-    uint64_t deadlineMs{};
+    std::chrono::steady_clock::time_point deadline{};
     bool ble{};
 };
 
 ConnectionAttemptState connectionAttempt;
+static bool gDiscoveryPopup{};
+static bool gConnectionPopup{};
+static bool gDisconnectedPopup{};
+static MDRDeviceInfo* gDiscoveryDevices{};
+static int gDiscoveryDeviceCount{};
+static bool gDiscoveryPending{};
 
 const char* ConnectionAttemptName()
 {
@@ -1030,7 +1061,7 @@ MDRResult TryConnectionAttempt(MDRConnection* conn)
                                                       connectionAttempt.services[connectionAttempt.serviceIndex]);
         if (result == MDR_RESULT_OK || result == MDR_RESULT_INPROGRESS)
         {
-            connectionAttempt.deadlineMs = SDL_GetTicks() + ConnectionAttemptState::kAttemptTimeoutMs;
+            connectionAttempt.deadline = std::chrono::steady_clock::now() + ConnectionAttemptState::kAttemptTimeout;
             return result;
         }
 
@@ -1077,13 +1108,13 @@ void DrawDeviceDiscovery()
 {
     assert(connState == CONN_STATE_NO_CONNECTION);
     ImSetNextWindowCentered();
-    static bool popup = false;
+    bool& popup = gDiscoveryPopup;
     if (!popup)
         ImGui::OpenPopup("DeviceDiscovery"), popup = true;
     if (ImGui::BeginPopupModal("DeviceDiscovery", nullptr, kImWindowFlagsTopMost))
     {
-        static MDRDeviceInfo* pDeviceInfo = nullptr;
-        static int nDeviceInfo = 0;
+        MDRDeviceInfo*& pDeviceInfo = gDiscoveryDevices;
+        int& nDeviceInfo = gDiscoveryDeviceCount;
         ImTextCentered(Tr(i18n::TextId::AppName), ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::VersionInfo)), CLIENT_VERSION,
                                    MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS, MDR_PLATFORM_PROCESSOR, clientGetAppLocale())
@@ -1110,8 +1141,14 @@ void DrawDeviceDiscovery()
                 ImStylesRAII styles;
                 if (!usingBLE)
                     styles.PushCol(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+#ifdef MDR_PLATFORM_OHOS
+                ImGui::BeginDisabled();
+#endif
                 if (ImModalButton(TrLable(i18n::TextId::Ble, PSI_BLUETOOTH_ALT), 1, 2))
                     usingBLE = true, needSwitchClientPlatform = true;
+#ifdef MDR_PLATFORM_OHOS
+                ImGui::EndDisabled();
+#endif
             }
         }
         ImGui::BeginDisabled(usingBLE);
@@ -1143,9 +1180,18 @@ void DrawDeviceDiscovery()
         auto RefreshDeviceList = [&]()
         {
             MDRConnection* conn = clientPlatformConnectionGet();
-            if (conn) // TODO: Error modals
-                mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo);
+            if (!conn)
+            {
+                gDiscoveryPending = false;
+                return;
+            }
+            if (pDeviceInfo)
+                mdrConnectionFreeDevicesList(conn, &pDeviceInfo);
+            nDeviceInfo = 0;
+            gDiscoveryPending = mdrConnectionGetDevicesList(conn, &pDeviceInfo, &nDeviceInfo) == MDR_RESULT_INPROGRESS;
         };
+        if (gDiscoveryPending && !needSwitchClientPlatform)
+            RefreshDeviceList();
         if (needSwitchClientPlatform)
         {
             int flags = 0;
@@ -1164,6 +1210,7 @@ void DrawDeviceDiscovery()
             ImHeading(Tr(i18n::TextId::AvailableDevices));
             static int deviceIndex = 0;
             std::span<MDRDeviceInfo> devices{pDeviceInfo, static_cast<size_t>(nDeviceInfo)};
+            deviceIndex = std::clamp(deviceIndex, 0, std::max(0, nDeviceInfo - 1));
             if (!devices.empty())
             {
                 int btnIndex = 0;
@@ -1278,7 +1325,7 @@ void DrawDeviceConnecting()
     if (pollResult != MDR_RESULT_OK)
     {
         const bool attemptTimedOut = (pollResult == MDR_RESULT_INPROGRESS || pollResult == MDR_RESULT_ERROR_TIMEOUT) &&
-            SDL_GetTicks() >= connectionAttempt.deadlineMs;
+            std::chrono::steady_clock::now() >= connectionAttempt.deadline;
         const bool attemptFailed = pollResult != MDR_RESULT_INPROGRESS && pollResult != MDR_RESULT_ERROR_TIMEOUT;
         if (attemptTimedOut || attemptFailed)
         {
@@ -1325,7 +1372,7 @@ void DrawDeviceConnecting()
     case MDR_RESULT_INPROGRESS:
         {
             ImSetNextWindowCentered();
-            static bool popup = false;
+            bool& popup = gConnectionPopup;
             if (!popup)
                 ImGui::OpenPopup("Connection"), popup = true;
             if (ImGui::BeginPopupModal("Connection", nullptr, kImWindowFlagsTopMost))
@@ -1839,7 +1886,7 @@ void DrawDeviceControlsDevices()
     };
     mdr::Vector<DeviceView> devices;
     for (const MDRPairedDevice& state : gState.mPairedDevices)
-        devices.emplace_back(state, mdr::String{state.macAddress}, mdr::String{state.name});
+        devices.push_back(DeviceView{state, mdr::String{state.macAddress}, mdr::String{state.name}});
     auto StageDeviceAction = [](MDRPairedDeviceCommand command, const char* mac)
     {
         MDRPairedDeviceAction action{};
@@ -2346,7 +2393,7 @@ void DrawDeviceControls()
 void DrawDeviceDisconnect()
 {
     MDRConnection* conn = clientPlatformConnectionGet();
-    static bool popup = false;
+    bool& popup = gDisconnectedPopup;
     if (!popup)
     {
 #ifdef MDR_CLIENT_DEBUGGER
@@ -2423,7 +2470,6 @@ void DrawApp()
     ImStylesRAII scope;
     scope.PushFont(IM_FONTSIZE_BODY);
     auto& io = ImGui::GetIO();
-    auto& g = *ImGui::GetCurrentContext();
 #ifdef MDR_CLIENT_DEBUGGER
     if (gDebuggerOnlyMode)
     {
@@ -2491,11 +2537,135 @@ void clientEnterDebuggerReplayMode()
 }
 #endif
 
+bool clientInit(float displayScale, const char* fontPath)
+{
+    gPlatformFontLoaded = false;
+    gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
+    if (fontPath)
+    {
+        void* fontData{};
+        size_t fontSize{};
+        const int result = clientPlatformMemoryMapFile(fontPath, &fontData, &fontSize);
+        if (result != MDR_RESULT_OK || fontSize > static_cast<size_t>(INT_MAX))
+        {
+            if (result != MDR_RESULT_OK)
+                MDR_LOG("Unable to map font file {}: error {}", fontPath, result)
+            else
+                MDR_LOG("Invalid font file size for {}: {} bytes", fontPath, fontSize)
+            clientPlatformMemoryUnmapFile(fontData, fontSize);
+            return false;
+        }
+        gFontFallbackData = static_cast<char*>(fontData);
+        gFontFallbackSize = static_cast<int>(fontSize);
+        gFontFallbackPath = fontPath;
+    }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigErrorRecoveryEnableAssert = true;
+
+    ImGui::StyleColorsDark();
+    MaterialYouTheme::ApplyDefault();
+    auto& style = ImGui::GetStyle();
+    style.ScaleAllSizes(displayScale);
+    style.FontScaleDpi = displayScale;
+    style.FrameRounding = 8.0f;
+    style.CircleTessellationMaxError = 0.01f;
+    style.FramePadding = ImVec2(8.0f, 8.0f);
+
+    io.Fonts->Clear();
+#ifdef MDR_CLIENT_DEBUGGER
+    ImFont* monospaceFont = io.Fonts->AddFontDefault();
+#endif
+    io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+#ifdef MDR_CLIENT_DEBUGGER
+    clientDebuggerSetMonospaceFont(monospaceFont);
+#endif
+    return true;
+}
+
+void clientPrepareFrame()
+{
+    ImGuiIO& io = ImGui::GetIO();
+    while (!gPlatformFontLoaded)
+    {
+        const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
+        const AppLocale locale = !useFontFallback && gAppLocale == AppLocale::DEFAULT ?
+            static_cast<AppLocale>(gFontFallbackIndex) : gAppLocale;
+        const char* fontData = gFontFallbackData;
+        int faceIndex{};
+        const int fontSize = useFontFallback ? gFontFallbackSize :
+            clientPlatformLocateFontBinary(locale, &fontData, &faceIndex);
+        if (fontSize < 0)
+            break;
+        if (fontSize > 0 && fontData && faceIndex >= 0)
+        {
+            MDR_LOG("Loading {} font: locale {}, {} bytes, face {}",
+                    useFontFallback ? "file" : "platform", locale, fontSize, faceIndex);
+            ImFontConfig config{};
+            config.FontDataOwnedByAtlas = false;
+            config.FontNo = static_cast<ImU32>(faceIndex);
+            config.GlyphExcludeRanges = gIconGlyphRanges;
+            if (ImFont* font = io.Fonts->AddFontFromMemoryTTF(
+                    const_cast<char*>(fontData), fontSize, 15.0f, &config))
+            {
+                ImFontConfig iconConfig{};
+                iconConfig.MergeMode = true;
+                iconConfig.DstFont = font;
+                if (io.Fonts->AddFontFromMemoryCompressedBase85TTF(
+                        kEmbedFontPlexSansIcon, 15.0f, &iconConfig, gIconGlyphRanges))
+                {
+                    io.FontDefault = font;
+                    gPlatformFontLoaded = true;
+                    MDR_LOG("Loaded {} font: locale {}, face {}",
+                            useFontFallback ? "file" : "platform", locale, faceIndex);
+                    break;
+                }
+            }
+            if (useFontFallback)
+            {
+                MDR_LOG("Unable to load font file {}.", gFontFallbackPath);
+            }
+            else
+            {
+                MDR_LOG("Unable to load platform font: locale {}, face {}", locale, faceIndex);
+            }
+        }
+        if (useFontFallback || gAppLocale != AppLocale::DEFAULT ||
+            ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
+            gPlatformFontLoaded = true;
+    }
+}
+
 bool clientShouldExit()
 {
     // Defines like IMGUI_DISABLE_OBSOLETE_FUNCTIONS changes ImGui struct sizes
     // and can lead to very, very bad results. Check them here too to ensure than this TU got the correct ones.
     IMGUI_CHECKVERSION();
+    ImGui::NewFrame();
     DrawApp();
+    ImGui::Render();
     return false;
+}
+
+void clientDestroy()
+{
+    CloseDevice();
+    MDRConnection* conn = clientPlatformConnectionGet();
+    if (conn && gDiscoveryDevices)
+        mdrConnectionFreeDevicesList(conn, &gDiscoveryDevices);
+    gDiscoveryDevices = nullptr;
+    gDiscoveryDeviceCount = 0;
+    gDiscoveryPending = false;
+    gDiscoveryPopup = gConnectionPopup = gDisconnectedPopup = false;
+    connectionAttempt = {};
+    connState = CONN_STATE_NO_CONNECTION;
+    gHeadphonesError.clear();
+    ImGui::DestroyContext();
+    DestroyFontFallback();
+    gPlatformFontLoaded = false;
 }

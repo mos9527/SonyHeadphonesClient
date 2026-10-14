@@ -1,5 +1,4 @@
 // ReSharper disable CppParameterMayBeConstPtrOrRef
-#include <ranges>
 #include <algorithm>
 #include <cstring>
 #include <limits>
@@ -245,8 +244,8 @@ namespace mdr
         const int idleCode = MDR_EVENT_NONE;
         if (mRecvBuf.empty())
             return idleCode;
-        auto commandBegin = std::ranges::find(mRecvBuf, kStartMarker);
-        auto commandEnd = std::ranges::find(commandBegin, mRecvBuf.end(), kEndMarker);
+        auto commandBegin = std::find(mRecvBuf.begin(), mRecvBuf.end(), kStartMarker);
+        auto commandEnd = std::find(commandBegin, mRecvBuf.end(), kEndMarker);
         if (commandBegin == mRecvBuf.end() || commandEnd == mRecvBuf.end())
             return idleCode; // Incomplete
         MDRBuffer packedCommand{commandBegin, commandEnd + 1};
@@ -1911,7 +1910,8 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     // Devices silently ignore presets they did not advertise.
     if (equalizer->preset != MDR_EQ_UNKNOWN && !state.mEqPresets.empty() &&
-        std::ranges::none_of(state.mEqPresets, [&](const auto& entry) { return entry.presetId == preset; }))
+        std::none_of(state.mEqPresets.begin(), state.mEqPresets.end(),
+                     [&](const auto& entry) { return entry.presetId == preset; }))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     if (equalizer->dsee_type != MDR_DSEE_UNKNOWN && equalizer->dsee_type != from_protocol(state.mUpscalingType))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
@@ -2293,10 +2293,11 @@ MDRResult mdrHeadphonesGetAssignableControlActions(
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     return WithDetails(h, [&](const auto& state) -> MDRResult
     {
-    auto it = std::ranges::find_if(state.mAssignableSettingsKeys, [&](const auto& keyInfo)
-    {
-        return from_protocol(keyInfo.key) == key;
-    });
+    auto it = std::find_if(state.mAssignableSettingsKeys.begin(), state.mAssignableSettingsKeys.end(),
+                           [&](const auto& keyInfo)
+                           {
+                               return from_protocol(keyInfo.key) == key;
+                           });
     if (it == state.mAssignableSettingsKeys.end())
         return MDR_RESULT_ERROR_NOT_FOUND;
     const auto& presets = AssignablePresets(*it);
@@ -2347,18 +2348,18 @@ MDRResult mdrHeadphonesSetAssignableControls(
         if (control.location == MDR_ASSIGNABLE_ACTION_KEY_UNKNOWN ||
             control.type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_UNKNOWN)
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-        if (std::ranges::find_if(controls, controls + i, [&](const auto& previous)
+        if (std::find_if(controls, controls + i, [&](const auto& previous)
             { return previous.location == control.location; }) != controls + i)
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-        const auto key = std::ranges::find_if(state.mAssignableSettingsKeys, [&](const auto& keyInfo)
-            { return from_protocol(keyInfo.key) == control.location; });
+        const auto key = std::find_if(state.mAssignableSettingsKeys.begin(), state.mAssignableSettingsKeys.end(),
+            [&](const auto& keyInfo) { return from_protocol(keyInfo.key) == control.location; });
         if (key == state.mAssignableSettingsKeys.end() || AssignableKeyType(*key) != control.type)
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
         auto& preset = newPresets[static_cast<size_t>(key - state.mAssignableSettingsKeys.begin())];
         if (!to_protocol(control.action, preset))
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
         const auto& advertised = AssignablePresets(*key);
-        if (std::ranges::find_if(advertised, [&](const auto& option)
+        if (std::find_if(advertised.begin(), advertised.end(), [&](const auto& option)
             { return option.preset == preset; }) == advertised.end())
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     }

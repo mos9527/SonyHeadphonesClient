@@ -142,9 +142,9 @@ namespace mdr
 
             std::coroutine_handle<> h = nullptr;
             // Monotonic timepoint when Awaiter is invoked
-            std::chrono::steady_clock::time_point tick;
+            std::chrono::steady_clock::time_point tick = {};
             // Timeout in milliseconds
-            int timeout;
+            int timeout = {};
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
             // Set when @ref Awake found nobody waiting, so the next co_await completes at once

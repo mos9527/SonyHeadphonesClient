@@ -9,6 +9,7 @@ target_link_libraries(Client_PlatformWindows
         mdr::bt
         PRIVATE
         mdr
+        SDL3::SDL3-static
         ws2_32
         rpcrt4
         dwrite

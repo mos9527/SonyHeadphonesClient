@@ -129,7 +129,7 @@ namespace mdr
         if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
             return MDRUnpackResult::BAD_OTHER;
         outData.resize(data.size());
-        std::ranges::copy(data, outData.begin());
+        std::copy(data.begin(), data.end(), outData.begin());
         return MDRUnpackResult::OK;
     }
 }

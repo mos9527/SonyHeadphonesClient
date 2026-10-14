@@ -276,7 +276,7 @@ CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClie
                 break;
             gCodegenComments[fieldName].emplace_back(ln);
         }
-        std::ranges::reverse(gCodegenComments[fieldName]);
+        std::reverse(gCodegenComments[fieldName].begin(), gCodegenComments[fieldName].end());
     }
     return CXChildVisit_Continue;
 }

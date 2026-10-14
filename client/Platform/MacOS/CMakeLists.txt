@@ -12,6 +12,7 @@ target_link_libraries(Client_PlatformMacOS
         mdr::bt
         PRIVATE
         mdr
+        SDL3::SDL3-static
         ${CORETEXT_LIB}
         ${COREFOUNDATION_LIB}
 )

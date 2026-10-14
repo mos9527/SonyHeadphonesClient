@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iterator>
 #include "Details.hpp"
 // NOLINTBEGIN
 namespace mdr
@@ -129,7 +130,8 @@ namespace mdr
             t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
             t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
         };
-        if (std::ranges::any_of(kPairingFunctions, [&](auto x) { return state.mSupport.contains(x); }))
+        if (std::any_of(std::begin(kPairingFunctions), std::end(kPairingFunctions),
+                        [&](auto x) { return state.mSupport.contains(x); }))
         {
             /* Pairing Mode */
             SendCommandACK(t2::PeripheralGetStatus,

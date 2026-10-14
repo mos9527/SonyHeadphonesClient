@@ -18,6 +18,7 @@ target_link_libraries(Client_PlatformLinux
         mdr::bt
         PRIVATE
         mdr
+        SDL3::SDL3-static
         ${DBus_LIBRARIES}
         Fontconfig::Fontconfig
 )

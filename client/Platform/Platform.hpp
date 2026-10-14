@@ -1,10 +1,30 @@
 #pragma once
 #include <cstddef>
+#include <cstdint>
 #include <mdr-c/Connection.h>
 
 #include "../I18N/Strings.hpp"
 
+extern AppLocale clientGetAppLocale();
+extern void clientSetAppLocale(AppLocale locale);
+extern bool clientInit(float displayScale, const char* fontPath = nullptr);
+extern void clientPrepareFrame();
+extern bool clientShouldExit();
+extern void clientDestroy();
+extern void clientSetPauseMediaOnRemove(bool enabled);
+extern float clientPlatformGetDisplayScale();
+#ifdef MDR_CLIENT_DEBUGGER
+extern void clientEnterDebuggerReplayMode();
+#endif
+
 extern "C" {
+    /**
+     * @brief Current Unix epoch time in milliseconds; not a monotonic clock.
+     * @return Milliseconds since 1970-01-01 UTC, or -1 on failure.
+     * @note See commit 3f685ac as to why std::chrono::system_clock::now() is not used.
+     */
+    extern int64_t clientGetUnixEpochMS();
+
     /**
      * @brief Select and initialize the platform Bluetooth backend.
      *

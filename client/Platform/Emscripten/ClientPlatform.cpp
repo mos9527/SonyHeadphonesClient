@@ -2,11 +2,17 @@
 
 #include <mdr-bt/ConnectionEmscripten.h>
 #include <emscripten.h>
+#include <SDL3/SDL_video.h>
+
+float clientPlatformGetDisplayScale()
+{
+    const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    return scale > 0.0f ? scale : 1.0f;
+}
 
 #ifdef MDR_CLIENT_DEBUGGER
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_error.h>
-#include <SDL3/SDL_video.h>
 #include <mdr/Protocol.hpp>
 
 static mdr::String gDroppedDirectory;
