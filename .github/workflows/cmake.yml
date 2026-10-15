@@ -183,15 +183,25 @@ jobs:
     needs: pre-check
     name: Build SonyHeadphonesClient-ios-unsigned
     runs-on: macos-latest
+    env:
+      IOS_CMAKE_ARGS: >-
+        -DCMAKE_SYSTEM_NAME=iOS
+        -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0
+        -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF
+        -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON
     steps:
       - uses: actions/checkout@v4
 
+      # Xcode generator runs xcodebuild for every check_* (SDL has hundreds of them, ~8 min).
+      # Run the same checks with a fast generator and preseed the Xcode configure with the results.
+      - name: Preseed CMake checks
+        run: |
+          cmake -S . -B build-ios-preseed -G "Unix Makefiles" $IOS_CMAKE_ARGS \
+            || echo "::warning::Preseed configure failed, Xcode configure will run all checks"
+          python3 tooling/cmake_preseed.py build-ios-preseed/CMakeCache.txt build-ios-preseed.cmake
+
       - name: Configure CMake
-        run: >
-          cmake -S . -B build-ios -G Xcode -DCMAKE_SYSTEM_NAME=iOS
-          -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0
-          -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF
-          -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON
+        run: cmake -C build-ios-preseed.cmake -S . -B build-ios -G Xcode $IOS_CMAKE_ARGS
 
       - name: Build
         run: >

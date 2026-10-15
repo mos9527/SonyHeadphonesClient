@@ -43,7 +43,7 @@ namespace
     float gAppliedDisplayScale{1.0f};
     SDL_WindowID gWindowID{};
 
-    constexpr int kRedrawFrames = 3;
+    constexpr int kRedrawFrames = 60;
     constexpr Sint32 kIdleRedrawTimeoutMS = 1000;
     int gRedrawFrames{kRedrawFrames};
 
