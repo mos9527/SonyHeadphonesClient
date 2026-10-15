@@ -93,11 +93,11 @@ Xcode (15.0+) and an Apple ID are required. Generate an Xcode project, select yo
 cmake -B build-ios -G Xcode -DCMAKE_SYSTEM_NAME=iOS \
       -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF \
       -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
-      -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE="Automatic" # If you have a team ID, use  `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>` instead.
+      -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE="Automatic" # If you have a team ID, use `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>` instead.
 open build-ios/SonyHeadphonesClient.xcodeproj
 ```
 
-Signing is automatic. To keep the team across regenerations, pass `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>`. Bundle identifiers are globally unique; if signing fails to register `com.mos9527.SonyHeadphonesClient`, change it under *Signing & Capabilities*.
+Signing in Xcode is required. You may want to configure **Signing & Capabilities** for the `SonyHeadphonesClient` target first to a valid one, or preconfigure it in the aforementioned CMake commandline.
 
 #### Installing Unsigned IPAs
 
