@@ -20,7 +20,8 @@ extern void clientOnUpdate();
 // - Debugger sends start a raw-command task and queue TX bytes, invoking packet observers synchronously;
 //   actual transport send/receive and task completion are driven by subsequent polling.
 // - UI connection/discovery actions can call the platform connection backend directly.
-extern void clientOnFrame();
+// @returns: true if the UI wants to be redrawn.
+extern bool clientOnFrame();
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();

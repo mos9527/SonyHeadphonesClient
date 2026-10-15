@@ -24,6 +24,7 @@
 
 static AppLocale gAppLocale = AppLocale::DEFAULT;
 static bool gPlatformFontLoaded = false;
+static bool gWantAnimate = false;
 static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
 static char* gFontFallbackData = nullptr;
 static int gFontFallbackSize{};
@@ -788,6 +789,7 @@ void ImSpinner(float interval, float width, ImU32 color, float thickness = 4.0f,
     ImGui::Dummy({width, itemHeight});
     if (!ImGui::IsItemVisible())
         return;
+    gWantAnimate = true;
     offset.y += (itemHeight - thickness) * 0.5f;
 
     ImDrawList* draw = ImGui::GetWindowDrawList();
@@ -2576,7 +2578,7 @@ bool clientInit(float displayScale, const char* fontPath)
 }
 
 
-void clientOnFrame()
+bool clientOnFrame()
 {
     // Defines like IMGUI_DISABLE_OBSOLETE_FUNCTIONS changes ImGui struct sizes
     // and can lead to very, very bad results. Check them here too to ensure than this TU got the correct ones.
@@ -2639,9 +2641,11 @@ void clientOnFrame()
             MaterialYouTheme::ApplyDefault();
         gThemePending = false;
     }
+    gWantAnimate = false;
     ImGui::NewFrame();
     DrawApp();
     ImGui::Render();
+    return gWantAnimate || !gPlatformFontLoaded || ImGui::IsAnyItemActive() || io.WantTextInput;
 }
 
 void clientDestroy()
