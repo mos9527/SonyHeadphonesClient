@@ -179,6 +179,59 @@ jobs:
         with:
           path: build/client/
 
+  android:
+    needs: pre-check
+    name: Build SonyHeadphonesClient-android
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    defaults:
+      run:
+        working-directory: client/Platform/Android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install CMake 3.31 for AGP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          python -m pip install --target "$RUNNER_TEMP/android-build-tools" cmake==3.31.6
+          echo "cmake.dir=$RUNNER_TEMP/android-build-tools/cmake/data" > local.properties
+          "$RUNNER_TEMP/android-build-tools/cmake/data/bin/cmake" --version
+
+      - name: Build signed release APK
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE_FILE"
+          bash ./gradlew assembleRelease --no-daemon
+
+      - name: Build debug APK (no signing secrets)
+        if: env.ANDROID_KEYSTORE_BASE64 == ''
+        run: bash ./gradlew assembleDebug --no-daemon
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonyHeadphonesClient-android
+          path: client/Platform/Android/app/build/outputs/apk/*/*.apk
+          if-no-files-found: error
+
   deploy:
     name: Deploy Client to GitHub Pages
     if: (github.event_name == 'push' && github.ref == 'refs/heads/v1-compat') || github.event_name == 'workflow_dispatch'

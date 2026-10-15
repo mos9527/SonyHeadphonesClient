@@ -29,6 +29,8 @@ def prepareSdl = tasks.register('prepareSdl') {
     }
 }
 
+def releaseKeystore = providers.environmentVariable('ANDROID_KEYSTORE_FILE')
+
 android {
     namespace 'com.mos9527.sonyheadphonesclient'
     compileSdk 35
@@ -68,9 +70,22 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    signingConfigs {
+        release {
+            if (releaseKeystore.isPresent()) {
+                storeFile file(releaseKeystore.get())
+                storePassword providers.environmentVariable('ANDROID_KEYSTORE_PASSWORD').get()
+                keyAlias providers.environmentVariable('ANDROID_KEY_ALIAS').get()
+                keyPassword providers.environmentVariable('ANDROID_KEY_PASSWORD').get()
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
+            if (releaseKeystore.isPresent()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
