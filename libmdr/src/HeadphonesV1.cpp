@@ -678,6 +678,12 @@ namespace mdr
             state.mAutoPauseEnabled.commit();
         }
 
+        if (state.mHeadGestureEnabled.pending())
+        {
+            // TODO @Amrsatrio            
+            state.mHeadGestureEnabled.override(state.mHeadGestureEnabled.mCurrent);
+        }
+
         if (state.mAssignableSettingsPresets.pending())
         {
             if (state.mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTINGS))
