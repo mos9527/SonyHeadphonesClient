@@ -4,12 +4,15 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <algorithm>
 #include <array>
 #include <climits>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <type_traits>
+#include <vector>
 #include <mdr/Protocol.hpp>
 #include <SDL3/SDL_video.h>
 
@@ -34,8 +37,13 @@ struct CachedFont
     bool queried{};
     void* data{};
     int size{};
-    int faceIndex{};
 };
+
+void ReleaseFont(CachedFont& font)
+{
+    std::free(font.data);
+    font = CachedFont{};
+}
 
 std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
 
@@ -45,76 +53,90 @@ uint32_t ReadUInt32BE(const unsigned char* data)
            (uint32_t(data[2]) << 8) | uint32_t(data[3]);
 }
 
-bool MatchesNameTable(const unsigned char* data, size_t size, size_t offset, CFDataRef name)
+void WriteUInt16BE(unsigned char* data, uint32_t value)
 {
-    if (offset > size || size - offset < 12)
-        return false;
-    const auto* header = data + offset;
-    const uint32_t version = ReadUInt32BE(header);
-    if (version != 0x00010000 && version != 0x4f54544f && version != 0x74727565)
-        return false;
-    const size_t tableCount = (size_t(header[4]) << 8) | size_t(header[5]);
-    if (tableCount > (size - offset - 12) / 16)
-        return false;
-    for (size_t table = 0; table < tableCount; ++table)
-    {
-        const auto* record = header + 12 + table * 16;
-        if (ReadUInt32BE(record) != static_cast<uint32_t>(kCTFontTableName))
-            continue;
-        const size_t tableOffset = ReadUInt32BE(record + 8);
-        const size_t tableSize = ReadUInt32BE(record + 12);
-        return tableOffset <= size && tableSize <= size - tableOffset &&
-               tableSize == static_cast<size_t>(CFDataGetLength(name)) &&
-               std::memcmp(data + tableOffset, CFDataGetBytePtr(name), tableSize) == 0;
-    }
-    return false;
+    data[0] = static_cast<unsigned char>(value >> 8);
+    data[1] = static_cast<unsigned char>(value);
 }
 
-bool FindFaceIndex(CTFontRef font, const char* bytes, size_t size, int& outIndex)
+void WriteUInt32BE(unsigned char* data, uint32_t value)
 {
-    CFPtr<CFDataRef> name(CTFontCopyTable(font, kCTFontTableName, kCTFontTableOptionNoOptions));
-    if (!name || CFDataGetLength(name.get()) <= 0 || size < 12)
-        return false;
-    const auto* data = reinterpret_cast<const unsigned char*>(bytes);
-    if (ReadUInt32BE(data) != 0x74746366)
-    {
-        outIndex = 0;
-        return MatchesNameTable(data, size, 0, name.get());
-    }
-    const size_t faceCount = ReadUInt32BE(data + 8);
-    if (!faceCount || faceCount > (size - 12) / 4 || faceCount > static_cast<size_t>(INT_MAX))
-        return false;
-    for (size_t face = 0; face < faceCount; ++face)
-    {
-        if (MatchesNameTable(data, size, ReadUInt32BE(data + 12 + face * 4), name.get()))
-        {
-            outIndex = static_cast<int>(face);
-            return true;
-        }
-    }
-    return false;
+    WriteUInt16BE(data, value >> 16);
+    WriteUInt16BE(data + 2, value);
 }
 
-bool LoadFont(CFStringRef requestedName, const UniChar* sample, CFIndex sampleSize, CachedFont& cache)
+// Rebuild a standalone sfnt from the tables CoreText exposes. Avoids touching font files
+// directly, which are not readable from the iOS app sandbox (system/asset fonts).
+bool CopyFontTables(CTFontRef font, CFArrayRef tags, bool cffOnly, CachedFont& cache)
 {
-    CFPtr<CTFontRef> font(CTFontCreateWithNameAndOptions(
-        requestedName, 15.0, nullptr, kCTFontOptionsPreventAutoActivation));
-    if (!font)
+    struct Table
+    {
+        uint32_t tag;
+        CFPtr<CFDataRef> data;
+    };
+    std::vector<Table> tables;
+    for (CFIndex i = 0; i < CFArrayGetCount(tags); ++i)
+    {
+        const auto tag = static_cast<CTFontTableTag>(reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags, i)));
+        CFPtr<CFDataRef> data(CTFontCopyTable(font, tag, kCTFontTableOptionNoOptions));
+        if (data && CFDataGetLength(data.get()) > 0)
+            tables.push_back({tag, std::move(data)});
+    }
+    if (tables.empty() || tables.size() > 0xFFFF)
         return false;
-    CFPtr<CFStringRef> name(CTFontCopyPostScriptName(font.get()));
-    if (!name || !CFEqual(name.get(), requestedName))
+    std::sort(tables.begin(), tables.end(), [](const Table& a, const Table& b) { return a.tag < b.tag; });
+    const size_t count = tables.size();
+    size_t total = 12 + 16 * count;
+    for (const auto& table : tables)
+    {
+        total += (static_cast<size_t>(CFDataGetLength(table.data.get())) + 3) & ~size_t(3);
+        if (total > static_cast<size_t>(INT_MAX))
+            return false;
+    }
+    auto* out = static_cast<unsigned char*>(std::calloc(total, 1));
+    if (!out)
         return false;
+    uint32_t entrySelector = 0;
+    while ((2u << entrySelector) <= count)
+        ++entrySelector;
+    const uint32_t searchRange = 16u << entrySelector;
+    WriteUInt32BE(out, cffOnly ? 0x4f54544f : 0x00010000);
+    WriteUInt16BE(out + 4, static_cast<uint32_t>(count));
+    WriteUInt16BE(out + 6, searchRange);
+    WriteUInt16BE(out + 8, entrySelector);
+    WriteUInt16BE(out + 10, static_cast<uint32_t>(count * 16) - searchRange);
+    size_t offset = 12 + 16 * count;
+    for (size_t i = 0; i < count; ++i)
+    {
+        const auto* bytes = CFDataGetBytePtr(tables[i].data.get());
+        const size_t length = static_cast<size_t>(CFDataGetLength(tables[i].data.get()));
+        std::memcpy(out + offset, bytes, length);
+        uint32_t checksum = 0;
+        for (size_t word = 0; word < length; word += 4)
+            checksum += ReadUInt32BE(out + offset + word);
+        auto* record = out + 12 + i * 16;
+        WriteUInt32BE(record, tables[i].tag);
+        WriteUInt32BE(record + 4, checksum);
+        WriteUInt32BE(record + 8, static_cast<uint32_t>(offset));
+        WriteUInt32BE(record + 12, static_cast<uint32_t>(length));
+        offset += (length + 3) & ~size_t(3);
+    }
+    cache.data = out;
+    cache.size = static_cast<int>(total);
+    return true;
+}
+
+bool LoadCTFont(CTFontRef font, const UniChar* sample, CFIndex sampleSize, CachedFont& cache)
+{
     std::array<CGGlyph, 3> glyphs{};
     if (sampleSize <= 0 || sampleSize > static_cast<CFIndex>(glyphs.size()) ||
-        !CTFontGetGlyphsForCharacters(font.get(), sample, glyphs.data(), sampleSize))
+        !CTFontGetGlyphsForCharacters(font, sample, glyphs.data(), sampleSize))
         return false;
-    CFPtr<CFTypeRef> url(CTFontCopyAttribute(font.get(), kCTFontURLAttribute));
-    if (!url || CFGetTypeID(url.get()) != CFURLGetTypeID())
-        return false;
-    std::array<UInt8, PATH_MAX> path{};
-    if (!CFURLGetFileSystemRepresentation(static_cast<CFURLRef>(url.get()), true, path.data(), path.size()))
-        return false;
-    CFPtr<CFArrayRef> tables(CTFontCopyAvailableTables(font.get(), kCTFontTableOptionNoOptions));
+    CFPtr<CFStringRef> name(CTFontCopyPostScriptName(font));
+    std::array<char, 256> postScriptName{};
+    if (name)
+        CFStringGetCString(name.get(), postScriptName.data(), postScriptName.size(), kCFStringEncodingUTF8);
+    CFPtr<CFArrayRef> tables(CTFontCopyAvailableTables(font, kCTFontTableOptionNoOptions));
     bool hasGlyf = false;
     bool hasCFF = false;
     for (CFIndex table = 0; tables && table < CFArrayGetCount(tables.get()); ++table)
@@ -126,27 +148,37 @@ bool LoadFont(CFStringRef requestedName, const UniChar* sample, CFIndex sampleSi
     }
     if (!hasGlyf && !hasCFF)
     {
-        MDR_LOG("Skipping font without STB-compatible outlines: {}", reinterpret_cast<const char*>(path.data()));
+        MDR_LOG("Skipping font without STB-compatible outlines: {}", postScriptName.data());
         return false;
     }
-    void* addr{};
-    size_t size{};
-    if (clientPlatformMemoryMapFile(reinterpret_cast<const char*>(path.data()), &addr, &size) != MDR_RESULT_OK)
+    if (!CopyFontTables(font, tables.get(), !hasGlyf, cache))
         return false;
-    int faceIndex{};
-    if (size > static_cast<size_t>(INT_MAX) ||
-        !FindFaceIndex(font.get(), static_cast<const char*>(addr), size, faceIndex))
-    {
-        clientPlatformMemoryUnmapFile(addr, size);
-        return false;
-    }
-    cache.data = addr;
-    cache.size = static_cast<int>(size);
-    cache.faceIndex = faceIndex;
-    std::array<char, 256> postScriptName{};
-    CFStringGetCString(name.get(), postScriptName.data(), postScriptName.size(), kCFStringEncodingUTF8);
-    MDR_LOG("Located macOS font: {}, {} bytes, face {}", postScriptName.data(), cache.size, cache.faceIndex);
+    MDR_LOG("Located Apple font: {}, {} bytes", postScriptName.data(), cache.size);
     return true;
+}
+
+bool LoadFont(CFStringRef requestedName, const UniChar* sample, CFIndex sampleSize, CachedFont& cache)
+{
+    CFPtr<CTFontRef> font(CTFontCreateWithNameAndOptions(
+        requestedName, 15.0, nullptr, kCTFontOptionsPreventAutoActivation));
+    if (!font)
+        return false;
+    CFPtr<CFStringRef> name(CTFontCopyPostScriptName(font.get()));
+    if (!name || !CFEqual(name.get(), requestedName))
+        return false;
+    return LoadCTFont(font.get(), sample, sampleSize, cache);
+}
+
+bool LoadCascadeFont(CFStringRef language, const UniChar* sample, CFIndex sampleSize, CachedFont& cache)
+{
+    CFPtr<CTFontRef> base(CTFontCreateUIFontForLanguage(kCTFontUIFontSystem, 15.0, language));
+    if (!base)
+        return false;
+    CFPtr<CFStringRef> text(CFStringCreateWithCharacters(kCFAllocatorDefault, sample, sampleSize));
+    if (!text)
+        return false;
+    CFPtr<CTFontRef> font(CTFontCreateForString(base.get(), text.get(), CFRangeMake(0, sampleSize)));
+    return font && LoadCTFont(font.get(), sample, sampleSize, cache);
 }
 
 void LocateFont(AppLocale locale, CachedFont& cache)
@@ -156,7 +188,8 @@ void LocateFont(AppLocale locale, CachedFont& cache)
     const CFStringRef tc[] = {CFSTR("NotoSansCJKtc-Regular"), CFSTR("PingFangTC-Regular"),
                              CFSTR("PingFangHK-Regular"), CFSTR("STHeitiTC-Medium"), nullptr};
     const CFStringRef jp[] = {CFSTR("NotoSansCJKjp-Regular"), CFSTR("HiraginoSans-W4"),
-                             CFSTR("HiraKakuProN-W4"), CFSTR("YuGothic-Regular"), nullptr};
+                             CFSTR("HiraKakuProN-W4"), CFSTR("HiraginoSans-W3"),
+                             CFSTR("HiraKakuProN-W3"), CFSTR("YuGothic-Regular"), nullptr};
     const CFStringRef kr[] = {CFSTR("NotoSansCJKkr-Regular"), CFSTR("AppleSDGothicNeo-Regular"),
                              CFSTR("AppleGothic"), nullptr};
     const UniChar scSample[] = {0x4e2d, 0x6c49};
@@ -165,18 +198,20 @@ void LocateFont(AppLocale locale, CachedFont& cache)
     const UniChar krSample[] = {0xd55c, 0xae00};
     const CFStringRef* candidates{};
     const UniChar* sample{};
+    CFStringRef language{};
     CFIndex sampleSize = 2;
     switch (locale)
     {
-    case AppLocale::SIMPLIFIED_CHINESE: candidates = sc; sample = scSample; break;
-    case AppLocale::TRADITIONAL_CHINESE: candidates = tc; sample = tcSample; break;
-    case AppLocale::JAPANESE: candidates = jp; sample = jpSample; sampleSize = 3; break;
-    case AppLocale::KOREAN: candidates = kr; sample = krSample; break;
+    case AppLocale::SIMPLIFIED_CHINESE: candidates = sc; sample = scSample; language = CFSTR("zh-Hans"); break;
+    case AppLocale::TRADITIONAL_CHINESE: candidates = tc; sample = tcSample; language = CFSTR("zh-Hant"); break;
+    case AppLocale::JAPANESE: candidates = jp; sample = jpSample; sampleSize = 3; language = CFSTR("ja"); break;
+    case AppLocale::KOREAN: candidates = kr; sample = krSample; language = CFSTR("ko"); break;
     default: return;
     }
     for (; *candidates; ++candidates)
         if (LoadFont(*candidates, sample, sampleSize, cache))
             return;
+    LoadCascadeFont(language, sample, sampleSize, cache);
 }
 }
 
@@ -195,7 +230,6 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
         LocateFont(locale, cache);
     }
     *outData = static_cast<const char*>(cache.data);
-    *outFaceIndex = cache.faceIndex;
     return cache.size;
 }
 
@@ -232,10 +266,7 @@ void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
-    {
-        clientPlatformMemoryUnmapFile(font.data, static_cast<size_t>(font.size));
-        font = CachedFont{};
-    }
+        ReleaseFont(font);
 }
 }
 

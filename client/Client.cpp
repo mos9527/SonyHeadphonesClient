@@ -2641,8 +2641,16 @@ bool clientOnFrame()
                 MDR_LOG("Unable to load platform font: locale {}, face {}", locale, faceIndex);
             }
         }
-        if (useFontFallback || gAppLocale != AppLocale::DEFAULT ||
-            ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
+        if (gAppLocale != AppLocale::DEFAULT)
+        {
+            // Without a usable font the localized UI would only render as '?'. Fall back to English,
+            // which the embedded font always covers.
+            MDR_LOG("No usable font for locale {}, falling back to {}.", gAppLocale, AppLocale::DEFAULT);
+            gAppLocale = AppLocale::DEFAULT;
+            if (useFontFallback)
+                gPlatformFontLoaded = true;
+        }
+        else if (useFontFallback || ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
             gPlatformFontLoaded = true;
     }
     if (gThemePending)
