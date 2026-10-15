@@ -1145,14 +1145,8 @@ void DrawDeviceDiscovery()
                 ImStylesRAII styles;
                 if (!usingBLE)
                     styles.PushCol(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-#ifdef MDR_PLATFORM_OHOS
-                ImGui::BeginDisabled();
-#endif
                 if (ImModalButton(TrLable(i18n::TextId::Ble, PSI_BLUETOOTH_ALT), 1, 2))
                     usingBLE = true, needSwitchClientPlatform = true;
-#ifdef MDR_PLATFORM_OHOS
-                ImGui::EndDisabled();
-#endif
             }
         }
         ImGui::BeginDisabled(usingBLE);
