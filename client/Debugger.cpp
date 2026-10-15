@@ -750,38 +750,87 @@ namespace
         gStatus = result == MDR_RESULT_OK ? Tr(i18n::TextId::DebuggerPacketQueued) : mdrResultString(result);
     }
 
-    void DrawComposer()
+    float ButtonWidth(const char* label)
     {
+        return ImGui::CalcTextSize(label, nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    }
+
+    void NextToolbarItem(float width, bool alignRight = false)
+    {
+        const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
+        const float nextX = ImGui::GetItemRectMax().x - ImGui::GetWindowPos().x + ImGui::GetStyle().ItemSpacing.x;
+        if (nextX + width <= rightEdge)
+            ImGui::SameLine(alignRight ? rightEdge - width : nextX);
+        else if (alignRight)
+            ImGui::SetCursorPosX(std::max(ImGui::GetCursorPosX(), rightEdge - width));
+    }
+
+    std::array<float, 7> ComposerItemWidths()
+    {
+        const ImGuiStyle& style = ImGui::GetStyle();
+        const float scalarWidth = ImGui::CalcTextSize("255").x + style.FramePadding.x * 2.0f;
+        return {
+            ButtonWidth(Tr(i18n::TextId::DebuggerCommand)),
+            ButtonWidth(Tr(i18n::TextId::DebuggerReset)),
+            scalarWidth + ImGui::GetFrameHeight() * 2.0f + style.ItemInnerSpacing.x * 3.0f +
+                ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerType)).x,
+            scalarWidth + style.ItemInnerSpacing.x + ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x,
+            ImGui::GetFrameHeight() + style.ItemInnerSpacing.x + ImGui::CalcTextSize("ACK").x,
+            ButtonWidth(Tr(i18n::TextId::DebuggerExport)),
+            ButtonWidth(Tr(i18n::TextId::DebuggerSend))};
+    }
+
+    float ComposerHeight(float width)
+    {
+        const float availableWidth = std::max(1.0f, width - 20.0f);
+        float rowWidth = 0.0f;
+        float height = ImGui::GetFrameHeight() + 18.0f;
+        for (const float itemWidth : ComposerItemWidths())
+        {
+            if (rowWidth > 0.0f && rowWidth + itemWidth > availableWidth)
+            {
+                rowWidth = 0.0f;
+                height += ImGui::GetFrameHeightWithSpacing();
+            }
+            rowWidth += itemWidth + ImGui::GetStyle().ItemSpacing.x;
+        }
+        return height;
+    }
+
+    void DrawComposer(float height)
+    {
+        const auto widths = ComposerItemWidths();
         ImVec4 composerColor = ImGui::GetStyleColorVec4(ImGuiCol_CheckMark);
         composerColor.w = 0.13f;
         ImGui::PushStyleColor(ImGuiCol_ChildBg, composerColor);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetStyle().FrameRounding);
-        if (ImGui::BeginChild("##command-composer", {-1.0f, ImGui::GetFrameHeightWithSpacing() + 18.0f},
-                              ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar))
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {10.0f, 9.0f});
+        if (ImGui::BeginChild("##command-composer", {0.0f, height}, ImGuiChildFlags_AlwaysUseWindowPadding,
+                              ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
-            ImGui::SetCursorPos({10.0f, 9.0f});
             DrawNewPacketPicker();
-            ImGui::SameLine();
+            NextToolbarItem(widths[1]);
 
             ImGui::BeginDisabled(!gPacket);
             if (ImGui::Button(TextLabel(i18n::TextId::DebuggerReset).c_str()))
                 ResetPacket();
-            ImGui::SameLine();
+            NextToolbarItem(widths[2]);
 
             int type = static_cast<int>(gEnvelopeType);
-            ImGui::SetNextItemWidth(70.0f);
+            const float labelSpacing = ImGui::GetStyle().ItemInnerSpacing.x;
+            ImGui::SetNextItemWidth(widths[2] - labelSpacing - ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerType)).x);
             if (ImGui::InputInt(TextLabel(i18n::TextId::DebuggerType).c_str(), &type))
                 gEnvelopeType = static_cast<mdr::MDRDataType>(type);
-            ImGui::SameLine();
+            NextToolbarItem(widths[3]);
             if (gHeadphones)
                 gEnvelopeSequence = mdr::detail::HeadphonesImpl(gHeadphones)->CurrentSequenceNumber();
-            ImGui::SetNextItemWidth(55.0f);
+            ImGui::SetNextItemWidth(widths[3] - labelSpacing - ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x);
             ImGui::BeginDisabled(gHeadphones != nullptr);
             DrawScalar(TextLabel(i18n::TextId::DebuggerSequence).c_str(), gEnvelopeSequence);
             ImGui::EndDisabled();
-            ImGui::SameLine();
+            NextToolbarItem(widths[4]);
             ImGui::Checkbox("ACK", &gAwaitAck);
-            ImGui::SameLine();
+            NextToolbarItem(widths[5]);
 
             const bool encoded = UpdateEncodedPayload();
             ImGui::BeginDisabled(!encoded || clientDebuggerExportInProgress());
@@ -792,8 +841,7 @@ namespace
             ImGui::EndDisabled();
 
             const bool canSend = encoded && gHeadphones && mdrHeadphonesIsReady(gHeadphones);
-            const float sendWidth = ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSend)).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-            ImGui::SameLine(std::max(ImGui::GetCursorPosX(), ImGui::GetWindowWidth() - sendWidth - 12.0f));
+            NextToolbarItem(widths[6], true);
             ImGui::BeginDisabled(!canSend);
             if (ImGui::Button(TextLabel(i18n::TextId::DebuggerSend).c_str()))
                 SendPacket();
@@ -801,7 +849,7 @@ namespace
             ImGui::EndDisabled();
         }
         ImGui::EndChild();
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar(2);
         ImGui::PopStyleColor();
     }
 
@@ -1009,10 +1057,10 @@ namespace
     {
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted(Tr(i18n::TextId::DebuggerPackets));
-        ImGui::SameLine();
         const mdr::String followLabel = mdr::Format(
             "{} {}###follow-messages", PSI_SIGNAL,
             Tr(gFollowMessages ? i18n::TextId::DebuggerFollowOn : i18n::TextId::DebuggerFollowOff));
+        NextToolbarItem(ButtonWidth(followLabel.c_str()));
         if (ImGui::Button(followLabel.c_str()))
             gFollowMessages = !gFollowMessages;
 
@@ -1020,26 +1068,20 @@ namespace
         const mdr::String clearLabel = TextLabel(i18n::TextId::DebuggerClear, PSI_TRASH);
         const mdr::String closeLabel = TextLabel(
             replayMode ? i18n::TextId::DebuggerQuitReplay : i18n::TextId::DebuggerClose);
-        const float dumpWidth =
-            ImGui::CalcTextSize(dumpLabel.c_str(), nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        const float clearWidth =
-            ImGui::CalcTextSize(clearLabel.c_str(), nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        const float closeWidth =
-            open ? ImGui::CalcTextSize(closeLabel.c_str(), nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
-        const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
-        const float rightButtons = dumpWidth + buttonSpacing + clearWidth + (open ? buttonSpacing + closeWidth : 0.0f);
-        ImGui::SameLine(std::max(ImGui::GetCursorPosX(), rightEdge - rightButtons));
+        const float rightButtons = ButtonWidth(dumpLabel.c_str()) + buttonSpacing + ButtonWidth(clearLabel.c_str()) +
+            (open ? buttonSpacing + ButtonWidth(closeLabel.c_str()) : 0.0f);
+        NextToolbarItem(std::min(rightButtons, ImGui::GetContentRegionAvail().x), true);
         ImGui::BeginDisabled(gHistory.empty() || clientDebuggerExportInProgress());
         if (ImGui::Button(dumpLabel.c_str()))
             clientDebuggerExportPacketCollection();
         ImGui::EndDisabled();
-        ImGui::SameLine();
+        NextToolbarItem(ButtonWidth(clearLabel.c_str()));
         if (ImGui::Button(clearLabel.c_str()))
             ClearHistory();
         if (open)
         {
-            ImGui::SameLine();
+            NextToolbarItem(ButtonWidth(closeLabel.c_str()));
             ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(200, 0, 0, 255));
             if (ImGui::Button(closeLabel.c_str()))
             {
@@ -1049,10 +1091,6 @@ namespace
             ImGui::PopStyleColor();
         }
 
-        ImGui::SetNextItemWidth(-1.0f);
-        const mdr::String filterHint = mdr::Format("{} {}", PSI_FILTER, Tr(i18n::TextId::DebuggerFilterPackets));
-        ImGui::InputTextWithHint("##history-filter", filterHint.c_str(),
-                                 gHistoryFilter.data(), gHistoryFilter.size());
         if (!gExportStatus.empty())
             ImGui::TextWrapped("%s", gExportStatus.c_str());
     }
@@ -1279,8 +1317,7 @@ void clientDebuggerDraw(bool* open, bool replayMode)
     if (!ImGui::IsPopupOpen("Debugger"))
         ImGui::OpenPopup("Debugger");
     ImGui::SetNextWindowSize({displaySize.x, displaySize.y * 0.8f}, ImGuiCond_Appearing);
-    ImGui::SetNextWindowSizeConstraints({displaySize.x, 0.0f},
-                                        {displaySize.x, std::numeric_limits<float>::max()});
+    ImGui::SetNextWindowSizeConstraints({displaySize.x, 0.0f}, displaySize);
     ImGui::SetNextWindowPos({displaySize.x * 0.5f, displaySize.y * 0.5f}, ImGuiCond_Always, {0.5f, 0.5f});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {20.0f, 16.0f});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8.0f, 8.0f});
@@ -1296,30 +1333,42 @@ void clientDebuggerDraw(bool* open, bool replayMode)
         ImGui::CloseCurrentPopup();
     }
 
+    DrawHistoryToolbar(open, replayMode);
+    ImGui::Separator();
+
+    const float composerHeight = ComposerHeight(ImGui::GetContentRegionAvail().x);
+    const float panelsHeight = std::max(1.0f, ImGui::GetContentRegionAvail().y - composerHeight - ImGui::GetStyle().ItemSpacing.y);
+    const float panelHeight = std::max(1.0f, panelsHeight - ImGui::GetStyle().CellPadding.y * 2.0f);
     if (ImGui::BeginTable("##debugger-panels", 2,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV |
-                              ImGuiTableFlags_SizingStretchProp))
+                              ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendY,
+                          {0.0f, panelsHeight}))
     {
         ImGui::TableSetupColumn(Tr(i18n::TextId::DebuggerPackets), ImGuiTableColumnFlags_WidthStretch, 0.42f);
         ImGui::TableSetupColumn(Tr(i18n::TextId::Controls), ImGuiTableColumnFlags_WidthStretch, 0.58f);
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        DrawHistoryToolbar(open, replayMode);
-        ImGui::Separator();
-        if (ImGui::BeginChild("##command-history", {-1.0f, -1.0f}))
-            DrawHistory();
+        if (ImGui::BeginChild("##history-panel", {0.0f, panelHeight}, ImGuiChildFlags_None,
+                              ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+        {
+            ImGui::SetNextItemWidth(-1.0f);
+            const mdr::String filterHint = mdr::Format("{} {}", PSI_FILTER, Tr(i18n::TextId::DebuggerFilterPackets));
+            ImGui::InputTextWithHint("##history-filter", filterHint.c_str(),
+                                     gHistoryFilter.data(), gHistoryFilter.size());
+            ImGui::Separator();
+            if (ImGui::BeginChild("##command-history", {0.0f, 0.0f}))
+                DrawHistory();
+            ImGui::EndChild();
+        }
         ImGui::EndChild();
 
         ImGui::TableSetColumnIndex(1);
-        const float composerHeight = ImGui::GetFrameHeightWithSpacing() + 18.0f;
-        const float editorHeight = std::max(100.0f, ImGui::GetContentRegionAvail().y - composerHeight - 8.0f);
-        if (ImGui::BeginChild("##packet-editor", {-1.0f, editorHeight}, ImGuiChildFlags_Borders))
+        if (ImGui::BeginChild("##packet-editor", {0.0f, panelHeight}, ImGuiChildFlags_Borders))
             DrawPacketEditor();
         ImGui::EndChild();
-        ImGui::Spacing();
-        DrawComposer();
         ImGui::EndTable();
     }
+    DrawComposer(composerHeight);
     ImGui::EndPopup();
     ImGui::PopStyleVar(2);
 }
