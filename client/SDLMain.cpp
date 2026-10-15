@@ -345,8 +345,7 @@ namespace
                 continue;
             }
 
-            MDR_LOG("Unknown argument: {}", argument);
-            return false;
+            MDR_LOG("Ignoring unknown argument: {}", argument);
         }
 
         if (options.recordDirectory && options.replayPath)
@@ -452,9 +451,13 @@ int main(int argc, char** argv)
         }
 #endif
         const float displayScale = clientPlatformGetDisplayScale();
-        gWindow =
-            SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
-                             CLIENT_WINDOW_HEIGHT * displayScale, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+        SDL_WindowFlags windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#if defined(SDL_PLATFORM_IOS)
+        // UIKit: borderless hides the status bar via SDL's view controller.
+        windowFlags |= SDL_WINDOW_BORDERLESS;
+#endif
+        gWindow = SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
+                                   CLIENT_WINDOW_HEIGHT * displayScale, windowFlags);
         if (!gWindow)
         {
             SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());

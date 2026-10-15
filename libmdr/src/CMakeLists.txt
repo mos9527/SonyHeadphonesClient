@@ -12,10 +12,10 @@ set(MDR_CORE_SOURCES
     HeadphonesV2.cpp
     HeadphonesV2T1.cpp
     HeadphonesV2T2.cpp
-    ProtocolV1T1Serialization.cpp
-    ProtocolV1T2Serialization.cpp
-    ProtocolV2T1Serialization.cpp
-    ProtocolV2T2Serialization.cpp
+    ProtocolV1T1CustomSerialization.cpp
+    ProtocolV1T2CustomSerialization.cpp
+    ProtocolV2T1CustomSerialization.cpp
+    ProtocolV2T2CustomSerialization.cpp
     Details.hpp
     DetailsV1.hpp
     DetailsV2.hpp

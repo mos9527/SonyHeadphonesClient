@@ -36,6 +36,13 @@ device names and addresses, track metadata - with same-length placeholders, so
 a capture can be contributed as a test fixture. See
 [Contributing to Tests](../tests/README.md#scrub-personal-data).
 
+## Client icon
+
+`MakeClientIcon.py` regenerates every platform's icon from
+[`client/Platform/AppIcon.png`](../client/Platform/AppIcon.png). Replace that
+file, then run `python tooling/MakeClientIcon.py` (requires `pip install pillow`)
+and commit the outputs.
+
 ## Credits
 
 `BinaryEmbed.cpp` is adapted from

@@ -179,6 +179,38 @@ jobs:
         with:
           path: build/client/
 
+  ios:
+    needs: pre-check
+    name: Build SonyHeadphonesClient-ios-unsigned
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: >
+          cmake -S . -B build-ios -G Xcode -DCMAKE_SYSTEM_NAME=iOS
+          -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0
+          -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF
+          -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON
+
+      - name: Build
+        run: >
+          cmake --build build-ios --config $BUILD_TYPE --target SonyHeadphonesClient --
+          CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+
+      - name: Pack unsigned IPA
+        run: |
+          mkdir -p build-ios/ipa/Payload
+          cp -R "build-ios/client/$BUILD_TYPE-iphoneos/SonyHeadphonesClient.app" build-ios/ipa/Payload/
+          cd build-ios/ipa && zip -qry ../SonyHeadphonesClient-ios-unsigned.ipa Payload
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonyHeadphonesClient-ios-unsigned
+          path: build-ios/SonyHeadphonesClient-ios-unsigned.ipa
+          if-no-files-found: error
+
   android:
     needs: pre-check
     name: Build SonyHeadphonesClient-android
