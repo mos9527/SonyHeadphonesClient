@@ -1273,7 +1273,7 @@ void DrawDeviceAlert()
 
     if (answered)
     {
-        const MDRResult result = mdrHeadphonesRequestRespondToAlert(gDevice, response);
+        const MDRResult result = mdrHeadphonesSetAlertResponse(gDevice, response);
         if (result == MDR_RESULT_OK)
         {
             gAlertPending = false;

@@ -524,12 +524,25 @@ namespace mdr
         state.mPairedDeviceConnectMac.submit();
         state.mPairedDeviceUnpairMac.submit();
         state.mSafeListeningPreviewMode.submit();
+        state.mAlertResponse.submit();
     }
 
     MDRTask MDRHeadphones::RequestCommitV1()
     {
         auto& state = mDetailsV1;
         SnapshotPropertiesV1();
+
+        if (state.mAlertResponse.pending())
+        {
+            state.mAlertAwaitingResponse = false;
+            t1::SetAlertParamFixedMessageParam res;
+            res.type = t1::AlertInquiredType::FIXED_MESSAGE;
+            res.messageType = state.mLastAlertMessage;
+            res.action = state.mAlertResponse.submitted == MDR_ALERT_ACTION_POSITIVE
+                ? t1::AlertAction::POSITIVE : t1::AlertAction::NEGATIVE;
+            SendCommandACK(t1::SetAlertParamFixedMessageParam, res);
+            state.mAlertResponse.override(-1);
+        }
 
         if (state.mShutdown.pending())
         {
@@ -816,24 +829,6 @@ namespace mdr
         return MDR_EVENT_IDENTITY_CHANGED;
     }
 
-    MDRTask MDRHeadphones::RequestAlertResponseV1(int action)
-    {
-        auto& state = mDetailsV1;
-        if (!state.mAlertAwaitingResponse)
-            co_return SetLastError(MDR_RESULT_ERROR_NOT_FOUND, "The device has not asked anything");
-
-        state.mAlertAwaitingResponse = false;
-
-        using namespace t1;
-        SetAlertParamFixedMessageParam res;
-        res.type = AlertInquiredType::FIXED_MESSAGE;
-        res.messageType = state.mLastAlertMessage;
-        res.action = action == MDR_ALERT_ACTION_POSITIVE ? AlertAction::POSITIVE
-                                                         : AlertAction::NEGATIVE;
-        SendCommandACK(SetAlertParamFixedMessageParam, res);
-        co_return MDR_EVENT_APPLY_COMPLETE;
-    }
-
     bool MDRHeadphones::IsDirtyV1() const
     {
         const auto& state = mDetailsV1;
@@ -856,7 +851,7 @@ namespace mdr
             state.mPairingMode.dirty() || state.mMultipointDeviceMac.dirty() ||
             state.mSafeListeningPreviewMode.dirty() || state.mSourceSwitchControlEnabled.dirty() ||
             state.mPairedDeviceConnectMac.dirty() || state.mPairedDeviceDisconnectMac.dirty() ||
-            state.mPairedDeviceUnpairMac.dirty();
+            state.mPairedDeviceUnpairMac.dirty() || state.mAlertResponse.dirty();
     }
 
 }

@@ -209,7 +209,9 @@ mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower*
 ```
 
 **Write-only** property should provide **only** a setter function.
-- **NOTE:** This is not currently applicable as there's no write-only properties yet.
+- For example, `mdrHeadphonesSetAlertResponse(MDRHeadphones* headphones, MDRAlertAction action)` stages an alert response without exposing a getter.
+- Like read-write setters, write-only setters stage changes, make `mdrHeadphonesIsDirty` return true, and send them only through `mdrHeadphonesRequestCommit`.
+- One-shot values such as alert responses are consumed after acknowledgement so the same action can be staged for a later request.
 
 ### Payload Struct Implementation Details (libmdr)
 

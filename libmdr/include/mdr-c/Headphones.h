@@ -633,12 +633,14 @@ MDR_API MDRResult mdrHeadphonesGetSourceSwitchControlResult(MDRHeadphones* headp
                                                             MDRSourceSwitchControlResult* out_result);
 
 /**
- * @brief Answers the confirmation the device asked for with @ref MDR_EVENT_ALERT (see @ref MDR_TEXT_LAST_ALERT).
+ * @brief Stages a response to the confirmation requested by @ref MDR_EVENT_ALERT (see @ref MDR_TEXT_LAST_ALERT).
+ * @note  This is a write-only property, sent only through @ref mdrHeadphonesRequestCommit. Each new response
+ *        replaces any uncommitted response and is consumed after acknowledgement.
  * @note  The setting that triggered it (e.g. multipoint, connection mode) is not applied until answered with
  *        @ref MDR_ALERT_ACTION_POSITIVE, which may disconnect the device.
  * @return @ref MDR_RESULT_ERROR_NOT_FOUND if the device has not asked anything.
  */
-MDR_API MDRResult mdrHeadphonesRequestRespondToAlert(MDRHeadphones* headphones, MDRAlertAction action);
+MDR_API MDRResult mdrHeadphonesSetAlertResponse(MDRHeadphones* headphones, MDRAlertAction action);
 
 /* General settings and assignable controls. */
 MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(MDRHeadphones* headphones, MDRGeneralSettingInfo* settings,

@@ -304,11 +304,6 @@ namespace mdr
          */
         MDRTask RequestCommit();
         /**
-         * @brief Dispatches the answer to a device's alert to the selected backend.
-         */
-        MDRTask RequestAlertResponse(int action);
-
-        /**
          * @brief Queues an arbitrary debugger payload through the normal Headphones
          * send path. This is an internal C++ developer API, not part of the C ABI.
          */
@@ -318,7 +313,6 @@ namespace mdr
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();
-        MDRTask RequestAlertResponseV1(int action);
         void SnapshotPropertiesV1();
         void RefreshSupportV1();
 
@@ -340,11 +334,6 @@ namespace mdr
          * @return @ref MDR_EVENT_APPLY_COMPLETE on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommitV2();
-        /**
-         * @brief Answers the confirmation the device asked for with an alert.
-         * @note  To be used with @ref Invoke.
-         */
-        MDRTask RequestAlertResponseV2(int action);
         void SnapshotPropertiesV2();
 #pragma endregion
 

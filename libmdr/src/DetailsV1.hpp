@@ -43,6 +43,7 @@ namespace mdr
 
         v1::t1::AlertMessageType mLastAlertMessage{};
         bool mAlertAwaitingResponse{};
+        MDRProperty<int> mAlertResponse{-1, -1, -1};
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
 
