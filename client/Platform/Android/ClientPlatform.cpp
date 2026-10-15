@@ -29,7 +29,7 @@
 namespace
 {
     constexpr char kClientClass[] = "com/mos9527/sonyheadphonesclient/NativeClient";
-    shc::android::ClientConnection gTransport;
+    android::ClientConnection gTransport;
     bool gConnectionInitialized{};
     std::atomic<float> gDisplayScale{1.0f};
     jclass gSnapshotClass{};

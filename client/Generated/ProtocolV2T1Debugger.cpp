@@ -2,7 +2,7 @@
 #include <mdr/ProtocolV2T1.hpp>
 #include "../DebuggerDetails.hpp"
 
-namespace client::debugger {
+namespace debugger {
     using namespace mdr;
     using namespace mdr::v2;
     using namespace mdr::v2::t1;

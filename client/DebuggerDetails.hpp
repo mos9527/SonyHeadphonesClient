@@ -33,7 +33,7 @@
     }                                                                                                                  \
     while (false)
 
-namespace client::debugger
+namespace debugger
 {
     enum class ProtocolFamily
     {
@@ -370,4 +370,4 @@ namespace client::debugger
     std::span<const PacketDescriptor> Getv1t2Packets();
     std::span<const PacketDescriptor> Getv2t1Packets();
     std::span<const PacketDescriptor> Getv2t2Packets();
-} // namespace client::debugger
+} // namespace debugger

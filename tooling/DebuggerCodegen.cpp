@@ -610,7 +610,7 @@ int main(int argc, char** argv)
     println("#include <{}>", gInclude);
     println("#include \"../DebuggerDetails.hpp\"");
     println("");
-    println("namespace client::debugger {{");
+    println("namespace debugger {{");
     println("    using namespace mdr;");
     println("    using namespace {};", gNamespace.substr(0, gNamespace.rfind("::")));
     println("    using namespace {};", gNamespace);

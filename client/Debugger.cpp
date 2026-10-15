@@ -27,7 +27,7 @@
 
 namespace
 {
-    using namespace client::debugger;
+    using namespace debugger;
 
     constexpr size_t kMaximumHistory = 512;
 

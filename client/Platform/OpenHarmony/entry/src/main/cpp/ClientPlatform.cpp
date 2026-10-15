@@ -34,7 +34,7 @@
 
 namespace
 {
-    shc::ohos::ClientConnection gTransport;
+    ohos::ClientConnection gTransport;
     bool gConnectionInitialized{};
     std::atomic<float> gDisplayScale{1.0f};
     struct FontMapping

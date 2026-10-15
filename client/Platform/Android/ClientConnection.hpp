@@ -8,7 +8,7 @@
 #include <mutex>
 #include <utility>
 
-namespace shc::android
+namespace android
 {
     class ClientConnection
     {

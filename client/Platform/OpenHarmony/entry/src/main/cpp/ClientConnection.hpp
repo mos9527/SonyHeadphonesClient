@@ -9,7 +9,7 @@
 #include <mutex>
 #include <utility>
 
-namespace shc::ohos
+namespace ohos
 {
     class ClientConnection
     {
