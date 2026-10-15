@@ -86,9 +86,6 @@ public final class MainActivity extends SDLActivity {
     @Override
     protected void onPause() {
         resumed = false;
-        if (transport != null) {
-            transport.stop();
-        }
         super.onPause();
     }
 
