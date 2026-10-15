@@ -99,6 +99,14 @@ open build-ios/SonyHeadphonesClient.xcodeproj
 
 Signing is automatic. To keep the team across regenerations, pass `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>`. Bundle identifiers are globally unique; if signing fails to register `com.mos9527.SonyHeadphonesClient`, change it under *Signing & Capabilities*.
 
+#### Installing Unsigned IPAs
+
+The CI builds are unsigned (see the [main README](./README.md) for download), and must be re-signed before they can be installed on a device. Any IPA sideloading tool that signs with your own Apple ID works, e.g. [Sideloadly](https://sideloadly.io/), [AltStore](https://altstore.io/) or [SideStore](https://sidestore.io/).
+
+- With a free Apple ID, the signature expires after 7 days and the app has to be re-signed (AltStore/SideStore can refresh it automatically).
+- On iOS 16 and later, *Developer Mode* must be enabled (*Settings > Privacy & Security > Developer Mode*) before a development-signed app will launch.
+- If signing fails because the bundle identifier is already taken, change it in your sideloading tool.
+
 **NOTE:** Only Bluetooth Classic devices are supported, through the External Accessory (iAP2) protocols `jp.co.sony.songpal.mdr.link` (V1) and `jp.co.sony.songpal.mdr.link2` (V2). Apps using `libmdr-bt` must declare both in `UISupportedExternalAccessoryProtocols`; see [`Info.plist`](./client/Platform/iOS/Info.plist).
 
 **NOTE:** Only one app can hold an accessory session at a time. Quit Sound Connect before connecting.
@@ -106,6 +114,8 @@ Signing is automatic. To keep the team across regenerations, pass `-DCMAKE_XCODE
 **NOTE:** Device addresses are derived from the accessory's model and serial numbers, and are not Bluetooth MAC addresses.
 
 **NOTE:** App Store (and possibly external TestFlight) distribution of External Accessory apps requires the accessory manufacturer to whitelist the app. Use development signing or TestFlight internal testing.
+
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented for iOS in upstream SDL (3.2.26)
 
 ### CMake Options
 
