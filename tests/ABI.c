@@ -3175,6 +3175,27 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
         check(current_safe.preview == MDR_FALSE && safe.preview == MDR_TRUE && current_safe.sound_pressure == 85 &&
               safe.sound_pressure == current_safe.sound_pressure, "safe preview selects view but measurement never does");
     }
+
+    /*
+     * Every staged property has to leave the commit CLEAN, whether it was written, dropped
+     * as unsupported, or consumed as a one-shot action. One that stays SUBMITTED keeps
+     * IsDirty() true forever, so a client that commits whenever it is dirty and syncs only
+     * when it is not never gets to sync again.
+     */
+    check(mdrHeadphonesIsDirty(session.headphones) != MDR_FALSE, "all edits above are still staged");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "commit of every staged property starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "commit of every staged property completes");
+    check(mdrHeadphonesIsReady(session.headphones) != MDR_FALSE && mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
+          "no staged property survives a completed commit");
+    if (v1)
+    {
+        mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_CURRENT, &current_power);
+        mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power);
+        check(power.head_gesture == current_power.head_gesture,
+              "V1 head gesture, which has no write, is dropped rather than left desired");
+    }
+    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_OK, "sync is reachable after the commit");
+    device_run(&session, &device, MDR_EVENT_SYNC_COMPLETE, "sync after the commit completes");
     session_close(&session);
 }
 
