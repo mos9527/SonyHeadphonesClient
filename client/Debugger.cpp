@@ -12,6 +12,7 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
+#include <SDL3/SDL_time.h>
 #include <imgui.h>
 #include <mdr/Command.hpp>
 
@@ -1014,10 +1015,10 @@ namespace
 
     bool ExportTimestamp(std::int64_t& timestamp)
     {
-        const std::int64_t now = clientGetUnixEpochMS();
-        if (now == -1)
+        SDL_Time now{};
+        if (!SDL_GetCurrentTime(&now))
             return false;
-        timestamp = now;
+        timestamp = now / 1'000'000;
         return true;
     }
 

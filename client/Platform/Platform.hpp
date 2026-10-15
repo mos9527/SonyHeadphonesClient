@@ -8,10 +8,18 @@
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
-// For most clients (except Emscripten) this is ran in a worker thread. What this does:
-// - Polls device packets from non-blocking libmdr
-// - *Commits* (note that this doesn't mean the mdrHeaphonesSet... calls) device states
+// Runs on a worker by default, or the main thread on Emscripten / with --single-thread.
+// - Polls non-blocking device I/O and updates device-reported state.
+// - Schedules commits of staged property edits and synchronization requests.
+// - Advances discovery/connection attempts and handles semantic events and errors.
+// SDLMain serializes this with frame preparation and clientOnFrame() using a client-state mutex.
 extern void clientOnUpdate();
+// Always runs on the main thread; builds the UI and ImGui draw data, loads fonts, and draws the debugger.
+// SDL backend NewFrame calls, rendering, and presentation are handled separately by SDLMain.
+// - Normal property setters only stage local edits for clientOnUpdate() to commit.
+// - Debugger sends start a raw-command task and queue TX bytes, invoking packet observers synchronously;
+//   actual transport send/receive and task completion are driven by subsequent polling.
+// - UI connection/discovery actions can call the platform connection backend directly.
 extern void clientOnFrame();
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
@@ -21,13 +29,6 @@ extern void clientEnterDebuggerReplayMode();
 #endif
 
 extern "C" {
-    /**
-     * @brief Current Unix epoch time in milliseconds; not a monotonic clock.
-     * @return Milliseconds since 1970-01-01 UTC, or -1 on failure.
-     * @note See commit 3f685ac as to why std::chrono::system_clock::now() is not used.
-     */
-    extern int64_t clientGetUnixEpochMS();
-
     /**
      * @brief Select and initialize the platform Bluetooth backend.
      *

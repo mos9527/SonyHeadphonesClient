@@ -1,9 +1,9 @@
 #include "Recorder.hpp"
-#include "Platform/Platform.hpp"
 
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
+#include <SDL3/SDL_time.h>
 #include <mdr/Command.hpp>
 #include <mdr/ProtocolV2T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
@@ -92,8 +92,8 @@ namespace
             ) == mdr::MDRUnpackResult::OK;
         const mdr::UInt8 command =
             unpacked && !payload.empty() ? payload.front() : 0;
-        const int64_t timestamp = clientGetUnixEpochMS();
-        if (timestamp == -1)
+        SDL_Time now{};
+        if (!SDL_GetCurrentTime(&now))
         {
             SDL_LogError(
                 SDL_LOG_CATEGORY_APPLICATION,
@@ -102,6 +102,7 @@ namespace
             );
             return;
         }
+        const int64_t timestamp = now / 1'000'000;
         const uint64_t counter = gCaptureCounter.fetch_add(
             1, std::memory_order_relaxed
         );

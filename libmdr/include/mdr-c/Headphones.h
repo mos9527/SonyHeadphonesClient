@@ -374,7 +374,7 @@ typedef struct MDRListening
 typedef struct MDREqualizer
 {
     MDREqualizerPreset preset;
-    int32_t clear_bass; /* -10..10; widening the C type does not widen the valid range. */
+    int32_t clear_bass; /* -10..10 */
     uint32_t band_count;
     MDRBoolean dsee_enabled;
     MDRDSEEType dsee_type;

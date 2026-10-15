@@ -1,12 +1,7 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
-#include <atomic>
-#include <charconv>
-#include <chrono>
-#include <condition_variable>
 #include <cstdio>
 #include <cstring>
 #include <mutex>
-#include <utility>
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -21,9 +16,9 @@
 #include <imgui_impl_sdlrenderer3.h>
 #include <mdr/Protocol.hpp>
 
-#include "Recorder.hpp"
-#include "Platform/Platform.hpp"
 #include "I18N/Strings.hpp"
+#include "Platform/Platform.hpp"
+#include "Recorder.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -33,18 +28,10 @@
 #include "Debugger.hpp"
 #endif
 
-std::atomic_bool gShouldClose{false};
+bool gShouldClose{false};
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
-
-int64_t clientGetUnixEpochMS()
-{
-    SDL_Time now{};
-    if (!SDL_GetCurrentTime(&now))
-        return -1;
-    return now / 1'000'000;
-}
 
 namespace
 {
@@ -54,78 +41,14 @@ namespace
     bool gAppActive{true};
     float gAppliedDisplayScale{1.0f};
     SDL_WindowID gWindowID{};
-    std::atomic_bool gFrameSubmitted{};
 
 #ifndef __EMSCRIPTEN__
     SDL_Thread* gClientThread{};
-    std::mutex gUpdateMutex;
-    std::condition_variable gUpdateCondition;
-    std::atomic_bool gStopClient{};
-    std::atomic_bool gClientThreadDone{};
-    bool gFrameRequested{};
-    bool gFrameInFlight{};
-    int gPollIntervalMS{5};
-
-    template <typename Function>
-    void SDLCALL InvokeMainThread(void* userdata)
-    {
-        (*static_cast<Function*>(userdata))();
-    }
-
-    template <typename Function>
-    bool RunOnMainThread(Function function)
-    {
-        if (SDL_RunOnMainThread(InvokeMainThread<Function>, &function, true))
-            return true;
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Main-thread dispatch failed: %s", SDL_GetError());
-        gShouldClose = true;
-        return false;
-    }
-
-    void StopClientThread()
-    {
-        if (!gClientThread)
-            return;
-        {
-            std::scoped_lock lock(gUpdateMutex);
-            gStopClient = true;
-        }
-        gUpdateCondition.notify_one();
-        while (!gClientThreadDone)
-        {
-            SDL_PumpEvents();
-            SDL_Delay(1);
-        }
-        SDL_WaitThread(gClientThread, nullptr);
-        gClientThread = nullptr;
-        gFrameSubmitted = false;
-    }
+    std::mutex gWorkerMutex;
+    bool gStopClient{};
 #endif
 
-    void ShutdownClient()
-    {
-#ifndef __EMSCRIPTEN__
-        StopClientThread();
-#endif
-        gWindowID = 0;
-        if (gRendererBackendInitialized)
-            ImGui_ImplSDLRenderer3_Shutdown();
-        if (gPlatformBackendInitialized)
-            ImGui_ImplSDL3_Shutdown();
-        if (gClientInitialized)
-            clientDestroy();
-        gRendererBackendInitialized = false;
-        gPlatformBackendInitialized = false;
-        gClientInitialized = false;
-        SDL_DestroyRenderer(gRenderer);
-        SDL_DestroyWindow(gWindow);
-        gRenderer = nullptr;
-        gWindow = nullptr;
-        SDL_Quit();
-        clientPlatformDestroy();
-    }
-
-    bool NextClientEvent(SDL_Event& event, Uint32 minType = SDL_EVENT_FIRST, Uint32 maxType = SDL_EVENT_LAST)
+    bool PollEvents(SDL_Event& event, Uint32 minType = SDL_EVENT_FIRST, Uint32 maxType = SDL_EVENT_LAST)
     {
         const int result = SDL_PeepEvents(&event, 1, SDL_GETEVENT, minType, maxType);
         if (result < 0)
@@ -136,7 +59,38 @@ namespace
         return result > 0;
     }
 
-    void ProcessLifecycleEvent(const SDL_Event& event)
+    bool ShouldAppPresent()
+    {
+        return !gShouldClose && gAppActive && !(SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED);
+    }
+
+#ifndef __EMSCRIPTEN__
+    // Worker thread ticks at a fixed 100Hz maximum and does everything
+    // that needs interaction with the physical connection.
+    // See also @ref clientOnUpdate, @ref clientOnFrame
+    int SDLCALL RunOnWorkerThread(void*)
+    {
+        while (true)
+        {
+            {
+                std::scoped_lock lock(gWorkerMutex);
+                if (gStopClient)
+                    break;
+                clientOnUpdate();
+            }
+            SDL_Delay(10);
+        }
+        return 0;
+    }
+#endif
+} // namespace
+
+void mainLoop()
+{
+    SDL_PumpEvents();
+    SDL_Event event;
+
+    auto CheckIsActive = [](SDL_Event& event)
     {
         if (event.type == SDL_EVENT_QUIT || event.type == SDL_EVENT_TERMINATING ||
             (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == gWindowID))
@@ -145,30 +99,28 @@ namespace
             gAppActive = false;
         if (event.type == SDL_EVENT_DID_ENTER_FOREGROUND)
             gAppActive = true;
-    }
+    };
 
-    void ProcessLifecycleEvents()
-    {
-        SDL_Event event;
-        while (NextClientEvent(event, SDL_EVENT_QUIT, SDL_EVENT_DID_ENTER_FOREGROUND))
-            ProcessLifecycleEvent(event);
-        while (NextClientEvent(event, SDL_EVENT_WINDOW_CLOSE_REQUESTED, SDL_EVENT_WINDOW_CLOSE_REQUESTED))
-            ProcessLifecycleEvent(event);
-    }
+    while (PollEvents(event, SDL_EVENT_QUIT, SDL_EVENT_DID_ENTER_FOREGROUND))
+        CheckIsActive(event);
+    while (PollEvents(event, SDL_EVENT_WINDOW_CLOSE_REQUESTED, SDL_EVENT_WINDOW_CLOSE_REQUESTED))
+        CheckIsActive(event);
 
-    bool CanDrawFrame()
     {
-        return !gShouldClose && gAppActive && !(SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED);
-    }
-
-    bool PrepareClientFrame()
-    {
-        SDL_Event event;
-        while (NextClientEvent(event))
+#ifndef __EMSCRIPTEN__
+        // Serialize Worker (mdr) and Main (Client SDL+ImGui) thread
+        // NOTE: libmdr does not offer thread-safety guarantees (as the connection *itself* is serial)
+        //       In your own app you will want to do the same with whatever synchronization primitives your runtime may
+        //       provide.
+        std::unique_lock lock(gWorkerMutex, std::defer_lock);
+        lock.lock();
+#endif
+        clientOnUpdate();
+        while (PollEvents(event))
         {
-            ProcessLifecycleEvent(event);
+            CheckIsActive(event);
             if (gShouldClose)
-                return false;
+                break;
 #ifdef MDR_CLIENT_DEBUGGER
             if (event.type == SDL_EVENT_DROP_FILE && event.drop.windowID == gWindowID && event.drop.data)
             {
@@ -186,149 +138,29 @@ namespace
 #endif
             ImGui_ImplSDL3_ProcessEvent(&event);
         }
-        if (!CanDrawFrame())
-            return false;
-        const float displayScale = clientPlatformGetDisplayScale();
-        if (displayScale != gAppliedDisplayScale)
+        if (ShouldAppPresent())
         {
-            ImGui::GetStyle().ScaleAllSizes(displayScale / gAppliedDisplayScale);
-            ImGui::GetStyle().FontScaleDpi = displayScale;
-            gAppliedDisplayScale = displayScale;
+            const float displayScale = clientPlatformGetDisplayScale();
+            if (displayScale != gAppliedDisplayScale)
+            {
+                ImGui::GetStyle().ScaleAllSizes(displayScale / gAppliedDisplayScale);
+                ImGui::GetStyle().FontScaleDpi = displayScale;
+                gAppliedDisplayScale = displayScale;
+            }
+            ImGui_ImplSDLRenderer3_NewFrame();
+            ImGui_ImplSDL3_NewFrame();
+            clientOnFrame();
         }
-        ImGui_ImplSDLRenderer3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        return true;
     }
-
-    void SubmitClientFrame()
+    if (ShouldAppPresent())
     {
-        if (!CanDrawFrame())
-            return;
         const ImGuiIO& io = ImGui::GetIO();
         SDL_SetRenderScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
         SDL_RenderClear(gRenderer);
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
-        gFrameSubmitted = true;
+        SDL_RenderPresent(gRenderer);
     }
-
-#ifndef __EMSCRIPTEN__
-    void InstallMainThreadCallbacks()
-    {
-        ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
-        static const auto getClipboardText = platformIO.Platform_GetClipboardTextFn;
-        static const auto setClipboardText = platformIO.Platform_SetClipboardTextFn;
-        static const auto setImeData = platformIO.Platform_SetImeDataFn;
-        static const auto openInShell = platformIO.Platform_OpenInShellFn;
-        platformIO.Platform_GetClipboardTextFn = [](ImGuiContext* context) -> const char*
-        {
-            const char* result{};
-            RunOnMainThread([&] { result = getClipboardText(context); });
-            return result;
-        };
-        platformIO.Platform_SetClipboardTextFn = [](ImGuiContext* context, const char* text)
-        {
-            RunOnMainThread([&] { setClipboardText(context, text); });
-        };
-        platformIO.Platform_SetImeDataFn = [](ImGuiContext* context, ImGuiViewport* viewport, ImGuiPlatformImeData* data)
-        {
-            RunOnMainThread([&] { setImeData(context, viewport, data); });
-        };
-        platformIO.Platform_OpenInShellFn = [](ImGuiContext* context, const char* url)
-        {
-            bool result{};
-            RunOnMainThread([&] { result = openInShell(context, url); });
-            return result;
-        };
-    }
-
-    int SDLCALL ClientThreadMain(void*)
-    {
-        auto nextUpdate = std::chrono::steady_clock::now();
-        while (!gStopClient && !gShouldClose)
-        {
-            bool frameRequested{};
-            {
-                std::unique_lock lock(gUpdateMutex);
-                gUpdateCondition.wait_until(lock, nextUpdate, [] { return gStopClient || gFrameRequested; });
-                if (gStopClient || gShouldClose)
-                    break;
-                frameRequested = std::exchange(gFrameRequested, false);
-            }
-            if (std::chrono::steady_clock::now() >= nextUpdate)
-            {
-                clientOnUpdate();
-                nextUpdate = std::chrono::steady_clock::now() + std::chrono::milliseconds(gPollIntervalMS);
-            }
-            if (frameRequested && !gStopClient && !gShouldClose)
-            {
-                bool drawable{};
-                if (!RunOnMainThread([&] { drawable = PrepareClientFrame(); }))
-                    break;
-                if (drawable && !gStopClient && !gShouldClose)
-                {
-                    clientOnFrame();
-                    if (!RunOnMainThread(SubmitClientFrame))
-                        break;
-                }
-                std::scoped_lock lock(gUpdateMutex);
-                gFrameInFlight = false;
-            }
-        }
-        gClientThreadDone = true;
-        return 0;
-    }
-
-    void RequestClientFrame()
-    {
-        if (!CanDrawFrame())
-            return;
-        {
-            std::scoped_lock lock(gUpdateMutex);
-            if (gFrameInFlight || gFrameSubmitted)
-                return;
-            gFrameInFlight = true;
-            gFrameRequested = true;
-        }
-        gUpdateCondition.notify_one();
-    }
-#endif
-}
-
-void mainLoop()
-{
-    SDL_PumpEvents();
-    ProcessLifecycleEvents();
-#ifndef __EMSCRIPTEN__
-    if (gClientThread)
-    {
-        const bool submitted = gFrameSubmitted.exchange(false);
-        if (submitted && CanDrawFrame())
-            SDL_RenderPresent(gRenderer);
-        RequestClientFrame();
-        if (!submitted)
-            SDL_Delay(1);
-        return;
-    }
-#endif
-    clientOnUpdate();
-    if (PrepareClientFrame())
-    {
-        clientOnFrame();
-        SubmitClientFrame();
-        if (gFrameSubmitted.exchange(false))
-            SDL_RenderPresent(gRenderer);
-    }
-#ifndef __EMSCRIPTEN__
-    else
-        SDL_Delay(10);
-#else
-    if (gShouldClose)
-    {
-        emscripten_cancel_main_loop();
-        ShutdownClient();
-    }
-#endif
 }
 
 #define CLIENT_WINDOW_WIDTH 800
@@ -369,8 +201,7 @@ namespace
     {
         AppLocale result = AppLocale::DEFAULT;
         SDL_Locale** locales = SDL_GetPreferredLocales(nullptr);
-        for (SDL_Locale** current = locales;
-             current && *current && result == AppLocale::DEFAULT; ++current)
+        for (SDL_Locale** current = locales; current && *current && result == AppLocale::DEFAULT; ++current)
         {
             const auto& locale = **current;
             if (!locale.language)
@@ -392,45 +223,30 @@ namespace
         return result;
     }
 
-    struct ClientOptions
+    struct Options
     {
         const char* recordDirectory{};
         const char* replayPath{};
         const char* fontPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
-#ifndef __EMSCRIPTEN__
-        bool singleThread{};
-        int pollIntervalMS{5};
-#endif
         AppLocale locale{AppLocale::DEFAULT};
         bool localeSpecified{};
     };
 
     void PrintUsage()
     {
-        std::fprintf(stderr,
-                     "Usage: SonyHeadphonesClient\n");
-        std::fprintf(stderr,
-                     "    [--record <capture-folder>] Records device packets automatically to folder\n");
-        std::fprintf(stderr,
-                     "    [--locale %s] Override application locale selected from the system\n",
+        std::fprintf(stderr, "Usage: SonyHeadphonesClient\n");
+        std::fprintf(stderr, "    [--record <capture-folder>] Records device packets automatically to folder\n");
+        std::fprintf(stderr, "    [--locale %s] Override application locale selected from the system\n",
                      i18n::kLocaleOptionString);
-        std::fprintf(stderr,
-                     "    [--font <font-file>] Load an external font without changing application locale\n");
+        std::fprintf(stderr, "    [--font <font-file>] Load an external font without changing application locale\n");
 #ifdef MDR_CLIENT_DEBUGGER
-        std::fprintf(stderr,
-                     "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
-#endif
-#ifndef __EMSCRIPTEN__
-        std::fprintf(stderr,
-                     "    [--single-thread] Runs updates and frames on the main thread for comparison\n"
-                     "    [--poll-interval <ms>] Client thread polling interval, 1-1000 ms (default: 5)\n");
+        std::fprintf(stderr, "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
 #endif
         // Windows specific
 #ifdef _WIN32
-        std::fprintf(stderr,
-                     "    [--con] Opens console for diagnostic logs\n");
+        std::fprintf(stderr, "    [--con] Opens console for diagnostic logs\n");
 #endif
         // Linux specific (DBus)
 #ifdef __linux__
@@ -440,7 +256,7 @@ namespace
 #endif
     }
 
-    bool ParseOptions(int argc, char** argv, ClientOptions& options)
+    bool ParseOptions(int argc, char** argv, Options& options)
     {
         for (int index = 1; index < argc; ++index)
         {
@@ -463,31 +279,6 @@ namespace
                 continue;
             }
 
-#ifndef __EMSCRIPTEN__
-            if (std::strcmp(argument, "--single-thread") == 0)
-            {
-                options.singleThread = true;
-                continue;
-            }
-            if (std::strcmp(argument, "--poll-interval") == 0)
-            {
-                if (++index >= argc)
-                {
-                    MDR_LOG("Missing polling interval after {}.", argument);
-                    return false;
-                }
-                int interval{};
-                const char* value = argv[index];
-                const auto result = std::from_chars(value, value + std::strlen(value), interval);
-                if (result.ec != std::errc{} || *result.ptr != '\0' || interval < 1 || interval > 1000)
-                {
-                    MDR_LOG("Invalid polling interval: {}. Expected 1-1000 ms.", value);
-                    return false;
-                }
-                options.pollIntervalMS = interval;
-                continue;
-            }
-#endif
             if (std::strcmp(argument, "--locale") == 0)
             {
                 if (++index >= argc)
@@ -517,8 +308,8 @@ namespace
                     return false;
                 }
                 const char* path = argv[++index];
-                const char*& destination = font ? options.fontPath :
-                    (record ? options.recordDirectory : options.replayPath);
+                const char*& destination =
+                    font ? options.fontPath : (record ? options.recordDirectory : options.replayPath);
                 if (destination)
                 {
                     MDR_LOG("{} may only be specified once.", argument);
@@ -541,138 +332,167 @@ namespace
     }
 } // namespace
 
-static int InitializeClient(int argc, char** argv)
+int main(int argc, char** argv)
 {
-#ifdef _WIN32
-    OpenConsole(false);
+    static const auto shutdown = []
+    {
+#ifndef __EMSCRIPTEN__
+        // Join the thread...
+        {
+            std::scoped_lock lock(gWorkerMutex);
+            gStopClient = true;
+        }
+        SDL_WaitThread(gClientThread, nullptr);
+        gClientThread = nullptr;
 #endif
-    ClientOptions options;
-    if (!ParseOptions(argc, argv, options))
+        gWindowID = 0;
+        if (gRendererBackendInitialized)
+            ImGui_ImplSDLRenderer3_Shutdown();
+        if (gPlatformBackendInitialized)
+            ImGui_ImplSDL3_Shutdown();
+        if (gClientInitialized)
+            clientDestroy();
+        gRendererBackendInitialized = false;
+        gPlatformBackendInitialized = false;
+        gClientInitialized = false;
+        SDL_DestroyRenderer(gRenderer);
+        SDL_DestroyWindow(gWindow);
+        gRenderer = nullptr;
+        gWindow = nullptr;
+        SDL_Quit();
+        clientPlatformDestroy();
+    };
+
+    int result = 1;
+    do
     {
-        PrintUsage();
-        return 2;
-    }
-    clientSetAppLocale(options.locale);
-    clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
-    if (options.showHelp)
-    {
-        PrintUsage();
-        return 0;
-    }
+#ifdef _WIN32
+        OpenConsole(false);
+#endif
+        Options options;
+        if (!ParseOptions(argc, argv, options))
+        {
+            PrintUsage();
+            result = 2;
+            break;
+        }
+        clientSetAppLocale(options.locale);
+        clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
+        if (options.showHelp)
+        {
+            PrintUsage();
+            result = 0;
+            break;
+        }
 #ifndef MDR_CLIENT_DEBUGGER
-    if (options.replayPath)
-    {
-        MDR_LOG("Packet replay is unavailable because this client was built without the debugger.");
-        return 2;
-    }
+        if (options.replayPath)
+        {
+            MDR_LOG("Packet replay is unavailable because this client was built without the debugger.");
+            result = 2;
+            break;
+        }
 #endif
 
-    if (!SDL_Init(SDL_INIT_VIDEO))
-    {
-        MDR_LOG("SDL_Init Error: {}", SDL_GetError());
-        return 1;
-    }
-    if (!options.localeSpecified)
-        clientSetAppLocale(GetPreferredAppLocale());
-    MDR_LOG("Selected locale: {}", clientGetAppLocale());
-    if (options.recordDirectory)
-    {
-        if (!clientPayloadRecorderConfigure(options.recordDirectory))
+        if (!SDL_Init(SDL_INIT_VIDEO))
         {
-            MDR_LOG("Unable to prepare capture folder {}: {}", options.recordDirectory, SDL_GetError());
-            return 1;
+            MDR_LOG("SDL_Init Error: {}", SDL_GetError());
+            break;
         }
-        MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain "
-                "device addresses, names, and playback metadata.",
-                options.recordDirectory);
-    }
-#ifdef MDR_CLIENT_DEBUGGER
-    if (options.replayPath)
-    {
-        size_t replayed{};
-        if (!clientDebuggerReplayPath(options.replayPath, &replayed))
+        if (!options.localeSpecified)
+            clientSetAppLocale(GetPreferredAppLocale());
+        MDR_LOG("Selected locale: {}", clientGetAppLocale());
+        if (options.recordDirectory)
         {
-            MDR_LOG("Unable to replay packet path {}: {}", options.replayPath, SDL_GetError());
-            return 1;
+            if (!clientPayloadRecorderConfigure(options.recordDirectory))
+            {
+                MDR_LOG("Unable to prepare capture folder {}: {}", options.recordDirectory, SDL_GetError());
+                break;
+            }
+            MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain "
+                    "device addresses, names, and playback metadata.",
+                    options.recordDirectory);
         }
-        clientEnterDebuggerReplayMode();
-        MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayPath);
-    }
-#endif
-    const float displayScale = clientPlatformGetDisplayScale();
-    gWindow =
-        SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
-                         CLIENT_WINDOW_HEIGHT * displayScale, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
-    if (!gWindow)
-    {
-        SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
-        return 1;
-    }
 #ifdef MDR_CLIENT_DEBUGGER
-    clientDebuggerSetWindow(gWindow);
+        if (options.replayPath)
+        {
+            size_t replayed{};
+            if (!clientDebuggerReplayPath(options.replayPath, &replayed))
+            {
+                MDR_LOG("Unable to replay packet path {}: {}", options.replayPath, SDL_GetError());
+                break;
+            }
+            clientEnterDebuggerReplayMode();
+            MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayPath);
+        }
 #endif
-    gWindowID = SDL_GetWindowID(gWindow);
-    gRenderer = SDL_CreateRenderer(gWindow, nullptr);
-    if (!gRenderer)
-    {
-        SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
-        return 1;
-    }
-    SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
-    SDL_SetRenderVSync(gRenderer, 1);
-    if (!clientInit(displayScale, options.fontPath))
-        return 1;
-    gClientInitialized = true;
-    gAppliedDisplayScale = displayScale;
-    gPlatformBackendInitialized = ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
-    if (!gPlatformBackendInitialized)
-    {
-        SDL_Log("Error: ImGui_ImplSDL3_InitForSDLRenderer()");
-        return 1;
-    }
-    gRendererBackendInitialized = ImGui_ImplSDLRenderer3_Init(gRenderer);
-    if (!gRendererBackendInitialized)
-    {
-        SDL_Log("Error: ImGui_ImplSDLRenderer3_Init()");
-        return 1;
-    }
+        const float displayScale = clientPlatformGetDisplayScale();
+        gWindow =
+            SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
+                             CLIENT_WINDOW_HEIGHT * displayScale, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+        if (!gWindow)
+        {
+            SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+            break;
+        }
+#ifdef MDR_CLIENT_DEBUGGER
+        clientDebuggerSetWindow(gWindow);
+#endif
+        gWindowID = SDL_GetWindowID(gWindow);
+        gRenderer = SDL_CreateRenderer(gWindow, nullptr);
+        if (!gRenderer)
+        {
+            SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
+            break;
+        }
+        SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
+        SDL_SetRenderVSync(gRenderer, 1);
+        if (!clientInit(displayScale, options.fontPath))
+            break;
+        gClientInitialized = true;
+        gAppliedDisplayScale = displayScale;
+        gPlatformBackendInitialized = ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
+        if (!gPlatformBackendInitialized)
+        {
+            SDL_Log("Error: ImGui_ImplSDL3_InitForSDLRenderer()");
+            break;
+        }
+        gRendererBackendInitialized = ImGui_ImplSDLRenderer3_Init(gRenderer);
+        if (!gRendererBackendInitialized)
+        {
+            SDL_Log("Error: ImGui_ImplSDLRenderer3_Init()");
+            break;
+        }
 #ifndef __EMSCRIPTEN__
-    if (!options.singleThread)
-    {
-        InstallMainThreadCallbacks();
         gStopClient = false;
-        gClientThreadDone = false;
-        gFrameRequested = false;
-        gFrameInFlight = false;
-        gPollIntervalMS = options.pollIntervalMS;
-        gClientThread = SDL_CreateThread(ClientThreadMain, "client", nullptr);
+        gClientThread = SDL_CreateThread(RunOnWorkerThread, "client", nullptr);
         if (!gClientThread)
         {
             SDL_Log("Error: SDL_CreateThread(): %s", SDL_GetError());
-            return 1;
+            break;
         }
-        SDL_Log("Client thread polling interval: %d ms", gPollIntervalMS);
-    }
-    else
-        SDL_Log("Client updates and frames share the main thread");
-#endif
-    return 0;
-}
-
-int main(int argc, char** argv)
-{
-    const int result = InitializeClient(argc, argv);
-    if (result != 0 || !gClientInitialized)
-    {
-        ShutdownClient();
-        return result;
-    }
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(mainLoop, 0, 1);
+        SDL_Log("Client worker delay: 10 ms");
 #else
-    while (!gShouldClose)
-        mainLoop();
-    ShutdownClient();
+        SDL_Log("Client updates and frames share the main thread (Web)");
 #endif
-    return 0;
+        result = 0;
+#ifdef __EMSCRIPTEN__
+        emscripten_set_main_loop(
+            []
+            {
+                mainLoop();
+                if (gShouldClose)
+                {
+                    emscripten_cancel_main_loop();
+                    shutdown();
+                }
+            },
+            0, 1);
+#else
+        while (!gShouldClose)
+            mainLoop();
+#endif
+    }
+    while (false);
+    shutdown();
+    return result;
 }
