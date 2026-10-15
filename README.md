@@ -20,15 +20,17 @@ This branch is expected to be merged/released once the following features have b
 
 The following platforms (applies to `libmdr-bt`, `client`; `libmdr` itself is platform agnostic) are *natively* supported with first-party effort.
 
+The architectures (x64, etc) shown here are the ones built by GitHub Actions, and are available in [nightly builds](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview).
+
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
-| Windows (x64, [Windows 7](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
-| Linux            | Full Support   | [@mos9527](https://github.com/mos9527)             |
-| macOS            | Full Support   | [@mos9527](https://github.com/mos9527)             |
-| iOS ([15.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/70))           | Full Support, [manual build/install required](./DEVELOPER.md#ios-xcode)   | [@mos9527](https://github.com/mos9527)             |
-| Android ([5.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/69)) | Supported, `client` only | [@mos9527](https://github.com/mos9527)             |
+| Windows (ARM64 and x64, [Windows 7](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
+| Linux  (ARM64 and x64)          | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| macOS   (Universal)       | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| iOS (ARM64, [15.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/70))           | Full Support, [manual build/install required](./DEVELOPER.md#ios-xcode)   | [@mos9527](https://github.com/mos9527)             |
+| Android (ARM64/ARMv7, [5.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/69)) | Supported, `client` only | [@mos9527](https://github.com/mos9527)             |
 | Web (Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
-| HarmonyOS ([OpenHarmony](https://github.com/mos9527/SonyHeadphonesClient/pull/68)) | Supported, `client` only, [manual build required](./DEVELOPER.md#openharmony-deveco-studio) | [@mos9527](https://github.com/mos9527)             |
+| HarmonyOS (ARM64, [OpenHarmony](https://github.com/mos9527/SonyHeadphonesClient/pull/68)) | Supported, `client` only, [manual build required](./DEVELOPER.md#openharmony-deveco-studio) | [@mos9527](https://github.com/mos9527)             |
 
 For device support, refer to [`docs/device-support`](./docs/device-support/). If the feature support status for your own device is missing/incorrect/untested there, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
