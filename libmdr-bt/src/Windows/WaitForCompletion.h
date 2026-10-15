@@ -220,22 +220,25 @@ HRESULT WaitForCompletion(TOperation* pOperation, COWAIT_FLAGS flags = (COWAIT_F
         hr = pOperation->put_Completed(spCallback.Get());
         if (SUCCEEDED(hr))
         {
-            HANDLE rgHandles[] = { spCallback->GetEvent(), nullptr };
+            HANDLE rgHandles[] = { spCallback->GetEvent(), hEventCancelled };
+            const DWORD handleCount = hEventCancelled ? 2 : 1;
             bool fCancelOp = false;
-            if (flags == (COWAIT_FLAGS)-1 && SHProcessMessagesUntilEventsEx(nullptr, rgHandles, 1, INFINITE, QS_ALLINPUT, 0) == WAIT_FAILED)
+            if (flags == (COWAIT_FLAGS)-1)
             {
-                hr = E_FAIL;
-            }
-            else if (SUCCEEDED(hr) && flags != (COWAIT_FLAGS)-1)
-            {
-                DWORD dwHandleIndex;
-                hr = CoWaitForMultipleHandles(flags, INFINITE, 1, rgHandles, &dwHandleIndex);
-                if (SUCCEEDED(hr) && dwHandleIndex)
-                {
-                    hr = HRESULT_FROM_WIN32(ERROR_CANCELLED);
+                const DWORD result = SHProcessMessagesUntilEventsEx(nullptr, rgHandles, handleCount, INFINITE, QS_ALLINPUT, 0);
+                if (result == WAIT_OBJECT_0 + 1 && hEventCancelled)
                     fCancelOp = true;
-                }
+                else if (result != WAIT_OBJECT_0)
+                    hr = E_FAIL;
             }
+            else
+            {
+                DWORD dwHandleIndex{};
+                hr = CoWaitForMultipleHandles(flags, INFINITE, handleCount, rgHandles, &dwHandleIndex);
+                fCancelOp = SUCCEEDED(hr) && dwHandleIndex == 1;
+            }
+            if (fCancelOp)
+                hr = E_ABORT;
 
             Microsoft::WRL::ComPtr<IAsyncInfo> spAsyncInfo;
             if (fCancelOp && SUCCEEDED(pOperation->QueryInterface(IID_PPV_ARGS(&spAsyncInfo))))

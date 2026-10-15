@@ -215,6 +215,13 @@ mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower*
 - Like read-write setters, write-only setters stage changes, make `mdrHeadphonesIsDirty` return true, and send them only through `mdrHeadphonesRequestCommit`.
 - One-shot values such as alert responses are consumed after acknowledgement so the same action can be staged for a later request.
 
+### Non-blocking IO (`MDRConnection`)
+
+**None of the `MDRConnection` functions should block.** Bluetooth backends may be implemented in `libmdr-bt`, the `client`, or downstream consumers by providing their own `MDRConnection` VTable, which `libmdr` uses to communicate with the device.
+
+`libmdr` is a by essence state machine that **only** advances when manually polled, through `mdrHeadphonesPoll`, which depends on the `MDRConnection`, therefore impling non-blocking (polling) IO.
+
+
 ### Payload Struct Implementation Details (libmdr)
 
 **NOTE:** This section is for informative purposes only, as `libmdr` now generates the struct details via [codegen](./tooling/) deterministically, and the structs themselves are generated from IR via [tooling/ida](./tooling/ida/).

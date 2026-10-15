@@ -360,7 +360,7 @@ namespace mdr
         Deque<UInt8> mRecvBuf, mSendBuf;        
         MDRCommandSeqNumber mSeqNumber{0};
 
-        // Task STM
+        // Task state machine
         MDRTask mTask;
         Array<Awaiter, AWAIT_NUM_TYPES> mAwaiters{};
 

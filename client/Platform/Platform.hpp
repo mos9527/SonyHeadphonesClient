@@ -8,7 +8,7 @@
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
-// Runs on a worker by default, or the main thread on Emscripten / with --single-thread.
+// Runs on the worker thread on native platforms, or the main thread on Emscripten.
 // - Polls non-blocking device I/O and updates device-reported state.
 // - Schedules commits of staged property edits and synchronization requests.
 // - Advances discovery/connection attempts and handles semantic events and errors.

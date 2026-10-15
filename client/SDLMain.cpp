@@ -112,10 +112,10 @@ void mainLoop()
         // NOTE: libmdr does not offer thread-safety guarantees (as the connection *itself* is serial)
         //       In your own app you will want to do the same with whatever synchronization primitives your runtime may
         //       provide.
-        std::unique_lock lock(gWorkerMutex, std::defer_lock);
-        lock.lock();
-#endif
+        std::scoped_lock lock(gWorkerMutex);
+#else
         clientOnUpdate();
+#endif
         while (PollEvents(event))
         {
             CheckIsActive(event);
@@ -161,6 +161,10 @@ void mainLoop()
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
         SDL_RenderPresent(gRenderer);
     }
+#ifndef __EMSCRIPTEN__
+    else if (!gShouldClose)
+        SDL_Delay(10);
+#endif
 }
 
 #define CLIENT_WINDOW_WIDTH 800
@@ -334,7 +338,7 @@ namespace
 
 int main(int argc, char** argv)
 {
-    static const auto shutdown = []
+    static const auto Shutdown = []
     {
 #ifndef __EMSCRIPTEN__
         // Join the thread...
@@ -483,7 +487,7 @@ int main(int argc, char** argv)
                 if (gShouldClose)
                 {
                     emscripten_cancel_main_loop();
-                    shutdown();
+                    Shutdown();
                 }
             },
             0, 1);
@@ -493,6 +497,6 @@ int main(int argc, char** argv)
 #endif
     }
     while (false);
-    shutdown();
+    Shutdown();
     return result;
 }
