@@ -144,6 +144,8 @@ See the [Packet Capture and Test Contribution Guide](./tests/) for usage, bug re
 
 ## Coding Style
 
+Respect `.clang-format` and `.clang-tidy` for formatting and linting. Furthermore, the following rules always apply.
+
 ### Exception Handling
 
 **C++ Exceptions are optional, and should be considered disabled by default.**

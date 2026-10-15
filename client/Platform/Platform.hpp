@@ -8,8 +8,8 @@
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
-extern void clientPrepareFrame();
-extern bool clientShouldExit();
+extern void clientOnUpdate();
+extern void clientOnFrame();
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();

@@ -105,6 +105,7 @@ void mainLoop()
     while (SDL_PollEvent(&event))
         gShouldClose |= ProcessClientEvent(event);
 #endif
+    clientOnUpdate();
     if (!gAppActive || (SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED))
     {
 #ifndef SDL_MAIN_USE_CALLBACKS
@@ -119,10 +120,9 @@ void mainLoop()
         ImGui::GetStyle().FontScaleDpi = displayScale;
         gAppliedDisplayScale = displayScale;
     }
-    clientPrepareFrame();
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
-    gShouldClose |= clientShouldExit();
+    clientOnFrame();
     // Rendering
     {
         SDL_SetRenderScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
