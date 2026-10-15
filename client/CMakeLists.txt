@@ -166,6 +166,10 @@ if (MDR_CLIENT_DEBUGGER_TARGET AND MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     target_link_libraries(Client_Debugger PUBLIC Client_Platform)
 endif ()
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform mdr::bt)
+if (NOT MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+    find_package(Threads REQUIRED)
+    target_link_libraries(SonyHeadphonesClient PRIVATE Threads::Threads)
+endif ()
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE
     -DCLIENT_VERSION="${CLIENT_VERSION}"

@@ -185,6 +185,32 @@ Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick 
 
 - **NOTE:** `git blame` the `#define` line to see all ABI-breaking changes introduced to `libmdr`.
 
+### C ABI Design (libmdr)
+
+Properties can be **read-only**, **read-write**, or **write-only**. 
+
+**Read-only** properties should provide **only** a getter function.
+- The function signature is as follows (`MDRHeadphones*, PropertyPointer(s)...):
+  ```c++
+  mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MDREqualizerPreset* presets, uint32_t* inout_count)
+  ```
+
+For **read-write** properties, `MDRPropertyType type` parameter affects the getter result by the following rules:
+- `MDR_PROPERTY_CURRENT` - Get the _current_ value. This is the value, **not newer than time of the call**, 
+that's retrived **from the device**.
+- `MDR_PROPERTY_DESIRED` - Get the _desired_ value. This is the value that's specified **by the user** via `mdrHeadphonesSet...` calls. Which 
+may or may not reflect the values retrived from the device.
+
+**Read-write** property should provide **both** a getter and a setter function.
+- `MDRPropertyType type` parameter **MUST** be included in a read-write property as the **FIRST** argument after `MDRHeadphones*`.
+- The function signature is as follows  (`MDRHeadphones*, MDRPropertyType, PropertyPointer(s)...):
+```c++
+mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower* out_power)
+```
+
+**Write-only** property should provide **only** a setter function.
+- **NOTE:** This is not currently applicable as there's no write-only properties yet.
+
 ### Payload Struct Implementation Details (libmdr)
 
 **NOTE:** This section is for informative purposes only, as `libmdr` now generates the struct details via [codegen](./tooling/) deterministically, and the structs themselves are generated from IR via [tooling/ida](./tooling/ida/).

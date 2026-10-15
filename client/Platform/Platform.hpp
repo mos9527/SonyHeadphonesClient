@@ -8,6 +8,9 @@
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
+// For most clients (except Emscripten) this is ran in a worker thread. What this does:
+// - Polls device packets from non-blocking libmdr
+// - *Commits* (note that this doesn't mean the mdrHeaphonesSet... calls) device states
 extern void clientOnUpdate();
 extern void clientOnFrame();
 extern void clientDestroy();

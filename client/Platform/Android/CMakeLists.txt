@@ -81,11 +81,12 @@ endif ()
 target_compile_features(main PRIVATE cxx_std_20)
 target_compile_options(main PRIVATE -fno-exceptions -fno-rtti -Wall -Wextra)
 target_compile_definitions(main PRIVATE
-    IMGUI_DISABLE_OBSOLETE_FUNCTIONS SDL_MAIN_USE_CALLBACKS=1
+    IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0 MDR_PLATFORM_ANDROID
     CLIENT_VERSION="2.0.0" MDR_GIT_COMMIT_HASH="${MDR_GIT_COMMIT_HASH}"
     MDR_GIT_BRANCH_NAME="${MDR_GIT_BRANCH_NAME}" MDR_PLATFORM_OS="ANDROID"
     MDR_PLATFORM_PROCESSOR="${CMAKE_ANDROID_ARCH_ABI}")
 target_include_directories(main PRIVATE
     "${SHC_ROOT}/client" "${imgui_SOURCE_DIR}" "${imgui_SOURCE_DIR}/backends")
-target_link_libraries(main PRIVATE mdr Client_I18N SDL3::SDL3 log)
+find_package(Threads REQUIRED)
+target_link_libraries(main PRIVATE mdr Client_I18N SDL3::SDL3 Threads::Threads log)

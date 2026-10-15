@@ -10,6 +10,8 @@
 #define MDR_ASSERT_U32(type) \
     static_assert(sizeof(type) == sizeof(uint32_t), #type " must be uint32_t")
 MDR_ASSERT_U32(MDRResult);
+MDR_ASSERT_U32(MDRPropertyType);
+static_assert(_Generic((MDRPropertyType)0, uint32_t: 1, default: 0), "property selector must be unsigned 32-bit");
 MDR_ASSERT_U32(MDRBoolean);
 MDR_ASSERT_U32(MDRFeatureAvailability);
 MDR_ASSERT_U32(MDRFeature);
@@ -42,7 +44,43 @@ static_assert(sizeof(((MDRDeviceInfo*)0)->szDeviceName) == 256, "device name cap
 static_assert(offsetof(MDRDeviceInfo, szDeviceMacAddress) == 256, "device address offset must remain fixed");
 static_assert(sizeof(MDRDeviceInfo) == 274, "device info array stride must remain fixed");
 
-#undef MDR_ASSERT_C_STRUCT
+#define MDR_ASSERT_FIELD(type, field, scalar, offset) \
+    static_assert(sizeof(((type*)0)->field) == 4, #type "." #field " must be 32-bit"); \
+    static_assert(_Generic(((type*)0)->field, scalar: 1, default: 0), #type "." #field " signedness"); \
+    static_assert(offsetof(type, field) == offset, #type "." #field " offset")
+MDR_ASSERT_FIELD(MDRModel, model_color, uint32_t, 8);
+MDR_ASSERT_FIELD(MDRBattery, level_percent, uint32_t, 8);
+MDR_ASSERT_FIELD(MDRBattery, update_threshold_percent, uint32_t, 12);
+MDR_ASSERT_FIELD(MDRPlayback, volume, uint32_t, 4);
+MDR_ASSERT_FIELD(MDRNoiseControl, ambient_level, uint32_t, 4);
+MDR_ASSERT_FIELD(MDREqualizer, clear_bass, int32_t, 4);
+MDR_ASSERT_FIELD(MDRVoiceGuidance, volume, int32_t, 4);
+MDR_ASSERT_FIELD(MDRSafeListening, sound_pressure, uint32_t, 0);
+#undef MDR_ASSERT_FIELD
+
+#define MDR_ASSERT_LAYOUT(type, size) \
+    static_assert(sizeof(type) == size && _Alignof(type) == 4, #type " ABI layout")
+MDR_ASSERT_LAYOUT(MDRModel, 12);
+MDR_ASSERT_LAYOUT(MDRBattery, 20);
+MDR_ASSERT_LAYOUT(MDRPlayback, 8);
+MDR_ASSERT_LAYOUT(MDRNoiseControl, 28);
+MDR_ASSERT_LAYOUT(MDREqualizer, 28);
+MDR_ASSERT_LAYOUT(MDRVoiceGuidance, 8);
+MDR_ASSERT_LAYOUT(MDRSafeListening, 8);
+#undef MDR_ASSERT_LAYOUT
+static_assert(offsetof(MDRBattery, charging) == 16, "battery charging offset");
+static_assert(offsetof(MDRNoiseControl, changing_asm_level) == 8, "noise changing level offset");
+static_assert(offsetof(MDREqualizer, band_count) == 8 && offsetof(MDREqualizer, dsee_available) == 24, "equalizer offsets");
+static_assert(offsetof(MDRSafeListening, preview) == 4, "safe listening preview offset");
+
+static_assert(_Generic(&mdrHeadphonesGetEqualizer,
+    MDRResult (*)(MDRHeadphones*, MDRPropertyType, MDREqualizer*): 1, default: 0), "EQ getter signature");
+static_assert(_Generic(&mdrHeadphonesGetEqualizerBands,
+    MDRResult (*)(MDRHeadphones*, MDRPropertyType, int32_t*, uint32_t*): 1, default: 0), "EQ bands getter signature");
+static_assert(_Generic(&mdrHeadphonesSetEqualizerBands,
+    MDRResult (*)(MDRHeadphones*, const int32_t*, uint32_t): 1, default: 0), "EQ bands setter signature");
+static_assert(_Generic(&mdrHeadphonesSetPlaybackVolume,
+    MDRResult (*)(MDRHeadphones*, uint32_t): 1, default: 0), "volume setter signature");
 
 enum
 {
@@ -617,7 +655,7 @@ static void test_committed_state_staging(void)
 
     memset(&current, 0, sizeof(current));
     check_result(
-        mdrHeadphonesGetPlayback(session.headphones, &current),
+        mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current),
         MDR_RESULT_OK,
         "committed playback is readable"
     );
@@ -1181,7 +1219,7 @@ static void test_listening_modes(void)
 
     memset(&listening, 0, sizeof(listening));
     check_result(
-        mdrHeadphonesGetListening(session.headphones, &listening),
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_CURRENT, &listening),
         MDR_RESULT_OK,
         "listening mode is readable"
     );
@@ -1210,7 +1248,7 @@ static void test_listening_modes(void)
 
     memset(&listening, 0, sizeof(listening));
     check_result(
-        mdrHeadphonesGetListening(session.headphones, &listening),
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_CURRENT, &listening),
         MDR_RESULT_OK,
         "listening mode is readable after the switch"
     );
@@ -1263,7 +1301,7 @@ static void test_equalizer_availability_follows_the_device(void)
     /* Nothing has been said either way yet, so both stay usable. */
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable"
     );
@@ -1277,7 +1315,7 @@ static void test_equalizer_availability_follows_the_device(void)
 
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable while disabled"
     );
@@ -1298,7 +1336,7 @@ static void test_equalizer_availability_follows_the_device(void)
 
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable once re-enabled"
     );
@@ -1364,7 +1402,7 @@ static void test_equalizer_presets_follow_the_capability(void)
     /* Nothing has been said, so nothing is refused - the caller is no worse off than before. */
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable"
     );
@@ -1422,7 +1460,7 @@ static void test_equalizer_presets_follow_the_capability(void)
 
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable once the list is known"
     );
@@ -1466,12 +1504,12 @@ static void test_preset_change_does_not_write_bands(void)
         0x59, 0x00, 0x30, 0x0a,
         0x0a, 0x0a, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06
     };
-    static const int8_t heavy_bands[] = {4, 4, -1, -1, 0, 0, 0, 0, 0, 0};
+    static const int32_t heavy_bands[] = {4, 4, -1, -1, 0, 0, 0, 0, 0, 0};
 
     Session session;
     Device device;
     MDREqualizer equalizer;
-    int8_t bands[16];
+    int32_t bands[16];
     uint32_t count;
     size_t index;
     int band_writes = 0;
@@ -1497,7 +1535,7 @@ static void test_preset_change_does_not_write_bands(void)
 
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable"
     );
@@ -1529,15 +1567,15 @@ static void test_preset_change_does_not_write_bands(void)
 
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable after the change"
     );
     check(equalizer.preset == MDR_EQ_HEAVY, "the preset the device reported is the one that stands");
 
-    count = sizeof(bands);
+    count = (uint32_t)(sizeof(bands) / sizeof(bands[0]));
     check_result(
-        mdrHeadphonesGetEqualizerBands(session.headphones, bands, &count),
+        mdrHeadphonesGetEqualizerBands(session.headphones, MDR_PROPERTY_CURRENT, bands, &count),
         MDR_RESULT_OK,
         "the bands are readable after the change"
     );
@@ -1612,7 +1650,7 @@ static void test_listening_mode_rereads_what_it_takes_away(void)
     /* Nothing has been said, so both stand available. */
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable"
     );
@@ -1626,7 +1664,7 @@ static void test_listening_mode_rereads_what_it_takes_away(void)
     requests_before = device.log_size;
 
     memset(&listening, 0, sizeof(listening));
-    mdrHeadphonesGetListening(session.headphones, &listening);
+    mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_CURRENT, &listening);
     listening.mode = MDR_LISTENING_BACKGROUND_MUSIC;
     listening.background_room = MDR_ROOM_SMALL;
     check_result(
@@ -1664,7 +1702,7 @@ static void test_listening_mode_rereads_what_it_takes_away(void)
 
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable after the switch"
     );
@@ -1772,7 +1810,7 @@ static void test_v2_bootstrap(void)
 static void test_staging_is_rejected_during_apply(void)
 {
     Session session;
-    const uint8_t first_volume = 10;
+    const uint32_t first_volume = 10;
     MDRPlayback current;
     MDRPlaybackCommand command;
     unsigned char ack[FRAME_BUFFER_CAPACITY];
@@ -1821,7 +1859,7 @@ static void test_staging_is_rejected_during_apply(void)
 
     memset(&current, 0, sizeof(current));
     check_result(
-        mdrHeadphonesGetPlayback(session.headphones, &current),
+        mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current),
         MDR_RESULT_OK,
         "applied playback is readable"
     );
@@ -2096,7 +2134,7 @@ static void test_v1_preset_and_curve_never_share_a_frame(void)
     Session session;
     Device device;
     MDREqualizer equalizer;
-    int8_t bands[8];
+    int32_t bands[8];
     size_t index;
     size_t after;
     int frames = 0;
@@ -2121,7 +2159,7 @@ static void test_v1_preset_and_curve_never_share_a_frame(void)
     after = device.log_size;
     memset(&equalizer, 0, sizeof(equalizer));
     check_result(
-        mdrHeadphonesGetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer),
         MDR_RESULT_OK,
         "equalizer is readable"
     );
@@ -2280,6 +2318,41 @@ static void test_wearing_status(void)
     session_close(&session);
 }
 
+static void check_assignable_view(MDRHeadphones* headphones, MDRPropertyType type,
+                                  const MDRAssignableControl* expected, uint32_t expected_count)
+{
+    MDRAssignableControl controls[3];
+    uint32_t count = 1, i, j;
+
+    check_result(mdrHeadphonesGetAssignableControls(headphones, type, NULL, &count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "assignable size query requires zero count");
+    count = 0;
+    check_result(mdrHeadphonesGetAssignableControls(headphones, type, NULL, &count),
+                 MDR_RESULT_OK, "selected assignable size queries");
+    check(count == expected_count, "selected assignment count follows its preset array");
+    memset(controls, 0, sizeof(controls));
+    controls[0].action = MDR_ASSIGNABLE_UNKNOWN;
+    count = expected_count - 1;
+    check_result(mdrHeadphonesGetAssignableControls(headphones, type, controls, &count),
+                 MDR_RESULT_ERROR_BUFFER_TOO_SMALL, "selected assignment detects short buffer");
+    check(count == expected_count && controls[0].action == MDR_ASSIGNABLE_UNKNOWN,
+          "short assignment buffer reports count without copying");
+    count = (uint32_t)(sizeof(controls) / sizeof(controls[0]));
+    check_result(mdrHeadphonesGetAssignableControls(headphones, type, controls, &count),
+                 MDR_RESULT_OK, "selected assignments copy");
+    check(count == expected_count, "selected assignments return element count");
+    for (i = 0; i < count && i < 3; ++i)
+    {
+        for (j = 0; j < expected_count; ++j)
+            if (expected[j].location == controls[i].location)
+                break;
+        check(j != expected_count, "key identity is always from capability");
+        if (j != expected_count)
+            check(controls[i].type == expected[j].type && controls[i].action == expected[j].action,
+                  "selected action and capability key type retain their distinct sources");
+    }
+}
+
 static void test_v2_assignable_controls(int limited)
 {
     /* Non-left/right capability order, three keys, and distinct V2 preset variants. */
@@ -2336,14 +2409,14 @@ static void test_v2_assignable_controls(int limited)
                  MDR_RESULT_OK, "assignable feature queries");
     check(availability == MDR_AVAILABILITY_AVAILABLE, "normal and limited controls are available");
     count = 0;
-    check_result(mdrHeadphonesGetAssignableControls(session.headphones, NULL, &count),
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, NULL, &count),
                  MDR_RESULT_OK, "capability-driven control count queries");
     check(count == (limited ? 1u : 3u), "control count follows advertised keys");
     count = 0;
-    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
                  MDR_RESULT_ERROR_BUFFER_TOO_SMALL, "control copy detects short buffer");
     check(count == (limited ? 1u : 3u), "short control buffer reports required count");
-    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
                  MDR_RESULT_OK, "controls read after initialization");
     check(controls[0].location == (limited ? MDR_ASSIGNABLE_ACTION_KEY_C : MDR_ASSIGNABLE_ACTION_KEY_RIGHT),
           "controls retain capability order and key identity");
@@ -2387,10 +2460,21 @@ static void test_v2_assignable_controls(int limited)
         memcpy(input, desired, sizeof(input));
     }
     offset = session.transport.tx_size;
+    check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, controls, count);
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, controls, count);
     check_result(mdrHeadphonesSetAssignableControls(session.headphones, input, count),
                  MDR_RESULT_OK, "advertised actions stage in arbitrary caller order");
+    check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, controls, count);
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, input, count);
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, device.assignable_params, device.assignable_params_size);
+    device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "assignment notification with local edits polls");
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, input, count);
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "assignment apply starts");
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, controls, count),
+                 MDR_RESULT_INPROGRESS, "busy assignment Set stays rejected");
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, input, count);
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "assignment apply completes");
+    check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, input, count);
     while (next_tx_frame(&session.transport, &offset, &frame))
     {
         if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload[0] == 0xf8)
@@ -2406,7 +2490,7 @@ static void test_v2_assignable_controls(int limited)
     check(found, "assignment commit transmits a settings update");
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, limited ? 4u : sizeof(notification));
     device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "assignment notification emits its own event");
-    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
                  MDR_RESULT_OK, "notified assignments read");
     check(controls[0].action == options[0], "notification preserves distinct preset identity");
     session_close(&session);
@@ -2447,7 +2531,7 @@ static void test_v1_assignable_controls(void)
     device.assignable_params = params;
     device.assignable_params_size = sizeof(params);
     device_run_init(&session, &device);
-    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
                  MDR_RESULT_OK, "V1 capability controls read");
     check(count == 2 && controls[0].location == MDR_ASSIGNABLE_ACTION_KEY_CUSTOM &&
           controls[0].type == MDR_ASSIGNABLE_ACTION_KEY_TYPE_BUTTON &&
@@ -2467,10 +2551,21 @@ static void test_v1_assignable_controls(void)
     check(!mdrHeadphonesIsDirty(session.headphones), "V1 rejected batch leaves no staged assignments");
     desired[1].action = MDR_ASSIGNABLE_VOICE_RECOGNITION;
     offset = session.transport.tx_size;
+    check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, controls, 2);
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, controls, 2);
     check_result(mdrHeadphonesSetAssignableControls(session.headphones, desired, 2),
                  MDR_RESULT_OK, "V1 accepts reversed caller order");
+    check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, controls, 2);
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, desired, 2);
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, params, sizeof(params));
+    device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "V1 assignment notification with local edits polls");
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, desired, 2);
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "V1 assignment apply starts");
+    check_result(mdrHeadphonesSetAssignableControls(session.headphones, controls, 2),
+                 MDR_RESULT_INPROGRESS, "busy V1 assignment Set stays rejected");
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, desired, 2);
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "V1 assignment apply completes");
+    check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, desired, 2);
     while (next_tx_frame(&session.transport, &offset, &frame))
     {
         if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload[0] == 0xf8)
@@ -2484,15 +2579,531 @@ static void test_v1_assignable_controls(void)
     check(found, "V1 assignment reaches the transport");
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, sizeof(notification));
     device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "V1 assignment notification polls");
-    check_result(mdrHeadphonesGetAssignableControls(session.headphones, controls, &count),
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
                  MDR_RESULT_OK, "V1 notified assignments read");
     check(controls[0].action == MDR_ASSIGNABLE_VOICE_RECOGNITION &&
           controls[1].action == MDR_ASSIGNABLE_NONE, "V1 notification updates both assignments");
     session_close(&session);
 }
 
+static void test_property_getter_contracts(MDRProtocolVersion family)
+{
+    Session session;
+    MDRGeneralSetting setting = {UINT32_MAX, MDR_TRUE};
+    MDRGeneralSetting unchanged = setting;
+    int32_t bands[1] = {INT32_MIN};
+    MDRAssignableControl control = {0};
+    uint32_t count;
+    size_t tx_size;
+
+    if (!session_open_family(&session, family))
+        return;
+    tx_size = session.transport.tx_size;
+
+#define CHECK_GETTER(getter, type) do { \
+    type current = {0}, desired = {0}, sentinel, before; \
+    MDRResult current_result = getter(session.headphones, MDR_PROPERTY_CURRENT, &current); \
+    MDRResult desired_result = getter(session.headphones, MDR_PROPERTY_DESIRED, &desired); \
+    check_result(desired_result, current_result, #getter " initial views have the same result"); \
+    if (current_result == MDR_RESULT_OK) \
+        check(memcmp(&current, &desired, sizeof(current)) == 0, #getter " initial views agree"); \
+    memset(&sentinel, 0xa5, sizeof(sentinel)); \
+    before = sentinel; \
+    check_result(getter(session.headphones, UINT32_MAX, &sentinel), \
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, #getter " rejects unknown selector"); \
+    check_result(getter(session.headphones, 2u, &sentinel), \
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, #getter " rejects selector 2"); \
+    check(memcmp(&sentinel, &before, sizeof(sentinel)) == 0, #getter " invalid selector leaves output untouched"); \
+    check_result(getter(NULL, MDR_PROPERTY_DESIRED, &desired), \
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, #getter " rejects null headphones"); \
+    check_result(getter(session.headphones, MDR_PROPERTY_DESIRED, NULL), \
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, #getter " rejects null output"); \
+} while (0)
+    CHECK_GETTER(mdrHeadphonesGetPlayback, MDRPlayback);
+    CHECK_GETTER(mdrHeadphonesGetNoiseControl, MDRNoiseControl);
+    CHECK_GETTER(mdrHeadphonesGetSpeakToChat, MDRSpeakToChat);
+    CHECK_GETTER(mdrHeadphonesGetListening, MDRListening);
+    CHECK_GETTER(mdrHeadphonesGetEqualizer, MDREqualizer);
+    CHECK_GETTER(mdrHeadphonesGetPairing, MDRPairing);
+    CHECK_GETTER(mdrHeadphonesGetSourceSwitchControl, MDRBoolean);
+    CHECK_GETTER(mdrHeadphonesGetPower, MDRPower);
+    CHECK_GETTER(mdrHeadphonesGetVoiceGuidance, MDRVoiceGuidance);
+    CHECK_GETTER(mdrHeadphonesGetConnectionMode, MDRConnectionMode);
+    CHECK_GETTER(mdrHeadphonesGetSafeListening, MDRSafeListening);
+#undef CHECK_GETTER
+
+    check_result(mdrHeadphonesGetGeneralSetting(session.headphones, 2u, 0, &setting),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "general setting rejects unknown selector before lookup");
+    check(memcmp(&setting, &unchanged, sizeof(setting)) == 0, "invalid general selector preserves output");
+    check_result(mdrHeadphonesGetGeneralSetting(NULL, MDR_PROPERTY_DESIRED, 0, &setting),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "general setting rejects null headphones");
+    check_result(mdrHeadphonesGetGeneralSetting(session.headphones, MDR_PROPERTY_DESIRED, 0, NULL),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "general setting rejects null output");
+    check_result(mdrHeadphonesGetGeneralSetting(session.headphones, MDR_PROPERTY_DESIRED, UINT32_MAX, &setting),
+                 MDR_RESULT_ERROR_NOT_FOUND, "general setting rejects unknown index");
+    count = 7;
+    check_result(mdrHeadphonesGetEqualizerBands(session.headphones, 2u, bands, &count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "EQ array rejects unknown selector");
+    check(count == 7 && bands[0] == INT32_MIN, "invalid EQ selector preserves count and buffer");
+    check_result(mdrHeadphonesGetEqualizerBands(session.headphones, MDR_PROPERTY_DESIRED, bands, NULL),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "EQ array rejects null count");
+    check_result(mdrHeadphonesGetEqualizerBands(NULL, MDR_PROPERTY_DESIRED, bands, &count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "EQ array rejects null headphones");
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, 2u, &control, &count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "assignable array rejects unknown selector before support check");
+    check(count == 7 && control.action == 0, "invalid assignable selector preserves outputs");
+    check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_DESIRED, &control, NULL),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "assignable array rejects null count");
+    check_result(mdrHeadphonesGetAssignableControls(NULL, MDR_PROPERTY_DESIRED, &control, &count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "assignable array rejects null headphones");
+    check(session.transport.tx_size == tx_size && !mdrHeadphonesIsDirty(session.headphones) &&
+          mdrHeadphonesIsReady(session.headphones), "all getters leave transport and state unchanged");
+    session_close(&session);
+}
+
+static void test_widened_inputs(MDRProtocolVersion family)
+{
+    static const uint32_t unsigned_values[] = {256u, UINT32_MAX};
+    static const int32_t signed_values[] = {INT32_MIN, INT32_MAX, -256, 256};
+    Session session;
+    MDRNoiseControl noise, noise_before;
+    MDREqualizer equalizer, equalizer_before;
+    MDRVoiceGuidance voice, voice_before;
+    MDRPlayback playback;
+    int32_t bands[10] = {0};
+    uint32_t i, band_count;
+
+    if (!session_open_family(&session, family))
+        return;
+    check_result(mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise_before),
+                 MDR_RESULT_OK, "initial desired noise reads");
+    check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer_before),
+                 MDR_RESULT_OK, "initial desired EQ reads");
+    check_result(mdrHeadphonesGetVoiceGuidance(session.headphones, MDR_PROPERTY_DESIRED, &voice_before),
+                 MDR_RESULT_OK, "initial desired voice reads");
+    for (i = 0; i < sizeof(unsigned_values) / sizeof(unsigned_values[0]); ++i)
+    {
+        check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, unsigned_values[i]),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide unsigned volume cannot truncate into range");
+        noise = noise_before;
+        noise.mode = MDR_NOISE_MODE_CANCELLING;
+        noise.focus_on_voice = MDR_TRUE;
+        noise.ambient_level = unsigned_values[i];
+        check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide ambient level cannot truncate into range");
+    }
+    noise = noise_before;
+    noise.ambient_level = 21;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "ambient range is still capped at 20");
+    if (family == MDR_PROTOCOL_V2)
+    {
+        noise.ambient_level = MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING;
+        check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "V2 rejects the V1 sentinel");
+    }
+    for (i = 0; i < sizeof(signed_values) / sizeof(signed_values[0]); ++i)
+    {
+        equalizer = equalizer_before;
+        equalizer.preset = MDR_EQ_HEAVY;
+        equalizer.clear_bass = signed_values[i];
+        check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide clear bass cannot truncate into range");
+        voice = voice_before;
+        voice.enabled = MDR_TRUE;
+        voice.volume = signed_values[i];
+        check_result(mdrHeadphonesSetVoiceGuidance(session.headphones, &voice),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide signed voice volume cannot truncate into range");
+        for (band_count = 5; band_count <= 10; band_count += 5)
+        {
+            memset(bands, 0, sizeof(bands));
+            bands[band_count - 1] = signed_values[i];
+            check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands, band_count),
+                         MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide last band rejects the entire array");
+        }
+    }
+    for (i = 0; i < 2; ++i)
+    {
+        equalizer = equalizer_before;
+        equalizer.clear_bass = i ? 11 : -11;
+        check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "clear bass remains within -10..10");
+        voice = voice_before;
+        voice.volume = i ? 3 : -3;
+        check_result(mdrHeadphonesSetVoiceGuidance(session.headphones, &voice),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "voice volume remains within -2..2");
+        memset(bands, 0, sizeof(bands));
+        bands[4] = i ? 11 : -11;
+        check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands, 5),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "five bands remain within -10..10");
+        bands[4] = i ? 7 : -7;
+        check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands, 10),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "ten bands remain within -6..6");
+    }
+    check(!mdrHeadphonesIsDirty(session.headphones), "invalid widened inputs leave no staged changes");
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer);
+    mdrHeadphonesGetVoiceGuidance(session.headphones, MDR_PROPERTY_DESIRED, &voice);
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &playback);
+    check(memcmp(&noise, &noise_before, sizeof(noise)) == 0 &&
+          memcmp(&equalizer, &equalizer_before, sizeof(equalizer)) == 0 &&
+          memcmp(&voice, &voice_before, sizeof(voice)) == 0 && playback.volume == 0,
+          "invalid widened inputs preserve desired values transactionally");
+    session_close(&session);
+}
+
+static void check_eq_bands(MDRHeadphones* headphones, MDRPropertyType type,
+                           const int32_t* expected, uint32_t expected_count)
+{
+    int32_t bands[10];
+    uint32_t count = 1, i;
+
+    check_result(mdrHeadphonesGetEqualizerBands(headphones, type, NULL, &count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "EQ size query requires zero count");
+    count = 0;
+    check_result(mdrHeadphonesGetEqualizerBands(headphones, type, NULL, &count),
+                 MDR_RESULT_OK, "selected EQ array size queries");
+    check(count == expected_count, "EQ size follows the selected array");
+    for (i = 0; i < 10; ++i)
+        bands[i] = INT32_MIN;
+    count = expected_count - 1;
+    check_result(mdrHeadphonesGetEqualizerBands(headphones, type, bands, &count),
+                 MDR_RESULT_ERROR_BUFFER_TOO_SMALL, "selected EQ array rejects short buffer");
+    check(count == expected_count && bands[0] == INT32_MIN, "short EQ copy reports count without copying");
+    count = (uint32_t)(sizeof(bands) / sizeof(bands[0]));
+    check_result(mdrHeadphonesGetEqualizerBands(headphones, type, bands, &count),
+                 MDR_RESULT_OK, "selected EQ array copies");
+    check(count == expected_count && memcmp(bands, expected, expected_count * sizeof(expected[0])) == 0,
+          "EQ copy and count come from the same view");
+}
+
+static void test_eq_array_views(MDRProtocolVersion family)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 1, 0x51};
+    static const unsigned char table1_v2[] = {0x07, 0, 1, 0x50, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char flat_v1[] = {0x57, 1, 0, 6, 10, 10, 10, 10, 10, 10};
+    static const unsigned char flat_v2[] = {0x57, 0, 0, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+    static const int32_t flat[10] = {0};
+    static const int32_t five[5] = {-10, -1, 0, 1, 10};
+    static const int32_t ten[10] = {-6, -1, 0, 1, 6, -6, -1, 0, 1, 6};
+    Session session;
+    Device device;
+    MDREqualizer current, desired;
+    int v1 = family == MDR_PROTOCOL_V1;
+    uint32_t current_count = v1 ? 5u : 10u;
+    uint32_t desired_count = v1 ? 10u : 5u;
+    const int32_t* edited = v1 ? ten : five;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "initial EQ array polls");
+    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, current_count);
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, flat, current_count);
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, edited, desired_count),
+                 MDR_RESULT_OK, "different sized desired EQ array stages");
+    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, current_count);
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, edited, desired_count);
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &current);
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(current.band_count == current_count && desired.band_count == desired_count,
+          "equalizer band_count corresponds to the selected config");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "EQ notification with a local edit polls");
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, edited, desired_count);
+    session_close(&session);
+}
+
+static void test_playback_property_views(MDRProtocolVersion family)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 1, 0xa1};
+    static const unsigned char table1_v2[] = {0x07, 0, 1, 0xa1, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char volume_v1[] = {0xa9, 1, 0x20, 7};
+    static const unsigned char volume_v2[] = {0xa9, 0x20, 7};
+    static const unsigned char status_v1[] = {0xa5, 1, 0, 1};
+    static const unsigned char status_v2[] = {0xa5, 1, 0, 1, 0};
+    Session session;
+    Device device;
+    MDRPlayback current, desired;
+    int v1 = family == MDR_PROTOCOL_V1;
+    size_t tx_size;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "volume notification without local edits polls");
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current);
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(current.volume == 7 && desired.volume == 7, "unmodified property notification updates both views");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 12), MDR_RESULT_OK, "new volume stages");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "volume notification with local edits polls");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? status_v1 : status_v2, v1 ? sizeof(status_v1) : sizeof(status_v2));
+    device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "playback status notification polls");
+    tx_size = session.transport.tx_size;
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current);
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(current.volume == 7 && desired.volume == 12, "notification preserves a newer local desired revision");
+    check(current.status == MDR_PLAYBACK_PLAYING && desired.status == current.status,
+          "playback status does not switch views");
+    check(session.transport.tx_size == tx_size, "reading both views sends no packets");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "volume apply starts");
+    check(!mdrHeadphonesIsReady(session.headphones), "apply remains busy");
+    check_result(mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired),
+                 MDR_RESULT_OK, "desired remains readable during apply");
+    check(desired.volume == 12, "apply reads the latest accepted target");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 20), MDR_RESULT_INPROGRESS, "busy Set stays rejected");
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(desired.volume == 12, "rejected busy Set never changes desired");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "volume apply completes through ACK");
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current);
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(current.volume == 12 && desired.volume == 12 && !mdrHeadphonesIsDirty(session.headphones),
+          "ACK promotes the submitted snapshot to current without requiring readback");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "post-apply device volume polls");
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current);
+    mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(current.volume == 7 && desired.volume == 7, "notification after apply updates both unedited views");
+    session_close(&session);
+}
+
+static void test_editable_property_views(MDRProtocolVersion family, int wearing)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 8, 0x51, 0xf5, 0xd1, 0xd3, 0xe1, 0xf4, 0x39, 0x38};
+    const unsigned char table1_v2[] = {
+        0x07, 0, 9, 0x50, 0xff, 0xfc, 0xff, 0xd1, 0xff, 0xd4, 0xff, 0xe1, 0xff,
+        (unsigned char)(wearing ? 0x25 : 0x24), 0xff, 0xe6, 0xff, 0xeb, 0xff, 0xe8, 0xff
+    };
+    static const unsigned char table2[] = {0x07, 0, 4, 0x30, 0xff, 0x31, 0xff, 0x42, 0xff, 0x50, 0xff};
+    static const unsigned char gs_v1[] = {0xd1, 0xd3, 1, 0, 0, 1};
+    static const unsigned char gs_v2[] = {0xd1, 0xd4, 0, 0, 0, 0};
+    static const unsigned char measurement[] = {0x5b, 0, 85, 0};
+    static const unsigned char eq_off[] = {0x55, 0, 1};
+    Session session;
+    Device device;
+    MDRNoiseControl noise, current_noise;
+    MDRSpeakToChat speak, current_speak;
+    MDREqualizer equalizer, current_equalizer;
+    MDRPower power, current_power;
+    MDRVoiceGuidance voice, current_voice, initial_voice;
+    MDRPairing pairing, current_pairing;
+    MDRConnectionMode mode, current_mode;
+    MDRGeneralSetting setting, current_setting;
+    MDRListening listening, current_listening;
+    MDRSafeListening safe, current_safe;
+    MDRBoolean source, current_source;
+    uint32_t setting_index = family == MDR_PROTOCOL_V1 ? 2u : 3u;
+    int v1 = family == MDR_PROTOCOL_V1;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+
+    check_result(mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise), MDR_RESULT_OK, "desired noise reads");
+    noise.mode = v1 ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_AMBIENT;
+    noise.ambient_level = 20;
+    noise.changing_asm_level = MDR_TRUE;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "noise level and changing flag stage");
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    noise.focus_on_voice = MDR_TRUE;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "second desired noise edit stages");
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_CURRENT, &current_noise);
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    check(current_noise.mode == MDR_NOISE_MODE_OFF && current_noise.changing_asm_level == MDR_FALSE &&
+          noise.mode == (v1 ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_AMBIENT) && noise.ambient_level == 20 &&
+          noise.changing_asm_level == MDR_TRUE && noise.focus_on_voice == MDR_TRUE,
+          "desired noise edits preserve mode, level and changing flag while current stays unchanged");
+    if (v1)
+    {
+        noise.ambient_level = MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING;
+        check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "V1 accepts sentinel 255");
+        mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+        check(noise.ambient_level == 255u && noise.changing_asm_level == MDR_TRUE, "V1 sentinel round-trips without losing changing flag");
+    }
+
+    mdrHeadphonesGetSpeakToChat(session.headphones, MDR_PROPERTY_DESIRED, &speak);
+    speak.enabled = MDR_TRUE;
+    speak.sensitivity = MDR_SPEECH_SENSITIVITY_LOW;
+    speak.timeout = MDR_SPEAK_TIMEOUT_SHORT;
+    check_result(mdrHeadphonesSetSpeakToChat(session.headphones, &speak), MDR_RESULT_OK, "speech settings stage");
+    mdrHeadphonesGetSpeakToChat(session.headphones, MDR_PROPERTY_DESIRED, &speak);
+    speak.timeout = MDR_SPEAK_TIMEOUT_LONG;
+    check_result(mdrHeadphonesSetSpeakToChat(session.headphones, &speak), MDR_RESULT_OK, "second speech field stages");
+    mdrHeadphonesGetSpeakToChat(session.headphones, MDR_PROPERTY_CURRENT, &current_speak);
+    mdrHeadphonesGetSpeakToChat(session.headphones, MDR_PROPERTY_DESIRED, &speak);
+    check(current_speak.enabled == MDR_FALSE && speak.enabled == MDR_TRUE &&
+          speak.sensitivity == MDR_SPEECH_SENSITIVITY_LOW && speak.timeout == MDR_SPEAK_TIMEOUT_LONG,
+          "speech desired timeout edit retains pending enable and sensitivity");
+
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer);
+    equalizer.preset = MDR_EQ_HEAVY;
+    equalizer.clear_bass = -10;
+    check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer), MDR_RESULT_OK, "negative clear bass stages");
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer);
+    check(equalizer.clear_bass == -10, "negative clear bass survives the public type bridge");
+    equalizer.clear_bass = 10;
+    equalizer.dsee_enabled = MDR_TRUE;
+    check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer), MDR_RESULT_OK, "second desired EQ edit stages");
+    if (!v1)
+    {
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_off, sizeof(eq_off));
+        device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "EQ availability change with local edits polls");
+    }
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &current_equalizer);
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer);
+    check(current_equalizer.preset == MDR_EQ_OFF && current_equalizer.clear_bass == 0 &&
+          equalizer.preset == MDR_EQ_HEAVY && equalizer.clear_bass == 10 && equalizer.dsee_enabled == MDR_TRUE,
+          "desired EQ edits retain pending preset and signed bass");
+    check(equalizer.available == current_equalizer.available && equalizer.dsee_available == current_equalizer.dsee_available &&
+          equalizer.dsee_type == current_equalizer.dsee_type && (v1 || equalizer.available == MDR_FALSE),
+          "EQ availability and DSEE capabilities never select desired");
+
+    mdrHeadphonesGetPairing(session.headphones, MDR_PROPERTY_DESIRED, &pairing);
+    pairing.enabled = MDR_TRUE;
+    check_result(mdrHeadphonesSetPairing(session.headphones, &pairing), MDR_RESULT_OK, "pairing stages");
+    mdrHeadphonesGetPairing(session.headphones, MDR_PROPERTY_CURRENT, &current_pairing);
+    mdrHeadphonesGetPairing(session.headphones, MDR_PROPERTY_DESIRED, &pairing);
+    check(current_pairing.enabled == MDR_FALSE && pairing.enabled == MDR_TRUE, "pairing has two views");
+
+    mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power);
+    power.auto_power_off_minutes = 30;
+    power.auto_pause = MDR_TRUE;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "power time and pause stage");
+    mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power);
+    power.head_gesture = MDR_TRUE;
+    power.shutdown_requested = MDR_TRUE;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "other desired power fields stage");
+    mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_CURRENT, &current_power);
+    mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power);
+    check(current_power.auto_pause == MDR_FALSE && current_power.shutdown_requested == MDR_FALSE &&
+          power.auto_power_off_minutes == 30 && power.auto_pause == MDR_TRUE && power.head_gesture == MDR_TRUE &&
+          power.shutdown_requested == MDR_TRUE, "power branches read all fields from the same desired view");
+    if (wearing)
+    {
+        power.wearing_power = MDR_WEARING_POWER_WHEN_REMOVED;
+        check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "wearing power stages");
+        mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power);
+        check(power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED &&
+              current_power.wearing_power != MDR_WEARING_POWER_WHEN_REMOVED, "wearing power follows the chosen view");
+    }
+
+    mdrHeadphonesGetVoiceGuidance(session.headphones, MDR_PROPERTY_DESIRED, &initial_voice);
+    voice = initial_voice;
+    voice.enabled = initial_voice.enabled == MDR_FALSE ? MDR_TRUE : MDR_FALSE;
+    voice.volume = -2;
+    check_result(mdrHeadphonesSetVoiceGuidance(session.headphones, &voice), MDR_RESULT_OK, "negative voice volume stages");
+    mdrHeadphonesGetVoiceGuidance(session.headphones, MDR_PROPERTY_DESIRED, &voice);
+    check(voice.volume == (v1 ? initial_voice.volume : -2), "voice volume follows existing protocol support");
+    voice.volume = 2;
+    check_result(mdrHeadphonesSetVoiceGuidance(session.headphones, &voice), MDR_RESULT_OK, "positive voice volume stages");
+    mdrHeadphonesGetVoiceGuidance(session.headphones, MDR_PROPERTY_CURRENT, &current_voice);
+    mdrHeadphonesGetVoiceGuidance(session.headphones, MDR_PROPERTY_DESIRED, &voice);
+    check(current_voice.enabled == initial_voice.enabled && voice.enabled != initial_voice.enabled &&
+          voice.volume == (v1 ? initial_voice.volume : 2), "desired voice volume edit retains pending enable");
+
+    mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_CURRENT, &current_mode);
+    mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_DESIRED, &mode);
+    mode.audio_priority = current_mode.audio_priority == MDR_AUDIO_PRIORITY_QUALITY ? MDR_AUDIO_PRIORITY_STABILITY : MDR_AUDIO_PRIORITY_QUALITY;
+    check_result(mdrHeadphonesSetConnectionMode(session.headphones, &mode), MDR_RESULT_OK, "connection mode stages");
+    mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_DESIRED, &mode);
+    check(mode.audio_priority != current_mode.audio_priority, "connection mode reads desired in both protocols");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? gs_v1 : gs_v2, v1 ? sizeof(gs_v1) : sizeof(gs_v2));
+    device_run(&session, &device, MDR_EVENT_GENERAL_SETTINGS_CHANGED, "last general setting capability polls");
+    check_result(mdrHeadphonesGetGeneralSetting(session.headphones, MDR_PROPERTY_DESIRED, setting_index, &setting),
+                 MDR_RESULT_OK, "last general setting desired reads within each protocol array");
+    setting.boolean_value = MDR_TRUE;
+    check_result(mdrHeadphonesSetGeneralSetting(session.headphones, &setting), MDR_RESULT_OK, "general setting stages");
+    mdrHeadphonesGetGeneralSetting(session.headphones, MDR_PROPERTY_CURRENT, setting_index, &current_setting);
+    mdrHeadphonesGetGeneralSetting(session.headphones, MDR_PROPERTY_DESIRED, setting_index, &setting);
+    check(current_setting.boolean_value == MDR_FALSE && setting.boolean_value == MDR_TRUE && setting.index == setting_index,
+          "general setting value selects view without changing index");
+
+    if (!v1)
+    {
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_DESIRED, &listening);
+        listening.mode = MDR_LISTENING_BACKGROUND_MUSIC;
+        listening.background_room = MDR_ROOM_MEDIUM;
+        check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK, "listening room and mode stage");
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_DESIRED, &listening);
+        listening.background_room = MDR_ROOM_LARGE;
+        check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK, "second listening field stages");
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_CURRENT, &current_listening);
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_DESIRED, &listening);
+        check(current_listening.mode == MDR_LISTENING_STANDARD && listening.mode == MDR_LISTENING_BACKGROUND_MUSIC &&
+              listening.background_room == MDR_ROOM_LARGE, "desired room edit preserves the enabled mode");
+        listening.mode = MDR_LISTENING_VOICE_BOOST;
+        check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK, "desired mode switches mutually exclusively");
+        mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_DESIRED, &listening);
+        check(listening.mode == MDR_LISTENING_VOICE_BOOST && listening.background_room == MDR_ROOM_LARGE,
+              "all listening enabled properties use the selected view");
+        mdrHeadphonesGetSourceSwitchControl(session.headphones, MDR_PROPERTY_CURRENT, &current_source);
+        check_result(mdrHeadphonesSetSourceSwitchControl(session.headphones, current_source == MDR_FALSE ? MDR_TRUE : MDR_FALSE),
+                     MDR_RESULT_OK, "source switch target stages");
+        mdrHeadphonesGetSourceSwitchControl(session.headphones, MDR_PROPERTY_DESIRED, &source);
+        check(source != current_source, "source switch selects desired");
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, measurement, sizeof(measurement));
+        device_run(&session, &device, MDR_EVENT_SAFE_LISTENING_CHANGED, "safe listening measurement polls");
+        mdrHeadphonesGetSafeListening(session.headphones, MDR_PROPERTY_DESIRED, &safe);
+        safe.preview = MDR_TRUE;
+        safe.sound_pressure = 256u;
+        check_result(mdrHeadphonesSetSafeListening(session.headphones, &safe), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                     "wide measurement cannot truncate into the current value");
+        safe.sound_pressure = UINT32_MAX;
+        check_result(mdrHeadphonesSetSafeListening(session.headphones, &safe), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                     "maximum measurement cannot truncate into the current value");
+        mdrHeadphonesGetSafeListening(session.headphones, MDR_PROPERTY_DESIRED, &safe);
+        check(safe.preview == MDR_FALSE && safe.sound_pressure == 85,
+              "invalid read-only measurement never stages preview");
+        safe.preview = MDR_TRUE;
+        check_result(mdrHeadphonesSetSafeListening(session.headphones, &safe), MDR_RESULT_OK, "safe listening preview stages");
+        mdrHeadphonesGetSafeListening(session.headphones, MDR_PROPERTY_CURRENT, &current_safe);
+        mdrHeadphonesGetSafeListening(session.headphones, MDR_PROPERTY_DESIRED, &safe);
+        check(current_safe.preview == MDR_FALSE && safe.preview == MDR_TRUE && current_safe.sound_pressure == 85 &&
+              safe.sound_pressure == current_safe.sound_pressure, "safe preview selects view but measurement never does");
+    }
+    session_close(&session);
+}
+
 int main(void)
 {
+    test_property_getter_contracts(MDR_PROTOCOL_V1);
+    test_property_getter_contracts(MDR_PROTOCOL_V2);
+    test_widened_inputs(MDR_PROTOCOL_V1);
+    test_widened_inputs(MDR_PROTOCOL_V2);
+    test_eq_array_views(MDR_PROTOCOL_V1);
+    test_eq_array_views(MDR_PROTOCOL_V2);
+    test_playback_property_views(MDR_PROTOCOL_V1);
+    test_playback_property_views(MDR_PROTOCOL_V2);
+    test_editable_property_views(MDR_PROTOCOL_V1, 0);
+    test_editable_property_views(MDR_PROTOCOL_V2, 0);
+    test_editable_property_views(MDR_PROTOCOL_V2, 1);
     test_abi_version_handshake();
     test_struct_and_buffer_contracts();
     test_one_operation_at_a_time();

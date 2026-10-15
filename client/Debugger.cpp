@@ -9,6 +9,7 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_dialog.h>
 #include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
 #include <imgui.h>
@@ -221,8 +222,19 @@ namespace
             gExportDialogActive = true;
         }
         gExportStatus = gStatus = Tr(i18n::TextId::DebuggerChooseDestination);
-        SDL_ShowSaveFileDialog(
-            ExportDialogCallback, request, gWindow, &request->filter, 1, request->defaultPath.c_str());
+        if (!SDL_RunOnMainThread(
+                [](void* userdata)
+                {
+                    auto* request = static_cast<ExportRequest*>(userdata);
+                    SDL_ShowSaveFileDialog(
+                        ExportDialogCallback, request, gWindow, &request->filter, 1, request->defaultPath.c_str());
+                },
+                request, true))
+        {
+            mdr::Destruct(request);
+            SetExportResult(SDL_GetError());
+            return false;
+        }
         return true;
 #endif
     }
