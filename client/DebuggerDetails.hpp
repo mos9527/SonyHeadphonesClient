@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include <mdr/Command.hpp>
+#include "Platform/Platform.hpp"
 
 #include <algorithm>
 #include <array>
@@ -10,6 +11,7 @@
 #include <initializer_list>
 #include <limits>
 #include <span>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -35,6 +37,17 @@
 
 namespace debugger
 {
+    inline mdr::String TextLabel(i18n::TextId id, const char* icon = "")
+    {
+        return mdr::Format("{}{}{}###debugger-{}", icon, *icon ? " " : "", Tr(id), i18n::Index(id));
+    }
+
+    inline std::string_view VisibleLabel(const char* label)
+    {
+        const std::string_view text{label};
+        return text.substr(0, text.find("##"));
+    }
+
     enum class ProtocolFamily
     {
         V1,
@@ -204,7 +217,7 @@ namespace debugger
     {
         using Underlying = std::underlying_type_t<Enum>;
         std::uint64_t raw = static_cast<std::make_unsigned_t<Underlying>>(value);
-        const char* preview = "Unknown";
+        const char* preview = Tr(i18n::TextId::Unknown);
         for (const EnumOption& option : options)
             if (option.value == raw)
                 preview = option.name;
@@ -212,7 +225,8 @@ namespace debugger
         bool changed = false;
         ImGui::PushID(label);
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted(label);
+        const std::string_view visible = VisibleLabel(label);
+        ImGui::TextUnformatted(visible.data(), visible.data() + visible.size());
         ImGui::SameLine();
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.55f);
         if (ImGui::BeginCombo("##enum", preview))
@@ -262,7 +276,9 @@ namespace debugger
     bool DrawSequence(const char* label, Sequence& sequence, bool resizable, DrawElement&& drawElement)
     {
         bool changed = false;
-        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]", label, sequence.size()))
+        const std::string_view visible = VisibleLabel(label);
+        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]",
+                               static_cast<int>(visible.size()), visible.data(), sequence.size()))
             return false;
 
         size_t removeIndex = std::numeric_limits<size_t>::max();
@@ -312,7 +328,9 @@ namespace debugger
     bool DrawMap(const char* label, Entries& entries, DrawKey&& drawKey, DrawValue&& drawValue)
     {
         bool changed = false;
-        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]", label, entries.size()))
+        const std::string_view visible = VisibleLabel(label);
+        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]",
+                               static_cast<int>(visible.size()), visible.data(), entries.size()))
             return false;
 
         size_t removeIndex = std::numeric_limits<size_t>::max();
@@ -321,8 +339,8 @@ namespace debugger
             ImGui::PushID(static_cast<int>(index));
             if (ImGui::TreeNodeEx("entry", ImGuiTreeNodeFlags_DefaultOpen, "[%zu]", index))
             {
-                changed |= drawKey("key", entries[index].key);
-                changed |= drawValue("value", entries[index].value);
+                changed |= drawKey(TextLabel(i18n::TextId::DebuggerMapKey).c_str(), entries[index].key);
+                changed |= drawValue(TextLabel(i18n::TextId::DebuggerMapValue).c_str(), entries[index].value);
                 ImGui::TreePop();
             }
             ImGui::SameLine();

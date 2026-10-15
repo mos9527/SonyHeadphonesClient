@@ -142,7 +142,7 @@ if (MDR_CLIENT_DEBUGGER_TARGET)
         DebuggerDetails.hpp
         ${CLIENT_DEBUGGER_GENERATED_SOURCES}
     )
-    target_link_libraries(Client_Debugger PUBLIC mdr ImGuiSDL3)
+    target_link_libraries(Client_Debugger PUBLIC mdr ImGuiSDL3 Client_I18N)
     target_include_directories(Client_Debugger PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 endif ()
 

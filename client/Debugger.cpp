@@ -67,14 +67,13 @@ namespace
     SDL_Window* gWindow{};
     constexpr const char* kDefaultPacketExportPath = "mdr-debugger-packet.bin";
 #ifndef __EMSCRIPTEN__
-    constexpr SDL_DialogFileFilter kPacketFileFilter{"MDR packet", "bin"};
-    constexpr SDL_DialogFileFilter kZipFileFilter{"ZIP archive", "zip"};
-
     struct ExportRequest
     {
         mdr::MDRBuffer data;
         mdr::String defaultPath;
         mdr::String extension;
+        AppLocale locale{};
+        SDL_DialogFileFilter filter{};
     };
 #endif
 
@@ -143,19 +142,23 @@ namespace
             const mdr::String dialogError = SDL_GetError();
             if (WriteCaptureFile(request->defaultPath.c_str(), request->data))
                 result = mdr::Format(
-                    "Exported {} (file dialog unavailable: {})", request->defaultPath, dialogError);
+                    fmt::runtime(i18n::Translate(i18n::TextId::DebuggerExportedFallback, request->locale)),
+                    request->defaultPath, dialogError);
             else
-                result = mdr::Format("Unable to export {}: {}", request->defaultPath, SDL_GetError());
+                result = mdr::Format(
+                    fmt::runtime(i18n::Translate(i18n::TextId::DebuggerExportFailed, request->locale)),
+                    request->defaultPath, SDL_GetError());
         }
         else if (!filelist[0])
         {
-            result = "Export cancelled";
+            result = i18n::Translate(i18n::TextId::DebuggerExportCancelled, request->locale);
         }
         else
         {
             const mdr::String path = ExportPathWithExtension(filelist[0], request->extension);
             if (WriteCaptureFile(path.c_str(), request->data))
-                result = mdr::Format("Exported {}", path);
+                result = mdr::Format(
+                    fmt::runtime(i18n::Translate(i18n::TextId::DebuggerExported, request->locale)), path);
             else
                 result = SDL_GetError();
         }
@@ -174,7 +177,7 @@ namespace
             std::scoped_lock lock(gExportMutex);
             if (gExportDialogActive)
             {
-                gStatus = "An export dialog is already open";
+                gStatus = Tr(i18n::TextId::DebuggerExportDialogOpen);
                 return false;
             }
         }
@@ -184,19 +187,20 @@ namespace
             std::scoped_lock lock(gExportMutex);
             gExportDialogActive = true;
         }
-        gExportStatus = gStatus = "Starting browser download";
+        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerDownloadStarting);
         const char* mimeType =
             std::string_view(filterExtension) == "zip" ? "application/zip" : "application/octet-stream";
         const bool started =
             clientPlatformDownloadFile(defaultPath, data.data(), data.size(), mimeType) != 0;
         SetExportResult(
-            started ? mdr::Format("Downloaded {}", defaultPath) : "Browser download could not be started");
+            started ? mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerDownloaded)), defaultPath)
+                    : Tr(i18n::TextId::DebuggerDownloadFailed));
         return started;
 #else
         if (!gWindow)
         {
             if (WriteCaptureFile(defaultPath, data))
-                gExportStatus = gStatus = mdr::Format("Exported {}", defaultPath);
+                gExportStatus = gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerExported)), defaultPath);
             else
                 gExportStatus = gStatus = SDL_GetError();
             return true;
@@ -206,15 +210,19 @@ namespace
         request->data.assign(data.begin(), data.end());
         request->defaultPath = defaultPath;
         request->extension = mdr::Format(".{}", filterExtension);
+        request->locale = clientGetAppLocale();
+        request->filter = {
+            i18n::Translate(std::string_view(filterExtension) == "zip" ? i18n::TextId::DebuggerZipFile
+                                                                     : i18n::TextId::DebuggerPacketFile,
+                            request->locale),
+            std::string_view(filterExtension) == "zip" ? "zip" : "bin"};
         {
             std::scoped_lock lock(gExportMutex);
             gExportDialogActive = true;
         }
-        gExportStatus = gStatus = "Choose an export destination";
-        const SDL_DialogFileFilter& filter =
-            std::string_view(filterExtension) == "zip" ? kZipFileFilter : kPacketFileFilter;
+        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerChooseDestination);
         SDL_ShowSaveFileDialog(
-            ExportDialogCallback, request, gWindow, &filter, 1, request->defaultPath.c_str());
+            ExportDialogCallback, request, gWindow, &request->filter, 1, request->defaultPath.c_str());
         return true;
 #endif
     }
@@ -373,10 +381,10 @@ namespace
         gStatus.clear();
     }
 
-    void DrawHex(std::string_view label, mdr::Span<const mdr::UInt8> bytes)
+    void DrawHex(i18n::TextId label, mdr::Span<const mdr::UInt8> bytes)
     {
-        if (!ImGui::TreeNodeEx(label.data(), ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]",
-                               static_cast<int>(label.size()), label.data(), bytes.size()))
+        if (!ImGui::TreeNodeEx(TextLabel(label).c_str(), ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]",
+                               Tr(label), bytes.size()))
             return;
 
         constexpr size_t bytesPerLine = 8;
@@ -443,13 +451,18 @@ namespace
     {
         const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
         if (IsAck(packet))
-            return mdr::Format("#{} {} ACK seq {:02X}", packet.id, direction, packet.sequence);
+            return mdr::Format("#{} {} ACK seq {:02X} {}", packet.id, direction, packet.sequence,
+                               mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)),
+                                           packet.id, direction, packet.sequence));
 
         const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
         const char* packetName =
             packet.candidates.empty() ? "Unknown packet" : ShortPacketName(packet.candidates.front()->name);
-        mdr::String text = mdr::Format("#{} {} {} type {:02X} cmd {:02X} seq {:02X}", packet.id, direction, packetName,
-                                       static_cast<mdr::UInt8>(packet.type), command, packet.sequence);
+        mdr::String text = mdr::Format("#{} {} {} type {:02X} cmd {:02X} seq {:02X} {} {}", packet.id, direction, packetName,
+                                       static_cast<mdr::UInt8>(packet.type), command, packet.sequence,
+                                       packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket) : "",
+                                       mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerPacketDetails)),
+                                                   static_cast<mdr::UInt8>(packet.type), command, packet.sequence));
         for (const PacketDescriptor* descriptor : packet.candidates)
             text += mdr::Format(" {}", descriptor->name);
         return text;
@@ -464,7 +477,7 @@ namespace
     {
         if (gHistory.empty())
         {
-            constexpr const char* placeholder = "Commands from the headphones will appear here.";
+            const char* placeholder = Tr(i18n::TextId::DebuggerHistoryEmpty);
             const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
             ImGui::SetCursorPos({std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f),
                                  std::max(0.0f, (ImGui::GetContentRegionAvail().y - textSize.y) * 0.5f)});
@@ -490,7 +503,7 @@ namespace
             if (IsAck(packet))
             {
                 const mdr::String ackLabel =
-                    mdr::Format("#{}  {} ACK  seq {:02X}", packet.id, direction, packet.sequence);
+                    mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)), packet.id, direction, packet.sequence);
                 ImGui::BeginDisabled();
                 ImGui::TextUnformatted(ackLabel.c_str());
                 ImGui::EndDisabled();
@@ -514,12 +527,12 @@ namespace
             ImGui::PushStyleColor(ImGuiCol_HeaderActive, hoveredColor);
             const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
             const char* packetName =
-                packet.candidates.empty() ? "Unknown packet" : ShortPacketName(packet.candidates.front()->name);
-            mdr::String details = mdr::Format("type {:02X}  cmd {:02X}  seq {:02X}",
+                packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket) : ShortPacketName(packet.candidates.front()->name);
+            mdr::String details = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerPacketDetails)),
                                               static_cast<mdr::UInt8>(packet.type), command, packet.sequence);
             if (packet.candidates.size() > 1)
-                details += mdr::Format("  {} layouts", packet.candidates.size());
-            const mdr::String label = mdr::Format("#{} {} - {}\n{}", packet.id, direction, packetName, details);
+                details += mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerLayoutCount)), packet.candidates.size());
+            const mdr::String label = mdr::Format("#{} {} - {}\n{}###capture", packet.id, direction, packetName, details);
             const float rowHeight = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2;
             if (ImGui::Selectable(label.c_str(), selected, ImGuiSelectableFlags_None,
                                   {ImGui::GetContentRegionAvail().x, rowHeight}))
@@ -537,7 +550,7 @@ namespace
 
         if (!drewPacket)
         {
-            constexpr const char* placeholder = "No packets match the current filter.";
+            const char* placeholder = Tr(i18n::TextId::DebuggerFilterEmpty);
             const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
             ImGui::SetCursorPos({std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f),
                                  std::max(0.0f, (ImGui::GetContentRegionAvail().y - textSize.y) * 0.5f)});
@@ -558,7 +571,7 @@ namespace
 
     void DrawNewPacketPicker()
     {
-        if (ImGui::Button("Command..."))
+        if (ImGui::Button(TextLabel(i18n::TextId::DebuggerCommand).c_str()))
             ImGui::OpenPopup("New Packet");
         if (!ImGui::BeginPopup("New Packet"))
             return;
@@ -568,10 +581,10 @@ namespace
         ImGui::SameLine();
         ImGui::RadioButton("V2", &family, 1);
         gNewPacketFamily = family == 0 ? ProtocolFamily::V1 : ProtocolFamily::V2;
-        ImGui::RadioButton("Table 1", &gNewPacketTable, 0);
+        ImGui::RadioButton(TextLabel(i18n::TextId::DebuggerTable1).c_str(), &gNewPacketTable, 0);
         ImGui::SameLine();
-        ImGui::RadioButton("Table 2", &gNewPacketTable, 1);
-        ImGui::InputTextWithHint("##type-filter", "Filter packet types (space-separated)", gTypeFilter.data(),
+        ImGui::RadioButton(TextLabel(i18n::TextId::DebuggerTable2).c_str(), &gNewPacketTable, 1);
+        ImGui::InputTextWithHint("##type-filter", Tr(i18n::TextId::DebuggerFilterTypes), gTypeFilter.data(),
                                  gTypeFilter.size());
         ImGui::BeginChild("##packet-types", {600.0f, 320.0f}, ImGuiChildFlags_Borders);
         ForEachDescriptor(
@@ -591,8 +604,8 @@ namespace
     {
         if (gSelectedCandidates.size() <= 1)
             return;
-        const char* preview = gPacket ? gPacket.Descriptor().name : "Choose a layout";
-        if (ImGui::BeginCombo("Packet layout", preview))
+        const char* preview = gPacket ? gPacket.Descriptor().name : Tr(i18n::TextId::DebuggerChooseLayout);
+        if (ImGui::BeginCombo(TextLabel(i18n::TextId::DebuggerPacketLayout).c_str(), preview))
         {
             CapturedPacket* capture = FindCapture(gSelectedCaptureId);
             for (const PacketDescriptor* descriptor : gSelectedCandidates)
@@ -645,7 +658,7 @@ namespace
         if (replacement)
         {
             CreatePacket(*replacement);
-            gStatus = mdr::Format("Switched to {}", replacement->name);
+            gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerSwitchedLayout)), replacement->name);
             return true;
         }
 
@@ -653,7 +666,7 @@ namespace
         if (previousPayload.empty() || !current.decode(restored.Value(), previousPayload))
             restored = PacketInstance{current};
         gPacket = std::move(restored);
-        gStatus = mdr::Format("No packet layout matches command {:02X}", command);
+        gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerNoMatchingLayout)), command);
         return false;
     }
 
@@ -669,16 +682,16 @@ namespace
         {
             if (const CapturedPacket* capture = FindCapture(gSelectedCaptureId))
             {
-                ImGui::SeparatorText("Unknown packet");
+                ImGui::SeparatorText(Tr(i18n::TextId::DebuggerUnknownPacket));
                 if (capture->unpacked)
-                    DrawHex("Encoded payload", capture->payload);
+                    DrawHex(i18n::TextId::DebuggerEncodedPayload, capture->payload);
                 else
-                    ImGui::TextColored({1.0f, 0.45f, 0.35f, 1.0f}, "The captured frame could not be unpacked.");
-                DrawHex("Packed frame", capture->frame);
+                    ImGui::TextColored({1.0f, 0.45f, 0.35f, 1.0f}, "%s", Tr(i18n::TextId::DebuggerUnpackFailed));
+                DrawHex(i18n::TextId::DebuggerPackedFrame, capture->frame);
                 return;
             }
 
-            constexpr const char* placeholder = "Select a command above or create a new packet below.";
+            const char* placeholder = Tr(i18n::TextId::DebuggerEditorEmpty);
             const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
             ImGui::SetCursorPosX(std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f));
             ImGui::TextDisabled("%s", placeholder);
@@ -698,20 +711,20 @@ namespace
         const auto validation = gPacket.Descriptor().validate(gPacket.Value());
         if (validation)
         {
-            ImGui::TextColored({0.3f, 0.9f, 0.4f, 1.0f}, "Validation: valid");
+            ImGui::TextColored({0.3f, 0.9f, 0.4f, 1.0f}, "%s", Tr(i18n::TextId::DebuggerValidationValid));
         }
         else
         {
-            ImGui::TextColored({1.0f, 0.45f, 0.35f, 1.0f}, "Validation: %s",
+            ImGui::TextColored({1.0f, 0.45f, 0.35f, 1.0f}, Tr(i18n::TextId::DebuggerValidationError),
                                validation.errMessage ? validation.errMessage : mdrResultString(validation.error));
         }
 
         const bool encoded = UpdateEncodedPayload();
         if (encoded)
         {
-            DrawHex("Encoded payload", gEncodedPayload);
+            DrawHex(i18n::TextId::DebuggerEncodedPayload, gEncodedPayload);
             const mdr::MDRBuffer frame = mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload);
-            DrawHex("Packed frame", frame);
+            DrawHex(i18n::TextId::DebuggerPackedFrame, frame);
         }
 
         if (!gStatus.empty())
@@ -734,7 +747,7 @@ namespace
         gEnvelopeSequence = h->CurrentSequenceNumber();
         const int result =
             h->Invoke(h->RequestDebugCommand(gEncodedPayload, gEnvelopeType, gEnvelopeSequence, gAwaitAck));
-        gStatus = result == MDR_RESULT_OK ? "Packet queued" : mdrResultString(result);
+        gStatus = result == MDR_RESULT_OK ? Tr(i18n::TextId::DebuggerPacketQueued) : mdrResultString(result);
     }
 
     void DrawComposer()
@@ -751,20 +764,20 @@ namespace
             ImGui::SameLine();
 
             ImGui::BeginDisabled(!gPacket);
-            if (ImGui::Button("Reset"))
+            if (ImGui::Button(TextLabel(i18n::TextId::DebuggerReset).c_str()))
                 ResetPacket();
             ImGui::SameLine();
 
             int type = static_cast<int>(gEnvelopeType);
             ImGui::SetNextItemWidth(70.0f);
-            if (ImGui::InputInt("Type", &type))
+            if (ImGui::InputInt(TextLabel(i18n::TextId::DebuggerType).c_str(), &type))
                 gEnvelopeType = static_cast<mdr::MDRDataType>(type);
             ImGui::SameLine();
             if (gHeadphones)
                 gEnvelopeSequence = mdr::detail::HeadphonesImpl(gHeadphones)->CurrentSequenceNumber();
             ImGui::SetNextItemWidth(55.0f);
             ImGui::BeginDisabled(gHeadphones != nullptr);
-            DrawScalar("Seq", gEnvelopeSequence);
+            DrawScalar(TextLabel(i18n::TextId::DebuggerSequence).c_str(), gEnvelopeSequence);
             ImGui::EndDisabled();
             ImGui::SameLine();
             ImGui::Checkbox("ACK", &gAwaitAck);
@@ -772,17 +785,17 @@ namespace
 
             const bool encoded = UpdateEncodedPayload();
             ImGui::BeginDisabled(!encoded || clientDebuggerExportInProgress());
-            if (ImGui::Button("Export"))
+            if (ImGui::Button(TextLabel(i18n::TextId::DebuggerExport).c_str()))
             {
                 ExportPacket(mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload));
             }
             ImGui::EndDisabled();
 
             const bool canSend = encoded && gHeadphones && mdrHeadphonesIsReady(gHeadphones);
-            const float sendWidth = ImGui::CalcTextSize("Send").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+            const float sendWidth = ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSend)).x + ImGui::GetStyle().FramePadding.x * 2.0f;
             ImGui::SameLine(std::max(ImGui::GetCursorPosX(), ImGui::GetWindowWidth() - sendWidth - 12.0f));
             ImGui::BeginDisabled(!canSend);
-            if (ImGui::Button("Send"))
+            if (ImGui::Button(TextLabel(i18n::TextId::DebuggerSend).c_str()))
                 SendPacket();
             ImGui::EndDisabled();
             ImGui::EndDisabled();
@@ -995,34 +1008,40 @@ namespace
     void DrawHistoryToolbar(bool* open, bool replayMode)
     {
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted("Packets");
+        ImGui::TextUnformatted(Tr(i18n::TextId::DebuggerPackets));
         ImGui::SameLine();
-        if (ImGui::Button(gFollowMessages ? PSI_SIGNAL " Follow: On" : PSI_SIGNAL " Follow: Off"))
+        const mdr::String followLabel = mdr::Format(
+            "{} {}###follow-messages", PSI_SIGNAL,
+            Tr(gFollowMessages ? i18n::TextId::DebuggerFollowOn : i18n::TextId::DebuggerFollowOff));
+        if (ImGui::Button(followLabel.c_str()))
             gFollowMessages = !gFollowMessages;
 
+        const mdr::String dumpLabel = TextLabel(i18n::TextId::ExportZip, PSI_SAVE);
+        const mdr::String clearLabel = TextLabel(i18n::TextId::DebuggerClear, PSI_TRASH);
+        const mdr::String closeLabel = TextLabel(
+            replayMode ? i18n::TextId::DebuggerQuitReplay : i18n::TextId::DebuggerClose);
         const float dumpWidth =
-            ImGui::CalcTextSize(PSI_SAVE " Export ZIP").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+            ImGui::CalcTextSize(dumpLabel.c_str(), nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const float clearWidth =
-            ImGui::CalcTextSize(PSI_TRASH " Clear").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        const char* closeLabel = replayMode ? "Quit replay" : "Close";
+            ImGui::CalcTextSize(clearLabel.c_str(), nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f;
         const float closeWidth =
-            open ? ImGui::CalcTextSize(closeLabel).x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
+            open ? ImGui::CalcTextSize(closeLabel.c_str(), nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f : 0.0f;
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
         const float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
         const float rightButtons = dumpWidth + buttonSpacing + clearWidth + (open ? buttonSpacing + closeWidth : 0.0f);
         ImGui::SameLine(std::max(ImGui::GetCursorPosX(), rightEdge - rightButtons));
         ImGui::BeginDisabled(gHistory.empty() || clientDebuggerExportInProgress());
-        if (ImGui::Button(PSI_SAVE " Export ZIP"))
+        if (ImGui::Button(dumpLabel.c_str()))
             clientDebuggerExportPacketCollection();
         ImGui::EndDisabled();
         ImGui::SameLine();
-        if (ImGui::Button(PSI_TRASH " Clear"))
+        if (ImGui::Button(clearLabel.c_str()))
             ClearHistory();
         if (open)
         {
             ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(200, 0, 0, 255));
-            if (ImGui::Button(closeLabel))
+            if (ImGui::Button(closeLabel.c_str()))
             {
                 *open = false;
                 ImGui::CloseCurrentPopup();
@@ -1031,7 +1050,8 @@ namespace
         }
 
         ImGui::SetNextItemWidth(-1.0f);
-        ImGui::InputTextWithHint("##history-filter", PSI_FILTER " Filter packets (space-separated)",
+        const mdr::String filterHint = mdr::Format("{} {}", PSI_FILTER, Tr(i18n::TextId::DebuggerFilterPackets));
+        ImGui::InputTextWithHint("##history-filter", filterHint.c_str(),
                                  gHistoryFilter.data(), gHistoryFilter.size());
         if (!gExportStatus.empty())
             ImGui::TextWrapped("%s", gExportStatus.c_str());
@@ -1041,7 +1061,7 @@ namespace
 bool clientDebuggerWritePacketFile(const char* path, const unsigned char* frame, size_t frameSize)
 {
     if (!path || !*path || !frame || frameSize == 0)
-        return SDL_SetError("Invalid packet file export arguments");
+        return SDL_SetError("%s", Tr(i18n::TextId::DebuggerInvalidExportArguments));
     return WriteCaptureFile(path, {frame, frameSize});
 }
 
@@ -1085,7 +1105,7 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
     if (packetCount)
         *packetCount = 0;
     if (!path || !*path)
-        return SDL_SetError("Replay path is empty");
+        return SDL_SetError("%s", Tr(i18n::TextId::DebuggerReplayPathEmpty));
 
     SDL_PathInfo pathInfo{};
     if (!SDL_GetPathInfo(path, &pathInfo))
@@ -1093,9 +1113,9 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
     if (pathInfo.type == SDL_PATHTYPE_DIRECTORY)
         return clientDebuggerReplayDirectory(path, packetCount);
     if (pathInfo.type != SDL_PATHTYPE_FILE)
-        return SDL_SetError("Replay path is not a file or folder: %s", path);
+        return SDL_SetError(Tr(i18n::TextId::DebuggerReplayNotFileOrFolder), path);
     if (!IsBinPath(path))
-        return SDL_SetError("Replay file is not a .bin payload: %s", path);
+        return SDL_SetError(Tr(i18n::TextId::DebuggerReplayNotBin), path);
 
     size_t frameSize{};
     void* frame = SDL_LoadFile(path, &frameSize);
@@ -1104,7 +1124,7 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
     if (frameSize == 0 || frameSize > static_cast<size_t>(std::numeric_limits<int>::max()))
     {
         SDL_free(frame);
-        return SDL_SetError("Invalid packet size in %s", path);
+        return SDL_SetError(Tr(i18n::TextId::DebuggerInvalidPacketSize), path);
     }
 
     MDRPacketDirection direction = MDR_PACKET_DIRECTION_RX;
@@ -1118,7 +1138,7 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
 
     if (packetCount)
         *packetCount = 1;
-    gStatus = mdr::Format("Replayed 1 packet from {}", path);
+    gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerReplayed)), 1, path);
     return true;
 }
 
@@ -1134,7 +1154,7 @@ bool clientDebuggerExportLatestPacket()
 {
     if (gHistory.empty())
     {
-        gExportStatus = gStatus = "No packets available to export";
+        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerNoPackets);
         return false;
     }
     return RequestExport(
@@ -1145,13 +1165,13 @@ bool clientDebuggerExportPacketCollection()
 {
     if (gHistory.empty())
     {
-        gExportStatus = gStatus = "No packets available to export";
+        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerNoPackets);
         return false;
     }
     std::int64_t timestamp{};
     if (!ExportTimestamp(timestamp))
     {
-        gExportStatus = gStatus = mdr::Format("Unable to timestamp packet collection: {}", SDL_GetError());
+        gExportStatus = gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerTimestampFailed)), SDL_GetError());
         return false;
     }
     const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
@@ -1162,9 +1182,9 @@ bool clientDebuggerExportPacketCollection()
 bool clientDebuggerWritePacketCollectionFile(const char* path)
 {
     if (!path || !*path)
-        return SDL_SetError("Packet collection export path is empty");
+        return SDL_SetError("%s", Tr(i18n::TextId::DebuggerExportPathEmpty));
     if (gHistory.empty())
-        return SDL_SetError("No packets available to export");
+        return SDL_SetError("%s", Tr(i18n::TextId::DebuggerNoPackets));
     std::int64_t timestamp{};
     if (!ExportTimestamp(timestamp))
         return false;
@@ -1189,13 +1209,13 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
     if (packetCount)
         *packetCount = 0;
     if (!directory || !*directory)
-        return SDL_SetError("Replay folder is empty");
+        return SDL_SetError("%s", Tr(i18n::TextId::DebuggerReplayFolderEmpty));
 
     SDL_PathInfo directoryInfo{};
     if (!SDL_GetPathInfo(directory, &directoryInfo))
         return false;
     if (directoryInfo.type != SDL_PATHTYPE_DIRECTORY)
-        return SDL_SetError("Replay path is not a folder: %s", directory);
+        return SDL_SetError(Tr(i18n::TextId::DebuggerReplayNotFolder), directory);
 
     int entryCount{};
     char** entries = SDL_GlobDirectory(directory, "mdr-packet-*.bin", 0, &entryCount);
@@ -1219,7 +1239,7 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
     std::sort(captures.begin(), captures.end(),
               [](const ReplayCapture& lhs, const ReplayCapture& rhs) { return lhs.filename < rhs.filename; });
     if (captures.empty())
-        return SDL_SetError("Replay folder contains no mdr-packet-*-rx/tx .bin files: %s", directory);
+        return SDL_SetError(Tr(i18n::TextId::DebuggerReplayNoFiles), directory);
 
     for (ReplayCapture& capture : captures)
     {
@@ -1230,7 +1250,7 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
         if (frameSize == 0 || frameSize > static_cast<size_t>(std::numeric_limits<int>::max()))
         {
             SDL_free(frame);
-            return SDL_SetError("Invalid packet size in %s", capture.path.c_str());
+            return SDL_SetError(Tr(i18n::TextId::DebuggerInvalidPacketSize), capture.path.c_str());
         }
         const auto* bytes = static_cast<const mdr::UInt8*>(frame);
         capture.frame.assign(bytes, bytes + frameSize);
@@ -1248,7 +1268,7 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
     gHeadphones = attachedHeadphones;
     if (packetCount)
         *packetCount = captures.size();
-    gStatus = mdr::Format("Replayed {} packet(s) from {}", captures.size(), directory);
+    gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerReplayed)), captures.size(), directory);
     return true;
 }
 
@@ -1280,8 +1300,8 @@ void clientDebuggerDraw(bool* open, bool replayMode)
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV |
                               ImGuiTableFlags_SizingStretchProp))
     {
-        ImGui::TableSetupColumn("Packets", ImGuiTableColumnFlags_WidthStretch, 0.42f);
-        ImGui::TableSetupColumn("Controls", ImGuiTableColumnFlags_WidthStretch, 0.58f);
+        ImGui::TableSetupColumn(Tr(i18n::TextId::DebuggerPackets), ImGuiTableColumnFlags_WidthStretch, 0.42f);
+        ImGui::TableSetupColumn(Tr(i18n::TextId::Controls), ImGuiTableColumnFlags_WidthStretch, 0.58f);
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         DrawHistoryToolbar(open, replayMode);
