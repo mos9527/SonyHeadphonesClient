@@ -493,14 +493,14 @@ MDR_API void mdrHeadphonesDestroy(MDRHeadphones* headphones);
  */
 MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
 /**
- * @brief Returns true if new ...Request and state-changing ...Set calls can be made.
+ * @brief Returns true if new ...Request, state-changing ...Set, and @ref mdrHeadphonesSendPlaybackCommand calls can be made.
  *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request, ...Set,
- *        and @ref mdrHeadphonesPlayback calls will fail with @ref MDR_RESULT_INPROGRESS.
+ *        and @ref mdrHeadphonesSendPlaybackCommand calls will fail with @ref MDR_RESULT_INPROGRESS.
  */
 MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
 /**
- * @brief Returns true if there are pending changes made through the ...Set calls that have not yet been committed to
- *        the device via @ref mdrHeadphonesRequestCommit.
+ * @brief Returns true if there are pending changes made through the ...Set or @ref mdrHeadphonesSendPlaybackCommand
+ *        calls that have not yet been committed to the device via @ref mdrHeadphonesRequestCommit.
  */
 MDR_API MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones);
 /**
@@ -516,8 +516,9 @@ MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones);
  */
 MDR_API MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones);
 /**
- * @brief Commits any pending changes made via the ...Set calls. Changes are ONLY applied to the devices
- *        after this call is complete, and only then @ref mdrHeadphonesIsDirty will return false
+ * @brief Commits pending changes made via the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls.
+ *        Changes are ONLY applied to the devices after this call is complete, and only then
+ *        @ref mdrHeadphonesIsDirty will return false
  * @note  You may call this function at the end of your frame/event loop. Calling this function
  *        when @ref mdrHeadphonesIsDirty returns false is a no-op.
  */
@@ -549,9 +550,20 @@ MDR_API MDRResult mdrHeadphonesGetText(MDRHeadphones* headphones, MDRText text, 
 /* Model, battery, and playback. */
 MDR_API MDRResult mdrHeadphonesGetModel(MDRHeadphones* headphones, MDRModel* out_identity);
 MDR_API MDRResult mdrHeadphonesGetBatteries(MDRHeadphones* headphones, MDRBattery* batteries, uint32_t* inout_count);
+/**
+ * @brief Reads the current playback status and committed volume, excluding staged changes.
+ */
 MDR_API MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPlayback* out_playback);
-MDR_API MDRResult mdrHeadphonesSetPlayback(MDRHeadphones* headphones, const MDRPlayback* playback);
-MDR_API MDRResult mdrHeadphonesPlayback(MDRHeadphones* headphones, const MDRPlaybackCommand* command);
+/**
+ * @brief Stages a playback volume in the range 0..30 without changing playback status.
+ * @note Applied only through @ref mdrHeadphonesRequestCommit.
+ */
+MDR_API MDRResult mdrHeadphonesSetPlaybackVolume(MDRHeadphones* headphones, uint8_t volume);
+/**
+ * @brief Stages a play, pause, next-track, or previous-track command.
+ * @note Sent only through @ref mdrHeadphonesRequestCommit. Each new command replaces any uncommitted command.
+ */
+MDR_API MDRResult mdrHeadphonesSendPlaybackCommand(MDRHeadphones* headphones, const MDRPlaybackCommand* command);
 
 /* Sound controls. */
 MDR_API MDRResult mdrHeadphonesGetNoiseControl(MDRHeadphones* headphones, MDRNoiseControl* out_noise_control);

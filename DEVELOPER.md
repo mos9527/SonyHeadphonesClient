@@ -171,7 +171,19 @@ For `tooling` and non-project specific code, there is no restriction on memory m
 
 Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick with standard `<algorithm>` library and for-loops that's both easier to write/comprehend and faster to compile/run.
 
-## Payload Struct Implementation Details (libmdr)
+### C ABI (libmdr, libmdr-bt)
+
+`libmdr` provides stable ABI **per ABI version**. This is defined by `MDR_ABI_VERSION` in `libmdr/include/mdr-c/Base.h`.
+
+**Bump this version by `1` if you are breaking ABI**, for example:
+- *Removing* functions (note: adding new functions while adhering to the rest of the rules is allowed) in C-headers.
+- *Changing* function signatures (this includes changing the underlying structs) in C-headers.
+  
+`libmdr-bt` provides stable ABI, and is **guaranteed** to not change between `libmdr` ABI versions. **Under no circumstances should `libmdr-bt` change between `libmdr` ABI versions.**
+
+- **NOTE:** `git blame` the `#define` line to see all ABI-breaking changes introduced to `libmdr`.
+
+### Payload Struct Implementation Details (libmdr)
 
 **NOTE:** This section is for informative purposes only, as `libmdr` now generates the struct details via [codegen](./tooling/) deterministically, and the structs themselves are generated from IR via [tooling/ida](./tooling/ida/).
 

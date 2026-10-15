@@ -38,6 +38,10 @@ MDR_ASSERT_U32(MDRWearingStatus);
 MDR_ASSERT_U32(MDRAudioPriority);
 #undef MDR_ASSERT_U32
 
+static_assert(sizeof(((MDRDeviceInfo*)0)->szDeviceName) == 256, "device name capacity must be 256 bytes");
+static_assert(offsetof(MDRDeviceInfo, szDeviceMacAddress) == 256, "device address offset must remain fixed");
+static_assert(sizeof(MDRDeviceInfo) == 274, "device info array stride must remain fixed");
+
 #undef MDR_ASSERT_C_STRUCT
 
 enum
@@ -444,6 +448,14 @@ static void test_abi_version_handshake(void)
     );
     check(headphones == NULL, "a refused handshake leaves no instance behind");
 
+    headphones = (MDRHeadphones*)0x1;
+    check_result(
+        mdrHeadphonesCreate(MDR_ABI_VERSION - 1u, &transport.connection, MDR_PROTOCOL_V2, &headphones),
+        MDR_RESULT_ERROR_ABI_MISMATCH,
+        "the previous ABI version is refused"
+    );
+    check(headphones == NULL, "an older ABI handshake leaves no instance behind");
+
     check_result(
         mdrHeadphonesCreate(0u, &transport.connection, MDR_PROTOCOL_V2, &headphones),
         MDR_RESULT_ERROR_ABI_MISMATCH,
@@ -564,16 +576,41 @@ static void test_one_operation_at_a_time(void)
 static void test_committed_state_staging(void)
 {
     Session session;
-    MDRPlayback staged;
     MDRPlayback current;
 
     if (!session_open(&session))
         return;
-    memset(&staged, 0, sizeof(staged));
-    staged.status = MDR_PLAYBACK_UNKNOWN;
-    staged.volume = 12;
     check_result(
-        mdrHeadphonesSetPlayback(session.headphones, &staged),
+        mdrHeadphonesSetPlaybackVolume(NULL, 12),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "playback volume rejects a null session"
+    );
+    check_result(
+        mdrHeadphonesSetPlaybackVolume(session.headphones, 31),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "playback volume rejects values above 30"
+    );
+    check_result(
+        mdrHeadphonesSetPlaybackVolume(session.headphones, UINT8_MAX),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "playback volume rejects the maximum byte value"
+    );
+    check(
+        mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
+        "invalid volume writes leave the session clean"
+    );
+    check_result(
+        mdrHeadphonesSetPlaybackVolume(session.headphones, 0),
+        MDR_RESULT_OK,
+        "minimum playback volume is accepted"
+    );
+    check_result(
+        mdrHeadphonesSetPlaybackVolume(session.headphones, 30),
+        MDR_RESULT_OK,
+        "maximum playback volume is accepted"
+    );
+    check_result(
+        mdrHeadphonesSetPlaybackVolume(session.headphones, 12),
         MDR_RESULT_OK,
         "playback volume stages"
     );
@@ -606,19 +643,30 @@ static void test_playback_actions(void)
     MDRPlaybackCommand command;
     unsigned char ack[FRAME_BUFFER_CAPACITY];
     size_t ack_size;
-    MDRPlayback unsupported_status;
     MDREvent event;
 
     if (!session_open(&session))
         return;
     select_v2(&session, "V2 protocol is selected for playback actions");
+    check_result(
+        mdrHeadphonesSendPlaybackCommand(session.headphones, NULL),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "playback command rejects a null command"
+    );
+    memset(&command, 0, sizeof(command));
+    command.action = MDR_PLAYBACK_PLAY;
+    check_result(
+        mdrHeadphonesSendPlaybackCommand(NULL, &command),
+        MDR_RESULT_ERROR_INVALID_ARGUMENT,
+        "playback command rejects a null session"
+    );
 
     for (index = 0; index < sizeof(actions) / sizeof(actions[0]); ++index)
     {
         memset(&command, 0, sizeof(command));
         command.action = actions[index];
         check_result(
-            mdrHeadphonesPlayback(session.headphones, &command),
+            mdrHeadphonesSendPlaybackCommand(session.headphones, &command),
             MDR_RESULT_OK,
             "supported playback action stages"
         );
@@ -650,18 +698,14 @@ static void test_playback_actions(void)
     memset(&command, 0, sizeof(command));
     command.action = (MDRPlaybackAction)0xff;
     check_result(
-        mdrHeadphonesPlayback(session.headphones, &command),
+        mdrHeadphonesSendPlaybackCommand(session.headphones, &command),
         MDR_RESULT_ERROR_INVALID_ARGUMENT,
         "unknown playback action is rejected"
     );
 
-    memset(&unsupported_status, 0, sizeof(unsupported_status));
-    unsupported_status.status = MDR_PLAYBACK_PLAYING;
-    unsupported_status.volume = 10;
-    check_result(
-        mdrHeadphonesSetPlayback(session.headphones, &unsupported_status),
-        MDR_RESULT_ERROR_NOT_SUPPORTED,
-        "playback status is not misrepresented as a staged volume change"
+    check(
+        mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
+        "invalid playback commands leave the session clean"
     );
     session_close(&session);
 }
@@ -692,7 +736,7 @@ static void test_transmit_sequence_ignores_inbound_frames(void)
     memset(&command, 0, sizeof(command));
     command.action = MDR_PLAYBACK_PLAY;
     check_result(
-        mdrHeadphonesPlayback(session.headphones, &command),
+        mdrHeadphonesSendPlaybackCommand(session.headphones, &command),
         MDR_RESULT_OK,
         "first action stages"
     );
@@ -731,7 +775,7 @@ static void test_transmit_sequence_ignores_inbound_frames(void)
     memset(&command, 0, sizeof(command));
     command.action = MDR_PLAYBACK_NEXT;
     check_result(
-        mdrHeadphonesPlayback(session.headphones, &command),
+        mdrHeadphonesSendPlaybackCommand(session.headphones, &command),
         MDR_RESULT_OK,
         "second action stages"
     );
@@ -1728,9 +1772,9 @@ static void test_v2_bootstrap(void)
 static void test_staging_is_rejected_during_apply(void)
 {
     Session session;
-    MDRPlayback first;
-    MDRPlayback newer;
+    const uint8_t first_volume = 10;
     MDRPlayback current;
+    MDRPlaybackCommand command;
     unsigned char ack[FRAME_BUFFER_CAPACITY];
     size_t ack_size;
     MDREvent ack_event;
@@ -1740,11 +1784,8 @@ static void test_staging_is_rejected_during_apply(void)
         return;
     select_v2(&session, "V2 protocol is selected for apply");
 
-    memset(&first, 0, sizeof(first));
-    first.status = MDR_PLAYBACK_UNKNOWN;
-    first.volume = 10;
     check_result(
-        mdrHeadphonesSetPlayback(session.headphones, &first),
+        mdrHeadphonesSetPlaybackVolume(session.headphones, first_volume),
         MDR_RESULT_OK,
         "first playback value stages"
     );
@@ -1754,13 +1795,17 @@ static void test_staging_is_rejected_during_apply(void)
         "apply starts"
     );
 
-    memset(&newer, 0, sizeof(newer));
-    newer.status = MDR_PLAYBACK_UNKNOWN;
-    newer.volume = 20;
     check_result(
-        mdrHeadphonesSetPlayback(session.headphones, &newer),
+        mdrHeadphonesSetPlaybackVolume(session.headphones, 20),
         MDR_RESULT_INPROGRESS,
         "a playback value is rejected during apply"
+    );
+    memset(&command, 0, sizeof(command));
+    command.action = MDR_PLAYBACK_PLAY;
+    check_result(
+        mdrHeadphonesSendPlaybackCommand(session.headphones, &command),
+        MDR_RESULT_INPROGRESS,
+        "a playback command is rejected during apply"
     );
 
     poll_event(session.headphones, &ack_event, "apply request flushes");
@@ -1780,7 +1825,7 @@ static void test_staging_is_rejected_during_apply(void)
         MDR_RESULT_OK,
         "applied playback is readable"
     );
-    check(current.volume == first.volume, "apply commits its original snapshot");
+    check(current.volume == first_volume, "apply commits its original snapshot");
 
     check(
         mdrHeadphonesIsReady(session.headphones) == MDR_TRUE

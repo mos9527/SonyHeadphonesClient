@@ -1605,11 +1605,10 @@ void DrawDeviceControlsPlayback()
     int volume = gState.mPlayback.volume;
     if (ImGui::SliderInt("##Volume", &volume, 0, 30))
     {
-        MDRPlayback playback = gState.mPlayback;
-        playback.volume = static_cast<uint8_t>(volume);
-        if (mdrHeadphonesSetPlayback(gDevice, &playback) == MDR_RESULT_OK)
+        const auto playbackVolume = static_cast<uint8_t>(volume);
+        if (mdrHeadphonesSetPlaybackVolume(gDevice, playbackVolume) == MDR_RESULT_OK)
         {
-            gState.mPlayback = playback;
+            gState.mPlayback.volume = playbackVolume;
             gState.mPlaybackVolumeStaged = true;
         }
     }
@@ -1618,7 +1617,7 @@ void DrawDeviceControlsPlayback()
     {
         MDRPlaybackCommand command{};
         command.action = MDR_PLAYBACK_PREVIOUS;
-        mdrHeadphonesPlayback(gDevice, &command);
+        mdrHeadphonesSendPlaybackCommand(gDevice, &command);
     }
     if (gState.mPlayback.status == MDR_PLAYBACK_PLAYING)
     {
@@ -1626,7 +1625,7 @@ void DrawDeviceControlsPlayback()
         {
             MDRPlaybackCommand command{};
             command.action = MDR_PLAYBACK_PAUSE;
-            mdrHeadphonesPlayback(gDevice, &command);
+            mdrHeadphonesSendPlaybackCommand(gDevice, &command);
         }
     }
     else
@@ -1635,14 +1634,14 @@ void DrawDeviceControlsPlayback()
         {
             MDRPlaybackCommand command{};
             command.action = MDR_PLAYBACK_PLAY;
-            mdrHeadphonesPlayback(gDevice, &command);
+            mdrHeadphonesSendPlaybackCommand(gDevice, &command);
         }
     }
     if (ImModalButton(TrLable(i18n::TextId::Next, PSI_STEP_FORWARD), 2, 3))
     {
         MDRPlaybackCommand command{};
         command.action = MDR_PLAYBACK_NEXT;
-        mdrHeadphonesPlayback(gDevice, &command);
+        mdrHeadphonesSendPlaybackCommand(gDevice, &command);
     }
 }
 

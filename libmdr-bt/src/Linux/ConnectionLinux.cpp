@@ -182,9 +182,8 @@ struct MDRConnectionLinux
         {
             mdr::String name = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Name");
             mdr::String address = dbus_get_property(ptr->dbusConn, paths[i].c_str(), "Address");
-            // mdr::String is always null-terminated
-            strncpy((*ppList)[i].szDeviceName, name.c_str(), name.size() + 1);
-            strncpy((*ppList)[i].szDeviceMacAddress, address.c_str(), address.size() + 1);
+            CopyUtf8((*ppList)[i].szDeviceName, name.c_str());
+            CopyUtf8((*ppList)[i].szDeviceMacAddress, address.c_str());
         }
         return MDR_RESULT_OK;
     }

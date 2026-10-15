@@ -1,8 +1,10 @@
 #pragma once
 #include <stdint.h>
 
-/* 2: MDREqualizer gained `available` and `dsee_available`. */
-#define MDR_ABI_VERSION 2u
+#define MDR_ABI_VERSION 3u
+//      ^^^^^^^^^^^^^^^ ABI version of the header.
+// To Developers: Blame this line for history ABI changes. Change this line if *you* want to break ABI.
+// See DEVELOPER.md for more details.
 
 #if !defined(MDR_API)
 #if defined(_WIN32)

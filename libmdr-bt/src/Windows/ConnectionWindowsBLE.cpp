@@ -345,10 +345,8 @@ struct MDRConnectionWindowsBLE
 
                         devices.emplace_back();
                         auto& back = devices.back();
-                        strncpy(back.szDeviceName, name.c_str(), sizeof(back.szDeviceName) - 1);
-                        back.szDeviceName[sizeof(back.szDeviceName) - 1] = '\0';
-                        strncpy(back.szDeviceMacAddress, macAddress.c_str(), sizeof(back.szDeviceMacAddress) - 1);
-                        back.szDeviceMacAddress[sizeof(back.szDeviceMacAddress) - 1] = '\0';
+                        CopyUtf8(back.szDeviceName, name.c_str());
+                        CopyUtf8(back.szDeviceMacAddress, macAddress.c_str());
 
                         (void)IInspectable_Close(bleDevice.Get());
 

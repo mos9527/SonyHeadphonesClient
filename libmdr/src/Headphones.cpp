@@ -1657,25 +1657,21 @@ MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPlayback* outPl
     });
 }
 
-MDRResult mdrHeadphonesSetPlayback(MDRHeadphones* headphones, const MDRPlayback* playback)
+MDRResult mdrHeadphonesSetPlaybackVolume(MDRHeadphones* headphones, uint8_t volume)
 {
-    if (!headphones || !playback || playback->volume > 30 ||
-        playback->status > MDR_PLAYBACK_PAUSED)
+    if (!headphones || volume > 30)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
     if (!h.IsReady())
         return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-        const auto currentStatus = from_protocol(state.mPlayPause);
-        if (playback->status != MDR_PLAYBACK_UNKNOWN && playback->status != currentStatus)
-            return MDR_RESULT_ERROR_NOT_SUPPORTED;
-        state.mPlayVolume.stage(playback->volume);
+        state.mPlayVolume.stage(volume);
         return MDR_RESULT_OK;
     });
 }
 
-MDRResult mdrHeadphonesPlayback(MDRHeadphones* headphones, const MDRPlaybackCommand* command)
+MDRResult mdrHeadphonesSendPlaybackCommand(MDRHeadphones* headphones, const MDRPlaybackCommand* command)
 {
     if (!headphones || !command)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;

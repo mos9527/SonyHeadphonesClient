@@ -5,7 +5,8 @@
  */
 typedef struct MDRDeviceInfo
 {
-    char szDeviceName[128];
+    /** NUL-terminated UTF-8; overlong names are truncated at a code point boundary. */
+    char szDeviceName[256];
     char szDeviceMacAddress[18];
 } MDRDeviceInfo;
 

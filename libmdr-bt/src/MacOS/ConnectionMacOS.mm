@@ -298,10 +298,10 @@ struct MDRConnectionMacOS
                 memset(info, 0, sizeof(MDRDeviceInfo));
                 
                 if (name) {
-                    strncpy(info->szDeviceName, [name UTF8String], sizeof(info->szDeviceName) - 1);
+                    CopyUtf8(info->szDeviceName, [name UTF8String]);
                 }
                 if (addr) {
-                    strncpy(info->szDeviceMacAddress, [addr UTF8String], sizeof(info->szDeviceMacAddress) - 1);
+                    CopyUtf8(info->szDeviceMacAddress, [addr UTF8String]);
                 }
             }
             return MDR_RESULT_OK;

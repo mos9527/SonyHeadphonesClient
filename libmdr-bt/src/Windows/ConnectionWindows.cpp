@@ -305,8 +305,8 @@ static MDRResult Poll(void* user, int timeout) noexcept
                         (int)deviceInfo.fConnected, (int)deviceInfo.fAuthenticated, (int)deviceInfo.fRemembered);
                 devices.emplace_back();
                 auto& back = devices.back();
-                strncpy(back.szDeviceName, szName.c_str(), szName.size() + 1);
-                strncpy(back.szDeviceMacAddress, szMacAddress.c_str(), szMacAddress.size() + 1);
+                CopyUtf8(back.szDeviceName, szName.c_str());
+                CopyUtf8(back.szDeviceMacAddress, szMacAddress.c_str());
             }
             while (BluetoothFindNextDevice(deviceFindHandle, &deviceInfo));
             if (!BluetoothFindDeviceClose(deviceFindHandle))
