@@ -73,7 +73,7 @@ The app targets Android 5.0 (API 21) and later, and by default builds for ARMv7 
  
 **NOTE:** As the Bluetooth functions are only provided via Java/JNI, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented.
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented due to `SDL_DIALOG` Android implementation doesn't support default file names. (3.2.26)
 
 ### OpenHarmony (DevEco Studio)
 
@@ -83,7 +83,7 @@ Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.c
 
 **NOTE:** As the Bluetooth functions are only provided via `ArkTS` interop, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented.
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented due to `SDL_DIALOG` is not currently implemented for OpenHarmony by the upstream. (3.2.26)
 
 ### CMake Options
 
