@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.31)
 
 add_library(Client_PlatformMacOS STATIC
         ClientPlatform.cpp
+        ClientConnection.cpp
 )
 
 find_library(CORETEXT_LIB CoreText REQUIRED)

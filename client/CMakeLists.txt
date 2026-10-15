@@ -41,11 +41,29 @@ if (MDR_PLATFORM_OS STREQUAL "WIN32")
     set_target_properties(SonyHeadphonesClient PROPERTIES
         WIN32_EXECUTABLE $<AND:$<NOT:$<BOOL:${MDR_DEBUG}>>,$<NOT:$<CONFIG:Debug>>>
     )
-    target_sources(SonyHeadphonesClient PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest")
+    target_sources(SonyHeadphonesClient PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.rc"
+    )
 elseif (MDR_PLATFORM_OS STREQUAL "MACOS")
-    add_executable(SonyHeadphonesClient MACOSX_BUNDLE)
+    set(CLIENT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/Platform/MacOS/AppIcon.icns")
+    add_executable(SonyHeadphonesClient MACOSX_BUNDLE "${CLIENT_ICON}")
+    set_source_files_properties("${CLIENT_ICON}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
     set_target_properties(SonyHeadphonesClient PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platform/MacOS/Info.plist"
+    )
+elseif (MDR_PLATFORM_OS STREQUAL "IOS")
+    set(CLIENT_ASSETS "${CMAKE_CURRENT_SOURCE_DIR}/Platform/iOS/Assets.xcassets")
+    add_executable(SonyHeadphonesClient MACOSX_BUNDLE "${CLIENT_ASSETS}")
+    set_source_files_properties("${CLIENT_ASSETS}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    set_target_properties(SonyHeadphonesClient PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platform/iOS/Info.plist"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${CLIENT_VERSION}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${CLIENT_VERSION}"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.mos9527.SonyHeadphonesClient"
+        XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Automatic"
+        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
     )
 else ()
     add_executable(SonyHeadphonesClient)
@@ -122,12 +140,14 @@ target_compile_definitions(ImGuiSDL3 PUBLIC
     $<$<NOT:$<CONFIG:Debug>>:IMGUI_DISABLE_DEBUG_TOOLS>
 )
 
-add_executable(ImGuiSDL3Example)
-target_sources(ImGuiSDL3Example PRIVATE
-        ${imgui_SOURCE_DIR}/imgui_demo.cpp
-        ${imgui_SOURCE_DIR}/examples/example_sdl3_sdlrenderer3/main.cpp
-)
-target_link_libraries(ImGuiSDL3Example PUBLIC ImGuiSDL3)
+if (NOT MDR_PLATFORM_OS STREQUAL "IOS")
+    add_executable(ImGuiSDL3Example)
+    target_sources(ImGuiSDL3Example PRIVATE
+            ${imgui_SOURCE_DIR}/imgui_demo.cpp
+            ${imgui_SOURCE_DIR}/examples/example_sdl3_sdlrenderer3/main.cpp
+    )
+    target_link_libraries(ImGuiSDL3Example PUBLIC ImGuiSDL3)
+endif ()
 
 target_include_directories(ImGuiSDL3 PUBLIC
         ${imgui_SOURCE_DIR}

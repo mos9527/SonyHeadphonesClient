@@ -85,6 +85,28 @@ Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.c
 
 **NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented due to `SDL_DIALOG` is not currently implemented for OpenHarmony by the upstream. (3.2.26)
 
+### iOS (Xcode)
+
+Xcode (15.0+) and an Apple ID are required. Generate an Xcode project, select your team under *Signing & Capabilities*, then build and run the `SonyHeadphonesClient` scheme on a device.
+
+```bash
+cmake -B build-ios -G Xcode -DCMAKE_SYSTEM_NAME=iOS \
+      -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF \
+      -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
+      -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE="Automatic" # If you have a team ID, use  `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>` instead.
+open build-ios/SonyHeadphonesClient.xcodeproj
+```
+
+Signing is automatic. To keep the team across regenerations, pass `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>`. Bundle identifiers are globally unique; if signing fails to register `com.mos9527.SonyHeadphonesClient`, change it under *Signing & Capabilities*.
+
+**NOTE:** Only Bluetooth Classic devices are supported, through the External Accessory (iAP2) protocols `jp.co.sony.songpal.mdr.link` (V1) and `jp.co.sony.songpal.mdr.link2` (V2). Apps using `libmdr-bt` must declare both in `UISupportedExternalAccessoryProtocols`; see [`Info.plist`](./client/Platform/iOS/Info.plist).
+
+**NOTE:** Only one app can hold an accessory session at a time. Quit Sound Connect before connecting.
+
+**NOTE:** Device addresses are derived from the accessory's model and serial numbers, and are not Bluetooth MAC addresses.
+
+**NOTE:** App Store (and possibly external TestFlight) distribution of External Accessory apps requires the accessory manufacturer to whitelist the app. Use development signing or TestFlight internal testing.
+
 ### CMake Options
 
 #### Common

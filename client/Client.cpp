@@ -1040,7 +1040,7 @@ const char* ConnectionAttemptName()
     if (connectionAttempt.ble)
         return Tr(i18n::TextId::BleName);
     if (connectionAttempt.serviceCount == 1)
-        return std::strcmp(connectionAttempt.services[0], MDR_SERVICE_UUID_LEGACY) == 0 ? Tr(i18n::TextId::ProtocolV1) : Tr(i18n::TextId::ProtocolV2);
+        return std::strcmp(connectionAttempt.services[0], MDR_SERVICE_UUID_V1) == 0 ? Tr(i18n::TextId::ProtocolV1) : Tr(i18n::TextId::ProtocolV2);
     return connectionAttempt.serviceIndex == 0 ? Tr(i18n::TextId::ProtocolV2) : Tr(i18n::TextId::ProtocolV1);
 }
 
@@ -1049,7 +1049,7 @@ MDRProtocolVersion ConnectionProtocolVersion()
     if (connectionAttempt.ble)
         return MDR_PROTOCOL_V2;
     const char* service = connectionAttempt.services[connectionAttempt.serviceIndex];
-    if (std::strcmp(service, MDR_SERVICE_UUID_LEGACY) == 0)
+    if (std::strcmp(service, MDR_SERVICE_UUID_V1) == 0)
         return MDR_PROTOCOL_V1;
     return MDR_PROTOCOL_V2;
 }
@@ -1099,12 +1099,12 @@ MDRResult StartConnection(MDRConnection* conn, const char* address, bool usingBL
     }
     else if (deviceType == DEVICE_TYPE_AUTO)
     {
-        connectionAttempt.services = {MDR_SERVICE_UUID_XM5, MDR_SERVICE_UUID_LEGACY};
+        connectionAttempt.services = {MDR_SERVICE_UUID_V2, MDR_SERVICE_UUID_V1};
         connectionAttempt.serviceCount = 2;
     }
     else
     {
-        connectionAttempt.services[0] = deviceType == DEVICE_TYPE_V2 ? MDR_SERVICE_UUID_XM5 : MDR_SERVICE_UUID_LEGACY;
+        connectionAttempt.services[0] = deviceType == DEVICE_TYPE_V2 ? MDR_SERVICE_UUID_V2 : MDR_SERVICE_UUID_V1;
         connectionAttempt.serviceCount = 1;
     }
     return TryConnectionAttempt(conn);

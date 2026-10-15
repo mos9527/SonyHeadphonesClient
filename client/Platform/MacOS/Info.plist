@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.mos9527.SonyHeadphonesClient</string>
 	<key>CFBundleInfoDictionaryVersion</key>
