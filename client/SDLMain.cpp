@@ -1,4 +1,5 @@
 // SDL_Renderer backend from https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlrenderer3
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <mutex>
@@ -42,10 +43,15 @@ namespace
     float gAppliedDisplayScale{1.0f};
     SDL_WindowID gWindowID{};
 
+    constexpr int kRedrawFrames = 3;
+    constexpr Sint32 kIdleRedrawTimeoutMS = 1000;
+    int gRedrawFrames{kRedrawFrames};
+
 #ifndef __EMSCRIPTEN__
     SDL_Thread* gClientThread{};
     std::mutex gWorkerMutex;
     bool gStopClient{};
+    bool gClientRedraw{};
 #endif
 
     bool PollEvents(SDL_Event& event, Uint32 minType = SDL_EVENT_FIRST, Uint32 maxType = SDL_EVENT_LAST)
@@ -76,7 +82,13 @@ namespace
                 std::scoped_lock lock(gWorkerMutex);
                 if (gStopClient)
                     break;
-                clientOnUpdate();
+                if (clientOnUpdate() && !gClientRedraw)
+                {
+                    gClientRedraw = true;
+                    SDL_Event wake{};
+                    wake.type = SDL_EVENT_USER;
+                    SDL_PushEvent(&wake);
+                }
             }
             SDL_Delay(10);
         }
@@ -87,11 +99,18 @@ namespace
 
 void mainLoop()
 {
+#ifndef __EMSCRIPTEN__
+    if ((!gRedrawFrames || !ShouldAppPresent()) && !SDL_WaitEventTimeout(nullptr, kIdleRedrawTimeoutMS))
+        gRedrawFrames = std::max(gRedrawFrames, 1);
+#endif
     SDL_PumpEvents();
     SDL_Event event;
+    bool redraw = false;
+    bool present = false;
 
-    auto CheckIsActive = [](SDL_Event& event)
+    auto CheckIsActive = [&redraw](SDL_Event& event)
     {
+        redraw = true;
         if (event.type == SDL_EVENT_QUIT || event.type == SDL_EVENT_TERMINATING ||
             (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == gWindowID))
             gShouldClose = true;
@@ -113,8 +132,10 @@ void mainLoop()
         //       In your own app you will want to do the same with whatever synchronization primitives your runtime may
         //       provide.
         std::scoped_lock lock(gWorkerMutex);
+        redraw |= gClientRedraw;
+        gClientRedraw = false;
 #else
-        clientOnUpdate();
+        redraw |= clientOnUpdate();
 #endif
         while (PollEvents(event))
         {
@@ -138,7 +159,10 @@ void mainLoop()
 #endif
             ImGui_ImplSDL3_ProcessEvent(&event);
         }
-        if (ShouldAppPresent())
+        if (redraw)
+            gRedrawFrames = kRedrawFrames;
+        present = gRedrawFrames > 0 && ShouldAppPresent();
+        if (present)
         {
             const float displayScale = clientPlatformGetDisplayScale();
             if (displayScale != gAppliedDisplayScale)
@@ -149,10 +173,11 @@ void mainLoop()
             }
             ImGui_ImplSDLRenderer3_NewFrame();
             ImGui_ImplSDL3_NewFrame();
-            clientOnFrame();
+            if (clientOnFrame())
+                gRedrawFrames = kRedrawFrames;
         }
     }
-    if (ShouldAppPresent())
+    if (present)
     {
         const ImGuiIO& io = ImGui::GetIO();
         SDL_SetRenderScale(gRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
@@ -160,11 +185,8 @@ void mainLoop()
         SDL_RenderClear(gRenderer);
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
         SDL_RenderPresent(gRenderer);
+        --gRedrawFrames;
     }
-#ifndef __EMSCRIPTEN__
-    else if (!gShouldClose)
-        SDL_Delay(10);
-#endif
 }
 
 #define CLIENT_WINDOW_WIDTH 800

@@ -13,7 +13,8 @@ extern bool clientInit(float displayScale, const char* fontPath = nullptr);
 // - Schedules commits of staged property edits and synchronization requests.
 // - Advances discovery/connection attempts and handles semantic events and errors.
 // SDLMain serializes this with frame preparation and clientOnFrame() using a client-state mutex.
-extern void clientOnUpdate();
+// Returns true if client state visible to the UI has changed.
+extern bool clientOnUpdate();
 // Always runs on the main thread; builds the UI and ImGui draw data, loads fonts, and draws the debugger.
 // SDL backend NewFrame calls, rendering, and presentation are handled separately by SDLMain.
 // - Normal property setters only stage local edits for clientOnUpdate() to commit.

@@ -25,6 +25,7 @@
 static AppLocale gAppLocale = AppLocale::DEFAULT;
 static bool gPlatformFontLoaded = false;
 static bool gWantAnimate = false;
+static bool gWantRedraw = false;
 static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
 static char* gFontFallbackData = nullptr;
 static int gFontFallbackSize{};
@@ -1027,6 +1028,7 @@ void UpdateDeviceDiscovery()
         clientPlatformConnectionDestroy();
         gConnectionInitResult = clientPlatformConnectionInit(gUsingBLE ? MDR_INIT_BT_BLE : 0);
         gBackendSwitchPending = false;
+        gWantRedraw = true;
         RefreshDeviceList();
     }
     else if (gDiscoveryPending)
@@ -1327,6 +1329,7 @@ void UpdateDeviceConnecting()
             gDevice,
             [](void*, MDRPacketDirection direction, const unsigned char* frame, int frameSize)
             {
+                gWantRedraw = true;
                 clientPayloadRecorderObserve(direction, frame, frameSize);
 #ifdef MDR_CLIENT_DEBUGGER
                 clientDebuggerObservePacket(direction, frame, frameSize);
@@ -2299,6 +2302,8 @@ void UpdateDeviceControls()
         DisconnectWithModal();
         return;
     }
+    if (event != MDR_EVENT_NONE)
+        gWantRedraw = true;
     switch (event)
     {
     case MDR_EVENT_INITIALIZE_COMPLETE:
@@ -2336,12 +2341,15 @@ void UpdateDeviceControls()
     }
 }
 
-void clientOnUpdate()
+bool clientOnUpdate()
 {
 #ifdef MDR_CLIENT_DEBUGGER
     if (gDebuggerOnlyMode)
-        return;
+        return false;
 #endif
+    const CONN_STATE lastConnState = connState;
+    const bool lastDiscoveryPending = gDiscoveryPending;
+    const int lastDiscoveryDeviceCount = gDiscoveryDeviceCount;
     switch (connState)
     {
     case CONN_STATE_NO_CONNECTION:
@@ -2360,6 +2368,10 @@ void clientOnUpdate()
     case CONN_STATE_DISCONNECTED:
         break;
     }
+    const bool redraw = gWantRedraw || connState != lastConnState || gDiscoveryPending != lastDiscoveryPending ||
+        gDiscoveryDeviceCount != lastDiscoveryDeviceCount;
+    gWantRedraw = false;
+    return redraw;
 }
 
 void DrawDeviceControls()
