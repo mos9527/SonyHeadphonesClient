@@ -484,7 +484,7 @@ namespace mdr
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
-    void MDRHeadphones::SnapshotPropertiesV1()
+    void MDRHeadphones::SubmitPropertiesV1()
     {
         auto& state = mDetailsV1;
         state.mShutdown.submit();
@@ -530,7 +530,7 @@ namespace mdr
     MDRTask MDRHeadphones::RequestCommitV1()
     {
         auto& state = mDetailsV1;
-        SnapshotPropertiesV1();
+        SubmitPropertiesV1();
 
         if (state.mAlertResponse.pending())
         {
@@ -538,7 +538,7 @@ namespace mdr
             t1::SetAlertParamFixedMessageParam res;
             res.type = t1::AlertInquiredType::FIXED_MESSAGE;
             res.messageType = state.mLastAlertMessage;
-            res.action = state.mAlertResponse.submitted == MDR_ALERT_ACTION_POSITIVE
+            res.action = state.mAlertResponse.mSubmitted == MDR_ALERT_ACTION_POSITIVE
                 ? t1::AlertAction::POSITIVE : t1::AlertAction::NEGATIVE;
             SendCommandACK(t1::SetAlertParamFixedMessageParam, res);
             state.mAlertResponse.override(-1);
@@ -546,7 +546,7 @@ namespace mdr
 
         if (state.mShutdown.pending())
         {
-            if (state.mShutdown.submitted && state.mSupport.contains(t1::FunctionType::POWER_OFF))
+            if (state.mShutdown.mSubmitted && state.mSupport.contains(t1::FunctionType::POWER_OFF))
                 SendCommandACK(t1::SetPowerOff);
             state.mShutdown.override(false);
         }
@@ -557,9 +557,9 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
                 t1::SetNcAsmParamNcAsmParam payload;
-                if (state.mNcAsmEnabled.submitted)
+                if (state.mNcAsmEnabled.mSubmitted)
                 {
-                    if (state.mNcAsmChangingLevel.submitted)
+                    if (state.mNcAsmChangingLevel.mSubmitted)
                         payload.ncAsmEffect = t1::NcAsmEffect::ADJUSTMENT_IN_PROGRESS;
                     else if (!state.mNcAsmEnabled.pending())
                         payload.ncAsmEffect = t1::NcAsmEffect::ADJUSTMENT_COMPLETION;
@@ -571,11 +571,11 @@ namespace mdr
                     payload.ncAsmEffect = t1::NcAsmEffect::OFF;
                 }
                 payload.ncType = t1::NcAsmSettingType::LEVEL_ADJUSTMENT;
-                payload.ncValue = V1NcValueForAmbientLevel(state.mNcAsmLevel.submitted);
+                payload.ncValue = V1NcValueForAmbientLevel(state.mNcAsmLevel.mSubmitted);
                 payload.asmType = t1::AsmSettingType::LEVEL_ADJUSTMENT;
-                payload.asmId = state.mNcAsmFocusOnVoice.submitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
+                payload.asmId = state.mNcAsmFocusOnVoice.mSubmitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
                 payload.asmValue = static_cast<UInt8>(
-                    state.mNcAsmLevel.submitted <= -1 ? 0 : std::clamp(state.mNcAsmLevel.submitted, 0, 20));
+                    state.mNcAsmLevel.mSubmitted <= -1 ? 0 : std::clamp(state.mNcAsmLevel.mSubmitted, 0, 20));
                 SendCommandACK(t1::SetNcAsmParamNcAsmParam, payload);
             }
             state.mNcAsmEnabled.commit();
@@ -589,7 +589,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
             {
                 SendCommandACK(t1::SetPlayParamPlaybackControllerVolumeData, {
-                    .volumeValue = static_cast<UInt8>(std::clamp(state.mPlayVolume.submitted, 0, 30))
+                    .volumeValue = static_cast<UInt8>(std::clamp(state.mPlayVolume.mSubmitted, 0, 30))
                 });
             }
             state.mPlayVolume.commit();
@@ -600,39 +600,28 @@ namespace mdr
             {
                 SendCommandACK(t1::SetPlayStatus, {
                     .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                    .control = state.mPlayControl.submitted
+                    .control = state.mPlayControl.mSubmitted
                 });
             }
             state.mPlayControl.override(t1::PlaybackControl::KEY_OFF);
         }
 
-        // Only write what the caller changed; pending() is also true when just the device moved.
-        const bool eqPending = state.mEqPresetId.pending() || state.mEqConfig.pending() ||
-            state.mEqClearBass.pending();
-        const bool eqAsked = state.mEqPresetId.dirty() || state.mEqConfig.dirty() ||
-            state.mEqClearBass.dirty();
-        if (eqPending && !eqAsked)
-        {
-            state.mEqPresetId.override(state.mEqPresetId.current);
-            state.mEqConfig.override(state.mEqConfig.current);
-            state.mEqClearBass.override(state.mEqClearBass.current);
-        }
-        else if (eqPending)
+        if (state.mEqPresetId.pending() || state.mEqConfig.pending() || state.mEqClearBass.pending())
         {
             if (state.mSupport.contains(t1::FunctionType::PRESET_EQ))
             {
                 // Devices drop a frame carrying both a preset and band steps, so send one or the other.
                 t1::SetEqEbbParamEqParam payload;
-                if (state.mEqConfig.dirty() || state.mEqClearBass.dirty())
+                if (state.mEqConfig.pending() || state.mEqClearBass.pending())
                 {
                     payload.presetId = t1::EqPresetId::UNSPECIFIED;
                     payload.bandSteps.value.push_back(
-                        static_cast<UInt8>(std::clamp(state.mEqClearBass.submitted, -10, 10) + 10));
-                    for (const int band : state.mEqConfig.submitted)
+                        static_cast<UInt8>(std::clamp(state.mEqClearBass.mSubmitted, -10, 10) + 10));
+                    for (const int band : state.mEqConfig.mSubmitted)
                         payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
                 }
                 else
-                    payload.presetId = state.mEqPresetId.submitted;
+                    payload.presetId = state.mEqPresetId.mSubmitted;
                 SendCommandACK(t1::SetEqEbbParamEqParam, payload);
             }
             state.mEqPresetId.commit();
@@ -645,7 +634,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::UPSCALING))
             {
                 SendCommandACK(t1::SetAudioParamUpscalingParam, {
-                    .settingValue = state.mUpscalingEnabled.submitted
+                    .settingValue = state.mUpscalingEnabled.mSubmitted
                         ? t1::UpscalingSettingValue::AUTO
                         : t1::UpscalingSettingValue::OFF
                 });
@@ -658,7 +647,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::CONNECTION_MODE))
             {
                 SendCommandACK(t1::SetAudioParamConnectionModeParam, {
-                    .settingValue = state.mAudioPriorityMode.submitted
+                    .settingValue = state.mAudioPriorityMode.mSubmitted
                 });
             }
             state.mAudioPriorityMode.commit();
@@ -669,8 +658,8 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
             {
                 SendCommandACK(t1::SetSystemExParamAutoPowerOffParam, {
-                    .activeElementId = state.mPowerAutoOff.submitted,
-                    .selectTimeElementId = state.mPowerAutoOff.submitted
+                    .activeElementId = state.mPowerAutoOff.mSubmitted,
+                    .selectTimeElementId = state.mPowerAutoOff.mSubmitted
                 });
             }
             state.mPowerAutoOff.commit();
@@ -681,7 +670,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::CONTROL_BY_WEARING))
             {
                 SendCommandACK(t1::SetSystemExParamControlByWearingParam, {
-                    .settingValue = state.mAutoPauseEnabled.submitted
+                    .settingValue = state.mAutoPauseEnabled.mSubmitted
                         ? t1::ControlByWearingSettingValue::ON
                         : t1::ControlByWearingSettingValue::OFF
                 });
@@ -694,7 +683,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::ASSIGNABLE_SETTINGS))
             {
                 t1::SetSystemParamAssignableSettingsParam payload;
-                payload.presets.value = state.mAssignableSettingsPresets.submitted;
+                payload.presets.value = state.mAssignableSettingsPresets.mSubmitted;
                 SendCommandACK(t1::SetSystemParamAssignableSettingsParam, payload);
             }
             state.mAssignableSettingsPresets.commit();
@@ -705,7 +694,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE))
             {
                 SendCommandACK(t1::SetSystemParammartTalkingModeSetNtfyParam, {
-                    .settingValue = state.mSpeakToChatEnabled.submitted
+                    .settingValue = state.mSpeakToChatEnabled.mSubmitted
                         ? t1::SmartTalkingModeSettingValue::ON
                         : t1::SmartTalkingModeSettingValue::OFF
                 });
@@ -720,9 +709,9 @@ namespace mdr
                     static_cast<UInt8>(t1::Command::SYSTEM_SET_EXTENDED_PARAM),
                     static_cast<UInt8>(t1::SystemInquiredType::SMART_TALKING_MODE),
                     0,
-                    static_cast<UInt8>(state.mSpeakToChatDetectSensitivity.submitted),
+                    static_cast<UInt8>(state.mSpeakToChatDetectSensitivity.mSubmitted),
                     static_cast<UInt8>(state.mSpeakToChatVoiceFocus),
-                    static_cast<UInt8>(state.mSpeakToModeOutTime.submitted)
+                    static_cast<UInt8>(state.mSpeakToModeOutTime.mSubmitted)
                 };
                 SendCommandImpl(payload, MDRDataType::DATA_MDR, mSeqNumber);
                 const int result = co_await Await(AWAIT_ACK);
@@ -739,7 +728,7 @@ namespace mdr
             {
                 SendCommandACK(t2::SetPeripheralStatus, {
                     .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
-                    .bluetoothModeStatus = state.mPairingMode.submitted
+                    .bluetoothModeStatus = state.mPairingMode.mSubmitted
                         ? t2::PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE
                         : t2::PeripheralBluetoothModeStatus::NORMAL_MODE,
                     .status = CommonStatus::ENABLE
@@ -753,7 +742,7 @@ namespace mdr
             if (state.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE))
             {
                 SendCommandACK(t2::SetVoiceGuidanceParamSettingOnOff, {
-                    .settingValue = state.mVoiceGuidanceEnabled.submitted
+                    .settingValue = state.mVoiceGuidanceEnabled.mSubmitted
                         ? t2::VoiceGuidanceSettingValue::ON
                         : t2::VoiceGuidanceSettingValue::OFF
                 });
@@ -767,7 +756,7 @@ namespace mdr
             {
                 SendCommandACK(t1::SetGsParamGsBooleanTypeValue, {
                     .type = t1::GsInquiredType::GENERAL_SETTING1,
-                    .settingValue = { state.mGsParamBool[0].submitted
+                    .settingValue = { state.mGsParamBool[0].mSubmitted
                         ? t1::CommonOnOffSettingValue::ON : t1::CommonOnOffSettingValue::OFF }
                 });
             }
@@ -779,7 +768,7 @@ namespace mdr
             {
                 SendCommandACK(t1::SetGsParamGsBooleanTypeValue, {
                     .type = t1::GsInquiredType::GENERAL_SETTING2,
-                    .settingValue = { state.mGsParamBool[1].submitted
+                    .settingValue = { state.mGsParamBool[1].mSubmitted
                         ? t1::CommonOnOffSettingValue::ON : t1::CommonOnOffSettingValue::OFF }
                 });
             }
@@ -791,7 +780,7 @@ namespace mdr
             {
                 SendCommandACK(t1::SetGsParamGsBooleanTypeValue, {
                     .type = t1::GsInquiredType::GENERAL_SETTING3,
-                    .settingValue = { state.mGsParamBool[2].submitted
+                    .settingValue = { state.mGsParamBool[2].mSubmitted
                         ? t1::CommonOnOffSettingValue::ON : t1::CommonOnOffSettingValue::OFF }
                 });
             }

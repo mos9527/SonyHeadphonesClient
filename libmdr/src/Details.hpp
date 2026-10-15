@@ -313,7 +313,7 @@ namespace mdr
         MDRTask RequestInitV1();
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();
-        void SnapshotPropertiesV1();
+        void SubmitPropertiesV1();
         void RefreshSupportV1();
 
         /**
@@ -334,7 +334,7 @@ namespace mdr
          * @return @ref MDR_EVENT_APPLY_COMPLETE on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommitV2();
-        void SnapshotPropertiesV2();
+        void SubmitPropertiesV2();
 #pragma endregion
 
         // Common lifecycle state; family device state lives in DetailsV1/DetailsV2.

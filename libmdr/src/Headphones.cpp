@@ -333,7 +333,7 @@ namespace
     template <typename T>
     const T& ReadProperty(const mdr::MDRProperty<T>& property, MDRPropertyType type)
     {
-        return type == MDR_PROPERTY_CURRENT ? property.current : property.desired;
+        return type == MDR_PROPERTY_CURRENT ? property.mCurrent : property.mDesired;
     }
 
     Headphones* Impl(MDRHeadphones* headphones)
@@ -1685,7 +1685,7 @@ MDRResult mdrHeadphonesSendPlaybackCommand(MDRHeadphones* headphones, const MDRP
         return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-        auto value = state.mPlayControl.desired;
+        auto value = state.mPlayControl.mDesired;
         if (!PlaybackControlFromAction(command->action, value))
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
         state.mPlayControl.stage(value);
@@ -1760,7 +1760,7 @@ MDRResult mdrHeadphonesSetNoiseControl(
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& state = h->mDetailsV2;
     mdr::v2::t1::Function button{};
-    auto sensitivity = state.mNcAsmNoiseAdaptiveSensitivity.desired;
+    auto sensitivity = state.mNcAsmNoiseAdaptiveSensitivity.mDesired;
     if (!to_protocol(noiseControl->button_mode, button) ||
         (noiseControl->adaptive_sensitivity != MDR_ADAPTIVE_SENSITIVITY_UNKNOWN &&
          !to_protocol(noiseControl->adaptive_sensitivity, sensitivity)))
@@ -1806,8 +1806,8 @@ MDRResult mdrHeadphonesSetSpeakToChat(
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-    auto sensitivity = state.mSpeakToChatDetectSensitivity.desired;
-    auto timeout = state.mSpeakToModeOutTime.desired;
+    auto sensitivity = state.mSpeakToChatDetectSensitivity.mDesired;
+    auto timeout = state.mSpeakToModeOutTime.mDesired;
     if ((speakToChat->sensitivity != MDR_SPEECH_SENSITIVITY_UNKNOWN &&
          !to_protocol(speakToChat->sensitivity, sensitivity)) ||
         (speakToChat->timeout != MDR_SPEAK_TIMEOUT_UNKNOWN &&
@@ -1865,7 +1865,7 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
     if (listening->mode != MDR_LISTENING_STANDARD &&
         !SupportsFeature(state, kModeFeatures[listening->mode]))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    auto room = state.mBGMModeRoomSize.desired;
+    auto room = state.mBGMModeRoomSize.mDesired;
     if (listening->background_room != MDR_ROOM_UNKNOWN && !to_protocol(listening->background_room, room))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (listening->mode == MDR_LISTENING_BACKGROUND_MUSIC && listening->background_room == MDR_ROOM_UNKNOWN)
@@ -1892,7 +1892,7 @@ MDRResult mdrHeadphonesGetEqualizer(
             .band_count = static_cast<uint32_t>(ReadProperty(state.mEqConfig, type).size()),
             .dsee_enabled = static_cast<MDRBoolean>(ReadProperty(state.mUpscalingEnabled, type)),
             .dsee_type = from_protocol(state.mUpscalingType),
-            .available = static_cast<MDRBoolean>(state.mEqAvailable.current),
+            .available = static_cast<MDRBoolean>(state.mEqAvailable.mCurrent),
             .dsee_available = static_cast<MDRBoolean>(state.mUpscalingAvailable)
         };
         return MDR_RESULT_OK;
@@ -1910,7 +1910,7 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
         return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-    auto preset = state.mEqPresetId.desired;
+    auto preset = state.mEqPresetId.mDesired;
     if (equalizer->preset != MDR_EQ_UNKNOWN && !to_protocol(equalizer->preset, preset))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     // Devices silently ignore presets they did not advertise.
@@ -1920,7 +1920,7 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     if (equalizer->dsee_type != MDR_DSEE_UNKNOWN && equalizer->dsee_type != from_protocol(state.mUpscalingType))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    const auto existingCount = state.mEqConfig.desired.size();
+    const auto existingCount = state.mEqConfig.mDesired.size();
     if (equalizer->band_count != 0 && equalizer->band_count != existingCount)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     state.mEqPresetId.stage(preset);
@@ -2340,12 +2340,12 @@ MDRResult mdrHeadphonesSetAssignableControls(
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
     // Sanity check
-    if (state.mAssignableSettingsKeys.size() != state.mAssignableSettingsPresets.current.size())
+    if (state.mAssignableSettingsKeys.size() != state.mAssignableSettingsPresets.mCurrent.size())
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
     // Check input length
     if (count != state.mAssignableSettingsKeys.size())
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    decltype(state.mAssignableSettingsPresets.current) newPresets(count);
+    decltype(state.mAssignableSettingsPresets.mCurrent) newPresets(count);
     for (uint32_t i = 0; i < count; ++i)
     {
         const auto& control = controls[i];
@@ -2418,7 +2418,7 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         return MDR_RESULT_INPROGRESS;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
-        auto value = h->mDetailsV1.mPowerAutoOff.desired;
+        auto value = h->mDetailsV1.mPowerAutoOff.mDesired;
         if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value) ||
             power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -2568,7 +2568,8 @@ MDRResult mdrHeadphonesGetSafeListening(
 MDRResult mdrHeadphonesSetSafeListening(
     MDRHeadphones* headphones, const MDRSafeListening* safeListening)
 {
-    if (!headphones || !safeListening || !ValidBoolean(safeListening->preview))
+    if (!headphones || !safeListening || !ValidBoolean(safeListening->preview) ||
+        safeListening->sound_pressure > 255u)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
     if (!h->IsReady())

@@ -195,15 +195,17 @@ Properties can be **read-only**, **read-write**, or **write-only**.
   mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MDREqualizerPreset* presets, uint32_t* inout_count)
   ```
 
-For **read-write** properties, `MDRPropertyType type` parameter affects the getter result by the following rules:
-- `MDR_PROPERTY_CURRENT` - Get the _current_ value. This is the value, **not newer than time of the call**, 
-that's retrived **from the device**.
-- `MDR_PROPERTY_DESIRED` - Get the _desired_ value. This is the value that's specified **by the user** via `mdrHeadphonesSet...` calls. Which 
-may or may not reflect the values retrived from the device.
+For **read-write** properties, the `MDRPropertyType type` parameter selects the getter's cached view:
+- `MDR_PROPERTY_CURRENT` returns the latest device-reported value, or its default before any report. Getters do not request fresh data, and ACKs do not update ordinary property values.
+- `MDR_PROPERTY_DESIRED` preserves local edits made through `mdrHeadphonesSet...` until completion. With no outstanding local write, subsequent device reports update this view too.
+- Read-only fields in a mixed structure use the same value in both views. One-shot action fields may reset after completion.
+- Acknowledgement clears the outstanding write, not the difference between the two views. `CLEAN` does not guarantee `mDesired == mCurrent` or that the device accepted the target value.
+- The internal lifecycle is `CLEAN` -> `STAGED` -> `SUBMITTED` -> `CLEAN`. The submitted payload is frozen; state-changing setters are rejected while a request is in progress. Removing revision tracking depends on this restriction remaining in place.
+- `mdrHeadphonesRequestSync` refreshes only the protocol family's implemented synchronization subset; it is not a readback of every writable property.
 
-**Read-write** property should provide **both** a getter and a setter function.
-- `MDRPropertyType type` parameter **MUST** be included in a read-write property as the **FIRST** argument after `MDRHeadphones*`.
-- The function signature is as follows  (`MDRHeadphones*, MDRPropertyType, PropertyPointer(s)...):
+**Read-write** properties should provide **both** a getter and a setter function.
+- `MDRPropertyType type` **MUST** be the getter's **FIRST** argument after `MDRHeadphones*`. Setters do not take a view selector; they stage the desired value.
+- The getter signature is as follows (`MDRHeadphones*, MDRPropertyType, PropertyPointer(s)...):
 ```c++
 mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower* out_power)
 ```

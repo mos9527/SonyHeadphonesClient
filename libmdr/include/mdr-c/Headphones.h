@@ -8,6 +8,10 @@
 
 typedef struct MDRHeadphones MDRHeadphones;
 
+/* Reads cached values without device I/O. Before a report, fields retain their defaults.
+ * CURRENT is the latest device-reported value; ACKs do not update ordinary properties.
+ * DESIRED preserves local edits until completion, then follows subsequent device reports.
+ * Read-only fields do not switch views. One-shot action fields may reset on completion. */
 typedef uint32_t MDRPropertyType;
 #define MDR_PROPERTY_CURRENT ((MDRPropertyType)0u)
 #define MDR_PROPERTY_DESIRED ((MDRPropertyType)1u)
@@ -505,8 +509,8 @@ MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
  */
 MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
 /**
- * @brief Returns true if there are pending changes made through the ...Set or @ref mdrHeadphonesSendPlaybackCommand
- *        calls that have not yet been committed to the device via @ref mdrHeadphonesRequestCommit.
+ * @brief Returns true if changes staged through the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls
+ *        are awaiting submission or completion. This does not compare desired and device-reported values.
  */
 MDR_API MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones);
 /**
@@ -522,11 +526,13 @@ MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones);
  */
 MDR_API MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones);
 /**
- * @brief Commits pending changes made via the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls.
- *        Changes are ONLY applied to the devices after this call is complete, and only then
- *        @ref mdrHeadphonesIsDirty will return false
- * @note  You may call this function at the end of your frame/event loop. Calling this function
- *        when @ref mdrHeadphonesIsDirty returns false is a no-op.
+ * @brief Schedules pending changes made via the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls.
+ *        Continue polling until @ref MDR_EVENT_APPLY_COMPLETE. Acknowledged writes no longer count as dirty,
+ *        even if the device has not yet reported their resulting values.
+ * @note  ACKs acknowledge command delivery, not the resulting property values. Use DESIRED for local edits;
+ *        ordinary CURRENT properties change only on device reports. One-shot actions may reset on completion.
+ * @note  Synchronization refreshes only its protocol-specific subset, not every writable property.
+ * @note  You may call this function at the end of your frame/event loop.
  */
 MDR_API MDRResult mdrHeadphonesRequestCommit(MDRHeadphones* headphones);
 
