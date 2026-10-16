@@ -6,6 +6,7 @@
 #include "../I18N/Strings.hpp"
 
 struct SDL_Window;
+struct SDL_Renderer;
 
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
@@ -19,6 +20,7 @@ extern bool clientOnFrame();
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();
+extern bool clientPlatformInitGraphics(SDL_Renderer* renderer);
 extern bool clientPlatformInitEventWait();
 extern bool clientPlatformWaitEventTimeout(int timeoutMS);
 extern void clientPlatformDestroyEventWait();

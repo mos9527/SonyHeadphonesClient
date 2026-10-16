@@ -17,7 +17,10 @@
 #include <vector>
 #include <mdr/Protocol.hpp>
 #include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
+#import <QuartzCore/CAMetalLayer.h>
 #ifdef SDL_PLATFORM_IOS
 extern "C" void clientIOSFileShareDestroy();
 #else
@@ -33,6 +36,22 @@ float clientPlatformGetDisplayScale()
 {
     const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     return scale > 0.0f ? scale : 1.0f;
+}
+
+bool clientPlatformInitGraphics(SDL_Renderer* renderer)
+{
+    // Opt for double buffering (instead of triple buffering by default) on Apple platforms
+    // Saves one CAMetalDrawable worth of memory (iDevices run the app fullscreen, so that's *quite* a lot)
+    if (@available(iOS 11.2, macOS 10.13.2, *))
+    {
+        CAMetalLayer* layer = (__bridge CAMetalLayer*)SDL_GetRenderMetalLayer(renderer);
+        if (layer)
+        {
+            layer.maximumDrawableCount = 2;
+            SDL_Log("Metal drawable count: %ld", static_cast<long>(layer.maximumDrawableCount));
+        }
+    }
+    return true;
 }
 
 namespace

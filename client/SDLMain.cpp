@@ -17,9 +17,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
-#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_MACOS)
-#import <QuartzCore/CAMetalLayer.h>
-#endif
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -41,6 +38,13 @@ bool gShouldClose{false};
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
+
+#if !defined(SDL_PLATFORM_IOS) && !defined(SDL_PLATFORM_MACOS)
+bool clientPlatformInitGraphics(SDL_Renderer*)
+{
+    return true;
+}
+#endif
 
 // Borked SDL_WaitEventTimeout on these platform as of 3.2.26
 // These platforms aren't blocking with SDL_WaitEventTimeout and absolutely burns CPU
@@ -509,19 +513,11 @@ int main(int argc, char** argv)
             break;
         }
         SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
-        // Opt for double buffering (instead of triple buffering by default) on Apple platforms
-        // Saves one CAMetalDrawable worth of memory (iDevices run the app fullscreen, so that's *quite* a lot)
-#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_MACOS)
-        if (@available(iOS 11.2, macOS 10.13.2, *))
+        if (!clientPlatformInitGraphics(gRenderer))
         {
-            CAMetalLayer* layer = (__bridge CAMetalLayer*)SDL_GetRenderMetalLayer(gRenderer);
-            if (layer)
-            {
-                layer.maximumDrawableCount = 2;
-                SDL_Log("Metal drawable count: %ld", static_cast<long>(layer.maximumDrawableCount));
-            }
+            SDL_Log("Error: clientPlatformInitGraphics(): %s", SDL_GetError());
+            break;
         }
-#endif
         SDL_SetRenderVSync(gRenderer, 1);
         if (!clientInit(displayScale, options.fontPath))
             break;
