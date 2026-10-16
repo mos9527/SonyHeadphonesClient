@@ -10,6 +10,13 @@
 #include <mdr-bt/ConnectionWindows.h>
 #include <SDL3/SDL_video.h>
 
+int clientPlatformSaveBlob(
+    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+    SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
+{
+    return clientSDLSaveBlob(filename, data, dataSize, mimeType, window, callback, userdata);
+}
+
 float clientPlatformGetDisplayScale()
 {
     const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());

@@ -344,7 +344,7 @@ window.addEventListener('unhandledrejection', event => {
 });
 
 function installDebuggerFolderDrop() {
-    if (typeof Module._clientPlatformDropDirectory !== 'function') return;
+    if (typeof Module._emscripten_OnFolderDropForDebuggerImport !== 'function') return;
     let importing = false;
     const fs = Module.FS;
     const path = '/tmp/mdr-debugger-import';
@@ -397,7 +397,7 @@ function installDebuggerFolderDrop() {
                 if (failure) throw failure.reason;
             }
             if (!packets.length) throw new Error('No capture packets found in the dropped folder.');
-            const error = Module.ccall('clientPlatformDropDirectory', 'string', ['string'], [path]);
+            const error = Module.ccall('emscripten_OnFolderDropForDebuggerImport', 'string', ['string'], [path]);
             if (error) throw new Error(error);
             showNotice(`Queued ${packets.length} packet(s) for replay.`);
         })().catch(error => showNotice(`Unable to import capture: ${error.message || error}`))

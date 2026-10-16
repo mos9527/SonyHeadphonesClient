@@ -182,13 +182,19 @@ set(CLIENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory(Platform)
 
 target_link_libraries(ImGuiSDL3 PUBLIC SDL3::SDL3-static)
-if (MDR_CLIENT_DEBUGGER_TARGET AND MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+if (MDR_CLIENT_DEBUGGER_TARGET)
     target_link_libraries(Client_Debugger PUBLIC Client_Platform)
 endif ()
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform mdr::bt)
 if (NOT MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     find_package(Threads REQUIRED)
     target_link_libraries(SonyHeadphonesClient PRIVATE Threads::Threads)
+endif ()
+
+if (SDL_DIALOG AND (MDR_PLATFORM_OS STREQUAL "WIN32" OR
+                   MDR_PLATFORM_OS STREQUAL "LINUX" OR
+                   MDR_PLATFORM_OS STREQUAL "MACOS"))
+    target_compile_definitions(SonyHeadphonesClient PRIVATE SDL_DIALOG)
 endif ()
 
 target_compile_definitions(SonyHeadphonesClient PRIVATE

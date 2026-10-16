@@ -7,9 +7,7 @@
 #include "Platform/Platform.hpp"
 
 #include <SDL3/SDL_error.h>
-#include <SDL3/SDL_dialog.h>
 #include <SDL3/SDL_filesystem.h>
-#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_time.h>
@@ -68,16 +66,10 @@ namespace
 
     SDL_Window* gWindow{};
     constexpr const char* kDefaultPacketExportPath = "mdr-debugger-packet.bin";
-#ifndef __EMSCRIPTEN__
     struct ExportRequest
     {
-        mdr::MDRBuffer data;
-        mdr::String defaultPath;
-        mdr::String extension;
         AppLocale locale{};
-        SDL_DialogFileFilter filter{};
     };
-#endif
 
     std::mutex gExportMutex;
     bool gExportDialogActive{};
@@ -86,30 +78,6 @@ namespace
     mdr::String gExportStatus;
 
     bool WriteCaptureFile(const char* path, mdr::Span<const mdr::UInt8> frame);
-
-#ifndef __EMSCRIPTEN__
-    bool EndsWithCaseInsensitive(std::string_view value, std::string_view suffix)
-    {
-        if (value.size() < suffix.size())
-            return false;
-        const std::string_view tail = value.substr(value.size() - suffix.size());
-        return std::equal(
-            tail.begin(), tail.end(), suffix.begin(),
-            [](char lhs, char rhs)
-            {
-                return std::tolower(static_cast<unsigned char>(lhs)) ==
-                    std::tolower(static_cast<unsigned char>(rhs));
-            });
-    }
-
-    mdr::String ExportPathWithExtension(const char* path, std::string_view extension)
-    {
-        mdr::String result = path;
-        if (!EndsWithCaseInsensitive(result, extension))
-            result += extension;
-        return result;
-    }
-#endif
 
     void SetExportResult(mdr::String result)
     {
@@ -134,40 +102,32 @@ namespace
         gStatus = std::move(result);
     }
 
-#ifndef __EMSCRIPTEN__
-    void SDLCALL ExportDialogCallback(void* userdata, const char* const* filelist, int)
+    void ExportCallback(void* userdata, ClientPlatformSaveBlobResult status, const char* path, const char* error)
     {
         auto* request = static_cast<ExportRequest*>(userdata);
         mdr::String result;
-        if (!filelist)
+        const auto translate = [request](i18n::TextId id) { return i18n::Translate(id, request->locale); };
+        switch (status)
         {
-            const mdr::String dialogError = SDL_GetError();
-            if (WriteCaptureFile(request->defaultPath.c_str(), request->data))
-                result = mdr::Format(
-                    fmt::runtime(i18n::Translate(i18n::TextId::DebuggerExportedFallback, request->locale)),
-                    request->defaultPath, dialogError);
-            else
-                result = mdr::Format(
-                    fmt::runtime(i18n::Translate(i18n::TextId::DebuggerExportFailed, request->locale)),
-                    request->defaultPath, SDL_GetError());
-        }
-        else if (!filelist[0])
-        {
-            result = i18n::Translate(i18n::TextId::DebuggerExportCancelled, request->locale);
-        }
-        else
-        {
-            const mdr::String path = ExportPathWithExtension(filelist[0], request->extension);
-            if (WriteCaptureFile(path.c_str(), request->data))
-                result = mdr::Format(
-                    fmt::runtime(i18n::Translate(i18n::TextId::DebuggerExported, request->locale)), path);
-            else
-                result = SDL_GetError();
+        case CLIENT_PLATFORM_SAVE_BLOB_SAVED:
+            result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerExported)), path);
+            break;
+        case CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED:
+            result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerDownloaded)), path);
+            break;
+        case CLIENT_PLATFORM_SAVE_BLOB_CANCELLED:
+            result = translate(i18n::TextId::DebuggerExportCancelled);
+            break;
+        case CLIENT_PLATFORM_SAVE_BLOB_FAILED:
+            result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerExportFailed)), path, error);
+            break;
+        case CLIENT_PLATFORM_SAVE_BLOB_FALLBACK_SAVED:
+            result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerExportedFallback)), path, error);
+            break;
         }
         mdr::Destruct(request);
         SetExportResult(std::move(result));
     }
-#endif
 
     bool RequestExport(
         mdr::Span<const mdr::UInt8> data,
@@ -184,60 +144,27 @@ namespace
             }
         }
 
-#ifdef __EMSCRIPTEN__
-        {
-            std::scoped_lock lock(gExportMutex);
-            gExportDialogActive = true;
-        }
-        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerDownloadStarting);
-        const char* mimeType =
-            std::string_view(filterExtension) == "zip" ? "application/zip" : "application/octet-stream";
-        const bool started =
-            clientPlatformDownloadFile(defaultPath, data.data(), data.size(), mimeType) != 0;
-        SetExportResult(
-            started ? mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerDownloaded)), defaultPath)
-                    : Tr(i18n::TextId::DebuggerDownloadFailed));
-        return started;
-#else
-        if (!gWindow)
-        {
-            if (WriteCaptureFile(defaultPath, data))
-                gExportStatus = gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerExported)), defaultPath);
-            else
-                gExportStatus = gStatus = SDL_GetError();
-            return true;
-        }
-
         auto* request = mdr::Construct<ExportRequest>();
-        request->data.assign(data.begin(), data.end());
-        request->defaultPath = defaultPath;
-        request->extension = mdr::Format(".{}", filterExtension);
         request->locale = clientGetAppLocale();
-        request->filter = {
-            i18n::Translate(std::string_view(filterExtension) == "zip" ? i18n::TextId::DebuggerZipFile
-                                                                     : i18n::TextId::DebuggerPacketFile,
-                            request->locale),
-            std::string_view(filterExtension) == "zip" ? "zip" : "bin"};
         {
             std::scoped_lock lock(gExportMutex);
             gExportDialogActive = true;
         }
         gExportStatus = gStatus = Tr(i18n::TextId::DebuggerChooseDestination);
-        if (!SDL_RunOnMainThread(
-                [](void* userdata)
-                {
-                    auto* request = static_cast<ExportRequest*>(userdata);
-                    SDL_ShowSaveFileDialog(
-                        ExportDialogCallback, request, gWindow, &request->filter, 1, request->defaultPath.c_str());
-                },
-                request, true))
+        const char* mimeType =
+            std::string_view(filterExtension) == "zip" ? "application/zip" : "application/octet-stream";
+        const int result = clientPlatformSaveBlob(
+            defaultPath, data.data(), data.size(), mimeType, gWindow, ExportCallback, request);
+        if (result != MDR_RESULT_OK)
         {
-            mdr::Destruct(request);
-            SetExportResult(SDL_GetError());
+            const mdr::String error = result == MDR_RESULT_ERROR_NOT_SUPPORTED ? "File saving is not supported"
+                                                                             : SDL_GetError();
+            ExportCallback(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, defaultPath, error.c_str());
+            PollExportResult();
             return false;
         }
+        PollExportResult();
         return true;
-#endif
     }
 
     template <typename Function>

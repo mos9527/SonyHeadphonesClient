@@ -3,6 +3,10 @@
 #include <cstdio>
 #include <cstring>
 #include <mutex>
+#ifdef SDL_DIALOG
+#include <cctype>
+#include <string_view>
+#endif
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -525,3 +529,121 @@ int main(int argc, char** argv)
     Shutdown();
     return result;
 }
+
+// Implements file saving for Desktop platforms
+#ifdef SDL_DIALOG
+namespace
+{
+    struct SaveRequest
+    {
+        mdr::MDRBuffer data;
+        mdr::String filename;
+        mdr::String extension;
+        SDL_DialogFileFilter filter{};
+        SDL_Window* window{};
+        ClientPlatformSaveBlobCallback callback{};
+        void* userdata{};
+    };
+
+    bool WriteBlobFile(const char* path, const mdr::MDRBuffer& data)
+    {
+        SDL_IOStream* output = SDL_IOFromFile(path, "wb");
+        if (!output)
+            return false;
+        const size_t written = SDL_WriteIO(output, data.data(), data.size());
+        const mdr::String writeError = written != data.size() ? SDL_GetError() : "";
+        const bool closed = SDL_CloseIO(output);
+        if (written != data.size())
+            return SDL_SetError("%s", writeError.empty() ? "Incomplete file write" : writeError.c_str());
+        return closed;
+    }
+
+    mdr::String SavePathWithExtension(const char* path, const mdr::String& extension)
+    {
+        mdr::String result = path;
+        const std::string_view value = result;
+        if (value.size() < extension.size() ||
+            !std::equal(extension.begin(), extension.end(), value.end() - extension.size(),
+                        [](char lhs, char rhs)
+                        {
+                            return std::tolower(static_cast<unsigned char>(lhs)) ==
+                                std::tolower(static_cast<unsigned char>(rhs));
+                        }))
+            result += extension;
+        return result;
+    }
+
+    void CompleteSave(SaveRequest* request, ClientPlatformSaveBlobResult result,
+                      const char* path, const char* error = nullptr)
+    {
+        request->callback(request->userdata, result, path, error);
+        mdr::Destruct(request);
+    }
+
+    void SDLCALL SaveDialogCallback(void* userdata, const char* const* filelist, int)
+    {
+        auto* request = static_cast<SaveRequest*>(userdata);
+        if (!filelist)
+        {
+            const mdr::String dialogError = SDL_GetError();
+            if (WriteBlobFile(request->filename.c_str(), request->data))
+                CompleteSave(request, CLIENT_PLATFORM_SAVE_BLOB_FALLBACK_SAVED,
+                             request->filename.c_str(), dialogError.c_str());
+            else
+                CompleteSave(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, request->filename.c_str(), SDL_GetError());
+        }
+        else if (!filelist[0])
+            CompleteSave(request, CLIENT_PLATFORM_SAVE_BLOB_CANCELLED, request->filename.c_str());
+        else
+        {
+            const mdr::String path = SavePathWithExtension(filelist[0], request->extension);
+            const bool saved = WriteBlobFile(path.c_str(), request->data);
+            CompleteSave(request, saved ? CLIENT_PLATFORM_SAVE_BLOB_SAVED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+                         path.c_str(), saved ? nullptr : SDL_GetError());
+        }
+    }
+
+    void SDLCALL ShowSaveDialog(void* userdata)
+    {
+        auto* request = static_cast<SaveRequest*>(userdata);
+        SDL_ShowSaveFileDialog(SaveDialogCallback, request, request->window,
+                               &request->filter, 1, request->filename.c_str());
+    }
+}
+
+int clientSDLSaveBlob(
+    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+    SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
+{
+    if (!filename || !*filename || !data || !dataSize || !mimeType || !*mimeType || !callback)
+    {
+        SDL_SetError("Invalid blob save arguments");
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    }
+    auto* request = mdr::Construct<SaveRequest>();
+    request->data.assign(data, data + dataSize);
+    request->filename = filename;
+    request->window = window;
+    request->callback = callback;
+    request->userdata = userdata;
+    const size_t separator = request->filename.find_last_of("/\\");
+    const size_t dot = request->filename.find_last_of('.');
+    if (dot != mdr::String::npos && (separator == mdr::String::npos || dot > separator) &&
+        dot + 1 < request->filename.size())
+        request->extension = request->filename.substr(dot);
+    request->filter = {request->filename.c_str(), request->extension.empty() ? "*" : request->extension.c_str() + 1};
+    if (!window)
+    {
+        const bool saved = WriteBlobFile(request->filename.c_str(), request->data);
+        CompleteSave(request, saved ? CLIENT_PLATFORM_SAVE_BLOB_SAVED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+                     request->filename.c_str(), saved ? nullptr : SDL_GetError());
+        return MDR_RESULT_OK;
+    }
+    if (!SDL_RunOnMainThread(ShowSaveDialog, request, true))
+    {
+        mdr::Destruct(request);
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    return MDR_RESULT_OK;
+}
+#endif

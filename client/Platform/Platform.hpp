@@ -5,6 +5,8 @@
 
 #include "../I18N/Strings.hpp"
 
+struct SDL_Window;
+
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
@@ -90,17 +92,55 @@ extern "C" {
      * @note This is only implemented for the Linux platform. See https://github.com/mos9527/SonyHeadphonesClient/pull/63
      */
     extern void clientPlatformMediaResume(struct ClientMediaPause* pause);
-#ifdef __EMSCRIPTEN__
+    enum ClientPlatformSaveBlobResult
+    {
+        CLIENT_PLATFORM_SAVE_BLOB_SAVED,
+        CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED,
+        CLIENT_PLATFORM_SAVE_BLOB_CANCELLED,
+        CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+        CLIENT_PLATFORM_SAVE_BLOB_FALLBACK_SAVED
+    };
     /**
-     * @brief Download bytes through the browser. Emscripten only.
-     * @return Non-zero when the browser download was started.
+     * @brief Completion callback for saving bytes.
+     * @param path Saved path, or suggested filename for a dispatched download.
+     * @param error Error details on failure, or dialog error on fallback success; otherwise NULL.
+     * @note Strings are valid only during the callback. It may run on a different thread.
+     *       DISPATCHED only means the OS/browser accepted the handoff, not that the file was saved.
      */
-    extern int clientPlatformDownloadFile(
+    typedef void (*ClientPlatformSaveBlobCallback)(
+        void* userdata, ClientPlatformSaveBlobResult result, const char* path, const char* error);
+    /**
+     * @brief Save bytes using the platform's file dialog, download, or sharing integration.
+     * @param filename Required UTF-8 suggested filename, including its extension.
+     * @param data Required input bytes; empty blobs are rejected.
+     * @param mimeType Required MIME type; desktop filters use the filename extension.
+     * @param window Optional parent window. Desktop saves directly to filename when NULL.
+     * @param callback Required completion callback, called exactly once for an accepted request.
+     * @param userdata Caller-owned callback context; must survive until completion.
+     * @return MDR_RESULT_OK if accepted, or an error code with no callback.
+     * @note Input strings and bytes are copied/consumed before return. Completion may be synchronous.
+     *       Android, iOS and OpenHarmony currently return MDR_RESULT_ERROR_NOT_SUPPORTED.
+     */
+    extern int clientPlatformSaveBlob(
         const char* filename,
         const unsigned char* data,
         size_t dataSize,
-        const char* mimeType);
-#endif
+        const char* mimeType,
+        SDL_Window* window,
+        ClientPlatformSaveBlobCallback callback,
+        void* userdata);
+    /**
+     * @brief Shared SDL implementation in SDLMain.cpp; desktop platform entry points delegate here.
+     * @note Defined only when the client is compiled with SDL_DIALOG.
+     */
+    extern int clientSDLSaveBlob(
+        const char* filename,
+        const unsigned char* data,
+        size_t dataSize,
+        const char* mimeType,
+        SDL_Window* window,
+        ClientPlatformSaveBlobCallback callback,
+        void* userdata);
     /**
      * @brief Master clean up function.
      * This will destroy all connections, and ensures the client is quit without leaking resources.

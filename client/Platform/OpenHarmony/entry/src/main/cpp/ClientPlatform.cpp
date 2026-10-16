@@ -463,6 +463,13 @@ int clientPlatformIsLocalBluetoothAddress(const char*, int* outIsLocal)
 ClientMediaPause* clientPlatformMediaPause() { return nullptr; }
 void clientPlatformMediaResume(ClientMediaPause*) {}
 
+int clientPlatformSaveBlob(
+    const char*, const unsigned char*, size_t, const char*, SDL_Window*,
+    ClientPlatformSaveBlobCallback, void*)
+{
+    return MDR_RESULT_ERROR_NOT_SUPPORTED;
+}
+
 void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();

@@ -2,7 +2,9 @@
 
 #include <mdr-bt/ConnectionEmscripten.h>
 #include <emscripten.h>
+#include <SDL3/SDL_error.h>
 #include <SDL3/SDL_video.h>
+#include <climits>
 
 float clientPlatformGetDisplayScale()
 {
@@ -22,7 +24,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE bool clientPlatformDropPending()
     return SDL_HasEvent(SDL_EVENT_DROP_FILE);
 }
 
-extern "C" EMSCRIPTEN_KEEPALIVE const char* clientPlatformDropDirectory(const char* path)
+extern "C" EMSCRIPTEN_KEEPALIVE const char* emscripten_OnFolderDropForDebuggerImport(const char* path)
 {
     if (!path || !*path)
         return "Folder drop path is empty";
@@ -132,7 +134,7 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
     return clientPlatformLocateFontBinaryImpl(static_cast<int>(locale), outData, outFaceIndex);
 }
 
-EM_JS(int, clientPlatformDownloadFileImpl,
+EM_JS(int, clientPlatformSaveBlobImpl,
       (const char* filename, const unsigned char* data, int dataSize, const char* mimeType), {
     if (!filename || !data || dataSize <= 0 || !mimeType)
         return 0;
@@ -155,13 +157,25 @@ EM_JS(int, clientPlatformDownloadFileImpl,
     }
 });
 
-int clientPlatformDownloadFile(
+int clientPlatformSaveBlob(
     const char* filename,
     const unsigned char* data,
     size_t dataSize,
-    const char* mimeType)
+    const char* mimeType,
+    SDL_Window*,
+    ClientPlatformSaveBlobCallback callback,
+    void* userdata)
 {
-    return clientPlatformDownloadFileImpl(filename, data, static_cast<int>(dataSize), mimeType);
+    if (!filename || !*filename || !data || !dataSize || dataSize > static_cast<size_t>(INT_MAX) ||
+        !mimeType || !*mimeType || !callback)
+    {
+        SDL_SetError("Invalid blob save arguments");
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    }
+    const bool started = clientPlatformSaveBlobImpl(filename, data, static_cast<int>(dataSize), mimeType) != 0;
+    callback(userdata, started ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+             filename, started ? nullptr : "Browser download could not be started");
+    return MDR_RESULT_OK;
 }
 
 // LTO and MinSizeRel causes this function referenced below to get deleted with GCC
@@ -171,7 +185,7 @@ void __dont_touch_my_garbage_exclamation_marks__() __attribute__((used));
 void __dont_touch_my_garbage_exclamation_marks__()
 {
     clientPlatformLocateFontBinary(AppLocale::DEFAULT, nullptr, nullptr);
-    clientPlatformDownloadFileImpl(nullptr, nullptr, 0, nullptr);
+    clientPlatformSaveBlobImpl(nullptr, nullptr, 0, nullptr);
 }
 }
 
