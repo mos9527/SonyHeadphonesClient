@@ -78,6 +78,12 @@ target_sources(
         Fonts/PlexSansIcon.c
 )
 target_link_libraries(SonyHeadphonesClient PRIVATE Client_I18N)
+if (APPLE)
+    enable_language(OBJCXX)
+    set_source_files_properties(SDLMain.cpp PROPERTIES LANGUAGE OBJCXX COMPILE_OPTIONS "-fobjc-arc")
+    set_target_properties(SonyHeadphonesClient PROPERTIES OBJCXX_STANDARD 20 OBJCXX_STANDARD_REQUIRED ON)
+    target_link_libraries(SonyHeadphonesClient PRIVATE "-framework QuartzCore")
+endif ()
 
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)

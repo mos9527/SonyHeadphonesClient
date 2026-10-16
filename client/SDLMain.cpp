@@ -17,6 +17,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
+#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_MACOS)
+#import <QuartzCore/CAMetalLayer.h>
+#endif
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -42,7 +45,11 @@ SDL_Renderer* gRenderer = nullptr;
 // Borked SDL_WaitEventTimeout on these platform as of 3.2.26
 // These platforms aren't blocking with SDL_WaitEventTimeout and absolutely burns CPU
 // cycles for fun by polling at 1ms intervals.
-// Override their impl with our own which does so at 50ms intervals.
+// Override their impl with our own which does so...at larger intervals here:
+constexpr int kRedrawFrames = 60;
+constexpr int kClientPollIntervalMS = 25; // 40Hz
+constexpr int kClientIdleWaitTimeoutMS = 1000;
+// This works better than you'd think.
 #if !defined(MDR_PLATFORM_IOS) && !defined(MDR_PLATFORM_OHOS)
 bool clientPlatformInitEventWait()
 {
@@ -67,9 +74,6 @@ namespace
     bool gAppActive{true};
     float gAppliedDisplayScale{1.0f};
     SDL_WindowID gWindowID{};
-
-    constexpr int kRedrawFrames = 60;
-    constexpr Sint32 kIdleRedrawTimeoutMS = 1000;
     int gRedrawFrames{kRedrawFrames};
 
 #ifndef __EMSCRIPTEN__
@@ -96,7 +100,7 @@ namespace
     }
 
 #ifndef __EMSCRIPTEN__
-    // Worker thread ticks at a fixed 100Hz maximum and does everything
+    // Worker thread polls no faster than kClientPollIntervalMS and handles everything
     // that needs interaction with the physical connection.
     // See also @ref clientOnUpdate, @ref clientOnFrame
     int SDLCALL RunOnWorkerThread(void*)
@@ -115,7 +119,7 @@ namespace
                     SDL_PushEvent(&wake);
                 }
             }
-            SDL_Delay(10);
+            SDL_Delay(kClientPollIntervalMS);
         }
         return 0;
     }
@@ -125,7 +129,7 @@ namespace
 void mainLoop()
 {
 #ifndef __EMSCRIPTEN__
-    if ((!gRedrawFrames || !ShouldAppPresent()) && !clientPlatformWaitEventTimeout(kIdleRedrawTimeoutMS))
+    if ((!gRedrawFrames || !ShouldAppPresent()) && !clientPlatformWaitEventTimeout(kClientIdleWaitTimeoutMS))
         gRedrawFrames = std::max(gRedrawFrames, 1);
 #endif
     SDL_PumpEvents();
@@ -505,6 +509,19 @@ int main(int argc, char** argv)
             break;
         }
         SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
+        // Opt for double buffering (instead of triple buffering by default) on Apple platforms
+        // Saves one CAMetalDrawable worth of memory (iDevices run the app fullscreen, so that's *quite* a lot)
+#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_MACOS)
+        if (@available(iOS 11.2, macOS 10.13.2, *))
+        {
+            CAMetalLayer* layer = (__bridge CAMetalLayer*)SDL_GetRenderMetalLayer(gRenderer);
+            if (layer)
+            {
+                layer.maximumDrawableCount = 2;
+                SDL_Log("Metal drawable count: %ld", static_cast<long>(layer.maximumDrawableCount));
+            }
+        }
+#endif
         SDL_SetRenderVSync(gRenderer, 1);
         if (!clientInit(displayScale, options.fontPath))
             break;
@@ -530,7 +547,7 @@ int main(int argc, char** argv)
             SDL_Log("Error: SDL_CreateThread(): %s", SDL_GetError());
             break;
         }
-        SDL_Log("Client worker delay: 10 ms");
+        SDL_Log("Client worker delay: %d ms", kClientPollIntervalMS);
 #else
         SDL_Log("Client updates and frames share the main thread (Web)");
 #endif
