@@ -126,7 +126,7 @@ The CI builds are unsigned (see the [main README](./README.md) for download), an
 
 **NOTE:** App Store (and possibly external TestFlight) distribution of External Accessory apps requires the accessory manufacturer to whitelist the app. Use development signing or TestFlight internal testing.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) exports packets and ZIP archives through [`UIActivityViewController`](https://developer.apple.com/documentation/uikit/uiactivityviewcontroller), including **Save to Files** when available. The share panel supports iPhone and iPad. Temporary exports are retained for recipients to read; caches older than seven days are cleaned when the first export is prepared in a new app process.
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) exports packets and ZIP archives through [`UIActivityViewController`](https://developer.apple.com/documentation/uikit/uiactivityviewcontroller), including **Save to Files** when available.
 
 ### CMake Options
 
