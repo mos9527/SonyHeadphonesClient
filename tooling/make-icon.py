@@ -7,12 +7,13 @@ from PIL import Image
 
 PLATFORM = Path(__file__).resolve().parent.parent / "client" / "Platform"
 WINDOWS_ICO_SIZES = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256]
+MACOS_ICNS_SIZES = [32, 64, 128, 256, 512, 1024]
 
 
 def resized(image: Image.Image, size: int) -> Image.Image:
     if image.width == size:
         return image.copy()
-    return image.resize((size, size), Image.NEAREST if size > image.width else Image.LANCZOS)
+    return image.resize((size, size), Image.Resampling.NEAREST if size > image.width else Image.Resampling.LANCZOS)
 
 
 def opaque(image: Image.Image) -> Image.Image:
@@ -48,8 +49,14 @@ def main():
         write_png(source, image, size, PLATFORM / rel)
 
     opaque(resized(image, 1024)).save(PLATFORM / "iOS/Assets.xcassets/AppIcon.appiconset/app_icon.png", optimize=True)
-    resized(image, 1024).save(PLATFORM / "MacOS/AppIcon.icns", format="ICNS")
-    resized(image, 256).save(PLATFORM / "Windows/app.ico", format="ICO", sizes=[(s, s) for s in WINDOWS_ICO_SIZES])
+    resized(image, 1024).save(
+        PLATFORM / "MacOS/AppIcon.icns", format="ICNS",
+        append_images=[resized(image, s) for s in MACOS_ICNS_SIZES],
+    )
+    resized(image, 256).save(
+        PLATFORM / "Windows/app.ico", format="ICO", sizes=[(s, s) for s in WINDOWS_ICO_SIZES],
+        append_images=[resized(image, s) for s in WINDOWS_ICO_SIZES if s != 256],
+    )
 
     for rel in [*pngs, "iOS/Assets.xcassets/AppIcon.appiconset/app_icon.png", "MacOS/AppIcon.icns", "Windows/app.ico"]:
         print(PLATFORM / rel)
