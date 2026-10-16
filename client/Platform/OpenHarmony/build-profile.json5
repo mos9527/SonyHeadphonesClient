@@ -20,7 +20,7 @@
     ],
     "capabilities": [
       {
-        "bundleName": "com.mos9527.sonyheadphonesclient",
+        "bundleName": "com.mos9527.SonyHeadphonesClient",
         "config": []
       }
     ],

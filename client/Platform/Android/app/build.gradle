@@ -32,12 +32,12 @@ def prepareSdl = tasks.register('prepareSdl') {
 def releaseKeystore = providers.environmentVariable('ANDROID_KEYSTORE_FILE')
 
 android {
-    namespace 'com.mos9527.sonyheadphonesclient'
+    namespace 'com.mos9527.SonyHeadphonesClient'
     compileSdk 35
     ndkVersion '28.2.13676358'
 
     defaultConfig {
-        applicationId 'com.mos9527.sonyheadphonesclient'
+        applicationId 'com.mos9527.SonyHeadphonesClient'
         minSdk 21
         targetSdk 34
         versionCode 1

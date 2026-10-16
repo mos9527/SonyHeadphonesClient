@@ -1,4 +1,4 @@
-package com.mos9527.sonyheadphonesclient;
+package com.mos9527.SonyHeadphonesClient;
 
 import android.content.ClipData;
 import android.content.Intent;

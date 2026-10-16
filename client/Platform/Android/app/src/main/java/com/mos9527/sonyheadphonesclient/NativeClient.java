@@ -1,4 +1,4 @@
-package com.mos9527.sonyheadphonesclient;
+package com.mos9527.SonyHeadphonesClient;
 
 final class NativeClient {
     static final class TransportSnapshot {

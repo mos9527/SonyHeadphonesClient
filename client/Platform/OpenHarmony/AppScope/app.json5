@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.mos9527.sonyheadphonesclient",
+    "bundleName": "com.mos9527.SonyHeadphonesClient",
     "vendor": "SonyHeadphonesClient contributors",
     "versionCode": 1,
     "versionName": "0.1.0",
