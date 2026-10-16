@@ -81,6 +81,7 @@ endif ()
 target_compile_features(main PRIVATE cxx_std_20)
 target_compile_options(main PRIVATE -fno-exceptions -fno-rtti -Wall -Wextra -Wno-unused-function)
 target_compile_definitions(main PRIVATE
+    "$<TARGET_GENEX_EVAL:mdr,$<TARGET_PROPERTY:mdr,COMPILE_DEFINITIONS>>"
     IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0 MDR_PLATFORM_ANDROID
     CLIENT_VERSION="2.0.0" MDR_GIT_COMMIT_HASH="${MDR_GIT_COMMIT_HASH}"

@@ -37,9 +37,11 @@ extern const char* clientPlatformGetProcessorArchitecture();
  * - GL platforms (Web/Android/OHOS/Linux): This disables useless depth FBO allocation
  */
 extern bool clientPlatformInitGraphics(SDL_Renderer* renderer);
-extern bool clientPlatformInitEventWait();
+/**
+ * @brief Initialize platform resources before command-line parsing and SDL video initialization.
+ */
+extern bool clientPlatformInit();
 extern bool clientPlatformWaitEventTimeout(int timeoutMS);
-extern void clientPlatformDestroyEventWait();
 #ifdef MDR_CLIENT_DEBUGGER
 extern void clientEnterDebuggerReplayMode();
 #endif

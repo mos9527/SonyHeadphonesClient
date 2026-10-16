@@ -380,6 +380,9 @@ namespace
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
 {
+    if (const int error = InitStderrLog(); error != 0)
+        __android_log_print(ANDROID_LOG_ERROR, kStderrLogTag,
+                            "Could not redirect stderr to Logcat: %s", std::strerror(error));
     JNIEnv* env{};
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK)
         return JNI_ERR;
@@ -416,9 +419,6 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
         gSnapshotClass = nullptr;
         return JNI_ERR;
     }
-    if (const int error = InitStderrLog(); error != 0)
-        __android_log_print(ANDROID_LOG_ERROR, kStderrLogTag,
-                            "Could not redirect stderr to Logcat: %s", std::strerror(error));
     return JNI_VERSION_1_6;
 }
 
@@ -444,18 +444,16 @@ bool clientPlatformInitGraphics(SDL_Renderer* renderer)
     return SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0) && SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 }
 
-bool clientPlatformInitEventWait()
+bool clientPlatformInit()
 {
+    if (const int error = InitStderrLog(); error != 0)
+        return SDL_SetError("Could not redirect stderr to Logcat: %s", std::strerror(error));
     return true;
 }
 
 bool clientPlatformWaitEventTimeout(int timeoutMS)
 {
     return SDL_WaitEventTimeout(nullptr, timeoutMS);
-}
-
-void clientPlatformDestroyEventWait()
-{
 }
 
 int clientPlatformConnectionInit(int flags)

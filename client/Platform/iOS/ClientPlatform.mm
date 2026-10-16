@@ -219,10 +219,12 @@ namespace
     }
 }
 
-bool clientPlatformInitEventWait()
+bool clientPlatformInit()
 {
     if (gEventWakeupSource)
         return true;
+    if (!SDL_Init(SDL_INIT_EVENTS))
+        return false;
     CFRunLoopSourceContext context{};
     context.perform = PerformEventWakeup;
     gEventWakeupSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
@@ -260,16 +262,6 @@ bool clientPlatformWaitEventTimeout(int timeoutMS)
                 return SDL_SetError("The iOS event run loop stopped");
         }
     }
-}
-
-void clientPlatformDestroyEventWait()
-{
-    if (!gEventWakeupSource)
-        return;
-    SDL_RemoveEventWatch(WakeEventWait, gEventWakeupSource);
-    CFRunLoopSourceInvalidate(gEventWakeupSource);
-    CFRelease(gEventWakeupSource);
-    gEventWakeupSource = nullptr;
 }
 
 int clientPlatformSaveBlob(
@@ -328,8 +320,15 @@ int clientPlatformSaveBlob(
     return MDR_RESULT_OK;
 }
 
-extern "C" void clientIOSFileShareDestroy()
+extern "C" void clientIOSDestroy()
 {
+    if (gEventWakeupSource)
+    {
+        SDL_RemoveEventWatch(WakeEventWait, gEventWakeupSource);
+        CFRunLoopSourceInvalidate(gEventWakeupSource);
+        CFRelease(gEventWakeupSource);
+        gEventWakeupSource = nullptr;
+    }
     @autoreleasepool
     {
         SHCShareRequest* request;

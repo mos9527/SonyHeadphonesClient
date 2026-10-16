@@ -21,7 +21,7 @@ bool clientPlatformInitGraphics(SDL_Renderer* renderer)
     return SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0) && SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 }
 
-bool clientPlatformInitEventWait()
+bool clientPlatformInit()
 {
     return true;
 }
@@ -29,10 +29,6 @@ bool clientPlatformInitEventWait()
 bool clientPlatformWaitEventTimeout(int timeoutMS)
 {
     return SDL_WaitEventTimeout(nullptr, timeoutMS);
-}
-
-void clientPlatformDestroyEventWait()
-{
 }
 
 #ifdef MDR_CLIENT_DEBUGGER

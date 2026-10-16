@@ -386,7 +386,6 @@ int main(int argc, char** argv)
         SDL_WaitThread(gClientThread, nullptr);
         gClientThread = nullptr;
 #endif
-        clientPlatformDestroyEventWait();
         gWindowID = 0;
         if (gRendererBackendInitialized)
             ImGui_ImplSDLRenderer3_Shutdown();
@@ -401,13 +400,18 @@ int main(int argc, char** argv)
         SDL_DestroyWindow(gWindow);
         gRenderer = nullptr;
         gWindow = nullptr;
-        SDL_Quit();
         clientPlatformDestroy();
+        SDL_Quit();
     };
 
     int result = 1;
     do
     {
+        if (!clientPlatformInit())
+        {
+            MDR_LOG("Unable to initialize client platform: {}", SDL_GetError());
+            break;
+        }
         Options options;
         if (!ParseOptions(argc, argv, options))
         {
@@ -435,11 +439,6 @@ int main(int argc, char** argv)
         if (!SDL_Init(SDL_INIT_VIDEO))
         {
             MDR_LOG("SDL_Init Error: {}", SDL_GetError());
-            break;
-        }
-        if (!clientPlatformInitEventWait())
-        {
-            MDR_LOG("Unable to initialize platform event wait: {}", SDL_GetError());
             break;
         }
         if (!options.localeSpecified)

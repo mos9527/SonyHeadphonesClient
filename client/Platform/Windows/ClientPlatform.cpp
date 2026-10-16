@@ -29,7 +29,7 @@ bool clientPlatformInitGraphics(SDL_Renderer*)
     return true;
 }
 
-bool clientPlatformInitEventWait()
+bool clientPlatformInit()
 {
     return true;
 }
@@ -37,10 +37,6 @@ bool clientPlatformInitEventWait()
 bool clientPlatformWaitEventTimeout(int timeoutMS)
 {
     return SDL_WaitEventTimeout(nullptr, timeoutMS);
-}
-
-void clientPlatformDestroyEventWait()
-{
 }
 
 namespace

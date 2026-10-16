@@ -22,9 +22,9 @@
 #include <SDL3/SDL_video.h>
 #import <QuartzCore/CAMetalLayer.h>
 #ifdef SDL_PLATFORM_IOS
-extern "C" void clientIOSFileShareDestroy();
+extern "C" void clientIOSDestroy();
 #else
-bool clientPlatformInitEventWait()
+bool clientPlatformInit()
 {
     return true;
 }
@@ -32,10 +32,6 @@ bool clientPlatformInitEventWait()
 bool clientPlatformWaitEventTimeout(int timeoutMS)
 {
     return SDL_WaitEventTimeout(nullptr, timeoutMS);
-}
-
-void clientPlatformDestroyEventWait()
-{
 }
 
 int clientPlatformSaveBlob(
@@ -391,7 +387,7 @@ void clientPlatformMemoryUnmapFile(void* addr, size_t size)
 void clientPlatformDestroy()
 {
 #ifdef SDL_PLATFORM_IOS
-    clientIOSFileShareDestroy();
+    clientIOSDestroy();
 #endif
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)

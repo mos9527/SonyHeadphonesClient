@@ -423,10 +423,12 @@ extern "C" __attribute__((constructor)) void RegisterSHCInterfaces()
     napi_module_register(&gModule);
 }
 
-bool clientPlatformInitEventWait()
+bool clientPlatformInit()
 {
     if (gEventWait.semaphore)
         return true;
+    if (!SDL_Init(SDL_INIT_EVENTS))
+        return false;
     gEventWait.semaphore = SDL_CreateSemaphore(0);
     if (!gEventWait.semaphore)
         return false;
@@ -461,15 +463,6 @@ bool clientPlatformWaitEventTimeout(int timeoutMS)
     }
     gEventWait.waiting.store(false, std::memory_order_relaxed);
     return hasEvent;
-}
-
-void clientPlatformDestroyEventWait()
-{
-    if (!gEventWait.semaphore)
-        return;
-    SDL_RemoveEventWatch(WakeEventWait, &gEventWait);
-    SDL_DestroySemaphore(gEventWait.semaphore);
-    gEventWait.semaphore = nullptr;
 }
 
 float clientPlatformGetDisplayScale()
@@ -667,6 +660,12 @@ int clientPlatformSaveBlob(
 
 void clientPlatformDestroy()
 {
+    if (gEventWait.semaphore)
+    {
+        SDL_RemoveEventWatch(WakeEventWait, &gEventWait);
+        SDL_DestroySemaphore(gEventWait.semaphore);
+        gEventWait.semaphore = nullptr;
+    }
     ShareRequest request;
     {
         std::scoped_lock lock(gShareMutex);
