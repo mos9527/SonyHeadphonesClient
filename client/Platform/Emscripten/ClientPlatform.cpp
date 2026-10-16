@@ -162,12 +162,12 @@ int clientPlatformSaveBlob(
     const unsigned char* data,
     size_t dataSize,
     const char* mimeType,
-    SDL_Window*,
+    SDL_Window* window,
     ClientPlatformSaveBlobCallback callback,
     void* userdata)
 {
     if (!filename || !*filename || !data || !dataSize || dataSize > static_cast<size_t>(INT_MAX) ||
-        !mimeType || !*mimeType || !callback)
+        !mimeType || !*mimeType || !window || !callback)
     {
         SDL_SetError("Invalid blob save arguments");
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;

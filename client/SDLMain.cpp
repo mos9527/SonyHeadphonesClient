@@ -6,6 +6,7 @@
 #ifdef SDL_DIALOG
 #include <cctype>
 #include <string_view>
+#include <mdr/Command.hpp>
 #endif
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -615,7 +616,7 @@ int clientSDLSaveBlob(
     const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
     SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
 {
-    if (!filename || !*filename || !data || !dataSize || !mimeType || !*mimeType || !callback)
+    if (!filename || !*filename || !data || !dataSize || !mimeType || !*mimeType || !window || !callback)
     {
         SDL_SetError("Invalid blob save arguments");
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -632,13 +633,6 @@ int clientSDLSaveBlob(
         dot + 1 < request->filename.size())
         request->extension = request->filename.substr(dot);
     request->filter = {request->filename.c_str(), request->extension.empty() ? "*" : request->extension.c_str() + 1};
-    if (!window)
-    {
-        const bool saved = WriteBlobFile(request->filename.c_str(), request->data);
-        CompleteSave(request, saved ? CLIENT_PLATFORM_SAVE_BLOB_SAVED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
-                     request->filename.c_str(), saved ? nullptr : SDL_GetError());
-        return MDR_RESULT_OK;
-    }
     if (!SDL_RunOnMainThread(ShowSaveDialog, request, true))
     {
         mdr::Destruct(request);

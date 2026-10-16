@@ -73,7 +73,7 @@ The app targets Android 5.0 (API 21) and later, and by default builds for ARMv7 
  
 **NOTE:** As the Bluetooth functions are only provided via Java/JNI, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented due to `SDL_DIALOG` Android implementation doesn't support default file names. (3.2.26)
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, and packet export is implemented via [Android Sharesheet](https://developer.android.com/develop/ui/compose/sharing/send#using-android-system-sharesheet)
 
 ### OpenHarmony (DevEco Studio)
 
@@ -93,7 +93,7 @@ For more information, these links will also help:
 
 **NOTE:** As the Bluetooth functions are only provided via `ArkTS` interop, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) exports packets and ZIP archives through the HarmonyOS system share panel (`Share Kit`), including its **Save as file** action. Export does not require a Bluetooth connection or permission. This integration requires `SystemCapability.Collaboration.SystemShare`; it is not guaranteed on every OpenHarmony distribution. Temporary files are retained after sharing and backgrounding so recipients can finish reading; export caches older than seven days are cleaned when the first export is prepared in a new app process.
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) exports packets and ZIP archives through the HarmonyOS system share panel (`Share Kit`), including its **Save as file** action.
 
 ### iOS (Xcode)
 
@@ -126,7 +126,7 @@ The CI builds are unsigned (see the [main README](./README.md) for download), an
 
 **NOTE:** App Store (and possibly external TestFlight) distribution of External Accessory apps requires the accessory manufacturer to whitelist the app. Use development signing or TestFlight internal testing.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented for iOS in upstream SDL (3.2.26)
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) exports packets and ZIP archives through [`UIActivityViewController`](https://developer.apple.com/documentation/uikit/uiactivityviewcontroller), including **Save to Files** when available. The share panel supports iPhone and iPad. Temporary exports are retained for recipients to read; caches older than seven days are cleaned when the first export is prepared in a new app process.
 
 ### CMake Options
 

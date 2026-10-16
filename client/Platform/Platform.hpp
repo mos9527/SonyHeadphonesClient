@@ -110,17 +110,16 @@ extern "C" {
     typedef void (*ClientPlatformSaveBlobCallback)(
         void* userdata, ClientPlatformSaveBlobResult result, const char* path, const char* error);
     /**
-     * @brief Save bytes using the platform's file dialog, download, or sharing integration.
-     * @param filename Required UTF-8 suggested filename, including its extension.
-     * @param data Required input bytes; empty blobs are rejected.
-     * @param mimeType Required MIME type; desktop filters use the filename extension.
-     * @param window Optional parent window. Desktop saves directly to filename when NULL.
-     * @param callback Required completion callback, called exactly once for an accepted request.
-     * @param userdata Caller-owned callback context; must survive until completion.
-     * @return MDR_RESULT_OK if accepted, or an error code with no callback.
-     * @note Input strings and bytes are copied/consumed before return. Completion may be synchronous.
-     *       Android and HarmonyOS use system sharing; iOS currently returns MDR_RESULT_ERROR_NOT_SUPPORTED.
-     *       Mobile sharing requires a live platform UI and a basename without directory separators.
+     * @brief Export bytes through the platform's save dialog, share panel, or browser download.
+     * @param filename UTF-8 suggested filename, including its extension; no directory separators.
+     * @param data Non-empty input bytes.
+     * @param dataSize Input size in bytes.
+     * @param mimeType File MIME type.
+     * @param window Required parent window.
+     * @param callback Called exactly once if the request is accepted; may run synchronously or on another thread.
+     * @param userdata Callback context; must survive until completion.
+     * @return MDR_RESULT_OK if accepted, otherwise an error code with no callback.
+     * @note Call on the SDL main thread. Input strings and bytes are copied/consumed before return.
      */
     extern int clientPlatformSaveBlob(
         const char* filename,

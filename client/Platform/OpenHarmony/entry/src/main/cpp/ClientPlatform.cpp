@@ -562,12 +562,12 @@ ClientMediaPause* clientPlatformMediaPause() { return nullptr; }
 void clientPlatformMediaResume(ClientMediaPause*) {}
 
 int clientPlatformSaveBlob(
-    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window*,
+    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window* window,
     ClientPlatformSaveBlobCallback callback, void* userdata)
 {
     if (!filename || !*filename || std::strlen(filename) > 255 || std::strpbrk(filename, "/\\") ||
         std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize ||
-        dataSize > static_cast<size_t>(INT_MAX) || !mimeType || !*mimeType || std::strlen(mimeType) > 255 || !callback)
+        dataSize > static_cast<size_t>(INT_MAX) || !mimeType || !*mimeType || std::strlen(mimeType) > 255 || !window || !callback)
     {
         SDL_SetError("Invalid file sharing arguments");
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;

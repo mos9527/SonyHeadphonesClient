@@ -15,7 +15,9 @@
 #include <vector>
 #include <mdr/Protocol.hpp>
 #include <SDL3/SDL_video.h>
-#ifndef SDL_PLATFORM_IOS
+#ifdef SDL_PLATFORM_IOS
+extern "C" void clientIOSFileShareDestroy();
+#else
 int clientPlatformSaveBlob(
     const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
     SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
@@ -272,6 +274,9 @@ void clientPlatformMemoryUnmapFile(void* addr, size_t size)
 
 void clientPlatformDestroy()
 {
+#ifdef SDL_PLATFORM_IOS
+    clientIOSFileShareDestroy();
+#endif
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
         ReleaseFont(font);

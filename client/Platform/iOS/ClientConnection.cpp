@@ -4,13 +4,6 @@
 static MDRConnectionIOS* gConn = nullptr;
 
 extern "C" {
-int clientPlatformSaveBlob(
-    const char*, const unsigned char*, size_t, const char*, SDL_Window*,
-    ClientPlatformSaveBlobCallback, void*)
-{
-    return MDR_RESULT_ERROR_NOT_SUPPORTED;
-}
-
 int clientPlatformConnectionInit(int flags)
 {
     if (flags & MDR_INIT_BT_BLE)
