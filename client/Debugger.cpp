@@ -472,10 +472,13 @@ namespace
             if (packet.candidates.size() > 1)
                 details += mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerLayoutCount)), packet.candidates.size());
             const mdr::String label = mdr::Format("#{} {} - {}\n{}###capture", packet.id, direction, packetName, details);
-            const float rowHeight = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2;
+            const auto& style = ImGui::GetStyle();
+            const float rowHeight = ImGui::CalcTextSize(label.c_str(), nullptr, true).y + style.FramePadding.y * 2;
+            ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, {style.SelectableTextAlign.x, 0.5f});
             if (ImGui::Selectable(label.c_str(), selected, ImGuiSelectableFlags_None,
                                   {ImGui::GetContentRegionAvail().x, rowHeight}))
                 SelectCapture(packet);
+            ImGui::PopStyleVar();
             ImGui::PopStyleColor(3);
             ImGui::PopID();
             ImGui::Dummy({0.0f, 3.0f});

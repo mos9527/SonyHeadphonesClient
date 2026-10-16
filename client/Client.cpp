@@ -736,13 +736,31 @@ void ImTextCentered(const char* text, float fontSize = 0.0f)
 {
     ImStylesRAII scope;
     scope.PushFont(fontSize);
-    const float startX = ImGui::GetCursorPosX();
+    const ImVec2 start = ImGui::GetCursorPos();
     const float width = std::max(1.0f, ImGui::GetContentRegionAvail().x);
-    const float textWidth = ImGui::CalcTextSize(text).x;
-    ImGui::SetCursorPosX(startX + std::max(0.0f, (width - textWidth) * 0.5f));
-    ImGui::PushTextWrapPos(startX + width);
-    ImGui::TextUnformatted(text);
+    const float lineHeight = ImGui::GetTextLineHeight();
+    const char* textEnd = text + std::strlen(text);
+    const char* line = text;
+    int lineIndex = 0;
+    ImGui::BeginGroup();
+    ImGui::PushTextWrapPos(-1.0f);
+    do
+    {
+        const char* lineEnd = ImGui::GetFont()->CalcWordWrapPosition(ImGui::GetFontSize(), line, textEnd, width);
+        if (lineEnd == line && line < textEnd && *line != '\n')
+            lineEnd += ImTextCountUtf8BytesFromChar(line, textEnd);
+        const char* visibleEnd = lineEnd;
+        while (visibleEnd > line && (ImCharIsBlankA(visibleEnd[-1]) || visibleEnd[-1] == '\r'))
+            --visibleEnd;
+        const float textWidth = ImGui::CalcTextSize(line, visibleEnd).x;
+        ImGui::SetCursorPos({start.x + std::max(0.0f, (width - textWidth) * 0.5f),
+                             start.y + lineIndex * lineHeight});
+        ImGui::TextUnformatted(line, visibleEnd);
+        ++lineIndex;
+        line = ImTextCalcWordWrapNextLineStart(lineEnd, textEnd);
+    } while (line < textEnd);
     ImGui::PopTextWrapPos();
+    ImGui::EndGroup();
 }
 
 void ImTextCenteredFit(const char* text, float fontSize)
