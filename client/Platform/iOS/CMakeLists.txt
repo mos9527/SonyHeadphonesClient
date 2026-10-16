@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.31)
 
-enable_language(OBJCXX)
-
 add_library(Client_PlatformIOS STATIC
         ../MacOS/ClientPlatform.mm
         ClientConnection.cpp

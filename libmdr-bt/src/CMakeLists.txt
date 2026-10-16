@@ -17,13 +17,11 @@ elseif (WIN32)
             Windows/ConnectionWindowsBLE.cpp)
     endif ()
 elseif (MDR_PLATFORM_OS STREQUAL "IOS")
-    enable_language(OBJCXX)
     set(CMAKE_OBJCXX_STANDARD 20)
     list(APPEND SRCS
         iOS/ConnectionIOS.mm)
     set_source_files_properties(iOS/ConnectionIOS.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
 elseif (APPLE)
-    enable_language(OBJCXX)
     set(CMAKE_OBJCXX_STANDARD 20)
     list(APPEND SRCS
         MacOS/ConnectionMacOS.mm)
