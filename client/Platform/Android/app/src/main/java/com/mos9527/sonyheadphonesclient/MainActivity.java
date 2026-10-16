@@ -15,6 +15,7 @@ import org.libsdl.app.SDLActivity;
 public final class MainActivity extends SDLActivity {
     private static final int BLUETOOTH_PERMISSION_REQUEST = 1;
     private ClientTransport transport;
+    private volatile FileShare fileShare;
     private boolean resumed;
     private boolean permissionRequested;
     private boolean enableRequested;
@@ -30,6 +31,7 @@ public final class MainActivity extends SDLActivity {
         if (mBrokenLibraries || isFinishing()) {
             return;
         }
+        fileShare = new FileShare(this);
         NativeClient.setScale(getResources().getDisplayMetrics().density);
         transport = new ClientTransport(getApplicationContext(), message ->
             runOnUiThread(() -> {
@@ -97,8 +99,22 @@ public final class MainActivity extends SDLActivity {
         }
     }
 
+    public void shareBlob(long id, String filename, byte[] data, String mimeType) {
+        FileShare share = fileShare;
+        if (share == null) {
+            NativeClient.shareCompleted(id, false, "File sharing is unavailable");
+        } else {
+            share.share(id, filename, data, mimeType);
+        }
+    }
+
     @Override
     protected void onDestroy() {
+        FileShare share = fileShare;
+        fileShare = null;
+        if (share != null) {
+            share.close();
+        }
         if (transport != null) {
             transport.stop();
             transport = null;

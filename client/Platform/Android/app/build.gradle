@@ -90,6 +90,10 @@ android {
     }
 }
 
+dependencies {
+    implementation 'androidx.core:core:1.15.0'
+}
+
 tasks.configureEach {
     if (name == 'preBuild' || name.startsWith('configureCMake') || name.startsWith('buildCMake')) {
         dependsOn prepareSdl

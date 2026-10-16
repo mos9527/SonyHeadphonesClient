@@ -11,6 +11,14 @@
         android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
+        <provider
+            android:name=".ExportFileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <meta-data android:name="SDL_ENV.SDL_ANDROID_TRAP_BACK_BUTTON" android:value="0" />
         <activity
             android:name=".MainActivity"

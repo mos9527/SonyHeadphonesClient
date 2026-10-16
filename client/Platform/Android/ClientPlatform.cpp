@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <mutex>
 #include <string_view>
 
 #define STBTT_STATIC
@@ -34,6 +35,41 @@ namespace
     std::atomic<float> gDisplayScale{1.0f};
     jclass gSnapshotClass{};
     jmethodID gSnapshotConstructor{};
+    struct ShareRequest
+    {
+        jlong id{};
+        mdr::String filename;
+        ClientPlatformSaveBlobCallback callback{};
+        void* userdata{};
+    };
+    std::mutex gShareMutex;
+    ShareRequest gShare;
+    jlong gNextShareId{};
+
+    bool TakeShare(jlong id, ShareRequest& request)
+    {
+        std::scoped_lock lock(gShareMutex);
+        if (!gShare.id || (id && gShare.id != id))
+            return false;
+        request = std::move(gShare);
+        gShare = {};
+        return true;
+    }
+
+    jstring JavaString(JNIEnv* env, const char* text)
+    {
+        char* utf16 = SDL_iconv_string("UTF-16LE", "UTF-8", text, std::strlen(text) + 1);
+        if (!utf16)
+            return nullptr;
+        const auto* characters = reinterpret_cast<const jchar*>(utf16);
+        jsize count{};
+        while (characters[count])
+            ++count;
+        jstring result = env->NewString(characters, count);
+        SDL_free(utf16);
+        return result;
+    }
+
     struct FontMapping
     {
         void* data{};
@@ -236,6 +272,26 @@ namespace
         gTransport.Stop();
     }
 
+    void ShareCompleted(JNIEnv* env, jclass, jlong id, jboolean dispatched, jstring errorValue)
+    {
+        if (id <= 0)
+            return;
+        ShareRequest request;
+        if (!TakeShare(id, request))
+            return;
+        mdr::String error;
+        if (errorValue && !String(env, errorValue, error))
+        {
+            env->ExceptionClear();
+            error = "Unable to read file sharing error";
+        }
+        if (dispatched != JNI_TRUE && error.empty())
+            error = "File sharing failed";
+        request.callback(request.userdata,
+                         dispatched == JNI_TRUE ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+                         request.filename.c_str(), error.empty() ? nullptr : error.c_str());
+    }
+
     bool FontSupportsLocale(const stbtt_fontinfo& font, AppLocale locale)
     {
         std::u32string_view sample = U"A0中文电连接控制";
@@ -278,7 +334,8 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
         {const_cast<char*>("transportFailed"), const_cast<char*>("(JLjava/lang/String;)V"), reinterpret_cast<void*>(TransportFailed)},
         {const_cast<char*>("feedRx"), const_cast<char*>("(J[BI)Z"), reinterpret_cast<void*>(FeedRx)},
         {const_cast<char*>("setDevices"), const_cast<char*>("([Ljava/lang/String;[Ljava/lang/String;)V"), reinterpret_cast<void*>(SetDevices)},
-        {const_cast<char*>("stopTransport"), const_cast<char*>("()V"), reinterpret_cast<void*>(StopTransport)}
+        {const_cast<char*>("stopTransport"), const_cast<char*>("()V"), reinterpret_cast<void*>(StopTransport)},
+        {const_cast<char*>("shareCompleted"), const_cast<char*>("(JZLjava/lang/String;)V"), reinterpret_cast<void*>(ShareCompleted)}
     };
     const jint result = env->RegisterNatives(client, methods, static_cast<jint>(std::size(methods)));
     env->DeleteLocalRef(client);
@@ -439,15 +496,77 @@ ClientMediaPause* clientPlatformMediaPause() { return nullptr; }
 void clientPlatformMediaResume(ClientMediaPause*) {}
 
 int clientPlatformSaveBlob(
-    const char*, const unsigned char*, size_t, const char*, SDL_Window*,
-    ClientPlatformSaveBlobCallback, void*)
+    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window*,
+    ClientPlatformSaveBlobCallback callback, void* userdata)
 {
-    SDL_SetError("Android file sharing is not implemented");
-    return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    if (!filename || !*filename || std::strlen(filename) > 255 || std::strpbrk(filename, "/\\") ||
+        std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize ||
+        dataSize > static_cast<size_t>(INT_MAX) || !mimeType || !*mimeType || !callback)
+    {
+        SDL_SetError("Invalid file sharing arguments");
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    }
+    auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    if (!env)
+    {
+        SDL_SetError("Android JNI is unavailable");
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    jobject activity = static_cast<jobject>(SDL_GetAndroidActivity());
+    jclass type = activity ? env->GetObjectClass(activity) : nullptr;
+    jmethodID method = type ? env->GetMethodID(type, "shareBlob", "(JLjava/lang/String;[BLjava/lang/String;)V") : nullptr;
+    jstring name = method ? JavaString(env, filename) : nullptr;
+    jstring mime = name ? JavaString(env, mimeType) : nullptr;
+    jbyteArray bytes = mime ? env->NewByteArray(static_cast<jsize>(dataSize)) : nullptr;
+    const auto release = [&]
+    {
+        if (bytes) env->DeleteLocalRef(bytes);
+        if (mime) env->DeleteLocalRef(mime);
+        if (name) env->DeleteLocalRef(name);
+        if (type) env->DeleteLocalRef(type);
+        if (activity) env->DeleteLocalRef(activity);
+    };
+    if (bytes)
+        env->SetByteArrayRegion(bytes, 0, static_cast<jsize>(dataSize), reinterpret_cast<const jbyte*>(data));
+    if (!bytes || env->ExceptionCheck())
+    {
+        env->ExceptionClear();
+        release();
+        SDL_SetError("Unable to prepare Android file sharing");
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    jlong id{};
+    {
+        std::scoped_lock lock(gShareMutex);
+        if (gShare.id)
+        {
+            release();
+            SDL_SetError("A file sharing request is already active");
+            return MDR_RESULT_ERROR_GENERAL;
+        }
+        MDR_CHECK(gNextShareId < std::numeric_limits<jlong>::max());
+        id = ++gNextShareId;
+        gShare = {id, filename, callback, userdata};
+    }
+    env->CallVoidMethod(activity, method, id, name, bytes, mime);
+    const bool failed = env->ExceptionCheck();
+    if (failed)
+        env->ExceptionClear();
+    release();
+    ShareRequest rejected;
+    if (failed && TakeShare(id, rejected))
+    {
+        SDL_SetError("Unable to schedule Android file sharing");
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    return MDR_RESULT_OK;
 }
 
 void clientPlatformDestroy()
 {
+    ShareRequest request;
+    if (TakeShare(0, request))
+        request.callback(request.userdata, CLIENT_PLATFORM_SAVE_BLOB_CANCELLED, request.filename.c_str(), nullptr);
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
     {

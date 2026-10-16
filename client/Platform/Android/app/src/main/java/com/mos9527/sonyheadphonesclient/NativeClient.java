@@ -27,6 +27,7 @@ final class NativeClient {
     static native boolean feedRx(long generation, byte[] data, int size);
     static native void setDevices(String[] names, String[] addresses);
     static native void stopTransport();
+    static native void shareCompleted(long id, boolean dispatched, String error);
 
     private NativeClient() {}
 }

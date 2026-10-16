@@ -79,7 +79,7 @@ if (MDR_CLIENT_DEBUGGER)
     target_compile_definitions(main PRIVATE MDR_CLIENT_DEBUGGER)
 endif ()
 target_compile_features(main PRIVATE cxx_std_20)
-target_compile_options(main PRIVATE -fno-exceptions -fno-rtti -Wall -Wextra)
+target_compile_options(main PRIVATE -fno-exceptions -fno-rtti -Wall -Wextra -Wno-unused-function)
 target_compile_definitions(main PRIVATE
     IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0 MDR_PLATFORM_ANDROID

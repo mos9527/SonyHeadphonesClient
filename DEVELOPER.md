@@ -81,6 +81,16 @@ Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.c
 
 [Signing](https://developer.huawei.com/consumer/cn/doc/doccenter-deveco-studio/ide-signing) is required for this to run on a actual device.
 
+#### Documentation
+
+Once you have DevEco installed, you can find all you need *locally* in (change your path accordingly):
+- `C:\Program Files\Huawei\DevEco Studio\plugins\openharmony\ohos-info-center-view` 
+
+For more information, these links will also help:
+- [开发者文档中心 - 华为HarmonyOS开发者](https://developer.huawei.com/consumer/cn/doc/doccenter)
+- [Document Center - HUAWEI Developers](https://developer.huawei.com/consumer/cn/doc/doccenter)
+- [libsdl-org/SDL/docs/README-harmonyos.md](https://github.com/libsdl-org/SDL/blob/main/docs/README-harmonyos.md) by [@icculus](https://github.com/icculus)
+
 **NOTE:** As the Bluetooth functions are only provided via `ArkTS` interop, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
 **NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented due to `SDL_DIALOG` is not currently implemented for OpenHarmony by the upstream. (3.2.26)

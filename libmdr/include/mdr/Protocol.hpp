@@ -252,10 +252,10 @@ namespace mdr
             MDR_CHECK(p != nullptr && "OOM");
             return p;
         }
-        void deallocate(pointer p, size_type n) noexcept { deallocate(p); }
+        void deallocate(pointer p, size_type) noexcept { deallocate(p); }
         void deallocate(pointer p) noexcept { std::free(p); }
-        friend bool operator==(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept { return true; }
-        friend bool operator!=(const MDRAllocator& lhs, const MDRAllocator& rhs) noexcept { return false; }
+        friend bool operator==(const MDRAllocator&, const MDRAllocator&) noexcept { return true; }
+        friend bool operator!=(const MDRAllocator&, const MDRAllocator&) noexcept { return false; }
         struct Deleter
         {
             void operator()(T* ptr) noexcept

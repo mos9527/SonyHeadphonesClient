@@ -1,5 +1,6 @@
 #include "ClientConnection.hpp"
 #include "Platform/Platform.hpp"
+#include <SDL3/SDL.h>
 #include <napi/native_api.h>
 #include <hilog/log.h>
 #include <dirent.h>
@@ -17,18 +18,12 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
+#include <mutex>
 #include <string_view>
 
 #define STBTT_STATIC
 #define STB_TRUETYPE_IMPLEMENTATION
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#endif
 #include <imstb_truetype.h>
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
 #undef STB_TRUETYPE_IMPLEMENTATION
 #undef STBTT_STATIC
 
