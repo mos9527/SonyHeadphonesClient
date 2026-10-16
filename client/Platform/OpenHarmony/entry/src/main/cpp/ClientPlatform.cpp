@@ -32,6 +32,39 @@ namespace
     ohos::ClientConnection gTransport;
     bool gConnectionInitialized{};
     std::atomic<float> gDisplayScale{1.0f};
+    struct ShareRequest
+    {
+        uint32_t id{};
+        bool taken{};
+        mdr::String filename;
+        mdr::String mimeType;
+        mdr::Vector<unsigned char> data;
+        ClientPlatformSaveBlobCallback callback{};
+        void* userdata{};
+    };
+    std::mutex gShareMutex;
+    ShareRequest gShare;
+    uint32_t gNextShareId{};
+    bool gShareAvailable{};
+
+    bool TakeShare(uint32_t id, ShareRequest& request)
+    {
+        std::scoped_lock lock(gShareMutex);
+        if (!gShare.id || (id && gShare.id != id))
+            return false;
+        request = std::move(gShare);
+        gShare = {};
+        return true;
+    }
+
+    void FinishShare(const ShareRequest& request, ClientPlatformSaveBlobResult result, const char* error = nullptr)
+    {
+        request.callback(request.userdata, result, request.filename.c_str(), error);
+        SDL_Event wake{};
+        wake.type = SDL_EVENT_USER;
+        SDL_PushEvent(&wake);
+    }
+
     struct FontMapping
     {
         void* data{};
@@ -162,6 +195,73 @@ namespace
             Property(env, object, name, text);
     }
 
+    napi_value SetShareAvailable(napi_env env, napi_callback_info info)
+    {
+        napi_value argument{};
+        bool available{};
+        if (!Arguments(env, info, 1, &argument) || napi_get_value_bool(env, argument, &available) != napi_ok)
+            return Throw(env, "setShareAvailable expects a boolean");
+        ShareRequest request;
+        {
+            std::scoped_lock lock(gShareMutex);
+            gShareAvailable = available;
+            if (!available && gShare.id)
+            {
+                request = std::move(gShare);
+                gShare = {};
+            }
+        }
+        if (request.id)
+            FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_CANCELLED);
+        return Undefined(env);
+    }
+
+    napi_value PollShare(napi_env env, napi_callback_info)
+    {
+        std::unique_lock lock(gShareMutex);
+        if (!gShareAvailable || !gShare.id || gShare.taken)
+            return Undefined(env);
+        napi_value result{};
+        napi_value data{};
+        void* bytes{};
+        if (napi_create_object(env, &result) != napi_ok || !Number(env, result, "id", gShare.id) ||
+            !Text(env, result, "filename", gShare.filename) || !Text(env, result, "mimeType", gShare.mimeType) ||
+            napi_create_arraybuffer(env, gShare.data.size(), &bytes, &data) != napi_ok ||
+            !Property(env, result, "data", data))
+        {
+            ShareRequest request = std::move(gShare);
+            gShare = {};
+            lock.unlock();
+            FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, "Unable to prepare OHOS file sharing");
+            return Throw(env, "Unable to create share request");
+        }
+        std::memcpy(bytes, gShare.data.data(), gShare.data.size());
+        gShare.data = mdr::Vector<unsigned char>{};
+        gShare.taken = true;
+        return result;
+    }
+
+    napi_value CompleteShare(napi_env env, napi_callback_info info)
+    {
+        napi_value arguments[3]{};
+        uint32_t id{};
+        uint32_t result{};
+        mdr::String error;
+        if (!Arguments(env, info, 3, arguments) || !Generation(env, arguments[0], id) || !id ||
+            !Generation(env, arguments[1], result) ||
+            (result != CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED && result != CLIENT_PLATFORM_SAVE_BLOB_CANCELLED &&
+             result != CLIENT_PLATFORM_SAVE_BLOB_FAILED) || !String(env, arguments[2], error))
+            return Throw(env, "completeShare expects a request ID, share result and error string");
+        ShareRequest request;
+        if (TakeShare(id, request))
+        {
+            if (result == CLIENT_PLATFORM_SAVE_BLOB_FAILED && error.empty())
+                error = "File sharing failed";
+            FinishShare(request, static_cast<ClientPlatformSaveBlobResult>(result), error.empty() ? nullptr : error.c_str());
+        }
+        return Undefined(env);
+    }
+
     napi_value PollTransport(napi_env env, napi_callback_info info)
     {
         napi_value argument{};
@@ -285,6 +385,9 @@ namespace
     {
         napi_property_descriptor methods[]{
             {"setScale", nullptr, SetScale, nullptr, nullptr, nullptr, napi_default, nullptr},
+            {"setShareAvailable", nullptr, SetShareAvailable, nullptr, nullptr, nullptr, napi_default, nullptr},
+            {"pollShare", nullptr, PollShare, nullptr, nullptr, nullptr, napi_default, nullptr},
+            {"completeShare", nullptr, CompleteShare, nullptr, nullptr, nullptr, napi_default, nullptr},
             {"pollTransport", nullptr, PollTransport, nullptr, nullptr, nullptr, napi_default, nullptr},
             {"transportConnected", nullptr, TransportConnected, nullptr, nullptr, nullptr, napi_default, nullptr},
             {"transportFailed", nullptr, TransportFailed, nullptr, nullptr, nullptr, napi_default, nullptr},
@@ -459,14 +562,48 @@ ClientMediaPause* clientPlatformMediaPause() { return nullptr; }
 void clientPlatformMediaResume(ClientMediaPause*) {}
 
 int clientPlatformSaveBlob(
-    const char*, const unsigned char*, size_t, const char*, SDL_Window*,
-    ClientPlatformSaveBlobCallback, void*)
+    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window*,
+    ClientPlatformSaveBlobCallback callback, void* userdata)
 {
-    return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    if (!filename || !*filename || std::strlen(filename) > 255 || std::strpbrk(filename, "/\\") ||
+        std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize ||
+        dataSize > static_cast<size_t>(INT_MAX) || !mimeType || !*mimeType || std::strlen(mimeType) > 255 || !callback)
+    {
+        SDL_SetError("Invalid file sharing arguments");
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    }
+    std::scoped_lock lock(gShareMutex);
+    if (!gShareAvailable)
+    {
+        SDL_SetError("OHOS system sharing is unavailable");
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    }
+    if (gShare.id)
+    {
+        SDL_SetError("A file sharing request is already active");
+        return MDR_RESULT_ERROR_GENERAL;
+    }
+    MDR_CHECK(gNextShareId < std::numeric_limits<uint32_t>::max());
+    gShare.id = ++gNextShareId;
+    gShare.filename = filename;
+    gShare.mimeType = mimeType;
+    gShare.data.assign(data, data + dataSize);
+    gShare.callback = callback;
+    gShare.userdata = userdata;
+    return MDR_RESULT_OK;
 }
 
 void clientPlatformDestroy()
 {
+    ShareRequest request;
+    {
+        std::scoped_lock lock(gShareMutex);
+        gShareAvailable = false;
+        request = std::move(gShare);
+        gShare = {};
+    }
+    if (request.id)
+        FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_CANCELLED);
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
     {

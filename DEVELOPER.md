@@ -93,7 +93,7 @@ For more information, these links will also help:
 
 **NOTE:** As the Bluetooth functions are only provided via `ArkTS` interop, there's no dedicated `libmdr-bt` backend support, and it's only implemented in the `client`.
 
-**NOTE:** The [Protocol Debugger](#the-protocol-debugger) is available, but packet saving is not yet implemented due to `SDL_DIALOG` is not currently implemented for OpenHarmony by the upstream. (3.2.26)
+**NOTE:** The [Protocol Debugger](#the-protocol-debugger) exports packets and ZIP archives through the HarmonyOS system share panel (`Share Kit`), including its **Save as file** action. Export does not require a Bluetooth connection or permission. This integration requires `SystemCapability.Collaboration.SystemShare`; it is not guaranteed on every OpenHarmony distribution. Temporary files are retained after sharing and backgrounding so recipients can finish reading; export caches older than seven days are cleaned when the first export is prepared in a new app process.
 
 ### iOS (Xcode)
 

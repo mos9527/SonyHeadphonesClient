@@ -343,6 +343,7 @@ enum class TextId
     DebuggerExportDialogOpen,
     DebuggerDownloadStarting,
     DebuggerDownloaded,
+    DebuggerExportDispatched,
     DebuggerDownloadFailed,
     DebuggerChooseDestination,
     DebuggerNoPackets,

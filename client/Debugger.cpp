@@ -113,7 +113,7 @@ namespace
             result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerExported)), path);
             break;
         case CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED:
-            result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerDownloaded)), path);
+            result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerExportDispatched)), path);
             break;
         case CLIENT_PLATFORM_SAVE_BLOB_CANCELLED:
             result = translate(i18n::TextId::DebuggerExportCancelled);

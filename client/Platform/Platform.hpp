@@ -102,7 +102,7 @@ extern "C" {
     };
     /**
      * @brief Completion callback for saving bytes.
-     * @param path Saved path, or suggested filename for a dispatched download.
+     * @param path Saved path, or suggested filename for a dispatched download/share.
      * @param error Error details on failure, or dialog error on fallback success; otherwise NULL.
      * @note Strings are valid only during the callback. It may run on a different thread.
      *       DISPATCHED only means the OS/browser accepted the handoff, not that the file was saved.
@@ -119,7 +119,8 @@ extern "C" {
      * @param userdata Caller-owned callback context; must survive until completion.
      * @return MDR_RESULT_OK if accepted, or an error code with no callback.
      * @note Input strings and bytes are copied/consumed before return. Completion may be synchronous.
-     *       Android, iOS and OpenHarmony currently return MDR_RESULT_ERROR_NOT_SUPPORTED.
+     *       Android and HarmonyOS use system sharing; iOS currently returns MDR_RESULT_ERROR_NOT_SUPPORTED.
+     *       Mobile sharing requires a live platform UI and a basename without directory separators.
      */
     extern int clientPlatformSaveBlob(
         const char* filename,
