@@ -1252,12 +1252,13 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
 void clientDebuggerDraw(bool* open, bool replayMode)
 {
     PollExportResult();
-    const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    const ImVec2 workSize = viewport->WorkSize;
     if (!ImGui::IsPopupOpen("Debugger"))
         ImGui::OpenPopup("Debugger");
-    ImGui::SetNextWindowSize({displaySize.x, displaySize.y * 0.8f}, ImGuiCond_Appearing);
-    ImGui::SetNextWindowSizeConstraints({displaySize.x, 0.0f}, displaySize);
-    ImGui::SetNextWindowPos({displaySize.x * 0.5f, displaySize.y * 0.5f}, ImGuiCond_Always, {0.5f, 0.5f});
+    ImGui::SetNextWindowSize({workSize.x, workSize.y * 0.8f}, ImGuiCond_Appearing);
+    ImGui::SetNextWindowSizeConstraints({workSize.x, 0.0f}, workSize);
+    ImGui::SetNextWindowPos(viewport->GetWorkCenter(), ImGuiCond_Always, {0.5f, 0.5f});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {20.0f, 16.0f});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8.0f, 8.0f});
     if (!ImGui::BeginPopupModal("Debugger", open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))

@@ -13,6 +13,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <SDL3/SDL_video.h>
 
 #include <mdr-c/Headphones.h>
 #include <mdr/Protocol.hpp>
@@ -863,10 +864,10 @@ bool ImModalButton(const char* label, int lineIndex = 0, int lineTotal = 1)
 
 void ImSetNextWindowCentered()
 {
-    auto& style = ImGui::GetStyle();
-    float padding = style.FramePadding.x;
-    ImGui::SetNextWindowPos({0.0f, ImGui::GetContentRegionAvail().y / 2 + padding}, 0, {0.0f, 0.5f});
-    ImGui::SetNextWindowSize({ImGui::GetIO().DisplaySize.x, 0});
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->GetWorkCenter(), ImGuiCond_Always, {0.5f, 0.5f});
+    ImGui::SetNextWindowSize({viewport->WorkSize.x, 0});
+    ImGui::SetNextWindowSizeConstraints({viewport->WorkSize.x, 0}, viewport->WorkSize);
 }
 
 // Outer size of a bordered text badge: the text plus FramePadding / 2 on every side.
@@ -2464,12 +2465,12 @@ void DrawApp()
 {
     ImStylesRAII scope;
     scope.PushFont(IM_FONTSIZE_BODY);
-    auto& io = ImGui::GetIO();
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
 #ifdef MDR_CLIENT_DEBUGGER
     if (gDebuggerOnlyMode)
     {
-        ImGui::SetNextWindowPos({0, 0});
-        ImGui::SetNextWindowSize(io.DisplaySize);
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
         if (ImGui::Begin(TrLable(i18n::TextId::AppName), nullptr, kImWindowFlagsTopMost))
             ImGui::TextDisabled("%s", Tr(i18n::TextId::PacketReplayMode));
         ImGui::End();
@@ -2479,8 +2480,8 @@ void DrawApp()
         return;
     }
 #endif
-    ImGui::SetNextWindowPos({0, 0});
-    ImGui::SetNextWindowSize(io.DisplaySize);
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGuiWindowFlags flags = kImWindowFlagsTopMost;
     switch (connState)
     {
@@ -2584,7 +2585,7 @@ bool clientInit(float displayScale, const char* fontPath)
 }
 
 
-bool clientOnFrame()
+bool clientOnFrame(SDL_Window* window)
 {
     // Defines like IMGUI_DISABLE_OBSOLETE_FUNCTIONS changes ImGui struct sizes
     // and can lead to very, very bad results. Check them here too to ensure than this TU got the correct ones.
@@ -2657,6 +2658,13 @@ bool clientOnFrame()
     }
     gWantAnimate = false;
     ImGui::NewFrame();
+    SDL_Rect safeArea{};
+    if (SDL_GetWindowSafeArea(window, &safeArea))
+    {
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        viewport->WorkPos = viewport->Pos + ImVec2{static_cast<float>(safeArea.x), static_cast<float>(safeArea.y)};
+        viewport->WorkSize = {static_cast<float>(safeArea.w), static_cast<float>(safeArea.h)};
+    }
     DrawApp();
     ImGui::Render();
     return gWantAnimate || !gPlatformFontLoaded || ImGui::IsAnyItemActive() || io.WantTextInput;

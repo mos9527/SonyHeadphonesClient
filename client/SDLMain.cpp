@@ -179,7 +179,7 @@ void mainLoop()
             }
             ImGui_ImplSDLRenderer3_NewFrame();
             ImGui_ImplSDL3_NewFrame();
-            if (clientOnFrame())
+            if (clientOnFrame(gWindow))
                 gRedrawFrames = kRedrawFrames;
         }
     }
@@ -463,11 +463,7 @@ int main(int argc, char** argv)
         }
 #endif
         const float displayScale = clientPlatformGetDisplayScale();
-        SDL_WindowFlags windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-#if defined(SDL_PLATFORM_IOS)
-        // UIKit: borderless hides the status bar via SDL's view controller.
-        windowFlags |= SDL_WINDOW_BORDERLESS;
-#endif
+        const SDL_WindowFlags windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         if (!clientPlatformInitGraphics(nullptr))
         {
             MDR_LOG("Error: clientPlatformInitGraphics() before device creation: {}", SDL_GetError());

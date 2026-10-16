@@ -20,7 +20,7 @@ extern bool clientOnUpdate();
  * Main thread, and everything UI.
  * @return true if the UI wants to be redrawn.
  */
-extern bool clientOnFrame();
+extern bool clientOnFrame(SDL_Window* window);
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();
