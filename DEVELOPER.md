@@ -87,13 +87,14 @@ Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.c
 
 ### iOS (Xcode)
 
-Xcode (15.0+) and an Apple ID are required. Generate an Xcode project, select your team under *Signing & Capabilities*, then build and run the `SonyHeadphonesClient` scheme on a device.
+Xcode (15.0+) and an Apple ID are required. You can generate a Xcode Project from CMake:
 
 ```bash
 cmake -B build-ios -G Xcode -DCMAKE_SYSTEM_NAME=iOS \
       -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF \
       -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
       -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE="Automatic" # If you have a team ID, use `-DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=<TEAM_ID>` instead.
+# Open the generated project 
 open build-ios/SonyHeadphonesClient.xcodeproj
 ```
 
@@ -213,16 +214,16 @@ Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick 
 - *Removing* functions (note: adding new functions while adhering to the rest of the rules is allowed) in C-headers.
 - *Changing* function signatures (this includes changing the underlying structs) in C-headers.
   
-`libmdr-bt` provides stable ABI, and is **guaranteed** to not change between `libmdr` ABI versions. **Under no circumstances should `libmdr-bt` change between `libmdr` ABI versions.**
+`libmdr-bt` provides stable ABI, and is **guaranteed** to not change between `libmdr` ABI versions, with the sole exception for **adding** platform backends.
 
-- **NOTE:** `git blame` the `#define` line to see all ABI-breaking changes introduced to `libmdr`.
+- **NOTE:** `git blame` the `#define MDR_ABI_VERSION` line to see all ABI-breaking changes introduced to `libmdr`.
 
 ### C ABI Design (libmdr)
 
 Properties can be **read-only**, **read-write**, or **write-only**. 
 
 **Read-only** properties should provide **only** a getter function.
-- The function signature is as follows (`MDRHeadphones*, PropertyPointer(s)...):
+- The function signature is as follows (`MDRHeadphones*, PropertyPointer(s)...`):
   ```c++
   mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MDREqualizerPreset* presets, uint32_t* inout_count)
   ```
