@@ -1,8 +1,10 @@
 #include "../Platform.hpp"
 #include <SDL3/SDL.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <dispatch/dispatch.h>
+#include <algorithm>
 #include <cstring>
 #include <mutex>
 
@@ -20,6 +22,20 @@
 
 namespace
 {
+    constexpr Uint64 kEventWaitRecheckNS = SDL_MS_TO_NS(50);
+    CFRunLoopSourceRef gEventWakeupSource{};
+
+    void PerformEventWakeup(void*)
+    {
+    }
+
+    bool SDLCALL WakeEventWait(void* userdata, SDL_Event*)
+    {
+        CFRunLoopSourceSignal(static_cast<CFRunLoopSourceRef>(userdata));
+        CFRunLoopWakeUp(CFRunLoopGetMain());
+        return true;
+    }
+
     constexpr NSTimeInterval kRetentionSeconds = 7 * 24 * 60 * 60;
     std::mutex gShareMutex;
     SHCShareRequest* gShare;
@@ -200,6 +216,59 @@ namespace
             }
         });
     }
+}
+
+bool clientPlatformInitEventWait()
+{
+    if (gEventWakeupSource)
+        return true;
+    CFRunLoopSourceContext context{};
+    context.perform = PerformEventWakeup;
+    gEventWakeupSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
+    if (!gEventWakeupSource)
+        return SDL_SetError("Unable to create the iOS event wakeup source");
+    CFRunLoopAddSource(CFRunLoopGetMain(), gEventWakeupSource, kCFRunLoopCommonModes);
+    if (!SDL_AddEventWatch(WakeEventWait, gEventWakeupSource))
+    {
+        CFRunLoopSourceInvalidate(gEventWakeupSource);
+        CFRelease(gEventWakeupSource);
+        gEventWakeupSource = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool clientPlatformWaitEventTimeout(int timeoutMS)
+{
+    const Uint64 deadline = timeoutMS > 0 ? SDL_GetTicksNS() + SDL_MS_TO_NS(timeoutMS) : 0;
+    while (true)
+    {
+        @autoreleasepool
+        {
+            SDL_PumpEvents();
+            const int queued = SDL_PeepEvents(nullptr, 0, SDL_PEEKEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST);
+            if (queued != 0)
+                return queued > 0;
+            const Uint64 now = SDL_GetTicksNS();
+            if (timeoutMS == 0 || (timeoutMS > 0 && now >= deadline))
+                return false;
+            const Uint64 waitNS = timeoutMS < 0 ? kEventWaitRecheckNS : std::min(kEventWaitRecheckNS, deadline - now);
+            const SInt32 result = CFRunLoopRunInMode(kCFRunLoopDefaultMode,
+                static_cast<double>(waitNS) / SDL_NS_PER_SECOND, true);
+            if (result == kCFRunLoopRunFinished || result == kCFRunLoopRunStopped)
+                return SDL_SetError("The iOS event run loop stopped");
+        }
+    }
+}
+
+void clientPlatformDestroyEventWait()
+{
+    if (!gEventWakeupSource)
+        return;
+    SDL_RemoveEventWatch(WakeEventWait, gEventWakeupSource);
+    CFRunLoopSourceInvalidate(gEventWakeupSource);
+    CFRelease(gEventWakeupSource);
+    gEventWakeupSource = nullptr;
 }
 
 int clientPlatformSaveBlob(

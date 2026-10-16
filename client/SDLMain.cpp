@@ -39,6 +39,26 @@ bool gShouldClose{false};
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 
+// Borked SDL_WaitEventTimeout on these platform as of 3.2.26
+// These platforms aren't blocking with SDL_WaitEventTimeout and absolutely burns CPU
+// cycles for fun.
+// Override their impl with our own.
+#if !defined(MDR_PLATFORM_IOS) && !defined(MDR_PLATFORM_OHOS)
+bool clientPlatformInitEventWait()
+{
+    return true;
+}
+
+bool clientPlatformWaitEventTimeout(int timeoutMS)
+{
+    return SDL_WaitEventTimeout(nullptr, timeoutMS);
+}
+
+void clientPlatformDestroyEventWait()
+{
+}
+#endif
+
 namespace
 {
     bool gClientInitialized{};
@@ -105,7 +125,7 @@ namespace
 void mainLoop()
 {
 #ifndef __EMSCRIPTEN__
-    if ((!gRedrawFrames || !ShouldAppPresent()) && !SDL_WaitEventTimeout(nullptr, kIdleRedrawTimeoutMS))
+    if ((!gRedrawFrames || !ShouldAppPresent()) && !clientPlatformWaitEventTimeout(kIdleRedrawTimeoutMS))
         gRedrawFrames = std::max(gRedrawFrames, 1);
 #endif
     SDL_PumpEvents();
@@ -375,6 +395,7 @@ int main(int argc, char** argv)
         SDL_WaitThread(gClientThread, nullptr);
         gClientThread = nullptr;
 #endif
+        clientPlatformDestroyEventWait();
         gWindowID = 0;
         if (gRendererBackendInitialized)
             ImGui_ImplSDLRenderer3_Shutdown();
@@ -426,6 +447,11 @@ int main(int argc, char** argv)
         if (!SDL_Init(SDL_INIT_VIDEO))
         {
             MDR_LOG("SDL_Init Error: {}", SDL_GetError());
+            break;
+        }
+        if (!clientPlatformInitEventWait())
+        {
+            MDR_LOG("Unable to initialize platform event wait: {}", SDL_GetError());
             break;
         }
         if (!options.localeSpecified)

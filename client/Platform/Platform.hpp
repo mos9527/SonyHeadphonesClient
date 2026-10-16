@@ -10,24 +10,18 @@ struct SDL_Window;
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
-// Runs on the worker thread on native platforms, or the main thread on Emscripten.
-// - Polls non-blocking device I/O and updates device-reported state.
-// - Schedules commits of staged property edits and synchronization requests.
-// - Advances discovery/connection attempts and handles semantic events and errors.
-// SDLMain serializes this with frame preparation and clientOnFrame() using a client-state mutex.
-// Returns true if client state visible to the UI has changed.
+// The worker thread run this. This will be the sole callsite for @ref mdrHeadphonesPoll()
+// Returns true if the @ref MDRHeadphones state has changed.
 extern bool clientOnUpdate();
-// Always runs on the main thread; builds the UI and ImGui draw data, loads fonts, and draws the debugger.
-// SDL backend NewFrame calls, rendering, and presentation are handled separately by SDLMain.
-// - Normal property setters only stage local edits for clientOnUpdate() to commit.
-// - Debugger sends start a raw-command task and queue TX bytes, invoking packet observers synchronously;
-//   actual transport send/receive and task completion are driven by subsequent polling.
-// - UI connection/discovery actions can call the platform connection backend directly.
+// Main thread, and everything UI.
 // @returns: true if the UI wants to be redrawn.
 extern bool clientOnFrame();
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();
+extern bool clientPlatformInitEventWait();
+extern bool clientPlatformWaitEventTimeout(int timeoutMS);
+extern void clientPlatformDestroyEventWait();
 #ifdef MDR_CLIENT_DEBUGGER
 extern void clientEnterDebuggerReplayMode();
 #endif

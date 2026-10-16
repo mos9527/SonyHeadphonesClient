@@ -29,6 +29,21 @@
 
 namespace
 {
+    constexpr Uint64 kEventWaitRecheckNS = SDL_MS_TO_NS(50);
+    struct EventWaitState
+    {
+        SDL_Semaphore* semaphore{};
+        std::atomic<bool> waiting{};
+    } gEventWait;
+
+    bool SDLCALL WakeEventWait(void* userdata, SDL_Event*)
+    {
+        auto* state = static_cast<EventWaitState*>(userdata);
+        if (state->waiting.load(std::memory_order_relaxed))
+            SDL_SignalSemaphore(state->semaphore);
+        return true;
+    }
+
     ohos::ClientConnection gTransport;
     bool gConnectionInitialized{};
     std::atomic<float> gDisplayScale{1.0f};
@@ -406,6 +421,55 @@ namespace
 extern "C" __attribute__((constructor)) void RegisterSHCInterfaces()
 {
     napi_module_register(&gModule);
+}
+
+bool clientPlatformInitEventWait()
+{
+    if (gEventWait.semaphore)
+        return true;
+    gEventWait.semaphore = SDL_CreateSemaphore(0);
+    if (!gEventWait.semaphore)
+        return false;
+    if (!SDL_AddEventWatch(WakeEventWait, &gEventWait))
+    {
+        SDL_DestroySemaphore(gEventWait.semaphore);
+        gEventWait.semaphore = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool clientPlatformWaitEventTimeout(int timeoutMS)
+{
+    const Uint64 deadline = timeoutMS > 0 ? SDL_GetTicksNS() + SDL_MS_TO_NS(timeoutMS) : 0;
+    bool hasEvent = false;
+    gEventWait.waiting.store(true, std::memory_order_relaxed);
+    while (true)
+    {
+        SDL_PumpEvents();
+        const int queued = SDL_PeepEvents(nullptr, 0, SDL_PEEKEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST);
+        if (queued != 0)
+        {
+            hasEvent = queued > 0;
+            break;
+        }
+        const Uint64 now = SDL_GetTicksNS();
+        if (timeoutMS == 0 || (timeoutMS > 0 && now >= deadline))
+            break;
+        const Uint64 waitNS = timeoutMS < 0 ? kEventWaitRecheckNS : std::min(kEventWaitRecheckNS, deadline - now);
+        SDL_WaitSemaphoreTimeoutNS(gEventWait.semaphore, static_cast<Sint64>(waitNS));
+    }
+    gEventWait.waiting.store(false, std::memory_order_relaxed);
+    return hasEvent;
+}
+
+void clientPlatformDestroyEventWait()
+{
+    if (!gEventWait.semaphore)
+        return;
+    SDL_RemoveEventWatch(WakeEventWait, &gEventWait);
+    SDL_DestroySemaphore(gEventWait.semaphore);
+    gEventWait.semaphore = nullptr;
 }
 
 float clientPlatformGetDisplayScale()
