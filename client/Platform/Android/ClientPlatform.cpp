@@ -1,6 +1,7 @@
 #include "ClientConnection.hpp"
 #include "Platform/Platform.hpp"
 #include <SDL3/SDL.h>
+#include <mdr/Protocol.hpp>
 #include <jni.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -469,7 +470,7 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
                             !stbtt_InitFont(&font, bytes, offset) || !FontSupportsLocale(font, locale))
                             continue;
                         mapping = {data, size, face, true};
-                        SDL_Log("Selected Android font %s, face %d", path.c_str(), face);
+                        MDR_LOG("Selected Android font {}, face {}", path.c_str(), face);
                         break;
                     }
                 }
@@ -479,7 +480,7 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
             clientPlatformMemoryUnmapFile(data, size);
         }
         if (!mapping.data)
-            SDL_Log("No Android system font covers locale %d", static_cast<int>(locale));
+            MDR_LOG("No Android system font covers locale {}", static_cast<int>(locale));
     }
     *outData = static_cast<const char*>(mapping.data);
     *outFaceIndex = mapping.face;

@@ -15,11 +15,10 @@
 
 #include <fmt/format.h>
 
-#define MDR_LOG_STREAM stderr
 #if defined(MDR_ENABLE_LOG) && MDR_ENABLE_LOG
 #define MDR_LOG(str, ...)                                                                                              \
     {                                                                                                                  \
-        fprintf(MDR_LOG_STREAM, "%s\n", mdr::Format((str)__VA_OPT__(, ) __VA_ARGS__).c_str());                         \
+        fprintf(stderr, "%s\n", mdr::Format((str)__VA_OPT__(, ) __VA_ARGS__).c_str());                         \
     }
 #else
 #define MDR_LOG(str, ...) {}

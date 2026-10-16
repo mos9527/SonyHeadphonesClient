@@ -92,7 +92,7 @@ namespace
         const int result = SDL_PeepEvents(&event, 1, SDL_GETEVENT, minType, maxType);
         if (result < 0)
         {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_PeepEvents(): %s", SDL_GetError());
+            MDR_LOG("SDL_PeepEvents(): {}", SDL_GetError());
             gShouldClose = true;
         }
         return result > 0;
@@ -183,10 +183,10 @@ void mainLoop()
                 if (clientDebuggerReplayPath(path.c_str(), &replayed))
                 {
                     clientEnterDebuggerReplayMode();
-                    SDL_Log("Replayed %zu packet(s) from %s", replayed, path.c_str());
+                    MDR_LOG("Replayed {} packet(s) from {}", replayed, path.c_str());
                 }
                 else
-                    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to replay %s: %s", path.c_str(), SDL_GetError());
+                    MDR_LOG("Unable to replay {}: {}", path.c_str(), SDL_GetError());
                 continue;
             }
 #endif
@@ -499,7 +499,7 @@ int main(int argc, char** argv)
                                    CLIENT_WINDOW_HEIGHT * displayScale, windowFlags);
         if (!gWindow)
         {
-            SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+            MDR_LOG("Error: SDL_CreateWindow(): {}", SDL_GetError());
             break;
         }
 #ifdef MDR_CLIENT_DEBUGGER
@@ -509,13 +509,13 @@ int main(int argc, char** argv)
         gRenderer = SDL_CreateRenderer(gWindow, nullptr);
         if (!gRenderer)
         {
-            SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
+            MDR_LOG("Error: SDL_CreateRenderer(): {}", SDL_GetError());
             break;
         }
-        SDL_Log("Using SDL_Renderer: %s", SDL_GetRendererName(gRenderer));
+        MDR_LOG("Using SDL_Renderer: {}", SDL_GetRendererName(gRenderer));
         if (!clientPlatformInitGraphics(gRenderer))
         {
-            SDL_Log("Error: clientPlatformInitGraphics(): %s", SDL_GetError());
+            MDR_LOG("Error: clientPlatformInitGraphics(): {}", SDL_GetError());
             break;
         }
         SDL_SetRenderVSync(gRenderer, 1);
@@ -526,13 +526,13 @@ int main(int argc, char** argv)
         gPlatformBackendInitialized = ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
         if (!gPlatformBackendInitialized)
         {
-            SDL_Log("Error: ImGui_ImplSDL3_InitForSDLRenderer()");
+            MDR_LOG("Error: ImGui_ImplSDL3_InitForSDLRenderer()");
             break;
         }
         gRendererBackendInitialized = ImGui_ImplSDLRenderer3_Init(gRenderer);
         if (!gRendererBackendInitialized)
         {
-            SDL_Log("Error: ImGui_ImplSDLRenderer3_Init()");
+            MDR_LOG("Error: ImGui_ImplSDLRenderer3_Init()");
             break;
         }
 #ifndef __EMSCRIPTEN__
@@ -540,12 +540,9 @@ int main(int argc, char** argv)
         gClientThread = SDL_CreateThread(RunOnWorkerThread, "client", nullptr);
         if (!gClientThread)
         {
-            SDL_Log("Error: SDL_CreateThread(): %s", SDL_GetError());
+            MDR_LOG("Error: SDL_CreateThread(): {}", SDL_GetError());
             break;
-        }
-        SDL_Log("Client worker delay: %d ms", kClientPollIntervalMS);
-#else
-        SDL_Log("Client updates and frames share the main thread (Web)");
+        }        
 #endif
         result = 0;
 #ifdef __EMSCRIPTEN__

@@ -9,7 +9,6 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_time.h>
 #include <imgui.h>
 #include <mdr/Command.hpp>

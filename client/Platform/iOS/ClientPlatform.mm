@@ -1,5 +1,6 @@
 #include "../Platform.hpp"
 #include <SDL3/SDL.h>
+#include <mdr/Protocol.hpp>
 #import <CoreFoundation/CoreFoundation.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -83,7 +84,7 @@ namespace
     {
         NSError* error = nil;
         if (directory && ![[NSFileManager defaultManager] removeItemAtURL:directory error:&error])
-            SDL_Log("Unable to remove iOS export cache: %s", ErrorText(error).UTF8String);
+            MDR_LOG("Unable to remove iOS export cache: {}", ErrorText(error).UTF8String);
     }
 
     void DiscardDirectory(NSURL* directory)

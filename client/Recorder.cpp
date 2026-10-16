@@ -2,7 +2,6 @@
 
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_time.h>
 #include <mdr/Command.hpp>
 #include <mdr/ProtocolV2T1.hpp>
@@ -95,9 +94,8 @@ namespace
         SDL_Time now{};
         if (!SDL_GetCurrentTime(&now))
         {
-            SDL_LogError(
-                SDL_LOG_CATEGORY_APPLICATION,
-                "Unable to timestamp payload capture: %s",
+            MDR_LOG(
+                "Unable to timestamp payload capture: {}",
                 SDL_GetError()
             );
             return;
@@ -128,9 +126,8 @@ namespace
         SDL_IOStream* output = SDL_IOFromFile(path.c_str(), "wb");
         if (!output)
         {
-            SDL_LogError(
-                SDL_LOG_CATEGORY_APPLICATION,
-                "Unable to open payload capture %s: %s",
+            MDR_LOG(
+                "Unable to open payload capture {}: {}",
                 path.c_str(),
                 SDL_GetError()
             );
@@ -142,9 +139,8 @@ namespace
         const bool closed = SDL_CloseIO(output);
         if (written != static_cast<size_t>(frameSize) || !closed)
         {
-            SDL_LogError(
-                SDL_LOG_CATEGORY_APPLICATION,
-                "Unable to write payload capture %s: %s",
+            MDR_LOG(
+                "Unable to write payload capture {}: {}",
                 path.c_str(),
                 SDL_GetError()
             );

@@ -17,7 +17,6 @@
 #include <vector>
 #include <mdr/Protocol.hpp>
 #include <SDL3/SDL_filesystem.h>
-#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -48,7 +47,7 @@ bool clientPlatformInitGraphics(SDL_Renderer* renderer)
         if (layer)
         {
             layer.maximumDrawableCount = 2;
-            SDL_Log("Metal drawable count: %ld", static_cast<long>(layer.maximumDrawableCount));
+            MDR_LOG("Metal drawable count: {}", static_cast<long>(layer.maximumDrawableCount));
         }
     }
     return true;
