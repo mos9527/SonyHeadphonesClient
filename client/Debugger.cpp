@@ -1010,7 +1010,26 @@ namespace
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
         const float rightButtons = ButtonWidth(dumpLabel.c_str()) + buttonSpacing + ButtonWidth(clearLabel.c_str()) +
             (open ? buttonSpacing + ButtonWidth(closeLabel.c_str()) : 0.0f);
-        NextToolbarItem(std::min(rightButtons, ImGui::GetContentRegionAvail().x), true);
+        const float statusAvailable = ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionAvail().x -
+            ImGui::GetItemRectMax().x - rightButtons - buttonSpacing * 2.0f;
+        const float statusWidth = gExportStatus.empty() ? 0.0f :
+            std::min(ImGui::CalcTextSize(gExportStatus.c_str()).x, std::max(0.0f, statusAvailable));
+        const float toolbarWidth = rightButtons + (statusWidth > 0.0f ? statusWidth + buttonSpacing : 0.0f);
+        NextToolbarItem(std::min(toolbarWidth, ImGui::GetContentRegionAvail().x), true);
+        if (statusWidth > 0.0f)
+        {
+            const ImVec2 position = ImGui::GetCursorScreenPos();
+            const float frameHeight = ImGui::GetFrameHeight();
+            const ImVec4 clipRect(position.x, position.y, position.x + statusWidth, position.y + frameHeight);
+            ImGui::GetWindowDrawList()->AddText(
+                ImGui::GetFont(), ImGui::GetFontSize(),
+                {position.x, position.y + ImGui::GetStyle().FramePadding.y},
+                ImGui::GetColorU32(ImGuiCol_TextDisabled), gExportStatus.c_str(), nullptr, 0.0f, &clipRect);
+            ImGui::Dummy({statusWidth, frameHeight});
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", gExportStatus.c_str());
+            ImGui::SameLine();
+        }
         ImGui::BeginDisabled(gHistory.empty() || clientDebuggerExportInProgress());
         if (ImGui::Button(dumpLabel.c_str()))
             clientDebuggerExportPacketCollection();
@@ -1029,9 +1048,6 @@ namespace
             }
             ImGui::PopStyleColor();
         }
-
-        if (!gExportStatus.empty())
-            ImGui::TextWrapped("%s", gExportStatus.c_str());
     }
 } // namespace
 
