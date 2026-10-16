@@ -198,7 +198,7 @@ jobs:
         run: |
           cmake -S . -B build-ios-preseed -G "Unix Makefiles" $IOS_CMAKE_ARGS \
             || echo "::warning::Preseed configure failed, Xcode configure will run all checks"
-          python3 tooling/cmake_preseed.py build-ios-preseed/CMakeCache.txt build-ios-preseed.cmake
+          python3 tooling/cmake-preseed.py build-ios-preseed/CMakeCache.txt build-ios-preseed.cmake
 
       - name: Configure CMake
         run: cmake -C build-ios-preseed.cmake -S . -B build-ios -G Xcode $IOS_CMAKE_ARGS

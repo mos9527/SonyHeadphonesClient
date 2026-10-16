@@ -38,9 +38,9 @@ a capture can be contributed as a test fixture. See
 
 ## Client icon
 
-`MakeClientIcon.py` regenerates every platform's icon from
+`make-icon.py` regenerates every platform's icon from
 [`client/Platform/AppIcon.png`](../client/Platform/AppIcon.png). Replace that
-file, then run `python tooling/MakeClientIcon.py` (requires `pip install pillow`)
+file, then run `python tooling/make-icon.py` (requires `pip install pillow`)
 and commit the outputs.
 
 ## Credits
