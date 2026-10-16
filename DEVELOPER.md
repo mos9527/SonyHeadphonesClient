@@ -174,7 +174,21 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | Protocol library without Bluetooth backends | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=OFF`, `MDR_BUILD_TESTING=OFF` |
 | Codegen targets only | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=ON`, `MDR_BUILD_TESTING=OFF`; build target `mdr_codegen` |
 
-## Debugging (libmdr, libmdr-bt, client)
+## Debugging (client)
+
+### Logs
+
+See also [Logging - Coding Style](#logging-libmdr-libmdr-bt-client) (note this is by-default `OFF`!). Logs writes to `stderr`, and on some platforms, they are redirected to respective log systems.
+
+Logs are written to `stderr`, and you should see them from the terminal you launched the app from from some platforms, with special cases of:
+
+| Platform | Log System |
+| --- | --- |
+| Windows| You need `-con` to view the logs with a newly allocated console. |
+| Android | Log output is redirected to logcat, with tag `MDR`. |
+| iOS | Log output is visible in Xcode console. |
+| Web | Logs are automatically redirected to `console.log` by Emscripten. |
+| OpenHarmony | **TODO**. Logs are not currently supported! |
 
 ### The Protocol Debugger
 
@@ -183,7 +197,6 @@ With the CMake option `MDR_CLIENT_DEBUGGER`, the **Protocol Debugger** option be
 The Protocol Debugger allows you to *view, replay, modify and send* manipulated packets to a real device, and is enabled by default in nightly CI builds.
 
 See the [Packet Capture and Test Contribution Guide](./tests/) for usage, bug reporting, and what to do when the device disconnects unexpectedly.
-
 
 ## Coding Style
 
@@ -264,6 +277,24 @@ mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower*
 
 `libmdr` is a by essence state machine that **only** advances when manually polled, through `mdrHeadphonesPoll`, which depends on the `MDRConnection`, therefore impling non-blocking (polling) IO.
 
+
+### Logging (libmdr, libmdr-bt, client)
+
+Logging can be enabled via the CMake option `MDR_ENABLE_LOG` and is by default `OFF` in non-Debug builds. 
+
+`libmdr`, `libmdr-bt`, and `client` all use the `MDR_LOG` macro for logging, which is a wrapper around `mdr::Format` that prints to `stderr` with `fmt::format`. 
+
+Example:
+
+```cpp
+MDR_LOG("Device disconnected")
+MDR_LOG("BluetoothFindFirstDevice FAILED on radio #{} error={}", radioIndex, err)
+```
+
+For the log strings themselves:
+- **DO NOT** include tags (e.g. `MDR_LOG("[BT] Device disconnected")`), or `MDR_SOURCE_LOCATION` in your log string. The strings themselves *should* be self-explanatory and trivally searchable to cross-reference with source.
+- For strings that's only meant for a debug build, use `MDR_LOG_DEBUG`, which is automatically stripped in non-Debug builds even if `MDR_ENABLE_LOG` is `ON`.
+- There's no log levels, and platform backends that outputs them with one should opt for `INFO` level (e.g. logcat).
 
 ### Payload Struct Implementation Details (libmdr)
 

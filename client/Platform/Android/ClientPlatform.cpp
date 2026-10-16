@@ -3,8 +3,10 @@
 #include <SDL3/SDL.h>
 #include <mdr/Protocol.hpp>
 #include <jni.h>
+#include <android/log.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -12,8 +14,10 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cerrno>
 #include <climits>
 #include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <mutex>
@@ -30,6 +34,71 @@
 
 namespace
 {
+    constexpr char kStderrLogTag[] = "MDR";
+
+    int InitStderrLog()
+    {
+        static bool started{};
+        if (started)
+            return 0;
+        int descriptors[2];
+        if (pipe2(descriptors, O_CLOEXEC) != 0)
+            return errno;
+        FILE* input = fdopen(descriptors[0], "r");
+        if (!input)
+        {
+            const int error = errno;
+            close(descriptors[0]);
+            close(descriptors[1]);
+            return error;
+        }
+        pthread_t thread;
+        const int error = pthread_create(&thread, nullptr, [](void* userdata) -> void* {
+            FILE* input = static_cast<FILE*>(userdata);
+            char message[3073];
+            for (;;)
+            {
+                if (!std::fgets(message, sizeof(message), input))
+                {
+                    if (std::ferror(input) && errno == EINTR)
+                    {
+                        std::clearerr(input);
+                        continue;
+                    }
+                    break;
+                }
+                size_t size = std::strlen(message);
+                while (size && (message[size - 1] == '\n' || message[size - 1] == '\r'))
+                    message[--size] = '\0';
+                if (size)
+                    __android_log_write(ANDROID_LOG_INFO, kStderrLogTag, message);
+            }
+            std::fclose(input);
+            return nullptr;
+        }, input);
+        if (error != 0)
+        {
+            std::fclose(input);
+            close(descriptors[1]);
+            return error;
+        }
+        std::fflush(stderr);
+        int result;
+        do
+            result = dup2(descriptors[1], STDERR_FILENO);
+        while (result < 0 && errno == EINTR);
+        const int redirectError = result < 0 ? errno : 0;
+        close(descriptors[1]);
+        if (redirectError)
+        {
+            pthread_join(thread, nullptr);
+            return redirectError;
+        }
+        pthread_detach(thread);
+        started = true;
+        return 0;
+    }
+
     constexpr char kClientClass[] = "com/mos9527/SonyHeadphonesClient/NativeClient";
     android::ClientConnection gTransport;
     bool gConnectionInitialized{};
@@ -347,6 +416,9 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
         gSnapshotClass = nullptr;
         return JNI_ERR;
     }
+    if (const int error = InitStderrLog(); error != 0)
+        __android_log_print(ANDROID_LOG_ERROR, kStderrLogTag,
+                            "Could not redirect stderr to Logcat: %s", std::strerror(error));
     return JNI_VERSION_1_6;
 }
 

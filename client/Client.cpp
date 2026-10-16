@@ -2415,13 +2415,13 @@ void DrawDeviceDisconnect()
 #ifdef MDR_CLIENT_DEBUGGER
         clientDebuggerClearExportStatus();
 #endif
-        MDR_LOG("[Client] Device disconnected")
+        MDR_LOG("Device disconnected")
         if (!connectionAttempt.lastError.empty())
-            MDR_LOG("[Client] Connection: {}", connectionAttempt.lastError)
+            MDR_LOG("Connection: {}", connectionAttempt.lastError)
         else if (conn)
-            MDR_LOG("[Client] Connection: {}", mdrConnectionGetLastError(conn))
+            MDR_LOG("Connection: {}", mdrConnectionGetLastError(conn))
         if (!gHeadphonesError.empty())
-            MDR_LOG("[Client] Headphones: {}", gHeadphonesError)
+            MDR_LOG("Headphones: {}", gHeadphonesError)
         ImGui::OpenPopup("Disconnected"), popup = true;
     }
     ImSetNextWindowCentered();

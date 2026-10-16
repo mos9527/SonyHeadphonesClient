@@ -220,31 +220,15 @@ void mainLoop()
 namespace
 {
 #ifdef _WIN32
-    void OpenConsole(bool allocateIfUnavailable)
+    void OpenConsole()
     {
-        const HANDLE standardError = GetStdHandle(STD_ERROR_HANDLE);
-        if (standardError && standardError != INVALID_HANDLE_VALUE)
-            return;
-
-        bool attached = AttachConsole(ATTACH_PARENT_PROCESS) != FALSE;
-        const DWORD attachError = attached ? ERROR_SUCCESS : GetLastError();
-        if (!attached && attachError == ERROR_ACCESS_DENIED)
-            attached = true;
-
-        bool allocated = false;
-        if (!attached && allocateIfUnavailable)
-        {
-            allocated = AllocConsole() != FALSE;
-            attached = allocated;
-        }
-        if (!attached)
+        if (!AllocConsole())
             return;
 
         std::freopen("CONOUT$", "w", stdout);
         std::freopen("CONOUT$", "w", stderr);
         std::freopen("CONIN$", "r", stdin);
-        if (allocated)
-            SetConsoleOutputCP(CP_UTF8);
+        SetConsoleOutputCP(CP_UTF8);
     }
 #endif
 
@@ -285,25 +269,32 @@ namespace
         bool localeSpecified{};
     };
 
-    void PrintUsage()
+    void ShowUsage()
     {
-        std::fprintf(stderr, "Usage: SonyHeadphonesClient\n");
-        std::fprintf(stderr, "    [--record <capture-folder>] Records device packets automatically to folder\n");
-        std::fprintf(stderr, "    [--locale %s] Override application locale selected from the system\n",
-                     i18n::kLocaleOptionString);
-        std::fprintf(stderr, "    [--font <font-file>] Load an external font without changing application locale\n");
+        mdr::String usage = "Usage: SonyHeadphonesClient\n"
+                            "    [-h | --help] Shows this help\n"
+                            "    [--record <capture-folder>] Records device packets automatically to folder\n"
+                            "    [--locale ";
+        usage += i18n::kLocaleOptionString;
+        usage += "] Override application locale selected from the system\n"
+                 "    [--font <font-file>] Load an external font without changing application locale\n";
 #ifdef MDR_CLIENT_DEBUGGER
-        std::fprintf(stderr, "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n");
+        usage += "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n";
 #endif
         // Windows specific
 #ifdef _WIN32
-        std::fprintf(stderr, "    [--con] Opens console for diagnostic logs\n");
+        usage += "    [-con | --con] Opens a separate console for diagnostic logs\n";
 #endif
         // Linux specific (DBus)
 #ifdef __linux__
-        std::fprintf(stderr,
-                     "    [--pause-media-on-remove] Auto-pause system media playback when device "
-                     "is removed when unsupported by OS otherwise.\n");
+        usage += "    [--pause-media-on-remove] Auto-pause system media playback when device "
+                 "is removed when unsupported by OS otherwise.\n";
+#endif
+#ifdef _WIN32
+        if (!SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SonyHeadphonesClient - Help", usage.c_str(), gWindow))
+            MDR_LOG("Unable to show help dialog: {}", SDL_GetError());
+#else
+        std::fputs(usage.c_str(), stderr);
 #endif
     }
 
@@ -320,7 +311,7 @@ namespace
             if (std::strcmp(argument, "--con") == 0 || std::strcmp(argument, "-con") == 0)
             {
 #ifdef _WIN32
-                OpenConsole(true);
+                OpenConsole();
 #endif
                 continue;
             }
@@ -417,13 +408,10 @@ int main(int argc, char** argv)
     int result = 1;
     do
     {
-#ifdef _WIN32
-        OpenConsole(false);
-#endif
         Options options;
         if (!ParseOptions(argc, argv, options))
         {
-            PrintUsage();
+            ShowUsage();
             result = 2;
             break;
         }
@@ -431,7 +419,7 @@ int main(int argc, char** argv)
         clientSetPauseMediaOnRemove(options.pauseMediaOnRemove);
         if (options.showHelp)
         {
-            PrintUsage();
+            ShowUsage();
             result = 0;
             break;
         }

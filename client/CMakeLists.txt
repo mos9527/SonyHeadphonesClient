@@ -36,11 +36,7 @@ if (NOT MDR_BUILD_CLIENT)
 endif ()
 
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
-    add_executable(SonyHeadphonesClient)
-    # Console for Debug / MDR_DEBUG; WIN32 (GUI) otherwise — works with multi-config generators
-    set_target_properties(SonyHeadphonesClient PROPERTIES
-        WIN32_EXECUTABLE $<AND:$<NOT:$<BOOL:${MDR_DEBUG}>>,$<NOT:$<CONFIG:Debug>>>
-    )
+    add_executable(SonyHeadphonesClient WIN32)
     target_sources(SonyHeadphonesClient PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.manifest"
         "${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows/app.rc"
