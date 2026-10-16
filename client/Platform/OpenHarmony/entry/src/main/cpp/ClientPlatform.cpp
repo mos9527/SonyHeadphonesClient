@@ -459,7 +459,8 @@ bool clientPlatformWaitEventTimeout(int timeoutMS)
         if (timeoutMS == 0 || (timeoutMS > 0 && now >= deadline))
             break;
         const Uint64 waitNS = timeoutMS < 0 ? kEventWaitRecheckNS : std::min(kEventWaitRecheckNS, deadline - now);
-        SDL_WaitSemaphoreTimeoutNS(gEventWait.semaphore, static_cast<Sint64>(waitNS));
+        const Sint32 waitMS = static_cast<Sint32>(SDL_NS_TO_MS(waitNS + SDL_NS_PER_MS - 1));
+        SDL_WaitSemaphoreTimeout(gEventWait.semaphore, waitMS);
     }
     gEventWait.waiting.store(false, std::memory_order_relaxed);
     return hasEvent;

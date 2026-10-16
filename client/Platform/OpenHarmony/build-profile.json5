@@ -31,11 +31,11 @@
         "material": {
           "certpath": "C:\\Users\\komahuang\\.ohos\\config\\default_OpenHarmony__hvNe72Ua_d8cc2H0OG1bR8bvcow1QmiCj-CrwoDfy4=.cer",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B80AF74B9B65176DFA46050C63CA7F69D01795D0350237EE4D72224C2EC9E42D8B6242DBFD4AF7F",
+          "keyPassword": "0000001BE45FA191CC18AA176F4AFE4A05A7038DA7DDA5E0EBA5AE03AF2CD8B6F73678503451338E0393DB",
           "profile": "C:\\Users\\komahuang\\.ohos\\config\\default_OpenHarmony__hvNe72Ua_d8cc2H0OG1bR8bvcow1QmiCj-CrwoDfy4=.p7b",
           "signAlg": "SHA256withECDSA",
           "storeFile": "C:\\Users\\komahuang\\.ohos\\config\\default_OpenHarmony__hvNe72Ua_d8cc2H0OG1bR8bvcow1QmiCj-CrwoDfy4=.p12",
-          "storePassword": "0000001B410A2A3585DE41B719BC63D940DE674980CC10094725C912C74C7286BA1341F1C3193CFEB39557"
+          "storePassword": "0000001B63BCAE9D0E07ADAA52AD08A22C6A813484F6E3E170BF7D43005EF6318CE05015530EFBB874D98B"
         }
       }
     ]
