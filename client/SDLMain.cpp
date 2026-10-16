@@ -34,6 +34,25 @@
 #include "Debugger.hpp"
 #endif
 
+const char* clientPlatformGetProcessorArchitecture()
+{
+#if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
+    return "arm64";
+#elif defined(__arm__) || defined(_M_ARM)
+    return "arm";
+#elif defined(__x86_64__) || defined(_M_X64)
+    return "x86_64";
+#elif defined(__i386__) || defined(_M_IX86)
+    return "x86";
+#elif defined(__wasm64__)
+    return "wasm64";
+#elif defined(__wasm32__) || defined(__EMSCRIPTEN__)
+    return "wasm32";
+#else
+    return "unknown";
+#endif
+}
+
 bool gShouldClose{false};
 
 SDL_Window* gWindow = nullptr;

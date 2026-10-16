@@ -277,7 +277,7 @@ constinit const StringTable kTraditionalChinese = []
     _Def(DebuggerHistoryEmpty, "耳機傳送的命令將顯示在這裡。")
     _Def(DebuggerFilterEmpty, "沒有符合目前篩選條件的封包。")
     _Def(DebuggerEditorEmpty, "選擇上方的命令，或在下方建立新封包。")
-    _Def(DebuggerEncodedPayload, "編碼後的負載")
+    _Def(DebuggerEncodedPayload, "編碼後的資料")
     _Def(DebuggerPackedFrame, "封裝後的訊框")
     _Def(DebuggerUnpackFailed, "無法解開擷取的訊框。")
     _Def(DebuggerValidationValid, "驗證：有效")

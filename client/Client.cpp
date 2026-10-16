@@ -13,6 +13,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <SDL3/SDL_platform.h>
 #include <SDL3/SDL_video.h>
 
 #include <mdr-c/Headphones.h>
@@ -1125,7 +1126,8 @@ void DrawDeviceDiscovery()
         int& nDeviceInfo = gDiscoveryDeviceCount;
         ImTextCenteredFit(Tr(i18n::TextId::AppName), ImGui::GetContentRegionAvail().x * 0.05f);
         ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::VersionInfo)), CLIENT_VERSION,
-                                   MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, MDR_PLATFORM_OS, MDR_PLATFORM_PROCESSOR, clientGetAppLocale())
+                                   MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, SDL_GetPlatform(),
+                                   clientPlatformGetProcessorArchitecture(), clientGetAppLocale())
                            .c_str(), IM_FONTSIZE_CAPTION);
         bool& usingBLE = gUsingBLE;
         bool& needSwitchClientPlatform = gBackendSwitchPending;

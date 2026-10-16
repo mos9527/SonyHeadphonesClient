@@ -24,6 +24,7 @@ extern bool clientOnFrame(SDL_Window* window);
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();
+extern const char* clientPlatformGetProcessorArchitecture();
 /**
  * Platform specific SDL_Renderer setup
  * - Called (renderer=nullptr) before graphics init

@@ -277,7 +277,7 @@ constinit const StringTable kSimplifiedChinese = []
     _Def(DebuggerHistoryEmpty, "耳机发送的命令将显示在这里。")
     _Def(DebuggerFilterEmpty, "没有符合当前筛选条件的数据包。")
     _Def(DebuggerEditorEmpty, "选择上方的命令，或在下方创建新数据包。")
-    _Def(DebuggerEncodedPayload, "编码后的载荷")
+    _Def(DebuggerEncodedPayload, "编码后的数据")
     _Def(DebuggerPackedFrame, "封装后的帧")
     _Def(DebuggerUnpackFailed, "无法解包捕获的帧。")
     _Def(DebuggerValidationValid, "校验：有效")

@@ -277,7 +277,7 @@ constinit const StringTable kJapanese = []
     _Def(DebuggerHistoryEmpty, "ヘッドホンからのコマンドがここに表示されます。")
     _Def(DebuggerFilterEmpty, "現在のフィルターに一致するパケットはありません。")
     _Def(DebuggerEditorEmpty, "上のコマンドを選択するか、下で新しいパケットを作成してください。")
-    _Def(DebuggerEncodedPayload, "エンコード済みペイロード")
+    _Def(DebuggerEncodedPayload, "エンコード済みデータ")
     _Def(DebuggerPackedFrame, "パック済みフレーム")
     _Def(DebuggerUnpackFailed, "キャプチャしたフレームをアンパックできませんでした。")
     _Def(DebuggerValidationValid, "検証：有効")

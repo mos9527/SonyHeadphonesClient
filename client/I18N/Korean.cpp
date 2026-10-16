@@ -277,7 +277,7 @@ constinit const StringTable kKorean = []
     _Def(DebuggerHistoryEmpty, "헤드폰의 명령이 여기에 표시됩니다.")
     _Def(DebuggerFilterEmpty, "현재 필터와 일치하는 패킷이 없습니다.")
     _Def(DebuggerEditorEmpty, "위의 명령을 선택하거나 아래에서 새 패킷을 만드세요.")
-    _Def(DebuggerEncodedPayload, "인코딩된 페이로드")
+    _Def(DebuggerEncodedPayload, "인코딩된 데이터")
     _Def(DebuggerPackedFrame, "패킹된 프레임")
     _Def(DebuggerUnpackFailed, "캡처한 프레임을 언패킹할 수 없습니다.")
     _Def(DebuggerValidationValid, "검증: 유효")
