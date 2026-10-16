@@ -16,6 +16,7 @@
 #include <type_traits>
 #include <vector>
 #include <mdr/Protocol.hpp>
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
@@ -23,6 +24,20 @@
 #ifdef SDL_PLATFORM_IOS
 extern "C" void clientIOSFileShareDestroy();
 #else
+bool clientPlatformInitEventWait()
+{
+    return true;
+}
+
+bool clientPlatformWaitEventTimeout(int timeoutMS)
+{
+    return SDL_WaitEventTimeout(nullptr, timeoutMS);
+}
+
+void clientPlatformDestroyEventWait()
+{
+}
+
 int clientPlatformSaveBlob(
     const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
     SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
@@ -39,6 +54,9 @@ float clientPlatformGetDisplayScale()
 
 bool clientPlatformInitGraphics(SDL_Renderer* renderer)
 {
+    if (!renderer)
+        return true;
+
     // Opt for double buffering (instead of triple buffering by default) on Apple platforms
     // Saves one CAMetalDrawable worth of memory (iDevices run the app fullscreen, so that's *quite* a lot)
     if (@available(iOS 11.2, macOS 10.13.2, *))

@@ -477,6 +477,14 @@ float clientPlatformGetDisplayScale()
     return gDisplayScale.load(std::memory_order_relaxed);
 }
 
+bool clientPlatformInitGraphics(SDL_Renderer* renderer)
+{
+    if (renderer)
+        return true;
+
+    return SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0) && SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+}
+
 int clientPlatformConnectionInit(int flags)
 {
     if (flags & MDR_INIT_BT_BLE)

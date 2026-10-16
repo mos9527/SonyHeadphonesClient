@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionWindows.h>
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 
 int clientPlatformSaveBlob(
@@ -21,6 +22,25 @@ float clientPlatformGetDisplayScale()
 {
     const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     return scale > 0.0f ? scale : 1.0f;
+}
+
+bool clientPlatformInitGraphics(SDL_Renderer*)
+{
+    return true;
+}
+
+bool clientPlatformInitEventWait()
+{
+    return true;
+}
+
+bool clientPlatformWaitEventTimeout(int timeoutMS)
+{
+    return SDL_WaitEventTimeout(nullptr, timeoutMS);
+}
+
+void clientPlatformDestroyEventWait()
+{
 }
 
 namespace

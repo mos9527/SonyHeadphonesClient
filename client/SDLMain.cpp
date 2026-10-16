@@ -39,36 +39,9 @@ bool gShouldClose{false};
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 
-#if !defined(SDL_PLATFORM_IOS) && !defined(SDL_PLATFORM_MACOS)
-bool clientPlatformInitGraphics(SDL_Renderer*)
-{
-    return true;
-}
-#endif
-
-// Borked SDL_WaitEventTimeout on these platform as of 3.2.26
-// These platforms aren't blocking with SDL_WaitEventTimeout and absolutely burns CPU
-// cycles for fun by polling at 1ms intervals.
-// Override their impl with our own which does so...at larger intervals here:
 constexpr int kRedrawFrames = 60;
 constexpr int kClientPollIntervalMS = 25; // 40Hz
 constexpr int kClientIdleWaitTimeoutMS = 1000;
-// This works better than you'd think.
-#if !defined(MDR_PLATFORM_IOS) && !defined(MDR_PLATFORM_OHOS)
-bool clientPlatformInitEventWait()
-{
-    return true;
-}
-
-bool clientPlatformWaitEventTimeout(int timeoutMS)
-{
-    return SDL_WaitEventTimeout(nullptr, timeoutMS);
-}
-
-void clientPlatformDestroyEventWait()
-{
-}
-#endif
 
 namespace
 {
@@ -495,6 +468,11 @@ int main(int argc, char** argv)
         // UIKit: borderless hides the status bar via SDL's view controller.
         windowFlags |= SDL_WINDOW_BORDERLESS;
 #endif
+        if (!clientPlatformInitGraphics(nullptr))
+        {
+            MDR_LOG("Error: clientPlatformInitGraphics() before device creation: {}", SDL_GetError());
+            break;
+        }
         gWindow = SDL_CreateWindow("SonyHeadphonesClient", CLIENT_WINDOW_WIDTH * displayScale,
                                    CLIENT_WINDOW_HEIGHT * displayScale, windowFlags);
         if (!gWindow)

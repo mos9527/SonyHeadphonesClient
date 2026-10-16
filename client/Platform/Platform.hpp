@@ -11,15 +11,30 @@ struct SDL_Renderer;
 extern AppLocale clientGetAppLocale();
 extern void clientSetAppLocale(AppLocale locale);
 extern bool clientInit(float displayScale, const char* fontPath = nullptr);
-// The worker thread run this. This will be the sole callsite for @ref mdrHeadphonesPoll()
-// Returns true if the @ref MDRHeadphones state has changed.
+/**
+ * The worker thread run this. This will be the sole callsite for @ref mdrHeadphonesPoll()
+ * @return true if the @ref MDRHeadphones state has changed.
+ */
 extern bool clientOnUpdate();
-// Main thread, and everything UI.
-// @returns: true if the UI wants to be redrawn.
+/**
+ * Main thread, and everything UI.
+ * @return true if the UI wants to be redrawn.
+ */
 extern bool clientOnFrame();
 extern void clientDestroy();
 extern void clientSetPauseMediaOnRemove(bool enabled);
 extern float clientPlatformGetDisplayScale();
+/**
+ * Platform specific SDL_Renderer setup
+ * - Called (renderer=nullptr) before graphics init
+ * - Called (renderer!=nullptr) after graphics init
+
+ * @return true if the platform-specific graphics setup succeeded.
+ 
+ * Currently:
+ * - Apple platforms: This requests double-buffering instead of triple-buffering
+ * - GL platforms (Web/Android/OHOS/Linux): This disables useless depth FBO allocation
+ */
 extern bool clientPlatformInitGraphics(SDL_Renderer* renderer);
 extern bool clientPlatformInitEventWait();
 extern bool clientPlatformWaitEventTimeout(int timeoutMS);
