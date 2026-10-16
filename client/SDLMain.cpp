@@ -41,8 +41,8 @@ SDL_Renderer* gRenderer = nullptr;
 
 // Borked SDL_WaitEventTimeout on these platform as of 3.2.26
 // These platforms aren't blocking with SDL_WaitEventTimeout and absolutely burns CPU
-// cycles for fun.
-// Override their impl with our own.
+// cycles for fun by polling at 1ms intervals.
+// Override their impl with our own which does so at 50ms intervals.
 #if !defined(MDR_PLATFORM_IOS) && !defined(MDR_PLATFORM_OHOS)
 bool clientPlatformInitEventWait()
 {

@@ -6,14 +6,17 @@
 #include <unistd.h>
 #include <algorithm>
 #include <array>
+#include <cerrno>
 #include <climits>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <vector>
 #include <mdr/Protocol.hpp>
+#include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_video.h>
 #ifdef SDL_PLATFORM_IOS
 extern "C" void clientIOSFileShareDestroy();
@@ -47,15 +50,51 @@ struct CachedFont
     bool queried{};
     void* data{};
     int size{};
+    std::string path;
 };
 
 void ReleaseFont(CachedFont& font)
 {
-    std::free(font.data);
+    clientPlatformMemoryUnmapFile(font.data, static_cast<size_t>(font.size));
+    if (!font.path.empty())
+        unlink(font.path.c_str());
     font = CachedFont{};
 }
 
 std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
+
+struct TemporaryFontFile
+{
+    int fd{-1};
+    std::string path;
+
+    ~TemporaryFontFile()
+    {
+        if (fd >= 0)
+        {
+            close(fd);
+            if (!path.empty())
+                unlink(path.c_str());
+        }
+    }
+};
+
+bool WriteFontFile(int fd, const unsigned char* data, size_t size, size_t offset)
+{
+    while (size > 0)
+    {
+        const ssize_t written = pwrite(fd, data, size, static_cast<off_t>(offset));
+        if (written < 0 && errno == EINTR)
+            continue;
+        if (written <= 0)
+            return false;
+        const auto count = static_cast<size_t>(written);
+        data += count;
+        size -= count;
+        offset += count;
+    }
+    return true;
+}
 
 uint32_t ReadUInt32BE(const unsigned char* data)
 {
@@ -79,60 +118,101 @@ void WriteUInt32BE(unsigned char* data, uint32_t value)
 // directly, which are not readable from the iOS app sandbox (system/asset fonts).
 bool CopyFontTables(CTFontRef font, CFArrayRef tags, bool cffOnly, CachedFont& cache)
 {
+    const CFIndex tagCount = tags ? CFArrayGetCount(tags) : 0;
+    if (tagCount <= 0 || tagCount > 0xFFFF)
+        return false;
+    std::vector<uint32_t> sortedTags;
+    sortedTags.reserve(static_cast<size_t>(tagCount));
+    for (CFIndex i = 0; i < tagCount; ++i)
+        sortedTags.push_back(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags, i))));
+    std::sort(sortedTags.begin(), sortedTags.end());
+
+    const char* directory = std::getenv("TMPDIR");
+    std::unique_ptr<char, decltype(&SDL_free)> fallbackPath(nullptr, SDL_free);
+    if (!directory || !*directory)
+    {
+        fallbackPath.reset(SDL_GetPrefPath(nullptr, "SonyHeadphonesClient"));
+        directory = fallbackPath.get();
+    }
+    if (!directory || !*directory)
+        return false;
+    TemporaryFontFile file;
+    file.path = directory;
+    if (file.path.back() != '/')
+        file.path += '/';
+    file.path += "SonyHeadphonesClient-font-XXXXXX";
+    file.fd = mkstemp(file.path.data());
+    if (file.fd < 0 || fcntl(file.fd, F_SETFD, FD_CLOEXEC) < 0)
+        return false;
+
     struct Table
     {
         uint32_t tag;
-        CFPtr<CFDataRef> data;
+        uint32_t checksum;
+        uint32_t offset;
+        uint32_t length;
     };
     std::vector<Table> tables;
-    for (CFIndex i = 0; i < CFArrayGetCount(tags); ++i)
+    tables.reserve(sortedTags.size());
+    size_t offset = 12 + 16 * sortedTags.size();
+    for (const auto tag : sortedTags)
     {
-        const auto tag = static_cast<CTFontTableTag>(reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags, i)));
         CFPtr<CFDataRef> data(CTFontCopyTable(font, tag, kCTFontTableOptionNoOptions));
-        if (data && CFDataGetLength(data.get()) > 0)
-            tables.push_back({tag, std::move(data)});
-    }
-    if (tables.empty() || tables.size() > 0xFFFF)
-        return false;
-    std::sort(tables.begin(), tables.end(), [](const Table& a, const Table& b) { return a.tag < b.tag; });
-    const size_t count = tables.size();
-    size_t total = 12 + 16 * count;
-    for (const auto& table : tables)
-    {
-        total += (static_cast<size_t>(CFDataGetLength(table.data.get())) + 3) & ~size_t(3);
-        if (total > static_cast<size_t>(INT_MAX))
+        if (!data || CFDataGetLength(data.get()) <= 0)
+            continue;
+        const size_t length = static_cast<size_t>(CFDataGetLength(data.get()));
+        if (length > static_cast<size_t>(INT_MAX))
             return false;
+        const size_t paddedLength = (length + 3) & ~size_t(3);
+        if (paddedLength > static_cast<size_t>(INT_MAX) - offset)
+            return false;
+        const auto* bytes = CFDataGetBytePtr(data.get());
+        if (!WriteFontFile(file.fd, bytes, length, offset))
+            return false;
+        uint32_t checksum = 0;
+        const size_t wholeLength = length & ~size_t(3);
+        for (size_t word = 0; word < wholeLength; word += 4)
+            checksum += ReadUInt32BE(bytes + word);
+        if (wholeLength < length)
+        {
+            std::array<unsigned char, 4> tail{};
+            std::memcpy(tail.data(), bytes + wholeLength, length - wholeLength);
+            checksum += ReadUInt32BE(tail.data());
+        }
+        tables.push_back({tag, checksum, static_cast<uint32_t>(offset), static_cast<uint32_t>(length)});
+        offset += paddedLength;
     }
-    auto* out = static_cast<unsigned char*>(std::calloc(total, 1));
-    if (!out)
+    if (tables.empty())
         return false;
+
+    const size_t count = tables.size();
+    std::vector<unsigned char> header(12 + 16 * count);
     uint32_t entrySelector = 0;
     while ((2u << entrySelector) <= count)
         ++entrySelector;
     const uint32_t searchRange = 16u << entrySelector;
-    WriteUInt32BE(out, cffOnly ? 0x4f54544f : 0x00010000);
-    WriteUInt16BE(out + 4, static_cast<uint32_t>(count));
-    WriteUInt16BE(out + 6, searchRange);
-    WriteUInt16BE(out + 8, entrySelector);
-    WriteUInt16BE(out + 10, static_cast<uint32_t>(count * 16) - searchRange);
-    size_t offset = 12 + 16 * count;
+    WriteUInt32BE(header.data(), cffOnly ? 0x4f54544f : 0x00010000);
+    WriteUInt16BE(header.data() + 4, static_cast<uint32_t>(count));
+    WriteUInt16BE(header.data() + 6, searchRange);
+    WriteUInt16BE(header.data() + 8, entrySelector);
+    WriteUInt16BE(header.data() + 10, static_cast<uint32_t>(count * 16) - searchRange);
     for (size_t i = 0; i < count; ++i)
     {
-        const auto* bytes = CFDataGetBytePtr(tables[i].data.get());
-        const size_t length = static_cast<size_t>(CFDataGetLength(tables[i].data.get()));
-        std::memcpy(out + offset, bytes, length);
-        uint32_t checksum = 0;
-        for (size_t word = 0; word < length; word += 4)
-            checksum += ReadUInt32BE(out + offset + word);
-        auto* record = out + 12 + i * 16;
+        auto* record = header.data() + 12 + i * 16;
         WriteUInt32BE(record, tables[i].tag);
-        WriteUInt32BE(record + 4, checksum);
-        WriteUInt32BE(record + 8, static_cast<uint32_t>(offset));
-        WriteUInt32BE(record + 12, static_cast<uint32_t>(length));
-        offset += (length + 3) & ~size_t(3);
+        WriteUInt32BE(record + 4, tables[i].checksum);
+        WriteUInt32BE(record + 8, tables[i].offset);
+        WriteUInt32BE(record + 12, tables[i].length);
     }
-    cache.data = out;
-    cache.size = static_cast<int>(total);
+    if (!WriteFontFile(file.fd, header.data(), header.size(), 0) || ftruncate(file.fd, static_cast<off_t>(offset)) < 0)
+        return false;
+    void* mapped{};
+    size_t mappedSize{};
+    if (clientPlatformMemoryMapFile(file.path.c_str(), &mapped, &mappedSize) != MDR_RESULT_OK)
+        return false;
+    cache.path.swap(file.path);
+    cache.data = mapped;
+    cache.size = static_cast<int>(mappedSize);
     return true;
 }
 
