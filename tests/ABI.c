@@ -1745,16 +1745,16 @@ static void check_command_payload(Session* session, size_t offset, const unsigne
 
 static void test_alert_responses(MDRProtocolVersion family, int arrival)
 {
-    static const unsigned char table1_v1[] = {0x07, 0, 2, 0x90, 0xa1};
+    static const unsigned char table1_v1[] = {0x07, 0, 1, 0xa1};
     static const unsigned char table1_v2[] = {0x07, 0, 2, 0x90, 0xff, 0xa1, 0xff};
     static const unsigned char table2[] = {0x07, 0, 0};
-    unsigned char alert[] = {0x39, 0, 0, 1};
-    unsigned char response[] = {0x38, 0, 0, 0};
+    int v1 = family == MDR_PROTOCOL_V1;
+    unsigned char alert[] = {0x99, (unsigned char)(v1 ? 1 : 0), (unsigned char)(v1 ? 1 : 0), 1};
+    unsigned char response[] = {0x98, (unsigned char)(v1 ? 1 : 0), (unsigned char)(v1 ? 1 : 0), 0};
     Session session;
     Device device;
     MDREvent event;
     size_t offset;
-    int v1 = family == MDR_PROTOCOL_V1;
 
     if (!session_open_family(&session, family))
         return;
@@ -1783,7 +1783,7 @@ static void test_alert_responses(MDRProtocolVersion family, int arrival)
                  "alert A response stages while busy");
     check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_NEGATIVE), MDR_RESULT_OK,
                  "latest response replaces the staged action");
-    alert[2] = arrival == 1 ? 0 : 1;
+    alert[2] = (unsigned char)((v1 ? 1 : 0) + (arrival != 1));
     if (arrival != 2)
     {
         device_send(&device, MDR_DATA_TYPE_DATA_MDR, alert, sizeof(alert));
