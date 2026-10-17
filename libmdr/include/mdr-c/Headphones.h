@@ -496,16 +496,21 @@ MDR_API MDRResult mdrHeadphonesCreate(uint32_t abiVersion, MDRConnection* connec
                                       MDRProtocolVersion protocolVersion, MDRHeadphones** ppHeadphones);
 /**
  * @brief Frees the @ref MDRHeadphones instance.
+ * @note  When a fatal failure has occured, i.e. after an non-`MDR_RESULT_OK` result via @ref mdrHeadphonesPoll,
+ *        only @ref mdrHeadphonesDestroy is callable. Calling other functions will always return the last error code,
+ *        which you can then query with @ref mdrResultString abd @ref mdrHeadphonesGetText
  */
 MDR_API void mdrHeadphonesDestroy(MDRHeadphones* headphones);
 /**
  * @brief Returns true if the @ref MDRHeadphones instance has been initialized via @ref mdrHeadphonesRequestInit.
+ * @note  Returns false after a fatal failure, in which case you can only call @ref mdrHeadphonesDestroy.
  */
 MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
 /**
  * @brief Returns true if new ...Request, state-changing ...Set, and @ref mdrHeadphonesSendPlaybackCommand calls can be made.
  *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request, ...Set,
  *        and @ref mdrHeadphonesSendPlaybackCommand calls will fail with @ref MDR_RESULT_INPROGRESS.
+ * @note  Returns false after a fatal failure, in which case you can only call @ref mdrHeadphonesDestroy.
  */
 MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
 /**

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define MDR_ASSERT_U32(type) \
     static_assert(sizeof(type) == sizeof(uint32_t), #type " must be uint32_t")
@@ -96,6 +97,12 @@ typedef struct MockTransport
     size_t rx_offset;
     unsigned char tx[MOCK_BUFFER_CAPACITY];
     size_t tx_size;
+    MDRResult poll_result;
+    MDRResult send_result;
+    MDRResult receive_result;
+    unsigned int poll_count;
+    unsigned int send_count;
+    unsigned int receive_count;
     MDRConnection connection;
 } MockTransport;
 
@@ -148,7 +155,10 @@ static MDRResult mock_receive(void* user, char* destination, int size, int* rece
     size_t remaining;
     size_t count;
 
+    ++transport->receive_count;
     *received = 0;
+    if (transport->receive_result != MDR_RESULT_OK)
+        return transport->receive_result;
     if (transport->rx_offset == transport->rx_size)
         return MDR_RESULT_INPROGRESS;
 
@@ -165,6 +175,10 @@ static MDRResult mock_send(void* user, const char* source, int size, int* sent)
     MockTransport* transport = (MockTransport*)user;
     size_t count = (size_t)size;
 
+    ++transport->send_count;
+    *sent = 0;
+    if (transport->send_result != MDR_RESULT_OK)
+        return transport->send_result;
     if (count > MOCK_BUFFER_CAPACITY - transport->tx_size)
         return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
     memcpy(transport->tx + transport->tx_size, source, count);
@@ -175,9 +189,10 @@ static MDRResult mock_send(void* user, const char* source, int size, int* sent)
 
 static MDRResult mock_poll(void* user, int timeout)
 {
-    (void)user;
+    MockTransport* transport = (MockTransport*)user;
     (void)timeout;
-    return MDR_RESULT_OK;
+    ++transport->poll_count;
+    return transport->poll_result;
 }
 
 static MDRResult mock_get_devices(void* user, MDRDeviceInfo** devices, int* count)
@@ -2943,8 +2958,232 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
     session_close(&session);
 }
 
+static void check_failed_session(Session* session, MDRResult failure)
+{
+    union
+    {
+        MDRModel model;
+        MDRBattery battery;
+        MDRPlayback playback;
+        MDRNoiseControl noise;
+        MDRSpeakToChat speak;
+        MDRListening listening;
+        MDREqualizer equalizer;
+        MDREqualizerPreset preset;
+        MDRPairedDevice device;
+        MDRPairing pairing;
+        MDRBoolean enabled;
+        MDRSourceSwitchControlResult source_result;
+        MDRGeneralSettingInfo setting_info;
+        MDRGeneralSetting setting;
+        MDRAssignableControl control;
+        MDRAssignableAction action;
+        MDRPower power;
+        MDRVoiceGuidance voice;
+        MDRConnectionMode connection;
+        MDRSafeListening safe;
+        MDRWearingStatus wearing;
+        MDRFeatureAvailability feature;
+        int32_t bands[5];
+        char text[64];
+    } output, before;
+    union
+    {
+        MDRNoiseControl noise;
+        MDRSpeakToChat speak;
+        MDRListening listening;
+        MDREqualizer equalizer;
+        MDRPairing pairing;
+        MDRGeneralSetting setting;
+        MDRAssignableControl control;
+        MDRPower power;
+        MDRVoiceGuidance voice;
+        MDRConnectionMode connection;
+        MDRSafeListening safe;
+        int32_t bands[5];
+    } input;
+    const MDRPlaybackCommand command = {MDR_PLAYBACK_PLAY};
+    const MDRPairedDeviceAction action = {MDR_PAIRED_DEVICE_CONNECT, "00:11:22:33:44:55", 17};
+    const MDRPropertyType views[] = {MDR_PROPERTY_CURRENT, MDR_PROPERTY_DESIRED};
+    uint32_t count = 1;
+    uint32_t text_size = sizeof(output.text);
+    unsigned int poll_count = session->transport.poll_count;
+    unsigned int send_count = session->transport.send_count;
+    unsigned int receive_count = session->transport.receive_count;
+    size_t tx_size = session->transport.tx_size;
+    char* error = get_text(session->headphones, MDR_TEXT_LAST_ERROR);
+    char* later_error;
+    size_t i;
+
+    memset(&output, 0xa5, sizeof(output));
+    memcpy(&before, &output, sizeof(output));
+    memset(&input, 0, sizeof(input));
+    check(error != NULL, "failed instance retains readable error text");
+    check(!mdrHeadphonesIsInitialized(session->headphones) && !mdrHeadphonesIsReady(session->headphones) &&
+          !mdrHeadphonesIsDirty(session->headphones), "failed instance reports no usable state");
+
+#define CHECK_FAILED(call) check_result((call), failure, #call " rejects failed instance")
+    for (i = 0; i < sizeof(views) / sizeof(views[0]); ++i)
+    {
+        CHECK_FAILED(mdrHeadphonesGetPlayback(session->headphones, views[i], &output.playback));
+        CHECK_FAILED(mdrHeadphonesGetNoiseControl(session->headphones, views[i], &output.noise));
+        CHECK_FAILED(mdrHeadphonesGetSpeakToChat(session->headphones, views[i], &output.speak));
+        CHECK_FAILED(mdrHeadphonesGetListening(session->headphones, views[i], &output.listening));
+        CHECK_FAILED(mdrHeadphonesGetEqualizer(session->headphones, views[i], &output.equalizer));
+        CHECK_FAILED(mdrHeadphonesGetEqualizerBands(session->headphones, views[i], output.bands, &count));
+        CHECK_FAILED(mdrHeadphonesGetPairing(session->headphones, views[i], &output.pairing));
+        CHECK_FAILED(mdrHeadphonesGetSourceSwitchControl(session->headphones, views[i], &output.enabled));
+        CHECK_FAILED(mdrHeadphonesGetGeneralSetting(session->headphones, views[i], 0, &output.setting));
+        CHECK_FAILED(mdrHeadphonesGetAssignableControls(session->headphones, views[i], &output.control, &count));
+        CHECK_FAILED(mdrHeadphonesGetPower(session->headphones, views[i], &output.power));
+        CHECK_FAILED(mdrHeadphonesGetVoiceGuidance(session->headphones, views[i], &output.voice));
+        CHECK_FAILED(mdrHeadphonesGetConnectionMode(session->headphones, views[i], &output.connection));
+        CHECK_FAILED(mdrHeadphonesGetSafeListening(session->headphones, views[i], &output.safe));
+    }
+    CHECK_FAILED(mdrHeadphonesGetFeature(session->headphones, MDR_FEATURE_IDENTITY, &output.feature));
+    CHECK_FAILED(mdrHeadphonesGetModel(session->headphones, &output.model));
+    CHECK_FAILED(mdrHeadphonesGetBatteries(session->headphones, &output.battery, &count));
+    CHECK_FAILED(mdrHeadphonesGetEqualizerPresets(session->headphones, &output.preset, &count));
+    CHECK_FAILED(mdrHeadphonesGetPairedDevices(session->headphones, &output.device, &count));
+    CHECK_FAILED(mdrHeadphonesGetSourceSwitchControlResult(session->headphones, &output.source_result));
+    CHECK_FAILED(mdrHeadphonesGetGeneralSettingInfo(session->headphones, &output.setting_info, &count));
+    CHECK_FAILED(mdrHeadphonesGetAssignableControlActions(session->headphones, MDR_ASSIGNABLE_ACTION_KEY_LEFT,
+                                                        &output.action, &count));
+    CHECK_FAILED(mdrHeadphonesGetWearingStatus(session->headphones, &output.wearing));
+    CHECK_FAILED(mdrHeadphonesGetText(session->headphones, MDR_TEXT_MODEL_NAME, 0, output.text, &text_size));
+    check(memcmp(&output, &before, sizeof(output)) == 0 && count == 1 && text_size == sizeof(output.text),
+          "failed getters preserve output buffers and sizes");
+
+    CHECK_FAILED(mdrHeadphonesSetPlaybackVolume(session->headphones, 20));
+    CHECK_FAILED(mdrHeadphonesSendPlaybackCommand(session->headphones, &command));
+    CHECK_FAILED(mdrHeadphonesSetNoiseControl(session->headphones, &input.noise));
+    CHECK_FAILED(mdrHeadphonesSetSpeakToChat(session->headphones, &input.speak));
+    CHECK_FAILED(mdrHeadphonesSetListening(session->headphones, &input.listening));
+    CHECK_FAILED(mdrHeadphonesSetEqualizer(session->headphones, &input.equalizer));
+    CHECK_FAILED(mdrHeadphonesSetEqualizerBands(session->headphones, input.bands, 5));
+    CHECK_FAILED(mdrHeadphonesSetPairedDevice(session->headphones, &action));
+    CHECK_FAILED(mdrHeadphonesSetPairing(session->headphones, &input.pairing));
+    CHECK_FAILED(mdrHeadphonesSetSourceSwitchControl(session->headphones, MDR_TRUE));
+    CHECK_FAILED(mdrHeadphonesSetGeneralSetting(session->headphones, &input.setting));
+    CHECK_FAILED(mdrHeadphonesSetAssignableControls(session->headphones, &input.control, 1));
+    CHECK_FAILED(mdrHeadphonesSetPower(session->headphones, &input.power));
+    CHECK_FAILED(mdrHeadphonesSetVoiceGuidance(session->headphones, &input.voice));
+    CHECK_FAILED(mdrHeadphonesSetConnectionMode(session->headphones, &input.connection));
+    CHECK_FAILED(mdrHeadphonesSetSafeListening(session->headphones, &input.safe));
+    CHECK_FAILED(mdrHeadphonesSetAlertResponse(session->headphones, MDR_ALERT_ACTION_POSITIVE));
+    CHECK_FAILED(mdrHeadphonesSetTimeout(session->headphones, MDR_TIMEOUT_DEFAULT, 1));
+    CHECK_FAILED(mdrHeadphonesRequestInit(session->headphones));
+    CHECK_FAILED(mdrHeadphonesRequestSync(session->headphones));
+    CHECK_FAILED(mdrHeadphonesRequestCommit(session->headphones));
+    mdrHeadphonesSetPacketCallback(session->headphones, NULL, NULL);
+
+    session->transport.poll_result = MDR_RESULT_OK;
+    session->transport.send_result = MDR_RESULT_OK;
+    session->transport.receive_result = MDR_RESULT_OK;
+    for (i = 0; i < 2; ++i)
+    {
+        MDREvent event = MDR_EVENT_APPLY_COMPLETE;
+        CHECK_FAILED(mdrHeadphonesPoll(session->headphones, &event));
+        check(event == MDR_EVENT_NONE, "failed poll never reports a completion event");
+        session->transport.poll_result = MDR_RESULT_ERROR_NO_CONNECTION;
+    }
+#undef CHECK_FAILED
+    check(session->transport.poll_count == poll_count && session->transport.send_count == send_count &&
+          session->transport.receive_count == receive_count && session->transport.tx_size == tx_size,
+          "failed instance performs no transport operations even when transport recovers");
+    later_error = get_text(session->headphones, MDR_TEXT_LAST_ERROR);
+    check(error != NULL && later_error != NULL && strcmp(error, later_error) == 0,
+          "later operations preserve the first fatal error text");
+    free(later_error);
+    free(error);
+}
+
+static void test_fatal_failure(MDRProtocolVersion family, int source)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 1, 0xa1};
+    static const unsigned char table1_v2[] = {0x07, 0, 1, 0xa1, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char malformed_protocol[] = {0x01};
+    Session session;
+    Device device;
+    MDRPlayback playback;
+    MDREvent event = MDR_EVENT_NONE;
+    MDRResult result;
+    MDRResult failure = MDR_RESULT_ERROR_NET;
+    int v1 = family == MDR_PROTOCOL_V1;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    check(mdrHeadphonesIsInitialized(session.headphones), "session is initialized before fatal failure");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 31), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "caller validation error is not fatal");
+    session.transport.poll_result = MDR_RESULT_ERROR_TIMEOUT;
+    check_result(mdrHeadphonesPoll(session.headphones, &event), MDR_RESULT_OK, "idle poll timeout is not fatal");
+    session.transport.poll_result = MDR_RESULT_INPROGRESS;
+    check_result(mdrHeadphonesPoll(session.headphones, &event), MDR_RESULT_OK, "temporary poll unavailability is not fatal");
+    session.transport.poll_result = MDR_RESULT_OK;
+    check(mdrHeadphonesIsReady(session.headphones), "recoverable conditions preserve readiness");
+    if (source == 4)
+    {
+        check_result(mdrHeadphonesSetTimeout(session.headphones, MDR_TIMEOUT_ACK, 1), MDR_RESULT_OK, "short ACK timeout sets");
+        check_result(mdrHeadphonesSetTimeout(session.headphones, MDR_TIMEOUT_ACK_RETRIES, 1), MDR_RESULT_OK, "single ACK attempt sets");
+    }
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 10), MDR_RESULT_OK, "volume stages before failure");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "apply starts before failure");
+    switch (source)
+    {
+    case 0:
+        session.transport.poll_result = failure;
+        break;
+    case 1:
+        session.transport.send_result = failure;
+        break;
+    case 2:
+        session.transport.receive_result = failure;
+        break;
+    case 3:
+        failure = MDR_RESULT_ERROR_MALFORMED_PAYLOAD;
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, malformed_protocol, sizeof(malformed_protocol));
+        break;
+    case 4:
+        failure = MDR_RESULT_ERROR_TIMEOUT;
+        break;
+    }
+    result = mdrHeadphonesPoll(session.headphones, &event);
+    if (source == 4)
+    {
+        const clock_t start = clock();
+        while (result == MDR_RESULT_OK && clock() - start < CLOCKS_PER_SEC)
+            result = mdrHeadphonesPoll(session.headphones, &event);
+    }
+    check_result(result, failure, "runtime failure invalidates the session");
+    check(event == MDR_EVENT_NONE, "fatal failure does not report a semantic success");
+    check_failed_session(&session, failure);
+    session_close(&session);
+    if (!session_open_family(&session, family))
+        return;
+    check(mdrHeadphonesIsReady(session.headphones), "new instance is not poisoned by old failure");
+    check_result(mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &playback), MDR_RESULT_OK,
+                 "new instance accepts reads");
+    session_close(&session);
+}
+
 int main(void)
 {
+    int failure_source;
+    for (failure_source = 0; failure_source < 5; ++failure_source)
+    {
+        test_fatal_failure(MDR_PROTOCOL_V1, failure_source);
+        test_fatal_failure(MDR_PROTOCOL_V2, failure_source);
+    }
     test_property_getter_contracts(MDR_PROTOCOL_V1);
     test_property_getter_contracts(MDR_PROTOCOL_V2);
     test_widened_inputs(MDR_PROTOCOL_V1);

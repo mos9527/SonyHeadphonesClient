@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <coroutine>
+#include <utility>
 
 namespace mdr
 {
@@ -81,7 +82,12 @@ namespace mdr
 
         MDRTask& operator=(MDRTask&& other) noexcept
         {
-            std::swap(coroutine, other.coroutine), other.coroutine = nullptr;
+            if (this != &other)
+            {
+                if (coroutine)
+                    coroutine.destroy();
+                coroutine = std::exchange(other.coroutine, nullptr);
+            }
             return *this;
         }
 
@@ -197,7 +203,11 @@ namespace mdr
         MDRHeadphones& operator=(MDRHeadphones const&) = delete;
         MDRHeadphones& operator=(MDRHeadphones&&) = default;
 
-        constexpr operator bool() const noexcept { return mConn != nullptr; }
+        constexpr operator bool() const noexcept { return mConn != nullptr && !mFailed; }
+        [[nodiscard]] ::MDRResult GetFailure() const noexcept
+        {
+            return mFailed ? mLastErrorCode : MDR_RESULT_OK;
+        }
 
         /**
          * @breif Receive commands and process events. This is non-blocking, and should be
@@ -211,6 +221,8 @@ namespace mdr
         ::MDRResult PollEvents(MDREvent& outEvent);
 
         ::MDRResult SetTimeout(MDRTimeoutType type, int value) noexcept {
+            if (mFailed)
+                return mLastErrorCode;
             if (value <= 0)
                 return MDR_RESULT_ERROR_INVALID_ARGUMENT; 
             switch (type)
@@ -231,6 +243,8 @@ namespace mdr
 
         void SetPacketCallback(MDRPacketCallback callback, void* userData) noexcept
         {
+            if (mFailed)
+                return;
             mPacketCallback = callback;
             mPacketCallbackUserData = userData;
         }
@@ -274,15 +288,19 @@ namespace mdr
          */
         [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
         /**
-         * @brief Record @p error against @p context and signal it on the event channel.
+         * @brief Invalidate the instance, preserve the first fatal error, and signal it on the event channel.
          */
         int SetLastError(int error, const char* context)
         {
+            if (mFailed)
+                return -1;
             mLastError = context ? context : "";
             mLastError += " (";
             mLastError += mdrResultString(error);
             mLastError += ')';
             mLastErrorCode = static_cast<::MDRResult>(error);
+            mFailed = true;
+            mInitialized = false;
             return -1; // NOTE: convenience only for co_return SetLastError(...);
         }
 
@@ -351,6 +369,7 @@ namespace mdr
         }
         String mLastError = "N/A";
         ::MDRResult mLastErrorCode{MDR_RESULT_ERROR_GENERAL};
+        bool mFailed{};
 
         // Custom callbacks for e.g. @ref Debugger and whatever. Set via @ref mdrHeadphonesSetPacketCallback
         MDRPacketCallback mPacketCallback{};
