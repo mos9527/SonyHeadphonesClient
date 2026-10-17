@@ -91,6 +91,7 @@ namespace mdr
         MDRProperty<bool> mNcAsmFocusOnVoice;
         MDRProperty<int> mNcAsmLevel;
         MDRProperty<bool> mNcAsmChangingLevel;
+        MDRProperty<v1::t1::NcAsmEffect> mNcAsmEffect;
         MDRProperty<UInt8> mNcAsmButtonFunction;
         MDRProperty<v1::t1::AutoPowerOffElementId> mPowerAutoOff;
         MDRProperty<UInt8> mPowerAutoOffWearingDetection;

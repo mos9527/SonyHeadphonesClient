@@ -1749,7 +1749,14 @@ MDRResult mdrHeadphonesSetNoiseControl(
             noiseControl->adaptive_sensitivity != MDR_ADAPTIVE_SENSITIVITY_UNKNOWN)
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
         auto& state = h->mDetailsV1;
-        state.mNcAsmEnabled.stage(noiseControl->mode != MDR_NOISE_MODE_OFF);
+        const bool enabled = noiseControl->mode != MDR_NOISE_MODE_OFF;
+        const bool changingLevel = noiseControl->changing_asm_level != MDR_FALSE;
+        const auto effect = !enabled ? mdr::v1::t1::NcAsmEffect::OFF
+            : changingLevel ? mdr::v1::t1::NcAsmEffect::ADJUSTMENT_IN_PROGRESS
+            : state.mNcAsmEnabled.mDesired ? mdr::v1::t1::NcAsmEffect::ADJUSTMENT_COMPLETION
+            : mdr::v1::t1::NcAsmEffect::ON;
+        state.mNcAsmEffect.stage(effect);
+        state.mNcAsmEnabled.stage(enabled);
         state.mNcAsmLevel.stage(noiseControl->ambient_level == MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING
             ? -1 : static_cast<int>(noiseControl->ambient_level));
         state.mNcAsmChangingLevel.stage(noiseControl->changing_asm_level != MDR_FALSE);

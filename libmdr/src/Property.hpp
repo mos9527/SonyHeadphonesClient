@@ -22,16 +22,12 @@ namespace mdr
 
         void stage(const T& value)
         {
-            if (mDesired == value)
-                return;
             mDesired = value;
             mState = State::STAGED;
         }
 
         void stage(T&& value)
         {
-            if (mDesired == value)
-                return;
             mDesired = std::move(value);
             mState = State::STAGED;
         }

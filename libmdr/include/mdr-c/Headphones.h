@@ -509,8 +509,9 @@ MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
  */
 MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
 /**
- * @brief Returns true if changes staged through the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls
- *        are awaiting submission or completion. This does not compare desired and device-reported values.
+ * @brief Returns true if writes staged through the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls
+ *        are awaiting submission or completion. Explicit writes are staged even when their values are unchanged;
+ *        repeated writes before submission are coalesced. Device reports do not stage writes.
  */
 MDR_API MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones);
 /**
