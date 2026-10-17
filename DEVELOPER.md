@@ -271,6 +271,22 @@ mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower*
 - Like read-write setters, write-only setters stage changes, make `mdrHeadphonesIsDirty` return true, and send them only through `mdrHeadphonesRequestCommit`.
 - One-shot values such as alert responses are consumed after acknowledgement so the same action can be staged for a later request.
 
+For APIs that gets/sets a list of items, the function signature is as follows:
+
+```c++
+MDR_API MDRResult ...Get(MDRHeadphones* headphones, MDRPropertyType type, [Type]* data, uint32_t* inout_count);
+MDR_API MDRResult ...Set(MDRHeadphones* headphones, const [Type]* data, uint32_t count);
+```
+
+With the `...Get` (getter), where `MDRPropertyType` may be optional (if readonly):
+- Takes `[Type]* data, uint32_t* inout_count`
+- If `data` is `nullptr`, `inout_count` **MUST** be valid, and the length of data (in element count for `[Type]`), is set to that pointer.
+- Otherwise, `inout_count` **MUST** be set to a valid value, that **MUST** match the value retrived via the said combination.
+
+With the `...Set` (setter):
+- Takes `const [Type]* data, uint32_t count`
+- Exactly `count * sizeof([Type])` of bytes is read from the `data` pointer
+
 ### Non-blocking IO (`MDRConnection`)
 
 **None of the `MDRConnection` functions should block.** Bluetooth backends may be implemented in `libmdr-bt`, the `client`, or downstream consumers by providing their own `MDRConnection` VTable, which `libmdr` uses to communicate with the device.
