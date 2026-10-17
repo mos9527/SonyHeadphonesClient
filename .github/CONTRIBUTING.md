@@ -1,34 +1,22 @@
+Contributing
+---
+This document serves as basic guidelines for contributing to this project. Please refer to the [SHC Developer's Guide](/DEVELOPER.md) for development details, and [Docs](/docs/) for indexing into various other documentation.
+
 Licensing & Credits
 ---
-**ALWAYS** include orignal credits in your code, should it be taken/inspried by other sources.
+SonyHeadphonesClient is MIT Licensed. This should apply to any LoC you'd contribute, and to their respective sources should they be taken from elsewhere. **Attribute them in commit messages/PRs if you're not the original author.**
 
-As we're MIT Licensed - should you take code from e.g. [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge/) (AGPLv3) this wouldn't be acceptable. Natrually this extends to private sources as well - double check your their licensing to make sure they are compatible with MIT.
-
-Protocol Changes
+On AI Usage
 ---
-Backing from offical implementation/decompilation is **required** for `Protocol` related changes.
+This project is mainly written and **always reviewed** _by_ humans, and made _for_ human use. Thus, approach the codebase with respect, and the following in mind:
 
-Should you change any of the `Protocol` headers, **make sure** you have the source built with **code-generation enabled**.
+- **You must assume all responsibility for any AI-generated code.** This includes responding to Pull Request reviews,
+answering questions, and any other form of communication.
 
-If you don't know what that means, check out `tooling/`, `AGENTS.md` for more info.
+- **You must understand and test the code you contribute.** If the feature you're trying to implement goes _beyond_ your own expertise, consider submitting an Issue instead. There's no reason for one to contribute directly otherwise.
 
-On LLM Coding Agents
----
-Either through PR description or with `Co-Authored-By` trailers - **mark your PRs** appropriately, or it will be **REJECTED**
+- **AI Usage must be disclosed.** If you use AI to generate code, you must mention it in the PR. It is not necessary to mention the exact AI tools used, nor the inclusion of `Co-authored-by` trailers, however it is recommended to do so for transparency.
 
-**You** will be responsible for any changes made by the AI.
-
-AI line-completion usage is fine, and is not required to be disclosed.
-
-
-Human in the Loop
----
-All PRs will be meticulously reviewed/revised by humans - *you* are also in the loop! 
-
-Please be prepared to be asked questions, or motivations behind your *own* code.
-
-As always, your **own** work is always welcome here. Feel free to ask us questions in the Issue Tracker, or your PR itself. 
-
-Currently active maintainers are as follows:
+Currently, the active maintainers/reviewers are as follows. Feel free to CC them in your PRs/Issues.
 - [mos9527](https://github.com/mos9527/)
 - [Amr Satrio](https://github.com/Amrsatrio/)

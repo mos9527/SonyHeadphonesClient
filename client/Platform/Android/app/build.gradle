@@ -1,0 +1,93 @@
+plugins {
+    id 'com.android.application'
+}
+
+def sdlVersion = '3.2.26'
+def sdlSource = providers.gradleProperty('sdlSourceDir').map { file(it) }
+    .getOrElse(rootProject.layout.buildDirectory.dir("vendor/SDL-release-${sdlVersion}").get().asFile)
+
+def sdlCmakeFile = new File(sdlSource, 'CMakeLists.txt')
+def sdlActivityFile = new File(sdlSource, 'android-project/app/src/main/java/org/libsdl/app/SDLActivity.java')
+
+if (!sdlCmakeFile.isFile() || !sdlActivityFile.isFile()) {
+    if (providers.gradleProperty('sdlSourceDir').isPresent()) {
+        throw new GradleException("SDL source directory is missing or incomplete: ${sdlSource}")
+    }
+    logger.lifecycle("Preparing SDL ${sdlVersion} sources for Android")
+    def archive = rootProject.layout.buildDirectory.file("vendor/SDL-${sdlVersion}.zip").get().asFile
+    archive.parentFile.mkdirs()
+    new URI("https://github.com/libsdl-org/SDL/archive/refs/tags/release-${sdlVersion}.zip")
+        .toURL().withInputStream { input -> archive.withOutputStream { it << input } }
+    copy {
+        from zipTree(archive)
+        into archive.parentFile
+    }
+}
+if (!sdlCmakeFile.isFile() || !sdlActivityFile.isFile()) {
+    throw new GradleException("SDL source directory is missing or incomplete: ${sdlSource}")
+}
+
+def releaseKeystore = providers.environmentVariable('ANDROID_KEYSTORE_FILE')
+
+android {
+    namespace 'com.mos9527.SonyHeadphonesClient'
+    compileSdk 35
+    ndkVersion '28.2.13676358'
+
+    defaultConfig {
+        applicationId 'com.mos9527.SonyHeadphonesClient'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '2.0.0'
+        ndk {
+            abiFilters.addAll(providers.gradleProperty('androidAbis').getOrElse('arm64-v8a,armeabi-v7a').split(','))
+        }
+        externalNativeBuild {
+            cmake {
+                arguments "-DFETCHCONTENT_SOURCE_DIR_SDL3=${sdlSource.absolutePath.replace('\\', '/')}",
+                          '-DANDROID_STL=c++_shared',
+                          '-DMDR_CLIENT_DEBUGGER=ON'
+                ['fmt', 'imgui'].each { dependency ->
+                    def directory = providers.gradleProperty("${dependency}SourceDir")
+                    if (directory.isPresent()) {
+                        arguments "-DFETCHCONTENT_SOURCE_DIR_${dependency.toUpperCase()}=${file(directory.get()).absolutePath.replace('\\', '/')}"
+                    }
+                }
+                targets 'main', 'SDL3-shared'
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('../CMakeLists.txt')
+        }
+    }
+    sourceSets.main.java.srcDir new File(sdlSource, 'android-project/app/src/main/java')
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    signingConfigs {
+        release {
+            if (releaseKeystore.isPresent()) {
+                storeFile file(releaseKeystore.get())
+                storePassword providers.environmentVariable('ANDROID_KEYSTORE_PASSWORD').get()
+                keyAlias providers.environmentVariable('ANDROID_KEY_ALIAS').get()
+                keyPassword providers.environmentVariable('ANDROID_KEY_PASSWORD').get()
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (releaseKeystore.isPresent()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.15.0'
+}

@@ -8,7 +8,7 @@ function(MDR_DetectGitInfo)
         # Get the short commit hash
         execute_process(
                 COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_FUNCTION_LIST_DIR}
                 OUTPUT_VARIABLE MDR_GIT_COMMIT_HASH
                 OUTPUT_STRIP_TRAILING_WHITESPACE
                 RESULT_VARIABLE GIT_HASH_RESULT
@@ -17,7 +17,7 @@ function(MDR_DetectGitInfo)
         # Get the current branch name
         execute_process(
                 COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_FUNCTION_LIST_DIR}
                 OUTPUT_VARIABLE MDR_GIT_BRANCH_NAME
                 OUTPUT_STRIP_TRAILING_WHITESPACE
                 RESULT_VARIABLE GIT_BRANCH_RESULT

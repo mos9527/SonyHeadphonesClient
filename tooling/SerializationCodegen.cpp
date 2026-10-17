@@ -1,19 +1,17 @@
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 #include "Codegen.hpp"
 const char* kMDRExternMacro = "MDR_DEFINE_EXTERN_SERIALIZATION";
 const char* kMDRIgnoredMacro = "MDR_CODEGEN_IGNORE_SERIALIZATION";
 const char* kMDRRWMacro = "MDR_DEFINE_EXTERN_READ_WRITE";
-const char* kMDRReservedRWStructs[] = {
-    "MDRPodArray",
-    "MDRPrefixedString",
-    "MDRArray",
-    "MDRFixedArray"
-};
+const char* kMDRReservedRWStructs[] = {"MDRPodArray", "MDRPrefixedString16BE", "MDRPrefixedString",
+                                       "MDRArray",    "MDRFixedArray",         "MDRMap"};
 std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
 std::string gNamespaceName = "mdr::v2::t1";
 using MacroPair = std::pair<unsigned, std::string>; // Line, Name
 std::vector<MacroPair> gMacros;
+std::unordered_set<std::string> gReadWriteTypes;
 CXChildVisitResult macroVisitor(CXCursor cursor, CXCursor parent, CXClientData)
 {
     CXCursorKind kind = clang_getCursorKind(cursor);
@@ -74,36 +72,40 @@ CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClie
         CXString name = clang_getCursorSpelling(cursor);
         CXType type = clang_getCursorType(cursor);
         CXString typeName = clang_getTypeSpelling(type);
-        CXCursor typeDecl = clang_getTypeDeclaration(type);
+        const char* rawName = clang_getCString(name);
+        const char* rawTypeName = clang_getCString(typeName);
+        const std::string fieldName = rawName ? rawName : "";
+        const std::string fieldTypeName = rawTypeName ? rawTypeName : "";
         // Custom RW? Or POD
         MethodVisitorResult result{};
         // Reserved ones always do custom RW
-        std::string_view typeNameStr = clang_getCString(typeName);
+        std::string_view typeNameStr = fieldTypeName;
         for (const char* reserved : kMDRReservedRWStructs)
             if (typeNameStr.starts_with(reserved))
                 result.hasRead = result.hasWrite = true;
-        clang_visitChildren(typeDecl, methodVisitor, &result);
+        if (gReadWriteTypes.contains(std::string(typeNameStr)))
+            result.hasRead = result.hasWrite = true;
         if (result.hasWrite && result.hasRead)
         {
             if (params->isSerialize)
-                println("        MDR_TRY_SIZE({}, {}::Write(data.{}, &ptr, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, &ptr, maxSize));", params->resultType, fieldTypeName, fieldName);
             if (params->isWrite)
-                println("        MDR_TRY_SIZE({}, {}::Write(data.{}, ppDstBuffer, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, ppDstBuffer, maxSize));", params->resultType, fieldTypeName, fieldName);
             if (params->isDeserialize)
-                println("        MDR_TRY_SIZE({}, {}::Read(&data, out.{}, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, ({}::Read)(&data, out.{}, maxSize));", params->resultType, fieldTypeName, fieldName);
             if (params->isRead)
-                println("        MDR_TRY_SIZE({}, {}::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType, clang_getCString(typeName), clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, ({}::Read)(ppSrcBuffer, out.{}, maxSize));", params->resultType, fieldTypeName, fieldName);
         }
         else
         {
             if (params->isSerialize)
-                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, &ptr, maxSize));", params->resultType, clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, &ptr, maxSize));", params->resultType, fieldName);
             if (params->isWrite)
-                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, ppDstBuffer, maxSize));", params->resultType, clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, ppDstBuffer, maxSize));", params->resultType, fieldName);
             if (params->isDeserialize)
-                println("        MDR_TRY_SIZE({}, MDRPod::Read(&data, out.{}, maxSize));", params->resultType, clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(&data, out.{}, maxSize));", params->resultType, fieldName);
             if (params->isRead)
-                println("        MDR_TRY_SIZE({}, MDRPod::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType, clang_getCString(name));
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType, fieldName);
         }
         clang_disposeString(name);
         clang_disposeString(typeName);
@@ -126,7 +128,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         std::string structName = clang_getCString(name);
         /* Collect macros */
         auto [startLine, endLine] = getCursorExtents(cursor);
-        auto start = std::ranges::lower_bound(gMacros, MacroPair{startLine,""});
+        auto start = std::lower_bound(gMacros.begin(), gMacros.end(), MacroPair{startLine,""});
         std::vector<std::string> macros;
         bool isExtern = false, isIgnored = false, isRWFieldStruct = false;
         for (auto it = start; it != gMacros.end() && it->first < endLine; ++it)
@@ -138,6 +140,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         FieldSerializeVisitorParams params{};
         if (isRWFieldStruct)
         {
+            gReadWriteTypes.insert(structName);
             // Emit field RW bodies
             if (!isIgnored)
             {
@@ -212,13 +215,14 @@ int main( int argc, char** argv )
         CXTranslationUnit_DetailedPreprocessingRecord);
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(cursor, macroVisitor, nullptr);
-    std::ranges::sort(gMacros);
+    std::sort(gMacros.begin(), gMacros.end());
     println("/* This file is auto-generated by tooling/SerializationCodegen.cpp */");
     println("#include <{}>", argv[3]);
     println("");
     println("namespace {} {{", gNamespaceName);
     clang_visitChildren(cursor, structVisitor, nullptr);
     println("}}");
+    std::fflush(stdout);
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
