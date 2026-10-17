@@ -14,7 +14,7 @@ namespace mdr
             std::fill(self->mDetailsV1.mSupport.functions.begin(), self->mDetailsV1.mSupport.functions.end(), false);
             for (const FunctionType function : result.supportFunctions)
                 self->mDetailsV1.mSupport.functions[static_cast<UInt8>(function)] = true;
-            self->mDetailsV1.mSupport.provenance = DetailsV1::SupportStates::Provenance::ADVERTISED;
+            self->mDetailsV1.mSupport.provenance = DetailsV1::SupportStates::state::ADVERTISED;
             self->RefreshSupportV1();
             self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
             return MDR_EVENT_IDENTITY_CHANGED;

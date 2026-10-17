@@ -344,51 +344,7 @@ namespace mdr
 
     void MDRHeadphones::SubmitPropertiesV2()
     {
-        auto& state = mDetailsV2;
-        state.mShutdown.submit();
-        state.mNcAsmEnabled.submit();
-        state.mNcAsmFocusOnVoice.submit();
-        state.mNcAsmAmbientLevel.submit();
-        state.mNcAsmChangingAsmLevel.submit();
-        state.mNcAsmButtonFunction.submit();
-        state.mNcAsmMode.submit();
-        state.mNcAsmAutoAsmEnabled.submit();
-        state.mNcAsmNoiseAdaptiveSensitivity.submit();
-        state.mPowerAutoOff.submit();
-        state.mPowerAutoOffWearingDetection.submit();
-        state.mPlayVolume.submit();
-        state.mPlayControl.submit();
-        state.mGsParamBool[0].submit();
-        state.mGsParamBool[1].submit();
-        state.mGsParamBool[2].submit();
-        state.mGsParamBool[3].submit();
-        state.mUpscalingEnabled.submit();
-        state.mAudioPriorityMode.submit();
-        state.mBGMModeEnabled.submit();
-        state.mBGMModeRoomSize.submit();
-        state.mUpmixCinemaEnabled.submit();
-        state.mVoiceContentsEnabled.submit();
-        state.mSoundLeakageReductionEnabled.submit();
-        state.mAutoPauseEnabled.submit();
-        state.mAssignableSettingsPresets.submit();
-        state.mSpeakToChatEnabled.submit();
-        state.mSpeakToChatDetectSensitivity.submit();
-        state.mSpeakToModeOutTime.submit();
-        state.mHeadGestureEnabled.submit();
-        state.mEqAvailable.submit();
-        state.mEqPresetId.submit();
-        state.mEqClearBass.submit();
-        state.mEqConfig.submit();
-        state.mVoiceGuidanceEnabled.submit();
-        state.mVoiceGuidanceVolume.submit();
-        state.mPairingMode.submit();
-        state.mMultipointDeviceMac.submit();
-        state.mSourceSwitchControlEnabled.submit();
-        state.mPairedDeviceDisconnectMac.submit();
-        state.mPairedDeviceConnectMac.submit();
-        state.mPairedDeviceUnpairMac.submit();
-        state.mSafeListeningPreviewMode.submit();
-        state.mAlertResponse.submit();
+        mDetailsV2.submit();
     }
 
     MDRTask MDRHeadphones::RequestCommitV2()
@@ -1042,29 +998,7 @@ namespace mdr
 
     bool MDRHeadphones::IsDirtyV2() const
     {
-        const auto& state = mDetailsV2;
-        return state.mShutdown.dirty() || state.mNcAsmEnabled.dirty() ||
-            state.mNcAsmFocusOnVoice.dirty() || state.mNcAsmAmbientLevel.dirty() || state.mNcAsmChangingAsmLevel.dirty() ||
-            state.mNcAsmButtonFunction.dirty() || state.mNcAsmMode.dirty() ||
-            state.mNcAsmAutoAsmEnabled.dirty() || state.mNcAsmNoiseAdaptiveSensitivity.dirty() ||
-            state.mPowerAutoOff.dirty() || state.mPowerAutoOffWearingDetection.dirty() ||
-            state.mPlayVolume.dirty() || state.mPlayControl.dirty() ||
-            state.mGsParamBool[0].dirty() || state.mGsParamBool[1].dirty() ||
-            state.mGsParamBool[2].dirty() || state.mGsParamBool[3].dirty() ||
-            state.mUpscalingEnabled.dirty() || state.mAudioPriorityMode.dirty() ||
-            state.mBGMModeEnabled.dirty() || state.mBGMModeRoomSize.dirty() ||
-            state.mUpmixCinemaEnabled.dirty() || state.mVoiceContentsEnabled.dirty() ||
-            state.mSoundLeakageReductionEnabled.dirty() || state.mAutoPauseEnabled.dirty() ||
-            state.mAssignableSettingsPresets.dirty() ||
-            state.mSpeakToChatEnabled.dirty() || state.mSpeakToChatDetectSensitivity.dirty() ||
-            state.mSpeakToModeOutTime.dirty() || state.mHeadGestureEnabled.dirty() ||
-            state.mEqAvailable.dirty() || state.mEqPresetId.dirty() ||
-            state.mEqClearBass.dirty() || state.mEqConfig.dirty() ||
-            state.mVoiceGuidanceEnabled.dirty() || state.mVoiceGuidanceVolume.dirty() ||
-            state.mPairingMode.dirty() || state.mMultipointDeviceMac.dirty() ||
-            state.mSafeListeningPreviewMode.dirty() || state.mSourceSwitchControlEnabled.dirty() ||
-            state.mPairedDeviceConnectMac.dirty() || state.mPairedDeviceDisconnectMac.dirty() ||
-            state.mPairedDeviceUnpairMac.dirty() || state.mAlertResponse.dirty();
+        return mDetailsV2.dirty();
     }
 
 #pragma endregion

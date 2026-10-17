@@ -5,10 +5,72 @@
 
 #include "Property.hpp"
 
+// See also DetailsV2.hpp @ref _DETAILS_V2_PROPS_X
+#define _DETAILS_V1_PROPS_X(PROP, ARRAY) \
+    PROP(bool, mShutdown) \
+    PROP(bool, mNcAsmEnabled) \
+    PROP(bool, mNcAsmFocusOnVoice) \
+    PROP(int, mNcAsmLevel) \
+    PROP(bool, mNcAsmChangingLevel) \
+    PROP(v1::t1::NcAsmEffect, mNcAsmEffect) \
+    PROP(UInt8, mNcAsmButtonFunction) \
+    PROP(v1::t1::AutoPowerOffElementId, mPowerAutoOff) \
+    PROP(UInt8, mPowerAutoOffWearingDetection) \
+    PROP(int, mPlayVolume) \
+    PROP(v1::t1::PlaybackControl, mPlayControl) \
+    ARRAY(bool, mGsParamBool, 3) \
+    PROP(bool, mUpscalingEnabled) \
+    PROP(v1::t1::ConnectionModeSettingValue, mAudioPriorityMode) \
+    PROP(bool, mBGMModeEnabled) \
+    PROP(UInt8, mBGMModeRoomSize) \
+    PROP(bool, mUpmixCinemaEnabled) \
+    PROP(bool, mAutoPauseEnabled) \
+    PROP(Vector<v1::t1::AssignableSettingsPreset>, mAssignableSettingsPresets) \
+    PROP(bool, mSpeakToChatEnabled) \
+    PROP(v1::t1::DetectionSensitivity, mSpeakToChatDetectSensitivity) \
+    PROP(v1::t1::ModeOutTime, mSpeakToModeOutTime) \
+    PROP(bool, mHeadGestureEnabled) \
+    PROP(bool, mEqAvailable, {true, true, true}) \
+    PROP(v1::t1::EqPresetId, mEqPresetId) \
+    PROP(int, mEqClearBass) \
+    PROP(Vector<int>, mEqConfig) \
+    PROP(bool, mVoiceGuidanceEnabled) \
+    PROP(int, mVoiceGuidanceVolume) \
+    PROP(bool, mPairingMode) \
+    PROP(String, mMultipointDeviceMac) \
+    PROP(bool, mSourceSwitchControlEnabled) \
+    PROP(String, mPairedDeviceDisconnectMac) \
+    PROP(String, mPairedDeviceConnectMac) \
+    PROP(String, mPairedDeviceUnpairMac) \
+    PROP(bool, mSafeListeningPreviewMode) \
+    PROP(AlertResponse, mAlertResponse)
+
 namespace mdr
 {
     struct DetailsV1
     {
+        struct AlertResponse
+        {
+            v1::t1::AlertMessageType messageType{};
+            v1::t1::AlertAction action{};
+            uint64_t serial{};
+        };
+
+        struct PeripheralDevice
+        {
+            String macAddress;
+            String name;
+            bool connected{};
+            bool playbackDevice{};
+        };
+
+        struct BatteryState
+        {
+            UInt8 level{};
+            UInt8 threshold{};
+            v1::t1::BatteryChargingStatus charging{};
+        };
+
         struct ProtocolStates
         {
             int version{};
@@ -16,9 +78,21 @@ namespace mdr
             int hasTable2{};
         } mProtocol{};
 
+        struct GsCapability
+        {
+            v1::t1::GsSettingType type{};
+            v1::t1::GsSettingInfo value{};
+        };
+
+        struct EqPresetInfo
+        {
+            v1::t1::EqPresetId presetId{};
+            String name;
+        };
+
         struct SupportStates
         {
-            enum class Provenance
+            enum class state
             {
                 UNKNOWN,
                 ADVERTISED,
@@ -26,13 +100,45 @@ namespace mdr
             };
 
             Array<bool, 256> functions{};
-            Provenance provenance{Provenance::UNKNOWN};
+            state provenance{state::UNKNOWN};
 
             [[nodiscard]] constexpr bool contains(v1::t1::FunctionType value) const
             {
                 return functions[static_cast<UInt8>(value)];
             }
         } mSupport{};
+
+#define _PROP(TYPE, NAME, ...) MDRProperty<TYPE> NAME __VA_ARGS__;
+#define _ARRAY(TYPE, NAME, COUNT, ...) MDRProperty<TYPE> NAME[COUNT] __VA_ARGS__;
+        _DETAILS_V1_PROPS_X(_PROP, _ARRAY)
+#undef _PROP
+#undef _ARRAY
+
+        void submit()
+        {
+#define _PROP(TYPE, NAME, ...) NAME.submit();
+#define _ARRAY(TYPE, NAME, COUNT, ...)                                                                                 \
+    for (auto& p : NAME)                                                                                               \
+        p.submit();
+            _DETAILS_V1_PROPS_X(_PROP, _ARRAY)
+#undef _PROP
+#undef _ARRAY
+        }
+
+        [[nodiscard]] bool dirty() const
+        {
+#define _PROP(TYPE, NAME, ...)                                                                                         \
+    if (NAME.dirty())                                                                                                  \
+        return true;
+#define _ARRAY(TYPE, NAME, COUNT, ...)                                                                                 \
+    for (const auto& p : NAME)                                                                                         \
+        if (p.dirty())                                                                                                 \
+            return true;
+            _DETAILS_V1_PROPS_X(_PROP, _ARRAY)
+#undef _PROP
+#undef _ARRAY
+            return false;
+        }
 
         String mUniqueId;
         String mFWVersion;
@@ -44,34 +150,13 @@ namespace mdr
         v1::t1::AlertMessageType mLastAlertMessage{};
         bool mAlertAwaitingResponse{};
         uint64_t mAlertSerial{};
-        struct AlertResponse
-        {
-            v1::t1::AlertMessageType messageType{};
-            v1::t1::AlertAction action{};
-            uint64_t serial{};
-        };
-        MDRProperty<AlertResponse> mAlertResponse;
+
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
-
-        struct PeripheralDevice
-        {
-            String macAddress;
-            String name;
-            bool connected{};
-            bool playbackDevice{};
-        };
 
         Vector<PeripheralDevice> mPairedDevices;
         UInt8 mPairedDevicesPlaybackDeviceID{};
         int mSafeListeningSoundPressure{};
-
-        struct BatteryState
-        {
-            UInt8 level{};
-            UInt8 threshold{};
-            v1::t1::BatteryChargingStatus charging{};
-        };
 
         BatteryState mBatteryL, mBatteryR, mBatteryCase;
 
@@ -85,57 +170,13 @@ namespace mdr
 
         Vector<v1::t1::AsCapabilityKey> mAssignableSettingsKeys;
 
-        struct GsCapability
-        {
-            v1::t1::GsSettingType type{};
-            v1::t1::GsSettingInfo value{};
-        };
-
         GsCapability mGsCapability[3];
-
-        MDRProperty<bool> mShutdown;
-        MDRProperty<bool> mNcAsmEnabled;
-        MDRProperty<bool> mNcAsmFocusOnVoice;
-        MDRProperty<int> mNcAsmLevel;
-        MDRProperty<bool> mNcAsmChangingLevel;
-        MDRProperty<v1::t1::NcAsmEffect> mNcAsmEffect;
-        MDRProperty<UInt8> mNcAsmButtonFunction;
-        MDRProperty<v1::t1::AutoPowerOffElementId> mPowerAutoOff;
-        MDRProperty<UInt8> mPowerAutoOffWearingDetection;
-        MDRProperty<int> mPlayVolume;
-        MDRProperty<v1::t1::PlaybackControl> mPlayControl;
-        MDRProperty<bool> mGsParamBool[3];
-        MDRProperty<bool> mUpscalingEnabled;
-        MDRProperty<v1::t1::ConnectionModeSettingValue> mAudioPriorityMode;
-        MDRProperty<bool> mBGMModeEnabled;
-        MDRProperty<UInt8> mBGMModeRoomSize;
-        MDRProperty<bool> mUpmixCinemaEnabled;
-        MDRProperty<bool> mAutoPauseEnabled;
-        MDRProperty<Vector<v1::t1::AssignableSettingsPreset>> mAssignableSettingsPresets;
-        MDRProperty<bool> mSpeakToChatEnabled;
-        MDRProperty<v1::t1::DetectionSensitivity> mSpeakToChatDetectSensitivity;
-        MDRProperty<v1::t1::ModeOutTime> mSpeakToModeOutTime;
         v1::t1::CommonOnOffSettingValue mSpeakToChatVoiceFocus{v1::t1::CommonOnOffSettingValue::OFF};
-        MDRProperty<bool> mHeadGestureEnabled;
-        struct EqPresetInfo
-        {
-            v1::t1::EqPresetId presetId{};
-            String name;
-        };
 
         Vector<EqPresetInfo> mEqPresets;
-        MDRProperty<bool> mEqAvailable{true, true, true};
-        MDRProperty<v1::t1::EqPresetId> mEqPresetId;
-        MDRProperty<int> mEqClearBass;
-        MDRProperty<Vector<int>> mEqConfig;
-        MDRProperty<bool> mVoiceGuidanceEnabled;
-        MDRProperty<int> mVoiceGuidanceVolume;
-        MDRProperty<bool> mPairingMode;
-        MDRProperty<String> mMultipointDeviceMac;
-        MDRProperty<String> mPairedDeviceDisconnectMac, mPairedDeviceConnectMac, mPairedDeviceUnpairMac;
-        MDRProperty<bool> mSourceSwitchControlEnabled;
         UInt8 mSourceSwitchControlResult{};
-        MDRProperty<bool> mSafeListeningPreviewMode;
     };
+
+#undef _DETAILS_V1_PROPS_X
 
 } // namespace mdr

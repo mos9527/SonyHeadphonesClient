@@ -913,6 +913,8 @@ typedef struct Device
     /* When set, a reply goes out ahead of the ACK for the request it answers, the way a
      * WH-1000XM3 orders them. */
     int reply_before_ack;
+    int block_ack;
+    unsigned char held_seq;
     RequestLog log[REQUEST_LOG_CAPACITY];
     size_t log_size;
 } Device;
@@ -923,6 +925,13 @@ static void device_send(Device* device, unsigned char type, const unsigned char*
     const size_t size = pack_frame(type, device->sequence, payload, payload_size, frame);
 
     device->sequence = (unsigned char)(1 - device->sequence);
+    mock_append(device->transport, frame, size);
+}
+
+static void device_ack(Device* device, unsigned char sequence)
+{
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    const size_t size = pack_frame(MDR_DATA_TYPE_ACK, (unsigned char)(1 - sequence), NULL, 0, frame);
     mock_append(device->transport, frame, size);
 }
 
@@ -953,6 +962,11 @@ static void device_pump(Device* device)
             entry->payload_size = frame.payload_size;
         }
 
+        if (device->block_ack)
+        {
+            device->held_seq = frame.sequence;
+            continue;
+        }
         ack_size = pack_frame(MDR_DATA_TYPE_ACK, (unsigned char)(1 - frame.sequence), NULL, 0, ack);
         if (!device->reply_before_ack)
             mock_append(device->transport, ack, ack_size);
