@@ -1281,7 +1281,7 @@ void DrawDeviceAlert()
         ImGui::TextUnformatted(mdr::Format(fmt::runtime(Tr(i18n::TextId::AlertMessage)), gAlertMessage).c_str());
     ImGui::NewLine();
 
-    ImGui::BeginDisabled(!mdrHeadphonesIsReady(gDevice));
+    ImGui::BeginDisabled(!mdrHeadphonesIsInitialized(gDevice));
     MDRAlertAction response{};
     bool answered = false;
     if (ImModalButton(TrLable(i18n::TextId::Cancel, PSI_REMOVE), 0, 2))
@@ -1427,7 +1427,7 @@ void DrawDeviceControlsHeader()
             }
             if (FeatureAvailable(MDR_FEATURE_SHUTDOWN))
             {
-                ImGui::BeginDisabled(!mdrHeadphonesIsReady(gDevice));
+                ImGui::BeginDisabled(!mdrHeadphonesIsInitialized(gDevice));
                 if (ImGui::MenuItem(TrLable(i18n::TextId::Shutdown, PSI_OFF)))
                 {
                     MDRPower power{};
@@ -2399,7 +2399,7 @@ void DrawDeviceControls()
         return;
     ImGui::Separator();
     ImGui::BeginChild("##ControlTabs");
-    ImGui::BeginDisabled(!mdrHeadphonesIsReady(gDevice));
+    ImGui::BeginDisabled(!mdrHeadphonesIsInitialized(gDevice));
     DrawDeviceControlsTabs();
     ImGui::EndDisabled();
     ImScrollWhenDraggingAnywhere(ImGui::GetIO().MouseDelta, ImGuiMouseButton_Left);

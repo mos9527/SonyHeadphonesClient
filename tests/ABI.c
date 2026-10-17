@@ -602,11 +602,13 @@ static void test_struct_and_buffer_contracts(void)
     session_close(&session);
 }
 
-static void test_one_operation_at_a_time(void)
+static void test_one_operation_at_a_time(MDRProtocolVersion family)
 {
     Session session;
+    const MDRPlaybackCommand command = {MDR_PLAYBACK_PLAY};
+    const MDRPower power = {0};
 
-    if (!session_open(&session))
+    if (!session_open_family(&session, family))
         return;
     check_result(
         mdrHeadphonesRequestInit(session.headphones),
@@ -618,6 +620,15 @@ static void test_one_operation_at_a_time(void)
         MDR_RESULT_INPROGRESS,
         "a second operation is rejected while initialization is active"
     );
+    check_result(mdrHeadphonesRequestInit(session.headphones), MDR_RESULT_INPROGRESS, "initialization cannot overlap");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "commit cannot interrupt initialization");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 10), MDR_RESULT_INPROGRESS,
+                 "volume cannot stage during initial bootstrap");
+    check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_INPROGRESS,
+                 "playback command cannot stage during initial bootstrap");
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_INPROGRESS,
+                 "power cannot stage during initial bootstrap");
+    check(!mdrHeadphonesIsDirty(session.headphones), "rejected bootstrap setters leave no edits");
     check(
         mdrHeadphonesIsReady(session.headphones) == MDR_FALSE,
         "status reports the active operation as busy"
@@ -1697,75 +1708,139 @@ static void test_v2_bootstrap(void)
     session_close(&session);
 }
 
-static void test_staging_is_rejected_during_apply(void)
+static void check_command_payload(Session* session, size_t offset, const unsigned char* payload, size_t size)
 {
+    TxFrame frame;
+    int writes = 0;
+    while (next_tx_frame(&session->transport, &offset, &frame))
+    {
+        if (frame.type != MDR_DATA_TYPE_DATA_MDR || frame.payload_size == 0 || frame.payload[0] != payload[0])
+            continue;
+        ++writes;
+        check(frame.payload_size == size && memcmp(frame.payload, payload, size) == 0,
+              "command carries its submitted snapshot, not a newer staged value");
+    }
+    check(writes == 1, "each submitted command is transmitted exactly once");
+}
+
+static void test_staging_during_apply(MDRProtocolVersion family)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 1, 0xa1};
+    static const unsigned char table1_v2[] = {0x07, 0, 1, 0xa1, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
     Session session;
-    const uint32_t first_volume = 10;
-    MDRPlayback current;
-    MDRPlaybackCommand command;
-    unsigned char ack[FRAME_BUFFER_CAPACITY];
-    size_t ack_size;
-    MDREvent ack_event;
-    MDREvent completion;
+    Device device;
+    MDRPlayback current, desired;
+    const MDRPlaybackCommand command = {MDR_PLAYBACK_PLAY};
+    int v1 = family == MDR_PROTOCOL_V1;
+    unsigned char volume_v1[] = {0xa8, 1, 0x20, 10};
+    unsigned char volume_v2[] = {0xa8, 0x20, 10};
+    const unsigned char play[] = {0xa4, 1, 0, 7};
+    size_t offset, tx_size;
+    MDREvent event;
+    int iteration;
 
-    if (!session_open(&session))
+    if (!session_open_family(&session, family))
         return;
-    select_v2(&session, "V2 protocol is selected for apply");
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
 
-    check_result(
-        mdrHeadphonesSetPlaybackVolume(session.headphones, first_volume),
-        MDR_RESULT_OK,
-        "first playback value stages"
-    );
-    check_result(
-        mdrHeadphonesRequestCommit(session.headphones),
-        MDR_RESULT_OK,
-        "apply starts"
-    );
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 10), MDR_RESULT_OK, "first volume stages");
+    check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_OK, "first action stages");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "first batch starts");
+    tx_size = session.transport.tx_size;
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 15), MDR_RESULT_OK, "volume stages before first send");
+    check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_OK,
+                 "same action stages before its old submitted command runs");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 20), MDR_RESULT_OK, "latest volume replaces staged volume");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 31), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "invalid busy edit is still rejected");
+    check(session.transport.tx_size == tx_size, "busy setters do not perform I/O");
+    check(!mdrHeadphonesIsReady(session.headphones) && mdrHeadphonesIsDirty(session.headphones),
+          "staging does not complete the active request");
+    check_result(mdrHeadphonesRequestInit(session.headphones), MDR_RESULT_INPROGRESS, "busy Init remains serialized");
+    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_INPROGRESS, "busy Sync remains serialized");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "busy Commit cannot replace snapshot");
+    poll_event(session.headphones, &event, "old volume flushes before its ACK");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 21), MDR_RESULT_OK, "volume stages while waiting for ACK");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "first batch completes");
+    check_command_payload(&session, offset, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    check_command_payload(&session, offset, play, sizeof(play));
+    check_result(mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current), MDR_RESULT_OK, "current reads");
+    check_result(mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired), MDR_RESULT_OK, "desired reads");
+    check(current.volume == 0 && desired.volume == 21 && mdrHeadphonesIsReady(session.headphones) &&
+          mdrHeadphonesIsDirty(session.headphones), "old ACK leaves newer edits pending without synthesizing current");
 
-    check_result(
-        mdrHeadphonesSetPlaybackVolume(session.headphones, 20),
-        MDR_RESULT_INPROGRESS,
-        "a playback value is rejected during apply"
-    );
-    memset(&command, 0, sizeof(command));
-    command.action = MDR_PLAYBACK_PLAY;
-    check_result(
-        mdrHeadphonesSendPlaybackCommand(session.headphones, &command),
-        MDR_RESULT_INPROGRESS,
-        "a playback command is rejected during apply"
-    );
+    offset = session.transport.tx_size;
+    device.log_size = 0;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "second batch starts");
+    for (iteration = 0; iteration < 4096; ++iteration)
+    {
+        if (!poll_event(session.headphones, &event, "second batch advances to its playback action"))
+            break;
+        device_pump(&device);
+        if (device_requested(&device, 1, 0xa4, 1))
+            break;
+    }
+    check(device_requested(&device, 1, 0xa4, 1) && !mdrHeadphonesIsReady(session.headphones),
+          "volume ACK is consumed while playback action remains in flight");
 
-    poll_event(session.headphones, &ack_event, "apply request flushes");
-    ack_size = pack_ack(&session.transport, ack);
-    mock_load(&session.transport, ack, ack_size);
-    poll_event(session.headphones, &ack_event, "apply ACK polls");
-    poll_event(session.headphones, &completion, "apply completion polls");
-    check(
-        ack_event == MDR_EVENT_UNHANDLED
-            && completion == MDR_EVENT_APPLY_COMPLETE,
-        "ACK and completion are reported in poll order"
-    );
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 22), MDR_RESULT_OK,
+                 "already acknowledged property stages again while another property is in flight");
+    check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_OK,
+                 "same action stages while its old action waits for ACK");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "second batch completes");
+    volume_v1[3] = volume_v2[2] = 21;
+    check_command_payload(&session, offset, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    check_command_payload(&session, offset, play, sizeof(play));
+    check(mdrHeadphonesIsReady(session.headphones) && mdrHeadphonesIsDirty(session.headphones),
+          "both edits survive completion of the second batch");
 
-    memset(&current, 0, sizeof(current));
-    check_result(
-        mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current),
-        MDR_RESULT_OK,
-        "device-reported playback is readable after apply"
-    );
-    check(current.volume == 0, "ACK does not synthesize a device-reported volume");
-    check_result(
-        mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &current),
-        MDR_RESULT_OK,
-        "desired playback is readable after apply"
-    );
-    check(current.volume == first_volume, "apply preserves its original accepted target");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "third batch starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "third batch completes");
+    volume_v1[3] = volume_v2[2] = 22;
+    check_command_payload(&session, offset, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    check_command_payload(&session, offset, play, sizeof(play));
+    check(mdrHeadphonesIsReady(session.headphones) && !mdrHeadphonesIsDirty(session.headphones),
+          "last batch consumes all submitted edits");
 
-    check(
-        mdrHeadphonesIsReady(session.headphones) == MDR_TRUE
-            && mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
-        "rejected value does not remain pending after apply completes"
-    );
+    offset = session.transport.tx_size;
+    device.log_size = 0;
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 22), MDR_RESULT_OK, "same-value volume stages again");
+    check(mdrHeadphonesIsDirty(session.headphones), "same-value Set retains explicit write intent");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "same-value batch starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "same-value batch completes");
+    check_command_payload(&session, offset, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    check(!device_requested(&device, 1, 0xa4, -1) && !mdrHeadphonesIsDirty(session.headphones),
+          "consumed one-shot action is not replayed by an unrelated batch");
+
+    device.log_size = 0;
+    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_OK, "sync starts before new edits");
+    tx_size = session.transport.tx_size;
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 23), MDR_RESULT_OK, "volume stages during sync");
+    check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_OK, "action stages during sync");
+    check(session.transport.tx_size == tx_size, "sync-time setters do not send commands");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "commit waits for sync");
+    device_run(&session, &device, MDR_EVENT_SYNC_COMPLETE, "sync completes with new edits staged");
+    check(!device_requested(&device, 1, 0xa8, -1) && !device_requested(&device, 1, 0xa4, -1),
+          "sync does not consume or transmit new write intent");
+    check(mdrHeadphonesIsReady(session.headphones) && mdrHeadphonesIsDirty(session.headphones),
+          "sync completion leaves its concurrent edits staged");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "post-sync edits start");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "post-sync edits complete");
+    volume_v1[3] = volume_v2[2] = 23;
+    check_command_payload(&session, offset, v1 ? volume_v1 : volume_v2, v1 ? sizeof(volume_v1) : sizeof(volume_v2));
+    check_command_payload(&session, offset, play, sizeof(play));
+    check(!mdrHeadphonesIsDirty(session.headphones), "post-sync ACK consumes its edits");
     session_close(&session);
 }
 
@@ -2250,11 +2325,12 @@ static void test_v2_assignable_controls(int limited)
     check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, input, count);
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "assignment apply starts");
     check_result(mdrHeadphonesSetAssignableControls(session.headphones, controls, count),
-                 MDR_RESULT_INPROGRESS, "busy assignment Set stays rejected");
-    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, input, count);
+                 MDR_RESULT_OK, "busy assignment Set stages a new array");
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, controls, count);
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "assignment apply completes");
     check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, controls, count);
-    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, input, count);
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, controls, count);
+    check(mdrHeadphonesIsDirty(session.headphones), "old assignment ACK preserves the newly staged array");
     while (next_tx_frame(&session.transport, &offset, &frame))
     {
         if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload[0] == 0xf8)
@@ -2268,6 +2344,15 @@ static void test_v2_assignable_controls(int limited)
         }
     }
     check(found, "assignment commit transmits a settings update");
+    {
+        const unsigned char reset[] = {0xf8, (unsigned char)(limited ? 0x0e : 0x03),
+                                       (unsigned char)(limited ? 1 : 3), 0xff, 0xff, 0xff};
+        offset = session.transport.tx_size;
+        check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "new assignment array starts");
+        device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "new assignment array completes");
+        check_command_payload(&session, offset, reset, limited ? 4u : sizeof(reset));
+        check(!mdrHeadphonesIsDirty(session.headphones), "second assignment ACK consumes the new array");
+    }
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, limited ? 4u : sizeof(notification));
     device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "assignment notification emits its own event");
     check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
@@ -2342,11 +2427,12 @@ static void test_v1_assignable_controls(void)
     check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, desired, 2);
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "V1 assignment apply starts");
     check_result(mdrHeadphonesSetAssignableControls(session.headphones, controls, 2),
-                 MDR_RESULT_INPROGRESS, "busy V1 assignment Set stays rejected");
-    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, desired, 2);
+                 MDR_RESULT_OK, "busy V1 assignment Set stages a new array");
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, controls, 2);
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "V1 assignment apply completes");
     check_assignable_view(session.headphones, MDR_PROPERTY_CURRENT, controls, 2);
-    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, desired, 2);
+    check_assignable_view(session.headphones, MDR_PROPERTY_DESIRED, controls, 2);
+    check(mdrHeadphonesIsDirty(session.headphones), "old V1 assignment ACK preserves the newly staged array");
     while (next_tx_frame(&session.transport, &offset, &frame))
     {
         if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload[0] == 0xf8)
@@ -2358,6 +2444,14 @@ static void test_v1_assignable_controls(void)
         }
     }
     check(found, "V1 assignment reaches the transport");
+    {
+        const unsigned char reset[] = {0xf8, 6, 2, 0, 0x20};
+        offset = session.transport.tx_size;
+        check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "new V1 assignment array starts");
+        device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "new V1 assignment array completes");
+        check_command_payload(&session, offset, reset, sizeof(reset));
+        check(!mdrHeadphonesIsDirty(session.headphones), "second V1 assignment ACK consumes the new array");
+    }
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, notification, sizeof(notification));
     device_run(&session, &device, MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED, "V1 assignment notification polls");
     check_result(mdrHeadphonesGetAssignableControls(session.headphones, MDR_PROPERTY_CURRENT, controls, &count),
@@ -2604,6 +2698,85 @@ static void test_eq_array_views(MDRProtocolVersion family)
     session_close(&session);
 }
 
+static void test_grouped_staging_during_apply(MDRProtocolVersion family)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 2, 0x51, 0xa1};
+    static const unsigned char table1_v2[] = {0x07, 0, 2, 0x50, 0xff, 0xa1, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char flat_v1[] = {0x57, 1, 0, 6, 10, 10, 10, 10, 10, 10};
+    static const unsigned char flat_v2[] = {0x57, 0, 0, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+    static const unsigned char first_v1[] = {0x58, 1, 0xff, 6, 10, 11, 11, 11, 11, 11};
+    static const unsigned char first_v2[] = {0x58, 0, 0, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+    static const unsigned char next_v1[] = {0x58, 1, 0xff, 6, 12, 12, 12, 12, 12, 12};
+    static const unsigned char next_v2[] = {0x58, 0, 0, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+    static const int32_t flat[10] = {0};
+    static const int32_t first[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    static const int32_t next[10] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    Session session;
+    Device device;
+    MDREqualizer equalizer;
+    TxFrame frame;
+    MDREvent event;
+    size_t offset;
+    int curves = 0;
+    int v1 = family == MDR_PROTOCOL_V1;
+    uint32_t count = v1 ? 5u : 10u;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "initial grouped EQ report polls");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, first, count), MDR_RESULT_OK, "first curve stages");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 10), MDR_RESULT_OK, "volume stages ahead of EQ");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "grouped batch starts with volume in flight");
+    check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer), MDR_RESULT_OK, "group reads");
+    equalizer.clear_bass = 2;
+    check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer), MDR_RESULT_OK,
+                 "previously clean group members stage after the batch snapshot");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, next, count), MDR_RESULT_OK,
+                 "new array stages before the old EQ command has run");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    poll_event(session.headphones, &event, "group notification ahead of volume ACK polls");
+    check(event == MDR_EVENT_EQUALIZER_CHANGED, "EQ report is processed before old group completion");
+    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, count);
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, next, count);
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "first grouped batch completes");
+    check_command_payload(&session, offset, v1 ? first_v1 : first_v2, v1 ? sizeof(first_v1) : sizeof(first_v2));
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, next, count);
+    check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer), MDR_RESULT_OK,
+                 "group reads after old ACK");
+    check(equalizer.clear_bass == 2 && mdrHeadphonesIsDirty(session.headphones),
+          "group commit preserves both submitted-staged array and purely staged members");
+
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "next grouped batch starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "next grouped batch completes");
+    while (next_tx_frame(&session.transport, &offset, &frame))
+    {
+        if (frame.type == MDR_DATA_TYPE_DATA_MDR && frame.payload_size > 4 && frame.payload[0] == 0x58)
+        {
+            const unsigned char* payload = v1 ? next_v1 : next_v2;
+            const size_t size = v1 ? sizeof(next_v1) : sizeof(next_v2);
+            ++curves;
+            check(frame.payload_size == size && memcmp(frame.payload, payload, size) == 0,
+                  "next curve uses new array and newly staged group snapshot");
+        }
+    }
+    check(curves == 1 && !mdrHeadphonesIsDirty(session.headphones), "next grouped ACK consumes all staged members");
+    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, count);
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, next, count);
+    session_close(&session);
+}
+
 static void test_playback_property_views(MDRProtocolVersion family)
 {
     static const unsigned char table1_v1[] = {0x07, 0, 1, 0xa1};
@@ -2653,9 +2826,9 @@ static void test_playback_property_views(MDRProtocolVersion family)
     check_result(mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired),
                  MDR_RESULT_OK, "desired remains readable during apply");
     check(desired.volume == 12, "apply reads the latest accepted target");
-    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 20), MDR_RESULT_INPROGRESS, "busy Set stays rejected");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 20), MDR_RESULT_OK, "busy Set stages the next target");
     mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
-    check(desired.volume == 12, "rejected busy Set never changes desired");
+    check(desired.volume == 20, "busy Set updates desired without changing the in-flight target");
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? changed_volume_v1 : changed_volume_v2,
                 v1 ? sizeof(changed_volume_v1) : sizeof(changed_volume_v2));
     {
@@ -2665,12 +2838,21 @@ static void test_playback_property_views(MDRProtocolVersion family)
     }
     mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current);
     mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
-    check(current.volume == 9 && desired.volume == 12, "in-flight target survives a device notification");
+    check(current.volume == 9 && desired.volume == 20, "new staged target survives a device notification");
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "volume apply completes through ACK");
     mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_CURRENT, &current);
     mdrHeadphonesGetPlayback(session.headphones, MDR_PROPERTY_DESIRED, &desired);
-    check(current.volume == 9 && desired.volume == 12 && !mdrHeadphonesIsDirty(session.headphones),
-          "ACK settles the write without overwriting the earlier device notification");
+    check(current.volume == 9 && desired.volume == 20 && mdrHeadphonesIsDirty(session.headphones),
+          "ACK preserves the next edit and the earlier device notification");
+    tx_size = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "next volume apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "next volume apply completes");
+    {
+        const unsigned char next_v1[] = {0xa8, 1, 0x20, 20};
+        const unsigned char next_v2[] = {0xa8, 0x20, 20};
+        check_command_payload(&session, tx_size, v1 ? next_v1 : next_v2, v1 ? sizeof(next_v1) : sizeof(next_v2));
+    }
+    check(!mdrHeadphonesIsDirty(session.headphones), "next ACK consumes the staged volume");
     device.log_size = 0;
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "clean apply starts");
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "clean apply completes");
@@ -3190,6 +3372,8 @@ int main(void)
     test_widened_inputs(MDR_PROTOCOL_V2);
     test_eq_array_views(MDR_PROTOCOL_V1);
     test_eq_array_views(MDR_PROTOCOL_V2);
+    test_grouped_staging_during_apply(MDR_PROTOCOL_V1);
+    test_grouped_staging_during_apply(MDR_PROTOCOL_V2);
     test_playback_property_views(MDR_PROTOCOL_V1);
     test_playback_property_views(MDR_PROTOCOL_V2);
     test_unedited_property_is_not_submitted(MDR_PROTOCOL_V1);
@@ -3199,7 +3383,8 @@ int main(void)
     test_editable_property_views(MDR_PROTOCOL_V2, 1);
     test_abi_version_handshake();
     test_struct_and_buffer_contracts();
-    test_one_operation_at_a_time();
+    test_one_operation_at_a_time(MDR_PROTOCOL_V1);
+    test_one_operation_at_a_time(MDR_PROTOCOL_V2);
     test_committed_state_staging();
     test_playback_actions();
     test_poll_events();
@@ -3211,7 +3396,8 @@ int main(void)
     test_listening_mode_rereads_what_it_takes_away();
     test_transmit_sequence_ignores_inbound_frames();
     test_v2_bootstrap();
-    test_staging_is_rejected_during_apply();
+    test_staging_during_apply(MDR_PROTOCOL_V1);
+    test_staging_during_apply(MDR_PROTOCOL_V2);
     test_connection_mode_names_its_inquired_type();
     test_v1_voice_guidance_detail_is_not_the_switch();
     test_v1_reply_before_ack();
