@@ -474,6 +474,7 @@ namespace mdr
                 case POSITIVE_NEGATIVE:
                 {
                     self->mDetailsV1.mLastAlertMessage = res.messageType;
+                    ++self->mDetailsV1.mAlertSerial;
                     self->mDetailsV1.mAlertAwaitingResponse = true;
                     return MDR_EVENT_ALERT;
                 }

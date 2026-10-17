@@ -1485,7 +1485,10 @@ MDRResult mdrHeadphonesSetAlertResponse(MDRHeadphones* headphones, MDRAlertActio
     {
         if (!state.mAlertAwaitingResponse)
             return MDR_RESULT_ERROR_NOT_FOUND;
-        state.mAlertResponse.stage(static_cast<int>(action));
+        using Action = decltype(state.mAlertResponse.mDesired.action);
+        state.mAlertResponse.stage({state.mLastAlertMessage,
+                                   action == MDR_ALERT_ACTION_POSITIVE ? Action::POSITIVE : Action::NEGATIVE,
+                                   state.mAlertSerial});
         return MDR_RESULT_OK;
     });
 }

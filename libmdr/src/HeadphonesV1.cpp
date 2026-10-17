@@ -535,12 +535,12 @@ namespace mdr
 
         if (state.mAlertResponse.pending())
         {
-            state.mAlertAwaitingResponse = false;
+            if (state.mAlertResponse.mSubmitted.serial == state.mAlertSerial)
+                state.mAlertAwaitingResponse = false;
             t1::SetAlertParamFixedMessageParam res;
             res.type = t1::AlertInquiredType::FIXED_MESSAGE;
-            res.messageType = state.mLastAlertMessage;
-            res.action = state.mAlertResponse.mSubmitted == MDR_ALERT_ACTION_POSITIVE
-                ? t1::AlertAction::POSITIVE : t1::AlertAction::NEGATIVE;
+            res.messageType = state.mAlertResponse.mSubmitted.messageType;
+            res.action = state.mAlertResponse.mSubmitted.action;
             SendCommandACK(t1::SetAlertParamFixedMessageParam, res);
             state.mAlertResponse.commit();
         }

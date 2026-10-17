@@ -43,7 +43,14 @@ namespace mdr
 
         v1::t1::AlertMessageType mLastAlertMessage{};
         bool mAlertAwaitingResponse{};
-        MDRProperty<int> mAlertResponse{-1, -1, -1};
+        uint64_t mAlertSerial{};
+        struct AlertResponse
+        {
+            v1::t1::AlertMessageType messageType{};
+            v1::t1::AlertAction action{};
+            uint64_t serial{};
+        };
+        MDRProperty<AlertResponse> mAlertResponse;
         String mLastInteractionMessage;
         String mLastDeviceJSONMessage;
 

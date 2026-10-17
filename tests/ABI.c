@@ -1729,6 +1729,99 @@ static void check_command_payload(Session* session, size_t offset, const unsigne
     check(writes == 1, "each submitted command is transmitted exactly once");
 }
 
+static void test_alert_responses(MDRProtocolVersion family, int arrival)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 2, 0x90, 0xa1};
+    static const unsigned char table1_v2[] = {0x07, 0, 2, 0x90, 0xff, 0xa1, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    unsigned char alert[] = {0x39, 0, 0, 1};
+    unsigned char response[] = {0x38, 0, 0, 0};
+    Session session;
+    Device device;
+    MDREvent event;
+    size_t offset;
+    int v1 = family == MDR_PROTOCOL_V1;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_POSITIVE),
+                 MDR_RESULT_ERROR_NOT_FOUND, "no alert accepts a response");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, alert, sizeof(alert));
+    device_run(&session, &device, MDR_EVENT_ALERT, "alert A arrives");
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, 2),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "invalid alert action is rejected");
+    check(!mdrHeadphonesIsDirty(session.headphones), "invalid response stages nothing");
+
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 8), MDR_RESULT_OK, "blocker stages");
+    device.block_ack = 1;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "blocker apply starts");
+    poll_event(session.headphones, &event, "blocker flushes before its ACK");
+    device_pump(&device);
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_POSITIVE), MDR_RESULT_OK,
+                 "alert A response stages while busy");
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_NEGATIVE), MDR_RESULT_OK,
+                 "latest response replaces the staged action");
+    alert[2] = arrival == 1 ? 0 : 1;
+    if (arrival != 2)
+    {
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, alert, sizeof(alert));
+        device_run(&session, &device, MDR_EVENT_ALERT, "alert B arrives before response submission");
+    }
+    device.block_ack = 0;
+    device_ack(&device, device.held_seq);
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "blocker apply completes");
+    check(mdrHeadphonesIsDirty(session.headphones), "response staged after snapshot remains dirty");
+
+    offset = session.transport.tx_size;
+    device.block_ack = 1;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "alert A response apply starts");
+    poll_event(session.headphones, &event, "response A flushes before its ACK");
+    device_pump(&device);
+    check_command_payload(&session, offset, response, sizeof(response));
+    if (arrival == 2)
+    {
+        check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_POSITIVE),
+                     MDR_RESULT_ERROR_NOT_FOUND, "submitted alert A is no longer awaiting a response");
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, alert, sizeof(alert));
+        device_run(&session, &device, MDR_EVENT_ALERT, "alert B arrives while response A awaits ACK");
+    }
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_POSITIVE), MDR_RESULT_OK,
+                 "old response submission leaves alert B awaiting a response");
+    device.block_ack = 0;
+    device_ack(&device, device.held_seq);
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "alert A response completes");
+    check(mdrHeadphonesIsDirty(session.headphones), "old response ACK preserves response B");
+
+    response[2] = alert[2];
+    response[3] = 1;
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "alert B response apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "alert B response completes");
+    check_command_payload(&session, offset, response, sizeof(response));
+    check(!mdrHeadphonesIsDirty(session.headphones), "response B ACK consumes its write");
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_NEGATIVE),
+                 MDR_RESULT_ERROR_NOT_FOUND, "answered alert cannot stage another response");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "empty response apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "empty response apply completes");
+    check(session.transport.tx_size == offset, "completed response is not replayed");
+    alert[3] = 0;
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, alert, sizeof(alert));
+    device_run(&session, &device, MDR_EVENT_UNHANDLED, "confirmation-only alert arrives");
+    check_result(mdrHeadphonesSetAlertResponse(session.headphones, MDR_ALERT_ACTION_POSITIVE),
+                 MDR_RESULT_ERROR_NOT_FOUND, "confirmation-only alert accepts no response");
+    check(!mdrHeadphonesIsDirty(session.headphones), "notification stages no response");
+    session_close(&session);
+}
+
 static void check_eq_bands(MDRHeadphones* headphones, MDRPropertyType type,
                            const int32_t* expected, uint32_t expected_count);
 
@@ -3483,6 +3576,12 @@ static void test_fatal_failure(MDRProtocolVersion family, int source)
 int main(void)
 {
     int failure_source;
+    int arrival;
+    for (arrival = 0; arrival < 3; ++arrival)
+    {
+        test_alert_responses(MDR_PROTOCOL_V1, arrival);
+        test_alert_responses(MDR_PROTOCOL_V2, arrival);
+    }
     for (failure_source = 0; failure_source < 5; ++failure_source)
     {
         test_fatal_failure(MDR_PROTOCOL_V1, failure_source);
