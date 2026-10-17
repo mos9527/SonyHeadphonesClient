@@ -15,7 +15,7 @@
 * - Define `MDRProperty<T> FIELD_NAME`, ALWAYS in `_DETAILS_V2_PROPS_X`/`_DETAILS_V1_PROPS_X`, with PROP(T, FIELD_NAME)
 * - Define `MDRProperty<T> FIELD_NAME[COUNT]`, ALWAYS in `_DETAILS_V2_PROPS_X`/`_DETAILS_V1_PROPS_X`, with ARRAY(T, FIELD_NAME, COUNT)
 * 
-* Furthermore on coding style, which should also ALWAYS be followed.
+* Furthermore on coding style, which should also ALWAYS be followed, in this order:
 * - Declare `struct`s for all fields
 * - Declare macro expansions [`MDRProperty` expansion -> `submit` expansion -> `dirty` expansion] (always present)
 * - Declare Read-only fields

@@ -210,7 +210,7 @@ namespace mdr
         }
 
         /**
-         * @breif Receive commands and process events. This is non-blocking, and should be
+         * @brief Receive commands and process events. This is non-blocking, and should be
          *        run in - for example - your UI loop.
          * @note  This is your best friend.
          * @note  This function does not block. To not burn cycles for fun - poll on your @ref MDRConnection

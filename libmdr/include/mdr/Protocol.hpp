@@ -225,7 +225,7 @@ namespace mdr
     };
 
     /**
-     * @breif `noexcept` Allocator for STL containers, simply wraps @ref malloc and @ref free.
+     * @brief `noexcept` Allocator for STL containers, simply wraps @ref malloc and @ref free.
      * @note  Terminates on OOM, etc., instead of throwing an exception.
      */
     template <typename T = void>
@@ -288,22 +288,22 @@ namespace mdr
         deleter(obj);
     }
     /**
-     * @breif Alias for std::array. This MAY map to any specific protocol type directly as a POD type.
+     * @brief Alias for std::array. This MAY map to any specific protocol type directly as a POD type.
      */
     template <typename T, size_t Size>
     using Array = std::array<T, Size>;
     /**
-     * @breif Alias for std::pair. This does not map to any specific protocol type directly.
+     * @brief Alias for std::pair. This does not map to any specific protocol type directly.
      */
     template <typename A, typename B>
     using Pair = std::pair<A, B>;
     /**
-     * @breif Alias for std::tuple. This does not map to any specific protocol type directly.
+     * @brief Alias for std::tuple. This does not map to any specific protocol type directly.
      */
     template <typename... Args>
     using Tuple = std::tuple<Args...>;
     /**
-     * @breif Alias for std::string. This does not map to any specific protocol type directly.
+     * @brief Alias for std::string. This does not map to any specific protocol type directly.
      */
     using String = std::basic_string<char, std::char_traits<char>, MDRAllocator<char>>;
     /**
@@ -318,12 +318,12 @@ namespace mdr
         return String(buffer.data(), buffer.size());
     }
     /**
-     * @breif Alias for std::vector. This does not map to any specific protocol type directly.
+     * @brief Alias for std::vector. This does not map to any specific protocol type directly.
      */
     template <typename T>
     using Vector = std::vector<T, MDRAllocator<T>>;
     /**
-     * @breif Alias for std::deque. This does not map to any specific protocol type directly.
+     * @brief Alias for std::deque. This does not map to any specific protocol type directly.
      */
     template <typename T>
     using Deque = std::deque<T, MDRAllocator<T>>;
