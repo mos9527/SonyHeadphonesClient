@@ -542,14 +542,15 @@ namespace mdr
             res.action = state.mAlertResponse.mSubmitted == MDR_ALERT_ACTION_POSITIVE
                 ? t1::AlertAction::POSITIVE : t1::AlertAction::NEGATIVE;
             SendCommandACK(t1::SetAlertParamFixedMessageParam, res);
-            state.mAlertResponse.override(-1);
+            state.mAlertResponse.commit();
         }
 
         if (state.mShutdown.pending())
         {
             if (state.mShutdown.mSubmitted && state.mSupport.contains(t1::FunctionType::POWER_OFF))
                 SendCommandACK(t1::SetPowerOff);
-            state.mShutdown.override(false);
+            state.mShutdown.commit();
+            state.mShutdown.overwrite(false);
         }
 
         if (state.mNcAsmEnabled.pending() || state.mNcAsmFocusOnVoice.pending() || state.mNcAsmLevel.pending() ||
@@ -593,7 +594,7 @@ namespace mdr
                     .control = state.mPlayControl.mSubmitted
                 });
             }
-            state.mPlayControl.override(t1::PlaybackControl::KEY_OFF);
+            state.mPlayControl.commit();
         }
 
         if (state.mEqPresetId.pending() || state.mEqConfig.pending() || state.mEqClearBass.pending())
@@ -671,7 +672,8 @@ namespace mdr
         if (state.mHeadGestureEnabled.pending())
         {
             // TODO @Amrsatrio            
-            state.mHeadGestureEnabled.override(state.mHeadGestureEnabled.mCurrent);
+            state.mHeadGestureEnabled.commit();
+            state.mHeadGestureEnabled.overwrite(state.mHeadGestureEnabled.mCurrent);
         }
 
         if (state.mAssignableSettingsPresets.pending())

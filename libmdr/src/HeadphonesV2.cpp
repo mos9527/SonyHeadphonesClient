@@ -405,7 +405,7 @@ namespace mdr
             res.actionType = state.mAlertResponse.mSubmitted == MDR_ALERT_ACTION_POSITIVE
                 ? t1::AlertAction::POSITIVE : t1::AlertAction::NEGATIVE;
             SendCommandACK(t1::AlertSetParamFixedMessage, res);
-            state.mAlertResponse.override(-1);
+            state.mAlertResponse.commit();
         }
 
         /* Shutdown */
@@ -413,12 +413,9 @@ namespace mdr
         {
             using namespace t1;
             if (state.mSupport.contains(FunctionType::POWER_OFF) && state.mShutdown.mSubmitted)
-            {
                 SendCommandACK(PowerSetStatusPowerOff);
-                state.mShutdown.override(false);
-            }
-            else
-                state.mShutdown.override(false);
+            state.mShutdown.commit();
+            state.mShutdown.overwrite(false);
         }
         /* NC/ASM */
         if (state.mNcAsmAmbientLevel.pending() || state.mNcAsmChangingAsmLevel.pending() ||
@@ -507,9 +504,7 @@ namespace mdr
             res.status = EnableDisable::ENABLE;
             res.control = state.mPlayControl.mSubmitted;
             SendCommandACK(SetPlayStatusPlaybackController, res);
-            // A bit of a special case. We reset the value to something else
-            // so simply setting 'desired' repeatedly works as intended
-            state.mPlayControl.override(PlaybackControl::KEY_OFF);
+            state.mPlayControl.commit();
         }
 
         /* Multipoint Switch */
@@ -518,7 +513,7 @@ namespace mdr
             using namespace t2;
             PeripheralSetExtendedParamSourceSwitchControl res;
             if (state.mMultipointDeviceMac.mSubmitted.length() != 17)
-                state.mMultipointDeviceMac.override("");
+                state.mMultipointDeviceMac.commit();
             else
             {
                 std::copy_n(state.mMultipointDeviceMac.mSubmitted.begin(), 17, res.targetBdAddress.begin());
@@ -539,7 +534,10 @@ namespace mdr
                 state.mSourceSwitchControlEnabled.commit();
             }
             else
-                state.mSourceSwitchControlEnabled.override(true);
+            {
+                state.mSourceSwitchControlEnabled.commit();
+                state.mSourceSwitchControlEnabled.overwrite(true);
+            }
         }
 
         /* Connection Ops */
@@ -563,47 +561,41 @@ namespace mdr
             else
             {
                 // Unsupported. Ignore the rest.
-                state.mPairedDeviceConnectMac.override("");
-                state.mPairedDeviceDisconnectMac.override("");
-                state.mPairedDeviceUnpairMac.override("");
+                state.mPairedDeviceConnectMac.commit();
+                state.mPairedDeviceDisconnectMac.commit();
+                state.mPairedDeviceUnpairMac.commit();
             }
             PeripheralSetExtendedParamParingDeviceManagementCommon res;
             res.inquiredType = type;
             if (state.mPairedDeviceConnectMac.pending())
             {
-                if (state.mPairedDeviceConnectMac.mSubmitted.length() != 17)
-                    state.mPairedDeviceConnectMac.override("");
-                else
+                if (state.mPairedDeviceConnectMac.mSubmitted.length() == 17)
                 {
                     res.connectivityActionType = ConnectivityActionType::CONNECT;
                     std::copy_n(state.mPairedDeviceConnectMac.mSubmitted.begin(), 17, res.btDeviceAddress.begin());
                     SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                    state.mPairedDeviceConnectMac.override("");
                 }
+                state.mPairedDeviceConnectMac.commit();
             }
             if (state.mPairedDeviceDisconnectMac.pending())
             {
-                if (state.mPairedDeviceDisconnectMac.mSubmitted.length() != 17)
-                    state.mPairedDeviceDisconnectMac.override("");
-                else
+                if (state.mPairedDeviceDisconnectMac.mSubmitted.length() == 17)
                 {
                     res.connectivityActionType = ConnectivityActionType::DISCONNECT;
                     std::copy_n(state.mPairedDeviceDisconnectMac.mSubmitted.begin(), 17, res.btDeviceAddress.begin());
                     SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                    state.mPairedDeviceDisconnectMac.override("");
                 }
+                state.mPairedDeviceDisconnectMac.commit();
             }
             if (state.mPairedDeviceUnpairMac.pending())
             {
-                if (state.mPairedDeviceUnpairMac.mSubmitted.length() != 17)
-                    state.mPairedDeviceUnpairMac.override("");
-                else
+                if (state.mPairedDeviceUnpairMac.mSubmitted.length() == 17)
                 {
                     res.connectivityActionType = ConnectivityActionType::UNPAIR;
                     std::copy_n(state.mPairedDeviceUnpairMac.mSubmitted.begin(), 17, res.btDeviceAddress.begin());
                     SendCommandACK(PeripheralSetExtendedParamParingDeviceManagementCommon, res);
-                    state.mPairedDeviceUnpairMac.override("");
                 }
+                state.mPairedDeviceUnpairMac.commit();
             }
         
 
