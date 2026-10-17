@@ -90,7 +90,7 @@ option(MDR_DEBUG_TRAPS "Break into the debugger when MDR operations fail in Debu
 option(MDR_BUILD_BT "Build the platform Bluetooth backends" ON)
 option(MDR_BUILD_CLIENT "Build the SonyHeadphonesClient and platform backends" ON)
 option(MDR_BUILD_TESTING "Build the MDR ABI and packet replay tests" ON)
-option(MDR_BUILD_CODEGEN "Build codegen tools and targets (requires LLVM)" ON)
+option(MDR_BUILD_CODEGEN "Build codegen tools and targets (requires LLVM)" OFF)
 option(MDR_CLIENT_DEBUGGER "Build the ImGui packet debugger in all configurations" OFF)
 if (MDR_BUILD_CLIENT AND NOT MDR_BUILD_BT)
     message(FATAL_ERROR "MDR_BUILD_CLIENT requires MDR_BUILD_BT=ON; set MDR_BUILD_CLIENT=OFF to build without Bluetooth backends")

@@ -4,6 +4,8 @@ AST walker and codegen for `libmdr` - with extra helper utilities.
 
 ## Running codegen
 
+Codegen is disabled by default. Configure with `-DMDR_BUILD_CODEGEN=ON` after [setting up LLVM](#setting-up-llvm).
+
 Codegen is a proper CMake dependency. Modify a source header and re-run:
 
 ```sh

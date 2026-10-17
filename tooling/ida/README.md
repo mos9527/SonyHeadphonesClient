@@ -81,7 +81,7 @@ libmdr/include/mdr/ProtocolV2T2.hpp
 There is no staged-header or parity workflow: production protocol headers are
 fully generated from the checked-in IR.
 
-Configure and build normally afterward. CMake regenerates enum formatters,
+Configure with `-DMDR_BUILD_CODEGEN=ON` and build normally afterward. CMake regenerates enum formatters,
 traits, serialization, and validation sources from these headers.
 
 ## Verify and commit
