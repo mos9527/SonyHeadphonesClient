@@ -1948,11 +1948,9 @@ MDRResult mdrHeadphonesGetEqualizer(
     });
 }
 
-MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualizer* equalizer)
+MDRResult mdrHeadphonesSetEqualizerPreset(MDRHeadphones* headphones, MDREqualizerPreset presetId)
 {
-    if (!headphones || !equalizer || equalizer->clear_bass < -10 ||
-        equalizer->clear_bass > 10 || !ValidBoolean(equalizer->dsee_enabled) ||
-        (equalizer->band_count != 0 && equalizer->band_count != 5 && equalizer->band_count != 10))
+    if (!headphones)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
     if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
@@ -1961,23 +1959,48 @@ MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualize
         return MDR_RESULT_INPROGRESS;
     return WithDetails(h, [&](auto& state) -> MDRResult
     {
-    auto preset = state.mEqPresetId.mDesired;
-    if (equalizer->preset != MDR_EQ_UNKNOWN && !to_protocol(equalizer->preset, preset))
+        decltype(state.mEqPresetId.mDesired) preset{};
+        if (!to_protocol(presetId, preset))
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        // Devices silently ignore presets they did not advertise.
+        if (!state.mEqPresets.empty() &&
+            std::none_of(state.mEqPresets.begin(), state.mEqPresets.end(),
+                         [&](const auto& entry) { return entry.presetId == preset; }))
+            return MDR_RESULT_ERROR_NOT_SUPPORTED;
+        state.mEqPresetId.stage(preset);
+        return MDR_RESULT_OK;
+    });
+}
+
+MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t clearBass)
+{
+    if (!headphones || clearBass < -10 || clearBass > 10)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    // Devices silently ignore presets they did not advertise.
-    if (equalizer->preset != MDR_EQ_UNKNOWN && !state.mEqPresets.empty() &&
-        std::none_of(state.mEqPresets.begin(), state.mEqPresets.end(),
-                     [&](const auto& entry) { return entry.presetId == preset; }))
-        return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    if (equalizer->dsee_type != MDR_DSEE_UNKNOWN && equalizer->dsee_type != from_protocol(state.mUpscalingType))
-        return MDR_RESULT_ERROR_NOT_SUPPORTED;
-    const auto existingCount = state.mEqConfig.mDesired.size();
-    if (equalizer->band_count != 0 && equalizer->band_count != existingCount)
+    auto& h = *Impl(headphones);
+    if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (!h.mInitialized && !h.IsReady())
+        return MDR_RESULT_INPROGRESS;
+    return WithDetails(h, [&](auto& state) -> MDRResult
+    {
+        state.mEqClearBass.stage(static_cast<int>(clearBass));
+        return MDR_RESULT_OK;
+    });
+}
+
+MDRResult mdrHeadphonesSetDSEE(MDRHeadphones* headphones, MDRBoolean enabled)
+{
+    if (!headphones || !ValidBoolean(enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    state.mEqPresetId.stage(preset);
-    state.mEqClearBass.stage(static_cast<int>(equalizer->clear_bass));
-    state.mUpscalingEnabled.stage(equalizer->dsee_enabled != MDR_FALSE);
-    return MDR_RESULT_OK;
+    auto& h = *Impl(headphones);
+    if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (!h.mInitialized && !h.IsReady())
+        return MDR_RESULT_INPROGRESS;
+    return WithDetails(h, [&](auto& state) -> MDRResult
+    {
+        state.mUpscalingEnabled.stage(enabled != MDR_FALSE);
+        return MDR_RESULT_OK;
     });
 }
 

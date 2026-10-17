@@ -1832,7 +1832,6 @@ void DrawDeviceControlsSound()
     /* EQ & DSEE */
     if (ImHeadingTreeNode(TrLable(i18n::TextId::EqualizerDsee), ImGuiTreeNodeFlags_DefaultOpen))
     {
-        bool changed = false;
         // Only what the device advertised: an id it never named is one it will not take.
         mdr::Vector<MDREqualizerPreset> selections;
         for (const auto& [id, name] : equalizerPresets)
@@ -1851,8 +1850,9 @@ void DrawDeviceControlsSound()
         ImGui::BeginDisabled(!equalizerUsable);
         // An empty list means the device has not answered yet, not that it has no presets.
         ImGui::BeginDisabled(selections.empty());
-        changed |= ImComboBoxItems<MDREqualizerPreset, std::dynamic_extent>(TrLable(i18n::TextId::Preset), std::span{selections},
-                                                                            equalizer.preset, formatPreset);
+        if (ImComboBoxItems<MDREqualizerPreset, std::dynamic_extent>(TrLable(i18n::TextId::Preset), std::span{selections},
+                                                                 equalizer.preset, formatPreset) && equalizerAvailable)
+            mdrHeadphonesSetEqualizerPreset(gDevice, equalizer.preset);
         ImGui::EndDisabled();
         if (Iequalizer(equalizerBands))
             SetEqualizerBands(equalizerBands);
@@ -1861,19 +1861,17 @@ void DrawDeviceControlsSound()
             ImHeading(Tr(i18n::TextId::ClearBass), IM_FONTSIZE_SUBHEADING);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             int clearBass = static_cast<int>(equalizer.clear_bass);
-            if (ImGui::SliderInt("##", &clearBass, -10, 10))
-                equalizer.clear_bass = static_cast<int32_t>(clearBass), changed = true;
+            if (ImGui::SliderInt("##", &clearBass, -10, 10) && equalizerAvailable)
+                mdrHeadphonesSetEqualizerClearBass(gDevice, static_cast<int32_t>(clearBass));
         }
         ImGui::EndDisabled();
         ImHeading(Tr(i18n::TextId::Dsee), IM_FONTSIZE_SUBHEADING);
         ImGui::BeginDisabled(!FeatureAvailable(MDR_FEATURE_DSEE) || !dseeUsable);
-        if (ImGui::RadioButton(TrLable(i18n::TextId::Off), equalizer.dsee_enabled == MDR_FALSE))
-            equalizer.dsee_enabled = MDR_FALSE, changed = true;
-        if (ImGui::RadioButton(TrLable(i18n::TextId::OnAuto), equalizer.dsee_enabled != MDR_FALSE))
-            equalizer.dsee_enabled = MDR_TRUE, changed = true;
+        if (ImGui::RadioButton(TrLable(i18n::TextId::Off), equalizer.dsee_enabled == MDR_FALSE) && equalizerAvailable)
+            mdrHeadphonesSetDSEE(gDevice, MDR_FALSE);
+        if (ImGui::RadioButton(TrLable(i18n::TextId::OnAuto), equalizer.dsee_enabled != MDR_FALSE) && equalizerAvailable)
+            mdrHeadphonesSetDSEE(gDevice, MDR_TRUE);
         ImGui::EndDisabled();
-        if (changed && equalizerAvailable)
-            mdrHeadphonesSetEqualizer(gDevice, &equalizer);
         ImGui::TreePop();
     }
 }

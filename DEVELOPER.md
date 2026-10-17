@@ -255,8 +255,6 @@ For **read-write** properties, the `MDRPropertyType type` parameter selects the 
 - `MDR_PROPERTY_CURRENT` returns the latest device-reported value, or its default before any report. Getters do not request fresh data, and ACKs do not update ordinary property values.
 - `MDR_PROPERTY_DESIRED` preserves local edits made through `mdrHeadphonesSet...` until completion. With no outstanding local write, subsequent device reports update this view too.
 - Read-only fields in a mixed structure use the same value in both views. One-shot action fields may reset after completion.
-- Acknowledgement clears the outstanding write, not the difference between the two views. `CLEAN` does not guarantee `mDesired == mCurrent` or that the device accepted the target value.
-- The internal lifecycle is `CLEAN` -> `STAGED` -> `SUBMITTED` -> `CLEAN`. The submitted payload is frozen; state-changing setters are rejected while a request is in progress. Removing revision tracking depends on this restriction remaining in place.
 - `mdrHeadphonesRequestSync` refreshes only the protocol family's implemented synchronization subset; it is not a readback of every writable property.
 
 **Read-write** properties should provide **both** a getter and a setter function.
@@ -311,6 +309,21 @@ For the log strings themselves:
 - **DO NOT** include tags (e.g. `MDR_LOG("[BT] Device disconnected")`), or `MDR_SOURCE_LOCATION` in your log string. The strings themselves *should* be self-explanatory and trivally searchable to cross-reference with source.
 - For strings that's only meant for a debug build, use `MDR_LOG_DEBUG`, which is automatically stripped in non-Debug builds even if `MDR_ENABLE_LOG` is `ON`.
 - There's no log levels, and platform backends that outputs them with one should opt for `INFO` level (e.g. logcat).
+
+### Thread Safety
+
+There's no Thread Safety guarantees. Don't race the states, and check with TSAN if you're working with threads.
+
+### Commit Messages
+
+> **NOTE**: This applies to commits made after `2026/10/17`, so if you can see it, this applies to **you** *now*.
+
+**Write them yourself, and in English.** Per [CONTRIBUTING.md](./.github/CONTRIBUTING.md), **you**, the contributor, **must understand the code you contribute**. **NEVER** let an AI generate it for you, or use placeholders that conveys no meaning at all.
+
+Otherwise, have **fun** with it. There's not really an objective standard here for how *good* a commit message here (it's FOSS, not your day job), as long as it's *yours* and meaningful, go ahead and do it.
+
+
+Thanks for reading it all the way to this paragraph. We certainlly hope you can *personally* enjoy the contribution process as much as the rest of us!
 
 ### Payload Struct Implementation Details (libmdr)
 

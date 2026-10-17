@@ -497,20 +497,21 @@ MDR_API MDRResult mdrHeadphonesCreate(uint32_t abiVersion, MDRConnection* connec
 /**
  * @brief Frees the @ref MDRHeadphones instance.
  * @note  When a fatal failure has occured, i.e. after an non-`MDR_RESULT_OK` result via @ref mdrHeadphonesPoll,
- *        only @ref mdrHeadphonesDestroy is callable. Calling other functions will always return the last error code,
- *        which you can then query with @ref mdrResultString abd @ref mdrHeadphonesGetText
+ *        destroy and recreate the instance. Other operations return the last error code,
+ *        except status queries and @ref mdrHeadphonesGetText with @ref MDR_TEXT_LAST_ERROR.
  */
 MDR_API void mdrHeadphonesDestroy(MDRHeadphones* headphones);
 /**
  * @brief Returns true if the @ref MDRHeadphones instance has been initialized via @ref mdrHeadphonesRequestInit.
- * @note  Returns false after a fatal failure, in which case you can only call @ref mdrHeadphonesDestroy.
+ * @note  Returns false after a fatal failure, in which case destroy and recreate the instance.
  */
 MDR_API MDRBoolean mdrHeadphonesIsInitialized(const MDRHeadphones* headphones);
 /**
- * @brief Returns true if new ...Request, state-changing ...Set, and @ref mdrHeadphonesSendPlaybackCommand calls can be made.
- *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request, ...Set,
- *        and @ref mdrHeadphonesSendPlaybackCommand calls will fail with @ref MDR_RESULT_INPROGRESS.
- * @note  Returns false after a fatal failure, in which case you can only call @ref mdrHeadphonesDestroy.
+ * @brief Returns true if new ...Request calls can be made.
+ *        If any in-flight request is pending/incomplete, this will return false, and subsequent ...Request
+ *        calls will fail with @ref MDR_RESULT_INPROGRESS.
+ * @note  After initialization, ...Set and @ref mdrHeadphonesSendPlaybackCommand may stage writes while busy.
+ * @note  Returns false after a fatal failure, in which case destroy and recreate the instance.
  */
 MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
 /**
@@ -596,7 +597,9 @@ MDR_API MDRResult mdrHeadphonesGetListening(MDRHeadphones* headphones, MDRProper
 MDR_API MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListening* listening);
 MDR_API MDRResult mdrHeadphonesGetEqualizer(MDRHeadphones* headphones, MDRPropertyType type,
                                             MDREqualizer* out_equalizer);
-MDR_API MDRResult mdrHeadphonesSetEqualizer(MDRHeadphones* headphones, const MDREqualizer* equalizer);
+MDR_API MDRResult mdrHeadphonesSetEqualizerPreset(MDRHeadphones* headphones, MDREqualizerPreset preset);
+MDR_API MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t clear_bass);
+MDR_API MDRResult mdrHeadphonesSetDSEE(MDRHeadphones* headphones, MDRBoolean enabled);
 /* Counts are element counts, not byte sizes. Five bands accept -10..10; ten accept -6..6. */
 MDR_API MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, MDRPropertyType type,
                                                  int32_t* bands, uint32_t* inout_count);
@@ -604,7 +607,7 @@ MDR_API MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, cons
 
 /**
  * @brief The equalizer presets the device advertised, in its order. Names are @ref MDR_TEXT_EQUALIZER_PRESET_NAME.
- * @note  An empty list means the device has not reported one, and @ref mdrHeadphonesSetEqualizer then accepts any
+ * @note  An empty list means the device has not reported one, and @ref mdrHeadphonesSetEqualizerPreset then accepts any
  *        preset. Otherwise presets outside the list are refused. Unknown ids read MDR_EQ_UNKNOWN.
  */
 MDR_API MDRResult mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MDREqualizerPreset* presets,

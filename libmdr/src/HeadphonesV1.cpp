@@ -597,25 +597,24 @@ namespace mdr
             state.mPlayControl.commit();
         }
 
-        if (state.mEqPresetId.pending() || state.mEqConfig.pending() || state.mEqClearBass.pending())
+        if (state.mEqPresetId.pending())
+        {
+            if (state.mSupport.contains(t1::FunctionType::PRESET_EQ))
+                SendCommandACK(t1::SetEqEbbParamEqParam, {.presetId = state.mEqPresetId.mSubmitted});
+            state.mEqPresetId.commit();
+        }
+        if (state.mEqConfig.pending() || state.mEqClearBass.pending())
         {
             if (state.mSupport.contains(t1::FunctionType::PRESET_EQ))
             {
-                // Devices drop a frame carrying both a preset and band steps, so send one or the other.
                 t1::SetEqEbbParamEqParam payload;
-                if (state.mEqConfig.pending() || state.mEqClearBass.pending())
-                {
-                    payload.presetId = t1::EqPresetId::UNSPECIFIED;
-                    payload.bandSteps.value.push_back(
-                        static_cast<UInt8>(std::clamp(state.mEqClearBass.mSubmitted, -10, 10) + 10));
-                    for (const int band : state.mEqConfig.mSubmitted)
-                        payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
-                }
-                else
-                    payload.presetId = state.mEqPresetId.mSubmitted;
+                payload.presetId = t1::EqPresetId::UNSPECIFIED;
+                payload.bandSteps.value.push_back(
+                    static_cast<UInt8>(std::clamp(state.mEqClearBass.mSubmitted, -10, 10) + 10));
+                for (const int band : state.mEqConfig.mSubmitted)
+                    payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
                 SendCommandACK(t1::SetEqEbbParamEqParam, payload);
             }
-            state.mEqPresetId.commit();
             state.mEqConfig.commit();
             state.mEqClearBass.commit();
         }

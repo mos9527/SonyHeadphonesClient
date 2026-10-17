@@ -75,6 +75,12 @@ static_assert(offsetof(MDRSafeListening, preview) == 4, "safe listening preview 
 
 static_assert(_Generic(&mdrHeadphonesGetEqualizer,
     MDRResult (*)(MDRHeadphones*, MDRPropertyType, MDREqualizer*): 1, default: 0), "EQ getter signature");
+static_assert(_Generic(&mdrHeadphonesSetEqualizerPreset,
+    MDRResult (*)(MDRHeadphones*, MDREqualizerPreset): 1, default: 0), "EQ preset setter signature");
+static_assert(_Generic(&mdrHeadphonesSetEqualizerClearBass,
+    MDRResult (*)(MDRHeadphones*, int32_t): 1, default: 0), "Clear Bass setter signature");
+static_assert(_Generic(&mdrHeadphonesSetDSEE,
+    MDRResult (*)(MDRHeadphones*, MDRBoolean): 1, default: 0), "DSEE setter signature");
 static_assert(_Generic(&mdrHeadphonesGetEqualizerBands,
     MDRResult (*)(MDRHeadphones*, MDRPropertyType, int32_t*, uint32_t*): 1, default: 0), "EQ bands getter signature");
 static_assert(_Generic(&mdrHeadphonesSetEqualizerBands,
@@ -1439,7 +1445,7 @@ static void test_equalizer_presets_follow_the_capability(void)
     );
     equalizer.preset = MDR_EQ_ROCK;
     check_result(
-        mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesSetEqualizerPreset(session.headphones, equalizer.preset),
         MDR_RESULT_OK,
         "any encodable preset is accepted while the list is unknown"
     );
@@ -1497,13 +1503,13 @@ static void test_equalizer_presets_follow_the_capability(void)
     );
     equalizer.preset = MDR_EQ_BRIGHT;
     check_result(
-        mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesSetEqualizerPreset(session.headphones, equalizer.preset),
         MDR_RESULT_OK,
         "an advertised preset is accepted"
     );
     equalizer.preset = MDR_EQ_ROCK;
     check_result(
-        mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+        mdrHeadphonesSetEqualizerPreset(session.headphones, equalizer.preset),
         MDR_RESULT_ERROR_NOT_SUPPORTED,
         "a preset the device never listed is refused"
     );
@@ -1721,6 +1727,125 @@ static void check_command_payload(Session* session, size_t offset, const unsigne
               "command carries its submitted snapshot, not a newer staged value");
     }
     check(writes == 1, "each submitted command is transmitted exactly once");
+}
+
+static void check_eq_bands(MDRHeadphones* headphones, MDRPropertyType type,
+                           const int32_t* expected, uint32_t expected_count);
+
+static void test_equalizer_independent_writes(MDRProtocolVersion family)
+{
+    static const unsigned char table1_v1[] = {0x07, 0, 2, 0x51, 0xe2};
+    static const unsigned char table1_v2[] = {0x07, 0, 2, 0x50, 0xff, 0xe2, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char flat_v1[] = {0x57, 1, 0, 6, 10, 10, 10, 10, 10, 10};
+    static const unsigned char flat_v2[] = {0x57, 0, 0, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+    static const unsigned char bright_v1[] = {0x59, 1, 0x10, 6, 10, 11, 11, 11, 11, 11};
+    static const unsigned char bright_v2[] = {0x59, 0, 0x10, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+    static const int32_t ones[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    Session session;
+    Device device;
+    MDREqualizer current, desired;
+    unsigned char preset[] = {0x58, 0, 0x10, 0};
+    TxFrame frame;
+    size_t offset;
+    int v1 = family == MDR_PROTOCOL_V1;
+    int writes;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? table1_v1 : table1_v2;
+    device.table1_size = v1 ? sizeof(table1_v1) : sizeof(table1_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "initial EQ report polls");
+    check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, MDR_EQ_UNKNOWN),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "unknown preset is not a write");
+    check(!mdrHeadphonesIsDirty(session.headphones), "invalid preset leaves no edit");
+    device.eq_notification = v1 ? bright_v1 : bright_v2;
+    device.eq_notification_size = v1 ? sizeof(bright_v1) : sizeof(bright_v2);
+    device.reply_before_ack = 1;
+    preset[1] = v1 ? 1 : 0;
+    offset = session.transport.tx_size;
+    device.log_size = 0;
+    check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, MDR_EQ_BRIGHT), MDR_RESULT_OK, "preset stages alone");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "preset apply starts");
+    check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, MDR_EQ_BRIGHT), MDR_RESULT_OK,
+                 "same preset stages while its old write is pending");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "preset apply completes");
+    check_command_payload(&session, offset, preset, sizeof(preset));
+    check(!device_requested(&device, 1, 0xe8, -1), "preset write does not write DSEE");
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &current);
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(current.preset == MDR_EQ_BRIGHT && desired.preset == MDR_EQ_BRIGHT,
+          "reported preset stands without an old curve write");
+    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, ones, v1 ? 5u : 10u);
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, ones, v1 ? 5u : 10u);
+    check(mdrHeadphonesIsDirty(session.headphones), "old preset ACK preserves the repeated write");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "repeated preset apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "repeated preset apply completes");
+    check_command_payload(&session, offset, preset, sizeof(preset));
+    check(!mdrHeadphonesIsDirty(session.headphones), "repeated preset ACK consumes its write");
+
+    device.eq_notification = NULL;
+    device.log_size = 0;
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesSetDSEE(session.headphones, MDR_TRUE), MDR_RESULT_OK, "DSEE stages alone");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "DSEE apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "DSEE apply completes");
+    check(device_requested(&device, 1, 0xe8, -1) && !device_requested(&device, 1, 0x58, -1),
+          "DSEE write sends no preset or curve");
+    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &desired);
+    check(desired.preset == MDR_EQ_BRIGHT && desired.clear_bass == current.clear_bass,
+          "DSEE write preserves EQ fields");
+
+    device.log_size = 0;
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, ones, v1 ? 5u : 10u), MDR_RESULT_OK,
+                 "same-value curve stages alone");
+    if (v1)
+        check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 2), MDR_RESULT_OK, "Clear Bass joins curve");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "curve apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "curve apply completes");
+    writes = 0;
+    while (next_tx_frame(&session.transport, &offset, &frame))
+    {
+        if (frame.type != MDR_DATA_TYPE_DATA_MDR || frame.payload_size == 0 || frame.payload[0] != 0x58)
+            continue;
+        ++writes;
+        check(frame.payload_size == (v1 ? 10u : 14u) && frame.payload[2] == (v1 ? 0xff : 0x10),
+              "curve write uses the protocol-specific preset tag");
+        if (v1)
+            check(frame.payload[4] == 12, "Clear Bass is included in the curve frame");
+    }
+    check(writes == 1 && !device_requested(&device, 1, 0xe8, -1) && !mdrHeadphonesIsDirty(session.headphones),
+          "curve write adds no preset-only or DSEE command");
+    if (v1)
+    {
+        offset = session.transport.tx_size;
+        check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, MDR_EQ_BRIGHT), MDR_RESULT_OK,
+                     "explicit preset joins the next curve batch");
+        check_result(mdrHeadphonesSetEqualizerBands(session.headphones, ones, 5), MDR_RESULT_OK, "explicit curve joins preset");
+        check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "preset and curve apply starts");
+        device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "preset and curve apply completes");
+        writes = 0;
+        while (next_tx_frame(&session.transport, &offset, &frame))
+        {
+            if (frame.type != MDR_DATA_TYPE_DATA_MDR || frame.payload_size == 0 || frame.payload[0] != 0x58)
+                continue;
+            check(writes == 0 ? frame.payload_size == 4 && frame.payload[2] == 0x10
+                              : frame.payload_size == 10 && frame.payload[2] == 0xff,
+                  "V1 sends preset then curve in separate frames");
+            ++writes;
+        }
+        check(writes == 2 && !mdrHeadphonesIsDirty(session.headphones), "V1 consumes both explicit writes");
+    }
+    session_close(&session);
 }
 
 static void test_staging_during_apply(MDRProtocolVersion family)
@@ -2560,6 +2685,10 @@ static void test_widened_inputs(MDRProtocolVersion family)
     {
         check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, unsigned_values[i]),
                      MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide unsigned volume cannot truncate into range");
+        check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, unsigned_values[i]),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide preset cannot truncate into range");
+        check_result(mdrHeadphonesSetDSEE(session.headphones, unsigned_values[i]),
+                     MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide DSEE boolean is rejected");
         noise = noise_before;
         noise.mode = MDR_NOISE_MODE_CANCELLING;
         noise.focus_on_voice = MDR_TRUE;
@@ -2579,10 +2708,7 @@ static void test_widened_inputs(MDRProtocolVersion family)
     }
     for (i = 0; i < sizeof(signed_values) / sizeof(signed_values[0]); ++i)
     {
-        equalizer = equalizer_before;
-        equalizer.preset = MDR_EQ_HEAVY;
-        equalizer.clear_bass = signed_values[i];
-        check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+        check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, signed_values[i]),
                      MDR_RESULT_ERROR_INVALID_ARGUMENT, "wide clear bass cannot truncate into range");
         voice = voice_before;
         voice.enabled = MDR_TRUE;
@@ -2599,9 +2725,7 @@ static void test_widened_inputs(MDRProtocolVersion family)
     }
     for (i = 0; i < 2; ++i)
     {
-        equalizer = equalizer_before;
-        equalizer.clear_bass = i ? 11 : -11;
-        check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer),
+        check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, i ? 11 : -11),
                      MDR_RESULT_ERROR_INVALID_ARGUMENT, "clear bass remains within -10..10");
         voice = voice_before;
         voice.volume = i ? 3 : -3;
@@ -2739,9 +2863,8 @@ static void test_grouped_staging_during_apply(MDRProtocolVersion family)
     offset = session.transport.tx_size;
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "grouped batch starts with volume in flight");
     check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer), MDR_RESULT_OK, "group reads");
-    equalizer.clear_bass = 2;
-    check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer), MDR_RESULT_OK,
-                 "previously clean group members stage after the batch snapshot");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 2), MDR_RESULT_OK,
+                 "previously clean Clear Bass stages after the batch snapshot");
     check_result(mdrHeadphonesSetEqualizerBands(session.headphones, next, count), MDR_RESULT_OK,
                  "new array stages before the old EQ command has run");
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
@@ -2989,15 +3112,12 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
           speak.sensitivity == MDR_SPEECH_SENSITIVITY_LOW && speak.timeout == MDR_SPEAK_TIMEOUT_LONG,
           "speech desired timeout edit retains pending enable and sensitivity");
 
-    mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer);
-    equalizer.preset = MDR_EQ_BRIGHT;
-    equalizer.clear_bass = -10;
-    check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer), MDR_RESULT_OK, "negative clear bass stages");
+    check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, MDR_EQ_BRIGHT), MDR_RESULT_OK, "preset stages");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, -10), MDR_RESULT_OK, "negative clear bass stages");
     mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer);
     check(equalizer.clear_bass == -10, "negative clear bass survives the public type bridge");
-    equalizer.clear_bass = 10;
-    equalizer.dsee_enabled = MDR_TRUE;
-    check_result(mdrHeadphonesSetEqualizer(session.headphones, &equalizer), MDR_RESULT_OK, "second desired EQ edit stages");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 10), MDR_RESULT_OK, "second clear bass edit stages");
+    check_result(mdrHeadphonesSetDSEE(session.headphones, MDR_TRUE), MDR_RESULT_OK, "DSEE stages independently");
     if (!v1)
     {
         device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_off, sizeof(eq_off));
@@ -3241,7 +3361,9 @@ static void check_failed_session(Session* session, MDRResult failure)
     CHECK_FAILED(mdrHeadphonesSetNoiseControl(session->headphones, &input.noise));
     CHECK_FAILED(mdrHeadphonesSetSpeakToChat(session->headphones, &input.speak));
     CHECK_FAILED(mdrHeadphonesSetListening(session->headphones, &input.listening));
-    CHECK_FAILED(mdrHeadphonesSetEqualizer(session->headphones, &input.equalizer));
+    CHECK_FAILED(mdrHeadphonesSetEqualizerPreset(session->headphones, MDR_EQ_OFF));
+    CHECK_FAILED(mdrHeadphonesSetEqualizerClearBass(session->headphones, 0));
+    CHECK_FAILED(mdrHeadphonesSetDSEE(session->headphones, MDR_TRUE));
     CHECK_FAILED(mdrHeadphonesSetEqualizerBands(session->headphones, input.bands, 5));
     CHECK_FAILED(mdrHeadphonesSetPairedDevice(session->headphones, &action));
     CHECK_FAILED(mdrHeadphonesSetPairing(session->headphones, &input.pairing));
@@ -3370,6 +3492,8 @@ int main(void)
     test_property_getter_contracts(MDR_PROTOCOL_V2);
     test_widened_inputs(MDR_PROTOCOL_V1);
     test_widened_inputs(MDR_PROTOCOL_V2);
+    test_equalizer_independent_writes(MDR_PROTOCOL_V1);
+    test_equalizer_independent_writes(MDR_PROTOCOL_V2);
     test_eq_array_views(MDR_PROTOCOL_V1);
     test_eq_array_views(MDR_PROTOCOL_V2);
     test_grouped_staging_during_apply(MDR_PROTOCOL_V1);
