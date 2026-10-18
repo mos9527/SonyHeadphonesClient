@@ -1,6 +1,7 @@
 #pragma once
 #include "ProtocolV1.hpp"
-#pragma pack(push, 1)
+#pragma pack(push)
+#pragma pack()
 
 // Generated from Sound Connect iOS J2ObjC metadata. Do not edit by hand.
 namespace mdr::v1::t2
@@ -151,6 +152,7 @@ namespace mdr::v1::t2
 #pragma region Declarations
 
     // THMSGV1T2GetPeripheralCapability
+#pragma pack(push, 1)
     struct GetPeripheralCapability
     {
         // CODEGEN EnumRange Command::PERIPHERAL_GET_CAPABILITY
@@ -159,8 +161,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPeripheralCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T2GetPeripheralParam
+#pragma pack(push, 1)
     struct GetPeripheralParam
     {
         // CODEGEN EnumRange Command::PERIPHERAL_GET_PARAM
@@ -169,8 +173,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPeripheralParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2GetPeripheralStatus
+#pragma pack(push, 1)
     struct GetPeripheralStatus
     {
         // CODEGEN EnumRange Command::PERIPHERAL_GET_STATUS
@@ -179,8 +185,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPeripheralStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2GetVoiceGuidanceCapability
+#pragma pack(push, 1)
     struct GetVoiceGuidanceCapability
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_CAPABILITY
@@ -190,8 +198,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVoiceGuidanceCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T2GetVoiceGuidanceParam
+#pragma pack(push, 1)
     struct GetVoiceGuidanceParam
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_PARAM
@@ -202,8 +212,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVoiceGuidanceParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2GetVoiceGuidanceStatus
+#pragma pack(push, 1)
     struct GetVoiceGuidanceStatus
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_GET_STATUS
@@ -214,8 +226,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVoiceGuidanceStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyPeripheralExParam
+#pragma pack(push, 1)
     struct NotifyPeripheralExParam
     {
         // CODEGEN EnumRange Command::PERIPHERAL_NTFY_EX_PARAM
@@ -224,8 +238,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPeripheralExParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt
+#pragma pack(push, 1)
     struct NotifyPeripheralExParamPairingDeviceManagementClassicBt
     {
         // CODEGEN EnumRange Command::PERIPHERAL_NTFY_EX_PARAM
@@ -236,6 +252,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPeripheralExParamPairingDeviceManagementClassicBt);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl
     struct NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl
@@ -251,6 +268,7 @@ namespace mdr::v1::t2
     };
 
     // THMSGV1T2NotifyPeripheralParam
+#pragma pack(push, 1)
     struct NotifyPeripheralParam
     {
         // CODEGEN EnumRange Command::PERIPHERAL_NTFY_PARAM
@@ -259,8 +277,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPeripheralParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyPeripheralStatus
+#pragma pack(push, 1)
     struct NotifyPeripheralStatus
     {
         // CODEGEN EnumRange Command::PERIPHERAL_NTFY_STATUS
@@ -269,8 +289,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPeripheralStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt
+#pragma pack(push, 1)
     struct NotifyPeripheralStatusPairingDeviceManagementClassicBt
     {
         // CODEGEN EnumRange Command::PERIPHERAL_NTFY_STATUS
@@ -284,8 +306,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPeripheralStatusPairingDeviceManagementClassicBt);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyVoiceGuidanceParam
+#pragma pack(push, 1)
     struct NotifyVoiceGuidanceParam
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_PARAM
@@ -295,8 +319,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff
+#pragma pack(push, 1)
     struct NotifyVoiceGuidanceParamSettingOnOff
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_PARAM
@@ -310,8 +336,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceParamSettingOnOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyVoiceGuidanceStatus
+#pragma pack(push, 1)
     struct NotifyVoiceGuidanceStatus
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS
@@ -321,8 +349,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage
+#pragma pack(push, 1)
     struct NotifyVoiceGuidanceStatusSettingLanguage
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS
@@ -336,8 +366,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceStatusSettingLanguage);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff
+#pragma pack(push, 1)
     struct NotifyVoiceGuidanceStatusSettingOnOff
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS
@@ -351,6 +383,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVoiceGuidanceStatusSettingOnOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T2Payload
     struct Payload
@@ -371,6 +404,7 @@ namespace mdr::v1::t2
     };
 
     // THMSGV1T2RetPeripheralCapability
+#pragma pack(push, 1)
     struct RetPeripheralCapability
     {
         // CODEGEN EnumRange Command::PERIPHERAL_RET_CAPABILITY
@@ -379,8 +413,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPeripheralCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt
+#pragma pack(push, 1)
     struct RetPeripheralCapabilityPairingDeviceManagementClassicBt
     {
         // CODEGEN EnumRange Command::PERIPHERAL_RET_CAPABILITY
@@ -396,8 +432,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPeripheralCapabilityPairingDeviceManagementClassicBt);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetPeripheralParam
+#pragma pack(push, 1)
     struct RetPeripheralParam
     {
         // CODEGEN EnumRange Command::PERIPHERAL_RET_PARAM
@@ -406,8 +444,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPeripheralParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetPeripheralStatus
+#pragma pack(push, 1)
     struct RetPeripheralStatus
     {
         // CODEGEN EnumRange Command::PERIPHERAL_RET_STATUS
@@ -420,6 +460,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPeripheralStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceCapability
     struct RetVoiceGuidanceCapability
@@ -438,6 +479,7 @@ namespace mdr::v1::t2
     };
 
     // THMSGV1T2RetVoiceGuidanceParam
+#pragma pack(push, 1)
     struct RetVoiceGuidanceParam
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
@@ -447,6 +489,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation
     struct RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation
@@ -458,6 +501,7 @@ namespace mdr::v1::t2
     };
 
     // THMSGV1T2RetVoiceGuidanceParamSettingLanguage
+#pragma pack(push, 1)
     struct RetVoiceGuidanceParamSettingLanguage
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
@@ -470,8 +514,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParamSettingLanguage);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceParamSettingOnOff
+#pragma pack(push, 1)
     struct RetVoiceGuidanceParamSettingOnOff
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
@@ -485,8 +531,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParamSettingOnOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime
+#pragma pack(push, 1)
     struct RetVoiceGuidanceParamSettingRequiredTime
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
@@ -499,8 +547,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParamSettingRequiredTime);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod
+#pragma pack(push, 1)
     struct RetVoiceGuidanceParamSettingUpdateMethod
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
@@ -509,8 +559,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParamSettingUpdateMethod);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr
+#pragma pack(push, 1)
     struct RetVoiceGuidanceParamSettingUpdateMethodCsr
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_PARAM
@@ -525,6 +577,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceParamSettingUpdateMethodCsr);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk
     struct RetVoiceGuidanceParamSettingUpdateMethodMtk
@@ -544,6 +597,7 @@ namespace mdr::v1::t2
     };
 
     // THMSGV1T2RetVoiceGuidanceStatus
+#pragma pack(push, 1)
     struct RetVoiceGuidanceStatus
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_STATUS
@@ -553,8 +607,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceStatusSettingLanguage
+#pragma pack(push, 1)
     struct RetVoiceGuidanceStatusSettingLanguage
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_STATUS
@@ -568,8 +624,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceStatusSettingLanguage);
     };
+#pragma pack(pop)
 
     // THMSGV1T2RetVoiceGuidanceStatusSettingOnOff
+#pragma pack(push, 1)
     struct RetVoiceGuidanceStatusSettingOnOff
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_RET_STATUS
@@ -583,8 +641,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVoiceGuidanceStatusSettingOnOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetPeripheralExParam
+#pragma pack(push, 1)
     struct SetPeripheralExParam
     {
         // CODEGEN EnumRange Command::PERIPHERAL_SET_EX_PARAM
@@ -593,8 +653,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPeripheralExParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt
+#pragma pack(push, 1)
     struct SetPeripheralExParamPairingDeviceManagementClassicBt
     {
         // CODEGEN EnumRange Command::PERIPHERAL_SET_EX_PARAM
@@ -605,6 +667,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPeripheralExParamPairingDeviceManagementClassicBt);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl
     struct SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl
@@ -620,6 +683,7 @@ namespace mdr::v1::t2
     };
 
     // THMSGV1T2SetPeripheralStatus
+#pragma pack(push, 1)
     struct SetPeripheralStatus
     {
         // CODEGEN EnumRange Command::PERIPHERAL_SET_STATUS
@@ -632,8 +696,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPeripheralStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetVoiceGuidanceParam
+#pragma pack(push, 1)
     struct SetVoiceGuidanceParam
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_PARAM
@@ -643,8 +709,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetVoiceGuidanceParamSettingOnOff
+#pragma pack(push, 1)
     struct SetVoiceGuidanceParamSettingOnOff
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_PARAM
@@ -658,8 +726,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceParamSettingOnOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetVoiceGuidanceStatus
+#pragma pack(push, 1)
     struct SetVoiceGuidanceStatus
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_STATUS
@@ -669,8 +739,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetVoiceGuidanceStatusSettingLanguage
+#pragma pack(push, 1)
     struct SetVoiceGuidanceStatusSettingLanguage
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_STATUS
@@ -684,8 +756,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceStatusSettingLanguage);
     };
+#pragma pack(pop)
 
     // THMSGV1T2SetVoiceGuidanceStatusSettingOnOff
+#pragma pack(push, 1)
     struct SetVoiceGuidanceStatusSettingOnOff
     {
         // CODEGEN EnumRange Command::VOICE_GUIDANCE_SET_STATUS
@@ -699,8 +773,10 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVoiceGuidanceStatusSettingOnOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T2UnknownCommand
+#pragma pack(push, 1)
     struct UnknownCommand
     {
         // CODEGEN EnumRange Command::UNKNOWN
@@ -708,6 +784,7 @@ namespace mdr::v1::t2
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(UnknownCommand);
     };
+#pragma pack(pop)
 
     // THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt
     struct NotifyPeripheralParamPairingDeviceManagementClassicBt

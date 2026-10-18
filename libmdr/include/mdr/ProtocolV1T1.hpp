@@ -1,6 +1,7 @@
 #pragma once
 #include "ProtocolV1.hpp"
-#pragma pack(push, 1)
+#pragma pack(push)
+#pragma pack()
 
 // Generated from Sound Connect iOS J2ObjC metadata. Do not edit by hand.
 namespace mdr::v1::t1
@@ -1204,6 +1205,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1GetAlertCapability
+#pragma pack(push, 1)
     struct GetAlertCapability
     {
         // CODEGEN EnumRange Command::ALERT_GET_CAPABILITY
@@ -1213,8 +1215,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAlertCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetAudioCapability
+#pragma pack(push, 1)
     struct GetAudioCapability
     {
         // CODEGEN EnumRange Command::AUDIO_GET_CAPABILITY
@@ -1224,8 +1228,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetAudioCodec
+#pragma pack(push, 1)
     struct GetAudioCodec
     {
         // CODEGEN EnumRange Command::COMMON_GET_AUDIO_CODEC
@@ -1235,8 +1241,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioCodec);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetAudioParam
+#pragma pack(push, 1)
     struct GetAudioParam
     {
         // CODEGEN EnumRange Command::AUDIO_GET_PARAM
@@ -1246,8 +1254,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetAudioStatus
+#pragma pack(push, 1)
     struct GetAudioStatus
     {
         // CODEGEN EnumRange Command::AUDIO_GET_STATUS
@@ -1257,8 +1267,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetAudioStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetBatteryLevel
+#pragma pack(push, 1)
     struct GetBatteryLevel
     {
         // CODEGEN EnumRange Command::COMMON_GET_BATTERY_LEVEL
@@ -1268,8 +1280,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetBatteryLevel);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetBluetoothDeviceInfo
+#pragma pack(push, 1)
     struct GetBluetoothDeviceInfo
     {
         // CODEGEN EnumRange Command::COMMON_GET_BLUETOOTH_DEVICE_INFO
@@ -1278,8 +1292,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetBluetoothDeviceInfo);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetCapabilityInfo
+#pragma pack(push, 1)
     struct GetCapabilityInfo
     {
         // CODEGEN EnumRange Command::CONNECT_GET_CAPABILITY_INFO
@@ -1289,6 +1305,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetCapabilityInfo);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetConciergeData
     struct GetConciergeData
@@ -1303,6 +1320,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1GetConnectionStatus
+#pragma pack(push, 1)
     struct GetConnectionStatus
     {
         // CODEGEN EnumRange Command::COMMON_GET_CONNECTION_STATUS
@@ -1312,8 +1330,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetConnectionStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetDeviceInfo
+#pragma pack(push, 1)
     struct GetDeviceInfo
     {
         // CODEGEN EnumRange Command::CONNECT_GET_DEVICE_INFO
@@ -1323,8 +1343,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetDeviceInfo);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetEqEbbCapability
+#pragma pack(push, 1)
     struct GetEqEbbCapability
     {
         // CODEGEN EnumRange Command::EQEBB_GET_CAPABILITY
@@ -1335,8 +1357,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetEqEbbExtendedInfo
+#pragma pack(push, 1)
     struct GetEqEbbExtendedInfo
     {
         // CODEGEN EnumRange Command::EQEBB_GET_EXTENDED_INFO
@@ -1346,8 +1370,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbExtendedInfo);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetEqEbbParam
+#pragma pack(push, 1)
     struct GetEqEbbParam
     {
         // CODEGEN EnumRange Command::EQEBB_GET_PARAM
@@ -1357,8 +1383,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetEqEbbStatus
+#pragma pack(push, 1)
     struct GetEqEbbStatus
     {
         // CODEGEN EnumRange Command::EQEBB_GET_STATUS
@@ -1368,8 +1396,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetEqEbbStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetGsCapability
+#pragma pack(push, 1)
     struct GetGsCapability
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_GET_CAPABILITY
@@ -1380,8 +1410,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetGsCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetGsParam
+#pragma pack(push, 1)
     struct GetGsParam
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_GET_PARAM
@@ -1391,8 +1423,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetGsParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetGsStatus
+#pragma pack(push, 1)
     struct GetGsStatus
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_GET_STATUS
@@ -1402,8 +1436,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetGsStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetNcAsmCapability
+#pragma pack(push, 1)
     struct GetNcAsmCapability
     {
         // CODEGEN EnumRange Command::NCASM_GET_CAPABILITY
@@ -1413,8 +1449,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetNcAsmCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetNcAsmParam
+#pragma pack(push, 1)
     struct GetNcAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_GET_PARAM
@@ -1424,8 +1462,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetNcAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetNcAsmStatus
+#pragma pack(push, 1)
     struct GetNcAsmStatus
     {
         // CODEGEN EnumRange Command::NCASM_GET_STATUS
@@ -1435,8 +1475,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetNcAsmStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetOptimizerCapability
+#pragma pack(push, 1)
     struct GetOptimizerCapability
     {
         // CODEGEN EnumRange Command::OPT_GET_CAPABILITY
@@ -1446,8 +1488,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetOptimizerCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetOptimizerParam
+#pragma pack(push, 1)
     struct GetOptimizerParam
     {
         // CODEGEN EnumRange Command::OPT_GET_PARAM
@@ -1457,8 +1501,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetOptimizerParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetOptimizerStatus
+#pragma pack(push, 1)
     struct GetOptimizerStatus
     {
         // CODEGEN EnumRange Command::OPT_GET_STATUS
@@ -1468,8 +1514,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetOptimizerStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetPlayCapability
+#pragma pack(push, 1)
     struct GetPlayCapability
     {
         // CODEGEN EnumRange Command::PLAY_GET_CAPABILITY
@@ -1479,8 +1527,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetPlayParam
+#pragma pack(push, 1)
     struct GetPlayParam
     {
         // CODEGEN EnumRange Command::PLAY_GET_PARAM
@@ -1492,8 +1542,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetPlayStatus
+#pragma pack(push, 1)
     struct GetPlayStatus
     {
         // CODEGEN EnumRange Command::PLAY_GET_STATUS
@@ -1503,8 +1555,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetPlayStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetProtocolInfo
+#pragma pack(push, 1)
     struct GetProtocolInfo
     {
         // CODEGEN EnumRange Command::CONNECT_GET_PROTOCOL_INFO
@@ -1514,8 +1568,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetProtocolInfo);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSenseCapability
+#pragma pack(push, 1)
     struct GetSenseCapability
     {
         // CODEGEN EnumRange Command::SENSE_GET_CAPABILITY
@@ -1525,8 +1581,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSenseCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSportsCapability
+#pragma pack(push, 1)
     struct GetSportsCapability
     {
         // CODEGEN EnumRange Command::SPORTS_GET_CAPABILITY
@@ -1536,6 +1594,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSportsCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSportsExParam_TrainingModeRequest
     struct GetSportsExParam_TrainingModeRequest
@@ -1547,6 +1606,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1GetSportsParam
+#pragma pack(push, 1)
     struct GetSportsParam
     {
         // CODEGEN EnumRange Command::SPORTS_GET_PARAM
@@ -1556,8 +1616,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSportsParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSportsStatus
+#pragma pack(push, 1)
     struct GetSportsStatus
     {
         // CODEGEN EnumRange Command::SPORTS_GET_STATUS
@@ -1567,8 +1629,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSportsStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSupportFunction
+#pragma pack(push, 1)
     struct GetSupportFunction
     {
         // CODEGEN EnumRange Command::CONNECT_GET_SUPPORT_FUNCTION
@@ -1578,8 +1642,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSupportFunction);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSystemCapability
+#pragma pack(push, 1)
     struct GetSystemCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_CAPABILITY
@@ -1589,8 +1655,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSystemExParam
+#pragma pack(push, 1)
     struct GetSystemExParam
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_EXTENDED_PARAM
@@ -1600,8 +1668,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemExParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSystemParam
+#pragma pack(push, 1)
     struct GetSystemParam
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_PARAM
@@ -1611,8 +1681,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetSystemStatus
+#pragma pack(push, 1)
     struct GetSystemStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_GET_STATUS
@@ -1622,8 +1694,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetSystemStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetUpdateParam
+#pragma pack(push, 1)
     struct GetUpdateParam
     {
         // CODEGEN EnumRange Command::UPDT_GET_PARAM
@@ -1633,8 +1707,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetUpdateParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetUpscalingEffect
+#pragma pack(push, 1)
     struct GetUpscalingEffect
     {
         // CODEGEN EnumRange Command::COMMON_GET_UPSCALING_EFFECT
@@ -1644,8 +1720,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetUpscalingEffect);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetVptCapability
+#pragma pack(push, 1)
     struct GetVptCapability
     {
         // CODEGEN EnumRange Command::VPT_GET_CAPABILITY
@@ -1656,8 +1734,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVptCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetVptParam
+#pragma pack(push, 1)
     struct GetVptParam
     {
         // CODEGEN EnumRange Command::VPT_GET_PARAM
@@ -1667,8 +1747,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVptParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GetVptStatus
+#pragma pack(push, 1)
     struct GetVptStatus
     {
         // CODEGEN EnumRange Command::VPT_GET_STATUS
@@ -1678,6 +1760,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(GetVptStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1GsBooleanTypeValue
     struct GsBooleanTypeValue
@@ -1779,6 +1862,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1NotifyAlertParam
+#pragma pack(push, 1)
     struct NotifyAlertParam
     {
         // CODEGEN EnumRange Command::ALERT_NTFY_PARAM
@@ -1790,8 +1874,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyAlertParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyAudioCodec
+#pragma pack(push, 1)
     struct NotifyAudioCodec
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_AUDIO_CODEC
@@ -1802,8 +1888,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyAudioCodec);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyAudioParam
+#pragma pack(push, 1)
     struct NotifyAudioParamConnectionModeParam
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
@@ -1815,8 +1903,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyAudioParamConnectionModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyAudioParam
+#pragma pack(push, 1)
     struct NotifyAudioParamUpscalingParam
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_PARAM
@@ -1828,8 +1918,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyAudioParamUpscalingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyAudioStatus
+#pragma pack(push, 1)
     struct NotifyAudioStatus
     {
         // CODEGEN EnumRange Command::AUDIO_NTFY_STATUS
@@ -1841,8 +1933,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyAudioStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyBatteryLevel
+#pragma pack(push, 1)
     struct NotifyBatteryLevelBatteryParam
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_BATTERY_LEVEL
@@ -1854,8 +1948,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyBatteryLevelBatteryParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyBatteryLevel
+#pragma pack(push, 1)
     struct NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_BATTERY_LEVEL
@@ -1868,8 +1964,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyBatteryLevel
+#pragma pack(push, 1)
     struct NotifyBatteryLevelUpdateBatteryPowerThresholdParam
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_BATTERY_LEVEL
@@ -1882,8 +1980,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyBatteryLevelUpdateBatteryPowerThresholdParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyConnectionStatus
+#pragma pack(push, 1)
     struct NotifyConnectionStatusLeftRightConnectionStatusParam
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_CONNECTION_STATUS
@@ -1895,8 +1995,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyConnectionStatusLeftRightConnectionStatusParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyEqEbbParam
+#pragma pack(push, 1)
     struct NotifyEqEbbParamEbbParam
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_PARAM
@@ -1907,6 +2009,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyEqEbbParamEbbParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyEqEbbParam
     struct NotifyEqEbbParamEqParam
@@ -1922,6 +2025,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1NotifyEqEbbStatus
+#pragma pack(push, 1)
     struct NotifyEqEbbStatus
     {
         // CODEGEN EnumRange Command::EQEBB_NTFY_STATUS
@@ -1933,8 +2037,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyEqEbbStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyGsParam
+#pragma pack(push, 1)
     struct NotifyGsParamGsBooleanTypeValue
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_NTNY_PARAM
@@ -1947,8 +2053,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyGsParamGsBooleanTypeValue);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyGsParam
+#pragma pack(push, 1)
     struct NotifyGsParamGsListTypeValue
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_NTNY_PARAM
@@ -1961,8 +2069,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyGsParamGsListTypeValue);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyGsStatus
+#pragma pack(push, 1)
     struct NotifyGsStatus
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_NTFY_STATUS
@@ -1974,8 +2084,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyGsStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyLinkControl
+#pragma pack(push, 1)
     struct NotifyLinkControlKeepAliveLinkControlNotifiedParam
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_LINK_CONTROL
@@ -1987,8 +2099,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyLinkControlKeepAliveLinkControlNotifiedParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyLinkControl
+#pragma pack(push, 1)
     struct NotifyLinkControlKeepAliveLinkControlSettingParam
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_LINK_CONTROL
@@ -2001,6 +2115,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyLinkControlKeepAliveLinkControlSettingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyLogParam
     struct NotifyLogParam
@@ -2015,6 +2130,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1NotifyNcAsmParam
+#pragma pack(push, 1)
     struct NotifyNcAsmParamAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
@@ -2030,8 +2146,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyNcAsmParamAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyNcAsmParam
+#pragma pack(push, 1)
     struct NotifyNcAsmParamcAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
@@ -2049,8 +2167,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyNcAsmParamcAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyNcAsmParam
+#pragma pack(push, 1)
     struct NotifyNcAsmParamcParam
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_PARAM
@@ -2063,8 +2183,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyNcAsmParamcParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyNcAsmStatus
+#pragma pack(push, 1)
     struct NotifyNcAsmStatus
     {
         // CODEGEN EnumRange Command::NCASM_NTFY_STATUS
@@ -2076,8 +2198,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyNcAsmStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyOptimizerParam
+#pragma pack(push, 1)
     struct NotifyOptimizerParam
     {
         // CODEGEN EnumRange Command::OPT_NTFY_PARAM
@@ -2093,8 +2217,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyOptimizerParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyOptimizerStatus
+#pragma pack(push, 1)
     struct NotifyOptimizerStatus
     {
         // CODEGEN EnumRange Command::OPT_NTFY_STATUS
@@ -2107,8 +2233,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyOptimizerStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyPlayParam
+#pragma pack(push, 1)
     struct NotifyPlayParamPlaybackControllerNotifyNameData
     {
         // CODEGEN EnumRange Command::PLAY_NTFY_PARAM
@@ -2120,8 +2248,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPlayParamPlaybackControllerNotifyNameData);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyPlayParam
+#pragma pack(push, 1)
     struct NotifyPlayParamPlaybackControllerVolumeData
     {
         // CODEGEN EnumRange Command::PLAY_NTFY_PARAM
@@ -2134,8 +2264,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPlayParamPlaybackControllerVolumeData);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyPlayStatus
+#pragma pack(push, 1)
     struct NotifyPlayStatus
     {
         // CODEGEN EnumRange Command::PLAY_NTFY_STATUS
@@ -2149,8 +2281,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyPlayStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySportsParam
+#pragma pack(push, 1)
     struct NotifySportsParamTrainingModeParam
     {
         // CODEGEN EnumRange Command::SPORTS_NTFY_PARAM
@@ -2162,8 +2296,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySportsParamTrainingModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemExParam
+#pragma pack(push, 1)
     struct NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_EXTENDED_PARAM
@@ -2180,6 +2316,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemExParamChildPayloadSmartTalkingModeExParamType1Param);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemParam
     struct NotifySystemParamAssignableSettingsParam
@@ -2194,6 +2331,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1NotifySystemParam
+#pragma pack(push, 1)
     struct NotifySystemParamAutoPowerOffParam
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
@@ -2207,8 +2345,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamAutoPowerOffParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemParam
+#pragma pack(push, 1)
     struct NotifySystemParamControlByWearingParam
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
@@ -2220,8 +2360,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamControlByWearingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemParam
+#pragma pack(push, 1)
     struct NotifySystemParamPowerSavingModeParam
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
@@ -2234,8 +2376,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamPowerSavingModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemParam
+#pragma pack(push, 1)
     struct NotifySystemParamSmartTalkingModeSetNtfyParam
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
@@ -2249,8 +2393,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamSmartTalkingModeSetNtfyParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemParam
+#pragma pack(push, 1)
     struct NotifySystemParamVibratorParam
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_PARAM
@@ -2263,6 +2409,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemParamVibratorParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemStatus
     struct NotifySystemStatusAssignableSettingsStatus
@@ -2277,6 +2424,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1NotifySystemStatus
+#pragma pack(push, 1)
     struct NotifySystemStatusAutoPowerOffStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
@@ -2288,8 +2436,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusAutoPowerOffStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemStatus
+#pragma pack(push, 1)
     struct NotifySystemStatusControlByWearingStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
@@ -2301,8 +2451,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusControlByWearingStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemStatus
+#pragma pack(push, 1)
     struct NotifySystemStatusPowerSavingModeStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
@@ -2314,8 +2466,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusPowerSavingModeStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemStatus
+#pragma pack(push, 1)
     struct NotifySystemStatusSmartTalkingModeStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
@@ -2329,8 +2483,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusSmartTalkingModeStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifySystemStatus
+#pragma pack(push, 1)
     struct NotifySystemStatusVibratorStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_NTFY_STATUS
@@ -2342,8 +2498,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifySystemStatusVibratorStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyUpdateStatus
+#pragma pack(push, 1)
     struct NotifyUpdateStatus
     {
         // CODEGEN EnumRange Command::UPDT_NTFY_STATUS
@@ -2355,8 +2513,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyUpdateStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyUpscalingEffect
+#pragma pack(push, 1)
     struct NotifyUpscalingEffect
     {
         // CODEGEN EnumRange Command::COMMON_NTFY_UPSCALING_EFFECT
@@ -2368,8 +2528,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyUpscalingEffect);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyVptParam
+#pragma pack(push, 1)
     struct NotifyVptParamSoundPositionParam
     {
         // CODEGEN EnumRange Command::VPT_NTFY_PARAM
@@ -2381,8 +2543,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVptParamSoundPositionParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyVptParam
+#pragma pack(push, 1)
     struct NotifyVptParamVptParam
     {
         // CODEGEN EnumRange Command::VPT_NTFY_PARAM
@@ -2393,8 +2557,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVptParamVptParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1NotifyVptStatus
+#pragma pack(push, 1)
     struct NotifyVptStatus
     {
         // CODEGEN EnumRange Command::VPT_NTFY_STATUS
@@ -2406,6 +2572,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(NotifyVptStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1Payload
     struct Payload
@@ -2465,6 +2632,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetAlertCapability
+#pragma pack(push, 1)
     struct RetAlertCapability
     {
         // CODEGEN EnumRange Command::ALERT_RET_CAPABILITY
@@ -2476,6 +2644,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAlertCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetAudioCapability_AudioCapabilityBase
     struct RetAudioCapability_AudioCapabilityBase
@@ -2487,6 +2656,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetAudioCodec
+#pragma pack(push, 1)
     struct RetAudioCodec
     {
         // CODEGEN EnumRange Command::COMMON_RET_AUDIO_CODEC
@@ -2497,8 +2667,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioCodec);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetAudioParam
+#pragma pack(push, 1)
     struct RetAudioParamConnectionModeParam
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
@@ -2510,8 +2682,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioParamConnectionModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetAudioParam
+#pragma pack(push, 1)
     struct RetAudioParamUpscalingParam
     {
         // CODEGEN EnumRange Command::AUDIO_RET_PARAM
@@ -2523,8 +2697,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioParamUpscalingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetAudioStatus
+#pragma pack(push, 1)
     struct RetAudioStatus
     {
         // CODEGEN EnumRange Command::AUDIO_RET_STATUS
@@ -2536,8 +2712,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetBatteryLevel
+#pragma pack(push, 1)
     struct RetBatteryLevelBatteryParam
     {
         // CODEGEN EnumRange Command::COMMON_RET_BATTERY_LEVEL
@@ -2549,8 +2727,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetBatteryLevelBatteryParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetBatteryLevel
+#pragma pack(push, 1)
     struct RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam
     {
         // CODEGEN EnumRange Command::COMMON_RET_BATTERY_LEVEL
@@ -2563,8 +2743,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetBatteryLevel
+#pragma pack(push, 1)
     struct RetBatteryLevelUpdateBatteryPowerThresholdParam
     {
         // CODEGEN EnumRange Command::COMMON_RET_BATTERY_LEVEL
@@ -2577,6 +2759,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetBatteryLevelUpdateBatteryPowerThresholdParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetBluetoothDeviceInfo
     struct RetBluetoothDeviceInfo
@@ -2613,6 +2796,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetConnectionStatus
+#pragma pack(push, 1)
     struct RetConnectionStatusLeftRightConnectionStatusParam
     {
         // CODEGEN EnumRange Command::COMMON_RET_CONNECTION_STATUS
@@ -2624,6 +2808,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetConnectionStatusLeftRightConnectionStatusParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetDeviceInfo_DeviceInfoBase
     struct RetDeviceInfo_DeviceInfoBase
@@ -2644,6 +2829,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetEqEbbParam
+#pragma pack(push, 1)
     struct RetEqEbbParamEbbParam
     {
         // CODEGEN EnumRange Command::EQEBB_RET_PARAM
@@ -2654,6 +2840,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetEqEbbParamEbbParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetEqEbbParam
     struct RetEqEbbParamEqParam
@@ -2669,6 +2856,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetEqEbbStatus
+#pragma pack(push, 1)
     struct RetEqEbbStatus
     {
         // CODEGEN EnumRange Command::EQEBB_RET_STATUS
@@ -2680,8 +2868,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetEqEbbStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetGsParam
+#pragma pack(push, 1)
     struct RetGsParamGsBooleanTypeValue
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_PARAM
@@ -2694,8 +2884,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetGsParamGsBooleanTypeValue);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetGsParam
+#pragma pack(push, 1)
     struct RetGsParamGsListTypeValue
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_PARAM
@@ -2708,8 +2900,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetGsParamGsListTypeValue);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetGsStatus
+#pragma pack(push, 1)
     struct RetGsStatus
     {
         // CODEGEN EnumRange Command::GENERAL_SETTING_RET_STATUS
@@ -2721,6 +2915,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetGsStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetNcAsmCapability_NcAsmCapabilityBase
     struct RetNcAsmCapability_NcAsmCapabilityBase
@@ -2732,6 +2927,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetNcAsmParam
+#pragma pack(push, 1)
     struct RetNcAsmParamAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
@@ -2747,8 +2943,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmParamAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetNcAsmParam
+#pragma pack(push, 1)
     struct RetNcAsmParamNcAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
@@ -2766,8 +2964,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmParamNcAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetNcAsmParam
+#pragma pack(push, 1)
     struct RetNcAsmParamNcParam
     {
         // CODEGEN EnumRange Command::NCASM_RET_PARAM
@@ -2780,8 +2980,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmParamNcParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetNcAsmStatus
+#pragma pack(push, 1)
     struct RetNcAsmStatus
     {
         // CODEGEN EnumRange Command::NCASM_RET_STATUS
@@ -2793,8 +2995,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetOptimizerCapability
+#pragma pack(push, 1)
     struct RetOptimizerCapability
     {
         // CODEGEN EnumRange Command::OPT_RET_CAPABILITY
@@ -2811,8 +3015,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetOptimizerCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetOptimizerParam
+#pragma pack(push, 1)
     struct RetOptimizerParam
     {
         // CODEGEN EnumRange Command::OPT_RET_PARAM
@@ -2828,8 +3034,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetOptimizerParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetOptimizerStatus
+#pragma pack(push, 1)
     struct RetOptimizerStatus
     {
         // CODEGEN EnumRange Command::OPT_RET_STATUS
@@ -2842,8 +3050,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetOptimizerStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetPlayCapability
+#pragma pack(push, 1)
     struct RetPlayCapability
     {
         // CODEGEN EnumRange Command::PLAY_RET_CAPABILITY
@@ -2858,8 +3068,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPlayCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetPlayParam
+#pragma pack(push, 1)
     struct RetPlayParamPlaybackControllerVolumeData
     {
         // CODEGEN EnumRange Command::PLAY_RET_PARAM
@@ -2872,8 +3084,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPlayParamPlaybackControllerVolumeData);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetPlayStatus
+#pragma pack(push, 1)
     struct RetPlayStatus
     {
         // CODEGEN EnumRange Command::PLAY_RET_STATUS
@@ -2887,8 +3101,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetPlayStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetProtocolInfo
+#pragma pack(push, 1)
     struct RetProtocolInfo
     {
         // CODEGEN EnumRange Command::CONNECT_RET_PROTOCOL_INFO
@@ -2899,8 +3115,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetProtocolInfo);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSenseCapability
+#pragma pack(push, 1)
     struct RetSenseCapability
     {
         // CODEGEN EnumRange Command::SENSE_RET_CAPABILITY
@@ -2912,8 +3130,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSenseCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSportsParam
+#pragma pack(push, 1)
     struct RetSportsParamTrainingModeParam
     {
         // CODEGEN EnumRange Command::SPORTS_RET_PARAM
@@ -2925,6 +3145,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSportsParamTrainingModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSupportFunction
     struct RetSupportFunction
@@ -2948,6 +3169,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetSystemExParam
+#pragma pack(push, 1)
     struct RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_EXTENDED_PARAM
@@ -2964,6 +3186,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemExParamChildPayloadSmartTalkingModeExParamType1Param);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemParam
     struct RetSystemParamAssignableSettingsParam
@@ -2978,6 +3201,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetSystemParam
+#pragma pack(push, 1)
     struct RetSystemParamAutoPowerOffParam
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
@@ -2991,8 +3215,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamAutoPowerOffParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemParam
+#pragma pack(push, 1)
     struct RetSystemParamControlByWearingParam
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
@@ -3004,8 +3230,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamControlByWearingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemParam
+#pragma pack(push, 1)
     struct RetSystemParamPowerSavingModeParam
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
@@ -3018,8 +3246,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamPowerSavingModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemParam
+#pragma pack(push, 1)
     struct RetSystemParamSmartTalkingModeRetParam
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
@@ -3033,8 +3263,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamSmartTalkingModeRetParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemParam
+#pragma pack(push, 1)
     struct RetSystemParamVibratorParam
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_PARAM
@@ -3047,6 +3279,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemParamVibratorParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemStatus
     struct RetSystemStatusAssignableSettingsStatus
@@ -3061,6 +3294,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetSystemStatus
+#pragma pack(push, 1)
     struct RetSystemStatusAutoPowerOffStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
@@ -3072,8 +3306,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusAutoPowerOffStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemStatus
+#pragma pack(push, 1)
     struct RetSystemStatusControlByWearingStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
@@ -3085,8 +3321,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusControlByWearingStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemStatus
+#pragma pack(push, 1)
     struct RetSystemStatusPowerSavingModeStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
@@ -3098,8 +3336,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusPowerSavingModeStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemStatus
+#pragma pack(push, 1)
     struct RetSystemStatusSmartTalkingModeStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
@@ -3113,8 +3353,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusSmartTalkingModeStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemStatus
+#pragma pack(push, 1)
     struct RetSystemStatusVibratorStatus
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_STATUS
@@ -3126,8 +3368,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemStatusVibratorStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetUpdateParam
+#pragma pack(push, 1)
     struct RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam
     {
         // CODEGEN EnumRange Command::UPDT_RET_PARAM
@@ -3138,8 +3382,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetUpdateParamUpdateBatteryPowerThresholdForInterruptiongUpdtParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetUpdateParam
+#pragma pack(push, 1)
     struct RetUpdateParamUpdateBatteryPowerThresholdParam
     {
         // CODEGEN EnumRange Command::UPDT_RET_PARAM
@@ -3150,8 +3396,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetUpdateParamUpdateBatteryPowerThresholdParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetUpdateParam
+#pragma pack(push, 1)
     struct RetUpdateParamUpdateBleTxPowerParam
     {
         // CODEGEN EnumRange Command::UPDT_RET_PARAM
@@ -3162,8 +3410,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetUpdateParamUpdateBleTxPowerParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetUpdateParam
+#pragma pack(push, 1)
     struct RetUpdateParamUpdateMethodParam
     {
         // CODEGEN EnumRange Command::UPDT_RET_PARAM
@@ -3174,6 +3424,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetUpdateParamUpdateMethodParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetUpdateParam
     struct RetUpdateParamUpdateStringParamNSString
@@ -3188,6 +3439,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetUpdateParam
+#pragma pack(push, 1)
     struct RetUpdateParamUpdateStringParamUpdateInquiredType
     {
         // CODEGEN EnumRange Command::UPDT_RET_PARAM
@@ -3197,8 +3449,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetUpdateParamUpdateStringParamUpdateInquiredType);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetUpscalingEffect
+#pragma pack(push, 1)
     struct RetUpscalingEffect
     {
         // CODEGEN EnumRange Command::COMMON_RET_UPSCALING_EFFECT
@@ -3210,6 +3464,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetUpscalingEffect);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetVptCapability_VptCapabilityBase
     struct RetVptCapability_VptCapabilityBase
@@ -3221,6 +3476,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetVptParam
+#pragma pack(push, 1)
     struct RetVptParamSoundPositionParam
     {
         // CODEGEN EnumRange Command::VPT_RET_PARAM
@@ -3232,8 +3488,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptParamSoundPositionParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetVptParam
+#pragma pack(push, 1)
     struct RetVptParamVptParam
     {
         // CODEGEN EnumRange Command::VPT_RET_PARAM
@@ -3244,8 +3502,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptParamVptParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetVptStatus
+#pragma pack(push, 1)
     struct RetVptStatus
     {
         // CODEGEN EnumRange Command::VPT_RET_STATUS
@@ -3257,8 +3517,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAlertParam
+#pragma pack(push, 1)
     struct SetAlertParamFixedMessageParam
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
@@ -3270,8 +3532,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAlertParamFixedMessageParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAlertParam
+#pragma pack(push, 1)
     struct SetAlertParamVibratorAlertNotificationParam
     {
         // CODEGEN EnumRange Command::ALERT_SET_PARAM
@@ -3282,8 +3546,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAlertParamVibratorAlertNotificationParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAlertStatus
+#pragma pack(push, 1)
     struct SetAlertStatus
     {
         // CODEGEN EnumRange Command::ALERT_SET_STATUS
@@ -3295,8 +3561,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAlertStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAudioParam
+#pragma pack(push, 1)
     struct SetAudioParamConnectionModeParam
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
@@ -3308,8 +3576,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAudioParamConnectionModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAudioParam
+#pragma pack(push, 1)
     struct SetAudioParamRetAudioCapability_ConnectionModeCapability
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
@@ -3320,8 +3590,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAudioParamRetAudioCapability_ConnectionModeCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAudioParam
+#pragma pack(push, 1)
     struct SetAudioParamRetAudioCapability_UpscalingCapability
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
@@ -3333,8 +3605,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAudioParamRetAudioCapability_UpscalingCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetAudioParam
+#pragma pack(push, 1)
     struct SetAudioParamUpscalingParam
     {
         // CODEGEN EnumRange Command::AUDIO_SET_PARAM
@@ -3346,8 +3620,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetAudioParamUpscalingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetEqEbbParam
+#pragma pack(push, 1)
     struct SetEqEbbParamEbbParam
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
@@ -3358,6 +3634,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetEqEbbParamEbbParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetEqEbbParam
     struct SetEqEbbParamEqParam
@@ -3373,6 +3650,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetEqEbbParam
+#pragma pack(push, 1)
     struct SetEqEbbParamRetEqEbbCapability_EbbCapability
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
@@ -3384,8 +3662,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetEqEbbParamRetEqEbbCapability_EbbCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetEqEbbParam
+#pragma pack(push, 1)
     struct SetEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase
     {
         // CODEGEN EnumRange Command::EQEBB_SET_PARAM
@@ -3395,8 +3675,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetEqEbbParamRetEqEbbCapability_EqEbbCapabilityBase);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetLinkControl
+#pragma pack(push, 1)
     struct SetLinkControlKeepAliveLinkControlNotifiedParam
     {
         // CODEGEN EnumRange Command::COMMON_SET_LINK_CONTROL
@@ -3408,8 +3690,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetLinkControlKeepAliveLinkControlNotifiedParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetLinkControl
+#pragma pack(push, 1)
     struct SetLinkControlKeepAliveLinkControlSettingParam
     {
         // CODEGEN EnumRange Command::COMMON_SET_LINK_CONTROL
@@ -3422,8 +3706,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetLinkControlKeepAliveLinkControlSettingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetLogStatus
+#pragma pack(push, 1)
     struct SetLogStatus
     {
         // CODEGEN EnumRange Command::LOG_SET_STATUS
@@ -3435,8 +3721,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetLogStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetNcAsmParam
+#pragma pack(push, 1)
     struct SetNcAsmParamAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
@@ -3452,8 +3740,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetNcAsmParamAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetNcAsmParam
+#pragma pack(push, 1)
     struct SetNcAsmParamNcAsmParam
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
@@ -3471,8 +3761,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetNcAsmParamNcAsmParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetNcAsmParam
+#pragma pack(push, 1)
     struct SetNcAsmParamNcParam
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
@@ -3485,8 +3777,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetNcAsmParamNcParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetNcAsmParam
+#pragma pack(push, 1)
     struct SetNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
@@ -3496,8 +3790,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetNcAsmParamRetNcAsmCapability_NcAsmCapabilityBase);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetNcAsmParam
+#pragma pack(push, 1)
     struct SetNcAsmParamRetNcAsmCapability_NcCapability
     {
         // CODEGEN EnumRange Command::NCASM_SET_PARAM
@@ -3508,8 +3804,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetNcAsmParamRetNcAsmCapability_NcCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetOptimizerStatus
+#pragma pack(push, 1)
     struct SetOptimizerStatus
     {
         // CODEGEN EnumRange Command::OPT_SET_STATUS
@@ -3523,8 +3821,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetOptimizerStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetPlayParam
+#pragma pack(push, 1)
     struct SetPlayParamPlaybackControllerVolumeData
     {
         // CODEGEN EnumRange Command::PLAY_SET_PARAM
@@ -3537,8 +3837,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayParamPlaybackControllerVolumeData);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetPlayStatus
+#pragma pack(push, 1)
     struct SetPlayStatus
     {
         // CODEGEN EnumRange Command::PLAY_SET_STATUS
@@ -3552,8 +3854,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPlayStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetPowerOff
+#pragma pack(push, 1)
     struct SetPowerOff
     {
         // CODEGEN EnumRange Command::COMMON_SET_POWER_OFF
@@ -3564,8 +3868,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetPowerOff);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSenseStatus
+#pragma pack(push, 1)
     struct SetSenseStatus
     {
         // CODEGEN EnumRange Command::SENSE_SET_STATUS
@@ -3578,6 +3884,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSenseStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamAssignableSettingsParam
@@ -3592,6 +3899,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamAutoPowerOffParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3605,8 +3913,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamAutoPowerOffParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamControlByWearingParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3618,8 +3928,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamControlByWearingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamPowerSavingModeParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3632,6 +3944,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamPowerSavingModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_AutoPowerOffCapability
@@ -3646,6 +3959,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamRetSystemCapability_ControlByWearingCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3656,8 +3970,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamRetSystemCapability_ControlByWearingCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamRetSystemCapability_PowerSavingModeCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3668,6 +3984,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamRetSystemCapability_PowerSavingModeCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
     struct SetSystemExParamRetSystemCapability_SmartTalkingModeCapabilityVariant1
@@ -3694,6 +4011,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamRetSystemCapability_SystemCapabilityBase
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3703,8 +4021,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamRetSystemCapability_SystemCapabilityBase);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamRetSystemCapability_VibratorCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3715,8 +4035,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamRetSystemCapability_VibratorCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParamVibratorParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3729,8 +4051,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParamVibratorParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParammartTalkingModeExParamType1Param
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3747,8 +4071,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeExParamType1Param);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParammartTalkingModeExType1Param
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3763,8 +4089,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeExType1Param);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParammartTalkingModeRetParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3778,8 +4106,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeRetParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemExParam
+#pragma pack(push, 1)
     struct SetSystemExParammartTalkingModeSetNtfyParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_EXTENDED_PARAM
@@ -3793,6 +4123,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemExParammartTalkingModeSetNtfyParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
     struct SetSystemParamAssignableSettingsParam
@@ -3807,6 +4138,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamAutoPowerOffParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3820,8 +4152,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamAutoPowerOffParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamControlByWearingParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3833,8 +4167,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamControlByWearingParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamPowerSavingModeParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3847,6 +4183,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamPowerSavingModeParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
     struct SetSystemParamRetSystemCapability_AutoPowerOffCapability
@@ -3861,6 +4198,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamRetSystemCapability_ControlByWearingCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3871,8 +4209,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamRetSystemCapability_ControlByWearingCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamRetSystemCapability_PowerSavingModeCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3883,6 +4223,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamRetSystemCapability_PowerSavingModeCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
     struct SetSystemParamRetSystemCapability_SmartTalkingModeCapabilityVariant1
@@ -3909,6 +4250,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamRetSystemCapability_VibratorCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3919,8 +4261,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamRetSystemCapability_VibratorCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParamVibratorParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3933,8 +4277,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParamVibratorParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParammartTalkingModeRetParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3948,8 +4294,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParammartTalkingModeRetParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetSystemParam
+#pragma pack(push, 1)
     struct SetSystemParammartTalkingModeSetNtfyParam
     {
         // CODEGEN EnumRange Command::SYSTEM_SET_PARAM
@@ -3963,8 +4311,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetSystemParammartTalkingModeSetNtfyParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetUpdateStatus
+#pragma pack(push, 1)
     struct SetUpdateStatus
     {
         // CODEGEN EnumRange Command::UPDT_SET_STATUS
@@ -3976,8 +4326,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetUpdateStatus);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetVptParam
+#pragma pack(push, 1)
     struct SetVptParamRetVptCapability_SoundPositionCapability
     {
         // CODEGEN EnumRange Command::VPT_SET_PARAM
@@ -3989,8 +4341,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVptParamRetVptCapability_SoundPositionCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetVptParam
+#pragma pack(push, 1)
     struct SetVptParamRetVptCapability_VptCapabilityBase
     {
         // CODEGEN EnumRange Command::VPT_SET_PARAM
@@ -4000,8 +4354,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVptParamRetVptCapability_VptCapabilityBase);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetVptParam
+#pragma pack(push, 1)
     struct SetVptParamVptParam
     {
         // CODEGEN EnumRange Command::VPT_SET_PARAM
@@ -4012,6 +4368,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVptParamVptParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SetVptParam
     struct SetVptParamVptPreset
@@ -4025,6 +4382,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1SetVptParam
+#pragma pack(push, 1)
     struct SetVptParamoundPositionParam
     {
         // CODEGEN EnumRange Command::VPT_SET_PARAM
@@ -4036,6 +4394,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(SetVptParamoundPositionParam);
     };
+#pragma pack(pop)
 
     // THMSGV1T1SmartTalkingModeExParam
     struct SmartTalkingModeExParamType1Param
@@ -4403,6 +4762,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetAudioCapability_ConnectionModeCapability
+#pragma pack(push, 1)
     struct RetAudioCapability_ConnectionModeCapability
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
@@ -4413,8 +4773,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioCapability_ConnectionModeCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetAudioCapability_UpscalingCapability
+#pragma pack(push, 1)
     struct RetAudioCapability_UpscalingCapability
     {
         // CODEGEN EnumRange Command::AUDIO_RET_CAPABILITY
@@ -4426,6 +4788,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetAudioCapability_UpscalingCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetDeviceInfo
     struct RetDeviceInfo
@@ -4476,6 +4839,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetDeviceInfo_DeviceInfoSeriesAndColor
+#pragma pack(push, 1)
     struct RetDeviceInfo_DeviceInfoSeriesAndColor
     {
         // CODEGEN EnumRange Command::CONNECT_RET_DEVICE_INFO
@@ -4487,6 +4851,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetDeviceInfo_DeviceInfoSeriesAndColor);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetEqEbbCapability
     struct RetEqEbbCapability
@@ -4501,6 +4866,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetEqEbbCapability_EbbCapability
+#pragma pack(push, 1)
     struct RetEqEbbCapability_EbbCapability
     {
         // CODEGEN EnumRange Command::EQEBB_RET_CAPABILITY
@@ -4512,6 +4878,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetEqEbbCapability_EbbCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetEqEbbCapability_EqCapability
     struct RetEqEbbCapability_EqCapability
@@ -4594,6 +4961,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetNcAsmCapability_NcCapability
+#pragma pack(push, 1)
     struct RetNcAsmCapability_NcCapability
     {
         // CODEGEN EnumRange Command::NCASM_RET_CAPABILITY
@@ -4604,6 +4972,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetNcAsmCapability_NcCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetPlayParam
     struct RetPlayParamPlaybackControllerNameData
@@ -4692,6 +5061,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetSystemCapability_ControlByWearingCapability
+#pragma pack(push, 1)
     struct RetSystemCapability_ControlByWearingCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
@@ -4702,8 +5072,10 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemCapability_ControlByWearingCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemCapability_PowerSavingModeCapability
+#pragma pack(push, 1)
     struct RetSystemCapability_PowerSavingModeCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
@@ -4714,6 +5086,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemCapability_PowerSavingModeCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetSystemCapability_SmartTalkingModeCapability
     struct RetSystemCapability_SmartTalkingModeCapabilityVariant1
@@ -4740,6 +5113,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetSystemCapability_VibratorCapability
+#pragma pack(push, 1)
     struct RetSystemCapability_VibratorCapability
     {
         // CODEGEN EnumRange Command::SYSTEM_RET_CAPABILITY
@@ -4750,6 +5124,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetSystemCapability_VibratorCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetVptCapability
     struct RetVptCapability
@@ -4764,6 +5139,7 @@ namespace mdr::v1::t1
     };
 
     // THMSGV1T1RetVptCapability_SoundPositionCapability
+#pragma pack(push, 1)
     struct RetVptCapability_SoundPositionCapability
     {
         // CODEGEN EnumRange Command::VPT_RET_CAPABILITY
@@ -4775,6 +5151,7 @@ namespace mdr::v1::t1
 
         MDR_DEFINE_TRIVIAL_SERIALIZATION(RetVptCapability_SoundPositionCapability);
     };
+#pragma pack(pop)
 
     // THMSGV1T1RetVptCapability_VptCapability
     struct RetVptCapability_VptCapability

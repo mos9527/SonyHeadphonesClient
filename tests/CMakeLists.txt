@@ -5,7 +5,7 @@ if (NOT TARGET mdr_shared)
 endif ()
 
 add_executable(mdr_replay_tests Replay.cpp)
-target_link_libraries(mdr_replay_tests PRIVATE mdr_shared)
+target_link_libraries(mdr_replay_tests PRIVATE mdr_shared mdr_Includes)
 
 add_executable(mdr_abi_tests ABI.c)
 set_target_properties(mdr_abi_tests PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON)

@@ -347,6 +347,7 @@ These are payload structs that can be trivially serialized and deserialized in m
 - No dynamic array types (vectors or strings)
 - In-memory representation is the same as packet representation (no padding, no endianness issues)
 - Enums can be cast in well-defined ways into integers
+- **These are always packed** (1-byte alignment, enforced by a `static_assert`)
 
 #### Implementation Details
 
@@ -377,6 +378,8 @@ struct ConnectRetProtocolInfo
 ### Non-Trivially Serializable Payloads
 
 These are payload structs that cannot be trivially serialized and deserialized, usually because they contain dynamic array types (vectors or strings).
+
+**NEVER** pack these structs. See [This Commit](https://github.com/mos9527/SonyHeadphonesClient/commit/e475e2f9921cd95c33fa8d6e99a550c32184f976) for why.
 
 ```c++
 struct ConnectRetSupportFunction

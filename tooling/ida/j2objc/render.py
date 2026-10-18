@@ -179,8 +179,13 @@ def _render_struct(
     *,
     ignore_serialization: bool = False,
 ) -> list[str]:
+    packed = (
+        payload.classification != "field_helper"
+        and payload.serialization == "trivial"
+    )
     lines = [
         f"    // {payload.objc_name}",
+        *(["#pragma pack(push, 1)"] if packed else []),
         f"    struct {payload.cpp_name}",
         "    {",
     ]
@@ -274,6 +279,8 @@ def _render_struct(
             f"        MDR_DEFINE_EXTERN_SERIALIZATION({payload.cpp_name});"
         )
     lines.append("    };")
+    if packed:
+        lines.append("#pragma pack(pop)")
     return lines
 
 
@@ -405,7 +412,8 @@ def render_table_header(
             if version == 2 and number == 2
             else []
         ),
-        "#pragma pack(push, 1)",
+        "#pragma pack(push)",
+        "#pragma pack()",
         "",
         GENERATED_BANNER,
         f"namespace mdr::v{version}::t{number}",
