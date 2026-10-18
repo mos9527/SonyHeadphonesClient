@@ -50,21 +50,68 @@ jobs:
             artifact_name: "SonyHeadphonesClient-linux-x64"
             script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
             gcc: 14
+          - os: ubuntu-24.04
+            arch: x86
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-x86"
+            script: |
+              sudo dpkg --add-architecture i386
+              sudo apt-get update
+              sudo apt-get install -y g++-14-multilib pkg-config wayland-protocols extra-cmake-modules \
+                libbluetooth-dev:i386 libdbus-1-dev:i386 libfontconfig1-dev:i386 \
+                libwayland-dev:i386 libxkbcommon-dev:i386 libcurl4-openssl-dev:i386 \
+                libx11-dev:i386 libxext-dev:i386 libxcursor-dev:i386 libxi-dev:i386 \
+                libxfixes-dev:i386 libxrandr-dev:i386 libxss-dev:i386 libgl1-mesa-dev:i386
+              echo "PKG_CONFIG_LIBDIR=/usr/lib/i386-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> "$GITHUB_ENV"
+            gcc: 14
+            cmake_args: "-DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32"
           - os: ubuntu-24.04-arm
             arch: arm64
             binary_path: build/client/SonyHeadphonesClient
             artifact_name: "SonyHeadphonesClient-linux-arm64"
             script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
             gcc: 14
+          - os: ubuntu-24.04-arm
+            arch: armv7
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-armv7"
+            script: |
+              sudo dpkg --add-architecture armhf
+              sudo apt-get update
+              sudo apt-get install -y g++-14-arm-linux-gnueabihf qemu-user pkg-config \
+                wayland-protocols extra-cmake-modules libwayland-bin \
+                libbluetooth-dev:armhf libdbus-1-dev:armhf libfontconfig1-dev:armhf \
+                libwayland-dev:armhf libxkbcommon-dev:armhf libcurl4-openssl-dev:armhf \
+                libx11-dev:armhf libxext-dev:armhf libxcursor-dev:armhf libxi-dev:armhf \
+                libxfixes-dev:armhf libxrandr-dev:armhf libxss-dev:armhf libgl1-mesa-dev:armhf
+              echo "PKG_CONFIG_LIBDIR=/usr/lib/arm-linux-gnueabihf/pkgconfig:/usr/share/pkgconfig" >> "$GITHUB_ENV"
+            gcc: 14
+            compiler_prefix: arm-linux-gnueabihf-
+            cmake_args: >-
+              -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=armv7
+              -DCMAKE_C_FLAGS="-march=armv7-a -mfpu=vfpv3-d16"
+              -DCMAKE_CXX_FLAGS="-march=armv7-a -mfpu=vfpv3-d16"
+              -DCMAKE_CROSSCOMPILING_EMULATOR="qemu-arm;-cpu;cortex-a15;-L;/"
           - os: windows-latest
             arch: x64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64"
             script: ""
           - os: windows-latest
+            arch: Win32
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x86"
+            script: ""
+          - os: windows-latest
             arch: x64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64-compatibility"
+            script: ""
+            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF"
+          - os: windows-latest
+            arch: Win32
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x86-compatibility"
             script: ""
             cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF"
           - os: windows-11-arm
@@ -100,11 +147,11 @@ jobs:
 
     - name: Configure CMake (Linux)
       env:
-        CC: gcc-${{ matrix.gcc }}
-        CXX: g++-${{ matrix.gcc }}
+        CC: ${{ matrix.compiler_prefix }}gcc-${{ matrix.gcc }}
+        CXX: ${{ matrix.compiler_prefix }}g++-${{ matrix.gcc }}
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'Linux'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON ${{ matrix.cmake_args }}
 
     - name: Configure CMake (macOS)
       working-directory: ${{github.workspace}}/build
@@ -131,7 +178,7 @@ jobs:
       if: runner.os == 'Linux'
       working-directory: ${{github.workspace}}
       # Strip symbols from the binary to reduce size
-      run: strip --strip-unneeded ${{matrix.binary_path}}
+      run: ${{ matrix.compiler_prefix }}strip --strip-unneeded ${{matrix.binary_path}}
 
     - name: Pack (macOS)
       if: runner.os == 'macOS'

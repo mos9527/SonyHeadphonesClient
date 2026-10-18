@@ -379,7 +379,7 @@ struct ConnectRetProtocolInfo
 
 These are payload structs that cannot be trivially serialized and deserialized, usually because they contain dynamic array types (vectors or strings).
 
-**NEVER** pack these structs. See [This Commit](https://github.com/mos9527/SonyHeadphonesClient/commit/e475e2f9921cd95c33fa8d6e99a550c32184f976) for why.
+**NEVER** pack these structs. See [This Commit](https://github.com/mos9527/SonyHeadphonesClient/commit/3b0a9942728847503ed53e3cc14f001e2f071ece) for why.
 
 ```c++
 struct ConnectRetSupportFunction
