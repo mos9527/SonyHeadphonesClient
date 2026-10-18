@@ -35,6 +35,21 @@ if (NOT MDR_BUILD_CLIENT)
     return()
 endif ()
 
+# https://learn.microsoft.com/en-us/cpp/build/reference/zc-threadsafeinit-thread-safe-local-static-initialization?view=msvc-170
+# Removes static variable initialization thread safety guarantees when we *know* we don't need one
+# Generally speaking you should NOT need this, and very possibly a footgun that you might not even know exists if you turned it off.
+# `client` did this only for codepath that explictly is not threaded (MDR_CLIENT_THREADED OFF).
+# - This only affects `client/` targets (client and co., ImGui)
+# - Client no longer polls on a worker thread either (so static init order across *threads* is not a problem, but still a fiasco across TUs)
+# ...Though in hindsight, you *really* should not have *depended* on static order to begin with.
+# As to why besides smaller binary size:
+# - On new Windows SDKs (possibly anything past 7 at this point) this is implemented via SRW locks.
+# - There's plans to support XP (possibly DOA already, if you know what CRT is like) which does not support that.
+# TODO See if we can actually get XP to work. Otherwise, remove this.
+if (MSVC AND NOT MDR_CLIENT_THREADED)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:/Zc:threadSafeInit->)
+endif ()
+
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
     add_executable(SonyHeadphonesClient WIN32)
     target_sources(SonyHeadphonesClient PRIVATE
@@ -182,7 +197,8 @@ if (MDR_CLIENT_DEBUGGER_TARGET)
     target_link_libraries(Client_Debugger PUBLIC Client_Platform)
 endif ()
 target_link_libraries(SonyHeadphonesClient PRIVATE mdr ImGuiSDL3 Client_Platform mdr::bt)
-if (NOT MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+target_compile_definitions(SonyHeadphonesClient PRIVATE MDR_CLIENT_THREADED=$<BOOL:${MDR_CLIENT_THREADED}>)
+if (MDR_CLIENT_THREADED)
     find_package(Threads REQUIRED)
     target_link_libraries(SonyHeadphonesClient PRIVATE Threads::Threads)
 endif ()

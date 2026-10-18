@@ -8,6 +8,7 @@
 
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_time.h>
 #include <imgui.h>
@@ -20,7 +21,6 @@
 #include <cstdio>
 #include <iterator>
 #include <limits>
-#include <mutex>
 #include <string_view>
 #include <utility>
 
@@ -68,9 +68,9 @@ namespace
     struct ExportRequest
     {
         AppLocale locale{};
+        mdr::String result;
     };
 
-    std::mutex gExportMutex;
     bool gExportDialogActive{};
     bool gExportResultReady{};
     mdr::String gExportResult;
@@ -78,25 +78,22 @@ namespace
 
     bool WriteCaptureFile(const char* path, mdr::Span<const mdr::UInt8> frame);
 
-    void SetExportResult(mdr::String result)
+    void SDLCALL SetExportResult(void* userdata)
     {
-        std::scoped_lock lock(gExportMutex);
-        gExportResult = std::move(result);
+        auto* request = static_cast<ExportRequest*>(userdata);
+        gExportResult = std::move(request->result);
         gExportResultReady = true;
         gExportDialogActive = false;
+        mdr::Destruct(request);
     }
 
     void PollExportResult()
     {
-        mdr::String result;
-        {
-            std::scoped_lock lock(gExportMutex);
-            if (!gExportResultReady)
-                return;
-            result = std::move(gExportResult);
-            gExportResult.clear();
-            gExportResultReady = false;
-        }
+        if (!gExportResultReady)
+            return;
+        mdr::String result = std::move(gExportResult);
+        gExportResult.clear();
+        gExportResultReady = false;
         gExportStatus = result;
         gStatus = std::move(result);
     }
@@ -124,8 +121,12 @@ namespace
             result = mdr::Format(fmt::runtime(translate(i18n::TextId::DebuggerExportedFallback)), path, error);
             break;
         }
-        mdr::Destruct(request);
-        SetExportResult(std::move(result));
+        request->result = std::move(result);
+        if (!SDL_RunOnMainThread(SetExportResult, request, false))
+        {
+            MDR_LOG("Unable to dispatch debugger export result: {}", SDL_GetError());
+            mdr::Destruct(request);
+        }
     }
 
     bool RequestExport(
@@ -134,21 +135,15 @@ namespace
         const char* filterExtension)
     {
         PollExportResult();
+        if (gExportDialogActive)
         {
-            std::scoped_lock lock(gExportMutex);
-            if (gExportDialogActive)
-            {
-                gStatus = Tr(i18n::TextId::DebuggerExportDialogOpen);
-                return false;
-            }
+            gStatus = Tr(i18n::TextId::DebuggerExportDialogOpen);
+            return false;
         }
 
         auto* request = mdr::Construct<ExportRequest>();
         request->locale = clientGetAppLocale();
-        {
-            std::scoped_lock lock(gExportMutex);
-            gExportDialogActive = true;
-        }
+        gExportDialogActive = true;
         gExportStatus = gStatus = Tr(i18n::TextId::DebuggerChooseDestination);
         const char* mimeType =
             std::string_view(filterExtension) == "zip" ? "application/zip" : "application/octet-stream";
@@ -1143,7 +1138,6 @@ bool clientDebuggerHasPackets() { return !gHistory.empty(); }
 
 bool clientDebuggerExportInProgress()
 {
-    std::scoped_lock lock(gExportMutex);
     return gExportDialogActive;
 }
 

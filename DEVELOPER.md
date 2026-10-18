@@ -163,6 +163,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | Option | Default | Description |
 | --- | --- | --- |
 | `MDR_BUILD_CLIENT` | `ON` | Build the Client app and its platform backends. Requires `MDR_BUILD_BT=ON`. |
+| `MDR_CLIENT_THREADED` | `ON` | Build the Client with threading support, which enables on-demand async rendering (saves power). **NOTE**: Forced `OFF` on Emscripten. |
 | `MDR_CLIENT_DEBUGGER` | `OFF` | With `MDR_BUILD_CLIENT=ON`, build, link and enable the [Protocol Debugger](#the-protocol-debugger), defining `MDR_CLIENT_DEBUGGER`, in all configurations. Always enabled in `Debug` builds. |
 
 
@@ -171,6 +172,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | Configuration | Options |
 | --- | --- |
 | Client with checked-in generated sources | `MDR_BUILD_CLIENT=ON`, `MDR_BUILD_BT=ON`, `MDR_BUILD_CODEGEN=OFF` |
+| Windows compatibility client build config (Classic Bluetooth only, static CRT/UCRT linkage, threading disabled) | `-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF` |
 | Protocol library without Bluetooth backends | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=OFF`, `MDR_BUILD_TESTING=OFF` |
 | Codegen targets only | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=ON`, `MDR_BUILD_TESTING=OFF`; build target `mdr_codegen` |
 

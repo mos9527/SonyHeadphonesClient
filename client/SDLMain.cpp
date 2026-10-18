@@ -2,7 +2,9 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#if MDR_CLIENT_THREADED
 #include <mutex>
+#endif
 #ifdef SDL_DIALOG
 #include <cctype>
 #include <string_view>
@@ -72,7 +74,7 @@ namespace
     SDL_WindowID gWindowID{};
     int gRedrawFrames{kRedrawFrames};
 
-#ifndef __EMSCRIPTEN__
+#if MDR_CLIENT_THREADED
     SDL_Thread* gClientThread{};
     std::mutex gWorkerMutex;
     bool gStopClient{};
@@ -95,7 +97,7 @@ namespace
         return !gShouldClose && gAppActive && !(SDL_GetWindowFlags(gWindow) & SDL_WINDOW_MINIMIZED);
     }
 
-#ifndef __EMSCRIPTEN__
+#if MDR_CLIENT_THREADED
     // Worker thread polls no faster than kClientPollIntervalMS and handles everything
     // that needs interaction with the physical connection.
     // See also @ref clientOnUpdate, @ref clientOnFrame
@@ -125,7 +127,8 @@ namespace
 void mainLoop()
 {
 #ifndef __EMSCRIPTEN__
-    if ((!gRedrawFrames || !ShouldAppPresent()) && !clientPlatformWaitEventTimeout(kClientIdleWaitTimeoutMS))
+    constexpr int idleWaitTimeoutMS = MDR_CLIENT_THREADED ? kClientIdleWaitTimeoutMS : kClientPollIntervalMS;
+    if ((!gRedrawFrames || !ShouldAppPresent()) && !clientPlatformWaitEventTimeout(idleWaitTimeoutMS))
         gRedrawFrames = std::max(gRedrawFrames, 1);
 #endif
     SDL_PumpEvents();
@@ -151,7 +154,7 @@ void mainLoop()
         CheckIsActive(event);
 
     {
-#ifndef __EMSCRIPTEN__
+#if MDR_CLIENT_THREADED
         // Serialize Worker (mdr) and Main (Client SDL+ImGui) thread
         // NOTE: libmdr does not offer thread-safety guarantees (as the connection *itself* is serial)
         //       In your own app you will want to do the same with whatever synchronization primitives your runtime may
@@ -377,7 +380,7 @@ int main(int argc, char** argv)
 {
     static const auto Shutdown = []
     {
-#ifndef __EMSCRIPTEN__
+#if MDR_CLIENT_THREADED
         // Join the thread...
         {
             std::scoped_lock lock(gWorkerMutex);
@@ -515,7 +518,7 @@ int main(int argc, char** argv)
             MDR_LOG("Error: ImGui_ImplSDLRenderer3_Init()");
             break;
         }
-#ifndef __EMSCRIPTEN__
+#if MDR_CLIENT_THREADED
         gStopClient = false;
         gClientThread = SDL_CreateThread(RunOnWorkerThread, "client", nullptr);
         if (!gClientThread)

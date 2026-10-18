@@ -1,11 +1,11 @@
 #include "../Platform.hpp"
 #define NOMINMAX
 #include <Windows.h>
-#include <dwrite.h>
-#include <wrl/client.h>
 #include <array>
 #include <climits>
 #include <cstdint>
+#include <cstring>
+#include <cwchar>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionWindows.h>
 #include <SDL3/SDL_events.h>
@@ -41,13 +41,10 @@ bool clientPlatformWaitEventTimeout(int timeoutMS)
 
 namespace
 {
-using Microsoft::WRL::ComPtr;
-
 struct CachedFont
 {
     bool queried{};
-    void* data{};
-    int size{};
+    mdr::Vector<unsigned char> data;
     int faceIndex{};
 };
 
@@ -76,85 +73,109 @@ int MapFile(const wchar_t* path, void** outAddr, size_t* outSize)
 
 std::array<CachedFont, static_cast<size_t>(AppLocale::NUM_LOCALES)> gFonts;
 
-bool LoadFont(IDWriteFontCollection* collection, const wchar_t* name,
-              const wchar_t* sample, CachedFont& cache)
+uint32_t ReadFontUInt32(const unsigned char* data)
 {
-    UINT32 familyIndex{};
-    BOOL exists{};
-    if (FAILED(collection->FindFamilyName(name, &familyIndex, &exists)) || !exists)
-        return false;
-    ComPtr<IDWriteFontFamily> family;
-    ComPtr<IDWriteFont> font;
-    ComPtr<IDWriteFontFace> face;
-    if (FAILED(collection->GetFontFamily(familyIndex, &family)) ||
-        FAILED(family->GetFirstMatchingFont(DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-                                           DWRITE_FONT_STYLE_NORMAL, &font)) ||
-        font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE)
-        return false;
-    for (const wchar_t* ch = sample; *ch; ++ch)
+    return (uint32_t(data[0]) << 24) | (uint32_t(data[1]) << 16) |
+           (uint32_t(data[2]) << 8) | uint32_t(data[3]);
+}
+
+bool ReadFont(HDC dc, CachedFont& cache)
+{
+    constexpr DWORD collectionTag = 0x66637474;
+    DWORD table = collectionTag;
+    DWORD size = GetFontData(dc, table, 0, nullptr, 0);
+    if (size == GDI_ERROR)
     {
-        BOOL covered{};
-        if (FAILED(font->HasCharacter(*ch, &covered)) || !covered)
+        table = 0;
+        size = GetFontData(dc, table, 0, nullptr, 0);
+    }
+    if (size == GDI_ERROR || size < 12 || size > static_cast<DWORD>(INT_MAX))
+        return false;
+    mdr::Vector<unsigned char> data(size);
+    if (GetFontData(dc, table, 0, data.data(), size) != size)
+        return false;
+    int faceIndex{};
+    if (table == collectionTag)
+    {
+        if (std::memcmp(data.data(), "ttcf", 4) != 0)
+            return false;
+        const uint32_t faces = ReadFontUInt32(data.data() + 8);
+        if (faces == 0 || faces > (size - 12) / 4)
+            return false;
+        std::array<unsigned char, 12> header{};
+        if (GetFontData(dc, 0, 0, header.data(), static_cast<DWORD>(header.size())) != header.size())
+            return false;
+        const size_t tables = (size_t(header[4]) << 8) | header[5];
+        const size_t directorySize = header.size() + tables * 16;
+        if (directorySize > size)
+            return false;
+        mdr::Vector<unsigned char> directory(directorySize);
+        if (GetFontData(dc, 0, 0, directory.data(), static_cast<DWORD>(directorySize)) != directorySize)
+            return false;
+        bool found{};
+        for (uint32_t face = 0; face < faces; ++face)
+        {
+            const uint32_t offset = ReadFontUInt32(data.data() + 12 + size_t(face) * 4);
+            if (offset > size - directorySize ||
+                std::memcmp(data.data() + offset, directory.data(), directorySize) != 0)
+                continue;
+            faceIndex = static_cast<int>(face);
+            found = true;
+            break;
+        }
+        if (!found)
             return false;
     }
-    if (FAILED(font->CreateFontFace(&face)))
+    cache.data = std::move(data);
+    cache.faceIndex = faceIndex;
+    return true;
+}
+
+bool LoadFont(HDC dc, const wchar_t* name, const wchar_t* sample, CachedFont& cache)
+{
+    LOGFONTW description{};
+    description.lfHeight = -16;
+    description.lfWeight = FW_NORMAL;
+    description.lfCharSet = DEFAULT_CHARSET;
+    description.lfOutPrecision = OUT_TT_ONLY_PRECIS;
+    if (std::wcslen(name) >= LF_FACESIZE)
         return false;
-    UINT32 fileCount{};
-    if (FAILED(face->GetFiles(&fileCount, nullptr)) || fileCount != 1)
+    std::wcscpy(description.lfFaceName, name);
+    HFONT font = CreateFontIndirectW(&description);
+    if (!font)
         return false;
-    ComPtr<IDWriteFontFile> file;
-    if (FAILED(face->GetFiles(&fileCount, file.GetAddressOf())))
-        return false;
-    BOOL supported{};
-    DWRITE_FONT_FILE_TYPE fileType{};
-    DWRITE_FONT_FACE_TYPE faceType{};
-    UINT32 faceCount{};
-    if (FAILED(file->Analyze(&supported, &fileType, &faceType, &faceCount)) || !supported ||
-        (faceType != DWRITE_FONT_FACE_TYPE_TRUETYPE && faceType != DWRITE_FONT_FACE_TYPE_CFF &&
-         faceType != DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION) ||
-        face->GetIndex() >= faceCount || face->GetIndex() > static_cast<UINT32>(INT_MAX))
-        return false;
-    const void* key{};
-    UINT32 keySize{};
-    UINT32 pathLength{};
-    ComPtr<IDWriteFontFileLoader> loader;
-    ComPtr<IDWriteLocalFontFileLoader> localLoader;
-    if (FAILED(file->GetReferenceKey(&key, &keySize)) || FAILED(file->GetLoader(&loader)) ||
-        FAILED(loader.As(&localLoader)) ||
-        FAILED(localLoader->GetFilePathLengthFromKey(key, keySize, &pathLength)))
-        return false;
-    mdr::Vector<wchar_t> path(pathLength + 1, L'\0');
-    if (FAILED(localLoader->GetFilePathFromKey(key, keySize, path.data(), pathLength + 1)))
-        return false;
-    void* addr{};
-    size_t size{};
-    if (MapFile(path.data(), &addr, &size) != MDR_RESULT_OK)
-        return false;
-    if (size > static_cast<size_t>(INT_MAX))
+    HGDIOBJ previous = SelectObject(dc, font);
+    if (!previous || previous == HGDI_ERROR)
     {
-        clientPlatformMemoryUnmapFile(addr, size);
+        DeleteObject(font);
         return false;
     }
-    cache.data = addr;
-    cache.size = static_cast<int>(size);
-    cache.faceIndex = static_cast<int>(face->GetIndex());
-    return true;
+    bool loaded = [&] {
+        wchar_t actualName[LF_FACESIZE]{};
+        if (!GetTextFaceW(dc, LF_FACESIZE, actualName) || _wcsicmp(actualName, name) != 0)
+            return false;
+        for (const wchar_t* ch = sample; *ch; ++ch)
+        {
+            WORD glyph{};
+            if (GetGlyphIndicesW(dc, ch, 1, &glyph, GGI_MARK_NONEXISTING_GLYPHS) != 1 ||
+                glyph == 0xffff || glyph == 0)
+                return false;
+        }
+        return ReadFont(dc, cache);
+    }();
+    SelectObject(dc, previous);
+    DeleteObject(font);
+    return loaded;
 }
 
 void LocateFont(AppLocale locale, CachedFont& cache)
 {
     if (locale == AppLocale::DEFAULT)
         return;
-    ComPtr<IDWriteFactory> factory;
-    ComPtr<IDWriteFontCollection> collection;
-    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
-                                  reinterpret_cast<IUnknown**>(factory.GetAddressOf()))) ||
-        FAILED(factory->GetSystemFontCollection(&collection)))
-        return;
     const wchar_t* const sc[] = {L"Microsoft YaHei", L"Microsoft YaHei UI", L"SimSun", nullptr};
-    const wchar_t* const tc[] = {L"Microsoft JhengHei", L"Microsoft JhengHei UI", nullptr};
+    const wchar_t* const tc[] = {L"Microsoft JhengHei", L"Microsoft JhengHei UI", L"MingLiU", L"PMingLiU", nullptr};
     const wchar_t* const jp[] = {L"Yu Gothic", L"Yu Gothic UI", L"Meiryo", L"MS Gothic", nullptr};
-    const wchar_t* const kr[] = {L"Malgun Gothic", nullptr};
+    const wchar_t* const kr[] = {L"Malgun Gothic", L"Gulim", L"Batang", nullptr};
     const wchar_t* const* candidates{};
     const wchar_t* sample{};
     switch (locale)
@@ -165,9 +186,13 @@ void LocateFont(AppLocale locale, CachedFont& cache)
     case AppLocale::KOREAN: candidates = kr; sample = L"\ud55c\uae00"; break;
     default: return;
     }
+    HDC dc = CreateCompatibleDC(nullptr);
+    if (!dc)
+        return;
     for (; *candidates; ++candidates)
-        if (LoadFont(collection.Get(), *candidates, sample, cache))
-            return;
+        if (LoadFont(dc, *candidates, sample, cache))
+            break;
+    DeleteDC(dc);
 }
 }
 
@@ -185,9 +210,9 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
         cache.queried = true;
         LocateFont(locale, cache);
     }
-    *outData = static_cast<const char*>(cache.data);
+    *outData = cache.data.empty() ? nullptr : reinterpret_cast<const char*>(cache.data.data());
     *outFaceIndex = cache.faceIndex;
-    return cache.size;
+    return static_cast<int>(cache.data.size());
 }
 
 int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSize)
@@ -264,10 +289,7 @@ void clientPlatformDestroy()
 {
     clientPlatformConnectionDestroy();
     for (auto& font : gFonts)
-    {
-        clientPlatformMemoryUnmapFile(font.data, static_cast<size_t>(font.size));
         font = {};
-    }
 }
 }
 

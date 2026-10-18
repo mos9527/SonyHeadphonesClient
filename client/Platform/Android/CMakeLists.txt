@@ -83,11 +83,15 @@ target_compile_options(main PRIVATE -fno-exceptions -fno-rtti -Wall -Wextra -Wno
 target_compile_definitions(main PRIVATE
     "$<TARGET_GENEX_EVAL:mdr,$<TARGET_PROPERTY:mdr,COMPILE_DEFINITIONS>>"
     IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+    MDR_CLIENT_THREADED=$<BOOL:${MDR_CLIENT_THREADED}>
     FMT_EXCEPTIONS=0 FMT_USE_LOCALE=0 MDR_PLATFORM_ANDROID
     CLIENT_VERSION="2.0.0" MDR_GIT_COMMIT_HASH="${MDR_GIT_COMMIT_HASH}"
     MDR_GIT_BRANCH_NAME="${MDR_GIT_BRANCH_NAME}" MDR_PLATFORM_OS="ANDROID"
     MDR_PLATFORM_PROCESSOR="${CMAKE_ANDROID_ARCH_ABI}")
 target_include_directories(main PRIVATE
     "${SHC_ROOT}/client" "${imgui_SOURCE_DIR}" "${imgui_SOURCE_DIR}/backends")
-find_package(Threads REQUIRED)
-target_link_libraries(main PRIVATE mdr Client_I18N SDL3::SDL3 Threads::Threads log)
+target_link_libraries(main PRIVATE mdr Client_I18N SDL3::SDL3 log)
+if (MDR_CLIENT_THREADED)
+    find_package(Threads REQUIRED)
+    target_link_libraries(main PRIVATE Threads::Threads)
+endif ()

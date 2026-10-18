@@ -92,6 +92,7 @@ option(MDR_BUILD_CLIENT "Build the SonyHeadphonesClient and platform backends" O
 option(MDR_BUILD_TESTING "Build the MDR ABI and packet replay tests" ON)
 option(MDR_BUILD_CODEGEN "Build codegen tools and targets (requires LLVM)" OFF)
 option(MDR_CLIENT_DEBUGGER "Build the ImGui packet debugger in all configurations" OFF)
+option(MDR_CLIENT_THREADED "Poll the client Bluetooth connection on a worker thread" ON)
 if (MDR_BUILD_CLIENT AND NOT MDR_BUILD_BT)
     message(FATAL_ERROR "MDR_BUILD_CLIENT requires MDR_BUILD_BT=ON; set MDR_BUILD_CLIENT=OFF to build without Bluetooth backends")
 endif ()
@@ -144,6 +145,7 @@ MDR_DetectPlatform() # Sets MDR_PLATFORM_OS
 include(DetectGitInfo.cmake)
 MDR_DetectGitInfo() # Sets MDR_GIT_COMMIT_HASH and MDR_GIT_BRANCH_NAME
 if(MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
+    set(MDR_CLIENT_THREADED OFF CACHE BOOL "Poll the client Bluetooth connection on a worker thread" FORCE)
     add_link_options(
             -sALLOW_MEMORY_GROWTH
             -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAPU8','FS']
