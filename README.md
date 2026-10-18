@@ -24,13 +24,13 @@ The architectures (x64, etc) shown here are the ones built by GitHub Actions, an
 
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
-| Windows (ARM64 and x64, [Windows 7](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
-| Linux  (ARM64 and x64)          | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| Windows (`x86/x64/ARM64`, [Windows 7](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
+| Linux  (`x86/x64/ARMv7/ARM64`)          | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | macOS   (Universal)       | Full Support   | [@mos9527](https://github.com/mos9527)             |
-| iOS (ARM64, [15.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/70))           | Full Support, [manual build/install required](./DEVELOPER.md#ios-xcode)   | [@mos9527](https://github.com/mos9527)             |
-| Android (ARM64/ARMv7, [5.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/69)) | Supported, `client` only | [@mos9527](https://github.com/mos9527)             |
-| Web (Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
-| HarmonyOS (ARM64, [OpenHarmony](https://github.com/mos9527/SonyHeadphonesClient/pull/68)) | Supported, `client` only, [manual build required](./DEVELOPER.md#openharmony-deveco-studio) | [@mos9527](https://github.com/mos9527)             |
+| iOS (`ARM64`, [15.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/70))           | Full Support, [manual build/install required](./DEVELOPER.md#ios-xcode)   | [@mos9527](https://github.com/mos9527)             |
+| Android (`ARMv7/ARM64`, [5.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/69)) | Supported, `client` only | [@mos9527](https://github.com/mos9527)             |
+| Web (`WASM32`, Emscripten) | Full Support   | [@mos9527](https://github.com/mos9527)             |
+| HarmonyOS (`ARM64`, [OpenHarmony](https://github.com/mos9527/SonyHeadphonesClient/pull/68)) | Supported, `client` only, [manual build required](./DEVELOPER.md#openharmony-deveco-studio) | [@mos9527](https://github.com/mos9527)             |
 
 For device support, refer to [`docs/device-support`](./docs/device-support/). If the feature support status for your own device is missing/incorrect/untested there, feel free to submit an [Issue](https://github.com/mos9527/SonyHeadphonesClient/issues/new) so we can work on it!
 
@@ -53,7 +53,9 @@ These builds are suffixed with `-compatibility`, and are available in [nightly](
 
 Currently, the following compatibility builds are available:
 - `SonyHeadphonesClient-win-x64-compatibility.exe`
-  For Windows 7 (x64) and Windows 8 (x64). This build has no Bluetooth LE support, which is only introduced in [Windows 8.1 and above](https://learn.microsoft.com/en-us/windows-hardware/drivers/bluetooth/bluetooth-support-in-previous-windows-versions).
+  This build has no Bluetooth LE support, which is only introduced in [Windows 8.1 and above](https://learn.microsoft.com/en-us/windows-hardware/drivers/bluetooth/bluetooth-support-in-previous-windows-versions).
+  You can expect it run on Windows 7 and above.
+- `SonyHeadphonesClient-win-x86-compatibility.exe` The same build above for 32-bit OSes.
 
 ## Fonts & Localization
 
