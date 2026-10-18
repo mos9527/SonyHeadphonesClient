@@ -28,7 +28,6 @@ static AppLocale gAppLocale = AppLocale::DEFAULT;
 static bool gPlatformFontLoaded = false;
 static bool gWantAnimate = false;
 static bool gWantRedraw = false;
-static int gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
 static char* gFontFallbackData = nullptr;
 static int gFontFallbackSize{};
 static mdr::String gFontFallbackPath;
@@ -2554,7 +2553,6 @@ void clientEnterDebuggerReplayMode()
 bool clientInit(float displayScale, const char* fontPath)
 {
     gPlatformFontLoaded = false;
-    gFontFallbackIndex = static_cast<int>(AppLocale::SIMPLIFIED_CHINESE);
     if (fontPath)
     {
         void* fontData{};
@@ -2613,9 +2611,12 @@ bool clientOnFrame(SDL_Window* window)
     while (!gPlatformFontLoaded)
     {
         const bool useFontFallback = gFontFallbackData && gFontFallbackSize > 0;
-        const AppLocale locale = !useFontFallback && gAppLocale == AppLocale::DEFAULT
-            ? static_cast<AppLocale>(gFontFallbackIndex)
-            : gAppLocale;
+        const AppLocale locale = gAppLocale;
+        if (!useFontFallback && locale == AppLocale::DEFAULT)
+        {
+            gPlatformFontLoaded = true;
+            break;
+        }
         const char* fontData = gFontFallbackData;
         int faceIndex{};
         const int fontSize =
@@ -2660,11 +2661,8 @@ bool clientOnFrame(SDL_Window* window)
             // which the embedded font always covers.
             MDR_LOG("No usable font for locale {}, falling back to {}.", gAppLocale, AppLocale::DEFAULT);
             gAppLocale = AppLocale::DEFAULT;
-            if (useFontFallback)
-                gPlatformFontLoaded = true;
         }
-        else if (useFontFallback || ++gFontFallbackIndex >= static_cast<int>(AppLocale::NUM_LOCALES))
-            gPlatformFontLoaded = true;
+        gPlatformFontLoaded = true;
     }
     if (gThemePending)
     {
