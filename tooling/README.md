@@ -45,6 +45,13 @@ a capture can be contributed as a test fixture. See
 file, then run `python tooling/make-icon.py` (requires `pip install pillow`)
 and commit the outputs.
 
+## README title
+
+`make-title-svg.py` regenerates [`docs/title.svg`](../docs/title.svg)
+with the client icon embedded as a bitmap and the title converted to outlines.
+Run `python tooling/make-title-svg.py` (requires `pip install fonttools`) and
+commit the output.
+
 ## Credits
 
 `BinaryEmbed.cpp` is adapted from
