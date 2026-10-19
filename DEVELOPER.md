@@ -148,6 +148,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | `MDR_BUILD_SHARED` | Platform-dependent | Also build the `mdr_shared` target and, with `MDR_BUILD_BT=ON`, the `mdr-bt_shared` target. Outputs to `mdr-shared` and `mdr-bt-shared`. Defaults to `ON` where shared libraries are supported (i.e. **not** Emscripten). Required by the tests. |
 | `MDR_BUILD_CODEGEN` | `OFF` | Build [codegen](./tooling/) tools and targets, including `mdr_codegen` for all generated protocol and debugger files. Requires a native toolchain and LLVM/libclang. Leave `OFF` to use the checked-in generated sources. |
 | `MDR_BUILD_WITH_ASAN` | `OFF` | Build with AddressSanitizer enabled. |
+| `MDR_BUILD_WITH_IPO` | `ON` | Build with Interprocedural Optimization enabled. |
 | `MDR_MSVC_STATIC_CRT` | `ON` | **MSVC only.** Statically link the MSVC runtime (`/MT`). Ignored if `CMAKE_MSVC_RUNTIME_LIBRARY` is set. |
 | `MDR_MSVC_DYNAMIC_UCRT` | `ON` | **MSVC only.** With `MDR_MSVC_STATIC_CRT`, keep the UCRT dynamically linked in non-`Debug` builds. |
 
@@ -165,14 +166,14 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | `MDR_BUILD_CLIENT` | `ON` | Build the Client app and its platform backends. Requires `MDR_BUILD_BT=ON`. |
 | `MDR_CLIENT_THREADED` | `ON` | Build the Client with threading support, which enables on-demand async rendering (saves power). **NOTE**: Forced `OFF` on Emscripten. |
 | `MDR_CLIENT_DEBUGGER` | `OFF` | With `MDR_BUILD_CLIENT=ON`, build, link and enable the [Protocol Debugger](#the-protocol-debugger), defining `MDR_CLIENT_DEBUGGER`, in all configurations. Always enabled in `Debug` builds. |
-
+| `MDR_MSVC_CLIENT_YY_THUNKS` | `OFF` | **MSVC only.** Link the Client build with [YY-Thunks](https://github.com/Chuyu-Team/YY-Thunks) for Windows  backwards compatibility.|
 
 #### Example Configurations
 
 | Configuration | Options |
 | --- | --- |
 | Client with checked-in generated sources | `MDR_BUILD_CLIENT=ON`, `MDR_BUILD_BT=ON`, `MDR_BUILD_CODEGEN=OFF` |
-| Windows compatibility client build config (Classic Bluetooth only, static CRT/UCRT linkage, threading disabled) | `-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF` |
+| Windows compatibility client build config (Classic Bluetooth only, static CRT/UCRT linkage, threading disabled, and use YY-Thunks for API compat) | `-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF -DMDR_MSVC_CLIENT_YY_THUNKS=ON` |
 | Protocol library without Bluetooth backends | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=OFF`, `MDR_BUILD_TESTING=OFF` |
 | Codegen targets only | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=ON`, `MDR_BUILD_TESTING=OFF`; build target `mdr_codegen` |
 

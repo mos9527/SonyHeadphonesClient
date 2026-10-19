@@ -107,13 +107,13 @@ jobs:
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64-compatibility"
             script: ""
-            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF"
+            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF -DMDR_MSVC_CLIENT_YY_THUNKS=ON"
           - os: windows-latest
             arch: Win32
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x86-compatibility"
             script: ""
-            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF"
+            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF -DMDR_MSVC_CLIENT_YY_THUNKS=ON"
           - os: windows-11-arm
             arch: arm64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe

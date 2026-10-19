@@ -6,8 +6,6 @@ if (APPLE)
 endif ()
 
 set(CMAKE_CXX_STANDARD 20)
-
-
 if (MSVC)
     option(MDR_MSVC_STATIC_CRT "Statically link the MSVC runtime (/MT)" ON)
     option(MDR_MSVC_DYNAMIC_UCRT "With MDR_MSVC_STATIC_CRT on, keep UCRT linked dynamically in non-Debug builds" ON)
@@ -37,7 +35,7 @@ option(MDR_NO_EXCEPTIONS "Do not use C++ exceptions" ON)
 if (MDR_NO_EXCEPTIONS)
     message(STATUS "C++ exceptions are disabled")
     # No exceptions.
-    # =============================================================================
+    # ---
     # For MSVC/Clang-cl with STL:
     # - https://github.com/microsoft/STL/issues/202
     # - _HAS_EXCEPTIONS=0 barely works.
@@ -74,6 +72,21 @@ else()
         add_link_options(-Wl,--gc-sections -s)
     endif()
 endif()
+
+option(MDR_BUILD_WITH_IPO "Build Release and MinSizeRel with interprocedural optimization (LTO)" ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE OFF)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL OFF)
+if (MDR_BUILD_WITH_IPO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
+    if (ipo_ok)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+    else()
+        message(STATUS "LTO not supported: ${ipo_msg}")
+    endif()
+endif ()
 
 option(MDR_BUILD_WITH_ASAN "Build with Address Sanitizer enabled" OFF)
 if (MDR_BUILD_WITH_ASAN)
@@ -121,16 +134,6 @@ if (MDR_ENABLE_LOG OR MDR_DEBUG)
     set(MDR_LOG_NON_DEBUG ON)
 endif ()
 add_compile_definitions(MDR_ENABLE_LOG=$<IF:$<OR:$<CONFIG:Debug>,$<BOOL:${MDR_LOG_NON_DEBUG}>>,1,0>)
-
-# LTCG/IPO
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_ok OUTPUT ipo_msg)
-if (ipo_ok)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-else()
-    message(STATUS "LTO not supported: ${ipo_msg}")
-endif()
 
 option(MDR_BT_BLE_SUPPORT "Build libmdr-bt with BLE Backend support" ON)
 if (MDR_BUILD_BT AND MDR_BT_BLE_SUPPORT)

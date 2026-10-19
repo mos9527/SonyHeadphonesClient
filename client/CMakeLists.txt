@@ -35,20 +35,62 @@ if (NOT MDR_BUILD_CLIENT)
     return()
 endif ()
 
+# Here's some arcane magic that makes us build on Windows that goes as far back as XP RTM...
+# ---
+# 1. The first thing being thread static initialization during CRT init:
 # https://learn.microsoft.com/en-us/cpp/build/reference/zc-threadsafeinit-thread-safe-local-static-initialization?view=msvc-170
 # Removes static variable initialization thread safety guarantees when we *know* we don't need one
+# ---
 # Generally speaking you should NOT need this, and very possibly a footgun that you might not even know exists if you turned it off.
 # `client` did this only for codepath that explictly is not threaded (MDR_CLIENT_THREADED OFF).
 # - This only affects `client/` targets (client and co., ImGui)
 # - Client no longer polls on a worker thread either (so static init order across *threads* is not a problem, but still a fiasco across TUs)
 # ...Though in hindsight, you *really* should not have *depended* on static order to begin with.
 # As to why besides smaller binary size:
+# - We never relied on well-defined cocurrent static initialization order (across threads or else).
 # - On new Windows SDKs (possibly anything past 7 at this point) this is implemented via SRW locks.
-# - There's plans to support XP (possibly DOA already, if you know what CRT is like) which does not support that.
-# TODO See if we can actually get XP to work. Otherwise, remove this.
+# - There's plans to support XP which does not support that. (possibly DOA already , if you know what standard MSVC CRT is like) 
 if (MSVC AND NOT MDR_CLIENT_THREADED)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:/Zc:threadSafeInit->)
 endif ()
+
+# Which brings us to https://github.com/Chuyu-Team/YY-Thunks...
+# ---
+option(MDR_MSVC_CLIENT_YY_THUNKS "Link the client with YY-Thunks for backwards compatibility" OFF)
+if (MDR_MSVC_CLIENT_YY_THUNKS AND NOT MSVC)
+    message(FATAL_ERROR "MDR_MSVC_CLIENT_YY_THUNKS requires an MSVC-compatible toolchain")
+endif ()
+
+# 2. With YY-Thunks.
+# ---
+# This neat library implements, internally or through older APIs, new WinAPIs that's absent in legacy Windows builds
+# As we're linking statically this made it possible to build binaries backwards compat with even *XP* with the latest toolchains!
+# See https://github.com/Chuyu-Team/YY-Thunks/blob/master/ThunksList.md for a list.
+if (MDR_MSVC_CLIENT_YY_THUNKS)
+    if (NOT CMAKE_CXX_COMPILER_LINKER_ID STREQUAL "MSVC")
+        message(FATAL_ERROR "MDR_MSVC_CLIENT_YY_THUNKS requires MSVC linker.")
+    endif ()
+    string(TOLOWER "${MSVC_CXX_ARCHITECTURE_ID}" MDR_YY_THUNKS_ARCH)
+
+    if (MDR_YY_THUNKS_ARCH STREQUAL "x86")
+        # XP x86
+        set(MDR_YY_THUNKS_SUBSYSTEM_VERSION "5.01")
+    elseif (MDR_YY_THUNKS_ARCH STREQUAL "x64")
+        # XP x64, Server 2003
+        set(MDR_YY_THUNKS_SUBSYSTEM_VERSION "5.02")
+    else ()
+        message(FATAL_ERROR "MDR_MSVC_CLIENT_YY_THUNKS supports only x86 and x64 targets")
+    endif ()
+
+    FetchContent_MakeAvailable(yy_thunks)
+    set(MDR_YY_THUNKS_OBJECT "${yy_thunks_SOURCE_DIR}/objs/${MDR_YY_THUNKS_ARCH}/YY_Thunks_for_WinXP.obj")
+    if (NOT EXISTS "${MDR_YY_THUNKS_OBJECT}")
+        message(FATAL_ERROR "YY-Thunks object not found: ${MDR_YY_THUNKS_OBJECT}")
+    endif ()
+
+    set_source_files_properties("${MDR_YY_THUNKS_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE)
+endif ()
+
 
 if (MDR_PLATFORM_OS STREQUAL "WIN32")
     add_executable(SonyHeadphonesClient WIN32)
@@ -78,6 +120,14 @@ elseif (MDR_PLATFORM_OS STREQUAL "IOS")
     )
 else ()
     add_executable(SonyHeadphonesClient)
+endif ()
+
+if (MDR_MSVC_CLIENT_YY_THUNKS)
+    target_sources(SonyHeadphonesClient PRIVATE "${MDR_YY_THUNKS_OBJECT}")
+
+    # Mind you, that the PE subsystem version should always be overriden for older Windows loaders to work
+    # By default it's 6.0, which XP does not support.
+    target_link_options(SonyHeadphonesClient PRIVATE "/SUBSYSTEM:WINDOWS,${MDR_YY_THUNKS_SUBSYSTEM_VERSION}")
 endif ()
 
 target_sources(

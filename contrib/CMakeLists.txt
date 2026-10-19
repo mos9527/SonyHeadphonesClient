@@ -2,6 +2,15 @@ set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 find_package(Git REQUIRED)
 
+# Here's a daily reminder that `_SOURCE_DIR` is always in lower case...
+if (MDR_MSVC_CLIENT_YY_THUNKS)
+    FetchContent_Declare(
+            yy_thunks
+            URL https://github.com/Chuyu-Team/YY-Thunks/releases/download/v1.2.3/YY-Thunks-Objs.zip
+            URL_HASH SHA256=4dc68ec8784e0afed7284e4393aec672873608161c3a5ae52faf618875d95b81
+    )
+endif ()
+
 FetchContent_Declare(
         fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
