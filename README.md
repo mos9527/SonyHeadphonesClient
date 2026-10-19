@@ -24,7 +24,7 @@ The architectures (x64, etc) shown here are the ones built by GitHub Actions, an
 
 | Platform         | Support Status | Maintainers          |
 |------------------|----------------|----------------------|
-| Windows (`x86/x64/ARM64`, [Windows 7](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
+| Windows (`x86/x64/ARM64`, [Windows XP SP2](#running-compatiblity-builds) and up) | Full Support   | [@mos9527](https://github.com/mos9527), [@Amrsatrio](https://github.com/Amrsatrio) |
 | Linux  (`x86/x64/ARMv7/ARM64`)          | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | macOS   (Universal)       | Full Support   | [@mos9527](https://github.com/mos9527)             |
 | iOS (`ARM64`, [15.0+](https://github.com/mos9527/SonyHeadphonesClient/pull/70))           | Full Support, [manual build/install required](./DEVELOPER.md#ios-xcode)   | [@mos9527](https://github.com/mos9527)             |
@@ -47,15 +47,19 @@ A [Web Serial](https://caniuse.com/wf-serial)-supporting browser is required. Yo
 
 ## Running Compatiblity Builds
 
-Compatibility builds are offered for certain platforms, where limited sets of features are made available to make it run there.
+Compatibility builds are offered for certain platforms, where limited sets of features are made available to make it run there. These builds are suffixed with `-compatibility`, and are available in [nightly](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview) and [Releases (TBD)](https://github.com/mos9527/SonyHeadphonesClient/releases).
 
-These builds are suffixed with `-compatibility`, and are available in [nightly](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview) and [Releases (TBD)](https://github.com/mos9527/SonyHeadphonesClient/releases).
+Currently, the following compatibility builds are available.
 
-Currently, the following compatibility builds are available:
-- `SonyHeadphonesClient-win-x64-compatibility.exe`
-  This build has no Bluetooth LE support, which is only introduced in [Windows 8.1 and above](https://learn.microsoft.com/en-us/windows-hardware/drivers/bluetooth/bluetooth-support-in-previous-windows-versions).
-  You can expect it run on Windows 7 and above.
-- `SonyHeadphonesClient-win-x86-compatibility.exe` The same build above for 32-bit OSes.
+### Windows Compatibility Builds
+
+Available as `SonyHeadphonesClient-win-x64-compatibility.exe` and `SonyHeadphonesClient-win-x86-compatibility.exe` in the CI. See [SHC Developer's Guide](./DEVELOPER.md) for build flags.
+
+These builds lowers the minimal required Windows version from Windows 8.1 in the regular builds to Windows XP SP2.
+
+- This build has no Bluetooth LE support, which is only introduced in [Windows 8.1 and above](https://learn.microsoft.com/en-us/windows-hardware/drivers/bluetooth/bluetooth-support-in-previous-windows-versions).  
+- Threading is disabled in this build, see [e636d54](https://github.com/mos9527/SonyHeadphonesClient/commit/e636d54f039e85d9d915b0dc050968ffc18e25b6).
+- [YY-Thunks](https://github.com/Chuyu-Team/YY-Thunks) is used to provide compatibility for Windows XP. Otherwise this would've been limited for Windows 7 and above.
 
 ## Fonts & Localization
 
