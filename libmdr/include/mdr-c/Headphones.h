@@ -55,8 +55,9 @@ typedef uint32_t MDRHeadphonesInitFlags;
 #define MDR_HEADPHONES_INIT_FIRMWARE_UPDATE ((MDRHeadphonesInitFlags)(1u << 16u))
 #define MDR_HEADPHONES_INIT_ALERT ((MDRHeadphonesInitFlags)(1u << 17u))
 #define MDR_HEADPHONES_INIT_LOG ((MDRHeadphonesInitFlags)(1u << 18u))
-
+// Init for device identification (e.g. device model, supported features, etc.)
 #define MDR_HEADPHONES_INIT_DISCOVERY ((MDRHeadphonesInitFlags)(MDR_HEADPHONES_INIT_IDENTITY | MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS))
+// Full init across all features that a device may support
 #define MDR_HEADPHONES_INIT_DEFAULT ((MDRHeadphonesInitFlags)((MDR_HEADPHONES_INIT_LOG << 1u) - 1u))
 
 typedef uint32_t MDRFeature;
