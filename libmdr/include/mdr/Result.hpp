@@ -31,7 +31,7 @@ if (!(expr)) [[unlikely]] { \
 MDR_TRAP(); \
 std::abort(); \
 } \
-} while (false);
+} while (false)
 
 #if defined(MDR_VALIDATION_NO_DEBUG_TRAPS)
 #define MDR_VALIDATION_TRAP() ((void)0)

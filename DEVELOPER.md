@@ -354,7 +354,7 @@ There's no Thread Safety guarantees. Don't race the states, and check with TSAN 
 
 > **NOTE**: This applies to commits made after `2026/10/17`, so if you can see it, this applies to **you** *now*.
 
-**Write them yourself, and in English.** Per [CONTRIBUTING.md](./.github/CONTRIBUTING.md), **you**, the contributor, **must understand the code you contribute**. **NEVER** let an AI generate it for you, or use placeholders that conveys no meaning at all.
+**Write them yourself, and in English.** Per [CONTRIBUTING.md](./.github/CONTRIBUTING.md), **you**, the contributor, **must understand the code you contribute**. **NEVER** let an AI generate the commit messages for you, or use placeholders that conveys no meaning at all.
 
 Otherwise, have **fun** with it. There's not really an objective standard here for how *good* a commit message here (it's FOSS, not your day job), as long as it's *yours* and meaningful, go ahead and do it.
 

@@ -115,7 +115,8 @@ namespace mdr
         outSeq = command[1];
         command = command.subspan(2);
         // Big-endian in
-        Int32BE outSize = command[0] << 24u | command[1] << 16u | command[2] << 8u | command[3];
+        const uint32_t outSize = static_cast<uint32_t>(command[0]) << 24u | static_cast<uint32_t>(command[1]) << 16u |
+            static_cast<uint32_t>(command[2]) << 8u | command[3];
         Span<const UInt8> data = command.subspan(4);
         // Data...,checksum
         UInt8 checksum = data.back();
@@ -129,7 +130,7 @@ namespace mdr
         data = data.subspan(0, data.size() - 1);
         // There's practically no way for this to happen unless the packet is manually constructed.
         // See also https://github.com/mos9527/SonyHeadphonesClient/pull/58
-        if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
+        if (data.size() != outSize) [[unlikely]]
             return MDRUnpackResult::BAD_OTHER;
         outData.resize(data.size());
         std::copy(data.begin(), data.end(), outData.begin());

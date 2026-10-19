@@ -95,22 +95,22 @@ namespace mdr
 
     struct Int24BE
     {
-        uint8_t low;
-        uint8_t mid;
         uint8_t high;
+        uint8_t mid;
+        uint8_t low;
 
-        Int24BE() : low(0), mid(0), high(0) {}
+        Int24BE() : high(0), mid(0), low(0) {}
 
 
         Int24BE(int32_t v) { this->operator=(v); }
 
-        operator int32_t() const { return low << 16u | mid << 8u | high; }
+        operator int32_t() const { return high << 16u | mid << 8u | low; }
 
         Int24BE& operator=(int32_t v)
         {
-            high = v & 0xFF;
+            high = (v >> 16) & 0xFF;
             mid = (v >> 8) & 0xFF;
-            low = (v >> 16) & 0xFF;
+            low = v & 0xFF;
             return *this;
         }
     };
