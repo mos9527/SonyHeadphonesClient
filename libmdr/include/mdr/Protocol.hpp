@@ -356,9 +356,8 @@ namespace mdr
             for (UInt8 i = 0; i < count; ++i)
             {
                 Entry entry{};
-                const size_t remaining = maxSize - (*ppSrcBuffer - start);
-                MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, entry.key, remaining));
-                MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, entry.value, maxSize - (*ppSrcBuffer - start)));
+                MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, entry.key, maxSize));
+                MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, entry.value, maxSize));
                 out.entries.push_back(entry);
             }
             return MDRResult<size_t>::Success(*ppSrcBuffer - start);
@@ -373,8 +372,8 @@ namespace mdr
             MDR_TRY_SIZE(size_t, MDRPod::Write(count, ppDstBuffer, maxSize));
             for (const Entry& entry : data.entries)
             {
-                MDR_TRY_SIZE(size_t, MDRPod::Write(entry.key, ppDstBuffer, maxSize - (*ppDstBuffer - start)));
-                MDR_TRY_SIZE(size_t, MDRPod::Write(entry.value, ppDstBuffer, maxSize - (*ppDstBuffer - start)));
+                MDR_TRY_SIZE(size_t, MDRPod::Write(entry.key, ppDstBuffer, maxSize));
+                MDR_TRY_SIZE(size_t, MDRPod::Write(entry.value, ppDstBuffer, maxSize));
             }
             return MDRResult<size_t>::Success(*ppDstBuffer - start);
         }

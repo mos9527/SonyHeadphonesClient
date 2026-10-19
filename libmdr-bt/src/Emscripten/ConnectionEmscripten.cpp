@@ -46,8 +46,14 @@ EM_JS(int /* bytes read */, em_js_read, (const char* dst, int size), {
         try
         {
             const { value, done } = await navigator.em_js_port_reader.read();
-            if (!done)
-                navigator.em_js_recv_buffer = new Uint8Array([...navigator.em_js_recv_buffer, ...value]);
+            if (!done && value && value.length)
+            {
+                const prev = navigator.em_js_recv_buffer;
+                const merged = new Uint8Array(prev.length + value.length);
+                merged.set(prev, 0);
+                merged.set(value, prev.length);
+                navigator.em_js_recv_buffer = merged;
+            }
             navigator.em_js_port_recv_promise = null;
 
         } catch (error)
@@ -61,9 +67,8 @@ EM_JS(int /* bytes read */, em_js_read, (const char* dst, int size), {
 
     size = Math.min(size, navigator.em_js_recv_buffer.length);
 
-    var slice = navigator.em_js_recv_buffer.slice(0, size);
-    navigator.em_js_recv_buffer = navigator.em_js_recv_buffer.slice(size);
-    Module.HEAPU8.set(slice, dst);
+    Module.HEAPU8.set(navigator.em_js_recv_buffer.subarray(0, size), dst);
+    navigator.em_js_recv_buffer = navigator.em_js_recv_buffer.subarray(size);
     return size;
 });
 EM_JS(void, em_js_connect, (const char* serviceUUID), {

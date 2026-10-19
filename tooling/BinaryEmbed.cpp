@@ -22,10 +22,25 @@ int main(int argc, char** argv)
         return 1;
     }
     FILE* fout = fopen(argv[4], "wb");
-    int array_size;
-    binary_to_compressed_c(argv[1], argv[2], fout, array_size);
+    if (!fout)
+    {
+        fprintf(stderr, "Failed to open %s for writing\n", argv[4]);
+        return 1;
+    }
+    int array_size = 0;
+    if (!binary_to_compressed_c(argv[1], argv[2], fout, array_size))
+    {
+        fclose(fout);
+        fprintf(stderr, "Failed to read %s\n", argv[1]);
+        return 1;
+    }
     fclose(fout);
     fout = fopen(argv[3], "wb");
+    if (!fout)
+    {
+        fprintf(stderr, "Failed to open %s for writing\n", argv[3]);
+        return 1;
+    }
     fprintf(fout, "#pragma once\n");
     fprintf(fout, "// Generated with tooling/BinaryEmbed.cpp\n");
     fprintf(fout, "#ifdef __cplusplus\n");
@@ -35,9 +50,10 @@ int main(int argc, char** argv)
     fprintf(fout, "#endif\n");
     fprintf(fout, "    extern const char %s[%d+1];\n", argv[2],array_size);
     fprintf(fout, "#ifdef __cplusplus\n");
-    fprintf(fout, ")}\n");
+    fprintf(fout, "}\n");
     fprintf(fout, "#endif\n");
     fclose(fout);
+    return 0;
 }
 
 char Encode85Byte(unsigned int x)

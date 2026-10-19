@@ -29,22 +29,34 @@ struct MDRConnectionWindows
         conn(INVALID_SOCKET)
     {
     }
-    static mdr::String ToU8String(WCHAR* szMessage)
+    static mdr::String ToU8String(const WCHAR* szMessage)
     {
-        char szMessageU8[1024];
-        WideCharToMultiByte(CP_UTF8, 0, szMessage, -1, szMessageU8, sizeof(szMessageU8), NULL, NULL);
-        return szMessageU8;
+        int size = WideCharToMultiByte(CP_UTF8, 0, szMessage, -1, NULL, 0, NULL, NULL);
+        if (size <= 1)
+            return {};
+        mdr::String res(size - 1, '\0');
+        WideCharToMultiByte(CP_UTF8, 0, szMessage, -1, res.data(), size, NULL, NULL);
+        return res;
     }
     static mdr::String FormatErrorString(DWORD err)
     {
         WCHAR szMessage[1024];
-        if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), szMessage,
-                           sizeof(szMessage), NULL) == 0)
+        if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err,
+                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), szMessage,
+                           static_cast<DWORD>(ARRAYSIZE(szMessage)), NULL) == 0)
             return "Unknown Error";
         mdr::String res = ToU8String(szMessage);
-        res.pop_back(); // \n
-        res.pop_back(); // \r
+        while (!res.empty() && (res.back() == '\n' || res.back() == '\r'))
+            res.pop_back();
         return res;
+    }
+    void CloseSocket() noexcept
+    {
+        if (conn != INVALID_SOCKET)
+        {
+            closesocket(conn);
+            conn = INVALID_SOCKET;
+        }
     }
     static MDRResult Connect(void* user, const char* macAddress, const char* serviceUUID) noexcept
     {
@@ -62,20 +74,21 @@ struct MDRConnectionWindows
             gWSAStartup = true;
             MDR_LOG("WSAStartup OK");
         }
+        ptr->CloseSocket();
         ptr->conn = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
         MDR_LOG("socket() returned {}", (long long)ptr->conn);
+        if (ptr->conn == INVALID_SOCKET)
+        {
+            MDR_LOG("socket is INVALID_SOCKET: {}", WSAGetLastError());
+            ptr->lastError = FormatErrorString(WSAGetLastError());
+            return MDR_RESULT_ERROR_NET;
+        }
         ULONG nonblock = 1;
         if (ioctlsocket(ptr->conn, FIONBIO, &nonblock) != 0)
         {
-            MDR_LOG("ioctlsocket FIONBIO FAILED: {}", ::GetLastError());
-            ptr->lastError = FormatErrorString(::GetLastError());
-            closesocket(ptr->conn);
-            return 1;
-        }
-        if (ptr->conn == INVALID_SOCKET)
-        {
-            MDR_LOG("socket is INVALID_SOCKET: {}", ::GetLastError());
-            ptr->lastError = FormatErrorString(::GetLastError());
+            MDR_LOG("ioctlsocket FIONBIO FAILED: {}", WSAGetLastError());
+            ptr->lastError = FormatErrorString(WSAGetLastError());
+            ptr->CloseSocket();
             return MDR_RESULT_ERROR_NET;
         }
         ULONG enable = TRUE;
@@ -87,7 +100,7 @@ struct MDRConnectionWindows
         if (errCode != RPC_S_OK)
         {
             MDR_LOG("UuidFromStringA FAILED: {}", errCode);
-            closesocket(ptr->conn);
+            ptr->CloseSocket();
             ptr->lastError = FormatErrorString(errCode);
             return MDR_RESULT_ERROR_NET;
         }
@@ -102,7 +115,7 @@ struct MDRConnectionWindows
             if (err != WSAEWOULDBLOCK && err != WSAEINPROGRESS)
             {
                 MDR_LOG("Connect FAILED (not WOULDBLOCK): {}", FormatErrorString(err));
-                closesocket(ptr->conn);
+                ptr->CloseSocket();
                 ptr->lastError = FormatErrorString(err);
                 return MDR_RESULT_ERROR_NET;
             }
@@ -258,18 +271,13 @@ static MDRResult Poll(void* user, int timeout) noexcept
                 MDR_LOG("No Bluetooth radios found on this system!");
                 *ppList = nullptr;
                 *pCount = 0;
+                return MDR_RESULT_OK;
             }
-            else
-            {
-                ptr->lastError = FormatErrorString(err);
-                MDR_LOG("Radio error: {}", ptr->lastError);
-                return MDR_RESULT_ERROR_NET;
-            }
+            ptr->lastError = FormatErrorString(err);
+            MDR_LOG("Radio error: {}", ptr->lastError);
+            return MDR_RESULT_ERROR_NET;
         }
-        else
-        {
-            MDR_LOG("BluetoothFindFirstRadio OK, radio handle={}", (void*)radio);
-        }
+        MDR_LOG("BluetoothFindFirstRadio OK, radio handle={}", (void*)radio);
         mdr::Vector<MDRDeviceInfo> devices;
         int radioIndex = 0;
         do

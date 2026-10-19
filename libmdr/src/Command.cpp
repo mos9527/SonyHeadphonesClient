@@ -106,6 +106,9 @@ namespace mdr
         // Skip start/end markers
         command = command.subspan(1, command.size() - 2);
         MDRBuffer unescaped = Unescape(command);
+        // Type(1),Seq(1),Size(4),Checksum(1)
+        if (unescaped.size() < 7)
+            return MDRUnpackResult::BAD_OTHER;
         command = unescaped;
         // Type,seq
         outType = static_cast<MDRDataType>(command[0]);
