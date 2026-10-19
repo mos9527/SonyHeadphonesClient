@@ -1,4 +1,4 @@
-![SonyHeadphonesClient](./docs/title.svg)
+SonyHeadphonesClient
 ===
 
 A spiritual successor to [Plutoberth's original SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient) - now with standardized support for newer devices and more platforms.
