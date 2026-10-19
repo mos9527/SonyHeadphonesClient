@@ -22,14 +22,14 @@ namespace mdr
             await.signaled = true;
     }
 
-    MDRTask MDRHeadphones::RequestInit()
+    MDRTask MDRHeadphones::RequestInit(MDRHeadphonesInitFlags flags)
     {
         switch (mProtocolFamily)
         {
         case ProtocolFamily::V1:
-            co_return co_await RequestInitV1();
+            co_return co_await RequestInitV1(flags);
         case ProtocolFamily::V2:
-            co_return co_await RequestInitV2();
+            co_return co_await RequestInitV2(flags);
         default:
             co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "MDR protocol family has not been selected");
         }
@@ -1436,16 +1436,28 @@ MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones)
     return static_cast<MDRBoolean>(headphones && Impl(headphones)->IsDirty());
 }
 
-MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones)
+MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones, MDRHeadphonesInitFlags flags)
 {
-    if (!headphones)
+    if (!headphones || flags == MDR_HEADPHONES_INIT_NONE ||
+        (flags & ~MDR_HEADPHONES_INIT_DEFAULT) != MDR_HEADPHONES_INIT_NONE)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
     if (const auto failure = h->GetFailure(); failure != MDR_RESULT_OK)
         return failure;
     if (!h->IsReady())
         return MDR_RESULT_INPROGRESS;
-    return h->Invoke(h->RequestInit());
+
+    const MDRHeadphonesInitFlags completedOrRequested = h->mCompletedInitFlags | flags;
+    if ((completedOrRequested & MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS) != 0u &&
+        (completedOrRequested & MDR_HEADPHONES_INIT_IDENTITY) == 0u)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const MDRHeadphonesInitFlags optionalFlags = MDR_HEADPHONES_INIT_DEFAULT & ~MDR_HEADPHONES_INIT_DISCOVERY;
+    if ((completedOrRequested & optionalFlags) != 0u &&
+        (completedOrRequested & MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS) == 0u)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+
+    const MDRHeadphonesInitFlags pendingFlags = flags & ~h->mCompletedInitFlags;
+    return h->Invoke(h->RequestInit(pendingFlags));
 }
 
 MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones)

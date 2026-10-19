@@ -34,6 +34,31 @@ typedef uint32_t MDRTimeoutType;
 #define MDR_TIMEOUT_ACK ((MDRTimeoutType)1u) // In milliseconds
 #define MDR_TIMEOUT_ACK_RETRIES ((MDRTimeoutType)2u) // No. of retries to perform before dropping the connection
 
+typedef uint32_t MDRHeadphonesInitFlags;
+#define MDR_HEADPHONES_INIT_NONE ((MDRHeadphonesInitFlags)0u)
+#define MDR_HEADPHONES_INIT_IDENTITY ((MDRHeadphonesInitFlags)(1u << 0u))
+#define MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS ((MDRHeadphonesInitFlags)(1u << 1u))
+#define MDR_HEADPHONES_INIT_GENERAL_SETTINGS ((MDRHeadphonesInitFlags)(1u << 2u))
+#define MDR_HEADPHONES_INIT_EQUALIZER ((MDRHeadphonesInitFlags)(1u << 3u))
+#define MDR_HEADPHONES_INIT_DSEE ((MDRHeadphonesInitFlags)(1u << 4u))
+#define MDR_HEADPHONES_INIT_PLAYBACK ((MDRHeadphonesInitFlags)(1u << 5u))
+#define MDR_HEADPHONES_INIT_NOISE_CONTROL ((MDRHeadphonesInitFlags)(1u << 6u))
+#define MDR_HEADPHONES_INIT_ASSIGNABLE_CONTROLS ((MDRHeadphonesInitFlags)(1u << 7u))
+#define MDR_HEADPHONES_INIT_PERIPHERALS ((MDRHeadphonesInitFlags)(1u << 8u))
+#define MDR_HEADPHONES_INIT_SPEAK_TO_CHAT ((MDRHeadphonesInitFlags)(1u << 9u))
+#define MDR_HEADPHONES_INIT_LISTENING_MODE ((MDRHeadphonesInitFlags)(1u << 10u))
+#define MDR_HEADPHONES_INIT_POWER ((MDRHeadphonesInitFlags)(1u << 11u))
+#define MDR_HEADPHONES_INIT_WEARING_STATUS ((MDRHeadphonesInitFlags)(1u << 12u))
+#define MDR_HEADPHONES_INIT_VOICE_GUIDANCE ((MDRHeadphonesInitFlags)(1u << 13u))
+#define MDR_HEADPHONES_INIT_CONNECTION ((MDRHeadphonesInitFlags)(1u << 14u))
+#define MDR_HEADPHONES_INIT_BATTERY ((MDRHeadphonesInitFlags)(1u << 15u))
+#define MDR_HEADPHONES_INIT_FIRMWARE_UPDATE ((MDRHeadphonesInitFlags)(1u << 16u))
+#define MDR_HEADPHONES_INIT_ALERT ((MDRHeadphonesInitFlags)(1u << 17u))
+#define MDR_HEADPHONES_INIT_LOG ((MDRHeadphonesInitFlags)(1u << 18u))
+
+#define MDR_HEADPHONES_INIT_DISCOVERY ((MDRHeadphonesInitFlags)(MDR_HEADPHONES_INIT_IDENTITY | MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS))
+#define MDR_HEADPHONES_INIT_DEFAULT ((MDRHeadphonesInitFlags)((MDR_HEADPHONES_INIT_LOG << 1u) - 1u))
+
 typedef uint32_t MDRFeature;
 #define MDR_FEATURE_IDENTITY ((MDRFeature)1u)
 #define MDR_FEATURE_BATTERY_SINGLE ((MDRFeature)2u)
@@ -523,8 +548,11 @@ MDR_API MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones);
 /**
  * @brief Request initialization. This MUST be called prior to other operations.
  *        See also @ref mdrHeadphonesIsInitialized, @ref mdrHeadphonesIsReady, and @ref mdrHeadphonesIsDirty.
+ * @param flags Which parts of the device needs to be queried or set. Use @ref MDR_HEADPHONES_INIT_DEFAULT for 
+ *        all supported features to be initialized, or any combination of @ref MDR_HEADPHONES_INIT_... flags.
+ * @note  See also @ref mdrHeadphonesIsInitialized, @ref mdrHeadphonesIsReady, and @ref mdrHeadphonesIsDirty.
  */
-MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones);
+MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones, MDRHeadphonesInitFlags flags);
 /**
  * @brief Request pulling latest states from the device. This includes e.g. battery levels and some other states that
  * may change without being notified by the headphones themselves.

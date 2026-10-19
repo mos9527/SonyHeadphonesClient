@@ -310,9 +310,9 @@ namespace mdr
 
 #pragma region Tasks
         /**
-         * @brief Selects the wire protocol and initializes its backend.
+         * @brief Runs the selected initialization groups for the active protocol backend.
          */
-        MDRTask RequestInit();
+        MDRTask RequestInit(MDRHeadphonesInitFlags flags);
         /**
          * @brief Dispatches state synchronization to the selected backend.
          */
@@ -328,7 +328,7 @@ namespace mdr
         MDRTask RequestDebugCommand(MDRBuffer payload, MDRDataType type, MDRCommandSeqNumber sequence, bool awaitAck);
         [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept { return mSeqNumber; }
 
-        MDRTask RequestInitV1();
+        MDRTask RequestInitV1(MDRHeadphonesInitFlags flags);
         MDRTask RequestSyncV1();
         MDRTask RequestCommitV1();
         void SubmitPropertiesV1();
@@ -339,7 +339,7 @@ namespace mdr
          * @note  To be used with @ref Invoke.
          * @return @ref MDR_EVENT_INITIALIZE_COMPLETE on completion (returned in @ref PollEvents)
          **/
-        MDRTask RequestInitV2();
+        MDRTask RequestInitV2(MDRHeadphonesInitFlags flags);
         /**
          * @brief Requests states that the device won't send automatically. (e.g. Battery levels)
          * @note  To be used with @ref Invoke.
@@ -355,7 +355,7 @@ namespace mdr
         void SubmitPropertiesV2();
 #pragma endregion
 
-        // Common lifecycle state; family device state lives in DetailsV1/DetailsV2.
+        MDRHeadphonesInitFlags mCompletedInitFlags{MDR_HEADPHONES_INIT_NONE};
         bool mInitialized{};
 
     private:

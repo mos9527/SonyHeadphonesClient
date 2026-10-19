@@ -14,6 +14,7 @@ MDR_ASSERT_U32(MDRResult);
 MDR_ASSERT_U32(MDRPropertyType);
 MDR_ASSERT_U32(MDRBoolean);
 MDR_ASSERT_U32(MDRFeatureAvailability);
+MDR_ASSERT_U32(MDRHeadphonesInitFlags);
 MDR_ASSERT_U32(MDRFeature);
 MDR_ASSERT_U32(MDREvent);
 MDR_ASSERT_U32(MDRPacketDirection);
@@ -73,6 +74,8 @@ static_assert(offsetof(MDRNoiseControl, changing_asm_level) == 8, "noise changin
 static_assert(offsetof(MDREqualizer, band_count) == 8 && offsetof(MDREqualizer, dsee_available) == 24, "equalizer offsets");
 static_assert(offsetof(MDRSafeListening, preview) == 4, "safe listening preview offset");
 
+static_assert(_Generic(&mdrHeadphonesRequestInit,
+    MDRResult (*)(MDRHeadphones*, MDRHeadphonesInitFlags): 1, default: 0), "init signature");
 static_assert(_Generic(&mdrHeadphonesGetEqualizer,
     MDRResult (*)(MDRHeadphones*, MDRPropertyType, MDREqualizer*): 1, default: 0), "EQ getter signature");
 static_assert(_Generic(&mdrHeadphonesSetEqualizerPreset,
@@ -617,7 +620,7 @@ static void test_one_operation_at_a_time(MDRProtocolVersion family)
     if (!session_open_family(&session, family))
         return;
     check_result(
-        mdrHeadphonesRequestInit(session.headphones),
+        mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT),
         MDR_RESULT_OK,
         "initialization starts"
     );
@@ -626,7 +629,7 @@ static void test_one_operation_at_a_time(MDRProtocolVersion family)
         MDR_RESULT_INPROGRESS,
         "a second operation is rejected while initialization is active"
     );
-    check_result(mdrHeadphonesRequestInit(session.headphones), MDR_RESULT_INPROGRESS, "initialization cannot overlap");
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT), MDR_RESULT_INPROGRESS, "initialization cannot overlap");
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "commit cannot interrupt initialization");
     check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 10), MDR_RESULT_INPROGRESS,
                  "volume cannot stage during initial bootstrap");
@@ -1067,15 +1070,16 @@ static void device_run(Session* session, Device* device, MDREvent expected, cons
     check(0, message);
 }
 
-/* Runs initialization to completion against `device`, or reports why it could not. */
+/* Runs selected initialization groups to completion against `device`, or reports why they could not. */
+static void device_run_init_flags(Session* session, Device* device, MDRHeadphonesInitFlags flags)
+{
+    check_result(mdrHeadphonesRequestInit(session->headphones, flags), MDR_RESULT_OK, "initialization starts");
+    device_run(session, device, MDR_EVENT_INITIALIZE_COMPLETE, "initialization completes");
+}
+
 static void device_run_init(Session* session, Device* device)
 {
-    check_result(
-        mdrHeadphonesRequestInit(session->headphones),
-        MDR_RESULT_OK,
-        "initialization starts"
-    );
-    device_run(session, device, MDR_EVENT_INITIALIZE_COMPLETE, "initialization completes");
+    device_run_init_flags(session, device, MDR_HEADPHONES_INIT_DEFAULT);
 }
 
 static int device_requested(const Device* device, unsigned char table, unsigned char command, int inquired);
@@ -1099,6 +1103,102 @@ static int device_request_order(const Device* device, unsigned char table, unsig
 static int device_requested(const Device* device, unsigned char table, unsigned char command, int inquired)
 {
     return device_request_order(device, table, command, inquired) >= 0;
+}
+
+static int selective_init_command_allowed(unsigned char table, unsigned char command)
+{
+    if (table == 1)
+    {
+        switch (command)
+        {
+        case 0x00: /* CONNECT_GET_PROTOCOL_INFO */
+        case 0x02: /* CONNECT_GET_CAPABILITY_INFO */
+        case 0x04: /* CONNECT_GET_DEVICE_INFO */
+        case 0x06: /* CONNECT_GET_SUPPORT_FUNCTION */
+        case 0x50: /* EQEBB_GET_CAPABILITY */
+        case 0x52: /* EQEBB_GET_STATUS */
+        case 0x56: /* EQEBB_GET_PARAM */
+        case 0xd0: /* GENERAL_SETTING_GET_CAPABILITY */
+        case 0xd6: /* GENERAL_SETTING_GET_PARAM */
+        case 0xe0: /* AUDIO_GET_CAPABILITY */
+        case 0xe2: /* AUDIO_GET_STATUS */
+        case 0xe6: /* AUDIO_GET_PARAM */
+            return 1;
+        default:
+            return 0;
+        }
+    }
+    return command == 0x06 || command == 0x32 || command == 0x36;
+}
+
+static void test_v2_selective_init(void)
+{
+    static const unsigned char table1[] = {
+        0x07, 0x00, 0x03,
+        0x50, 0xff, /* PRESET_EQ */
+        0xe2, 0xff, /* UPSCALING_AUTO_OFF */
+        0xd1, 0xff  /* GENERAL_SETTING_1 */
+    };
+    static const unsigned char table2[] = {
+        0x07, 0x00, 0x02,
+        0x30, 0xff, /* PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT */
+        0x31, 0xff  /* SOURCE_SWITCH_CONTROL */
+    };
+    const MDRHeadphonesInitFlags selected_reads = MDR_HEADPHONES_INIT_EQUALIZER |
+        MDR_HEADPHONES_INIT_DSEE | MDR_HEADPHONES_INIT_GENERAL_SETTINGS | MDR_HEADPHONES_INIT_PERIPHERALS;
+    Session session;
+    Device device;
+    size_t index;
+    size_t repeated_log_size;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_NONE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "empty initialization mask is rejected");
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "support discovery requires identity");
+    check_result(mdrHeadphonesRequestInit(session.headphones,
+                 MDR_HEADPHONES_INIT_IDENTITY | MDR_HEADPHONES_INIT_EQUALIZER),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "feature reads require support discovery");
+    check_result(mdrHeadphonesRequestInit(session.headphones, (MDRHeadphonesInitFlags)(1u << 31u)),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "unknown initialization flags are rejected");
+
+    device_run_init_flags(&session, &device, MDR_HEADPHONES_INIT_IDENTITY);
+    check(mdrHeadphonesIsInitialized(session.headphones) == MDR_FALSE,
+          "identity alone does not complete baseline initialization");
+
+    device_run_init_flags(&session, &device, MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS);
+    check(mdrHeadphonesIsInitialized(session.headphones) == MDR_TRUE,
+          "identity and support discovery complete baseline initialization");
+
+    device_run_init_flags(&session, &device, selected_reads);
+    for (index = 0; index < device.log_size; ++index)
+    {
+        const RequestLog* request = &device.log[index];
+        check(selective_init_command_allowed(request->table, request->command),
+              "selective initialization transmits only explicitly selected GET commands");
+        check(request->command != 0x94 && request->command != 0xc4,
+              "selective initialization does not enroll in notifications");
+        check(request->command != 0x12 && request->command != 0x16,
+              "selective initialization does not query noise control");
+    }
+    check(device_requested(&device, 1, 0x50, 0x00), "selective initialization reads EQ capability");
+    check(device_requested(&device, 1, 0xe0, 0x01), "selective initialization reads DSEE capability");
+    check(device_requested(&device, 1, 0xd0, 0xd1), "selective initialization reads general capability");
+    check(device_requested(&device, 2, 0x32, 0x00), "selective initialization reads peripheral status");
+    check(device_requested(&device, 2, 0x36, 0x01), "selective initialization reads source-switch state");
+
+    repeated_log_size = device.log_size;
+    device_run_init_flags(&session, &device, selected_reads);
+    check(device.log_size == repeated_log_size, "completed initialization groups are idempotent");
+    session_close(&session);
 }
 
 /*
@@ -1690,7 +1790,7 @@ static void test_v2_bootstrap(void)
     if (!session_open(&session))
         return;
     check_result(
-        mdrHeadphonesRequestInit(session.headphones),
+        mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT),
         MDR_RESULT_OK,
         "automatic initialization starts"
     );
@@ -1997,7 +2097,7 @@ static void test_staging_during_apply(MDRProtocolVersion family)
     check(session.transport.tx_size == tx_size, "busy setters do not perform I/O");
     check(!mdrHeadphonesIsReady(session.headphones) && mdrHeadphonesIsDirty(session.headphones),
           "staging does not complete the active request");
-    check_result(mdrHeadphonesRequestInit(session.headphones), MDR_RESULT_INPROGRESS, "busy Init remains serialized");
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT), MDR_RESULT_INPROGRESS, "busy Init remains serialized");
     check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_INPROGRESS, "busy Sync remains serialized");
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "busy Commit cannot replace snapshot");
     poll_event(session.headphones, &event, "old volume flushes before its ACK");
@@ -3483,7 +3583,7 @@ static void check_failed_session(Session* session, MDRResult failure)
     CHECK_FAILED(mdrHeadphonesSetSafeListening(session->headphones, &input.safe));
     CHECK_FAILED(mdrHeadphonesSetAlertResponse(session->headphones, MDR_ALERT_ACTION_POSITIVE));
     CHECK_FAILED(mdrHeadphonesSetTimeout(session->headphones, MDR_TIMEOUT_DEFAULT, 1));
-    CHECK_FAILED(mdrHeadphonesRequestInit(session->headphones));
+    CHECK_FAILED(mdrHeadphonesRequestInit(session->headphones, MDR_HEADPHONES_INIT_DEFAULT));
     CHECK_FAILED(mdrHeadphonesRequestSync(session->headphones));
     CHECK_FAILED(mdrHeadphonesRequestCommit(session->headphones));
     mdrHeadphonesSetPacketCallback(session->headphones, NULL, NULL);
@@ -3625,6 +3725,7 @@ int main(void)
     test_committed_state_staging();
     test_playback_actions();
     test_poll_events();
+    test_v2_selective_init();
     test_init_skips_unadvertised_functions();
     test_init_requests_advertised_functions();
     test_listening_modes();

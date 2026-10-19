@@ -201,6 +201,39 @@ The Protocol Debugger allows you to *view, replay, modify and send* manipulated 
 
 See the [Packet Capture and Test Contribution Guide](./tests/) for usage, bug reporting, and what to do when the device disconnects unexpectedly.
 
+## Accessing C++ Implementation Details
+
+`libmdr/src/Details.hpp` exposes the C++ object behind an opaque `MDRHeadphones*` handle. This is **unsupported**, however available for cases that need state which is not yet represented by the public C ABI.
+
+For this to work, you need to have the repository root and `libmdr/include` configured as include paths. The example below demonstrates raw MDR v2 support-table read:
+
+```c++
+#include <cstdint>
+#include "libmdr/src/Details.hpp"
+
+bool AdvertisesV2Function(const ::MDRHeadphones* headphones, unsigned table, std::uint8_t functionId)
+{
+    const auto* implementation = mdr::detail::HeadphonesImpl(headphones);
+    if (!implementation ||
+        implementation->mProtocolFamily != mdr::MDRHeadphones::ProtocolFamily::V2)
+        return false;
+
+    const auto& support = implementation->mDetailsV2.mSupport;
+    if (table == 1)
+        return support.table1Functions[functionId];
+    if (table == 2)
+        return support.table2Functions[functionId];
+    return false;
+}
+```
+
+Implementation details provide **no API or ABI stability guarantees** and may change without an `MDR_ABI_VERSION` bump. They **MUST NOT** be accessed across a shared-library boundary (DLL, `.so`, or `.dylib`), because their layouts depend on the compiler, standard library ABI, and build configuration.
+
+Use it only when:
+
+- `libmdr` is compiled and statically linked into the same binary.
+- The public C API does not yet expose the required state. Treat internal state as read-only, and consider submitting an [issue](https://github.com/mos9527/SonyHeadphonesClient/issues) so generally useful functionality can be added to the public API.
+
 ## Coding Style
 
 Respect `.clang-format` and `.clang-tidy` for formatting and linting. Furthermore, the following rules always apply.

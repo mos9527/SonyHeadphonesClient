@@ -1354,7 +1354,7 @@ void UpdateDeviceConnecting()
 #ifdef MDR_CLIENT_DEBUGGER
         clientDebuggerAttach(gDevice);
 #endif
-        if (mdrHeadphonesRequestInit(gDevice) != MDR_RESULT_OK)
+        if (mdrHeadphonesRequestInit(gDevice, MDR_HEADPHONES_INIT_DEFAULT) != MDR_RESULT_OK)
             DisconnectWithModal();
         break;
     case MDR_RESULT_ERROR_TIMEOUT:

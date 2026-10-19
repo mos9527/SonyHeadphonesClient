@@ -5,31 +5,34 @@
 namespace mdr
 {
     using namespace v2;
-    MDRTask MDRHeadphones::RequestInitV2()
+    MDRTask MDRHeadphones::RequestInitV2(MDRHeadphonesInitFlags flags)
     {
         auto& state = mDetailsV2;
         if (mProtocolFamily != ProtocolFamily::V2)
             co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device does not use MDR V2");
 
-        state.mProtocol = {};
-
-        SendCommandACK(t1::ConnectGetProtocolInfo);
-        const int result = co_await Await(AWAIT_PROTOCOL_INFO);
-        if (result != MDR_RESULT_OK)
-            co_return SetLastError(result, "Unable to initialize MDR V2");
-
-        if (!state.mProtocol.hasTable1)
-            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
-        SendCommandACK(t1::ConnectGetCapabilityInfo);
-
-        /* Device Info */
-        SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::FW_VERSION});
-        SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::MODEL_NAME});
-        SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::SERIES_AND_COLOR_INFO});
-
-        // Following are cached by the official app based on the MAC address
+        if ((flags & MDR_HEADPHONES_INIT_IDENTITY) != 0u)
         {
-            /* Support Functions */
+            state.mProtocol = {};
+            SendCommandACK(t1::ConnectGetProtocolInfo);
+            const int result = co_await Await(AWAIT_PROTOCOL_INFO);
+            if (result != MDR_RESULT_OK)
+                co_return SetLastError(result, "Unable to initialize MDR V2");
+
+            if (!state.mProtocol.hasTable1)
+                co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
+            SendCommandACK(t1::ConnectGetCapabilityInfo);
+
+            /* Device Info */
+            SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::FW_VERSION});
+            SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::MODEL_NAME});
+            SendCommandACK(t1::ConnectGetDeviceInfo, {.deviceInfoType = t1::DeviceInfoType::SERIES_AND_COLOR_INFO});
+        }
+
+        // Following are cached by the official app based on the MAC address @Amrsatrio
+        /* Support Functions */
+        if ((flags & MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS) != 0u)
+        {
             SendCommandACK(t1::ConnectGetSupportFunction);
             co_await Await(AWAIT_SUPPORT_FUNCTION);
             if (state.mProtocol.hasTable2)
@@ -37,9 +40,12 @@ namespace mdr
                 SendCommandACK(t2::ConnectGetSupportFunction);
                 co_await Await(AWAIT_SUPPORT_FUNCTION);
             }
+        }
 
-            /* General Setting */
-            t1::DisplayLanguage lang = t1::DisplayLanguage::ENGLISH;
+        /* General Setting */
+        if ((flags & MDR_HEADPHONES_INIT_GENERAL_SETTINGS) != 0u)
+        {
+            const t1::DisplayLanguage lang = t1::DisplayLanguage::ENGLISH;
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING_1))
             {
                 SendCommandACK(t1::GsGetCapability, {
@@ -76,29 +82,35 @@ namespace mdr
                                .type = t1::GsInquiredType::GENERAL_SETTING4
                                });
             }
+        }
 
-            /* DSEE */
-            if (state.mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
-                SendCommandACK(t1::AudioGetCapability, {
-                           .type = t1::AudioInquiredType::UPSCALING
-                           });
+        /* DSEE */
+        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u &&
+            state.mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
+            SendCommandACK(t1::AudioGetCapability, {
+                       .type = t1::AudioInquiredType::UPSCALING
+                       });
 
-            /* Assignable controls */
+        /* Assignable controls */
+        if ((flags & MDR_HEADPHONES_INIT_ASSIGNABLE_CONTROLS) != 0u)
+        {
             t1::SystemInquiredType assignableType{};
             if (AssignableSettingsInquiredType(state, assignableType))
                 SendCommandACK(t1::SystemGetCapability, {.type = assignableType});
         }
 
         /* Receive alerts for certain operations like toggling multipoint */
-        if (state.mSupport.contains(t1::FunctionType::FIXED_MESSAGE))
+        if ((flags & MDR_HEADPHONES_INIT_ALERT) != 0u &&
+            state.mSupport.contains(t1::FunctionType::FIXED_MESSAGE))
             SendCommandACK(t1::AlertSetStatusFixedMessage, { .status = EnableDisable::ENABLE});
 
         /* Codec Type */
-        if (state.mSupport.contains(t1::FunctionType::CODEC_INDICATOR))
+        if ((flags & MDR_HEADPHONES_INIT_CONNECTION) != 0u &&
+            state.mSupport.contains(t1::FunctionType::CODEC_INDICATOR))
             SendCommandACK(t1::CommonGetStatus, { .type = t1::CommonInquiredType::AUDIO_CODEC });
 
         /* Playback Metadata, Volume, Play/Pause */
-        if (state.mSupport.containsPlaybackController())
+        if ((flags & MDR_HEADPHONES_INIT_PLAYBACK) != 0u && state.mSupport.containsPlaybackController())
         {
             SendCommandACK(t1::GetPlayParam,
                            { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
@@ -108,74 +120,81 @@ namespace mdr
         }
 
         /* NC/AMB */
-        if (state.mSupport.contains(
+        if ((flags & MDR_HEADPHONES_INIT_NOISE_CONTROL) != 0u && state.mSupport.contains(
             t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
         {
             SendCommandACK(t1::NcAsmGetParam,
                            { .inquiredType = t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS});
         }
-        else if (state.mSupport.contains(
+        else if ((flags & MDR_HEADPHONES_INIT_NOISE_CONTROL) != 0u && state.mSupport.contains(
             t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
         {
             SendCommandACK(t1::NcAsmGetParam,
                            { .inquiredType = t1::NcAsmInquiredType::MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA});
         }
-        else if (state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+        else if ((flags & MDR_HEADPHONES_INIT_NOISE_CONTROL) != 0u &&
+                 state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
         {
             SendCommandACK(t1::NcAsmGetParam, { .inquiredType = t1::NcAsmInquiredType::ASM_SEAMLESS});
         }
 
-        /* Pairing Management */
-        constexpr t2::FunctionType kPairingFunctions[] = {
-            t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
-            t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
-        };
-        if (std::any_of(std::begin(kPairingFunctions), std::end(kPairingFunctions),
-                        [&](auto x) { return state.mSupport.contains(x); }))
+        if ((flags & MDR_HEADPHONES_INIT_PERIPHERALS) != 0u)
         {
-            /* Pairing Mode */
-            SendCommandACK(t2::PeripheralGetStatus,
-                           {.inquiredType = t2::PeripheralInquiredType::
-                           PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
-                           });
+            /* Pairing Management */
+            constexpr t2::FunctionType kPairingFunctions[] = {
+                t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_BT,
+                t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE_CLASSIC_LE
+            };
+            if (std::any_of(std::begin(kPairingFunctions), std::end(kPairingFunctions),
+                            [&](auto x) { return state.mSupport.contains(x); }))
+            {
+                /* Pairing Mode */
+                SendCommandACK(t2::PeripheralGetStatus,
+                               {.inquiredType = t2::PeripheralInquiredType::
+                               PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+                               });
 
-            /* Connected Devices */
-            SendCommandACK(t2::PeripheralGetParam,
-                           {.inquiredType = t2::PeripheralInquiredType::
-                           PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
-                           });
-        }
-        
-        if (state.mSupport.contains(t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
-        {
-            /* Pairing Mode */
-            SendCommandACK(t2::PeripheralGetStatus,
-                           {.inquiredType = t2::PeripheralInquiredType::
-                           PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
-                           });
+                /* Connected Devices */
+                SendCommandACK(t2::PeripheralGetParam,
+                               {.inquiredType = t2::PeripheralInquiredType::
+                               PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE
+                               });
+            }
 
-            /* Connected Devices */
-            SendCommandACK(t2::PeripheralGetParam,
-                           {.inquiredType = t2::PeripheralInquiredType::
-                           PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
-                           });
-        }
+            if (state.mSupport.contains(t2::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
+            {
+                /* Pairing Mode */
+                SendCommandACK(t2::PeripheralGetStatus,
+                               {.inquiredType = t2::PeripheralInquiredType::
+                               PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+                               });
 
-        /* Source Switch Control */
-        if (state.mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
-        {
-            SendCommandACK(t2::PeripheralGetParam, {.inquiredType = t2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL});
+                /* Connected Devices */
+                SendCommandACK(t2::PeripheralGetParam,
+                               {.inquiredType = t2::PeripheralInquiredType::
+                               PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
+                               });
+            }
+
+            /* Source Switch Control */
+            if (state.mSupport.contains(t2::FunctionType::SOURCE_SWITCH_CONTROL))
+            {
+                SendCommandACK(t2::PeripheralGetParam,
+                               {.inquiredType = t2::PeripheralInquiredType::SOURCE_SWITCH_CONTROL});
+            }
         }
 
         /* Speak To Chat */
-        if (state.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
+        if ((flags & MDR_HEADPHONES_INIT_SPEAK_TO_CHAT) != 0u &&
+            state.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE_TYPE2))
         {
             SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
             SendCommandACK(t1::SystemGetExtParam, {.type = t1::SystemInquiredType::SMART_TALKING_MODE_TYPE2});
         }
 
         /* Listening Mode */
-        if (state.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
+        if ((flags & MDR_HEADPHONES_INIT_LISTENING_MODE) != 0u &&
+            state.mSupport.contains(t1::FunctionType::LISTENING_OPTION))
         {
             if (state.mSupport.containsBGMMode())
                 SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::BGM_MODE_AND_ERRORCODE});
@@ -188,7 +207,7 @@ namespace mdr
         }
 
         /* Equalizer */
-        if (state.mSupport.containsEqualizer())
+        if ((flags & MDR_HEADPHONES_INIT_EQUALIZER) != 0u && state.mSupport.containsEqualizer())
         {
             t1::EqEbbInquiredType eqType{};
             if (EqPresetInquiredType(state, eqType))
@@ -201,51 +220,59 @@ namespace mdr
         }
 
         /* Connection Quality */
-        if (state.mSupport.contains(
+        if ((flags & MDR_HEADPHONES_INIT_CONNECTION) != 0u && state.mSupport.contains(
             t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::CONNECTION_MODE});
 
         /* DSEE */
-        if (state.mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
+        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u &&
+            state.mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
         {
             SendCommandACK(t1::AudioGetStatus, {.type = t1::AudioInquiredType::UPSCALING});
             SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::UPSCALING});
         }
 
         /* Assignable controls */
-        t1::SystemInquiredType assignableType{};
-        if (AssignableSettingsInquiredType(state, assignableType))
-            SendCommandACK(t1::SystemGetParam, {.type = assignableType});
+        if ((flags & MDR_HEADPHONES_INIT_ASSIGNABLE_CONTROLS) != 0u)
+        {
+            t1::SystemInquiredType assignableType{};
+            if (AssignableSettingsInquiredType(state, assignableType))
+                SendCommandACK(t1::SystemGetParam, {.type = assignableType});
+        }
 
         /* NC/AMB Toggle */
-        if (state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
+        if ((flags & MDR_HEADPHONES_INIT_NOISE_CONTROL) != 0u &&
+            state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_CONTROL_MODE_SELECT))
             SendCommandACK(t1::NcAsmGetParam, {.inquiredType = t1::NcAsmInquiredType::NC_AMB_TOGGLE });
 
-        /* Head Gesture */
-        if (state.mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
-            SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::HEAD_GESTURE_ON_OFF });
-
-        /* Auto Power Off */
-        if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
+        if ((flags & MDR_HEADPHONES_INIT_POWER) != 0u)
         {
-            SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
-        }
-        else if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
-        {
-            SendCommandACK(t1::PowerGetParam,
-                           {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
-        }
+            /* Head Gesture */
+            if (state.mSupport.contains(t1::FunctionType::HEAD_GESTURE_ON_OFF_TRAINING))
+                SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::HEAD_GESTURE_ON_OFF });
 
-        /* Pause when headphones are removed */
-        if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
-            SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
+            /* Auto Power Off */
+            if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
+            {
+                SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
+            }
+            else if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+            {
+                SendCommandACK(t1::PowerGetParam,
+                               {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
+            }
+
+            /* Pause when headphones are removed */
+            if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+                SendCommandACK(t1::SystemGetParam, {.type = t1::SystemInquiredType::PLAYBACK_CONTROL_BY_WEARING });
+        }
 
         /* Wearing status (proximity sensor) */
-        if (state.wearingSensorPossible())
+        if ((flags & MDR_HEADPHONES_INIT_WEARING_STATUS) != 0u && state.wearingSensorPossible())
             SendCommandACK(t2::SystemGetStatus, {.type = t2::SystemInquiredType::WEARING_STATUS_CHECKER});
 
         /* Voice Guidance */
-        if (state.mSupport.containsVoiceGuidance())
+        if ((flags & MDR_HEADPHONES_INIT_VOICE_GUIDANCE) != 0u && state.mSupport.containsVoiceGuidance())
         {
             /* Enabled */
             SendCommandACK(t2::VoiceGuidanceGetParam,
@@ -260,14 +287,19 @@ namespace mdr
         }
 
         /* Operation logs (NC, play/pause, etc) */
-        SendCommandACK(
-            t1::SetLogStatusTimeSeriesOperationLog,
-            {
-                .type = t1::LogInquiredType::TIME_SERIES_OPERATIONLOG_NOTIFIER,
-                .enableDisable = EnableDisable::ENABLE
-            }
-        );
-        mInitialized = true;
+        if ((flags & MDR_HEADPHONES_INIT_LOG) != 0u)
+        {
+            SendCommandACK(
+                t1::SetLogStatusTimeSeriesOperationLog,
+                {
+                    .type = t1::LogInquiredType::TIME_SERIES_OPERATIONLOG_NOTIFIER,
+                    .enableDisable = EnableDisable::ENABLE
+                }
+            );
+        }
+
+        mCompletedInitFlags |= flags;
+        mInitialized = (mCompletedInitFlags & MDR_HEADPHONES_INIT_DISCOVERY) == MDR_HEADPHONES_INIT_DISCOVERY;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 
