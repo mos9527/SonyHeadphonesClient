@@ -293,7 +293,7 @@ For **read-write** properties, the `MDRPropertyType type` parameter selects the 
 - `MDR_PROPERTY_CURRENT` returns the latest device-reported value, or its default before any report. Getters do not request fresh data, and ACKs do not update ordinary property values.
 - `MDR_PROPERTY_DESIRED` preserves local edits made through `mdrHeadphonesSet...` until completion. With no outstanding local write, subsequent device reports update this view too.
 - Read-only fields in a mixed structure use the same value in both views. One-shot action fields may reset after completion.
-- `mdrHeadphonesRequestSync` refreshes only the protocol family's implemented synchronization subset; it is not a readback of every writable property.
+- `mdrHeadphonesRequestSync` refreshes only the selected `MDR_HEADPHONES_SYNC_...` flags within the protocol family's implemented synchronization subset; it is not a readback of every writable property. `mdrHeadphonesGetSync` needs to be called afterwards, and the handler themselves **MUST NOT** schedule another request.
 
 **Read-write** properties should provide **both** a getter and a setter function.
 - `MDRPropertyType type` **MUST** be the getter's **FIRST** argument after `MDRHeadphones*`. Setters do not take a view selector; they stage the desired value.

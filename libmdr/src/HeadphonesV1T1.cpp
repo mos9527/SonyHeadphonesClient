@@ -72,7 +72,7 @@ namespace mdr
                     Deserialize(RetBatteryLevelBatteryParam, result, cmd);
                     self->mDetailsV1.mBatteryL = {result.level, 0xFF, result.chargingStatus};
                 }
-                return MDR_EVENT_BATTERY_CHANGED;
+                return self->Sync(MDR_HEADPHONES_SYNC_BATTERY, MDR_EVENT_BATTERY_CHANGED);
             default:
                 return MDR_EVENT_UNHANDLED;
             }
@@ -125,7 +125,7 @@ namespace mdr
                 {
                     // V1 NTFY payloads doesn't contain the actual NameData...
                     // Need a GET to get the actual ones, have the caller to sync.
-                    return MDR_EVENT_NEED_SYNC;
+                    return self->Desync(MDR_HEADPHONES_SYNC_PLAYBACK);
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace mdr
                     self->mDetailsV1.mPlayTrackAlbum = std::move(value);
                 else
                     self->mDetailsV1.mPlayTrackArtist = std::move(value);
-                return MDR_EVENT_PLAYBACK_CHANGED;
+                return self->Sync(MDR_HEADPHONES_SYNC_PLAYBACK, MDR_EVENT_PLAYBACK_CHANGED);
             }
             return MDR_EVENT_UNHANDLED;
         }

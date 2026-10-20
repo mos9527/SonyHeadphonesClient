@@ -233,7 +233,7 @@ namespace mdr
     {
         Deserialize(SafeListeningRetExtendedParam, res, cmd);
         self->mDetailsV2.mSafeListeningSoundPressure = res.levelPerPeriod;
-        return MDR_EVENT_SAFE_LISTENING_CHANGED;
+        return self->Sync(MDR_HEADPHONES_SYNC_SAFE_LISTENING, MDR_EVENT_SAFE_LISTENING_CHANGED);
     }
 
     int HandleSystemStatusT2(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -259,7 +259,7 @@ namespace mdr
                 status = res.status;
             }
             self->mDetailsV2.mWearingStatus = status;
-            return MDR_EVENT_WEARING_STATUS_CHANGED;
+            return self->Sync(MDR_HEADPHONES_SYNC_WEARING_STATUS, MDR_EVENT_WEARING_STATUS_CHANGED);
         }
         default: break;
         }

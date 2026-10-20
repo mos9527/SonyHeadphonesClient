@@ -15,6 +15,7 @@ MDR_ASSERT_U32(MDRPropertyType);
 MDR_ASSERT_U32(MDRBoolean);
 MDR_ASSERT_U32(MDRFeatureAvailability);
 MDR_ASSERT_U32(MDRHeadphonesInitFlags);
+MDR_ASSERT_U32(MDRHeadphonesSyncFlags);
 MDR_ASSERT_U32(MDRFeature);
 MDR_ASSERT_U32(MDREvent);
 MDR_ASSERT_U32(MDRPacketDirection);
@@ -76,6 +77,10 @@ static_assert(offsetof(MDRSafeListening, preview) == 4, "safe listening preview 
 
 static_assert(_Generic(&mdrHeadphonesRequestInit,
     MDRResult (*)(MDRHeadphones*, MDRHeadphonesInitFlags): 1, default: 0), "init signature");
+static_assert(_Generic(&mdrHeadphonesRequestSync,
+    MDRResult (*)(MDRHeadphones*, MDRHeadphonesSyncFlags): 1, default: 0), "sync signature");
+static_assert(_Generic(&mdrHeadphonesGetSync,
+    MDRResult (*)(MDRHeadphones*, MDRHeadphonesSyncFlags*): 1, default: 0), "sync getter signature");
 static_assert(_Generic(&mdrHeadphonesGetEqualizer,
     MDRResult (*)(MDRHeadphones*, MDRPropertyType, MDREqualizer*): 1, default: 0), "EQ getter signature");
 static_assert(_Generic(&mdrHeadphonesSetEqualizerPreset,
@@ -625,7 +630,7 @@ static void test_one_operation_at_a_time(MDRProtocolVersion family)
         "initialization starts"
     );
     check_result(
-        mdrHeadphonesRequestSync(session.headphones),
+        mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_DEFAULT),
         MDR_RESULT_INPROGRESS,
         "a second operation is rejected while initialization is active"
     );
@@ -1070,7 +1075,7 @@ static void device_run(Session* session, Device* device, MDREvent expected, cons
     check(0, message);
 }
 
-/* Runs selected initialization groups to completion against `device`, or reports why they could not. */
+/* Runs selected initialization flags to completion against `device`, or reports why they could not. */
 static void device_run_init_flags(Session* session, Device* device, MDRHeadphonesInitFlags flags)
 {
     check_result(mdrHeadphonesRequestInit(session->headphones, flags), MDR_RESULT_OK, "initialization starts");
@@ -1197,7 +1202,7 @@ static void test_v2_selective_init(void)
 
     repeated_log_size = device.log_size;
     device_run_init_flags(&session, &device, selected_reads);
-    check(device.log_size == repeated_log_size, "completed initialization groups are idempotent");
+    check(device.log_size == repeated_log_size, "completed initialization flags are idempotent");
     session_close(&session);
 }
 
@@ -2098,7 +2103,8 @@ static void test_staging_during_apply(MDRProtocolVersion family)
     check(!mdrHeadphonesIsReady(session.headphones) && mdrHeadphonesIsDirty(session.headphones),
           "staging does not complete the active request");
     check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT), MDR_RESULT_INPROGRESS, "busy Init remains serialized");
-    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_INPROGRESS, "busy Sync remains serialized");
+    check_result(mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_DEFAULT), MDR_RESULT_INPROGRESS,
+                 "busy Sync remains serialized");
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "busy Commit cannot replace snapshot");
     poll_event(session.headphones, &event, "old volume flushes before its ACK");
     check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 21), MDR_RESULT_OK, "volume stages while waiting for ACK");
@@ -2155,7 +2161,8 @@ static void test_staging_during_apply(MDRProtocolVersion family)
           "consumed one-shot action is not replayed by an unrelated batch");
 
     device.log_size = 0;
-    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_OK, "sync starts before new edits");
+    check_result(mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_DEFAULT), MDR_RESULT_OK,
+                 "sync starts before new edits");
     tx_size = session.transport.tx_size;
     check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 23), MDR_RESULT_OK, "volume stages during sync");
     check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_OK, "action stages during sync");
@@ -2369,7 +2376,16 @@ static void test_v1_sync_asks_for_the_track_names(void)
     /* Initialization asks for the names once; only what a sync asks for counts here. */
     after_init = device.log_size;
     check_result(
-        mdrHeadphonesRequestSync(session.headphones),
+        mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_BATTERY),
+        MDR_RESULT_OK,
+        "a sync without playback starts"
+    );
+    device_run(&session, &device, MDR_EVENT_SYNC_COMPLETE, "the sync without playback completes");
+    check(!device_requested_after(&device, 1, 0xa6, after_init), /* PLAY_GET_PARAM */
+          "a V1 sync without playback skips the track names");
+    after_init = device.log_size;
+    check_result(
+        mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_PLAYBACK),
         MDR_RESULT_OK,
         "a sync starts"
     );
@@ -2402,7 +2418,7 @@ static void test_v2_sync_asks_for_the_track_names(void)
 
     after_init = device.log_size;
     check_result(
-        mdrHeadphonesRequestSync(session.headphones),
+        mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_PLAYBACK),
         MDR_RESULT_OK,
         "a sync starts"
     );
@@ -2441,6 +2457,7 @@ static void test_wearing_status(void)
     Device device;
     MDRWearingStatus status;
     MDRFeatureAvailability available = MDR_AVAILABILITY_UNKNOWN;
+    MDRHeadphonesSyncFlags sync;
     size_t after_log;
 
     if (!session_open(&session))
@@ -2489,10 +2506,25 @@ static void test_wearing_status(void)
 
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, log_remove, sizeof(log_remove));
     device_run(&session, &device, MDR_EVENT_NEED_SYNC, "a unitRemove log entry polls");
+    sync = MDR_HEADPHONES_SYNC_NONE;
+    check_result(mdrHeadphonesGetSync(session.headphones, &sync), MDR_RESULT_OK, "the sync flags are readable");
+    check(sync == MDR_HEADPHONES_SYNC_WEARING_STATUS, "a unitRemove log entry marks only the wearing status stale");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, ntfy_worn, sizeof(ntfy_worn));
+    device_run(&session, &device, MDR_EVENT_WEARING_STATUS_CHANGED, "the checker notification polls again");
+    mdrHeadphonesGetSync(session.headphones, &sync);
+    check(sync == MDR_HEADPHONES_SYNC_NONE, "a wearing status report clears its sync flag");
+    check_result(mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_NONE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "empty sync mask is rejected");
+    check_result(mdrHeadphonesRequestSync(session.headphones, (MDRHeadphonesSyncFlags)(1u << 31u)),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "unknown sync flags are rejected");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, log_remove, sizeof(log_remove));
+    device_run(&session, &device, MDR_EVENT_NEED_SYNC, "a second unitRemove log entry polls");
+    mdrHeadphonesGetSync(session.headphones, &sync);
 
     after_log = device.log_size;
     check_result(
-        mdrHeadphonesRequestSync(session.headphones),
+        mdrHeadphonesRequestSync(session.headphones, sync),
         MDR_RESULT_OK,
         "the sync a removal asks for starts"
     );
@@ -3462,7 +3494,8 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
         check(power.head_gesture == current_power.head_gesture,
               "V1 head gesture, which has no write, is dropped rather than left desired");
     }
-    check_result(mdrHeadphonesRequestSync(session.headphones), MDR_RESULT_OK, "sync is reachable after the commit");
+    check_result(mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_DEFAULT), MDR_RESULT_OK,
+                 "sync is reachable after the commit");
     device_run(&session, &device, MDR_EVENT_SYNC_COMPLETE, "sync after the commit completes");
     session_close(&session);
 }
@@ -3492,6 +3525,7 @@ static void check_failed_session(Session* session, MDRResult failure)
         MDRConnectionMode connection;
         MDRSafeListening safe;
         MDRWearingStatus wearing;
+        MDRHeadphonesSyncFlags sync;
         MDRFeatureAvailability feature;
         int32_t bands[5];
         char text[64];
@@ -3559,6 +3593,7 @@ static void check_failed_session(Session* session, MDRResult failure)
     CHECK_FAILED(mdrHeadphonesGetAssignableControlActions(session->headphones, MDR_ASSIGNABLE_ACTION_KEY_LEFT,
                                                         &output.action, &count));
     CHECK_FAILED(mdrHeadphonesGetWearingStatus(session->headphones, &output.wearing));
+    CHECK_FAILED(mdrHeadphonesGetSync(session->headphones, &output.sync));
     CHECK_FAILED(mdrHeadphonesGetText(session->headphones, MDR_TEXT_MODEL_NAME, 0, output.text, &text_size));
     check(memcmp(&output, &before, sizeof(output)) == 0 && count == 1 && text_size == sizeof(output.text),
           "failed getters preserve output buffers and sizes");
@@ -3584,7 +3619,7 @@ static void check_failed_session(Session* session, MDRResult failure)
     CHECK_FAILED(mdrHeadphonesSetAlertResponse(session->headphones, MDR_ALERT_ACTION_POSITIVE));
     CHECK_FAILED(mdrHeadphonesSetTimeout(session->headphones, MDR_TIMEOUT_DEFAULT, 1));
     CHECK_FAILED(mdrHeadphonesRequestInit(session->headphones, MDR_HEADPHONES_INIT_DEFAULT));
-    CHECK_FAILED(mdrHeadphonesRequestSync(session->headphones));
+    CHECK_FAILED(mdrHeadphonesRequestSync(session->headphones, MDR_HEADPHONES_SYNC_DEFAULT));
     CHECK_FAILED(mdrHeadphonesRequestCommit(session->headphones));
     mdrHeadphonesSetPacketCallback(session->headphones, NULL, NULL);
 

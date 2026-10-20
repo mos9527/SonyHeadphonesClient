@@ -535,7 +535,7 @@ void SetEqualizerBands(const mdr::Vector<int32_t>& values)
         mdrHeadphonesSetEqualizerBands(gDevice, values.data(), static_cast<uint32_t>(values.size()));
 }
 
-static bool gPendingSync{};
+static MDRHeadphonesSyncFlags gPendingSync{};
 static bool gThemePending{};
 static MDRWearingStatus gLastWearingStatus{};
 static bool gAlertPending{};
@@ -604,7 +604,7 @@ void OnWearingStatusChanged()
 
 void CloseDevice()
 {
-    gPendingSync = false;
+    gPendingSync = MDR_HEADPHONES_SYNC_NONE;
     gLastWearingStatus = {};
     gThemePending = true;
     if (!gDevice)
@@ -1509,7 +1509,7 @@ void DrawDeviceControlsHeader()
             const ImU32 color = ready ? ~0u : ImGui::GetColorU32(ImGuiCol_TextDisabled);
             bool hovered = false;
             if (ImBadge(kSyncBadge, pos, color, color, rounding, 2.0f, &hovered, "sync") && ready)
-                gPendingSync = true;
+                gPendingSync = MDR_HEADPHONES_SYNC_DEFAULT;
             if (hovered)
                 ImGui::SetTooltip("%s", Tr(i18n::TextId::SyncHelp));
         }
@@ -2319,9 +2319,15 @@ void UpdateDeviceControls()
     switch (event)
     {
     case MDR_EVENT_INITIALIZE_COMPLETE:
-    case MDR_EVENT_NEED_SYNC:
-        gPendingSync = true;
+        gPendingSync = MDR_HEADPHONES_SYNC_DEFAULT;
         break;
+    case MDR_EVENT_NEED_SYNC:
+    {
+        MDRHeadphonesSyncFlags flags = MDR_HEADPHONES_SYNC_NONE;
+        if (mdrHeadphonesGetSync(gDevice, &flags) == MDR_RESULT_OK)
+            gPendingSync |= flags;
+        break;
+    }
     case MDR_EVENT_IDENTITY_CHANGED:
         gThemePending = true;
         break;
@@ -2345,10 +2351,11 @@ void UpdateDeviceControls()
         if (mdrHeadphonesRequestCommit(gDevice) != MDR_RESULT_OK)
             DisconnectWithModal();
     }
-    else if (gPendingSync)
+    else if (gPendingSync != MDR_HEADPHONES_SYNC_NONE)
     {
-        gPendingSync = false;
-        if (mdrHeadphonesRequestSync(gDevice) != MDR_RESULT_OK)
+        const MDRHeadphonesSyncFlags flags = gPendingSync;
+        gPendingSync = MDR_HEADPHONES_SYNC_NONE;
+        if (mdrHeadphonesRequestSync(gDevice, flags) != MDR_RESULT_OK)
             DisconnectWithModal();
     }
 }

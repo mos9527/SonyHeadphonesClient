@@ -60,6 +60,15 @@ typedef uint32_t MDRHeadphonesInitFlags;
 // Full init across all features that a device may support
 #define MDR_HEADPHONES_INIT_DEFAULT ((MDRHeadphonesInitFlags)((MDR_HEADPHONES_INIT_LOG << 1u) - 1u))
 
+typedef uint32_t MDRHeadphonesSyncFlags;
+#define MDR_HEADPHONES_SYNC_NONE ((MDRHeadphonesSyncFlags)0u)
+#define MDR_HEADPHONES_SYNC_BATTERY ((MDRHeadphonesSyncFlags)(1u << 0u))
+#define MDR_HEADPHONES_SYNC_SAFE_LISTENING ((MDRHeadphonesSyncFlags)(1u << 1u))
+#define MDR_HEADPHONES_SYNC_PLAYBACK ((MDRHeadphonesSyncFlags)(1u << 2u))
+#define MDR_HEADPHONES_SYNC_WEARING_STATUS ((MDRHeadphonesSyncFlags)(1u << 3u))
+// Sync across all states that a device may support
+#define MDR_HEADPHONES_SYNC_DEFAULT ((MDRHeadphonesSyncFlags)((MDR_HEADPHONES_SYNC_WEARING_STATUS << 1u) - 1u))
+
 typedef uint32_t MDRFeature;
 #define MDR_FEATURE_IDENTITY ((MDRFeature)1u)
 #define MDR_FEATURE_BATTERY_SINGLE ((MDRFeature)2u)
@@ -123,7 +132,7 @@ typedef uint32_t MDREvent;
 #define MDR_EVENT_DEVICE_MESSAGE ((MDREvent)21u)
 /**
  * The device reported that state changed without including its new value. Once
- * @ref mdrHeadphonesIsReady returns true, call @ref mdrHeadphonesRequestSync
+ * @ref mdrHeadphonesIsReady returns true, call @ref mdrHeadphonesRequestSync with @ref mdrHeadphonesGetSync
  * 
  * @ref MDR_EVENT_SYNC_COMPLETE is emitted from @ref mdrHeadphonesPoll after the sync is complete.
  */
@@ -557,10 +566,17 @@ MDR_API MDRResult mdrHeadphonesRequestInit(MDRHeadphones* headphones, MDRHeadpho
 /**
  * @brief Request pulling latest states from the device. This includes e.g. battery levels and some other states that
  * may change without being notified by the headphones themselves.
+ * @param flags Which states to pull. Use @ref MDR_HEADPHONES_SYNC_DEFAULT for all supported states,
+ *        or any combination of @ref MDR_HEADPHONES_SYNC_... flags.
  * @note  Call this after @ref MDR_EVENT_NEED_SYNC once @ref mdrHeadphonesIsReady returns true. Continue polling until
  *        @ref MDR_EVENT_SYNC_COMPLETE; this function only schedules the non-blocking synchronization task.
  */
-MDR_API MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones);
+MDR_API MDRResult mdrHeadphonesRequestSync(MDRHeadphones* headphones, MDRHeadphonesSyncFlags flags);
+/**
+ * @brief The immediate states that needs to be synced. Use with @ref mdrHeadphonesRequestSync.
+ * @param out_flags Receives the immediate states that needs to be synced.
+ */
+MDR_API MDRResult mdrHeadphonesGetSync(MDRHeadphones* headphones, MDRHeadphonesSyncFlags* out_flags);
 /**
  * @brief Schedules pending changes made via the ...Set or @ref mdrHeadphonesSendPlaybackCommand calls.
  *        Continue polling until @ref MDR_EVENT_APPLY_COMPLETE. Acknowledged writes no longer count as dirty,

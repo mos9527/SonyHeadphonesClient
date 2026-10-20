@@ -298,67 +298,69 @@ namespace mdr
             );
         }
 
-        mCompletedInitFlags |= flags;
-        mInitialized = (mCompletedInitFlags & MDR_HEADPHONES_INIT_DISCOVERY) == MDR_HEADPHONES_INIT_DISCOVERY;
+        mInitFlags |= flags;
+        mInitialized = (mInitFlags & MDR_HEADPHONES_INIT_DISCOVERY) == MDR_HEADPHONES_INIT_DISCOVERY;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 
-    MDRTask MDRHeadphones::RequestSyncV2()
+    MDRTask MDRHeadphones::RequestSyncV2(MDRHeadphonesSyncFlags flags)
     {
         auto& state = mDetailsV2;
+        const bool battery = (flags & MDR_HEADPHONES_SYNC_BATTERY) != 0u;
         /* Single Battery */
-        if (state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL_INDICATOR))
+        if (battery && state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL_INDICATOR))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::BATTERY});
         }
-        else if (state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL_WITH_THRESHOLD))
+        else if (battery && state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL_WITH_THRESHOLD))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::BATTERY_WITH_THRESHOLD});
         }
 
         /* L + R Battery */
-        if (state.mSupport.contains(t1::FunctionType::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
+        if (battery && state.mSupport.contains(t1::FunctionType::LEFT_RIGHT_BATTERY_LEVEL_INDICATOR))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::LEFT_RIGHT_BATTERY});
         }
-        else if (state.mSupport.contains(t1::FunctionType::LR_BATTERY_LEVEL_WITH_THRESHOLD))
+        else if (battery && state.mSupport.contains(t1::FunctionType::LR_BATTERY_LEVEL_WITH_THRESHOLD))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::LR_BATTERY_WITH_THRESHOLD});
         }
 
         /* Case Battery */
-        if (state.mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_INDICATOR))
+        if (battery && state.mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_INDICATOR))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::CRADLE_BATTERY});
         }
-        else if (state.mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
+        else if (battery && state.mSupport.contains(t1::FunctionType::CRADLE_BATTERY_LEVEL_WITH_THRESHOLD))
         {
             SendCommandACK(t1::PowerGetStatus, {.type = t1::PowerInquiredType::CRADLE_BATTERY_WITH_THRESHOLD});
         }
 
         /* Sound Pressure */
-        if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_1))
+        const bool safeListening = (flags & MDR_HEADPHONES_SYNC_SAFE_LISTENING) != 0u;
+        if (safeListening && state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_1))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_1});
         }
-        else if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_2))
+        else if (safeListening && state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_HBS_2))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_HBS_2});
         }
-        else if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_1))
+        else if (safeListening && state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_1))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_1});
         }
-        else if (state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_2))
+        else if (safeListening && state.mSupport.contains(t2::FunctionType::SAFE_LISTENING_TWS_2))
         {
             SendCommandACK(t2::SafeListeningGetExtendedParam,
                            {.inquiredType = t2::SafeListeningInquiredType::SAFE_LISTENING_TWS_2});
         }
         /* Playback metadata. Track changes are not always notified. */
-        if (state.mSupport.containsPlaybackController())
+        if ((flags & MDR_HEADPHONES_SYNC_PLAYBACK) != 0u && state.mSupport.containsPlaybackController())
         {
             SendCommandACK(t1::GetPlayParam,
                            { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
@@ -368,7 +370,7 @@ namespace mdr
         }
 
         /* Wearing status (proximity sensor) */
-        if (state.wearingSensorPossible())
+        if ((flags & MDR_HEADPHONES_SYNC_WEARING_STATUS) != 0u && state.wearingSensorPossible())
             SendCommandACK(t2::SystemGetStatus, {.type = t2::SystemInquiredType::WEARING_STATUS_CHECKER});
 
         co_return MDR_EVENT_SYNC_COMPLETE;

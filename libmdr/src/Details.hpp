@@ -310,13 +310,13 @@ namespace mdr
 
 #pragma region Tasks
         /**
-         * @brief Runs the selected initialization groups for the active protocol backend.
+         * @brief Runs the selected initialization flags for the active protocol backend.
          */
         MDRTask RequestInit(MDRHeadphonesInitFlags flags);
         /**
-         * @brief Dispatches state synchronization to the selected backend.
+         * @brief Dispatches the selected synchronization flags to the selected backend.
          */
-        MDRTask RequestSync();
+        MDRTask RequestSync(MDRHeadphonesSyncFlags flags);
         /**
          * @brief Dispatches staged changes to the selected backend.
          */
@@ -329,7 +329,7 @@ namespace mdr
         [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept { return mSeqNumber; }
 
         MDRTask RequestInitV1(MDRHeadphonesInitFlags flags);
-        MDRTask RequestSyncV1();
+        MDRTask RequestSyncV1(MDRHeadphonesSyncFlags flags);
         MDRTask RequestCommitV1();
         void SubmitPropertiesV1();
         void RefreshSupportV1();
@@ -345,7 +345,7 @@ namespace mdr
          * @note  To be used with @ref Invoke.
          * @return @ref MDR_EVENT_SYNC_COMPLETE on completion (returned in @ref PollEvents)
          **/
-        MDRTask RequestSyncV2();
+        MDRTask RequestSyncV2(MDRHeadphonesSyncFlags flags);
         /**
          * @brief Requests all changed @ref MDRProperty up until this point to be set on the device
          * @note  To be used with @ref Invoke.
@@ -355,7 +355,30 @@ namespace mdr
         void SubmitPropertiesV2();
 #pragma endregion
 
-        MDRHeadphonesInitFlags mCompletedInitFlags{MDR_HEADPHONES_INIT_NONE};
+        // The feature flags that has already been initalized.
+        MDRHeadphonesInitFlags mInitFlags{MDR_HEADPHONES_INIT_NONE};
+
+        // With MDR_EVENT_NEED_SYNC events, the immediate events that needs to be synced (Desync()).
+        // This is only cleared (Sync()) via handlers.
+        MDRHeadphonesSyncFlags mSyncFlags{MDR_HEADPHONES_SYNC_NONE};
+
+        /**
+         * @brief Clears @p flags from @ref mSyncFlags, passing @p event through.
+         */
+        int Sync(MDRHeadphonesSyncFlags flags, int event) noexcept
+        {
+            mSyncFlags &= ~flags;
+            return event;
+        }
+        /**
+         * @brief Marks @p flags stale in @ref mSyncFlags.
+         * @return @ref MDR_EVENT_NEED_SYNC
+         */
+        int Desync(MDRHeadphonesSyncFlags flags) noexcept
+        {
+            mSyncFlags |= flags;
+            return MDR_EVENT_NEED_SYNC;
+        }
         bool mInitialized{};
 
     private:

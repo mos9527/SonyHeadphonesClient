@@ -496,17 +496,17 @@ namespace mdr
             });
         }
 
-        mCompletedInitFlags |= flags;
-        mInitialized = (mCompletedInitFlags & MDR_HEADPHONES_INIT_DISCOVERY) == MDR_HEADPHONES_INIT_DISCOVERY;
+        mInitFlags |= flags;
+        mInitialized = (mInitFlags & MDR_HEADPHONES_INIT_DISCOVERY) == MDR_HEADPHONES_INIT_DISCOVERY;
         co_return MDR_EVENT_INITIALIZE_COMPLETE;
     }
 
-    MDRTask MDRHeadphones::RequestSyncV1()
+    MDRTask MDRHeadphones::RequestSyncV1(MDRHeadphonesSyncFlags flags)
     {
         auto& state = mDetailsV1;
 
         /* Playback metadata. Track changes are not always notified. */
-        if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
+        if ((flags & MDR_HEADPHONES_SYNC_PLAYBACK) != 0u && state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
         {
             SendCommandACK(t1::GetPlayStatus, {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER});
 
