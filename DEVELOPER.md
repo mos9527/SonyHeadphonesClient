@@ -18,7 +18,9 @@ For these platforms, you can build SHC with relative ease using CMake. Check out
 
 #### Windows
 
-Windows SDK (8.1 and up required for BLE, 7 and up required when `MDR_BT_BLE_SUPPORT` is off) is required.
+Only the latest Windows SDK is guaranteed to be supported. Do note that we build for much, much older Windows too! Check out [Compatibility Builds](./README.md#windows-compatibility-builds) and [Example Build Flags](#example-configurations) for more info. 
+
+And yes, you do that with the latest toolchains.
 
 #### macOS
 
