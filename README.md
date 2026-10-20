@@ -53,7 +53,7 @@ Currently, the following compatibility builds are available.
 
 ### Windows Compatibility Builds
 
-Available as `SonyHeadphonesClient-win-x64-compatibility.exe` and `SonyHeadphonesClient-win-x86-compatibility.exe` in the CI. See [SHC Developer's Guide](./DEVELOPER.md) for build flags.
+Available as `SonyHeadphonesClient-win-x64-compatibility.exe` and `SonyHeadphonesClient-win-x86-compatibility.exe` in the CI. See [SHC Developer's Guide](./DEVELOPER.md#windows) for build flags.
 
 These builds lowers the minimal required Windows version from Windows 8.1 in the regular builds to Windows XP SP2.
 
