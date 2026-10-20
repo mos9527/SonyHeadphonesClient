@@ -11,11 +11,11 @@ assignees: Amrsatrio, mos9527
 
 ** REMOVE THESE LINES BEFORE SUBMITTING **
 
-Thank you for submitting feature report of your own device. Before you begin, make sure that:
+Thank you for submitting a feature report for your own device. Before you begin, make sure that:
 - Your device is not already present in the [Issue Tracker](https://github.com/mos9527/SonyHeadphonesClient/issues)
-- You're runninng the latest [**nightly** build, from the `rewrite` branch](https://github.com/mos9527/SonyHeadphonesClient#sonyheadphonesclient), or using the Web version
+- You're running the latest [**nightly** build, from the currently active branch](https://github.com/mos9527/SonyHeadphonesClient#sonyheadphonesclient), or using the Web version
 
-If so, the following table **SHOULD** be filled according to your own expereience. And any extra information is extremely welcome here!
+If so, the following table **SHOULD** be filled according to your own experience. Any extra information is extremely welcome here!
 
 **ATTENTION:** To keep other users up-to-date, **DO NOT** close your issue no matter what, so these can be easily found. 
 

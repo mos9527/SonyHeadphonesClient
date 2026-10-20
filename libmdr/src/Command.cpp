@@ -106,13 +106,17 @@ namespace mdr
         // Skip start/end markers
         command = command.subspan(1, command.size() - 2);
         MDRBuffer unescaped = Unescape(command);
+        // Type(1),Seq(1),Size(4),Checksum(1)
+        if (unescaped.size() < 7)
+            return MDRUnpackResult::BAD_OTHER;
         command = unescaped;
         // Type,seq
         outType = static_cast<MDRDataType>(command[0]);
         outSeq = command[1];
         command = command.subspan(2);
         // Big-endian in
-        Int32BE outSize = command[0] << 24u | command[1] << 16u | command[2] << 8u | command[3];
+        const uint32_t outSize = static_cast<uint32_t>(command[0]) << 24u | static_cast<uint32_t>(command[1]) << 16u |
+            static_cast<uint32_t>(command[2]) << 8u | command[3];
         Span<const UInt8> data = command.subspan(4);
         // Data...,checksum
         UInt8 checksum = data.back();
@@ -124,10 +128,12 @@ namespace mdr
             return MDRUnpackResult::BAD_CHECKSUM;
         // Data...
         data = data.subspan(0, data.size() - 1);
-        if (data.size() != static_cast<size_t>(outSize)) [[unlikely]]
-            return MDRUnpackResult::INCOMPLETE;
+        // There's practically no way for this to happen unless the packet is manually constructed.
+        // See also https://github.com/mos9527/SonyHeadphonesClient/pull/58
+        if (data.size() != outSize) [[unlikely]]
+            return MDRUnpackResult::BAD_OTHER;
         outData.resize(data.size());
-        std::ranges::copy(data, outData.begin());
+        std::copy(data.begin(), data.end(), outData.begin());
         return MDRUnpackResult::OK;
     }
 }

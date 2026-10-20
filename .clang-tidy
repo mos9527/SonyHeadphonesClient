@@ -51,7 +51,6 @@ bugprone-unused-raii,
 bugprone-unused-return-value,
 bugprone-use-after-move,
 bugprone-virtual-near-miss,
-cert-dcl21-cpp,
 cert-dcl58-cpp,
 cert-err34-c,
 cert-err52-cpp,
@@ -123,7 +122,6 @@ readability-const-return-type,
 readability-container-size-empty,
 readability-convert-member-functions-to-static,
 readability-delete-null-pointer,
-readability-deleted-default,
 readability-inconsistent-declaration-parameter-name,
 readability-make-member-function-const,
 readability-misleading-indentation,
@@ -147,16 +145,38 @@ readability-identifier-naming
 CheckOptions:
   - key:             readability-identifier-naming.ClassCase
     value:           CamelCase
+  - key:             readability-identifier-naming.VariableCase
+    value:           camelBack
+  - key:             readability-identifier-naming.LocalVariableCase
+    value:           camelBack
+  - key:             readability-identifier-naming.LocalConstantCase
+    value:           camelBack
+  - key:             readability-identifier-naming.ParameterCase
+    value:           camelBack
+  - key:             readability-identifier-naming.GlobalVariableCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.GlobalVariablePrefix
+    value:           g
+  - key:             readability-identifier-naming.MemberCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.MemberPrefix
+    value:           m
   - key:             readability-identifier-naming.ConstexprMethodCase
     value:           camelBack
   - key:             readability-identifier-naming.ClassMemberCase
     value:           camelBack
   - key:             readability-identifier-naming.PrivateMemberCase
-    value:           camelBack
+    value:           CamelCase
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           m
   - key:             readability-identifier-naming.ProtectedMemberCase
-    value:           camelBack
+    value:           CamelCase
+  - key:             readability-identifier-naming.ProtectedMemberPrefix
+    value:           m
   - key:             readability-identifier-naming.PublicMemberCase
-    value:           camelBack
+    value:           CamelCase
+  - key:             readability-identifier-naming.PublicMemberPrefix
+    value:           m
   - key:             readability-identifier-naming.StaticVariableCase
     value:           camelBack
   - key:             readability-identifier-naming.ClassMethodCase
