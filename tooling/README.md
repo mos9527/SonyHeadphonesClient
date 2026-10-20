@@ -9,7 +9,7 @@ Codegen is disabled by default. Configure with `-DMDR_BUILD_CODEGEN=ON` after [s
 Codegen is a proper CMake dependency. Modify a source header and re-run:
 
 ```sh
-cmake --build <build-dir> --target codegen
+cmake --build <build-dir> --target mdr_codegen
 ```
 
 This rebuilds only the stale tools and regenerates only the affected files.

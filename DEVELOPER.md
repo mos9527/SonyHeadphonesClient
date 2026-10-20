@@ -14,7 +14,7 @@ A C++20 compliant compiler and CMake 3.31+ are required. GCC 14, Clang 21 and MS
 
 ### Desktop (Windows, macOS, Linux)
 
-For these platforms, you can build SHC with relative ease using CMake. Check out the offical [Getting Started with CMake](https://cmake.org/cmake/help/latest/guide/tutorial/Getting%20Started%20with%20CMake.html#build-and-run) guide if you're unfamiliar with the process!
+For these platforms, you can build SHC with relative ease using CMake. Check out the official [Getting Started with CMake](https://cmake.org/cmake/help/latest/guide/tutorial/Getting%20Started%20with%20CMake.html#build-and-run) guide if you're unfamiliar with the process!
 
 #### Windows
 
@@ -81,7 +81,7 @@ The app targets Android 5.0 (API 21) and later, and by default builds for ARMv7 
 
 Open `client/Platform/OpenHarmony` in [DevEco Studio](https://developer.huawei.com/consumer/cn/deveco-studio/). OpenHarmony SDK API Version 20 (6.0) or later is required.
 
-[Signing](https://developer.huawei.com/consumer/cn/doc/doccenter-deveco-studio/ide-signing) is required for this to run on a actual device.
+[Signing](https://developer.huawei.com/consumer/cn/doc/doccenter-deveco-studio/ide-signing) is required for this to run on an actual device.
 
 #### Documentation
 
@@ -99,7 +99,7 @@ For more information, these links will also help:
 
 ### iOS (Xcode)
 
-Xcode (15.0+) and an Apple ID are required. You can generate a Xcode Project from CMake:
+Xcode (15.0+) and an Apple ID are required. You can generate an Xcode project from CMake:
 
 ```bash
 cmake -B build-ios -G Xcode -DCMAKE_SYSTEM_NAME=iOS \
@@ -138,7 +138,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `MDR_NO_EXCEPTIONS` | `ON` | Compile without C++ exceptions. See also [`noexcept` Container Usage](#noexcept-container-usage-libmdr-libmdr-bt-client). |
+| `MDR_NO_EXCEPTIONS` | `ON` | Compile without C++ exceptions. See also [Exception Handling](#exception-handling). |
 | `MDR_DEBUG` | `OFF` | Define `MDR_DEBUG` (debug features) in all configurations. Forced `ON` for `Debug` builds; also implies `MDR_ENABLE_LOG`. |
 | `MDR_ENABLE_LOG` | `OFF` | Enable `MDR_LOG` output and source locations in non-`Debug` builds. Always on for `Debug` builds. |
 | `MDR_DEBUG_TRAPS` | `OFF` | Define `MDR_DEBUG_TRAPS`. Break into the debugger (`MDR_TRAP`) when MDR operations / `MDR_CHECK`s fail. `Debug` builds only. |
@@ -183,13 +183,13 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 
 ### Logs
 
-See also [Logging - Coding Style](#logging-libmdr-libmdr-bt-client) (note this is by-default `OFF`!). Logs writes to `stderr`, and on some platforms, they are redirected to respective log systems.
+See also [Logging - Coding Style](#logging-libmdr-libmdr-bt-client) (note this is by-default `OFF`!).
 
-Logs are written to `stderr`, and you should see them from the terminal you launched the app from from some platforms, with special cases of:
+Logs are written to `stderr`, and on most platforms you should see them in the terminal you launched the app from. On some platforms they are redirected to the respective log system instead:
 
 | Platform | Log System |
 | --- | --- |
-| Windows| You need `-con` to view the logs with a newly allocated console. |
+| Windows | You need `-con` to view the logs with a newly allocated console. |
 | Android | Log output is redirected to logcat, with tag `MDR`. |
 | iOS | Log output is visible in Xcode console. |
 | Web | Logs are automatically redirected to `console.log` by Emscripten. |
@@ -263,9 +263,9 @@ For `tooling` and non-project specific code, there is no restriction on memory m
 **No usage whatsoever is allowed.** 
 
 - Portability is a *requirement* for SHC. Some platforms we support (e.g. older Linuxes) are stuck with [older compilers](https://cppreference.com/cpp/compiler_support) that only offered partial coverage for these libraries.
-- Furthermore, usage of which *inadvertently* lead to compile-time, codegen bloat and sometimes runtime performance regressions due to excessive template instantiation, heavy header parsing, and possible runtime cost (e.g. `std::views::filter_view`) that's otherwise avoidable.
+- Furthermore, their usage *inadvertently* leads to compile-time, codegen bloat and sometimes runtime performance regressions due to excessive template instantiation, heavy header parsing, and possible runtime cost (e.g. `std::views::filter_view`) that's otherwise avoidable.
 
-Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick with standard `<algorithm>` library and for-loops that's both easier to write/comprehend and faster to compile/run.
+Whenever you'd like to trade performance for syntactic sugar, **do not**. Stick with the standard `<algorithm>` library and for-loops that are both easier to write/comprehend and faster to compile/run.
 
 ### C ABI (libmdr, libmdr-bt)
 
@@ -297,7 +297,7 @@ For **read-write** properties, the `MDRPropertyType type` parameter selects the 
 
 **Read-write** properties should provide **both** a getter and a setter function.
 - `MDRPropertyType type` **MUST** be the getter's **FIRST** argument after `MDRHeadphones*`. Setters do not take a view selector; they stage the desired value.
-- The getter signature is as follows (`MDRHeadphones*, MDRPropertyType, PropertyPointer(s)...):
+- The getter signature is as follows (`MDRHeadphones*, MDRPropertyType, PropertyPointer(s)...`):
 ```c++
 mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower* out_power)
 ```
@@ -307,7 +307,7 @@ mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type, MDRPower*
 - Like read-write setters, write-only setters stage changes, make `mdrHeadphonesIsDirty` return true, and send them only through `mdrHeadphonesRequestCommit`.
 - One-shot values such as alert responses are consumed after acknowledgement so the same action can be staged for a later request.
 
-For APIs that gets/sets a list of items, the function signature is as follows:
+For APIs that get/set a list of items, the function signature is as follows:
 
 ```c++
 MDR_API MDRResult ...Get(MDRHeadphones* headphones, MDRPropertyType type, [Type]* data, uint32_t* inout_count);
@@ -317,7 +317,7 @@ MDR_API MDRResult ...Set(MDRHeadphones* headphones, const [Type]* data, uint32_t
 With the `...Get` (getter), where `MDRPropertyType` may be optional (if readonly):
 - Takes `[Type]* data, uint32_t* inout_count`
 - If `data` is `nullptr`, `inout_count` **MUST** be valid, and the length of data (in element count for `[Type]`), is set to that pointer.
-- Otherwise, `inout_count` **MUST** be set to a valid value, that **MUST** match the value retrived via the said combination.
+- Otherwise, `inout_count` **MUST** be set to a valid value, that **MUST** match the value retrieved via the said combination.
 
 With the `...Set` (setter):
 - Takes `const [Type]* data, uint32_t count`
@@ -327,7 +327,7 @@ With the `...Set` (setter):
 
 **None of the `MDRConnection` functions should block.** Bluetooth backends may be implemented in `libmdr-bt`, the `client`, or downstream consumers by providing their own `MDRConnection` VTable, which `libmdr` uses to communicate with the device.
 
-`libmdr` is a by essence state machine that **only** advances when manually polled, through `mdrHeadphonesPoll`, which depends on the `MDRConnection`, therefore impling non-blocking (polling) IO.
+`libmdr` is in essence a state machine that **only** advances when manually polled, through `mdrHeadphonesPoll`, which depends on the `MDRConnection`, therefore implying non-blocking (polling) IO.
 
 
 ### Logging (libmdr, libmdr-bt, client)
@@ -344,30 +344,29 @@ MDR_LOG("BluetoothFindFirstDevice FAILED on radio #{} error={}", radioIndex, err
 ```
 
 For the log strings themselves:
-- **DO NOT** include tags (e.g. `MDR_LOG("[BT] Device disconnected")`), or `MDR_SOURCE_LOCATION` in your log string. The strings themselves *should* be self-explanatory and trivally searchable to cross-reference with source.
-- For strings that's only meant for a debug build, use `MDR_LOG_DEBUG`, which is automatically stripped in non-Debug builds even if `MDR_ENABLE_LOG` is `ON`.
-- There's no log levels, and platform backends that outputs them with one should opt for `INFO` level (e.g. logcat).
+- **DO NOT** include tags (e.g. `MDR_LOG("[BT] Device disconnected")`), or `MDR_SOURCE_LOCATION` in your log string. The strings themselves *should* be self-explanatory and trivially searchable to cross-reference with source.
+- For strings that are only meant for a debug build, use `MDR_LOG_DEBUG`, which is automatically stripped in non-Debug builds even if `MDR_ENABLE_LOG` is `ON`.
+- There are no log levels, and platform backends that output to a system with levels should opt for the `INFO` level (e.g. logcat).
 
 ### Thread Safety
 
-There's no Thread Safety guarantees. Don't race the states, and check with TSAN if you're working with threads.
+There are no thread-safety guarantees. Don't race the states, and check with TSAN if you're working with threads.
 
 ### Commit Messages
 
 > **NOTE**: This applies to commits made after `2026/10/17`, so if you can see it, this applies to **you** *now*.
 
-**Write them yourself, and in English.** Per [CONTRIBUTING.md](./.github/CONTRIBUTING.md), **you**, the contributor, **must understand the code you contribute**. **NEVER** let an AI generate the commit messages for you, or use placeholders that conveys no meaning at all.
+**Write them yourself, and in English.** Per [CONTRIBUTING.md](./.github/CONTRIBUTING.md), **you**, the contributor, **must understand the code you contribute**. **NEVER** let an AI generate the commit messages for you, or use placeholders that convey no meaning at all.
 
-Otherwise, have **fun** with it. There's not really an objective standard here for how *good* a commit message here (it's FOSS, not your day job), as long as it's *yours* and meaningful, go ahead and do it.
+Otherwise, have **fun** with it. There's not really an objective standard for how *good* a commit message is (it's FOSS, not your day job), as long as it's *yours* and meaningful, go ahead and do it.
 
+Thanks for reading it all the way to this paragraph. We certainly hope you can *personally* enjoy the contribution process as much as the rest of us!
 
-Thanks for reading it all the way to this paragraph. We certainlly hope you can *personally* enjoy the contribution process as much as the rest of us!
-
-### Payload Struct Implementation Details (libmdr)
+## Payload Struct Implementation Details (libmdr)
 
 **NOTE:** This section is for informative purposes only, as `libmdr` now generates the struct details via [codegen](./tooling/) deterministically, and the structs themselves are generated from IR via [tooling/ida](./tooling/ida/).
 
-To regenerate after modifying a source header, configure with `-DMDR_BUILD_CODEGEN=ON` and run `cmake --build <build-dir> --target codegen`. See [Running codegen](./tooling/README.md#running-codegen).
+To regenerate after modifying a source header, configure with `-DMDR_BUILD_CODEGEN=ON` and run `cmake --build <build-dir> --target mdr_codegen`. See [Running codegen](./tooling/README.md#running-codegen).
 
 ---
 
@@ -498,7 +497,7 @@ MDRResult<ConnectRetSupportFunction> ConnectRetSupportFunction::Deserialize(cons
   - Enum fields are automatically checked with `is_valid(...)`; nested structs are inlined and checked recursively.
   - `CODEGEN` comments hint the codegen tool to generate additional validation code for the fields.
   - For details, see the next section.
-- Failed checks (`MDR_VALIDATE`) return `MDR_RESULT_ERROR_MALFORMED_PAYLOAD`, and trap the debugger the same way `MDR_TRY` does. Define `MDR_VALIDATION_NO_DEBUG_TRAPS` to disable traps for validation failures only.
+- Failed checks (`MDR_VALIDATE`) return `MDR_RESULT_ERROR_MALFORMED_PAYLOAD`, and trap into the debugger the same way `MDR_TRY` does. Define `MDR_VALIDATION_NO_DEBUG_TRAPS` to disable traps for validation failures only.
 
 For example, the `ConnectRetProtocolInfo` struct above generates:
 ```c++
