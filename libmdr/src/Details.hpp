@@ -3,9 +3,9 @@
 #include <mdr-c/Headphones.h>
 #include <mdr/Command.hpp>
 #include <mdr/Protocol.hpp>
-#include "Property.hpp"
 #include "DetailsV1.hpp"
 #include "DetailsV2.hpp"
+#include "Property.hpp"
 
 #include <chrono>
 #include <coroutine>
@@ -122,6 +122,7 @@ namespace mdr
     {
     private:
         MDRConnection* mConn;
+
     public:
         enum AwaitType
         {
@@ -153,22 +154,27 @@ namespace mdr
             int timeout = {};
             // co_await Result on resumption
             int result = MDR_RESULT_OK;
-            // Set when @ref Awake found nobody waiting, so the next co_await completes at once
-            bool signaled = false;
+
+            // Timeline semaphore on packet IDs
+            uint64_t wait{}; // # must be gt. for the awaiter to be *actually* awaken
+            uint64_t signal{}; // the # from which the awaiter is attempted to be awaken
+            uint64_t signaled{}; // the # which the waiter is awaken from
+
+            // If the Awaiter has been signaled with a expected Awake
+            bool signal_ready() const noexcept { return signal > wait && signal > signaled; }
 
             bool await_ready() noexcept
             {
-                if (!signaled)
+                if (type == AWAIT_ACK || !signal_ready())
                     return false;
-                signaled = false;
+                signaled = signal;
                 result = MDR_RESULT_OK;
                 return true;
             }
 
             void await_suspend(std::coroutine_handle<> handle) noexcept
             {
-                if (h) [[unlikely]]
-                    std::terminate(); // Misuse. Only _one_ task is allowed at a time
+                MDR_CHECK(!h && "FIXME-Awaiter misuse. Only ONE task is allowed at a time!!!");
                 if (handle)
                     h = std::move(handle), tick = std::chrono::steady_clock::now();
             }
@@ -182,6 +188,8 @@ namespace mdr
                 auto handle = h;
                 h = nullptr;
                 result = await_result;
+                if (await_result == MDR_RESULT_OK)
+                    signaled = signal;
                 handle.resume();
             }
         };
@@ -204,10 +212,7 @@ namespace mdr
         MDRHeadphones& operator=(MDRHeadphones&&) = default;
 
         constexpr operator bool() const noexcept { return mConn != nullptr && !mFailed; }
-        [[nodiscard]] ::MDRResult GetFailure() const noexcept
-        {
-            return mFailed ? mLastErrorCode : MDR_RESULT_OK;
-        }
+        [[nodiscard]] ::MDRResult GetFailure() const noexcept { return mFailed ? mLastErrorCode : MDR_RESULT_OK; }
 
         /**
          * @brief Receive commands and process events. This is non-blocking, and should be
@@ -220,11 +225,12 @@ namespace mdr
          */
         ::MDRResult PollEvents(MDREvent& outEvent);
 
-        ::MDRResult SetTimeout(MDRTimeoutType type, int value) noexcept {
+        ::MDRResult SetTimeout(MDRTimeoutType type, int value) noexcept
+        {
             if (mFailed)
                 return mLastErrorCode;
             if (value <= 0)
-                return MDR_RESULT_ERROR_INVALID_ARGUMENT; 
+                return MDR_RESULT_ERROR_INVALID_ARGUMENT;
             switch (type)
             {
             case MDR_TIMEOUT_DEFAULT:
@@ -270,17 +276,17 @@ namespace mdr
          *        Schedules the calling coroutine to be executed once the next @ref AwaitType
          *        event has arrived through @ref MoveNext
          * @param type The type of event to wait for.
+         * @param wait @ref mPacketCounter value at the time of request.
          * @param timeoutMS The timeout in milliseconds. If the event does not arrive within this time, the coroutine
          *                  will be resumed with @ref MDR_RESULT_ERROR_TIMEOUT.
          *                  Defaults to -1, which means @ref mDefaultTimeoutMS is used instead.
          * @note  As always, needs @ref PollEvents
          */
-        Awaiter& Await(AwaitType type, int timeoutMS = -1);
+        Awaiter& Await(AwaitType type, uint64_t wait, int timeoutMS = -1);
         /**
-         * @brief Wake up zero or one awaited coroutine, and resume it in the current callstack.
-         * @note  If nothing awaits @p type yet (other than @ref AWAIT_ACK), the signal is kept for
-         *        the next @ref Await of it. Some devices (e.g. WH-1000XM3) reply before they ACK the
-         *        request, so the reply lands while the task is still waiting on the ACK.
+         * @brief Record the current RX packet as a signal and resume a matching waiter in the current callstack.
+         * @note  Non-ACK signals can complete a later @ref Await only if newer than its request boundary.
+         *        This preserves RET-before-ACK without consuming signals from before the request.
          */
         void Awake(AwaitType type);
         /**
@@ -322,17 +328,13 @@ namespace mdr
          */
         MDRTask RequestCommit();
         /**
-         * @brief Queues an arbitrary debugger payload through the normal Headphones
-         * send path. This is an internal C++ developer API, not part of the C ABI.
+         * @brief Coroutine implementation of @ref mdrDebugRequestCommand.
          */
-        MDRTask RequestDebugCommand(MDRBuffer payload, MDRDataType type, MDRCommandSeqNumber sequence, bool awaitAck);
-        [[nodiscard]] MDRCommandSeqNumber CurrentSequenceNumber() const noexcept { return mSeqNumber; }
+        MDRTask RequestDebugCommand(MDRBuffer payload, MDRDataType type, bool awaitAck);
 
         MDRTask RequestInitV1(MDRHeadphonesInitFlags flags);
         MDRTask RequestSyncV1(MDRHeadphonesSyncFlags flags);
         MDRTask RequestCommitV1();
-        void SubmitPropertiesV1();
-        void RefreshSupportV1();
 
         /**
          * @brief Send initialization payloads to the headphones.
@@ -352,7 +354,6 @@ namespace mdr
          * @return @ref MDR_EVENT_APPLY_COMPLETE on completion (returned in @ref PollEvents)
          */
         MDRTask RequestCommitV2();
-        void SubmitPropertiesV2();
 #pragma endregion
 
         // The feature flags that has already been initalized.
@@ -394,12 +395,19 @@ namespace mdr
         ::MDRResult mLastErrorCode{MDR_RESULT_ERROR_GENERAL};
         bool mFailed{};
 
-        // Custom callbacks for e.g. @ref Debugger and whatever. Set via @ref mdrHeadphonesSetPacketCallback
+        // Custom callbacks for e.g. @ref Debugger and whatever. Set via @ref mdrDebugSetPacketCallback
         MDRPacketCallback mPacketCallback{};
         void* mPacketCallbackUserData{};
+        uint64_t mPacketCounter{}; // Number of packets, TX+RX
+        uint64_t mCurrentPacket{}; // The index of packet currently being handled if any (non-0), RX only
+        /**
+         * @brief Assigns an ID and invokes the observer for an encoded TX or RX frame.
+         * @return The packet ID assigned to this frame, including TX and invalid RX frames.
+         */
+        uint64_t HandlePacket(MDRPacketDirection direction, Span<const UInt8> frame);
 
         // Connection buffers
-        Deque<UInt8> mRecvBuf, mSendBuf;        
+        Deque<UInt8> mRecvBuf, mSendBuf;
         MDRCommandSeqNumber mSeqNumber{0};
 
         // Task state machine
@@ -515,18 +523,47 @@ namespace mdr::detail
     do                                                                                                                 \
     {                                                                                                                  \
         int _retries;                                                                                                  \
-        for (_retries = 0; _retries < mACKRetryCount; _retries++)                                                    \
+        const uint64_t _requestPacketId = mPacketCounter;                                                              \
+        for (_retries = 0; _retries < mACKRetryCount; _retries++)                                                      \
         {                                                                                                              \
             const int _sendResult = SendCommandImpl<Type>(__VA_ARGS__);                                                \
             if (_sendResult != MDR_RESULT_OK)                                                                          \
                 co_return -1u;                                                                                         \
-            int res = co_await Await(AWAIT_ACK, mACKRetryTimeoutMS);                                                   \
+            int res = co_await Await(AWAIT_ACK, _requestPacketId, mACKRetryTimeoutMS);                                 \
             if (res == MDR_RESULT_OK)                                                                                  \
                 break;                                                                                                 \
-            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetryCount);                                     \
+            MDR_LOG("FIXME-ACK Timeout. Retry {}/{}", _retries, mACKRetryCount);                                       \
         }                                                                                                              \
-        if (_retries == mACKRetryCount)                                                                              \
+        if (_retries == mACKRetryCount)                                                                                \
             co_return SetLastError(MDR_RESULT_ERROR_TIMEOUT, "Timeout exceeded waiting for device to respond");        \
+    }                                                                                                                  \
+    while (false)
+
+/**
+ * @brief Sends through @ref SendCommandACK, then stores the response wait result in @p Result.
+ * @note The response boundary is captured before the first transmission and preserved across ACK retries.
+ *       Serialization and ACK failures still return from the enclosing coroutine.
+ */
+#define SendCommandAwaitResult(Type, Response, Result, ...)                                                            \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        static_assert((Response) != AWAIT_ACK, "Use SendCommandACK for ACK-only requests");                              \
+        const uint64_t _responsePacketId = mPacketCounter;                                                              \
+        SendCommandACK(Type, __VA_ARGS__);                                                                             \
+        (Result) = co_await Await(Response, _responsePacketId);                                                         \
+    }                                                                                                                  \
+    while (false)
+
+/**
+ * @brief Sends a command and waits for both its ACK and response, failing the task on response errors.
+ */
+#define SendCommandAwait(Type, Response, ErrorContext, ...)                                                            \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        int _responseResult = MDR_RESULT_OK;                                                                           \
+        SendCommandAwaitResult(Type, Response, _responseResult, __VA_ARGS__);                                           \
+        if (_responseResult != MDR_RESULT_OK)                                                                          \
+            co_return SetLastError(_responseResult, ErrorContext);                                                     \
     }                                                                                                                  \
     while (false)
 

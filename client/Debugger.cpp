@@ -46,7 +46,7 @@ namespace
 
     MDRHeadphones* gHeadphones{};
     mdr::Deque<CapturedPacket> gHistory;
-    std::uint64_t gNextPacketId{};
+    bool gReplayHistory{};
     std::uint64_t gSelectedCaptureId{};
     PacketInstance gPacket;
     mdr::Vector<const PacketDescriptor*> gSelectedCandidates;
@@ -308,10 +308,6 @@ namespace
         gSelectedCandidates.clear();
         gOriginalPayload.clear();
         gEnvelopeType = descriptor.dataType;
-        if (gHeadphones)
-        {
-            gEnvelopeSequence = mdr::detail::HeadphonesImpl(gHeadphones)->CurrentSequenceNumber();
-        }
         gStatus.clear();
     }
 
@@ -661,8 +657,15 @@ namespace
         if (encoded)
         {
             DrawHex(i18n::TextId::DebuggerEncodedPayload, gEncodedPayload);
-            const mdr::MDRBuffer frame = mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload);
-            DrawHex(i18n::TextId::DebuggerPackedFrame, frame);
+            if (!gHeadphones)
+            {
+                const mdr::MDRBuffer frame = mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload);
+                DrawHex(i18n::TextId::DebuggerPackedFrame, frame);
+            }
+            else if (const CapturedPacket* capture = FindCapture(gSelectedCaptureId))
+            {
+                DrawHex(i18n::TextId::DebuggerCapturedFrame, capture->frame);
+            }
         }
 
         if (!gStatus.empty())
@@ -681,10 +684,9 @@ namespace
 
     void SendPacket()
     {
-        auto* h = mdr::detail::HeadphonesImpl(gHeadphones);
-        gEnvelopeSequence = h->CurrentSequenceNumber();
-        const int result =
-            h->Invoke(h->RequestDebugCommand(gEncodedPayload, gEnvelopeType, gEnvelopeSequence, gAwaitAck));
+        const MDRResult result = mdrDebugRequestCommand(
+            gHeadphones, gEncodedPayload.data(), static_cast<uint32_t>(gEncodedPayload.size()),
+            static_cast<uint32_t>(gEnvelopeType), gAwaitAck ? MDR_TRUE : MDR_FALSE);
         gStatus = result == MDR_RESULT_OK ? Tr(i18n::TextId::DebuggerPacketQueued) : mdrResultString(result);
     }
 
@@ -707,14 +709,15 @@ namespace
     {
         const ImGuiStyle& style = ImGui::GetStyle();
         const float scalarWidth = ImGui::CalcTextSize("255").x + style.FramePadding.x * 2.0f;
+        const float sequenceWidth = gHeadphones ? ButtonWidth(Tr(i18n::TextId::Auto)) : scalarWidth;
         return {
             ButtonWidth(Tr(i18n::TextId::DebuggerCommand)),
             ButtonWidth(Tr(i18n::TextId::DebuggerReset)),
             scalarWidth + ImGui::GetFrameHeight() * 2.0f + style.ItemInnerSpacing.x * 3.0f +
                 ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerType)).x,
-            scalarWidth + style.ItemInnerSpacing.x + ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x,
+            sequenceWidth + style.ItemInnerSpacing.x + ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x,
             ImGui::GetFrameHeight() + style.ItemInnerSpacing.x + ImGui::CalcTextSize("ACK").x,
-            ButtonWidth(Tr(i18n::TextId::DebuggerExport)),
+            ButtonWidth(Tr(gHeadphones ? i18n::TextId::DebuggerExportCaptured : i18n::TextId::DebuggerExport)),
             ButtonWidth(Tr(i18n::TextId::DebuggerSend))};
     }
 
@@ -760,21 +763,25 @@ namespace
             if (ImGui::InputInt(TextLabel(i18n::TextId::DebuggerType).c_str(), &type))
                 gEnvelopeType = static_cast<mdr::MDRDataType>(type);
             NextToolbarItem(widths[3]);
-            if (gHeadphones)
-                gEnvelopeSequence = mdr::detail::HeadphonesImpl(gHeadphones)->CurrentSequenceNumber();
             ImGui::SetNextItemWidth(widths[3] - labelSpacing - ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x);
-            ImGui::BeginDisabled(gHeadphones != nullptr);
-            DrawScalar(TextLabel(i18n::TextId::DebuggerSequence).c_str(), gEnvelopeSequence);
-            ImGui::EndDisabled();
+            if (gHeadphones)
+                ImGui::LabelText(TextLabel(i18n::TextId::DebuggerSequence).c_str(), "%s", Tr(i18n::TextId::Auto));
+            else
+                DrawScalar(TextLabel(i18n::TextId::DebuggerSequence).c_str(), gEnvelopeSequence);
             NextToolbarItem(widths[4]);
             ImGui::Checkbox("ACK", &gAwaitAck);
             NextToolbarItem(widths[5]);
 
             const bool encoded = UpdateEncodedPayload();
-            ImGui::BeginDisabled(!encoded || clientDebuggerExportInProgress());
-            if (ImGui::Button(TextLabel(i18n::TextId::DebuggerExport).c_str()))
+            const CapturedPacket* capture = FindCapture(gSelectedCaptureId);
+            const bool canExport = gHeadphones ? capture != nullptr : encoded;
+            ImGui::BeginDisabled(!canExport || clientDebuggerExportInProgress());
+            if (ImGui::Button(TextLabel(gHeadphones ? i18n::TextId::DebuggerExportCaptured : i18n::TextId::DebuggerExport).c_str()))
             {
-                ExportPacket(mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload));
+                if (gHeadphones)
+                    ExportPacket(capture->frame);
+                else
+                    ExportPacket(mdr::MDRPackCommand(gEnvelopeType, gEnvelopeSequence, gEncodedPayload));
             }
             ImGui::EndDisabled();
 
@@ -794,12 +801,39 @@ namespace
     void ClearHistory()
     {
         gHistory.clear();
-        gNextPacketId = 0;
+        gReplayHistory = false;
         if (gSelectedCaptureId)
             gPacket.Reset();
         gSelectedCaptureId = 0;
         gSelectedCandidates.clear();
         gOriginalPayload.clear();
+    }
+
+    void AppendPacket(MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame, int frameSize)
+    {
+        if (!packetId || !frame || frameSize <= 0)
+            return;
+
+        CapturedPacket packet;
+        packet.id = packetId;
+        packet.direction = direction;
+        packet.frame.assign(frame, frame + frameSize);
+        packet.unpacked =
+            mdr::MDRUnpackCommand(packet.frame, packet.payload, packet.type, packet.sequence) == mdr::MDRUnpackResult::OK;
+        FindCandidates(packet);
+        gHistory.push_back(std::move(packet));
+        if (gHistory.size() > kMaximumHistory)
+        {
+            if (gSelectedCaptureId == gHistory.front().id)
+                gSelectedCaptureId = 0;
+            gHistory.pop_front();
+        }
+        if (gFollowMessages)
+        {
+            gScrollToLatest = true;
+            if (!IsAck(gHistory.back()))
+                SelectCapture(gHistory.back());
+        }
     }
 
     const char* DumpCommandName(const CapturedPacket& packet)
@@ -994,7 +1028,7 @@ namespace
     void DrawHistoryToolbar(bool* open, bool replayMode)
     {
         ImGui::AlignTextToFramePadding();
-        ImGui::TextUnformatted(Tr(i18n::TextId::DebuggerPackets));
+        ImGui::TextUnformatted(Tr(gReplayHistory ? i18n::TextId::PacketReplayMode : i18n::TextId::DebuggerPackets));
         const mdr::String followLabel = mdr::Format(
             "{} {}###follow-messages", PSI_SIGNAL,
             Tr(gFollowMessages ? i18n::TextId::DebuggerFollowOn : i18n::TextId::DebuggerFollowOff));
@@ -1061,35 +1095,21 @@ void clientDebuggerSetMonospaceFont(ImFont* font) { gMonospaceFont = font; }
 
 void clientDebuggerSetWindow(SDL_Window* window) { gWindow = window; }
 
-void clientDebuggerAttach(MDRHeadphones* headphones) { gHeadphones = headphones; }
+void clientDebuggerAttach(MDRHeadphones* headphones)
+{
+    ClearHistory();
+    gHeadphones = headphones;
+}
 
 void clientDebuggerDetach() { gHeadphones = nullptr; }
 
-void clientDebuggerObservePacket(MDRPacketDirection direction, const unsigned char* frame, int frameSize)
+void clientDebuggerObservePacket(MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame, int frameSize)
 {
-    if (!frame || frameSize <= 0)
+    if (!packetId || !frame || frameSize <= 0)
         return;
-
-    CapturedPacket packet;
-    packet.id = ++gNextPacketId;
-    packet.direction = direction;
-    packet.frame.assign(frame, frame + frameSize);
-    packet.unpacked =
-        mdr::MDRUnpackCommand(packet.frame, packet.payload, packet.type, packet.sequence) == mdr::MDRUnpackResult::OK;
-    FindCandidates(packet);
-    gHistory.push_back(std::move(packet));
-    if (gHistory.size() > kMaximumHistory)
-    {
-        if (gSelectedCaptureId == gHistory.front().id)
-            gSelectedCaptureId = 0;
-        gHistory.pop_front();
-    }
-    if (gFollowMessages)
-    {
-        gScrollToLatest = true;
-        if (!IsAck(gHistory.back()))
-            SelectCapture(gHistory.back());
-    }
+    if (gReplayHistory)
+        ClearHistory();
+    AppendPacket(direction, packetId, frame, frameSize);
 }
 
 bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
@@ -1122,9 +1142,10 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
     MDRPacketDirection direction = MDR_PACKET_DIRECTION_RX;
     ReplayDirection(ReplayFilename(path), direction);
     ClearHistory();
+    gReplayHistory = true;
     MDRHeadphones* attachedHeadphones = gHeadphones;
     gHeadphones = nullptr;
-    clientDebuggerObservePacket(direction, static_cast<const unsigned char*>(frame), static_cast<int>(frameSize));
+    AppendPacket(direction, 1, static_cast<const unsigned char*>(frame), static_cast<int>(frameSize));
     gHeadphones = attachedHeadphones;
     SDL_free(frame);
 
@@ -1249,12 +1270,13 @@ bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount)
     }
 
     ClearHistory();
+    gReplayHistory = true;
     MDRHeadphones* attachedHeadphones = gHeadphones;
     gHeadphones = nullptr;
+    uint64_t replayPacketId = 0;
     for (const ReplayCapture& capture : captures)
     {
-        clientDebuggerObservePacket(
-            capture.direction, capture.frame.data(), static_cast<int>(capture.frame.size()));
+        AppendPacket(capture.direction, ++replayPacketId, capture.frame.data(), static_cast<int>(capture.frame.size()));
     }
     gHeadphones = attachedHeadphones;
     if (packetCount)

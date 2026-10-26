@@ -7,14 +7,12 @@
 #include <mdr/ProtocolV2T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
-#include <atomic>
 #include <string_view>
 
 namespace
 {
     constexpr std::string_view kCapturePrefix{"mdr-packet-"};
 
-    std::atomic_uint64_t gCaptureCounter{0};
     mdr::String gCaptureDirectory;
 
     bool IsCaptureFilename(std::string_view filename)
@@ -69,8 +67,8 @@ namespace
     }
 
     void RecordPacket(
-        void*,
         MDRPacketDirection direction,
+        uint64_t packetId,
         const unsigned char* frame,
         int frameSize
     )
@@ -101,9 +99,6 @@ namespace
             return;
         }
         const int64_t timestamp = now / 1'000'000;
-        const uint64_t counter = gCaptureCounter.fetch_add(
-            1, std::memory_order_relaxed
-        );
         const char* directionName =
             direction == MDR_PACKET_DIRECTION_RX ? "rx" : "tx";
         const mdr::String filename = mdr::Format(
@@ -111,7 +106,7 @@ namespace
             "cmd-{}-{:02x}.bin",
             kCapturePrefix,
             timestamp,
-            counter,
+            packetId,
             directionName,
             unpacked ? mdr::format_as(type) : "INVALID",
             static_cast<mdr::UInt8>(type),
@@ -153,7 +148,6 @@ bool clientPayloadRecorderConfigure(const char* directory)
     if (!directory || !*directory)
     {
         gCaptureDirectory.clear();
-        gCaptureCounter.store(0, std::memory_order_relaxed);
         return true;
     }
     if (!SDL_CreateDirectory(directory))
@@ -167,15 +161,15 @@ bool clientPayloadRecorderConfigure(const char* directory)
         return false;
     }
     gCaptureDirectory = directory;
-    gCaptureCounter.store(0, std::memory_order_relaxed);
     return true;
 }
 
 void clientPayloadRecorderObserve(
     MDRPacketDirection direction,
+    uint64_t packetId,
     const unsigned char* frame,
     int frameSize
 )
 {
-    RecordPacket(nullptr, direction, frame, frameSize);
+    RecordPacket(direction, packetId, frame, frameSize);
 }

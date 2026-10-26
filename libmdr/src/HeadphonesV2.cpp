@@ -14,10 +14,7 @@ namespace mdr
         if ((flags & MDR_HEADPHONES_INIT_IDENTITY) != 0u)
         {
             state.mProtocol = {};
-            SendCommandACK(t1::ConnectGetProtocolInfo);
-            const int result = co_await Await(AWAIT_PROTOCOL_INFO);
-            if (result != MDR_RESULT_OK)
-                co_return SetLastError(result, "Unable to initialize MDR V2");
+            SendCommandAwait(t1::ConnectGetProtocolInfo, AWAIT_PROTOCOL_INFO, "Unable to initialize MDR V2");
 
             if (!state.mProtocol.hasTable1)
                 co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V2 Table 1");
@@ -33,12 +30,12 @@ namespace mdr
         /* Support Functions */
         if ((flags & MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS) != 0u)
         {
-            SendCommandACK(t1::ConnectGetSupportFunction);
-            co_await Await(AWAIT_SUPPORT_FUNCTION);
+            SendCommandAwait(t1::ConnectGetSupportFunction, AWAIT_SUPPORT_FUNCTION,
+                             "Unable to receive MDR V2 Table 1 support functions");
             if (state.mProtocol.hasTable2)
             {
-                SendCommandACK(t2::ConnectGetSupportFunction);
-                co_await Await(AWAIT_SUPPORT_FUNCTION);
+                SendCommandAwait(t2::ConnectGetSupportFunction, AWAIT_SUPPORT_FUNCTION,
+                                 "Unable to receive MDR V2 Table 2 support functions");
             }
         }
 
@@ -363,10 +360,10 @@ namespace mdr
         if ((flags & MDR_HEADPHONES_SYNC_PLAYBACK) != 0u && state.mSupport.containsPlaybackController())
         {
             SendCommandACK(t1::GetPlayParam,
-                           { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
-            SendCommandACK(t1::GetPlayParam, { .type = t1::PlayInquiredType::MUSIC_VOLUME });
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT});
+            SendCommandACK(t1::GetPlayParam, {.type = t1::PlayInquiredType::MUSIC_VOLUME});
             SendCommandACK(t1::GetPlayStatus,
-                           { .type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT });
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROL_WITH_CALL_VOLUME_ADJUSTMENT});
         }
 
         /* Wearing status (proximity sensor) */
@@ -376,16 +373,10 @@ namespace mdr
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
-    void MDRHeadphones::SubmitPropertiesV2()
-    {
-        mDetailsV2.submit();
-    }
-
     MDRTask MDRHeadphones::RequestCommitV2()
     {
         auto& state = mDetailsV2;
-        SubmitPropertiesV2();
-
+        state.submit();
         if (state.mAlertResponse.pending())
         {
             if (state.mAlertResponse.mSubmitted.serial == state.mAlertSerial)

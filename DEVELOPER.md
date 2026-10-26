@@ -203,6 +203,40 @@ The Protocol Debugger allows you to *view, replay, modify and send* manipulated 
 
 See the [Packet Capture and Test Contribution Guide](./tests/) for usage, bug reporting, and what to do when the device disconnects unexpectedly.
 
+## Testing
+
+You can build the `mdr_tests` target and run `ctest` in it to run the tests. Appropriate [CMake Options](#cmake-options) must be set accordingly to enable tests to be built and ran. You may also reference the [CI Script](./.github/workflows/cmake.yml) for more details.
+
+```bash
+cmake --build . --target mdr_tests
+ctest
+```
+
+Expected output (with possibly more models, etc.):
+
+```bash
+PS D:\SonyHeadphonesClient\out\build\x64-MinSizeRel> ctest
+Test project D:/SonyHeadphonesClient/out/build/x64-MinSizeRel
+    Start 1: mdr-c-abi
+1/6 Test #1: mdr-c-abi ........................   Passed    0.12 sec
+    Start 2: WF-1000XM5-6.1.0
+2/6 Test #2: WF-1000XM5-6.1.0 .................   Passed    0.06 sec
+    Start 3: WF-LC900-2.0.3
+3/6 Test #3: WF-LC900-2.0.3 ...................   Passed    0.02 sec
+    Start 4: WF-LC900-2.0.3-equalizer
+4/6 Test #4: WF-LC900-2.0.3-equalizer .........   Passed    0.02 sec
+    Start 5: WF-LC900-2.0.3-listening
+5/6 Test #5: WF-LC900-2.0.3-listening .........   Passed    0.03 sec
+    Start 6: WH-1000XM3-4.5.2
+6/6 Test #6: WH-1000XM3-4.5.2 .................   Passed    0.03 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =   0.30 sec
+```
+
+**NOTE:** This is automatically run in CI.
+
 ## Accessing C++ Implementation Details
 
 `libmdr/src/Details.hpp` exposes the C++ object behind an opaque `MDRHeadphones*` handle. This is **unsupported**, however available for cases that need state which is not yet represented by the public C ABI.

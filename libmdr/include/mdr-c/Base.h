@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-#define MDR_ABI_VERSION 8u
+#define MDR_ABI_VERSION 9u
 //      ^^^^^^^^^^^^^^^ ABI version of the header.
 // To Developers: Blame this line for history ABI changes. Change this line if *you* want to break ABI.
 // See DEVELOPER.md for more details.

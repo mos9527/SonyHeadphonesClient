@@ -614,7 +614,7 @@ void CloseDevice()
         return;
     }
     gHeadphonesError = GetText(MDR_TEXT_LAST_ERROR);
-    mdrHeadphonesSetPacketCallback(gDevice, nullptr, nullptr);
+    mdrDebugSetPacketCallback(gDevice, nullptr, nullptr);
 #ifdef MDR_CLIENT_DEBUGGER
     clientDebuggerDetach();
 #endif
@@ -1339,14 +1339,14 @@ void UpdateDeviceConnecting()
             DisconnectWithModal();
             return;
         }
-        mdrHeadphonesSetPacketCallback(
+        mdrDebugSetPacketCallback(
             gDevice,
-            [](void*, MDRPacketDirection direction, const unsigned char* frame, int frameSize)
+            [](void*, MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame, int frameSize)
             {
                 gWantRedraw = true;
-                clientPayloadRecorderObserve(direction, frame, frameSize);
+                clientPayloadRecorderObserve(direction, packetId, frame, frameSize);
 #ifdef MDR_CLIENT_DEBUGGER
-                clientDebuggerObservePacket(direction, frame, frameSize);
+                clientDebuggerObservePacket(direction, packetId, frame, frameSize);
 #endif
             },
             nullptr

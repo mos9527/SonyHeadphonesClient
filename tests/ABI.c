@@ -75,6 +75,11 @@ static_assert(offsetof(MDRNoiseControl, changing_asm_level) == 8, "noise changin
 static_assert(offsetof(MDREqualizer, band_count) == 8 && offsetof(MDREqualizer, dsee_available) == 24, "equalizer offsets");
 static_assert(offsetof(MDRSafeListening, preview) == 4, "safe listening preview offset");
 
+static_assert(_Generic((MDRPacketCallback)0,
+    void (*)(void*, MDRPacketDirection, uint64_t, const unsigned char*, int): 1, default: 0), "packet callback signature");
+static_assert(_Generic(&mdrDebugRequestCommand,
+    MDRResult (*)(MDRHeadphones*, const unsigned char*, uint32_t, uint32_t, MDRBoolean): 1, default: 0),
+    "debug command signature");
 static_assert(_Generic(&mdrHeadphonesRequestInit,
     MDRResult (*)(MDRHeadphones*, MDRHeadphonesInitFlags): 1, default: 0), "init signature");
 static_assert(_Generic(&mdrHeadphonesRequestSync,
@@ -487,6 +492,216 @@ static const unsigned char k_v1_protocol_info[] = {
     0x01, 0x00, 0x00, 0x01
 };
 
+typedef struct PacketLog
+{
+    uint64_t ids[128];
+    MDRPacketDirection directions[128];
+    unsigned char frames[128][FRAME_BUFFER_CAPACITY];
+    int sizes[128];
+    size_t count;
+} PacketLog;
+
+static void observe_packet(void* user, MDRPacketDirection direction, uint64_t packet_id,
+                           const unsigned char* frame, int frame_size)
+{
+    PacketLog* log = (PacketLog*)user;
+    check(packet_id != 0, "packet IDs reserve zero for no packet");
+    check(frame != NULL && frame_size > 0 && frame_size <= FRAME_BUFFER_CAPACITY, "callback frame fits");
+    check(log->count < 128, "packet log fits");
+    if (!frame || frame_size <= 0 || frame_size > FRAME_BUFFER_CAPACITY || log->count >= 128)
+        return;
+    if (log->count)
+        check(packet_id > log->ids[log->count - 1], "packet IDs increase across TX and RX");
+    log->ids[log->count] = packet_id;
+    log->directions[log->count] = direction;
+    log->sizes[log->count] = frame_size;
+    memcpy(log->frames[log->count], frame, (size_t)frame_size);
+    ++log->count;
+}
+
+static void test_packet_counter(void)
+{
+    Session session;
+    PacketLog log = {0};
+    unsigned char frame[FRAME_BUFFER_CAPACITY];
+    unsigned char ack[FRAME_BUFFER_CAPACITY];
+    MDREvent event;
+    const size_t size = pack_data_frame(k_v2_protocol_info, sizeof(k_v2_protocol_info), 0, frame);
+    const size_t ack_size = pack_frame(MDR_DATA_TYPE_ACK, 1, NULL, 0, ack);
+
+    if (!session_open(&session))
+        return;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &log);
+    mock_load(&session.transport, frame, 3);
+    poll_event(session.headphones, &event, "partial RX frame polls");
+    check(log.count == 0, "transport fragments do not receive packet IDs");
+    mock_load(&session.transport, frame + 3, size - 3);
+    poll_event(session.headphones, &event, "complete RX frame polls");
+    check(log.count == 2 && log.ids[0] == 1 && log.ids[1] == 2, "RX and generated ACK share one counter");
+    check(log.directions[0] == MDR_PACKET_DIRECTION_RX && log.directions[1] == MDR_PACKET_DIRECTION_TX,
+          "the RX is observed before its generated TX ACK");
+    check(log.sizes[0] == (int)size && memcmp(log.frames[0], frame, size) == 0, "callback preserves the RX frame");
+    check(log.sizes[1] == (int)ack_size && memcmp(log.frames[1], ack, ack_size) == 0, "callback preserves the TX frame");
+    poll_event(session.headphones, &event, "queued ACK flushes");
+    check(log.count == 2, "flushing a queued TX frame does not allocate another ID");
+
+    mdrDebugSetPacketCallback(session.headphones, NULL, NULL);
+    mock_load(&session.transport, frame, size);
+    poll_event(session.headphones, &event, "packets are processed without a callback");
+    check(log.count == 2, "disabled observation does not call the old observer");
+    log.count = 0;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &log);
+    mock_load(&session.transport, frame, size);
+    poll_event(session.headphones, &event, "observation resumes");
+    check(log.count == 2 && log.ids[0] == 5 && log.ids[1] == 6,
+          "neither disabling observation nor clearing client history resets the library counter");
+
+    frame[size - 2] ^= 1;
+    mock_load(&session.transport, frame, size);
+    poll_event(session.headphones, &event, "bad checksum frame is discarded");
+    check(log.count == 3 && log.ids[2] == 7 && log.directions[2] == MDR_PACKET_DIRECTION_RX,
+          "invalid complete frames are observable but do not generate an ACK");
+    frame[size - 2] ^= 1;
+    session_close(&session);
+
+    if (!session_open(&session))
+        return;
+    log.count = 0;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &log);
+    mock_load(&session.transport, frame, size);
+    poll_event(session.headphones, &event, "new session receives a frame");
+    check(log.count == 2 && log.ids[0] == 1 && log.ids[1] == 2, "a new instance has its own packet counter");
+    session_close(&session);
+}
+
+static void test_debug_command_arguments(void)
+{
+    Session session;
+    PacketLog log = {0};
+    unsigned char payload[2048];
+    MDREvent event;
+
+    if (!session_open(&session))
+        return;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &log);
+    check_result(mdrDebugRequestCommand(NULL, NULL, 0, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command rejects a null session");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 1, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command requires bytes for a nonempty payload");
+    check_result(mdrDebugRequestCommand(session.headphones, payload, 2049, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command rejects an oversized payload before reading it");
+    check_result(mdrDebugRequestCommand(session.headphones, payload, UINT32_MAX, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command rejects an overflowing payload length");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, 256, MDR_FALSE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command rejects envelope types above one byte");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, UINT32_MAX, MDR_FALSE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command does not truncate the envelope type");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, MDR_DATA_TYPE_DATA_MDR, 2),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "debug command rejects invalid ACK booleans");
+    check(log.count == 0 && session.transport.tx_size == 0 && mdrHeadphonesIsReady(session.headphones),
+          "invalid debug commands do not allocate packet IDs, send packets or occupy the task slot");
+
+    mdrDebugSetPacketCallback(session.headphones, NULL, NULL);
+    memset(payload, 0x55, sizeof(payload));
+    check_result(mdrDebugRequestCommand(session.headphones, payload, (uint32_t)sizeof(payload), 0, MDR_FALSE),
+                 MDR_RESULT_OK, "maximum-size debug payload and envelope type zero are accepted");
+    memset(payload, 0, sizeof(payload));
+    poll_event(session.headphones, &event, "debug command without ACK waiting completes");
+    check(event == MDR_EVENT_UNHANDLED && mdrHeadphonesIsReady(session.headphones),
+          "a debug command without ACK waiting completes through poll");
+    poll_event(session.headphones, &event, "remaining bytes of the maximum-size debug frame flush");
+    check(session.transport.tx_size == sizeof(payload) + 9 && session.transport.tx[7] == 0x55 &&
+          session.transport.tx[7 + sizeof(payload) - 1] == 0x55,
+          "debug send retains its copied payload after the caller overwrites the source");
+    session_close(&session);
+}
+
+static void test_debug_command(MDRProtocolVersion family)
+{
+    Session session;
+    PacketLog log = {0};
+    unsigned char payload[] = {0xa6, 0x3c, 0x3d, 0x3e};
+    unsigned char expected[FRAME_BUFFER_CAPACITY];
+    unsigned char ack[FRAME_BUFFER_CAPACITY];
+    size_t expected_size = pack_frame(MDR_DATA_TYPE_DATA_MDR, 0, payload, sizeof(payload), expected);
+    size_t ack_size;
+    size_t count;
+    MDREvent event;
+
+    if (!session_open_family(&session, family))
+        return;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &log);
+    check_result(mdrDebugRequestCommand(session.headphones, payload, (uint32_t)sizeof(payload),
+                                                MDR_DATA_TYPE_DATA_MDR, MDR_TRUE),
+                 MDR_RESULT_OK, "raw debug request can start before initialization without semantic validation");
+    memset(payload, 0, sizeof(payload));
+    check(log.count == 1 && log.ids[0] == 1 && log.directions[0] == MDR_PACKET_DIRECTION_TX &&
+          log.sizes[0] == (int)expected_size && memcmp(log.frames[0], expected, expected_size) == 0,
+          "callback exposes the library-assigned sequence, packet ID, escaping and checksum");
+    check(session.transport.tx_size == 0 && !mdrHeadphonesIsReady(session.headphones),
+          "debug request queues a frame without synchronous transport I/O");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_INPROGRESS, "a second debug request cannot interrupt an active request");
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT), MDR_RESULT_INPROGRESS,
+                 "normal requests share the debug request task slot");
+    check(log.count == 1, "busy requests do not emit packets or advance the counter");
+
+    poll_event(session.headphones, &event, "debug request frame flushes");
+    check(session.transport.tx_size == expected_size && memcmp(session.transport.tx, expected, expected_size) == 0,
+          "transport sends the same copied frame exposed through the callback");
+    check(!mdrHeadphonesIsReady(session.headphones), "debug request remains busy while its ACK is missing");
+    ack_size = pack_frame(MDR_DATA_TYPE_ACK, 0, NULL, 0, ack);
+    mock_load(&session.transport, ack, ack_size);
+    poll_event(session.headphones, &event, "wrong-sequence ACK polls");
+    check(!mdrHeadphonesIsReady(session.headphones), "wrong-sequence ACK cannot complete the debug request");
+    ack_size = pack_ack(&session.transport, ack);
+    mock_load(&session.transport, ack, ack_size);
+    poll_event(session.headphones, &event, "matching debug ACK polls");
+    poll_event(session.headphones, &event, "debug ACK completion polls");
+    check(event == MDR_EVENT_UNHANDLED && mdrHeadphonesIsReady(session.headphones),
+          "matching ACK releases the task slot through normal polling");
+
+    count = log.count;
+    expected_size = pack_frame(0xff, 1, NULL, 0, expected);
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, 0xff, MDR_FALSE), MDR_RESULT_OK,
+                 "empty payloads and unknown byte-sized envelope types are available for debugging");
+    check(count > 0 && log.count == count + 1 && log.ids[count] == log.ids[count - 1] + 1 &&
+          log.sizes[count] == (int)expected_size && memcmp(log.frames[count], expected, expected_size) == 0,
+          "the next debug packet uses the sequence advanced by the library's ACK handler");
+    poll_event(session.headphones, &event, "empty debug packet completes without an ACK");
+    check(event == MDR_EVENT_UNHANDLED && mdrHeadphonesIsReady(session.headphones) &&
+          !mdrHeadphonesIsInitialized(session.headphones), "debug sending does not imply device initialization");
+    session_close(&session);
+}
+
+static void test_debug_command_timeout(void)
+{
+    Session session;
+    PacketLog log = {0};
+    const unsigned char payload[] = {0x00, 0x00};
+    MDRResult result = MDR_RESULT_OK;
+    MDREvent event;
+    clock_t start;
+
+    if (!session_open(&session))
+        return;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &log);
+    check_result(mdrHeadphonesSetTimeout(session.headphones, MDR_TIMEOUT_DEFAULT, 1), MDR_RESULT_OK,
+                 "short debug ACK wait timeout sets");
+    check_result(mdrDebugRequestCommand(session.headphones, payload, (uint32_t)sizeof(payload),
+                                                MDR_DATA_TYPE_DATA_MDR, MDR_TRUE), MDR_RESULT_OK,
+                 "debug request with a missing ACK starts");
+    start = clock();
+    while (result == MDR_RESULT_OK && clock() - start < CLOCKS_PER_SEC)
+        result = mdrHeadphonesPoll(session.headphones, &event);
+    check_result(result, MDR_RESULT_ERROR_TIMEOUT, "debug ACK wait uses the default timeout");
+    check(log.count == 1 && !mdrHeadphonesIsReady(session.headphones), "debug command timeout is fatal without retries");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_ERROR_TIMEOUT, "a failed session rejects subsequent debug requests with the stored error");
+    check(log.count == 1, "failed debug requests do not generate another packet");
+    session_close(&session);
+}
+
 static void select_v2(Session* session, const char* message)
 {
     unsigned char frame[FRAME_BUFFER_CAPACITY];
@@ -636,6 +851,8 @@ static void test_one_operation_at_a_time(MDRProtocolVersion family)
     );
     check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_DEFAULT), MDR_RESULT_INPROGRESS, "initialization cannot overlap");
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_INPROGRESS, "commit cannot interrupt initialization");
+    check_result(mdrDebugRequestCommand(session.headphones, NULL, 0, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE),
+                 MDR_RESULT_INPROGRESS, "debug command cannot interrupt initialization");
     check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 10), MDR_RESULT_INPROGRESS,
                  "volume cannot stage during initial bootstrap");
     check_result(mdrHeadphonesSendPlaybackCommand(session.headphones, &command), MDR_RESULT_INPROGRESS,
@@ -2316,6 +2533,195 @@ static void test_v1_reply_before_ack(void)
     session_close(&session);
 }
 
+static void check_device_waiting(Session* session, Device* device, size_t request_count)
+{
+    int iteration;
+    for (iteration = 0; iteration < 3; ++iteration)
+    {
+        MDREvent event;
+        if (!poll_event(session->headphones, &event, "pending response wait polls"))
+            return;
+        device_pump(device);
+    }
+    check(mdrHeadphonesIsReady(session->headphones) == MDR_FALSE, "a fresh response is still required");
+    check(device->log_size == request_count, "stale or unrelated signals do not advance to another GET");
+}
+
+static void test_protocol_reply_generation(MDRProtocolVersion family)
+{
+    static const unsigned char support[] = {0x07, 0x00, 0x00};
+    const int v1 = family == MDR_PROTOCOL_V1;
+    const unsigned char* protocol = v1 ? k_v1_protocol_info : k_v2_protocol_info_both_tables;
+    const size_t protocol_size = v1 ? sizeof(k_v1_protocol_info) : sizeof(k_v2_protocol_info_both_tables);
+    Session session;
+    Device device = {0};
+    MDREvent event;
+
+    if (!session_open_family(&session, family))
+        return;
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, protocol, protocol_size);
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "unsolicited protocol reply is observed");
+
+    device.block_ack = 1;
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_IDENTITY), MDR_RESULT_OK,
+                 "identity request starts after the old reply");
+    poll_event(session.headphones, &event, "protocol GET flushes");
+    device_pump(&device);
+    device_ack(&device, device.held_seq);
+    check_device_waiting(&session, &device, 1);
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, support, sizeof(support));
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "unrelated support reply is observed");
+    check_device_waiting(&session, &device, 1);
+
+    device.block_ack = 0;
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, protocol, protocol_size);
+    device_run(&session, &device, MDR_EVENT_INITIALIZE_COMPLETE, "fresh protocol reply completes identity");
+    session_close(&session);
+}
+
+static void test_support_reply_generation(MDRProtocolVersion family, int observe_packets)
+{
+    static const unsigned char support[] = {0x07, 0x00, 0x00};
+    const int v1 = family == MDR_PROTOCOL_V1;
+    const unsigned char* protocol = v1 ? k_v1_protocol_info : k_v2_protocol_info_both_tables;
+    const size_t protocol_size = v1 ? sizeof(k_v1_protocol_info) : sizeof(k_v2_protocol_info_both_tables);
+    Session session;
+    Device device = {0};
+    PacketLog packets = {0};
+    MDREvent event;
+    size_t request_count;
+
+    if (!session_open_family(&session, family))
+        return;
+    if (observe_packets)
+        mdrDebugSetPacketCallback(session.headphones, observe_packet, &packets);
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = device.table2 = support;
+    device.table1_size = device.table2_size = sizeof(support);
+    device_run_init_flags(&session, &device, MDR_HEADPHONES_INIT_IDENTITY);
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, support, sizeof(support));
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "unsolicited table 1 support reply is observed");
+    if (!v1)
+    {
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, support, sizeof(support));
+        device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "unsolicited table 2 support reply is observed");
+    }
+    device.block_ack = 1;
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS), MDR_RESULT_OK,
+                 "support discovery starts after the old replies");
+    poll_event(session.headphones, &event, "table 1 support GET flushes");
+    device_pump(&device);
+    request_count = device.log_size;
+    device_ack(&device, device.held_seq);
+    check_device_waiting(&session, &device, request_count);
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, protocol, protocol_size);
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "unrelated protocol reply increments the packet counter");
+    check_device_waiting(&session, &device, request_count);
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, support, sizeof(support));
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "fresh table 1 support reply is observed");
+    if (!v1)
+    {
+        poll_event(session.headphones, &event, "table 2 support GET flushes");
+        device_pump(&device);
+        check(device.log_size == request_count + 1, "only the fresh table 1 reply advances to table 2");
+        request_count = device.log_size;
+        device_ack(&device, device.held_seq);
+        check_device_waiting(&session, &device, request_count);
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, support, sizeof(support));
+    }
+    device_run(&session, &device, MDR_EVENT_INITIALIZE_COMPLETE, "fresh replies complete support discovery");
+    session_close(&session);
+}
+
+static void test_reply_before_ack_retry(MDRProtocolVersion family)
+{
+    const int v1 = family == MDR_PROTOCOL_V1;
+    const unsigned char* protocol = v1 ? k_v1_protocol_info : k_v2_protocol_info_both_tables;
+    const size_t protocol_size = v1 ? sizeof(k_v1_protocol_info) : sizeof(k_v2_protocol_info_both_tables);
+    Session session;
+    Device device = {0};
+    PacketLog packets = {0};
+    MDREvent event;
+    unsigned char sequence;
+    unsigned char retry_sequence = 0;
+    clock_t start;
+
+    if (!session_open_family(&session, family))
+        return;
+    mdrDebugSetPacketCallback(session.headphones, observe_packet, &packets);
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.block_ack = 1;
+    check_result(mdrHeadphonesSetTimeout(session.headphones, MDR_TIMEOUT_ACK, 20), MDR_RESULT_OK, "short ACK timeout sets");
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_IDENTITY), MDR_RESULT_OK,
+                 "identity initialization starts");
+    poll_event(session.headphones, &event, "first protocol GET flushes");
+    device_pump(&device);
+    sequence = device.held_seq;
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, protocol, protocol_size);
+    device_run(&session, &device, MDR_EVENT_IDENTITY_CHANGED, "RET arrives before the missing ACK");
+
+    start = clock();
+    while (device.log_size < 2 && clock() - start < CLOCKS_PER_SEC)
+    {
+        if (!poll_event(session.headphones, &event, "waiting for an ACK retry"))
+            break;
+        device_pump(&device);
+    }
+    check(device.log_size >= 2 && device.log[1].command == 0x00, "missing ACK retransmits the protocol GET");
+    check(last_tx_sequence(&session.transport, &retry_sequence) && retry_sequence == sequence,
+          "retransmission keeps the same wire sequence");
+    check_result(mdrHeadphonesSetTimeout(session.headphones, MDR_TIMEOUT_ACK, 1000), MDR_RESULT_OK, "ACK timeout restores");
+    device.block_ack = 0;
+    device_ack(&device, sequence);
+    device_run(&session, &device, MDR_EVENT_INITIALIZE_COMPLETE, "retry preserves the earlier RET generation");
+    check(device_requested(&device, 1, 0x02, -1), "the cached RET advances past protocol discovery after the ACK");
+    session_close(&session);
+}
+
+static void test_support_reply_timeout(MDRProtocolVersion family)
+{
+    Session session;
+    Device device = {0};
+    MDREvent event;
+    MDRResult result = MDR_RESULT_OK;
+    size_t request_count;
+    clock_t start;
+
+    if (!session_open_family(&session, family))
+        return;
+    device.transport = &session.transport;
+    device.protocol_v1 = family == MDR_PROTOCOL_V1;
+    device_run_init_flags(&session, &device, MDR_HEADPHONES_INIT_IDENTITY);
+    check_result(mdrHeadphonesSetTimeout(session.headphones, MDR_TIMEOUT_DEFAULT, 1), MDR_RESULT_OK,
+                 "short reply timeout sets");
+    device.block_ack = 1;
+    check_result(mdrHeadphonesRequestInit(session.headphones, MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS), MDR_RESULT_OK,
+                 "support request starts");
+    poll_event(session.headphones, &event, "support GET flushes");
+    device_pump(&device);
+    request_count = device.log_size;
+    device_ack(&device, device.held_seq);
+    start = clock();
+    while (result == MDR_RESULT_OK && clock() - start < CLOCKS_PER_SEC)
+    {
+        result = mdrHeadphonesPoll(session.headphones, &event);
+        device_pump(&device);
+    }
+    check_result(result, family == MDR_PROTOCOL_V1 ? MDR_RESULT_ERROR_NOT_SUPPORTED : MDR_RESULT_ERROR_TIMEOUT,
+                 "a missing support RET preserves the protocol-specific initialization error");
+    check(device.log_size == request_count, "a timed out table 1 request never starts table 2");
+    check(mdrHeadphonesIsInitialized(session.headphones) == MDR_FALSE, "reply timeout does not mark discovery complete");
+    session_close(&session);
+}
+
 /* Whether a request of that shape was transmitted at or after `from`. */
 static int device_requested_after(const Device* device, unsigned char table, unsigned char command, size_t from)
 {
@@ -3621,7 +4027,8 @@ static void check_failed_session(Session* session, MDRResult failure)
     CHECK_FAILED(mdrHeadphonesRequestInit(session->headphones, MDR_HEADPHONES_INIT_DEFAULT));
     CHECK_FAILED(mdrHeadphonesRequestSync(session->headphones, MDR_HEADPHONES_SYNC_DEFAULT));
     CHECK_FAILED(mdrHeadphonesRequestCommit(session->headphones));
-    mdrHeadphonesSetPacketCallback(session->headphones, NULL, NULL);
+    CHECK_FAILED(mdrDebugRequestCommand(session->headphones, NULL, 0, MDR_DATA_TYPE_DATA_MDR, MDR_FALSE));
+    mdrDebugSetPacketCallback(session->headphones, NULL, NULL);
 
     session->transport.poll_result = MDR_RESULT_OK;
     session->transport.send_result = MDR_RESULT_OK;
@@ -3774,6 +4181,21 @@ int main(void)
     test_connection_mode_names_its_inquired_type();
     test_v1_voice_guidance_detail_is_not_the_switch();
     test_v1_reply_before_ack();
+    test_packet_counter();
+    test_debug_command_arguments();
+    test_debug_command(MDR_PROTOCOL_V1);
+    test_debug_command(MDR_PROTOCOL_V2);
+    test_debug_command_timeout();
+    test_protocol_reply_generation(MDR_PROTOCOL_V1);
+    test_protocol_reply_generation(MDR_PROTOCOL_V2);
+    test_support_reply_generation(MDR_PROTOCOL_V1, 0);
+    test_support_reply_generation(MDR_PROTOCOL_V1, 1);
+    test_support_reply_generation(MDR_PROTOCOL_V2, 0);
+    test_support_reply_generation(MDR_PROTOCOL_V2, 1);
+    test_reply_before_ack_retry(MDR_PROTOCOL_V1);
+    test_reply_before_ack_retry(MDR_PROTOCOL_V2);
+    test_support_reply_timeout(MDR_PROTOCOL_V1);
+    test_support_reply_timeout(MDR_PROTOCOL_V2);
     test_v1_sync_asks_for_the_track_names();
     test_v2_sync_asks_for_the_track_names();
     test_wearing_status();

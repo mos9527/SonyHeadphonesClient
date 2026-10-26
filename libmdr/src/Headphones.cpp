@@ -7,19 +7,22 @@
 
 namespace mdr
 {
-    MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type, int timeoutMS)
+    MDRHeadphones::Awaiter& MDRHeadphones::Await(AwaitType type, uint64_t wait, int timeoutMS)
     {
         auto& awaiter = mAwaiters[type];
+        awaiter.wait = wait;
         awaiter.timeout = timeoutMS > 0 ? timeoutMS : mDefaultTimeoutMS;
         return awaiter;
     }
 
     void MDRHeadphones::Awake(AwaitType type)
     {
-        if (auto& await = mAwaiters[type])
-            await.resume_now(MDR_RESULT_OK);
-        else if (type != AWAIT_ACK)
-            await.signaled = true;
+        MDR_CHECK(mCurrentPacket != 0 &&
+                  "FIXME-No currently active packet! Awake MUST only be invoked from packet Handlers!");
+        auto& awaiter = mAwaiters[type];
+        awaiter.signal = mCurrentPacket;
+        if (awaiter && awaiter.signal_ready())
+            awaiter.resume_now(MDR_RESULT_OK);
     }
 
     MDRTask MDRHeadphones::RequestInit(MDRHeadphonesInitFlags flags)
@@ -64,15 +67,14 @@ namespace mdr
     MDRTask MDRHeadphones::RequestDebugCommand(
         MDRBuffer payload,
         MDRDataType type,
-        MDRCommandSeqNumber sequence,
         bool awaitAck
     )
     {
-        mSeqNumber = static_cast<MDRCommandSeqNumber>(sequence & 1u);
+        const uint64_t packetId = mPacketCounter;
         SendCommandImpl(payload, type, mSeqNumber);
         if (awaitAck)
         {
-            const int result = co_await Await(AWAIT_ACK);
+            const int result = co_await Await(AWAIT_ACK, packetId);
             if (result != MDR_RESULT_OK)
                 co_return SetLastError(result, "Debugger command did not receive an ACK");
         }
@@ -243,20 +245,17 @@ namespace mdr
         MDRBuffer command;
         MDRDataType type;
         MDRCommandSeqNumber seqNum;
-        if (mPacketCallback)
-        {
-            mPacketCallback(
-                mPacketCallbackUserData,
-                MDR_PACKET_DIRECTION_RX,
-                packedCommand.data(),
-                static_cast<int>(packedCommand.size())
-            );
-        }
+        const uint64_t packet = HandlePacket(MDR_PACKET_DIRECTION_RX, packedCommand);
         switch (MDRUnpackCommand(packedCommand, command, type, seqNum))
         {
         case MDRUnpackResult::OK:
+        {
             mRecvBuf.erase(mRecvBuf.begin(), commandEnd + 1);
-            return Handle(command, type, seqNum);
+            mCurrentPacket = packet; // Within this packet's scope...
+            const int event = Handle(command, type, seqNum); // Handle it
+            mCurrentPacket = {}; // Clear after we're done
+            return event;
+        }
         case MDRUnpackResult::INCOMPLETE:
             // Incomplete. Nop.
             break;
@@ -293,19 +292,19 @@ namespace mdr
         return true;
     }
 
+    uint64_t MDRHeadphones::HandlePacket(MDRPacketDirection direction, Span<const UInt8> frame)
+    {
+        const uint64_t packetId = ++mPacketCounter;
+        if (mPacketCallback)
+            mPacketCallback(mPacketCallbackUserData, direction, packetId, frame.data(), static_cast<int>(frame.size()));
+        return packetId;
+    }
+
     void MDRHeadphones::SendCommandImpl(Span<const UInt8> command, MDRDataType type, MDRCommandSeqNumber seq)
     {
         MDRBuffer packed = MDRPackCommand(type, seq, command);
-        if (mPacketCallback)
-        {
-            mPacketCallback(
-                mPacketCallbackUserData,
-                MDR_PACKET_DIRECTION_TX,
-                packed.data(),
-                static_cast<int>(packed.size())
-            );
-        }
         mSendBuf.insert(mSendBuf.end(), packed.begin(), packed.end());
+        HandlePacket(MDR_PACKET_DIRECTION_TX, packed);
     }
 
     void MDRHeadphones::SendACK(MDRCommandSeqNumber seq)
@@ -1496,6 +1495,25 @@ MDRResult mdrHeadphonesRequestCommit(MDRHeadphones* headphones)
     return h->Invoke(h->RequestCommit());
 }
 
+MDRResult mdrDebugRequestCommand(
+    MDRHeadphones* headphones, const unsigned char* payload, uint32_t payloadSize, uint32_t dataType, MDRBoolean awaitAck)
+{
+    if (!headphones || (!payload && payloadSize != 0u) || payloadSize > mdr::kMDRMaxPacketSize ||
+        dataType > std::numeric_limits<mdr::UInt8>::max() || (awaitAck != MDR_FALSE && awaitAck != MDR_TRUE))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    auto* h = Impl(headphones);
+    if (const auto failure = h->GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (!h->IsReady())
+        return MDR_RESULT_INPROGRESS;
+
+    mdr::MDRBuffer ownedPayload;
+    if (payloadSize != 0u)
+        ownedPayload.assign(payload, payload + payloadSize);
+    return h->Invoke(h->RequestDebugCommand(std::move(ownedPayload), static_cast<mdr::MDRDataType>(dataType),
+                                           awaitAck == MDR_TRUE));
+}
+
 MDRResult mdrHeadphonesSetAlertResponse(MDRHeadphones* headphones, MDRAlertAction action)
 {
     if (!headphones || (action != MDR_ALERT_ACTION_POSITIVE && action != MDR_ALERT_ACTION_NEGATIVE))
@@ -1531,7 +1549,7 @@ MDRResult mdrHeadphonesSetTimeout(MDRHeadphones* headphones, MDRTimeoutType type
     return Impl(headphones)->SetTimeout(type, value);
 }
 
-void mdrHeadphonesSetPacketCallback(MDRHeadphones* headphones, MDRPacketCallback callback, void* userData)
+void mdrDebugSetPacketCallback(MDRHeadphones* headphones, MDRPacketCallback callback, void* userData)
 {
     if (headphones)
         Impl(headphones)->SetPacketCallback(callback, userData);

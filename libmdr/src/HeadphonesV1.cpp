@@ -5,14 +5,6 @@ namespace mdr
 {
     using namespace v1;
 
-    void MDRHeadphones::RefreshSupportV1()
-    {
-        auto& state = mDetailsV1;
-        state.mProtocol.hasTable2 =
-            state.mSupport.contains(t1::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
-            state.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE);
-    }
-
     namespace
     {
         UInt8 V1NcValueForAmbientLevel(int level)
@@ -34,10 +26,7 @@ namespace mdr
         if ((flags & MDR_HEADPHONES_INIT_IDENTITY) != 0u)
         {
             state.mProtocol = {};
-            SendCommandACK(t1::GetProtocolInfo);
-            const int protocolResult = co_await Await(AWAIT_PROTOCOL_INFO);
-            if (protocolResult != MDR_RESULT_OK)
-                co_return SetLastError(protocolResult, "Unable to initialize MDR V1");
+            SendCommandAwait(t1::GetProtocolInfo, AWAIT_PROTOCOL_INFO, "Unable to initialize MDR V1");
 
             if (!state.mProtocol.hasTable1)
                 co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device doesn't support MDR V1 Table 1");
@@ -52,8 +41,8 @@ namespace mdr
         /* Support Functions */
         if ((flags & MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS) != 0u)
         {
-            SendCommandACK(t1::GetSupportFunction);
-            const int supportResult = co_await Await(AWAIT_SUPPORT_FUNCTION);
+            int supportResult = MDR_RESULT_OK;
+            SendCommandAwaitResult(t1::GetSupportFunction, AWAIT_SUPPORT_FUNCTION, supportResult);
             if (supportResult != MDR_RESULT_OK)
                 co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device failed to respond to support function request");
         }
@@ -531,15 +520,10 @@ namespace mdr
         co_return MDR_EVENT_SYNC_COMPLETE;
     }
 
-    void MDRHeadphones::SubmitPropertiesV1()
-    {
-        mDetailsV1.submit();
-    }
-
     MDRTask MDRHeadphones::RequestCommitV1()
     {
         auto& state = mDetailsV1;
-        SubmitPropertiesV1();
+        state.submit();
 
         if (state.mAlertResponse.pending())
         {
@@ -718,8 +702,9 @@ namespace mdr
                     static_cast<UInt8>(state.mSpeakToChatVoiceFocus),
                     static_cast<UInt8>(state.mSpeakToModeOutTime.mSubmitted)
                 };
+                const uint64_t packetId = mPacketCounter;
                 SendCommandImpl(payload, MDRDataType::DATA_MDR, mSeqNumber);
-                const int result = co_await Await(AWAIT_ACK);
+                const int result = co_await Await(AWAIT_ACK, packetId);
                 if (result != MDR_RESULT_OK)
                     co_return SetLastError(result, "Timeout waiting for V1 Speak-to-Chat options");
             }

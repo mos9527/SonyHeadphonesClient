@@ -498,14 +498,38 @@ typedef struct MDRSafeListening
     MDRBoolean preview;
 } MDRSafeListening;
 
-// See @ref mdrHeadphonesSetPacketCallback
-typedef void (*MDRPacketCallback)(void* user_data, MDRPacketDirection direction, const unsigned char* frame,
-                                  int frame_size);
+// See @ref mdrDebugSetPacketCallback
+typedef void (*MDRPacketCallback)(void* user_data, MDRPacketDirection direction, uint64_t packet_id,
+                                  const unsigned char* frame, int frame_size);
+
+// Debugging details
+#ifdef __cplusplus
+extern "C" {
+#endif
+/**
+ * @brief (Debugging) Schedules an arbitrary serialized command payload.
+ * @param payload Raw payload sans encoding
+ * @param payload_size Number of bytes, at most 2048. Empty payloads are allowed.
+ * @param data_type Raw packet type (internal), 12 for DATA_MDR or 14 for DATA_MDR_NO2.
+ * @param await_ack MDR_TRUE to wait for an ACK (non-blocking, as with other @ref mdrHeadphonesRequest... calls), or
+ * MDR_FALSE to fire-and-forget.
+ */
+MDR_API MDRResult mdrDebugRequestCommand(MDRHeadphones* headphones, const unsigned char* payload, uint32_t payload_size,
+                                         uint32_t data_type, MDRBoolean await_ack);
+/**
+ * @brief (Debugging) Attach a C callback to be called for every packet sent or received.
+ * @note Called synchronously on the thread performing the request or poll. TX callbacks may run before
+ *       a request function returns.
+ * @note The frame is only valid during the callback. Do not reenter polling or destroy the instance.
+ */
+MDR_API void mdrDebugSetPacketCallback(MDRHeadphones* headphones, MDRPacketCallback callback, void* user_data);
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * @brief Creates a new MDRHeadphones instance bound to an existing @ref MDRConnection.
  *
@@ -556,7 +580,8 @@ MDR_API MDRBoolean mdrHeadphonesIsReady(const MDRHeadphones* headphones);
  */
 MDR_API MDRBoolean mdrHeadphonesIsDirty(const MDRHeadphones* headphones);
 /**
- * @brief Request initialization. This MUST be called prior to other operations.
+ * @brief Request initialization before normal device operation. Raw @ref mdrDebugRequestCommand
+ *        requests do not require initialization.
  *        See also @ref mdrHeadphonesIsInitialized, @ref mdrHeadphonesIsReady, and @ref mdrHeadphonesIsDirty.
  * @param flags Which parts of the device needs to be queried or set. Use @ref MDR_HEADPHONES_INIT_DEFAULT for 
  *        all supported features to be initialized, or any combination of @ref MDR_HEADPHONES_INIT_... flags.
@@ -598,12 +623,6 @@ MDR_API MDRResult mdrHeadphonesPoll(MDRHeadphones* headphones, MDREvent* out_eve
  * Assign timeout settings by type. The value must be a postive integer.
  */
 MDR_API MDRResult mdrHeadphonesSetTimeout(MDRHeadphones* headphones, MDRTimeoutType type, int value);
-
-/**
- * Observes raw packets independently of semantic events. Passing NULL disables
- * observation.
- */
-MDR_API void mdrHeadphonesSetPacketCallback(MDRHeadphones* headphones, MDRPacketCallback callback, void* user_data);
 
 /* Capability and caller-owned UTF-8 text access. */
 MDR_API MDRResult mdrHeadphonesGetFeature(MDRHeadphones* headphones, MDRFeature feature,
@@ -733,6 +752,7 @@ MDR_API MDRResult mdrHeadphonesSetSafeListening(MDRHeadphones* headphones, const
  *        Updated on @ref MDR_EVENT_WEARING_STATUS_CHANGED. Requires @ref MDR_FEATURE_WEARING_STATUS.
  */
 MDR_API MDRResult mdrHeadphonesGetWearingStatus(MDRHeadphones* headphones, MDRWearingStatus* out_status);
+
 
 #ifdef __cplusplus
 }

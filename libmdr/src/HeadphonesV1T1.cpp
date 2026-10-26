@@ -15,7 +15,9 @@ namespace mdr
             for (const FunctionType function : result.supportFunctions)
                 self->mDetailsV1.mSupport.functions[static_cast<UInt8>(function)] = true;
             self->mDetailsV1.mSupport.provenance = DetailsV1::SupportStates::state::ADVERTISED;
-            self->RefreshSupportV1();
+            self->mDetailsV1.mProtocol.hasTable2 =
+                self->mDetailsV1.mSupport.contains(t1::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT) ||
+                self->mDetailsV1.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE);
             self->Awake(MDRHeadphones::AWAIT_SUPPORT_FUNCTION);
             return MDR_EVENT_IDENTITY_CHANGED;
         }
