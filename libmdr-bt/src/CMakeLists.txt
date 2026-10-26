@@ -2,7 +2,11 @@ set(SRCS
     Utils.hpp
 )
 
-if (MDR_PLATFORM_OS STREQUAL "LINUX")
+if (MDR_BT_NULL_BLUETOOTH)
+    message(STATUS "Using the stub Bluetooth backend")
+    list(APPEND SRCS
+        Null/ConnectionNull.cpp)
+elseif (MDR_PLATFORM_OS STREQUAL "LINUX")
     list(APPEND SRCS
         Linux/ConnectionLinux.cpp
         Linux/DBusHelper.cpp)
@@ -77,7 +81,12 @@ if (TARGET mdr-bt_shared)
     list(APPEND MDR_BT_TARGETS mdr-bt_shared)
 endif ()
 foreach(MDR_BT_TARGET IN LISTS MDR_BT_TARGETS)
-    if (WIN32)
+    target_compile_definitions(${MDR_BT_TARGET} PUBLIC
+        $<$<BOOL:${MDR_BT_BLE_SUPPORT}>:MDR_BT_BLE_SUPPORT>
+    )
+    if (MDR_BT_NULL_BLUETOOTH)
+        target_compile_definitions(${MDR_BT_TARGET} PUBLIC MDR_BT_NULL_BLUETOOTH)
+    elseif (WIN32)
         target_link_libraries(${MDR_BT_TARGET} PRIVATE ws2_32 rpcrt4 Bthprops)
         if (MDR_BT_BLE_SUPPORT)
             target_link_libraries(${MDR_BT_TARGET} PRIVATE windowsapp)

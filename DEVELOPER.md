@@ -159,6 +159,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | Option | Default | Description |
 | --- | --- | --- |
 | `MDR_BUILD_BT` | `ON` | Build `libmdr-bt` and its platform Bluetooth backends.  |
+| `MDR_BT_NULL_BLUETOOTH` | `OFF` | Build `libmdr-bt` with a stub Bluetooth backend (Classic and BLE), without native Bluetooth dependencies. Applies to both static and shared libraries. |
 | `MDR_BT_BLE_SUPPORT` | `ON` | With `MDR_BUILD_BT=ON`, define `MDR_BT_BLE_SUPPORT` and build optional Bluetooth LE backends alongside Classic Bluetooth backends. |
 
 #### `client`
@@ -177,6 +178,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | Client with checked-in generated sources | `MDR_BUILD_CLIENT=ON`, `MDR_BUILD_BT=ON`, `MDR_BUILD_CODEGEN=OFF` |
 | Windows compatibility client build config (Classic Bluetooth only, static CRT/UCRT linkage, threading disabled, and use YY-Thunks for API compat) | `-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF -DMDR_MSVC_CLIENT_YY_THUNKS=ON` |
 | Protocol library without Bluetooth backends | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=OFF`, `MDR_BUILD_TESTING=OFF` |
+| Libraries with stub Bluetooth backends for platform porting | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=ON`, `MDR_BT_NULL_BLUETOOTH=ON`, `MDR_BUILD_CODEGEN=OFF`, `MDR_BUILD_TESTING=OFF` |
 | Codegen targets only | `MDR_BUILD_CLIENT=OFF`, `MDR_BUILD_BT=OFF`, `MDR_BUILD_CODEGEN=ON`, `MDR_BUILD_TESTING=OFF`; build target `mdr_codegen` |
 
 ## Debugging (client)

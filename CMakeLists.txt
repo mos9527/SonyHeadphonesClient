@@ -135,6 +135,7 @@ if (MDR_ENABLE_LOG OR MDR_DEBUG)
 endif ()
 add_compile_definitions(MDR_ENABLE_LOG=$<IF:$<OR:$<CONFIG:Debug>,$<BOOL:${MDR_LOG_NON_DEBUG}>>,1,0>)
 
+option(MDR_BT_NULL_BLUETOOTH "Build libmdr-bt with a stub Bluetooth backend (Classic and BLE)" OFF)
 option(MDR_BT_BLE_SUPPORT "Build libmdr-bt with BLE Backend support" ON)
 if (MDR_BUILD_BT AND MDR_BT_BLE_SUPPORT)
 	message(STATUS "BLE Backend support is ON.")
