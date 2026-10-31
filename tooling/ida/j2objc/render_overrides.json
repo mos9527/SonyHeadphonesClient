@@ -1,0 +1,22 @@
+{
+  "v2_t1": {
+    "AssignableSettingsCustomizableAction": {
+      "field_order": [
+        "action",
+        "defaultFunction",
+        "functions"
+      ],
+      "field_offsets": {
+        "action": 0,
+        "defaultFunction": 1,
+        "functions": 2
+      }
+    },
+    "AssignableSettingsPresetCapability": {
+      "field_offsets": {
+        "settingsCustomizableActions": 2
+      },
+      "ignore_serialization": true
+    }
+  }
+}

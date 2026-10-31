@@ -7,38 +7,118 @@ on:
 
 env:
   BUILD_TYPE: MinSizeRel
+  CMAKE_BUILD_PARALLEL_LEVEL: '4'
 
 # NOTE NOTE NOTE MANUALLY KEEP WINDOWS BUILD TYPE IN SYNC
 #                           vvvvvvvvvvvvvvvvvvvvv since this apparently does NOT work
 # binary_path: build/client/${{ env.build_type }}/SonyHeadphonesClient.exe
 jobs:
+  pre-check:
+    name: Check generated files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compare rendered headers with checked-in headers
+        run: python -m tooling.ida.j2objc.render --check
+
+      - name: Install codegen dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 llvm-18-dev libclang-18-dev ninja-build
+
+      - name: Configure codegen
+        run: cmake -S . -B build-codegen -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CLIENT=OFF -DMDR_BUILD_BT=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_CODEGEN=ON -DClang_DIR=/usr/lib/llvm-18/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-18/lib/cmake/llvm
+
+      - name: Compare codegen output with checked-in generated files
+        id: generated-headers
+        run: |
+          cmake --build build-codegen --target mdr_codegen
+          git diff --exit-code -- libmdr/include/mdr/Generated libmdr/src/Generated client/Generated
+
   build:
-    name: Build ${{ matrix.os }} ${{ matrix.arch }}
+    needs: pre-check
+    name: Build ${{ matrix.artifact_name }}
     strategy:
       matrix:
         include:
+          - os: ubuntu-latest
+            arch: x64
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-x64"
+            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
+            gcc: 14
+          - os: ubuntu-24.04
+            arch: x86
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-x86"
+            script: |
+              sudo dpkg --add-architecture i386
+              sudo apt-get update
+              sudo apt-get install -y g++-14-multilib pkg-config wayland-protocols extra-cmake-modules \
+                libbluetooth-dev:i386 libdbus-1-dev:i386 libfontconfig1-dev:i386 \
+                libwayland-dev:i386 libxkbcommon-dev:i386 libcurl4-openssl-dev:i386 \
+                libx11-dev:i386 libxext-dev:i386 libxcursor-dev:i386 libxi-dev:i386 \
+                libxfixes-dev:i386 libxrandr-dev:i386 libxss-dev:i386 libgl1-mesa-dev:i386
+              echo "PKG_CONFIG_LIBDIR=/usr/lib/i386-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> "$GITHUB_ENV"
+            gcc: 14
+            cmake_args: "-DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32"
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-arm64"
+            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libfontconfig1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
+            gcc: 14
+          - os: ubuntu-24.04-arm
+            arch: armv7
+            binary_path: build/client/SonyHeadphonesClient
+            artifact_name: "SonyHeadphonesClient-linux-armv7"
+            script: |
+              sudo dpkg --add-architecture armhf
+              sudo apt-get update
+              sudo apt-get install -y g++-14-arm-linux-gnueabihf qemu-user pkg-config \
+                wayland-protocols extra-cmake-modules libwayland-bin \
+                libbluetooth-dev:armhf libdbus-1-dev:armhf libfontconfig1-dev:armhf \
+                libwayland-dev:armhf libxkbcommon-dev:armhf libcurl4-openssl-dev:armhf \
+                libx11-dev:armhf libxext-dev:armhf libxcursor-dev:armhf libxi-dev:armhf \
+                libxfixes-dev:armhf libxrandr-dev:armhf libxss-dev:armhf libgl1-mesa-dev:armhf
+              echo "PKG_CONFIG_LIBDIR=/usr/lib/arm-linux-gnueabihf/pkgconfig:/usr/share/pkgconfig" >> "$GITHUB_ENV"
+            gcc: 14
+            compiler_prefix: arm-linux-gnueabihf-
+            cmake_args: >-
+              -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=armv7
+              -DCMAKE_C_FLAGS="-march=armv7-a -mfpu=vfpv3-d16"
+              -DCMAKE_CXX_FLAGS="-march=armv7-a -mfpu=vfpv3-d16"
+              -DCMAKE_CROSSCOMPILING_EMULATOR="qemu-arm;-cpu;cortex-a15;-L;/"
           - os: windows-latest
             arch: x64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-x64"
             script: ""
           - os: windows-latest
+            arch: Win32
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x86"
+            script: ""
+          - os: windows-latest
+            arch: x64
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x64-compatibility"
+            script: ""
+            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF -DMDR_MSVC_CLIENT_YY_THUNKS=ON"
+          - os: windows-latest
+            arch: Win32
+            binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
+            artifact_name: "SonyHeadphonesClient-win-x86-compatibility"
+            script: ""
+            cmake_args: "-DMDR_BT_BLE_SUPPORT=OFF -DMDR_MSVC_STATIC_CRT=ON -DMDR_MSVC_DYNAMIC_UCRT=OFF -DMDR_CLIENT_THREADED=OFF -DMDR_MSVC_CLIENT_YY_THUNKS=ON"
+          - os: windows-11-arm
             arch: arm64
             binary_path: build/client/MinSizeRel/SonyHeadphonesClient.exe
             artifact_name: "SonyHeadphonesClient-win-arm64"
             script: ""
-          - os: ubuntu-latest
-            arch: x64
-            binary_path: build/client/SonyHeadphonesClient
-            artifact_name: "SonyHeadphonesClient-linux-x64"
-            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
-            gcc: 14
-          - os: ubuntu-24.04-arm
-            arch: arm64
-            binary_path: build/client/SonyHeadphonesClient
-            artifact_name: "SonyHeadphonesClient-linux-arm64"
-            script: "sudo apt-get update && sudo apt-get install -y libbluetooth-dev libdbus-1-dev libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules xorg-dev libcurl4-openssl-dev"
-            gcc: 14
           - os: macos-latest
             arch: universal
             binary_path: build/client/SonyHeadphonesClient.zip
@@ -63,20 +143,20 @@ jobs:
     - name: Configure CMake (Windows)
       working-directory: ${{github.workspace}}/build    
       if: runner.os == 'Windows'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -A ${{ matrix.arch }}
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON -A ${{ matrix.arch }} ${{ matrix.cmake_args }}
 
     - name: Configure CMake (Linux)
       env:
-        CC: gcc-${{ matrix.gcc }}
-        CXX: g++-${{ matrix.gcc }}
+        CC: ${{ matrix.compiler_prefix }}gcc-${{ matrix.gcc }}
+        CXX: ${{ matrix.compiler_prefix }}g++-${{ matrix.gcc }}
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'Linux'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON ${{ matrix.cmake_args }}
 
     - name: Configure CMake (macOS)
       working-directory: ${{github.workspace}}/build
       if: runner.os == 'macOS'
-      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_ENABLE_CODEGEN=OFF -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+      run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
     
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -84,11 +164,21 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE --target SonyHeadphonesClient
 
+    - name: Build ABI and packet replay tests
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE --target mdr_tests
+
+    - name: Run ABI and packet replay tests
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ctest --build-config $BUILD_TYPE --output-on-failure --no-tests=error
+
     - name: Strip Symbols (Linux)
       if: runner.os == 'Linux'
       working-directory: ${{github.workspace}}
       # Strip symbols from the binary to reduce size
-      run: strip --strip-unneeded ${{matrix.binary_path}}
+      run: ${{ matrix.compiler_prefix }}strip --strip-unneeded ${{matrix.binary_path}}
 
     - name: Pack (macOS)
       if: runner.os == 'macOS'
@@ -102,3 +192,154 @@ jobs:
         name: ${{ matrix.artifact_name }}
         # A file, directory or wildcard pattern that describes what to upload
         path: ${{github.workspace}}/${{matrix.binary_path}}
+
+  emscripten:
+    needs: pre-check
+    name: Build SonyHeadphonesClient-emscripten (Web)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Configure CMake
+        run: emcmake cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_SHARED=OFF -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON -DMDR_BUILD_TESTING=OFF -B build -S .
+
+      - name: Build Project Target
+        run: cmake --build build --target SonyHeadphonesClient
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonyHeadphonesClient-emscripten
+          path: build/client/
+
+      - name: Upload Pages artifact
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/v1-compat') || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/client/
+
+  ios:
+    needs: pre-check
+    name: Build SonyHeadphonesClient-ios-unsigned
+    runs-on: macos-latest
+    env:
+      IOS_CMAKE_ARGS: >-
+        -DCMAKE_SYSTEM_NAME=iOS
+        -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0
+        -DMDR_BUILD_CODEGEN=OFF -DMDR_BUILD_TESTING=OFF -DMDR_BUILD_SHARED=OFF
+        -DMDR_CLIENT_DEBUGGER=ON -DMDR_ENABLE_LOG=ON
+    steps:
+      - uses: actions/checkout@v4
+
+      # Xcode generator runs xcodebuild for every check_* (SDL has hundreds of them, ~8 min).
+      # Run the same checks with a fast generator and preseed the Xcode configure with the results.
+      - name: Preseed CMake checks
+        run: |
+          cmake -S . -B build-ios-preseed -G "Unix Makefiles" $IOS_CMAKE_ARGS \
+            || echo "::warning::Preseed configure failed, Xcode configure will run all checks"
+          python3 tooling/cmake-preseed.py build-ios-preseed/CMakeCache.txt build-ios-preseed.cmake
+
+      - name: Configure CMake
+        run: cmake -C build-ios-preseed.cmake -S . -B build-ios -G Xcode $IOS_CMAKE_ARGS
+
+      - name: Build
+        run: >
+          cmake --build build-ios --config $BUILD_TYPE --target SonyHeadphonesClient --
+          CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+
+      - name: Pack unsigned IPA
+        run: |
+          mkdir -p build-ios/ipa/Payload
+          cp -R "build-ios/client/$BUILD_TYPE-iphoneos/SonyHeadphonesClient.app" build-ios/ipa/Payload/
+          cd build-ios/ipa && zip -qry ../SonyHeadphonesClient-ios-unsigned.ipa Payload
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonyHeadphonesClient-ios-unsigned
+          path: build-ios/SonyHeadphonesClient-ios-unsigned.ipa
+          if-no-files-found: error
+
+  android:
+    needs: pre-check
+    name: Build SonyHeadphonesClient-android
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    defaults:
+      run:
+        working-directory: client/Platform/Android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install CMake 3.31 for AGP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          python -m pip install --target "$RUNNER_TEMP/android-build-tools" cmake==3.31.6
+          echo "cmake.dir=$RUNNER_TEMP/android-build-tools/cmake/data" > local.properties
+          "$RUNNER_TEMP/android-build-tools/cmake/data/bin/cmake" --version
+
+      - name: Build signed release APK
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE_FILE"
+          bash ./gradlew assembleRelease --no-daemon
+
+      - name: Build debug APK (no signing secrets)
+        if: env.ANDROID_KEYSTORE_BASE64 == ''
+        run: bash ./gradlew assembleDebug --no-daemon
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonyHeadphonesClient-android
+          path: client/Platform/Android/app/build/outputs/apk/*/*.apk
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy Client to GitHub Pages
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/v1-compat') || github.event_name == 'workflow_dispatch'
+    needs: emscripten
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

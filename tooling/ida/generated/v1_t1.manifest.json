@@ -1,0 +1,3094 @@
+{
+  "binary_fingerprint": "d615ff298e1070328d5704eb54655bebe03ddf7fed512375ac3b388467dfe8f0",
+  "candidates": [
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AlertAction",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013150AC",
+        "0x101314C50"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AlertActionType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101313594",
+        "0x101313138"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AlertInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101311870",
+        "0x101311414"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AlertMessageType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101333E48",
+        "0x1013339EC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AlertVibrationPattern",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D82B4",
+        "0x1012D7E58"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AsCapabilityAction",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012EBD9C",
+        "0x1012EB7D8",
+        "0x1012EB80C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AsCapabilityKey",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012E95A4",
+        "0x1012E8BAC",
+        "0x1012E8BE0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AsCapabilityKeyList",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012EAC54",
+        "0x1012EA66C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AsCapabilityPreset",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012E7B58",
+        "0x1012E7404",
+        "0x1012E7438"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1Asm",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012D33A8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AsmId",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D9FC8",
+        "0x1012D9B6C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AsmOnOffValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F017C",
+        "0x1012EFD20"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AsmParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101341C3C",
+        "0x1013413DC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AsmSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101333688",
+        "0x10133322C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AssignableSettingsAction",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012ECD7C",
+        "0x1012EC9E4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AssignableSettingsFunction",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133AA74",
+        "0x10133A6DC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AssignableSettingsKey",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F7568",
+        "0x1012F71D0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AssignableSettingsKeyType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F7C70",
+        "0x1012F78D8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AssignableSettingsParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012DE2DC",
+        "0x1012DDC3C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AssignableSettingsPreset",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10132F370",
+        "0x10132EFD8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AssignableSettingsStatus",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013454E4",
+        "0x101344EE4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AtCommandMessageType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F2ED0",
+        "0x1012F2A74"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AtCommandParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012F1988",
+        "0x1012F14D8"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T1AtCommandStringCreator",
+      "reason": "non-wire protocol utility or marker class",
+      "source_addresses": [
+        "0x1012F3160",
+        "0x1012F318C",
+        "0x1012F32F4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AudioCodec",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012DAE70",
+        "0x1012DAA14"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AudioInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101343558",
+        "0x1013430FC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AutoPowerOffElementId",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101340E9C",
+        "0x101340A8C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1AutoPowerOffParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10130FB48",
+        "0x10130F424"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1AutoPowerOffParameterType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012ED5F4",
+        "0x1012ED198"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1BarometricMeasureType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F466C",
+        "0x1012F4210"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1BarometricPressureValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101340680",
+        "0x101340170"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1BatteryChargingStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101322794",
+        "0x1013223FC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1BatteryInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101342DB0",
+        "0x101342954"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1BatteryParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10132A170",
+        "0x101329C10"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1BluetoothDeviceInfoType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D6968",
+        "0x1012D650C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1Command",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D0088",
+        "0x1012CF990"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1CommonCapabilityInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101329838",
+        "0x1013294A0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1CommonOnOffSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013282A4",
+        "0x101327E48"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1CommonOnOffSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101324674",
+        "0x101323FDC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1ConnectionModeParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10130E5C0",
+        "0x10130E014"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ConnectionModeSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101312F08",
+        "0x101312AAC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ConnectionModeSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101313C74",
+        "0x101313818"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ConnectionStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F3F6C",
+        "0x1012F3B10"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ConnectionStatusInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012DA6EC",
+        "0x1012DA290"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1ControlByWearingParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101328A98",
+        "0x101328748"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ControlByWearingSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013111A4",
+        "0x101310D48"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ControlByWearingSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10130DB1C",
+        "0x10130D6C0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1CradleBatteryParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101318D88",
+        "0x101318828"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1DetectionSensitivity",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012FEA48",
+        "0x1012FE590"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1DeviceInfoInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101330940",
+        "0x1013305A8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1DisplayLanguage",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101332730",
+        "0x101331FE8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1EbbParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10132BF84",
+        "0x10132BACC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1EqBandInformation",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101331068"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1EqBandInformationType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F9DA8",
+        "0x1012F9A10"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1EqEbbInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10130D370",
+        "0x10130CFD8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1EqExtendedInfo",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012FC20C",
+        "0x1012FB720"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1EqParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012E43B0",
+        "0x1012E3A04"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1EqPreset",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012D5ECC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1EqPresetId",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D4050",
+        "0x1012D3CB8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1FixedMessageParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012F8E9C",
+        "0x1012F88F0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1FunctionType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10130C300",
+        "0x10130BF68"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetAlertCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101391D54",
+        "0x101391C64",
+        "0x101391B68"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetAudioCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135EAA0",
+        "0x10135E9B0",
+        "0x10135E8B4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetAudioCodec",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101362744",
+        "0x101362654",
+        "0x101362558"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetAudioParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101364288",
+        "0x101364198",
+        "0x10136409C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetAudioStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101384C90",
+        "0x101384BA0",
+        "0x101384AA4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetBatteryLevel",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013989FC",
+        "0x10139890C",
+        "0x101398810"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetBluetoothDeviceInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135E2F0",
+        "0x10135E200",
+        "0x10135E104"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetCapabilityInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101387DCC",
+        "0x101387CDC",
+        "0x101387BE0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetConciergeData",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B7608",
+        "0x1013B7238",
+        "0x1013B7428"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetConnectionStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135B064",
+        "0x10135AF74",
+        "0x10135AE78"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetDeviceInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136E66C",
+        "0x10136E57C",
+        "0x10136E480"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetEqEbbCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101354BF4",
+        "0x101354AA4",
+        "0x1013548F0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetEqEbbExtendedInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136FD00",
+        "0x10136FC10",
+        "0x10136FAF0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetEqEbbParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101388464",
+        "0x101388374",
+        "0x101388254"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetEqEbbStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101367284",
+        "0x101367194",
+        "0x101367074"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetGsCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A41D0",
+        "0x1013A4080",
+        "0x1013A4060"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetGsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A3994",
+        "0x1013A38A4",
+        "0x1013A3884"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetGsStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A6528",
+        "0x1013A6438",
+        "0x1013A6418"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetNcAsmCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101364A28",
+        "0x101364938",
+        "0x101364818"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetNcAsmParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101361EC4",
+        "0x101361DD4",
+        "0x101361CB4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetNcAsmStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135C530",
+        "0x10135C440",
+        "0x10135C320"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetOptimizerCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137C928",
+        "0x10137C838",
+        "0x10137C73C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetOptimizerParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013AC308",
+        "0x1013AC218",
+        "0x1013AC11C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetOptimizerStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138540C",
+        "0x10138531C",
+        "0x101385220"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetPlayCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138C140",
+        "0x10138C050",
+        "0x10138BF30"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetPlayParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B1964",
+        "0x1013B1814",
+        "0x1013B1660"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetPlayStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135DA10",
+        "0x10135D920",
+        "0x10135D824"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetProtocolInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013975A4",
+        "0x1013974B4",
+        "0x1013973B8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSenseCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B7F1C",
+        "0x1013B7E2C",
+        "0x1013B7D30"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSportsCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138B8D0",
+        "0x10138B7E0",
+        "0x10138B6E4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSportsExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B55A4",
+        "0x1013B5454",
+        "0x1013B51A0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1GetSportsExParam_TrainingModeRequest",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013B5FE4",
+        "0x1013B5E34"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSportsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135A818",
+        "0x10135A728",
+        "0x10135A608"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSportsStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101393AF8",
+        "0x101393A08",
+        "0x10139390C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSupportFunction",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101385BBC",
+        "0x101385ACC",
+        "0x1013859D0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSystemCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139EAC8",
+        "0x10139E9D8",
+        "0x10139E8DC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSystemExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138761C",
+        "0x10138752C",
+        "0x101387430"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSystemParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138F274",
+        "0x10138F184",
+        "0x10138F088"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetSystemStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134B3D4",
+        "0x10134B2E4",
+        "0x10134B1E8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetUpdateParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101386EA0",
+        "0x101386DB0",
+        "0x101386CB4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetUpscalingEffect",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136EEEC",
+        "0x10136EDFC",
+        "0x10136ED00"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetVptCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138D4B8",
+        "0x10138D368",
+        "0x10138D1B4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetVptParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136F560",
+        "0x10136F470",
+        "0x10136F374"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1GetVptStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137D0A4",
+        "0x10137CFB4",
+        "0x10137CEB8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1GsBooleanTypeValue",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013347D0",
+        "0x101334428"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1GsCandidateElementList",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101338CF4",
+        "0x101338880"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1GsInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133550C",
+        "0x101335068"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1GsListTypeValue",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101335C80",
+        "0x1013358EC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1GsSettingInfo",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101337B90",
+        "0x101337210"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1GsSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101336EA0",
+        "0x101336A44"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1GsStringFormat",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013366F8",
+        "0x10133629C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1GuidanceCategory",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133A0E8",
+        "0x101339D50"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1KeepAliveLinkControlNotifiedParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012FABE0",
+        "0x1012FA9EC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1KeepAliveLinkControlSettingParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013158B8",
+        "0x101315604"
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T1KmpHandleCommand",
+      "reason": "non-wire protocol utility or marker class",
+      "source_addresses": [
+        "0x1013475D0",
+        "0x101347614",
+        "0x101347688",
+        "0x10134778C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1LeftRightBatteryParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10131A190",
+        "0x10131997C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1LeftRightConnectionStatusParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013440A8",
+        "0x101343AD8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1LinkControlInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013274A8",
+        "0x10132704C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1LogInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133E934",
+        "0x10133E4D8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1MetaDataDisplayType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D7B70",
+        "0x1012D7714"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ModeOutTime",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012FE200",
+        "0x1012FDD48"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1ModelSeries",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10132AEA0",
+        "0x10132AB08"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcAsmEffect",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D5164",
+        "0x1012D4D08"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcAsmInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F083C",
+        "0x1012F04A4"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1NcAsmParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012DBF60",
+        "0x1012DB470"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcAsmSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133FE28",
+        "0x10133F9CC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcDualSingleValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012E287C",
+        "0x1012E2420"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcOnOffValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101320030",
+        "0x10131FBD4"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1NcParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10131BB90",
+        "0x10131B5BC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013302A4",
+        "0x10132FF0C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1NcSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101314988",
+        "0x1013145F0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyAlertParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101372B80",
+        "0x1013729D0",
+        "0x101372764"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyAudioCodec",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013568A4",
+        "0x101356754",
+        "0x1013565A0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyAudioParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101352C1C",
+        "0x101352B3C",
+        "0x10135298C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyAudioStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135CFD8",
+        "0x10135CE88",
+        "0x10135CCD4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyBatteryLevel",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139E1B0",
+        "0x10139E0D0",
+        "0x10139DEE4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyConnectionStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013653B8",
+        "0x1013652D8",
+        "0x1013651A0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyEqEbbParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013931F4",
+        "0x101393114",
+        "0x101392F6C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyEqEbbStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138CCFC",
+        "0x10138CBAC",
+        "0x10138C93C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyGsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A2A08",
+        "0x1013A2930",
+        "0x1013A266C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyGsStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013AACCC",
+        "0x1013AAC34",
+        "0x1013AAA44"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyLinkControl",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134BC0C",
+        "0x10134BB2C",
+        "0x10134B9DC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyLogParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013604C0",
+        "0x1013601E4",
+        "0x10135FC8C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyNcAsmParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101357408",
+        "0x101357328",
+        "0x101357124"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyNcAsmStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138648C",
+        "0x10138633C",
+        "0x101386188"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyOptimizerParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139A3C0",
+        "0x10139A1D8",
+        "0x101399E1C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyOptimizerStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101394744",
+        "0x101394594",
+        "0x101394328"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyPlayParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101397FC0",
+        "0x101397E50",
+        "0x101397BD0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyPlayStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101355A4C",
+        "0x10135589C",
+        "0x101355630"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifySportsExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013667AC",
+        "0x101366714",
+        "0x1013665A8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifySportsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139B2AC",
+        "0x10139B214",
+        "0x10139B0A8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifySportsStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013AD8F8",
+        "0x1013AD860",
+        "0x1013AD6F4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifySystemExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136A8A0",
+        "0x10136A808",
+        "0x10136A69C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifySystemParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101352230",
+        "0x101352150",
+        "0x101351E58"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifySystemStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137BDE0",
+        "0x10137BCA0",
+        "0x10137BA94"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyUpdateStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101381E3C",
+        "0x101381CA4",
+        "0x101381A34"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyUpscalingEffect",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137398C",
+        "0x1013737DC",
+        "0x101373570"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyVptParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138A508",
+        "0x10138A428",
+        "0x10138A278"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1NotifyVptStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135BAF8",
+        "0x10135B9A8",
+        "0x10135B738"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1OptimizerControl",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012E059C",
+        "0x1012E0140"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1OptimizerInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013127C0",
+        "0x101312364"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1OptimizerStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101318308",
+        "0x101317EAC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1Payload",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012CE514",
+        "0x1012CE438",
+        "0x1012CE404"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PersonalMeasureType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F83B4",
+        "0x1012F7F58"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PersonalValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10131E8D4",
+        "0x10131E478"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PlayInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133CDF4",
+        "0x10133C998"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PlaybackControl",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012DFC38",
+        "0x1012DF7DC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PlaybackControlType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012EF420",
+        "0x1012EEFC4"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1PlaybackControllerNameData",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10132DC78",
+        "0x10132D4F0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1PlaybackControllerNotifyNameData",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012DD31C",
+        "0x1012DCF74"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1PlaybackControllerVolumeData",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012D7054",
+        "0x1012D6CB4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PlaybackDetailedDataType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101326148",
+        "0x101325CEC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1PlaybackName",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012DEF48"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PlaybackNameStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101312018",
+        "0x101311BBC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PlaybackStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101317AFC",
+        "0x1013176A0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PowerOffInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101314354",
+        "0x101313EF8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PowerOffSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10131F930",
+        "0x10131F4D4"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1PowerSavingModeParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101316B0C",
+        "0x101316560"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PowerSavingModeSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101310B38",
+        "0x1013106DC"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1PowerSavingModeSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012E67C4",
+        "0x1012E6368"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RawPayload",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012CDE10",
+        "0x1012CDD00",
+        "0x1012CDCE8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetAlertCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B8948",
+        "0x1013B8608",
+        "0x1013B8570",
+        "0x1013B86E4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetAudioCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137DC70",
+        "0x10137D7A0",
+        "0x10137D708",
+        "0x10137D808"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RetAudioCapability_AudioCapabilityBase",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10137E220"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetAudioCapability_ConnectionModeCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137E6D8",
+        "0x10137E544"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetAudioCapability_UpscalingCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137EF74",
+        "0x10137ED90"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetAudioCodec",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013764D0",
+        "0x101376380",
+        "0x1013761CC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetAudioParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137FA1C",
+        "0x10137F93C",
+        "0x10137F78C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetAudioStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101368658",
+        "0x101368508",
+        "0x101368354"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetBatteryLevel",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101371E48",
+        "0x101371D68",
+        "0x101371B7C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetBluetoothDeviceInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B47D4",
+        "0x1013B42E4",
+        "0x1013B424C",
+        "0x1013B4564"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetCapabilityInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B3A70",
+        "0x1013B344C",
+        "0x1013B33B4",
+        "0x1013B35E0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetConciergeData",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B0FCC",
+        "0x1013B0BF0",
+        "0x1013B0E0C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetConnectionStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B03CC",
+        "0x1013B02EC",
+        "0x1013B01B4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetDeviceInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101348224",
+        "0x101347A54",
+        "0x1013479BC",
+        "0x101347ABC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RetDeviceInfo_DeviceInfoBase",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1013487D4"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetDeviceInfo_DeviceInfoFwVersion",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013497E4",
+        "0x1013495C4"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetDeviceInfo_DeviceInfoInstructionGuide",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134AC7C",
+        "0x10134A95C"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetDeviceInfo_DeviceInfoModelName",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101348E78",
+        "0x101348C58"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetDeviceInfo_DeviceInfoSeriesAndColor",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134A080",
+        "0x101349E9C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetEqEbbCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136C3DC",
+        "0x10136BEFC",
+        "0x10136BE64",
+        "0x10136BF64"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetEqEbbCapability_EbbCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136DFA8",
+        "0x10136DE4C"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetEqEbbCapability_EqCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136D6EC",
+        "0x10136D1C0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RetEqEbbCapability_EqEbbCapabilityBase",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10136C98C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetEqEbbExtendedInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013770F8",
+        "0x101377018",
+        "0x101376EC8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetEqEbbParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013ACC38",
+        "0x1013ACB58",
+        "0x1013AC9B0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetEqEbbStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013834CC",
+        "0x10138337C",
+        "0x1013831C8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetGsCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A7820",
+        "0x1013A7448",
+        "0x1013A73B0",
+        "0x1013A7494",
+        "0x1013A6CB4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetGsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A528C",
+        "0x1013A51B4",
+        "0x1013A4EF0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetGsStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A9EF0",
+        "0x1013A9E58",
+        "0x1013A9C68"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetNcAsmCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101378124",
+        "0x101377AE0",
+        "0x101377A48",
+        "0x101377B48"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetNcAsmCapability_AsmCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10137AFCC",
+        "0x10137ABDC"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetNcAsmCapability_NcAsmCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101379D70",
+        "0x1013798D4"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RetNcAsmCapability_NcAsmCapabilityBase",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101378784"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetNcAsmCapability_NcCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101378C3C",
+        "0x101378A8C"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetNcAsmParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013758A4",
+        "0x1013757C4",
+        "0x1013755C0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetNcAsmStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013897B0",
+        "0x101389660",
+        "0x1013894AC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetOptimizerCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101396A04",
+        "0x101396358",
+        "0x1013962C0",
+        "0x1013964D0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetOptimizerParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138E458",
+        "0x10138E270",
+        "0x10138DEB4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetOptimizerStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013AF4E0",
+        "0x1013AF330",
+        "0x1013AF0C4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetPlayCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B2940",
+        "0x1013B2424",
+        "0x1013B238C",
+        "0x1013B2564"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetPlayParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139F690",
+        "0x10139F520",
+        "0x10139F2CC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetPlayStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013748DC",
+        "0x10137472C",
+        "0x1013744C0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetProtocolInfo",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013805F8",
+        "0x1013804B0",
+        "0x101380240"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSenseCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139275C",
+        "0x10139241C",
+        "0x101392384",
+        "0x1013924F8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSportsCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013711CC",
+        "0x101370EE4",
+        "0x101370E4C",
+        "0x101370FB0"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSportsExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A04AC",
+        "0x1013A0414",
+        "0x1013A02A8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSportsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101391054",
+        "0x101390FBC",
+        "0x101390E50"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSportsStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101380E94",
+        "0x101380DFC",
+        "0x101380C90"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSupportFunction",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013AE8C0",
+        "0x1013AE308",
+        "0x1013AE270",
+        "0x1013AE578"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSystemCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134CD78",
+        "0x10134C2EC",
+        "0x10134C254",
+        "0x10134C340"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetSystemCapability_AssignableSettingsCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013517D4",
+        "0x101351638"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetSystemCapability_AutoPowerOffCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134F0EC",
+        "0x10134EDB0"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetSystemCapability_ControlByWearingCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134E6E0",
+        "0x10134E530"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetSystemCapability_PowerSavingModeCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134DF60",
+        "0x10134DDB0"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetSystemCapability_SmartTalkingModeCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101350358",
+        "0x10134FEAC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RetSystemCapability_SystemCapabilityBase",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10134D328"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetSystemCapability_VibratorCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10134D7E0",
+        "0x10134D630"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSystemExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013955BC",
+        "0x101395524",
+        "0x1013953B8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSystemParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101359E3C",
+        "0x101359D5C",
+        "0x101359A64"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetSystemStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A16D4",
+        "0x1013A1594",
+        "0x1013A1388"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetUpdateParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013630F8",
+        "0x101362FA8",
+        "0x101362CD4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetUpscalingEffect",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101358050",
+        "0x101357EA0",
+        "0x101357C34"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetVptCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139C1B0",
+        "0x10139BCE0",
+        "0x10139BC48",
+        "0x10139BD48"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetVptCapability_SoundPositionCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139D9E8",
+        "0x10139D838"
+      ]
+    },
+    {
+      "classification": "nested_variant",
+      "objc_name": "THMSGV1T1RetVptCapability_VptCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139D268",
+        "0x10139CD50"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1RetVptCapability_VptCapabilityBase",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10139C760"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetVptParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138AEF4",
+        "0x10138AE14",
+        "0x10138AC64"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1RetVptStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013826D4",
+        "0x101382584",
+        "0x1013823D0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SenseInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013399C8",
+        "0x10133956C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SenseSettingControl",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D98C8",
+        "0x1012D946C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SenseTableType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101321948",
+        "0x1013214EC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetAlertParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013705F0",
+        "0x101370510",
+        "0x101370360"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetAlertStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101369BF0",
+        "0x101369AA0",
+        "0x1013697E8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetAudioParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101365E14",
+        "0x101365D34",
+        "0x101365B84"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetEqEbbParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101388D38",
+        "0x101388BBC",
+        "0x101388A24"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetGsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013A8D98",
+        "0x1013A8BD0",
+        "0x1013A8BB0",
+        "0x1013A8588"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetLinkControl",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101369234",
+        "0x101369158",
+        "0x101369008"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetLogStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B6994",
+        "0x1013B6844",
+        "0x1013B6690"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetNcAsmParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135F454",
+        "0x10135F378",
+        "0x10135F174"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetOptimizerStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10136B600",
+        "0x10136B450",
+        "0x10136B1E4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetPlayParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101399350",
+        "0x101399214",
+        "0x101398FF8"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetPlayStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013612B4",
+        "0x101361104",
+        "0x101360E98"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetPowerOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013B94B4",
+        "0x1013B931C",
+        "0x1013B9168"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetSenseStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10135901C",
+        "0x101358E6C",
+        "0x101358C00"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetSportsExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013AB928",
+        "0x1013AB7EC",
+        "0x1013AB680"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetSportsParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013842B0",
+        "0x101384174",
+        "0x101384008"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetSystemExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10139041C",
+        "0x1013902E0",
+        "0x101390174"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetSystemParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101367CBC",
+        "0x101367BDC",
+        "0x1013678E4"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetUpdateStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x1013639D0",
+        "0x101363880",
+        "0x1013636CC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1SetVptParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x10138FA94",
+        "0x10138F9B4",
+        "0x10138F804"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeDetailSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101305FC4",
+        "0x101305B0C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeDetectionSensitivityType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101304A28",
+        "0x101304570"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeEffectStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101302958",
+        "0x101302564"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SmartTalkingModeExParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101303B48",
+        "0x101303624"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SmartTalkingModeExType1Param",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101307384",
+        "0x101306CC0"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeModeOutTimeType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013066F8",
+        "0x101306240"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeParameterType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012FD280",
+        "0x1012FCDC8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModePreviewType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1013030F8",
+        "0x101302C40"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SmartTalkingModeRetParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101301A60",
+        "0x1013014B4"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SmartTalkingModeSetNtfyParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012FF574",
+        "0x1012FEFC8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10130515C",
+        "0x101304CA4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012FDA20",
+        "0x1012FD568"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SmartTalkingModeStatus",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10130082C",
+        "0x10130031C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SmartTalkingModeVoiceFocusType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101305890",
+        "0x1013053D8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SoundPositionParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012D8B44",
+        "0x1012D8718"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SoundPositionPresetId",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012E5F70",
+        "0x1012E5B14"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SoundPositionType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F0F44",
+        "0x1012F0BAC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SpecificInformationType",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012EFA28"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SportsInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101327BA0",
+        "0x101327744"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1SystemInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10131F0B8",
+        "0x10131EC5C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1SystemStatus",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012EDDA4",
+        "0x1012EDA18"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1TargetType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F2748",
+        "0x1012F22EC"
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T1TestCommand",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        "0x101353CF8",
+        "0x101353AA0",
+        "0x101353634"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1TestCommandType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012F3894",
+        "0x1012F3438"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1TrainingModeAvailableEffectType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10131B180",
+        "0x10131AD24"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeCapability",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101320A78",
+        "0x10132056C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeExAsmParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012F52A0",
+        "0x1012F4AE0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeExEqParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101323494",
+        "0x101322C88"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeExNcAsmParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012E14DC",
+        "0x1012E0A8C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeExParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101309674",
+        "0x1013090D4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1TrainingModeExParameterType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101346304",
+        "0x101345EA8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012F670C",
+        "0x1012F6200"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1TrainingModeStatus",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10132CB9C",
+        "0x10132C810"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1UpdateBatteryPowerThresholdForInterruptiongUpdtParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10133B524",
+        "0x10133B298",
+        "0x10133B1C0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1UpdateBatteryPowerThresholdParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012E5454",
+        "0x1012E51C8",
+        "0x1012E50F0"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1UpdateBleTxPowerParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10132E8E4",
+        "0x10132E63C",
+        "0x10132E564"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1UpdateInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101326ADC",
+        "0x101326680"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1UpdateMethodParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10131CA2C",
+        "0x10131C774",
+        "0x10131C69C"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1UpdateStringParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10133D89C",
+        "0x10133D420",
+        "0x10133D268",
+        "0x10133D560"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1UpscalingEffectStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012FA530",
+        "0x1012FA0D4"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1UpscalingEffectType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10132FC44",
+        "0x10132F7E8"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1UpscalingParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101325118",
+        "0x101324B6C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1UpscalingSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133F77C",
+        "0x10133F320"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1UpscalingSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101331A04",
+        "0x1013315A8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1UpscalingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10133F078",
+        "0x10133EC1C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1VibrationType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012D58F0",
+        "0x1012D5494"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1VibratorAlertNotificationParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x101346D2C",
+        "0x101346900"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1VibratorParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10131D924",
+        "0x10131D378"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1VibratorSettingType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x10132B668",
+        "0x10132B20C"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1VibratorSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x101322114",
+        "0x101321CB8"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1VptInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012E6E64",
+        "0x1012E6ACC"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1VptParam",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x10133C0C8",
+        "0x10133BC60"
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T1VptPreset",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        "0x1012EE964"
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T1VptPresetId",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        "0x1012E30E0",
+        "0x1012E2D48"
+      ]
+    }
+  ],
+  "table": 1,
+  "version": 1
+}

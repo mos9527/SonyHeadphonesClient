@@ -1,0 +1,10 @@
+{
+  "modelVersion": "6.1.1",
+  "name": "entry",
+  "version": "0.1.0",
+  "description": "SonyHeadphonesClient for OpenHarmony",
+  "dependencies": {
+    "libmain.so": "file:./src/main/cpp/types/libmain",
+    "libSDL3.so": "file:./src/main/cpp/types/libSDL3"
+  }
+}
