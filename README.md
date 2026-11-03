@@ -15,7 +15,7 @@ These legacy devices are currently being verified against:
 
 - [ ] [WH-1000XM2](https://github.com/mos9527/SonyHeadphonesClient/issues/61), pending retest
 - [x] [WH-1000XM3](./docs/device-support/WH-1000XM3.md)
-- [x] WH-1000XM4 (tested by [@Amrsatrio](https://github.com/Amrsatrio))
+- [x] [WH-1000XM4](./docs/device-support/WH-1000XM4.md) (first tested by [@Amrsatrio](https://github.com/Amrsatrio))
 
 Track the progress in [Support for V1/Legacy devices such as XM3s and XM4s - PR #56](https://github.com/mos9527/SonyHeadphonesClient/pull/56).
 
