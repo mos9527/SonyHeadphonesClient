@@ -40,6 +40,9 @@ MDR_ASSERT_U32(MDRAssignableAction);
 MDR_ASSERT_U32(MDRWearingPowerMode);
 MDR_ASSERT_U32(MDRWearingStatus);
 MDR_ASSERT_U32(MDRAudioPriority);
+MDR_ASSERT_U32(MDRListeningBlocker);
+MDR_ASSERT_U32(MDRVoiceAssistant);
+MDR_ASSERT_U32(MDRVoiceAssistantKey);
 #undef MDR_ASSERT_U32
 
 static_assert(sizeof(((MDRDeviceInfo*)0)->szDeviceName) == 256, "device name capacity must be 256 bytes");
@@ -69,6 +72,9 @@ MDR_ASSERT_LAYOUT(MDRNoiseControl, 28);
 MDR_ASSERT_LAYOUT(MDREqualizer, 28);
 MDR_ASSERT_LAYOUT(MDRVoiceGuidance, 8);
 MDR_ASSERT_LAYOUT(MDRSafeListening, 8);
+MDR_ASSERT_LAYOUT(MDRListeningStatus, 8);
+MDR_ASSERT_LAYOUT(MDRVoiceAssistantSettings, 12);
+MDR_ASSERT_LAYOUT(MDRVoiceAssistantOption, 8);
 #undef MDR_ASSERT_LAYOUT
 static_assert(offsetof(MDRBattery, charging) == 16, "battery charging offset");
 static_assert(offsetof(MDRNoiseControl, changing_asm_level) == 8, "noise changing level offset");
@@ -100,6 +106,16 @@ static_assert(_Generic(&mdrHeadphonesSetEqualizerBands,
     MDRResult (*)(MDRHeadphones*, const int32_t*, uint32_t): 1, default: 0), "EQ bands setter signature");
 static_assert(_Generic(&mdrHeadphonesSetPlaybackVolume,
     MDRResult (*)(MDRHeadphones*, uint32_t): 1, default: 0), "volume setter signature");
+static_assert(_Generic(&mdrHeadphonesGetListeningStatus,
+    MDRResult (*)(MDRHeadphones*, MDRListeningMode, MDRListeningStatus*): 1, default: 0), "listening status signature");
+static_assert(_Generic(&mdrHeadphonesGetVoiceAssistant,
+    MDRResult (*)(MDRHeadphones*, MDRPropertyType, MDRVoiceAssistantSettings*): 1, default: 0),
+    "voice assistant getter signature");
+static_assert(_Generic(&mdrHeadphonesGetVoiceAssistantOptions,
+    MDRResult (*)(MDRHeadphones*, MDRVoiceAssistantOption*, uint32_t*): 1, default: 0),
+    "voice assistant options signature");
+static_assert(_Generic(&mdrHeadphonesSetVoiceAssistant,
+    MDRResult (*)(MDRHeadphones*, MDRVoiceAssistant): 1, default: 0), "voice assistant setter signature");
 
 enum
 {
@@ -1135,6 +1151,23 @@ typedef struct Device
     size_t assignable_capability_size;
     const unsigned char* assignable_params;
     size_t assignable_params_size;
+    /* Listening modes the device refuses, as bit (1 << inquired type). Every listening status
+     * request is answered, the way a real device answers it. */
+    unsigned int listening_refused;
+    /* Error codes a refused BGM_MODE_AND_ERRORCODE status carries. */
+    const unsigned char* bgm_errors;
+    size_t bgm_errors_size;
+    /* Which listening modes are on, as bit (1 << inquired type), and the background music room.
+     * AUDIO_SET_PARAM updates them and AUDIO_GET_PARAM reads them back. */
+    unsigned int listening_on;
+    unsigned char bgm_room;
+    /* When set, AUDIO_SET_PARAM is followed by the AUDIO_NTFY_PARAM a device sends. */
+    int notify_listening;
+    /* When set, the device answers voice assistant requests with these. */
+    const unsigned char* va_capability;
+    size_t va_capability_size;
+    unsigned char va_status;
+    unsigned char va_current;
     /* When set, a reply goes out ahead of the ACK for the request it answers, the way a
      * WH-1000XM3 orders them. */
     int reply_before_ack;
@@ -1158,6 +1191,12 @@ static void device_ack(Device* device, unsigned char sequence)
     unsigned char frame[FRAME_BUFFER_CAPACITY];
     const size_t size = pack_frame(MDR_DATA_TYPE_ACK, (unsigned char)(1 - sequence), NULL, 0, frame);
     mock_append(device->transport, frame, size);
+}
+
+/* BGM_MODE, UPMIX_CINEMA, VOICE_CONTENTS, SOUND_LEAKAGE_REDUCTION, BGM_MODE_AND_ERRORCODE */
+static int is_listening_type(unsigned char type)
+{
+    return type == 0x03 || type == 0x04 || type == 0x06 || type == 0x07 || type == 0x09;
 }
 
 /* Acknowledge and, where the handshake requires it, answer everything transmitted so far. */
@@ -1244,6 +1283,65 @@ static void device_pump(Device* device)
             /* AUDIO_GET_STATUS UPSCALING -> AUDIO_RET_STATUS UPSCALING DISABLE */
             static const unsigned char answer[] = {0xe3, 0x01, 0x01};
             device_send(device, MDR_DATA_TYPE_DATA_MDR, answer, sizeof(answer));
+        }
+        else if (table == 1 && frame.payload[0] == 0xe2 && frame.payload_size > 1 && is_listening_type(frame.payload[1]))
+        {
+            /* AUDIO_GET_STATUS for a listening mode -> AUDIO_RET_STATUS. 0x00 enables. */
+            unsigned char answer[32];
+            const int refused = (device->listening_refused & (1u << frame.payload[1])) != 0;
+            size_t size = 0;
+            answer[size++] = 0xe3;
+            answer[size++] = frame.payload[1];
+            answer[size++] = (unsigned char)(refused ? 0x01 : 0x00);
+            if (frame.payload[1] == 0x09)
+            {
+                const size_t count = refused ? device->bgm_errors_size : 0;
+                answer[size++] = (unsigned char)count;
+                if (count)
+                    memcpy(answer + size, device->bgm_errors, count), size += count;
+            }
+            device_send(device, MDR_DATA_TYPE_DATA_MDR, answer, size);
+        }
+        else if (table == 1 && (frame.payload[0] == 0xe6 || frame.payload[0] == 0xe8) && frame.payload_size > 1
+                 && is_listening_type(frame.payload[1]))
+        {
+            /* AUDIO_SET_PARAM updates the mode, AUDIO_GET_PARAM reads it: {command, type, on/off[, room]} */
+            const unsigned char type = frame.payload[1];
+            const int bgm = type == 0x03 || type == 0x09;
+            unsigned char answer[4];
+            if (frame.payload[0] == 0xe8 && frame.payload_size > 2)
+            {
+                if (frame.payload[2] == 0x00)
+                    device->listening_on |= 1u << type;
+                else
+                    device->listening_on &= ~(1u << type);
+                if (bgm && frame.payload_size > 3)
+                    device->bgm_room = frame.payload[3];
+            }
+            answer[0] = (unsigned char)(frame.payload[0] == 0xe6 ? 0xe7 : 0xe9);
+            answer[1] = type;
+            answer[2] = (unsigned char)((device->listening_on & (1u << type)) ? 0x00 : 0x01);
+            answer[3] = device->bgm_room;
+            if (frame.payload[0] == 0xe6 || device->notify_listening)
+                device_send(device, MDR_DATA_TYPE_DATA_MDR, answer, bgm ? 4u : 3u);
+        }
+        else if (table == 1 && device->va_capability != NULL && frame.payload_size > 1 && frame.payload[1] == 0x04
+                 && (frame.payload[0] == 0xf0 || frame.payload[0] == 0xf2 || frame.payload[0] == 0xf6 ||
+                     frame.payload[0] == 0xf8))
+        {
+            /* VOICE_ASSISTANT_SETTINGS: capability, status, param, and the notification a set brings */
+            unsigned char answer[3] = {(unsigned char)(frame.payload[0] + 1u), 0x04, device->va_status};
+            if (frame.payload[0] == 0xf0)
+                device_send(device, MDR_DATA_TYPE_DATA_MDR, device->va_capability, device->va_capability_size);
+            else if (frame.payload[0] == 0xf2)
+                device_send(device, MDR_DATA_TYPE_DATA_MDR, answer, sizeof(answer));
+            else
+            {
+                if (frame.payload[0] == 0xf8 && frame.payload_size > 2)
+                    device->va_current = frame.payload[2];
+                answer[2] = device->va_current;
+                device_send(device, MDR_DATA_TYPE_DATA_MDR, answer, sizeof(answer));
+            }
         }
         else if (table == 1 && frame.payload[0] == 0x58 && device->eq_notification != NULL)
         {
@@ -1581,8 +1679,18 @@ static void test_listening_modes(void)
         MDR_RESULT_OK,
         "background music stages"
     );
+    device.log_size = 0;
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "background music apply starts");
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "background music applies");
+
+    /* Only the target changes (#76): nothing is switched off, as the device reports nothing on. */
+    check(!device_requested(&device, 1, 0xe8, 0x06), "voice boost, already off, is not switched off");
+    check(!device_requested(&device, 1, 0xe8, 0x07), "leakage reduction, already off, is not switched off");
+    on_order = device_request_order(&device, 1, 0xe8, 0x09);
+    check(on_order >= 0, "background music is switched on");
+    check(device_request_order(&device, 1, 0xe2, 0x09) >= 0 &&
+          device_request_order(&device, 1, 0xe2, 0x09) < on_order,
+          "its availability is re-read right before it is switched on");
 
     memset(&listening, 0, sizeof(listening));
     check_result(
@@ -1597,6 +1705,14 @@ static void test_listening_modes(void)
         "desired listening mode is readable"
     );
     check(listening.mode == MDR_LISTENING_BACKGROUND_MUSIC, "background music remains the accepted target");
+
+    /* The device reports it on, and from here reports every change the way it does. */
+    {
+        static const unsigned char bgm_on[] = {0xe9, 0x09, 0x00, 0x01};
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, bgm_on, sizeof(bgm_on));
+        device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music being on polls");
+        device.notify_listening = 1;
+    }
 
     /*
      * Switching modes must deactivate the old one before activating the new one - a device
@@ -1618,6 +1734,7 @@ static void test_listening_modes(void)
     check(off_order >= 0, "the outgoing mode is switched off");
     check(on_order >= 0, "the incoming mode is switched on");
     check(off_order < on_order, "the outgoing mode is switched off before the incoming one is switched on");
+    check(!device_requested(&device, 1, 0xe8, 0x07), "a mode that was never on is left alone");
 
     memset(&listening, 0, sizeof(listening));
     check_result(
@@ -1630,6 +1747,374 @@ static void test_listening_modes(void)
         mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE,
         "the applied mode leaves nothing pending"
     );
+
+    /* Drain the reports, then reselect the active mode: nothing to send. */
+    {
+        int iteration;
+        for (iteration = 0; iteration < 64; ++iteration)
+        {
+            MDREvent event = MDR_EVENT_NONE;
+            mdrHeadphonesPoll(session.headphones, &event);
+            device_pump(&device);
+        }
+    }
+    mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_CURRENT, &listening);
+    check(listening.mode == MDR_LISTENING_VOICE_BOOST, "the device reported voice boost on");
+    device.log_size = 0;
+    check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK, "voice boost restages");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "unchanged apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "unchanged apply completes");
+    check(!device_requested(&device, 1, 0xe8, -1), "an unchanged mode sends nothing");
+
+    /* Standard switches off only the active mode. */
+    device.log_size = 0;
+    memset(&listening, 0, sizeof(listening));
+    listening.mode = MDR_LISTENING_STANDARD;
+    check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK, "standard stages");
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "standard apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "standard applies");
+    check(device_requested(&device, 1, 0xe8, 0x06), "standard switches voice boost off");
+    check(!device_requested(&device, 1, 0xe8, 0x09) && !device_requested(&device, 1, 0xe8, 0x07),
+          "standard leaves the inactive modes alone");
+    check(!device_requested(&device, 1, 0xe2, -1), "switching off needs no availability check");
+    session_close(&session);
+}
+
+/*
+ * #76: the WH-1000XM6 reboots when background music is switched on while voice control is selected.
+ * The device reports the mode unavailable, and that report is the only guard. It has to hold when
+ * staging and again when sending, since the report can change in between.
+ */
+static void test_listening_mode_refused_by_the_device(void)
+{
+    static const unsigned char table1[] = {
+        0x07, 0x00, 0x03,
+        0xe6, 0xff, /* LISTENING_OPTION */
+        0xeb, 0xff, /* BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE */
+        0xe5, 0xff  /* UPMIX_CINEMA */
+    };
+    static const unsigned char table2[] = {0x07, 0x00, 0x00};
+    static const unsigned char voice_and_call[] = {0x06, 0x00}; /* VOICE_UI_SONY, CALLING */
+    static const unsigned char bgm_enabled[] = {0xe5, 0x09, 0x00, 0x00};
+
+    Session session;
+    Device device;
+    MDRListening listening;
+    MDRListeningStatus status;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device.listening_refused = 1u << 0x09;
+    device.bgm_errors = voice_and_call;
+    device.bgm_errors_size = sizeof(voice_and_call);
+
+    device_run_init(&session, &device);
+    check(device_requested(&device, 1, 0xe0, 0x09), "background music capability is read with its own type");
+    check(device_requested(&device, 1, 0xe2, 0x09), "background music availability is read");
+    check(device_requested(&device, 1, 0xe2, 0x04), "cinema availability is read");
+    {
+        int iteration;
+        for (iteration = 0; iteration < 64; ++iteration)
+        {
+            MDREvent event = MDR_EVENT_NONE;
+            mdrHeadphonesPoll(session.headphones, &event);
+            device_pump(&device);
+        }
+    }
+
+    memset(&status, 0, sizeof(status));
+    check_result(mdrHeadphonesGetListeningStatus(session.headphones, MDR_LISTENING_BACKGROUND_MUSIC, &status),
+                 MDR_RESULT_OK, "background music status reads");
+    check(status.available == MDR_FALSE, "background music reads unavailable");
+    check(status.blockers == (MDR_LISTENING_BLOCKER_VOICE_ASSISTANT | MDR_LISTENING_BLOCKER_CALL),
+          "the reported codes become blockers");
+    check_result(mdrHeadphonesGetListeningStatus(session.headphones, MDR_LISTENING_STANDARD, &status),
+                 MDR_RESULT_OK, "standard status reads");
+    check(status.available == MDR_FALSE && status.blockers == MDR_LISTENING_BLOCKER_CALL,
+          "standard is unavailable during a call, as in Sound Connect");
+    check_result(mdrHeadphonesGetListeningStatus(session.headphones, MDR_LISTENING_CINEMA, &status),
+                 MDR_RESULT_OK, "cinema status reads");
+    check(status.available == MDR_TRUE && status.blockers == MDR_LISTENING_BLOCKER_NONE, "cinema stays available");
+    check_result(mdrHeadphonesGetListeningStatus(session.headphones, MDR_LISTENING_VOICE_BOOST, &status),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "an unoffered mode has no status");
+
+    memset(&listening, 0, sizeof(listening));
+    listening.mode = MDR_LISTENING_BACKGROUND_MUSIC;
+    listening.background_room = MDR_ROOM_SMALL;
+    check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "a refused mode does not stage");
+    check(mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE, "nothing is pending after a refusal");
+
+    /* Available when staged, refused by the time it is sent. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, bgm_enabled, sizeof(bgm_enabled));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music becoming available polls");
+    check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK,
+                 "an available mode stages");
+    device.log_size = 0;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "the refused apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "the refused apply completes");
+    check(device_requested(&device, 1, 0xe2, 0x09), "availability is re-read before switching on");
+    check(!device_requested(&device, 1, 0xe8, -1), "a mode refused at send time is not sent");
+    memset(&listening, 0, sizeof(listening));
+    mdrHeadphonesGetListening(session.headphones, MDR_PROPERTY_DESIRED, &listening);
+    check(listening.mode == MDR_LISTENING_STANDARD, "the desired view falls back to what the device has");
+    check(mdrHeadphonesIsDirty(session.headphones) == MDR_FALSE, "a refused switch leaves nothing pending");
+    session_close(&session);
+}
+
+/* Without the error-code variant, background music is inquired as BGM_MODE (0x03), as in Sound Connect. */
+static void test_background_music_without_error_codes(void)
+{
+    static const unsigned char table1[] = {
+        0x07, 0x00, 0x02,
+        0xe6, 0xff, /* LISTENING_OPTION */
+        0xe4, 0xff  /* BGM_MODE_SMALL_MIDDLE_LARGE */
+    };
+    static const unsigned char table2[] = {0x07, 0x00, 0x00};
+    static const unsigned char expected_on[] = {0xe8, 0x03, 0x00, 0x02};
+    static const unsigned char disabled[] = {0xe5, 0x03, 0x01};
+
+    Session session;
+    Device device;
+    MDRListening listening;
+    MDRListeningStatus status;
+    size_t tx_before;
+    size_t offset;
+    TxFrame frame;
+    int found = 0;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+
+    check(device_requested(&device, 1, 0xe6, 0x03), "the setting is read as BGM_MODE");
+    check(device_requested(&device, 1, 0xe2, 0x03), "the availability is read as BGM_MODE");
+    check(!device_requested(&device, 1, 0xe6, 0x09) && !device_requested(&device, 1, 0xe2, 0x09),
+          "the error-code variant is never asked of a device without it");
+
+    memset(&listening, 0, sizeof(listening));
+    listening.mode = MDR_LISTENING_BACKGROUND_MUSIC;
+    listening.background_room = MDR_ROOM_LARGE;
+    check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_OK, "background music stages");
+    tx_before = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "background music apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "background music applies");
+    offset = tx_before;
+    while (next_tx_frame(&session.transport, &offset, &frame))
+        if (frame.payload_size == sizeof(expected_on) && memcmp(frame.payload, expected_on, sizeof(expected_on)) == 0)
+            found = 1;
+    check(found, "background music is switched on as BGM_MODE, Large");
+
+    /* No error codes: unavailable, with no reason given. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, disabled, sizeof(disabled));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music being disabled polls");
+    check_result(mdrHeadphonesGetListeningStatus(session.headphones, MDR_LISTENING_BACKGROUND_MUSIC, &status),
+                 MDR_RESULT_OK, "background music status reads");
+    check(status.available == MDR_FALSE && status.blockers == MDR_LISTENING_BLOCKER_NONE,
+          "a plain status disables without a reason");
+    session_close(&session);
+}
+
+/*
+ * Voice assistant settings, the way the WH-1000XM6 (1.0.5) answers them: a touch panel offering
+ * voice control, the phone's assistant, Google Assistant and none, set to none.
+ */
+static void test_voice_assistant(void)
+{
+    static const unsigned char table1[] = {
+        0x07, 0x00, 0x04,
+        0xf4, 0x20, /* VOICE_ASSISTANT_SETTINGS */
+        0xe6, 0x0e, /* LISTENING_OPTION */
+        0xe4, 0x0f, /* BGM_MODE_SMALL_MIDDLE_LARGE */
+        0xe5, 0x10  /* UPMIX_CINEMA */
+    };
+    static const unsigned char table2[] = {0x07, 0x00, 0x00};
+    static const unsigned char capability[] = {0xf1, 0x04, 0x01, 0x04, 0x34, 0x30, 0x31, 0xff};
+    static const unsigned char expected_set[] = {0xf8, 0x04, 0x34};
+    static const unsigned char bgm_disabled[] = {0xe5, 0x03, 0x01};
+    static const unsigned char wake_word[] = {0xf5, 0x05, 0x02}; /* Sent, but never advertised */
+    static const unsigned char va_locked[] = {0xf5, 0x04, 0x01};
+    static const unsigned char va_unlocked[] = {0xf5, 0x04, 0x00};
+    /* Cinema excludes Google Assistant, as the XM6 reports */
+    static const unsigned char cinema_capability[] = {0xe1, 0x04, 0x03, 0x01, 0x00, 0x06};
+    static const unsigned char cinema_on[] = {0xe9, 0x04, 0x00};
+    static const unsigned char bgm_on[] = {0xe9, 0x03, 0x00, 0x02};
+    static const unsigned char bgm_off[] = {0xe9, 0x03, 0x01, 0x02};
+
+    Session session;
+    Device device;
+    MDRVoiceAssistantSettings settings;
+    MDRVoiceAssistantOption options[8];
+    MDRFeatureAvailability availability = MDR_AVAILABILITY_UNKNOWN;
+    MDRListening listening;
+    uint32_t count;
+    size_t tx_before;
+    size_t offset;
+    TxFrame frame;
+    int found = 0;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device.va_capability = capability;
+    device.va_capability_size = sizeof(capability);
+    device.va_status = 0x00;
+    device.va_current = 0xff;
+
+    check_result(mdrHeadphonesGetVoiceAssistantOptions(session.headphones, NULL, &(uint32_t){0}),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "options need the support list");
+    device_run_init(&session, &device);
+    {
+        int iteration;
+        for (iteration = 0; iteration < 64; ++iteration)
+        {
+            MDREvent event = MDR_EVENT_NONE;
+            mdrHeadphonesPoll(session.headphones, &event);
+            device_pump(&device);
+        }
+    }
+    check(device_requested(&device, 1, 0xf0, 0x04), "the capability is read");
+    check(device_requested(&device, 1, 0xf2, 0x04), "the status is read");
+    check(device_requested(&device, 1, 0xf6, 0x04), "the setting is read");
+    check(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_VOICE_ASSISTANT, &availability) == MDR_RESULT_OK &&
+          availability == MDR_AVAILABILITY_AVAILABLE, "voice assistant is a feature");
+
+    memset(&settings, 0, sizeof(settings));
+    check_result(mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_CURRENT, &settings), MDR_RESULT_OK,
+                 "settings read");
+    check(settings.assistant == MDR_VOICE_ASSISTANT_NONE && settings.available == MDR_TRUE &&
+          settings.key == MDR_VOICE_ASSISTANT_KEY_TOUCH_PANEL, "settings are what the device reported");
+
+    count = 0;
+    check_result(mdrHeadphonesGetVoiceAssistantOptions(session.headphones, NULL, &count), MDR_RESULT_OK,
+                 "option count reads");
+    check_result((MDRResult)count, 4, "every advertised option is counted, none last");
+    count = 2;
+    check_result(mdrHeadphonesGetVoiceAssistantOptions(session.headphones, options, &count),
+                 MDR_RESULT_ERROR_BUFFER_TOO_SMALL, "a short option buffer is refused");
+    count = 8;
+    check_result(mdrHeadphonesGetVoiceAssistantOptions(session.headphones, options, &count), MDR_RESULT_OK,
+                 "options read");
+    check(count == 4 && options[0].assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL &&
+          options[1].assistant == MDR_VOICE_ASSISTANT_VOICE_RECOGNITION &&
+          options[2].assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT &&
+          options[3].assistant == MDR_VOICE_ASSISTANT_NONE, "options keep the device order");
+    check(options[0].available && options[1].available && options[2].available && options[3].available,
+          "every option is available");
+
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_AMAZON_ALEXA),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "an unadvertised assistant is refused");
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_OTHER_DEVICE),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "another device's assistant is read-only");
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_UNKNOWN),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "an unknown assistant is invalid");
+
+    /* Background music on: Sound Connect switches to Standard before selecting a voice UI. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, bgm_on, sizeof(bgm_on));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music being on polls");
+    count = 8;
+    mdrHeadphonesGetVoiceAssistantOptions(session.headphones, options, &count);
+    check(options[0].available == MDR_FALSE && options[2].available == MDR_FALSE,
+          "voice control and Google Assistant are unavailable over background music");
+    check(options[1].available == MDR_TRUE && options[3].available == MDR_TRUE,
+          "the phone's assistant and none stay available");
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "voice control is refused over background music");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, bgm_off, sizeof(bgm_off));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music being off polls");
+
+    /* Stale: the device has background music on but has not said so. The send re-reads it. */
+    device.listening_on = 1u << 0x03;
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL),
+                 MDR_RESULT_OK, "voice control stages on a stale report");
+    device.log_size = 0;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "the stale apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "the stale apply completes");
+    check(device_requested(&device, 1, 0xe6, 0x03), "background music is re-read before a voice UI is sent");
+    check(!device_requested(&device, 1, 0xf8, 0x04), "a voice UI over background music is not sent");
+    mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_DESIRED, &settings);
+    check(settings.assistant == MDR_VOICE_ASSISTANT_NONE, "the desired view falls back to what the device has");
+    device.listening_on = 0;
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, bgm_off, sizeof(bgm_off));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music being off again polls");
+
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL),
+                 MDR_RESULT_OK, "voice control stages");
+    mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_DESIRED, &settings);
+    check(settings.assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL, "the desired view holds the edit");
+    mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_CURRENT, &settings);
+    check(settings.assistant == MDR_VOICE_ASSISTANT_NONE, "the current view waits for the device");
+    tx_before = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "voice control apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "voice control applies");
+    offset = tx_before;
+    while (next_tx_frame(&session.transport, &offset, &frame))
+        if (frame.payload_size == sizeof(expected_set) && memcmp(frame.payload, expected_set, sizeof(expected_set)) == 0)
+            found = 1;
+    check(found, "voice control is sent as SYSTEM_SET_PARAM VOICE_ASSISTANT_SETTINGS SONY_VOICE_ASSISTANT");
+    device_run(&session, &device, MDR_EVENT_VOICE_ASSISTANT_CHANGED, "the device reports the change");
+    mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_CURRENT, &settings);
+    check(settings.assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL, "the current view follows the report");
+
+    /* What the XM6 pushes next: background music disabled, and a status it never advertised. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, bgm_disabled, sizeof(bgm_disabled));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "background music being disabled polls");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, wake_word, sizeof(wake_word));
+    device_run(&session, &device, MDR_EVENT_UNHANDLED, "an unadvertised wake word status is left alone");
+    memset(&listening, 0, sizeof(listening));
+    listening.mode = MDR_LISTENING_BACKGROUND_MUSIC;
+    listening.background_room = MDR_ROOM_LARGE;
+    check_result(mdrHeadphonesSetListening(session.headphones, &listening), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "background music is refused while voice control disables it");
+
+    /* A locked setting refuses changes. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, va_locked, sizeof(va_locked));
+    device_run(&session, &device, MDR_EVENT_VOICE_ASSISTANT_CHANGED, "the setting being locked polls");
+    mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_CURRENT, &settings);
+    check(settings.available == MDR_FALSE, "a locked setting reads unavailable");
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_NONE),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "a locked setting refuses changes");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, va_unlocked, sizeof(va_unlocked));
+    device_run(&session, &device, MDR_EVENT_VOICE_ASSISTANT_CHANGED, "the setting being unlocked polls");
+
+    /* An active listening mode excludes the assistants it lists. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, cinema_capability, sizeof(cinema_capability));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "the cinema capability polls");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, cinema_on, sizeof(cinema_on));
+    device_run(&session, &device, MDR_EVENT_LISTENING_MODE_CHANGED, "cinema being on polls");
+    count = 8;
+    mdrHeadphonesGetVoiceAssistantOptions(session.headphones, options, &count);
+    check(count == 4 && options[2].assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT &&
+          options[2].available == MDR_FALSE && options[0].available == MDR_TRUE,
+          "cinema makes Google Assistant unavailable, and only it");
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "an excluded assistant is refused");
+    check_result(mdrHeadphonesSetVoiceAssistant(session.headphones, MDR_VOICE_ASSISTANT_NONE), MDR_RESULT_OK,
+                 "none stays selectable");
+    session_close(&session);
+
+    /* V1 has no such setting. */
+    if (!session_open_family(&session, MDR_PROTOCOL_V1))
+        return;
+    check_result(mdrHeadphonesGetVoiceAssistant(session.headphones, MDR_PROPERTY_CURRENT, &settings),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "V1 has no voice assistant settings");
     session_close(&session);
 }
 
@@ -4171,6 +4656,9 @@ int main(void)
     test_init_skips_unadvertised_functions();
     test_init_requests_advertised_functions();
     test_listening_modes();
+    test_listening_mode_refused_by_the_device();
+    test_background_music_without_error_codes();
+    test_voice_assistant();
     test_equalizer_availability_follows_the_device();
     test_equalizer_presets_follow_the_capability();
     test_listening_mode_rereads_what_it_takes_away();

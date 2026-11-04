@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <mdr/ProtocolV2T1.hpp>
 #include <mdr/ProtocolV2T2.hpp>
 
@@ -62,10 +63,51 @@
     PROP(String, mPairedDeviceConnectMac) \
     PROP(String, mPairedDeviceUnpairMac) \
     PROP(bool, mSafeListeningPreviewMode) \
+    PROP(v2::t1::VoiceAssistant, mVoiceAssistant, {v2::t1::VoiceAssistant::OUT_OF_RANGE, \
+         v2::t1::VoiceAssistant::OUT_OF_RANGE, v2::t1::VoiceAssistant::OUT_OF_RANGE}) \
     PROP(AlertResponse, mAlertResponse)
 
 namespace mdr
 {
+    /**
+     * @brief The audio function a voice assistant occupies, as listed in a listening mode's exclusive functions.
+     * @note  These are also the voice UIs that disable background music (StatusErrorCodeType VOICE_UI_*).
+     */
+    inline bool VoiceAssistantExclusiveFunction(v2::t1::VoiceAssistant value, v2::t1::AudioExclusiveFunctionType& out)
+    {
+        using enum v2::t1::AudioExclusiveFunctionType;
+        switch (value)
+        {
+        case v2::t1::VoiceAssistant::GOOGLE_ASSISTANT: return out = GOOGLE_ASSISTANT, true;
+        case v2::t1::VoiceAssistant::TENCENT_XIAOWEI: return out = TENCENT_XIAOWEI, true;
+        case v2::t1::VoiceAssistant::SONY_VOICE_ASSISTANT: return out = SONY_VOICE_ASSISTANT, true;
+        default: return false;
+        }
+    }
+
+    /**
+     * @brief Why a listening mode is unavailable, as a public blocker bit.
+     */
+    inline MDRListeningBlocker ListeningBlockerOf(v2::t1::StatusErrorCodeType value)
+    {
+        using enum v2::t1::StatusErrorCodeType;
+        switch (value)
+        {
+        case CALLING: return MDR_LISTENING_BLOCKER_CALL;
+        case LE_AUDIO_CONNECTED:
+        case LE_AUDION_MUSIC_PLAYING:
+        case TANDEM_OVER_GATT_CONNECTED: return MDR_LISTENING_BLOCKER_LE_AUDIO;
+        case VOICE_UI_GOOGLE:
+        case VOICE_UI_SONY:
+        case VOICE_UI_TENCENT: return MDR_LISTENING_BLOCKER_VOICE_ASSISTANT;
+        case UPMIX_CINEMA:
+        case UPMIX_GAME:
+        case UPMIX_MUSIC:
+        case LISTENING_MODE_IS_NOT_STANDARD: return MDR_LISTENING_BLOCKER_LISTENING_MODE;
+        default: return MDR_LISTENING_BLOCKER_OTHER;
+        }
+    }
+
     struct DetailsV2
     {
         struct AlertResponse
@@ -109,7 +151,21 @@ namespace mdr
             String name;
         };
 
-        
+        struct ListeningStatus
+        {
+            bool available{true};
+            Vector<v2::t1::StatusErrorCodeType> errors; // BGM_MODE_AND_ERRORCODE only
+            Vector<v2::t1::AudioExclusiveFunctionType> exclusive; // From AUDIO_RET_CAPABILITY
+        };
+
+        struct ListeningModeRef
+        {
+            MDRProperty<bool>* enabled;
+            ListeningStatus* status;
+            v2::t1::AudioInquiredType type;
+            bool supported;
+        };
+
         struct SupportStates
         {
             enum State
@@ -137,8 +193,7 @@ namespace mdr
             {
                 using F = v2::t1::FunctionType;
                 return contains(F::BGM_MODE_SMALL_MIDDLE_LARGE) ||
-                    contains(F::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE) ||
-                    contains(F::BGM_MODE_CANT_BE_USED_WITH_LEA_CONNECTION);
+                    contains(F::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE);
             }
 
             [[nodiscard]] constexpr bool containsPlaybackController() const
@@ -273,6 +328,14 @@ namespace mdr
         Vector<EqPresetInfo> mEqPresets;
         v2::t2::SourceSwitchControlResult mSourceSwitchControlResult{v2::t2::SourceSwitchControlResult::SUCCESS};
 
+        ListeningStatus mBGMModeStatus, mUpmixCinemaStatus, mVoiceContentsStatus, mSoundLeakageReductionStatus;
+        // See also @ref HandleAwakeListeningReply
+        v2::t1::AudioInquiredType mAwaitedListeningReply{v2::t1::AudioInquiredType::OUT_OF_RANGE};
+
+        v2::t1::VoiceAssistantKeyType mVoiceAssistantKeyType{v2::t1::VoiceAssistantKeyType::OUT_OF_RANGE};
+        Vector<v2::t1::VoiceAssistant> mVoiceAssistants;
+        bool mVoiceAssistantAvailable{true};
+
         [[nodiscard]] bool wearingSensorPossible() const
         {
             // See https://github.com/mos9527/SonyHeadphonesClient/pull/63 as to why `WEARING_STATUS_CHECKER` is not
@@ -283,38 +346,152 @@ namespace mdr
                  mSupport.contains(v2::t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF));
         }
 
+        /**
+         * @brief The advertised preset EQ variant as an inquired type.
+         * @return false if the device has no variant whose capability carries a preset list.
+         */
+        bool eqPresetInquiredType(v2::t1::EqEbbInquiredType& out) const
+        {
+            using T1 = v2::t1::FunctionType;
+            using enum v2::t1::EqEbbInquiredType;
+            if (mSupport.contains(T1::PRESET_EQ))
+                return out = PRESET_EQ, true;
+            if (mSupport.contains(T1::PRESET_EQ_NON_CUSTOMIZABLE))
+                return out = PRESET_EQ_NONCUSTOMIZABLE, true;
+            if (mSupport.contains(T1::PRESET_EQ_AND_ULT_MODE))
+                return out = PRESET_EQ_AND_ULT_MODE, true;
+            if (mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE))
+                return out = PRESET_EQ_AND_ERRORCODE, true;
+            return false;
+        }
+
+        /**
+         * @brief The advertised BGM variant as an inquired type. Only the error-code variant uses 0x09.
+         */
+        bool bgmModeInquiredType(v2::t1::AudioInquiredType& out) const
+        {
+            using T1 = v2::t1::FunctionType;
+            using enum v2::t1::AudioInquiredType;
+            if (mSupport.contains(T1::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE))
+                return out = BGM_MODE_AND_ERRORCODE, true;
+            if (mSupport.contains(T1::BGM_MODE_SMALL_MIDDLE_LARGE))
+                return out = BGM_MODE, true;
+            return false;
+        }
+
+        bool assignableSettingsInquiredType(v2::t1::SystemInquiredType& out) const
+        {
+            using T1 = v2::t1::FunctionType;
+            using enum v2::t1::SystemInquiredType;
+            if (mSupport.contains(T1::ASSIGNABLE_SETTING_WITH_LIMITATION))
+                return out = ASSIGNABLE_SETTINGS_WITH_LIMITATION, true;
+            if (mSupport.contains(T1::ASSIGNABLE_SETTING))
+                return out = ASSIGNABLE_SETTINGS, true;
+            return false;
+        }
+
+        /**
+         * @brief Listening modes in MDR_LISTENING_* order (Standard excluded), with their advertised inquired types.
+         */
+        Array<ListeningModeRef, 4> listeningModes()
+        {
+            using T1 = v2::t1::FunctionType;
+            using enum v2::t1::AudioInquiredType;
+            const bool grouped = mSupport.contains(T1::LISTENING_OPTION);
+            v2::t1::AudioInquiredType bgmType{OUT_OF_RANGE};
+            const bool bgm = grouped && bgmModeInquiredType(bgmType);
+            return {{
+                {&mBGMModeEnabled, &mBGMModeStatus, bgmType, bgm},
+                {&mUpmixCinemaEnabled, &mUpmixCinemaStatus, UPMIX_CINEMA,
+                 grouped && mSupport.contains(T1::UPMIX_CINEMA)},
+                {&mVoiceContentsEnabled, &mVoiceContentsStatus, VOICE_CONTENTS,
+                 grouped && mSupport.contains(T1::VOICE_CONTENTS)},
+                {&mSoundLeakageReductionEnabled, &mSoundLeakageReductionStatus, SOUND_LEAKAGE_REDUCTION,
+                 grouped && mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION)},
+            }};
+        }
+
+        /**
+         * @brief The status a listening reply of @p type updates.
+         * @return nullptr if the device does not advertise that mode (or that BGM variant).
+         */
+        ListeningStatus* listeningStatusFor(v2::t1::AudioInquiredType type)
+        {
+            using T1 = v2::t1::FunctionType;
+            using enum v2::t1::AudioInquiredType;
+            v2::t1::AudioInquiredType bgmType{};
+            switch (type)
+            {
+            case BGM_MODE:
+            case BGM_MODE_AND_ERRORCODE:
+                return bgmModeInquiredType(bgmType) && bgmType == type ? &mBGMModeStatus : nullptr;
+            case UPMIX_CINEMA: return mSupport.contains(T1::UPMIX_CINEMA) ? &mUpmixCinemaStatus : nullptr;
+            case VOICE_CONTENTS: return mSupport.contains(T1::VOICE_CONTENTS) ? &mVoiceContentsStatus : nullptr;
+            case SOUND_LEAKAGE_REDUCTION:
+                return mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION) ? &mSoundLeakageReductionStatus : nullptr;
+            default: return nullptr;
+            }
+        }
+
+        /**
+         * @brief Availability of a listening mode         
+         * @note  Applying a mode the device disabled can crash it (!), see
+         *        https://github.com/mos9527/SonyHeadphonesClient/issues/76
+         */
+        [[nodiscard]] MDRListeningStatus listeningStatusOf(MDRListeningMode mode) const
+        {
+            const auto& status = mode == MDR_LISTENING_STANDARD || mode == MDR_LISTENING_BACKGROUND_MUSIC
+                ? mBGMModeStatus
+                : mode == MDR_LISTENING_CINEMA ? mUpmixCinemaStatus
+                : mode == MDR_LISTENING_VOICE_BOOST ? mVoiceContentsStatus
+                : mSoundLeakageReductionStatus;
+            MDRListeningBlocker blockers = MDR_LISTENING_BLOCKER_NONE;
+            for (const auto error : status.errors)
+                blockers |= ListeningBlockerOf(error);
+            if (mode == MDR_LISTENING_STANDARD)
+            {
+                blockers &= MDR_LISTENING_BLOCKER_CALL;
+                return {.available = blockers == MDR_LISTENING_BLOCKER_NONE ? MDR_TRUE : MDR_FALSE,
+                        .blockers = blockers};
+            }
+            return {.available = status.available ? MDR_TRUE : MDR_FALSE,
+                    .blockers = status.available ? MDR_LISTENING_BLOCKER_NONE : blockers};
+        }
+
+        /**
+         * @brief Whether a listening mode the device reports active excludes @p value.
+         */
+        [[nodiscard]] bool voiceAssistantExcluded(v2::t1::VoiceAssistant value) const
+        {
+            v2::t1::AudioExclusiveFunctionType function{};
+            if (!VoiceAssistantExclusiveFunction(value, function))
+                return false;
+            if (mBGMModeEnabled.mCurrent)
+                return true;
+            const auto excludes = [&](const MDRProperty<bool>& enabled, const ListeningStatus& status)
+            {
+                return enabled.mCurrent &&
+                    std::find(status.exclusive.begin(), status.exclusive.end(), function) != status.exclusive.end();
+            };
+            return excludes(mUpmixCinemaEnabled, mUpmixCinemaStatus) ||
+                excludes(mVoiceContentsEnabled, mVoiceContentsStatus) ||
+                excludes(mSoundLeakageReductionEnabled, mSoundLeakageReductionStatus);
+        }
+
+        template <typename F>
+        void forEachVoiceAssistantOption(F&& function) const
+        {
+            using enum v2::t1::VoiceAssistant;
+            if (mVoiceAssistantKeyType == v2::t1::VoiceAssistantKeyType::OUT_OF_RANGE)
+                return; // Capability not reported
+            for (const auto assistant : mVoiceAssistants)
+                if (assistant != NO_FUNCTION && assistant != OUT_OF_RANGE &&
+                    assistant != VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE)
+                    function(assistant);
+            function(NO_FUNCTION);
+        }
     };
 
 #undef _DETAILS_V2_PROPS_X
-
-    /**
-     * @brief The advertised preset EQ variant as an inquired type.
-     * @return false if the device has no variant whose capability carries a preset list.
-     */
-    inline bool EqPresetInquiredType(const DetailsV2& state, v2::t1::EqEbbInquiredType& out)
-    {
-        using T1 = v2::t1::FunctionType;
-        using enum v2::t1::EqEbbInquiredType;
-        if (state.mSupport.contains(T1::PRESET_EQ))
-            return out = PRESET_EQ, true;
-        if (state.mSupport.contains(T1::PRESET_EQ_NON_CUSTOMIZABLE))
-            return out = PRESET_EQ_NONCUSTOMIZABLE, true;
-        if (state.mSupport.contains(T1::PRESET_EQ_AND_ULT_MODE))
-            return out = PRESET_EQ_AND_ULT_MODE, true;
-        if (state.mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE))
-            return out = PRESET_EQ_AND_ERRORCODE, true;
-        return false;
-    }
-
-    inline bool AssignableSettingsInquiredType(const DetailsV2& state, v2::t1::SystemInquiredType& out)
-    {
-        using T1 = v2::t1::FunctionType;
-        using enum v2::t1::SystemInquiredType;
-        if (state.mSupport.contains(T1::ASSIGNABLE_SETTING_WITH_LIMITATION))
-            return out = ASSIGNABLE_SETTINGS_WITH_LIMITATION, true;
-        if (state.mSupport.contains(T1::ASSIGNABLE_SETTING))
-            return out = ASSIGNABLE_SETTINGS, true;
-        return false;
-    }
 
 } // namespace mdr

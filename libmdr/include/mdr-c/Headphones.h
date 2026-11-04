@@ -8,10 +8,6 @@
 
 typedef struct MDRHeadphones MDRHeadphones;
 
-/* Reads cached values without device I/O. Before a report, fields retain their defaults.
- * CURRENT is the latest device-reported value; ACKs do not update ordinary properties.
- * DESIRED preserves local edits until completion, then follows subsequent device reports.
- * Read-only fields do not switch views. One-shot action fields may reset on completion. */
 typedef uint32_t MDRPropertyType;
 #define MDR_PROPERTY_CURRENT ((MDRPropertyType)0u)
 #define MDR_PROPERTY_DESIRED ((MDRPropertyType)1u)
@@ -30,9 +26,12 @@ typedef uint32_t MDRFeatureAvailability;
 #define MDR_AVAILABILITY_AVAILABLE ((MDRFeatureAvailability)2u)
 
 typedef uint32_t MDRTimeoutType;
-#define MDR_TIMEOUT_DEFAULT ((MDRTimeoutType)0u) // In milliseconds
-#define MDR_TIMEOUT_ACK ((MDRTimeoutType)1u) // In milliseconds
-#define MDR_TIMEOUT_ACK_RETRIES ((MDRTimeoutType)2u) // No. of retries to perform before dropping the connection
+// In milliseconds
+#define MDR_TIMEOUT_DEFAULT ((MDRTimeoutType)0u) 
+// In milliseconds
+#define MDR_TIMEOUT_ACK ((MDRTimeoutType)1u) 
+// No. of retries to perform before dropping the connection
+#define MDR_TIMEOUT_ACK_RETRIES ((MDRTimeoutType)2u) 
 
 typedef uint32_t MDRHeadphonesInitFlags;
 #define MDR_HEADPHONES_INIT_NONE ((MDRHeadphonesInitFlags)0u)
@@ -55,10 +54,11 @@ typedef uint32_t MDRHeadphonesInitFlags;
 #define MDR_HEADPHONES_INIT_FIRMWARE_UPDATE ((MDRHeadphonesInitFlags)(1u << 16u))
 #define MDR_HEADPHONES_INIT_ALERT ((MDRHeadphonesInitFlags)(1u << 17u))
 #define MDR_HEADPHONES_INIT_LOG ((MDRHeadphonesInitFlags)(1u << 18u))
+#define MDR_HEADPHONES_INIT_VOICE_ASSISTANT ((MDRHeadphonesInitFlags)(1u << 19u))
 // Init for device identification (e.g. device model, supported features, etc.)
 #define MDR_HEADPHONES_INIT_DISCOVERY ((MDRHeadphonesInitFlags)(MDR_HEADPHONES_INIT_IDENTITY | MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS))
 // Full init across all features that a device may support
-#define MDR_HEADPHONES_INIT_DEFAULT ((MDRHeadphonesInitFlags)((MDR_HEADPHONES_INIT_LOG << 1u) - 1u))
+#define MDR_HEADPHONES_INIT_DEFAULT ((MDRHeadphonesInitFlags)((MDR_HEADPHONES_INIT_VOICE_ASSISTANT << 1u) - 1u))
 
 typedef uint32_t MDRHeadphonesSyncFlags;
 #define MDR_HEADPHONES_SYNC_NONE ((MDRHeadphonesSyncFlags)0u)
@@ -99,13 +99,13 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_CONNECTION_MODE ((MDRFeature)27u)
 #define MDR_FEATURE_SAFE_LISTENING ((MDRFeature)28u)
 #define MDR_FEATURE_SOURCE_SWITCH_CONTROL ((MDRFeature)29u)
-/* Individual listening modes offered under MDR_FEATURE_LISTENING_MODE. */
 #define MDR_FEATURE_LISTENING_BACKGROUND_MUSIC ((MDRFeature)30u)
 #define MDR_FEATURE_LISTENING_CINEMA ((MDRFeature)31u)
 #define MDR_FEATURE_LISTENING_VOICE_BOOST ((MDRFeature)32u)
 #define MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRFeature)33u)
 #define MDR_FEATURE_WEARING_STATUS ((MDRFeature)34u)
-#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_WEARING_STATUS
+#define MDR_FEATURE_VOICE_ASSISTANT ((MDRFeature)35u)
+#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_VOICE_ASSISTANT
 
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
@@ -139,6 +139,7 @@ typedef uint32_t MDREvent;
 #define MDR_EVENT_NEED_SYNC ((MDREvent)22u)
 #define MDR_EVENT_UNHANDLED ((MDREvent)23u)
 #define MDR_EVENT_WEARING_STATUS_CHANGED ((MDREvent)24u)
+#define MDR_EVENT_VOICE_ASSISTANT_CHANGED ((MDREvent)25u)
 
 typedef uint32_t MDRPacketDirection;
 #define MDR_PACKET_DIRECTION_RX ((MDRPacketDirection)0u)
@@ -161,7 +162,7 @@ typedef uint32_t MDRText;
 #define MDR_TEXT_LAST_ALERT ((MDRText)14u)
 #define MDR_TEXT_LAST_INTERACTION ((MDRText)15u)
 #define MDR_TEXT_LAST_DEVICE_MESSAGE ((MDRText)16u)
-/* Indexed like @ref mdrHeadphonesGetEqualizerPresets. */
+// Indexed like @ref mdrHeadphonesGetEqualizerPresets.
 #define MDR_TEXT_EQUALIZER_PRESET_NAME ((MDRText)17u)
 
 typedef uint32_t MDRAudioCodec;
@@ -205,12 +206,13 @@ typedef uint32_t MDRSourceSwitchControlResult;
 #define MDR_SOURCE_SWITCH_CONTROL_FAILED_NOT_CONNECTED ((MDRSourceSwitchControlResult)3u)
 #define MDR_SOURCE_SWITCH_CONTROL_FAILED_VOICE_ASSISTANT ((MDRSourceSwitchControlResult)4u)
 
+// TODO @mos9527 Do not expose V1/V2 details here
 typedef uint32_t MDRNoiseMode;
 #define MDR_NOISE_MODE_OFF ((MDRNoiseMode)0u)
 #define MDR_NOISE_MODE_CANCELLING ((MDRNoiseMode)1u)
 #define MDR_NOISE_MODE_V1_ON ((MDRNoiseMode)1u)
 #define MDR_NOISE_MODE_AMBIENT ((MDRNoiseMode)2u)
-/* V1 ambient_level: noise cancelling (-1 internally); otherwise 0..20. V2 accepts only 0..20. */
+// V1 ambient_level: noise cancelling (-1 internally); otherwise 0..20. V2 accepts only 0..20. */
 #define MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING ((uint32_t)255u)
 
 typedef uint32_t MDRAdaptiveSensitivity;
@@ -239,13 +241,37 @@ typedef uint32_t MDRSpeakTimeout;
 #define MDR_SPEAK_TIMEOUT_LONG ((MDRSpeakTimeout)3u)
 #define MDR_SPEAK_TIMEOUT_MANUAL ((MDRSpeakTimeout)4u)
 
-/* Mutually exclusive. MDR_LISTENING_STANDARD means none is active. */
 typedef uint32_t MDRListeningMode;
 #define MDR_LISTENING_STANDARD ((MDRListeningMode)0u)
 #define MDR_LISTENING_BACKGROUND_MUSIC ((MDRListeningMode)1u)
 #define MDR_LISTENING_CINEMA ((MDRListeningMode)2u)
 #define MDR_LISTENING_VOICE_BOOST ((MDRListeningMode)3u)
 #define MDR_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRListeningMode)4u)
+
+typedef uint32_t MDRListeningBlocker;
+#define MDR_LISTENING_BLOCKER_NONE ((MDRListeningBlocker)0u)
+#define MDR_LISTENING_BLOCKER_CALL ((MDRListeningBlocker)(1u << 0u))
+#define MDR_LISTENING_BLOCKER_LE_AUDIO ((MDRListeningBlocker)(1u << 1u))
+#define MDR_LISTENING_BLOCKER_VOICE_ASSISTANT ((MDRListeningBlocker)(1u << 2u))
+#define MDR_LISTENING_BLOCKER_LISTENING_MODE ((MDRListeningBlocker)(1u << 3u))
+#define MDR_LISTENING_BLOCKER_OTHER ((MDRListeningBlocker)(1u << 4u))
+
+typedef uint32_t MDRVoiceAssistant;
+#define MDR_VOICE_ASSISTANT_NONE ((MDRVoiceAssistant)0u)
+#define MDR_VOICE_ASSISTANT_VOICE_RECOGNITION ((MDRVoiceAssistant)1u)
+#define MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT ((MDRVoiceAssistant)2u)
+#define MDR_VOICE_ASSISTANT_AMAZON_ALEXA ((MDRVoiceAssistant)3u)
+#define MDR_VOICE_ASSISTANT_TENCENT_XIAOWEI ((MDRVoiceAssistant)4u)
+#define MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL ((MDRVoiceAssistant)5u)
+#define MDR_VOICE_ASSISTANT_OTHER_DEVICE ((MDRVoiceAssistant)6u)
+#define MDR_VOICE_ASSISTANT_UNKNOWN ((MDRVoiceAssistant)255u)
+
+typedef uint32_t MDRVoiceAssistantKey;
+#define MDR_VOICE_ASSISTANT_KEY_UNKNOWN ((MDRVoiceAssistantKey)0u)
+#define MDR_VOICE_ASSISTANT_KEY_FIXED_BUTTON ((MDRVoiceAssistantKey)1u)
+#define MDR_VOICE_ASSISTANT_KEY_TOUCH_PANEL ((MDRVoiceAssistantKey)2u)
+#define MDR_VOICE_ASSISTANT_KEY_ASSIGNABLE_BUTTON ((MDRVoiceAssistantKey)3u)
+#define MDR_VOICE_ASSISTANT_KEY_ASSIGNABLE_SENSOR ((MDRVoiceAssistantKey)4u)
 
 typedef uint32_t MDRRoomSize;
 #define MDR_ROOM_UNKNOWN ((MDRRoomSize)0u)
@@ -406,10 +432,29 @@ typedef struct MDRListening
     MDRRoomSize background_room;
 } MDRListening;
 
+typedef struct MDRListeningStatus
+{
+    MDRBoolean available;
+    MDRListeningBlocker blockers;
+} MDRListeningStatus;
+
+typedef struct MDRVoiceAssistantSettings
+{
+    MDRVoiceAssistant assistant;
+    MDRBoolean available;
+    MDRVoiceAssistantKey key;
+} MDRVoiceAssistantSettings;
+
+typedef struct MDRVoiceAssistantOption
+{
+    MDRVoiceAssistant assistant;
+    MDRBoolean available;
+} MDRVoiceAssistantOption;
+
 typedef struct MDREqualizer
 {
     MDREqualizerPreset preset;
-    int32_t clear_bass; /* -10..10 */
+    int32_t clear_bass; // [-10,10]
     uint32_t band_count;
     MDRBoolean dsee_enabled;
     MDRDSEEType dsee_type;
@@ -484,7 +529,7 @@ typedef struct MDRPower
 typedef struct MDRVoiceGuidance
 {
     MDRBoolean enabled;
-    int32_t volume; /* -2..2 where volume control is supported. */
+    int32_t volume; // [-2,2]
 } MDRVoiceGuidance;
 
 typedef struct MDRConnectionMode
@@ -658,7 +703,18 @@ MDR_API MDRResult mdrHeadphonesGetSpeakToChat(MDRHeadphones* headphones, MDRProp
 MDR_API MDRResult mdrHeadphonesSetSpeakToChat(MDRHeadphones* headphones, const MDRSpeakToChat* speak_to_chat);
 MDR_API MDRResult mdrHeadphonesGetListening(MDRHeadphones* headphones, MDRPropertyType type,
                                             MDRListening* out_listening);
+/**
+ * @brief Stages a listening mode. Only the mode that changes is sent; Standard turns the active one off.
+ * @return @ref MDR_RESULT_ERROR_NOT_SUPPORTED if the device does not offer the mode, or currently refuses it
+ *         (see @ref mdrHeadphonesGetListeningStatus). A mode the device refuses by the time of commit is not sent.
+ */
 MDR_API MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListening* listening);
+/**
+ * @brief Whether the device currently accepts @p mode, as last reported. Unreported modes read available.
+ *        Updated on @ref MDR_EVENT_LISTENING_MODE_CHANGED.
+ */
+MDR_API MDRResult mdrHeadphonesGetListeningStatus(MDRHeadphones* headphones, MDRListeningMode mode,
+                                                  MDRListeningStatus* out_status);
 MDR_API MDRResult mdrHeadphonesGetEqualizer(MDRHeadphones* headphones, MDRPropertyType type,
                                             MDREqualizer* out_equalizer);
 MDR_API MDRResult mdrHeadphonesSetEqualizerPreset(MDRHeadphones* headphones, MDREqualizerPreset preset);
@@ -741,6 +797,23 @@ MDR_API MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPowe
 MDR_API MDRResult mdrHeadphonesGetVoiceGuidance(MDRHeadphones* headphones, MDRPropertyType type,
                                                 MDRVoiceGuidance* out_voice_guidance);
 MDR_API MDRResult mdrHeadphonesSetVoiceGuidance(MDRHeadphones* headphones, const MDRVoiceGuidance* voice_guidance);
+/**
+ * @brief The voice assistant the device's assistant key invokes. Requires @ref MDR_FEATURE_VOICE_ASSISTANT.
+ *        Updated on @ref MDR_EVENT_VOICE_ASSISTANT_CHANGED.
+ */
+MDR_API MDRResult mdrHeadphonesGetVoiceAssistant(MDRHeadphones* headphones, MDRPropertyType type,
+                                                 MDRVoiceAssistantSettings* out_settings);
+/**
+ * @brief The assistants the device advertised, in its order. Empty until the device reports them.
+ */
+MDR_API MDRResult mdrHeadphonesGetVoiceAssistantOptions(MDRHeadphones* headphones, MDRVoiceAssistantOption* options,
+                                                        uint32_t* inout_count);
+/**
+ * @brief Stages @p assistant, which must be an advertised option.
+ * @return @ref MDR_RESULT_ERROR_NOT_SUPPORTED if it is not advertised, or the device currently refuses it
+ *         (settings or option unavailable). One refused by the time of commit is not sent.
+ */
+MDR_API MDRResult mdrHeadphonesSetVoiceAssistant(MDRHeadphones* headphones, MDRVoiceAssistant assistant);
 MDR_API MDRResult mdrHeadphonesGetConnectionMode(MDRHeadphones* headphones, MDRPropertyType type,
                                                  MDRConnectionMode* out_mode);
 MDR_API MDRResult mdrHeadphonesSetConnectionMode(MDRHeadphones* headphones, const MDRConnectionMode* mode);

@@ -131,7 +131,8 @@ namespace mdr
             AWAIT_PROTOCOL_INFO = 1,
             AWAIT_SUPPORT_FUNCTION = 2,
             AWAIT_MODEL_INFO = 3,
-            AWAIT_NUM_TYPES = 4
+            AWAIT_LISTENING_REPLY = 4,
+            AWAIT_NUM_TYPES = 5
         };
 
         enum class ProtocolFamily
@@ -540,22 +541,21 @@ namespace mdr::detail
     while (false)
 
 /**
- * @brief Sends through @ref SendCommandACK, then stores the response wait result in @p Result.
- * @note The response boundary is captured before the first transmission and preserved across ACK retries.
- *       Serialization and ACK failures still return from the enclosing coroutine.
+ * @brief Sends through @ref SendCommandACK, then stores the response wait result in @p OutResult.
  */
-#define SendCommandAwaitResult(Type, Response, Result, ...)                                                            \
+#define SendCommandAwaitResult(Type, Response, OutResult, ...)                                                            \
     do                                                                                                                 \
     {                                                                                                                  \
         static_assert((Response) != AWAIT_ACK, "Use SendCommandACK for ACK-only requests");                              \
         const uint64_t _responsePacketId = mPacketCounter;                                                              \
         SendCommandACK(Type, __VA_ARGS__);                                                                             \
-        (Result) = co_await Await(Response, _responsePacketId);                                                         \
+        (OutResult) = co_await Await(Response, _responsePacketId);                                                         \
     }                                                                                                                  \
     while (false)
 
 /**
- * @brief Sends a command and waits for both its ACK and response, failing the task on response errors.
+ * @brief Sends through @ref SendCommandAwaitResult, thus waits for both its ACK and response, 
+ *        failing the task on response errors.
  */
 #define SendCommandAwait(Type, Response, ErrorContext, ...)                                                            \
     do                                                                                                                 \

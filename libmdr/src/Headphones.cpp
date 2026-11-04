@@ -481,6 +481,7 @@ namespace
         case MDR_FEATURE_WEARING_STATUS:
             return state.mSupport.contains(T2::WEARING_STATUS_CHECKER) ||
                 state.mWearingStatus != mdr::v2::t2::WearingStatusCode::OUT_OF_RANGE;
+        case MDR_FEATURE_VOICE_ASSISTANT: return state.mSupport.contains(T1::VOICE_ASSISTANT_SETTINGS);
         default: return false;
         }
     }
@@ -857,6 +858,50 @@ namespace
         case MDR_ROOM_MEDIUM: out = MIDDLE; return true;
         case MDR_ROOM_LARGE: out = LARGE; return true;
         default: return false;
+        }
+    }
+
+    MDRVoiceAssistant from_protocol(mdr::v2::t1::VoiceAssistant value)
+    {
+        using enum mdr::v2::t1::VoiceAssistant;
+        switch (value)
+        {
+        case NO_FUNCTION: return MDR_VOICE_ASSISTANT_NONE;
+        case VOICE_RECOGNITION: return MDR_VOICE_ASSISTANT_VOICE_RECOGNITION;
+        case GOOGLE_ASSISTANT: return MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT;
+        case AMAZON_ALEXA: return MDR_VOICE_ASSISTANT_AMAZON_ALEXA;
+        case TENCENT_XIAOWEI: return MDR_VOICE_ASSISTANT_TENCENT_XIAOWEI;
+        case SONY_VOICE_ASSISTANT: return MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL;
+        case VOICE_ASSISTANT_ENABLED_IN_OTHER_DEVICE: return MDR_VOICE_ASSISTANT_OTHER_DEVICE;
+        default: return MDR_VOICE_ASSISTANT_UNKNOWN;
+        }
+    }
+
+    bool to_protocol(MDRVoiceAssistant value, mdr::v2::t1::VoiceAssistant& out)
+    {
+        using enum mdr::v2::t1::VoiceAssistant;
+        switch (value)
+        {
+        case MDR_VOICE_ASSISTANT_NONE: out = NO_FUNCTION; return true;
+        case MDR_VOICE_ASSISTANT_VOICE_RECOGNITION: out = VOICE_RECOGNITION; return true;
+        case MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT: out = GOOGLE_ASSISTANT; return true;
+        case MDR_VOICE_ASSISTANT_AMAZON_ALEXA: out = AMAZON_ALEXA; return true;
+        case MDR_VOICE_ASSISTANT_TENCENT_XIAOWEI: out = TENCENT_XIAOWEI; return true;
+        case MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL: out = SONY_VOICE_ASSISTANT; return true;
+        default: return false;
+        }
+    }
+
+    MDRVoiceAssistantKey from_protocol(mdr::v2::t1::VoiceAssistantKeyType value)
+    {
+        using enum mdr::v2::t1::VoiceAssistantKeyType;
+        switch (value)
+        {
+        case FIXED_BUTTON: return MDR_VOICE_ASSISTANT_KEY_FIXED_BUTTON;
+        case TOUCH_SENSOR_CONTROL_PANEL: return MDR_VOICE_ASSISTANT_KEY_TOUCH_PANEL;
+        case ASSIGNABLE_BUTTON: return MDR_VOICE_ASSISTANT_KEY_ASSIGNABLE_BUTTON;
+        case ASSIGNABLE_SENSOR: return MDR_VOICE_ASSISTANT_KEY_ASSIGNABLE_SENSOR;
+        default: return MDR_VOICE_ASSISTANT_KEY_UNKNOWN;
         }
     }
 
@@ -1957,6 +2002,9 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
     if (listening->mode != MDR_LISTENING_STANDARD &&
         !SupportsFeature(state, kModeFeatures[listening->mode]))
         return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    // A mode the device disabled can reboot it once applied (#76).
+    if (state.listeningStatusOf(listening->mode).available == MDR_FALSE)
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
     auto room = state.mBGMModeRoomSize.mDesired;
     if (listening->background_room != MDR_ROOM_UNKNOWN && !to_protocol(listening->background_room, room))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -1967,6 +2015,29 @@ MDRResult mdrHeadphonesSetListening(MDRHeadphones* headphones, const MDRListenin
     state.mVoiceContentsEnabled.stage(listening->mode == MDR_LISTENING_VOICE_BOOST);
     state.mSoundLeakageReductionEnabled.stage(listening->mode == MDR_LISTENING_SOUND_LEAKAGE_REDUCTION);
     state.mBGMModeRoomSize.stage(room);
+    return MDR_RESULT_OK;
+}
+
+MDRResult mdrHeadphonesGetListeningStatus(
+    MDRHeadphones* headphones, MDRListeningMode mode, MDRListeningStatus* outStatus)
+{
+    if (!headphones || !outStatus || mode > MDR_LISTENING_SOUND_LEAKAGE_REDUCTION)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const auto& h = *Impl(headphones);
+    if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (h.mProtocolFamily != Headphones::ProtocolFamily::V2)
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    static constexpr MDRFeature kModeFeatures[] = {
+        MDR_FEATURE_LISTENING_MODE,
+        MDR_FEATURE_LISTENING_BACKGROUND_MUSIC,
+        MDR_FEATURE_LISTENING_CINEMA,
+        MDR_FEATURE_LISTENING_VOICE_BOOST,
+        MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION
+    };
+    if (!SupportsFeature(h.mDetailsV2, kModeFeatures[mode]))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    *outStatus = h.mDetailsV2.listeningStatusOf(mode);
     return MDR_RESULT_OK;
 }
 
@@ -2644,6 +2715,85 @@ MDRResult mdrHeadphonesSetVoiceGuidance(
             state.mVoiceGuidanceVolume.stage(static_cast<int>(voiceGuidance->volume));
         return MDR_RESULT_OK;
     });
+}
+
+MDRResult mdrHeadphonesGetVoiceAssistant(
+    MDRHeadphones* headphones, MDRPropertyType type, MDRVoiceAssistantSettings* outSettings)
+{
+    if (!headphones || !ValidPropertyType(type) || !outSettings)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const auto& h = *Impl(headphones);
+    if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (h.mProtocolFamily != Headphones::ProtocolFamily::V2)
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    const auto& state = h.mDetailsV2;
+    *outSettings = {
+        .assistant = from_protocol(ReadProperty(state.mVoiceAssistant, type)),
+        .available = state.mVoiceAssistantAvailable ? MDR_TRUE : MDR_FALSE,
+        .key = from_protocol(state.mVoiceAssistantKeyType)
+    };
+    return MDR_RESULT_OK;
+}
+
+MDRResult mdrHeadphonesGetVoiceAssistantOptions(
+    MDRHeadphones* headphones, MDRVoiceAssistantOption* options, uint32_t* inoutCount)
+{
+    if (!headphones || !inoutCount)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const auto& h = *Impl(headphones);
+    if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (h.mProtocolFamily != Headphones::ProtocolFamily::V2 ||
+        !SupportsFeature(h.mDetailsV2, MDR_FEATURE_VOICE_ASSISTANT))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    const auto& state = h.mDetailsV2;
+    uint32_t required = 0;
+    state.forEachVoiceAssistantOption([&](auto) { ++required; });
+    if (!options)
+    {
+        if (*inoutCount != 0)
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        *inoutCount = required;
+        return MDR_RESULT_OK;
+    }
+    if (*inoutCount < required)
+    {
+        *inoutCount = required;
+        return MDR_RESULT_ERROR_BUFFER_TOO_SMALL;
+    }
+    uint32_t out = 0;
+    state.forEachVoiceAssistantOption([&](auto assistant)
+    {
+        options[out++] = {
+            .assistant = from_protocol(assistant),
+            .available = state.voiceAssistantExcluded(assistant) ? MDR_FALSE : MDR_TRUE
+        };
+    });
+    *inoutCount = required;
+    return MDR_RESULT_OK;
+}
+
+MDRResult mdrHeadphonesSetVoiceAssistant(MDRHeadphones* headphones, MDRVoiceAssistant assistant)
+{
+    mdr::v2::t1::VoiceAssistant value{};
+    if (!headphones || !to_protocol(assistant, value))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    auto* h = Impl(headphones);
+    if (const auto failure = h->GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (!h->mInitialized && !h->IsReady())
+        return MDR_RESULT_INPROGRESS;
+    if (h->mProtocolFamily != Headphones::ProtocolFamily::V2 ||
+        !SupportsFeature(h->mDetailsV2, MDR_FEATURE_VOICE_ASSISTANT))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    auto& state = h->mDetailsV2;
+    bool offered = false;
+    state.forEachVoiceAssistantOption([&](auto option) { offered |= option == value; });
+    if (!offered || !state.mVoiceAssistantAvailable || state.voiceAssistantExcluded(value))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
+    state.mVoiceAssistant.stage(value);
+    return MDR_RESULT_OK;
 }
 
 MDRResult mdrHeadphonesGetConnectionMode(

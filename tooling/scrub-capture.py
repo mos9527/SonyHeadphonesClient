@@ -37,6 +37,8 @@ PERIPHERAL_PARAM_COMMANDS = {0x37, 0x39}  # PERI_RET_PARAM, PERI_NTFY_PARAM
 
 ADDRESS = re.compile(rb"[0-9A-F]{2}(?::[0-9A-F]{2}){5}")
 TRACK_FIELDS = (b"Example Track", b"Example Album", b"Example Artist")
+# V1 PlaybackDetailedDataType naming a field (track, album, artist, genre, player), as a TRACK_FIELDS index.
+V1_NAME_TYPES = {0x00: 0, 0x01: 1, 0x02: 2, 0x03: 0, 0x10: 0}
 
 
 class FrameError(Exception):
@@ -93,7 +95,12 @@ def fit(text, length):
 
 
 def is_text(data):
-    return len(data) > 0 and all(0x20 <= byte < 0x7F for byte in data)
+    """Printable UTF-8 in any script. Anything else is binary, not a name."""
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return len(text) > 0 and text.isprintable()
 
 
 class Scrubber:
@@ -109,20 +116,35 @@ class Scrubber:
     def sweep_addresses(self, payload):
         return ADDRESS.sub(lambda m: self.address(m.group(0)), payload)
 
+    @staticmethod
+    def names(payload, start, count):
+        """Spans of `count` <status><length><text> names filling payload[start:] exactly, or None."""
+        spans, index = [], start
+        while len(spans) < count and index + 1 < len(payload):
+            status, length = payload[index], payload[index + 1]
+            if status > 0x02 or index + 2 + length > len(payload):  # PlaybackNameStatus
+                return None
+            spans.append((index + 2, length))
+            index += 2 + length
+        return spans if len(spans) == count and index == len(payload) else None
+
     def track_info(self, payload):
-        """PLAY_*_PARAM track info: repeated <charset><length><text>."""
+        """PLAY_*_PARAM track info. Names are replaced whatever their script or encoding.
+
+        V2: four names. V1: <detail type><name>, one name per frame.
+        """
         if len(payload) < 2 or payload[1] != 0x01:
             return payload
-        out, index, field = bytearray(payload[:2]), 2, 0
-        while index + 1 < len(payload):
-            charset, length = payload[index], payload[index + 1]
-            text = payload[index + 2:index + 2 + length]
-            if length == 0 or len(text) != length or not is_text(text):
-                break
-            out += bytes([charset, length]) + fit(TRACK_FIELDS[field % len(TRACK_FIELDS)], length)
-            index += 2 + length
-            field += 1
-        return bytes(out) + payload[index:]
+        spans = self.names(payload, 2, 4)
+        if spans is None and len(payload) > 2 and payload[2] in V1_NAME_TYPES:
+            spans = self.names(payload, 3, 1)
+            fields = [V1_NAME_TYPES[payload[2]]] if spans else []
+        else:
+            fields = range(len(spans or []))
+        out = bytearray(payload)
+        for (offset, length), field in zip(spans or [], fields):
+            out[offset:offset + length] = fit(TRACK_FIELDS[field % len(TRACK_FIELDS)], length)
+        return bytes(out)
 
     def peripheral_list(self, payload):
         """PERI_*_PARAM device list: <address:17><4 bytes><namelength><name> per record."""

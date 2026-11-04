@@ -5,6 +5,22 @@ namespace mdr
     using namespace v2;
     using namespace t1;
 
+    namespace
+    {
+        template <typename T>
+        bool DeserializeCapability(Span<const UInt8> cmd, T& out)
+        {
+            auto result = (T::Deserialize)(cmd.data(), cmd.size());
+            if (!result)
+            {
+                MDR_LOG("Ignoring malformed capability: {}", result.errMessage ? result.errMessage : "");
+                return false;
+            }
+            out = std::move(result.value);
+            return true;
+        }
+    }
+
     int HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(ConnectRetSupportFunction, res, cmd);
@@ -555,7 +571,32 @@ namespace mdr
         default:
             break;
         }
-        return MDR_EVENT_UNHANDLED;
+        auto* status = self->mDetailsV2.listeningStatusFor(type);
+        const auto store = [&](auto res) -> int
+        {
+            if (!status || !DeserializeCapability(cmd, res))
+                return MDR_EVENT_UNHANDLED;
+            status->exclusive = std::move(res.exclusiveFunctions.value);
+            return MDR_EVENT_LISTENING_MODE_CHANGED;
+        };
+        switch (type)
+        {
+        case BGM_MODE:
+        case BGM_MODE_AND_ERRORCODE: return store(AudioRetCapabilityBGMMode{});
+        case UPMIX_CINEMA: return store(AudioRetCapabilityUpmixCinema{});
+        case VOICE_CONTENTS: return store(AudioRetCapabilityVoiceContents{});
+        case SOUND_LEAKAGE_REDUCTION: return store(AudioRetCapabilitySoundLeakageReduction{});
+        default: return MDR_EVENT_UNHANDLED;
+        }
+    }
+
+    // Resumes a commit waiting on this listening mode's RET_STATUS/RET_PARAM
+    int HandleAwakeListeningReply(MDRHeadphones* self, Command command, AudioInquiredType type)
+    {
+        if ((command == Command::AUDIO_RET_STATUS || command == Command::AUDIO_RET_PARAM) &&
+            type == self->mDetailsV2.mAwaitedListeningReply)
+            self->Awake(MDRHeadphones::AWAIT_LISTENING_REPLY);
+        return MDR_EVENT_LISTENING_MODE_CHANGED;
     }
 
     int HandleAudioStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -588,7 +629,38 @@ namespace mdr
         default:
             break;
         }
-        return MDR_EVENT_UNHANDLED;
+
+        /* Listening modes */
+        auto* status = self->mDetailsV2.listeningStatusFor(type);
+        if (!status)
+            return MDR_EVENT_UNHANDLED;
+        const auto command = static_cast<Command>(cmd[0]);
+        if (type == BGM_MODE_AND_ERRORCODE)
+        {
+            if (command == Command::AUDIO_NTFY_STATUS)
+            {
+                Deserialize(AudioNotifyStatusBGMModeErrorCode, res, cmd);
+                status->available = res.status == EnableDisable::ENABLE;
+                status->errors = std::move(res.errorCodeList.value);
+            }
+            else
+            {
+                Deserialize(AudioRetStatusBGMModeErrorCode, res, cmd);
+                status->available = res.status == EnableDisable::ENABLE;
+                status->errors = std::move(res.errorCodeList.value);
+            }
+        }
+        else if (command == Command::AUDIO_NTFY_STATUS)
+        {
+            Deserialize(AudioNotifyStatusCommon, res, cmd);
+            status->available = res.status == EnableDisable::ENABLE;
+        }
+        else
+        {
+            Deserialize(AudioRetStatusCommon, res, cmd);
+            status->available = res.status == EnableDisable::ENABLE;
+        }
+        return HandleAwakeListeningReply(self, command, type);
     }
 
     int HandleAudioParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -654,7 +726,7 @@ namespace mdr
                     self->mDetailsV2.mBGMModeEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
                     self->mDetailsV2.mBGMModeRoomSize.overwrite(res.targetRoomSize);
                 }
-                return MDR_EVENT_LISTENING_MODE_CHANGED;
+                return HandleAwakeListeningReply(self, command, type);
             }
             return MDR_EVENT_UNHANDLED;
         }
@@ -672,7 +744,7 @@ namespace mdr
                     Deserialize(AudioRetParamUpmixCinema, res, cmd);
                     self->mDetailsV2.mUpmixCinemaEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
                 }
-                return MDR_EVENT_LISTENING_MODE_CHANGED;
+                return HandleAwakeListeningReply(self, command, type);
             }
             return MDR_EVENT_UNHANDLED;
         }
@@ -690,7 +762,7 @@ namespace mdr
                     Deserialize(AudioRetParamVoiceContents, res, cmd);
                     self->mDetailsV2.mVoiceContentsEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
                 }
-                return MDR_EVENT_LISTENING_MODE_CHANGED;
+                return HandleAwakeListeningReply(self, command, type);
             }
             return MDR_EVENT_UNHANDLED;
         }
@@ -708,7 +780,7 @@ namespace mdr
                     Deserialize(AudioRetParamSoundLeakageReduction, res, cmd);
                     self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
                 }
-                return MDR_EVENT_LISTENING_MODE_CHANGED;
+                return HandleAwakeListeningReply(self, command, type);
             }
             return MDR_EVENT_UNHANDLED;
         }
@@ -723,8 +795,18 @@ namespace mdr
         SystemInquiredType type{};
         if (!detail::ReadEnumTag(cmd, type))
             return MDR_EVENT_UNHANDLED;
+        if (type == SystemInquiredType::VOICE_ASSISTANT_SETTINGS)
+        {
+            auto& state = self->mDetailsV2;
+            SystemRetCapabilityVoiceAssistantSettings res;
+            if (!state.mSupport.contains(FunctionType::VOICE_ASSISTANT_SETTINGS) || !DeserializeCapability(cmd, res))
+                return MDR_EVENT_UNHANDLED;
+            state.mVoiceAssistantKeyType = res.voiceAssistantKeyType;
+            state.mVoiceAssistants = std::move(res.voiceAssistantList.value);
+            return MDR_EVENT_VOICE_ASSISTANT_CHANGED;
+        }
         SystemInquiredType advertisedType{};
-        if (!AssignableSettingsInquiredType(self->mDetailsV2, advertisedType) || type != advertisedType)
+        if (!self->mDetailsV2.assignableSettingsInquiredType(advertisedType) || type != advertisedType)
             return MDR_EVENT_UNHANDLED;
 
         using enum SystemInquiredType;
@@ -779,7 +861,7 @@ namespace mdr
         case ASSIGNABLE_SETTINGS_WITH_LIMITATION:
         {
             SystemInquiredType advertisedType{};
-            if (!AssignableSettingsInquiredType(self->mDetailsV2, advertisedType) || type != advertisedType)
+            if (!self->mDetailsV2.assignableSettingsInquiredType(advertisedType) || type != advertisedType)
                 return MDR_EVENT_UNHANDLED;
 
             if (type == ASSIGNABLE_SETTINGS_WITH_LIMITATION)
@@ -846,10 +928,50 @@ namespace mdr
             }
             return MDR_EVENT_UNHANDLED;
         }
+        case VOICE_ASSISTANT_SETTINGS:
+        {
+            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::VOICE_ASSISTANT_SETTINGS))
+            {
+                if (command == Command::SYSTEM_NTFY_PARAM)
+                {
+                    Deserialize(SystemNotifyParamVoiceAssistantSettings, res, cmd);
+                    self->mDetailsV2.mVoiceAssistant.overwrite(res.voiceAssistant);
+                }
+                else
+                {
+                    Deserialize(SystemRetParamVoiceAssistantSettings, res, cmd);
+                    self->mDetailsV2.mVoiceAssistant.overwrite(res.voiceAssistant);
+                }
+                return MDR_EVENT_VOICE_ASSISTANT_CHANGED;
+            }
+            return MDR_EVENT_UNHANDLED;
+        }
         default:
             break;
         }
         return MDR_EVENT_UNHANDLED;
+    }
+
+    int HandleSystemStatusT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        SystemInquiredType type{};
+        if (!detail::ReadEnumTag(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        // The XM6 also pushes VOICE_ASSISTANT_WAKE_WORD here without advertising it.
+        if (type != SystemInquiredType::VOICE_ASSISTANT_SETTINGS ||
+            !self->mDetailsV2.mSupport.contains(t1::FunctionType::VOICE_ASSISTANT_SETTINGS))
+            return MDR_EVENT_UNHANDLED;
+        if (static_cast<Command>(cmd[0]) == Command::SYSTEM_NTFY_STATUS)
+        {
+            Deserialize(SystemNotifyStatusCommon, res, cmd);
+            self->mDetailsV2.mVoiceAssistantAvailable = res.status == EnableDisable::ENABLE;
+        }
+        else
+        {
+            Deserialize(SystemRetStatusCommonStatus, res, cmd);
+            self->mDetailsV2.mVoiceAssistantAvailable = res.status == EnableDisable::ENABLE;
+        }
+        return MDR_EVENT_VOICE_ASSISTANT_CHANGED;
     }
 
     int HandleSystemExtParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -1141,6 +1263,9 @@ namespace mdr
             return HandleAudioParamT1(self, cmd);
         case SYSTEM_RET_CAPABILITY:
             return HandleSystemCapabilityT1(self, cmd);
+        case SYSTEM_RET_STATUS:
+        case SYSTEM_NTFY_STATUS:
+            return HandleSystemStatusT1(self, cmd);
         case SYSTEM_RET_PARAM:
         case SYSTEM_NTFY_PARAM:
             return HandleSystemParamT1(self, cmd);

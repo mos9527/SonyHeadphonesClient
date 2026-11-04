@@ -354,6 +354,29 @@ const char* FormatAssignableAction(MDRAssignableAction action)
     }
 }
 
+const char* FormatVoiceAssistant(MDRVoiceAssistant assistant)
+{
+    switch (assistant)
+    {
+    case MDR_VOICE_ASSISTANT_NONE:
+        return Tr(i18n::TextId::DoNotUse);
+    case MDR_VOICE_ASSISTANT_VOICE_RECOGNITION:
+        return Tr(i18n::TextId::VoiceAssistMobile);
+    case MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT:
+        return Tr(i18n::TextId::GoogleAssistant);
+    case MDR_VOICE_ASSISTANT_AMAZON_ALEXA:
+        return Tr(i18n::TextId::AmazonAlexa);
+    case MDR_VOICE_ASSISTANT_TENCENT_XIAOWEI:
+        return Tr(i18n::TextId::TencentXiaowei);
+    case MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL:
+        return Tr(i18n::TextId::VoiceControl);
+    case MDR_VOICE_ASSISTANT_OTHER_DEVICE:
+        return Tr(i18n::TextId::VoiceAssistantOtherDevice);
+    default:
+        return Tr(i18n::TextId::Unknown);
+    }
+}
+
 const char* FormatNoiseButtonMode(MDRNoiseButtonMode function)
 {
     switch (function)
@@ -495,6 +518,16 @@ mdr::Vector<MDRAssignableAction> GetAssignableControlActions(MDRAssignableAction
     mdr::Vector<MDRAssignableAction> values(7); // Number of MDRAssignableAction enum values
     uint32_t count = static_cast<uint32_t>(values.size());
     if (!gDevice || mdrHeadphonesGetAssignableControlActions(gDevice, key, values.data(), &count) != MDR_RESULT_OK)
+        return {};
+    values.resize(count);
+    return values;
+}
+
+mdr::Vector<MDRVoiceAssistantOption> GetVoiceAssistantOptions()
+{
+    mdr::Vector<MDRVoiceAssistantOption> values(8);
+    uint32_t count = static_cast<uint32_t>(values.size());
+    if (!gDevice || mdrHeadphonesGetVoiceAssistantOptions(gDevice, values.data(), &count) != MDR_RESULT_OK)
         return {};
     values.resize(count);
     return values;
@@ -1771,14 +1804,59 @@ void DrawDeviceControlsSound()
         if (ImHeadingTreeNode(TrLable(i18n::TextId::ListeningMode), ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
-            if (ImGui::RadioButton(TrLable(i18n::TextId::Standard), listening.mode == MDR_LISTENING_STANDARD))
-                listening.mode = MDR_LISTENING_STANDARD, changed = true;
+            // Listening mode changes may be conditional, e.g. unavailable due to Voice Assistant enablement
+            // and may actually cause some *headphones* themselves to crash (https://github.com/mos9527/SonyHeadphonesClient/issues/76)
+            // Note that in the ABI libmdr will not let you enable it anyways. This is only for prompting.
+            const auto ListeningRadio = [&](i18n::TextId label, MDRListeningMode mode)
+            {
+                MDRListeningStatus status{MDR_TRUE, MDR_LISTENING_BLOCKER_NONE};
+                mdrHeadphonesGetListeningStatus(gDevice, mode, &status);
+                ImGui::BeginDisabled(status.available == MDR_FALSE && listening.mode != mode);
+                if (ImGui::RadioButton(TrLable(label), listening.mode == mode) && listening.mode != mode)
+                    listening.mode = mode, changed = true;
+                ImGui::EndDisabled();
+                if (status.available != MDR_FALSE)
+                    return;
+                MDRVoiceAssistantSettings assistant{};
+                const bool haveAssistant = FeatureAvailable(MDR_FEATURE_VOICE_ASSISTANT) &&
+                    mdrHeadphonesGetVoiceAssistant(gDevice, MDR_PROPERTY_CURRENT, &assistant) == MDR_RESULT_OK;
+                const bool voiceUi = haveAssistant &&
+                    (assistant.assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL ||
+                     assistant.assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT ||
+                     assistant.assistant == MDR_VOICE_ASSISTANT_TENCENT_XIAOWEI);
+                MDRListeningBlocker blockers = status.blockers;
+                if (blockers == MDR_LISTENING_BLOCKER_NONE && mode == MDR_LISTENING_BACKGROUND_MUSIC && voiceUi)
+                    blockers = MDR_LISTENING_BLOCKER_VOICE_ASSISTANT;
+
+                mdr::Vector<i18n::TextId> reasons;
+                if (blockers & MDR_LISTENING_BLOCKER_CALL)
+                    reasons.push_back(i18n::TextId::ListeningBlockedCall);
+                if (blockers & MDR_LISTENING_BLOCKER_LE_AUDIO)
+                    reasons.push_back(i18n::TextId::ListeningBlockedLeAudio);
+                if (blockers & MDR_LISTENING_BLOCKER_VOICE_ASSISTANT)
+                    reasons.push_back(!voiceUi ? i18n::TextId::ListeningBlockedVoiceAssistant
+                                          : assistant.assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL
+                                          ? i18n::TextId::ListeningBlockedVoiceControl
+                                          : assistant.assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT
+                                          ? i18n::TextId::ListeningBlockedGoogleAssistant
+                                          : i18n::TextId::ListeningBlockedTencent);
+                if (blockers & MDR_LISTENING_BLOCKER_LISTENING_MODE)
+                    reasons.push_back(i18n::TextId::ListeningEqUnavailable);
+                if (reasons.empty() || (blockers & MDR_LISTENING_BLOCKER_OTHER))
+                    reasons.push_back(i18n::TextId::CurrentlyUnavailable);
+
+                ImStylesRAII scope;
+                scope.PushFont(IM_FONTSIZE_CAPTION);
+                ImGui::Indent();
+                for (const i18n::TextId reason : reasons)
+                    ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", Tr(reason));
+                ImGui::Unindent();                
+            };
+            ListeningRadio(i18n::TextId::Standard, MDR_LISTENING_STANDARD);
 
             const bool haveBackgroundMusic = FeatureAvailable(MDR_FEATURE_LISTENING_BACKGROUND_MUSIC);
-            if (haveBackgroundMusic &&
-                ImGui::RadioButton(TrLable(i18n::TextId::AmbientBackgroundMusic),
-                                   listening.mode == MDR_LISTENING_BACKGROUND_MUSIC))
-                listening.mode = MDR_LISTENING_BACKGROUND_MUSIC, changed = true;
+            if (haveBackgroundMusic)
+                ListeningRadio(i18n::TextId::AmbientBackgroundMusic, MDR_LISTENING_BACKGROUND_MUSIC);
 
             if (haveBackgroundMusic)
             {
@@ -1810,18 +1888,12 @@ void DrawDeviceControlsSound()
                 ImGui::Unindent();
             }
 
-            if (FeatureAvailable(MDR_FEATURE_LISTENING_CINEMA) &&
-                ImGui::RadioButton(TrLable(i18n::TextId::Cinema), listening.mode == MDR_LISTENING_CINEMA))
-                listening.mode = MDR_LISTENING_CINEMA, changed = true;
-
-            if (FeatureAvailable(MDR_FEATURE_LISTENING_VOICE_BOOST) &&
-                ImGui::RadioButton(TrLable(i18n::TextId::VoiceBoost), listening.mode == MDR_LISTENING_VOICE_BOOST))
-                listening.mode = MDR_LISTENING_VOICE_BOOST, changed = true;
-
-            if (FeatureAvailable(MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION) &&
-                ImGui::RadioButton(TrLable(i18n::TextId::SoundLeakageReduction),
-                                   listening.mode == MDR_LISTENING_SOUND_LEAKAGE_REDUCTION))
-                listening.mode = MDR_LISTENING_SOUND_LEAKAGE_REDUCTION, changed = true;
+            if (FeatureAvailable(MDR_FEATURE_LISTENING_CINEMA))
+                ListeningRadio(i18n::TextId::Cinema, MDR_LISTENING_CINEMA);
+            if (FeatureAvailable(MDR_FEATURE_LISTENING_VOICE_BOOST))
+                ListeningRadio(i18n::TextId::VoiceBoost, MDR_LISTENING_VOICE_BOOST);
+            if (FeatureAvailable(MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION))
+                ListeningRadio(i18n::TextId::SoundLeakageReduction, MDR_LISTENING_SOUND_LEAKAGE_REDUCTION);
 
             if (changed && listeningAvailable)
                 mdrHeadphonesSetListening(gDevice, &listening);
@@ -1905,7 +1977,6 @@ void DrawDeviceControlsDevices()
     MDRBoolean switchControlEnabled = MDR_TRUE;
     if (supportFix)
         mdrHeadphonesGetSourceSwitchControl(gDevice, MDR_PROPERTY_DESIRED, &switchControlEnabled);
-    // Sound Connect's "Fixing playback device" is the negation of source switch control.
     const bool playbackFixed = switchControlEnabled == MDR_FALSE;
     auto DrawDeviceElement = [&](const DeviceView& device, bool selected) -> bool
     {
@@ -2079,6 +2150,62 @@ void DrawDeviceControlsSystem()
 
             ImGui::TreePop();
         }
+    }
+    /* Voice Assistant */
+    if (FeatureAvailable(MDR_FEATURE_VOICE_ASSISTANT) &&
+        ImHeadingTreeNode(TrLable(i18n::TextId::VoiceAssistant), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        MDRVoiceAssistantSettings assistant{};
+        if (mdrHeadphonesGetVoiceAssistant(gDevice, MDR_PROPERTY_DESIRED, &assistant) == MDR_RESULT_OK)
+        {
+            {
+                ImStylesRAII scope;
+                scope.PushFont(IM_FONTSIZE_CAPTION);
+                ImGui::TextWrapped("%s", Tr(i18n::TextId::VoiceAssistantDescription));
+            }
+            const auto options = GetVoiceAssistantOptions();
+            bool excluded = false;
+            ImGui::BeginDisabled(assistant.available == MDR_FALSE);
+            for (const MDRVoiceAssistantOption& option : options)
+            {
+                const bool selected = assistant.assistant == option.assistant;
+                // As with assignable controls, Google Assistant is only kept while it is selected.
+                if (option.assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT && !selected)
+                    continue;
+                excluded |= option.available == MDR_FALSE;
+                ImGui::BeginDisabled(option.available == MDR_FALSE && !selected);
+                const mdr::String label = mdr::Format("{}###VoiceAssistant{}", FormatVoiceAssistant(option.assistant),
+                                                      option.assistant);
+                if (ImGui::RadioButton(label.c_str(), selected) && !selected)
+                    mdrHeadphonesSetVoiceAssistant(gDevice, option.assistant);
+                ImGui::EndDisabled();
+            }
+            ImGui::EndDisabled();
+
+            ImStylesRAII scope;
+            scope.PushFont(IM_FONTSIZE_CAPTION);
+            if (assistant.assistant == MDR_VOICE_ASSISTANT_OTHER_DEVICE)
+                ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", Tr(i18n::TextId::VoiceAssistantOtherDevice));
+            if (assistant.available == MDR_FALSE)
+                ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", Tr(i18n::TextId::CurrentlyUnavailable));
+            else if (excluded)
+                ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", Tr(i18n::TextId::ListeningEqUnavailable));
+            switch (assistant.key)
+            {
+            case MDR_VOICE_ASSISTANT_KEY_TOUCH_PANEL:
+                ImGui::TextWrapped("%s", Tr(i18n::TextId::VoiceAssistantTouchPanel));
+                break;
+            case MDR_VOICE_ASSISTANT_KEY_ASSIGNABLE_BUTTON:
+                ImGui::TextWrapped("%s", Tr(i18n::TextId::VoiceAssistantAssignableButton));
+                break;
+            case MDR_VOICE_ASSISTANT_KEY_ASSIGNABLE_SENSOR:
+                ImGui::TextWrapped("%s", Tr(i18n::TextId::VoiceAssistantAssignableSensor));
+                break;
+            default:
+                break;
+            }
+        }
+        ImGui::TreePop();
     }
     /* NC/ASM Button Settings */
     if (FeatureAvailable(MDR_FEATURE_NOISE_CONTROL_BUTTON) &&
@@ -2255,6 +2382,7 @@ void DrawDeviceControlsAbout()
             {i18n::TextId::ConnectionMode, MDR_FEATURE_CONNECTION_MODE},
             {i18n::TextId::SafeListening, MDR_FEATURE_SAFE_LISTENING},
             {i18n::TextId::WearingStatus, MDR_FEATURE_WEARING_STATUS},
+            {i18n::TextId::VoiceAssistant, MDR_FEATURE_VOICE_ASSISTANT},
         };
         if (ImGui::BeginTable("##Features", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit))
         {
