@@ -463,7 +463,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.status, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.numberOfErrorCode, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<StatusErrorCodeType>::Write)(data.errorCodeList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -473,7 +472,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(AudioNotifyStatusBGMModeErrorCode, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(AudioNotifyStatusBGMModeErrorCode, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(AudioNotifyStatusBGMModeErrorCode, MDRPod::Read(&data, out.status, maxSize));
-        MDR_TRY_SIZE(AudioNotifyStatusBGMModeErrorCode, MDRPod::Read(&data, out.numberOfErrorCode, maxSize));
         MDR_TRY_SIZE(AudioNotifyStatusBGMModeErrorCode, (MDRPodArray<StatusErrorCodeType>::Read)(&data, out.errorCodeList, maxSize));
         MDR_TRY(AudioNotifyStatusBGMModeErrorCode, Validate(out));
         return MDRResult<AudioNotifyStatusBGMModeErrorCode>::Success(std::move(out));
@@ -655,7 +653,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.status, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.numberOfErrorCode, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<StatusErrorCodeType>::Write)(data.errorCodeList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -665,7 +662,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(AudioRetStatusBGMModeErrorCode, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(AudioRetStatusBGMModeErrorCode, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(AudioRetStatusBGMModeErrorCode, MDRPod::Read(&data, out.status, maxSize));
-        MDR_TRY_SIZE(AudioRetStatusBGMModeErrorCode, MDRPod::Read(&data, out.numberOfErrorCode, maxSize));
         MDR_TRY_SIZE(AudioRetStatusBGMModeErrorCode, (MDRPodArray<StatusErrorCodeType>::Read)(&data, out.errorCodeList, maxSize));
         MDR_TRY(AudioRetStatusBGMModeErrorCode, Validate(out));
         return MDRResult<AudioRetStatusBGMModeErrorCode>::Success(std::move(out));
@@ -999,7 +995,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.enableDisable, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.numberOfErrorCode, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<PresetEqErrorCodeType>::Write)(data.errorCodeList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1009,7 +1004,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(EqEbbNtfyStatusErrorCode, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(EqEbbNtfyStatusErrorCode, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(EqEbbNtfyStatusErrorCode, MDRPod::Read(&data, out.enableDisable, maxSize));
-        MDR_TRY_SIZE(EqEbbNtfyStatusErrorCode, MDRPod::Read(&data, out.numberOfErrorCode, maxSize));
         MDR_TRY_SIZE(EqEbbNtfyStatusErrorCode, (MDRPodArray<PresetEqErrorCodeType>::Read)(&data, out.errorCodeList, maxSize));
         MDR_TRY(EqEbbNtfyStatusErrorCode, Validate(out));
         return MDRResult<EqEbbNtfyStatusErrorCode>::Success(std::move(out));
@@ -1083,7 +1077,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.command, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.enableDisable, &ptr, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.numberOfErrorCode, &ptr, maxSize));
         MDR_TRY_SIZE(size_t, (MDRPodArray<PresetEqErrorCodeType>::Write)(data.errorCodeList, &ptr, maxSize));
         return MDRResult<size_t>::Success(ptr - out);
     }
@@ -1093,7 +1086,6 @@ namespace mdr::v2::t1 {
         MDR_TRY_SIZE(EqEbbRetStatusErrorCode, MDRPod::Read(&data, out.command, maxSize));
         MDR_TRY_SIZE(EqEbbRetStatusErrorCode, MDRPod::Read(&data, out.type, maxSize));
         MDR_TRY_SIZE(EqEbbRetStatusErrorCode, MDRPod::Read(&data, out.enableDisable, maxSize));
-        MDR_TRY_SIZE(EqEbbRetStatusErrorCode, MDRPod::Read(&data, out.numberOfErrorCode, maxSize));
         MDR_TRY_SIZE(EqEbbRetStatusErrorCode, (MDRPodArray<PresetEqErrorCodeType>::Read)(&data, out.errorCodeList, maxSize));
         MDR_TRY(EqEbbRetStatusErrorCode, Validate(out));
         return MDRResult<EqEbbRetStatusErrorCode>::Success(std::move(out));

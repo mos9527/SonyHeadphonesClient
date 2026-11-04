@@ -29440,7 +29440,8 @@
         "writeWithInt:",
         "-[THMSGV2T1AudioNotifyStatusBGMModeErrorCode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV2T1AudioNotifyStatus"
+        "inherited wire layout from THMSGV2T1AudioNotifyStatus",
+        "0x101569BF4 serializer writes numberOfErrorCode as the element-count prefix of errorCodeList"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/param/AudioInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;ILjava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/param/StatusErrorCodeType;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/AudioNotifyStatus;",
       "fields": [
@@ -29474,19 +29475,10 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
-          "default": "{}",
-          "name": "numberOfErrorCode",
-          "offset": 3,
-          "semantic_rules": [],
-          "source_type": "I",
-          "wire_kind": "pod"
-        },
-        {
           "cpp_type": "MDRPodArray<StatusErrorCodeType>",
           "default": null,
           "name": "errorCodeList",
-          "offset": 4,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/param/StatusErrorCodeType;>;",
           "wire_kind": "array"
@@ -31886,7 +31878,8 @@
         "writeWithInt:",
         "-[THMSGV2T1AudioRetStatusBGMModeErrorCode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV2T1AudioRetStatus"
+        "inherited wire layout from THMSGV2T1AudioRetStatus",
+        "0x101572A04 serializer writes numberOfErrorCode as the element-count prefix of errorCodeList"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/param/AudioInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;ILjava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/param/StatusErrorCodeType;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/AudioRetStatus;",
       "fields": [
@@ -31920,19 +31913,10 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
-          "default": "{}",
-          "name": "numberOfErrorCode",
-          "offset": 3,
-          "semantic_rules": [],
-          "source_type": "I",
-          "wire_kind": "pod"
-        },
-        {
           "cpp_type": "MDRPodArray<StatusErrorCodeType>",
           "default": null,
           "name": "errorCodeList",
-          "offset": 4,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/audio/param/StatusErrorCodeType;>;",
           "wire_kind": "array"
@@ -37299,7 +37283,8 @@
         "writeWithInt:",
         "-[THMSGV2T1EqEbbNtfyStatusErrorCode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV2T1EqEbbNtfyStatusBase"
+        "inherited wire layout from THMSGV2T1EqEbbNtfyStatusBase",
+        "0x101458870 serializer writes numberOfErrorCode as the element-count prefix of errorCodeList"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/param/EqEbbInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;ILjava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/param/PresetEqErrorCodeType;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/EqEbbNtfyStatusErrorCode;",
       "fields": [
@@ -37333,19 +37318,10 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
-          "default": "{}",
-          "name": "numberOfErrorCode",
-          "offset": 3,
-          "semantic_rules": [],
-          "source_type": "I",
-          "wire_kind": "pod"
-        },
-        {
           "cpp_type": "MDRPodArray<PresetEqErrorCodeType>",
           "default": null,
           "name": "errorCodeList",
-          "offset": 4,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/param/PresetEqErrorCodeType;>;",
           "wire_kind": "array"
@@ -39060,7 +39036,8 @@
         "writeWithInt:",
         "-[THMSGV2T1EqEbbRetStatusErrorCode_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV2T1EqEbbRetStatusBase"
+        "inherited wire layout from THMSGV2T1EqEbbRetStatusBase",
+        "0x1014576D8 serializer writes numberOfErrorCode as the element-count prefix of errorCodeList"
       ],
       "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v2/EnableDisable;ILjava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/param/PresetEqErrorCodeType;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/EqEbbRetStatusErrorCode;",
       "fields": [
@@ -39094,19 +39071,10 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
-          "default": "{}",
-          "name": "numberOfErrorCode",
-          "offset": 3,
-          "semantic_rules": [],
-          "source_type": "I",
-          "wire_kind": "pod"
-        },
-        {
           "cpp_type": "MDRPodArray<PresetEqErrorCodeType>",
           "default": null,
           "name": "errorCodeList",
-          "offset": 4,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v2/table1/eqebb/param/PresetEqErrorCodeType;>;",
           "wire_kind": "array"

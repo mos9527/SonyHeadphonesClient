@@ -27602,7 +27602,6 @@
         "0x1017E7820 getDataContinue reads bytes 2..2",
         "0x1017E78F8 getDataLength reads bytes 3..3",
         "0x103198218 THMSGV2T2SystemRetCapabilitySVACommand.INDEX_DATA_CONTINUE=2",
-        "0x103198240 THMSGV2T2SystemRetCapabilitySVACommand.INDEX_DATA_LENGTH=3",
         "_create_JavaLangIllegalArgumentException_initWithNSString_",
         "_objc_exception_throw",
         "_JreThrowNullPointerException",
@@ -27615,7 +27614,8 @@
         "sub_1012CA5A4",
         "-[THMSGV2T2SystemRetCapabilitySVACommand_Factory parseBytesWithByteArray:]",
         "parseBytesWithByteArray:",
-        "inherited wire layout from THMSGV2T2SystemRetCapability"
+        "inherited wire layout from THMSGV2T2SystemRetCapability",
+        "0x1017E7F80 serializer writes dataLength as the element-count prefix of data"
       ],
       "factory_signature": "LTHMSGV2T2DataContinue;I[B",
       "fields": [
@@ -27649,21 +27649,10 @@
           "wire_kind": "pod"
         },
         {
-          "cpp_type": "UInt8",
-          "default": "{}",
-          "name": "dataLength",
-          "offset": 3,
-          "semantic_rules": [
-            "Range 0 255"
-          ],
-          "source_type": "I",
-          "wire_kind": "pod"
-        },
-        {
           "cpp_type": "MDRPodArray<UInt8>",
           "default": null,
           "name": "data",
-          "offset": 4,
+          "offset": 3,
           "semantic_rules": [],
           "source_type": "[B",
           "wire_kind": "array"

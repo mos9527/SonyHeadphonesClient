@@ -2543,8 +2543,7 @@ namespace mdr::v2::t1
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
-        UInt8 numberOfErrorCode{}; // 0x3
-        MDRPodArray<StatusErrorCodeType> errorCodeList; // 0x4
+        MDRPodArray<StatusErrorCodeType> errorCodeList; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(AudioNotifyStatusBGMModeErrorCode);
     };
@@ -3021,8 +3020,7 @@ namespace mdr::v2::t1
         AudioInquiredType type{AudioInquiredType::CONNECTION_MODE}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable status{EnableDisable::ENABLE}; // 0x2
-        UInt8 numberOfErrorCode{}; // 0x3
-        MDRPodArray<StatusErrorCodeType> errorCodeList; // 0x4
+        MDRPodArray<StatusErrorCodeType> errorCodeList; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(AudioRetStatusBGMModeErrorCode);
     };
@@ -3969,8 +3967,7 @@ namespace mdr::v2::t1
         EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
-        UInt8 numberOfErrorCode{}; // 0x3
-        MDRPodArray<PresetEqErrorCodeType> errorCodeList; // 0x4
+        MDRPodArray<PresetEqErrorCodeType> errorCodeList; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbNtfyStatusErrorCode);
     };
@@ -4175,8 +4172,7 @@ namespace mdr::v2::t1
         EqEbbInquiredType type{EqEbbInquiredType::PRESET_EQ}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         EnableDisable enableDisable{EnableDisable::ENABLE}; // 0x2
-        UInt8 numberOfErrorCode{}; // 0x3
-        MDRPodArray<PresetEqErrorCodeType> errorCodeList; // 0x4
+        MDRPodArray<PresetEqErrorCodeType> errorCodeList; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(EqEbbRetStatusErrorCode);
     };

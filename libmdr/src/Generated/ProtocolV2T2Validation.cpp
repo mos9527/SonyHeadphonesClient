@@ -1250,8 +1250,6 @@ MDRResult<void> SystemRetCapabilitySVACommand::Validate(const SystemRetCapabilit
     MDR_VALIDATE(data.command == Command::SYSTEM_RET_CAPABILITY);
     // data.type ignored: OUT_OF_RANGE is expected
     // data.dataContinue ignored: OUT_OF_RANGE is expected
-    MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
-    MDR_VALIDATE(data.dataLength >= 0 && data.dataLength <= 255);
     for (const auto& data_elem : data.data) {
     }
     return MDRResult<void>::Success();

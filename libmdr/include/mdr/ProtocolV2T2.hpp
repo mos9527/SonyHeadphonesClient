@@ -3410,9 +3410,7 @@ namespace mdr::v2::t2
         SystemInquiredType type{SystemInquiredType::SONY_VOICE_ASSISTANT_COMMAND}; // 0x1
         // CODEGEN Ignore OUT_OF_RANGE is expected
         DataContinue dataContinue{DataContinue::NOT_CONTINUE_DATA}; // 0x2
-        // CODEGEN Range 0 255
-        UInt8 dataLength{}; // 0x3
-        MDRPodArray<UInt8> data; // 0x4
+        MDRPodArray<UInt8> data; // 0x3
 
         MDR_DEFINE_EXTERN_SERIALIZATION(SystemRetCapabilitySVACommand);
     };

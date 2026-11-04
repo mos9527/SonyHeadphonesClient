@@ -3642,6 +3642,14 @@ class ProtocolExtractor:
                     else (),
                 )
             )
+        # Decide while raw_fields still maps 1:1 onto serializer a3.. params;
+        # applied after serializer reordering, which relies on the same map.
+        count_prefixes: dict[str, str] = {}
+        if len(parameter_specs) == len(descriptors) == len(raw_fields):
+            count_prefixes, count_evidence = self._explicit_count_prefixes(
+                serializer_method, raw_fields
+            )
+            field_evidence.extend(count_evidence)
         serializer_fields = self._serializer_wire_fields(
             class_name,
             serializer_method,
@@ -3677,6 +3685,16 @@ class ProtocolExtractor:
             raw_fields = self._recalculate_offsets(
                 [raw_fields[index] for index in serializer_order]
             )
+        if count_prefixes:
+            raw_fields = self._recalculate_offsets(
+                [
+                    field
+                    for field in raw_fields
+                    if field.name not in count_prefixes
+                ]
+            )
+            for name in count_prefixes:
+                getter_offsets.pop(name, None)
         descriptor_field_count = len(raw_fields)
 
         implicit_type_getters = [
@@ -5224,6 +5242,103 @@ class ProtocolExtractor:
                 if minimum <= maximum:
                     output[index] = (minimum, maximum)
         return output
+
+    def _explicit_count_prefixes(
+        self,
+        serializer: MethodSymbol | None,
+        fields: list[FieldDecl],
+    ) -> tuple[dict[str, str], list[str]]:
+        """Find caller-supplied element counts that are an array's wire prefix.
+
+        Some factories take the element count as its own ``int`` parameter,
+        e.g. ``valueOf(type, status, int numberOfErrorCode, List codes)``. The
+        serializer then writes ``count`` immediately followed by the elements
+        and never writes the collection size itself. On the wire that count
+        *is* the array's one-byte length prefix, which ``MDRPodArray`` /
+        ``MDRArray`` already model, so emitting it as a separate scalar would
+        double the prefix.
+
+        ``fields`` must still map 1:1 onto serializer parameters ``a3..``.
+        Returns ``{count_field: array_field}`` and evidence. Fail closed: bulk
+        ``writeWithByteArray:`` copies, separately written sizes, or any write
+        between the count and the elements disqualify the pair.
+        """
+
+        if serializer is None or len(fields) < 2:
+            return {}, []
+        text = self._decompile_text(serializer)
+        anchor = text.rfind("toStreamWith")
+        if anchor < 0:
+            return {}, []
+        body = text[anchor:]
+        if re.search(
+            r'"writeWithInt:"\s*,\s*objc_msgSend\([^;]*?"size"\s*\)', body
+        ):
+            return {}, []
+        assignments = re.findall(
+            r"\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+            r"([A-Za-z_][A-Za-z0-9_]*)\s*;",
+            text,
+        )
+
+        def aliases_of(index: int) -> str:
+            aliases = {f"a{index + 3}"}
+            changed = True
+            while changed:
+                changed = False
+                for target, source in assignments:
+                    if source in aliases and target not in aliases:
+                        aliases.add(target)
+                        changed = True
+            return "(?:" + "|".join(
+                re.escape(alias) for alias in sorted(aliases)
+            ) + ")"
+
+        output: dict[str, str] = {}
+        evidence: list[str] = []
+        for index in range(len(fields) - 1):
+            count, array = fields[index], fields[index + 1]
+            if (
+                (count.source_type or "").lstrip("+-") != "I"
+                or count.cpp_type != "UInt8"
+                or count.wire_kind != "pod"
+                or array.wire_kind != "array"
+                or not array.cpp_type.startswith(("MDRPodArray<", "MDRArray<"))
+            ):
+                continue
+            count_alias = aliases_of(index)
+            array_alias = aliases_of(index + 1)
+            count_writes = list(
+                re.finditer(
+                    rf'"writeWithInt:"\s*,\s*(?:sub_[0-9A-Fa-f]+\(\s*)?'
+                    rf"\b{count_alias}\b\s*\)?\s*\)\s*;",
+                    body,
+                )
+            )
+            if len(count_writes) != 1:
+                continue
+            if re.search(
+                rf'"writeWithByteArray:"[^;]*\b{array_alias}\b', body
+            ):
+                continue
+            tail = body[count_writes[0].end():]
+            element = re.search(
+                rf'objc_msgSend\(\s*{array_alias}\s*,\s*"getWithInt:"'
+                rf"|\b{array_alias}\s*\+\s*OBJC_IVAR___IOSByteArray_buffer_",
+                tail,
+            )
+            if element is None:
+                continue
+            if '"writeWithInt:"' in tail[: element.start()]:
+                continue
+            if '"writeWithInt:"' not in tail[element.end():]:
+                continue
+            output[count.name] = array.name
+            evidence.append(
+                f"0x{serializer.address:X} serializer writes {count.name} "
+                f"as the element-count prefix of {array.name}"
+            )
+        return output, evidence
 
     def _serializer_parameter_order(
         self,

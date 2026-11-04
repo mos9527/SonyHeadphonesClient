@@ -7406,7 +7406,6 @@ namespace debugger {
             changed |= DrawEnum("command", value.command, kEnum_mdr__v2__t2__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v2__t2__SystemInquiredType);
             changed |= DrawEnum("dataContinue", value.dataContinue, kEnum_mdr__v2__t2__DataContinue);
-            changed |= DrawScalar("dataLength", value.dataLength);
             changed |= DrawSequence("data", value.data.value, true, [&](const char* elementLabel, auto& element) {
                 bool elementChanged = false;
                 {
@@ -7425,7 +7424,6 @@ namespace debugger {
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataContinue, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.dataLength, remaining));
             MDR_DEBUGGER_TRY_READ(void, (MDRPodArray<UInt8>::Read)(&ptr, value.data, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
@@ -7438,7 +7436,6 @@ namespace debugger {
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataContinue, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.dataLength, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, (MDRPodArray<UInt8>::Write)(value.data, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
