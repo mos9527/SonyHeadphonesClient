@@ -276,6 +276,24 @@ Use it only when:
 
 Respect `.clang-format` and `.clang-tidy` for formatting and linting. Furthermore, the following rules always apply.
 
+### Formatting
+
+Any clang-format **19 or newer** works (versions 19 through 23 produce identical output on this tree; older versions refuse to load the config). Your IDE's bundled one is usually fine, otherwise `pip install clang-format`.
+
+- Format only what you touched: `git clang-format` (staged changes) or your IDE's format-on-save.
+- Format everything: `git ls-files '*.c' '*.cpp' '*.h' '*.hpp' '*.mm' | xargs clang-format -i`
+- Generated sources (`*/Generated/*`) and embedded fonts are excluded via `.clang-format-ignore`. Regenerate those instead of editing them.
+
+### Linting
+
+clang-tidy (19+) needs a compilation database. Configure with Ninja and `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` (on Windows, from a VS Developer shell), then:
+
+```
+run-clang-tidy -p build '^(?!.*[/\\]Generated[/\\]).*[/\\](libmdr|libmdr-bt|client|tooling|tests)[/\\]'
+```
+
+Only the sources your platform configures are covered, e.g. `.mm` files need a macOS configure.
+
 ### Exception Handling
 
 **C++ Exceptions are optional, and should be considered disabled by default.**

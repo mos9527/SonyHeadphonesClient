@@ -14,7 +14,12 @@ namespace android
     {
     public:
         static constexpr size_t kCapacity = 65536;
-        enum Action { NONE, CONNECT, DISCONNECT };
+        enum Action
+        {
+            NONE,
+            CONNECT,
+            DISCONNECT
+        };
         struct Snapshot
         {
             uint32_t generation{};
@@ -155,7 +160,8 @@ namespace android
 
         static MDRResult Receive(void* user, char* destination, int size, int* received)
         {
-            if (received) *received = 0;
+            if (received)
+                *received = 0;
             if (!destination || size < 0 || !received)
                 return MDR_RESULT_ERROR_INVALID_ARGUMENT;
             auto& self = *static_cast<ClientConnection*>(user);
@@ -171,7 +177,8 @@ namespace android
 
         static MDRResult Send(void* user, const char* source, int size, int* sent)
         {
-            if (sent) *sent = 0;
+            if (sent)
+                *sent = 0;
             if (!source || size < 0 || !sent)
                 return MDR_RESULT_ERROR_INVALID_ARGUMENT;
             auto& self = *static_cast<ClientConnection*>(user);

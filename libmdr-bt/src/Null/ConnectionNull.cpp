@@ -8,17 +8,15 @@ struct MDRNullConnection
     MDRConnection mdrConn;
 
     MDRNullConnection() noexcept :
-        mdrConn({
-            .user = this,
-            .connect = Connect,
-            .disconnect = Disconnect,
-            .recv = Recv,
-            .send = Send,
-            .poll = Poll,
-            .getDevicesList = GetDevicesList,
-            .freeDevicesList = FreeDevicesList,
-            .getLastError = GetLastError
-        })
+        mdrConn({.user = this,
+                 .connect = Connect,
+                 .disconnect = Disconnect,
+                 .recv = Recv,
+                 .send = Send,
+                 .poll = Poll,
+                 .getDevicesList = GetDevicesList,
+                 .freeDevicesList = FreeDevicesList,
+                 .getLastError = GetLastError})
     {
     }
 
@@ -72,22 +70,24 @@ struct MDRNullConnection
     }
 };
 
-#define MDR_NULL_CONNECTION(Name) \
-    struct MDRConnection##Name : MDRNullConnection {}; \
-    extern "C" { \
-    MDR_API MDRConnection##Name* mdrConnection##Name##Create() \
-    { \
-        return mdr::Construct<MDRConnection##Name>(); \
-    } \
-    MDR_API MDRConnection* mdrConnection##Name##Get(MDRConnection##Name* conn) \
-    { \
-        return conn ? &conn->mdrConn : nullptr; \
-    } \
-    MDR_API void mdrConnection##Name##Destroy(MDRConnection##Name* conn) \
-    { \
-        if (conn) \
-            mdr::Destruct(conn); \
-    } \
+#define MDR_NULL_CONNECTION(Name)                                                                                      \
+    struct MDRConnection##Name : MDRNullConnection                                                                     \
+    {                                                                                                                  \
+    };                                                                                                                 \
+    extern "C" {                                                                                                       \
+    MDR_API MDRConnection##Name* mdrConnection##Name##Create()                                                         \
+    {                                                                                                                  \
+        return mdr::Construct<MDRConnection##Name>();                                                                  \
+    }                                                                                                                  \
+    MDR_API MDRConnection* mdrConnection##Name##Get(MDRConnection##Name* conn)                                         \
+    {                                                                                                                  \
+        return conn ? &conn->mdrConn : nullptr;                                                                        \
+    }                                                                                                                  \
+    MDR_API void mdrConnection##Name##Destroy(MDRConnection##Name* conn)                                               \
+    {                                                                                                                  \
+        if (conn)                                                                                                      \
+            mdr::Destruct(conn);                                                                                       \
+    }                                                                                                                  \
     }
 
 MDR_NULL_CONNECTION(Null)

@@ -17,7 +17,8 @@ namespace mdr
     int HandleSupportFunctionT2(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(ConnectRetSupportFunction, res, cmd);
-        std::fill(self->mDetailsV2.mSupport.table2Functions.begin(), self->mDetailsV2.mSupport.table2Functions.end(), false);
+        std::fill(self->mDetailsV2.mSupport.table2Functions.begin(), self->mDetailsV2.mSupport.table2Functions.end(),
+                  false);
         for (auto fun : res.supportFunctions)
             self->mDetailsV2.mSupport.table2Functions[static_cast<UInt8>(fun.functionType)] = true;
         self->mDetailsV2.mSupport.state = DetailsV2::SupportStates::ADVERTISED;
@@ -65,12 +66,14 @@ namespace mdr
             if (command == Command::PERI_NTFY_STATUS)
             {
                 Deserialize(PeripheralNotifyStatusParingDeviceManagementCommon, res, cmd);
-                self->mDetailsV2.mPairingMode.overwrite(res.enableDisableStatus == EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+                self->mDetailsV2.mPairingMode.overwrite(res.enableDisableStatus == EnableDisable::ENABLE &&
+                                                        res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
             }
             else
             {
                 Deserialize(PeripheralRetStatusPairingDeviceManagementCommon, res, cmd);
-                self->mDetailsV2.mPairingMode.overwrite(res.enableDisableStatus == EnableDisable::ENABLE && res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
+                self->mDetailsV2.mPairingMode.overwrite(res.enableDisableStatus == EnableDisable::ENABLE &&
+                                                        res.btMode == PeripheralBluetoothMode::INQUIRY_SCAN_MODE);
             }
             return MDR_EVENT_PAIRING_CHANGED;
         }
@@ -150,19 +153,19 @@ namespace mdr
             return MDR_EVENT_PAIRED_DEVICES_CHANGED;
         }
         case SOURCE_SWITCH_CONTROL:
+        {
+            const auto command = static_cast<Command>(cmd[0]);
+            if (command == Command::PERI_NTFY_PARAM)
             {
-                const auto command = static_cast<Command>(cmd[0]);
-                if (command == Command::PERI_NTFY_PARAM)
-                {
-                    Deserialize(PeripheralNotifyParamSourceSwitchControl, res, cmd);
-                    self->mDetailsV2.mSourceSwitchControlEnabled.overwrite(res.value1 != 0);
-                    self->mDetailsV2.mSourceSwitchControlResult = res.result;
-                    return MDR_EVENT_PAIRED_DEVICES_CHANGED;
-                }
-                Deserialize(PeripheralRetParamSourceSwitchControl, res, cmd);
-                self->mDetailsV2.mSourceSwitchControlEnabled.overwrite(res.value != 0);
+                Deserialize(PeripheralNotifyParamSourceSwitchControl, res, cmd);
+                self->mDetailsV2.mSourceSwitchControlEnabled.overwrite(res.value1 != 0);
+                self->mDetailsV2.mSourceSwitchControlResult = res.result;
                 return MDR_EVENT_PAIRED_DEVICES_CHANGED;
             }
+            Deserialize(PeripheralRetParamSourceSwitchControl, res, cmd);
+            self->mDetailsV2.mSourceSwitchControlEnabled.overwrite(res.value != 0);
+            return MDR_EVENT_PAIRED_DEVICES_CHANGED;
+        }
         case PAIRING_DEVICE_MANAGEMENT_WITH_BLUETOOTH_CLASS_OF_DEVICE:
         {
             const auto command = static_cast<Command>(cmd[0]);
@@ -261,7 +264,8 @@ namespace mdr
             self->mDetailsV2.mWearingStatus = status;
             return self->Sync(MDR_HEADPHONES_SYNC_WEARING_STATUS, MDR_EVENT_WEARING_STATUS_CHANGED);
         }
-        default: break;
+        default:
+            break;
         }
         return MDR_EVENT_UNHANDLED;
     }

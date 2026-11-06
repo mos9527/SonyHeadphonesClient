@@ -20,18 +20,21 @@
 #define MDR_STRINGIFY_IMPL(value) #value
 #define MDR_STRINGIFY(value) MDR_STRINGIFY_IMPL(value)
 #if defined(MDR_ENABLE_LOG) && MDR_ENABLE_LOG
-#define MDR_SOURCE_LOCATION(message) \
-    message " [" __FILE__ ":" MDR_STRINGIFY(__LINE__) "]"
+#define MDR_SOURCE_LOCATION(message) message " [" __FILE__ ":" MDR_STRINGIFY(__LINE__) "]"
 #else
 #define MDR_SOURCE_LOCATION(message) nullptr
 #endif
 
-#define MDR_CHECK(expr) do { \
-if (!(expr)) [[unlikely]] { \
-MDR_TRAP(); \
-std::abort(); \
-} \
-} while (false)
+#define MDR_CHECK(expr)                                                                                                \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (!(expr)) [[unlikely]]                                                                                      \
+        {                                                                                                              \
+            MDR_TRAP();                                                                                                \
+            std::abort();                                                                                              \
+        }                                                                                                              \
+    }                                                                                                                  \
+    while (false)
 
 #if defined(MDR_VALIDATION_NO_DEBUG_TRAPS)
 #define MDR_VALIDATION_TRAP() ((void)0)
@@ -97,40 +100,42 @@ namespace mdr
     };
 }
 
-#define MDR_TRY(ResultType, ...) \
-    do { \
-        const auto mdrResult = (__VA_ARGS__); \
-        if (!mdrResult) \
-        { \
-            MDR_TRAP(); \
-            return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
-                                                         mdrResult.errMessage ? mdrResult.errMessage :                 \
-                                                         MDR_SOURCE_LOCATION(#__VA_ARGS__));                           \
-        } \
-    } while (false)
+#define MDR_TRY(ResultType, ...)                                                                                       \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        const auto mdrResult = (__VA_ARGS__);                                                                          \
+        if (!mdrResult)                                                                                                \
+        {                                                                                                              \
+            MDR_TRAP();                                                                                                \
+            return ::mdr::MDRResult<ResultType>::Failure(                                                              \
+                mdrResult.error, mdrResult.errMessage ? mdrResult.errMessage : MDR_SOURCE_LOCATION(#__VA_ARGS__));     \
+        }                                                                                                              \
+    }                                                                                                                  \
+    while (false)
 
 
-#define MDR_TRY_SIZE(ResultType, ...) \
-    do { \
-        const auto mdrResult = (__VA_ARGS__); \
-        if (!mdrResult) \
-        { \
-            MDR_TRAP(); \
-            return ::mdr::MDRResult<ResultType>::Failure(mdrResult.error,                                              \
-                                                         mdrResult.errMessage ? mdrResult.errMessage :                 \
-                                                         MDR_SOURCE_LOCATION(#__VA_ARGS__));                           \
-        } \
-        maxSize -= mdrResult.value; \
-    } while (false)
+#define MDR_TRY_SIZE(ResultType, ...)                                                                                  \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        const auto mdrResult = (__VA_ARGS__);                                                                          \
+        if (!mdrResult)                                                                                                \
+        {                                                                                                              \
+            MDR_TRAP();                                                                                                \
+            return ::mdr::MDRResult<ResultType>::Failure(                                                              \
+                mdrResult.error, mdrResult.errMessage ? mdrResult.errMessage : MDR_SOURCE_LOCATION(#__VA_ARGS__));     \
+        }                                                                                                              \
+        maxSize -= mdrResult.value;                                                                                    \
+    }                                                                                                                  \
+    while (false)
 
-#define MDR_VALIDATE(...) \
-    do { \
-        if (!(__VA_ARGS__)) \
-        { \
-        MDR_VALIDATION_TRAP(); \
-            return ::mdr::MDRResult<void>::Failure(                                                                    \
-                MDR_RESULT_ERROR_MALFORMED_PAYLOAD,                                                                    \
-                MDR_SOURCE_LOCATION("Validation failed: " #__VA_ARGS__)                                               \
-            ); \
-        } \
-    } while (false)
+#define MDR_VALIDATE(...)                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (!(__VA_ARGS__))                                                                                            \
+        {                                                                                                              \
+            MDR_VALIDATION_TRAP();                                                                                     \
+            return ::mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD,                                 \
+                                                   MDR_SOURCE_LOCATION("Validation failed: " #__VA_ARGS__));           \
+        }                                                                                                              \
+    }                                                                                                                  \
+    while (false)

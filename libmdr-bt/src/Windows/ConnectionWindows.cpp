@@ -106,7 +106,8 @@ struct MDRConnectionWindows
         }
         sab.btAddr = macAddressToULL(macAddress);
         MDR_LOG("Connecting to btAddr=0x{:X}, serviceClassId={{{:08X}-{:04X}-{:04X}-...}}",
-            (unsigned long long)sab.btAddr, sab.serviceClassId.Data1, sab.serviceClassId.Data2, sab.serviceClassId.Data3);
+                (unsigned long long)sab.btAddr, sab.serviceClassId.Data1, sab.serviceClassId.Data2,
+                sab.serviceClassId.Data3);
         int ret = ::connect(ptr->conn, (sockaddr*)&sab, sizeof(sab));
         if (ret == SOCKET_ERROR)
         {
@@ -176,75 +177,75 @@ struct MDRConnectionWindows
         return MDR_RESULT_OK;
     }
 
-static MDRResult Poll(void* user, int timeout) noexcept
-{
-    auto* ptr = static_cast<MDRConnectionWindows*>(user);
-    if (ptr->conn == INVALID_SOCKET)
-        return MDR_RESULT_ERROR_NO_CONNECTION;
-
-    // Set up the file descriptor sets
-    fd_set readfds;
-    fd_set writefds;
-    fd_set exceptfds;
-
-    FD_ZERO(&readfds);
-    FD_ZERO(&writefds);
-    FD_ZERO(&exceptfds);
-
-    // Add your single socket to all three sets
-    FD_SET(ptr->conn, &readfds);
-    FD_SET(ptr->conn, &writefds);
-    FD_SET(ptr->conn, &exceptfds);
-
-    // `select` uses a timeval struct, not a plain millisecond int
-    struct timeval tv;
-    tv.tv_sec = timeout / 1000; // Convert ms to seconds
-    tv.tv_usec = (timeout % 1000) * 1000; // Convert remainder ms to microseconds
-
-    // Note: The first parameter (nfds) is ignored in Winsock.
-    // Pass a NULL timeval for an infinite wait (if timeout < 0)
-    int res = select(0, &readfds, &writefds, &exceptfds, (timeout < 0) ? NULL : &tv);
-
-    if (res > 0)
+    static MDRResult Poll(void* user, int timeout) noexcept
     {
-        // A non-blocking connect *fails* by signaling the exception set.
-        if (FD_ISSET(ptr->conn, &exceptfds))
+        auto* ptr = static_cast<MDRConnectionWindows*>(user);
+        if (ptr->conn == INVALID_SOCKET)
+            return MDR_RESULT_ERROR_NO_CONNECTION;
+
+        // Set up the file descriptor sets
+        fd_set readfds;
+        fd_set writefds;
+        fd_set exceptfds;
+
+        FD_ZERO(&readfds);
+        FD_ZERO(&writefds);
+        FD_ZERO(&exceptfds);
+
+        // Add your single socket to all three sets
+        FD_SET(ptr->conn, &readfds);
+        FD_SET(ptr->conn, &writefds);
+        FD_SET(ptr->conn, &exceptfds);
+
+        // `select` uses a timeval struct, not a plain millisecond int
+        struct timeval tv;
+        tv.tv_sec = timeout / 1000; // Convert ms to seconds
+        tv.tv_usec = (timeout % 1000) * 1000; // Convert remainder ms to microseconds
+
+        // Note: The first parameter (nfds) is ignored in Winsock.
+        // Pass a NULL timeval for an infinite wait (if timeout < 0)
+        int res = select(0, &readfds, &writefds, &exceptfds, (timeout < 0) ? NULL : &tv);
+
+        if (res > 0)
         {
-            int err = 0;
-            int errLen = sizeof(err);
-            // You MUST get the actual error code from the socket
-            if (getsockopt(ptr->conn, SOL_SOCKET, SO_ERROR, (char*)&err, &errLen) == 0)
+            // A non-blocking connect *fails* by signaling the exception set.
+            if (FD_ISSET(ptr->conn, &exceptfds))
             {
-                MDR_LOG("Poll: exceptfds signaled! SO_ERROR={} ({})", err, FormatErrorString(err));
-                ptr->lastError = FormatErrorString(err);
+                int err = 0;
+                int errLen = sizeof(err);
+                // You MUST get the actual error code from the socket
+                if (getsockopt(ptr->conn, SOL_SOCKET, SO_ERROR, (char*)&err, &errLen) == 0)
+                {
+                    MDR_LOG("Poll: exceptfds signaled! SO_ERROR={} ({})", err, FormatErrorString(err));
+                    ptr->lastError = FormatErrorString(err);
+                }
+                else
+                {
+                    MDR_LOG("Poll: exceptfds signaled! getsockopt failed, WSA={}", WSAGetLastError());
+                    // Fallback if getsockopt fails
+                    ptr->lastError = FormatErrorString(WSAGetLastError());
+                }
+                return MDR_RESULT_ERROR_NET;
             }
-            else
+
+            // A non-blocking connect *succeeds* by signaling the write set.
+            // Or, if already connected, data is available (read set).
+            if (FD_ISSET(ptr->conn, &readfds) || FD_ISSET(ptr->conn, &writefds))
             {
-                MDR_LOG("Poll: exceptfds signaled! getsockopt failed, WSA={}", WSAGetLastError());
-                // Fallback if getsockopt fails
-                ptr->lastError = FormatErrorString(WSAGetLastError());
+                return MDR_RESULT_OK;
             }
-            return MDR_RESULT_ERROR_NET;
+
+            // Should be unreachable if res > 0, but good to be safe
+            return MDR_RESULT_ERROR_TIMEOUT;
         }
 
-        // A non-blocking connect *succeeds* by signaling the write set.
-        // Or, if already connected, data is available (read set).
-        if (FD_ISSET(ptr->conn, &readfds) || FD_ISSET(ptr->conn, &writefds))
-        {
-            return MDR_RESULT_OK;
-        }
+        if (res == 0) // Timeout
+            return MDR_RESULT_ERROR_TIMEOUT;
 
-        // Should be unreachable if res > 0, but good to be safe
-        return MDR_RESULT_ERROR_TIMEOUT;
+        // res < 0 (SOCKET_ERROR)
+        ptr->lastError = FormatErrorString(WSAGetLastError());
+        return MDR_RESULT_ERROR_NET;
     }
-
-    if (res == 0) // Timeout
-        return MDR_RESULT_ERROR_TIMEOUT;
-
-    // res < 0 (SOCKET_ERROR)
-    ptr->lastError = FormatErrorString(WSAGetLastError());
-    return MDR_RESULT_ERROR_NET;
-}
 
     static MDRResult GetDevicesList(void* user, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
@@ -306,11 +307,11 @@ static MDRResult Poll(void* user, int timeout) noexcept
             {
                 auto const& pBytes = deviceInfo.Address.rgBytes;
                 mdr::String szName = ToU8String(deviceInfo.szName);
-                mdr::String szMacAddress = mdr::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[5], pBytes[4],
-                               pBytes[3], pBytes[2], pBytes[1], pBytes[0]);
-                MDR_LOG("Found device: name=\"{}\" mac={} connected={} authenticated={} remembered={}",
-                        szName.c_str(), szMacAddress.c_str(),
-                        (int)deviceInfo.fConnected, (int)deviceInfo.fAuthenticated, (int)deviceInfo.fRemembered);
+                mdr::String szMacAddress = mdr::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", pBytes[5],
+                                                       pBytes[4], pBytes[3], pBytes[2], pBytes[1], pBytes[0]);
+                MDR_LOG("Found device: name=\"{}\" mac={} connected={} authenticated={} remembered={}", szName.c_str(),
+                        szMacAddress.c_str(), (int)deviceInfo.fConnected, (int)deviceInfo.fAuthenticated,
+                        (int)deviceInfo.fRemembered);
                 devices.emplace_back();
                 auto& back = devices.back();
                 CopyUtf8(back.szDeviceName, szName.c_str());
@@ -355,7 +356,16 @@ static MDRResult Poll(void* user, int timeout) noexcept
 };
 
 extern "C" {
-MDR_API MDRConnectionWindows* mdrConnectionWindowsCreate() { return mdr::Construct<MDRConnectionWindows>(); }
-MDR_API void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance) { mdr::Destruct(instance); }
-MDR_API MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* instance) { return &instance->mdrConn; }
+MDR_API MDRConnectionWindows* mdrConnectionWindowsCreate()
+{
+    return mdr::Construct<MDRConnectionWindows>();
+}
+MDR_API void mdrConnectionWindowsDestroy(MDRConnectionWindows* instance)
+{
+    mdr::Destruct(instance);
+}
+MDR_API MDRConnection* mdrConnectionWindowsGet(MDRConnectionWindows* instance)
+{
+    return &instance->mdrConn;
+}
 }

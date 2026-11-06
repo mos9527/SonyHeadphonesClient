@@ -30,15 +30,7 @@ namespace
         std::vector<uint8_t> tx;
         size_t offset{};
         MDRConnection connection{
-            this,
-            Connect,
-            Disconnect,
-            Receive,
-            Send,
-            Poll,
-            GetDevices,
-            FreeDevices,
-            GetLastError,
+            this, Connect, Disconnect, Receive, Send, Poll, GetDevices, FreeDevices, GetLastError,
         };
 
         void Load(std::span<const uint8_t> bytes)
@@ -63,15 +55,8 @@ namespace
             if (self.offset == self.rx.size())
                 return MDR_RESULT_INPROGRESS;
 
-            const size_t count = std::min(
-                static_cast<size_t>(size),
-                self.rx.size() - self.offset
-            );
-            std::copy_n(
-                self.rx.begin() + static_cast<ptrdiff_t>(self.offset),
-                count,
-                destination
-            );
+            const size_t count = std::min(static_cast<size_t>(size), self.rx.size() - self.offset);
+            std::copy_n(self.rx.begin() + static_cast<ptrdiff_t>(self.offset), count, destination);
             self.offset += count;
             *received = static_cast<int>(count);
             return MDR_RESULT_OK;
@@ -112,20 +97,12 @@ namespace
     std::string GetLastError(MDRHeadphones* headphones)
     {
         uint32_t size = 0;
-        if (
-            mdrHeadphonesGetText(
-                headphones, MDR_TEXT_LAST_ERROR, 0, nullptr, &size
-            ) != MDR_RESULT_OK
-        )
+        if (mdrHeadphonesGetText(headphones, MDR_TEXT_LAST_ERROR, 0, nullptr, &size) != MDR_RESULT_OK)
         {
             return {};
         }
         std::vector<char> buffer(size);
-        if (
-            mdrHeadphonesGetText(
-                headphones, MDR_TEXT_LAST_ERROR, 0, buffer.data(), &size
-            ) != MDR_RESULT_OK
-        )
+        if (mdrHeadphonesGetText(headphones, MDR_TEXT_LAST_ERROR, 0, buffer.data(), &size) != MDR_RESULT_OK)
         {
             return {};
         }
@@ -141,12 +118,7 @@ namespace
         };
     }
 
-    bool Replay(
-        std::span<const uint8_t> frame,
-        MDRHeadphones* headphones,
-        MockTransport& transport,
-        MDREvent& event
-    )
+    bool Replay(std::span<const uint8_t> frame, MDRHeadphones* headphones, MockTransport& transport, MDREvent& event)
     {
         transport.Load(frame);
         for (size_t attempt = 0; attempt < frame.size() + 4; ++attempt)
@@ -180,13 +152,22 @@ namespace
             {
                 if (*it == 0x3Du)
                 {
-                    if (++it == eof) break;
+                    if (++it == eof)
+                        break;
                     switch (*it)
                     {
-                    case 0x2Cu: inner.push_back(0x3Cu); break;
-                    case 0x2Du: inner.push_back(0x3Du); break;
-                    case 0x2Eu: inner.push_back(0x3Eu); break;
-                    default: inner.push_back(*it); break;
+                    case 0x2Cu:
+                        inner.push_back(0x3Cu);
+                        break;
+                    case 0x2Du:
+                        inner.push_back(0x3Du);
+                        break;
+                    case 0x2Eu:
+                        inner.push_back(0x3Eu);
+                        break;
+                    default:
+                        inner.push_back(*it);
+                        break;
                     }
                 }
                 else
@@ -197,8 +178,7 @@ namespace
                 continue;
             if (inner[0] != 0x0Cu) // MDRDataType::DATA_MDR
                 continue;
-            const int32_t size = (inner[2] << 24u) | (inner[3] << 16u) |
-                                 (inner[4] << 8u) | inner[5];
+            const int32_t size = (inner[2] << 24u) | (inner[3] << 16u) | (inner[4] << 8u) | inner[5];
             if (size < 1)
                 continue;
             const size_t dataOffset = 6;
@@ -225,10 +205,7 @@ namespace
     {
         std::error_code error;
         const bool isDirectory = std::filesystem::is_directory(root, error);
-        Check(
-            isDirectory && !error,
-            "replay path is a directory: " + root.string()
-        );
+        Check(isDirectory && !error, "replay path is a directory: " + root.string());
         if (error || !isDirectory)
             return;
 
@@ -239,11 +216,8 @@ namespace
         {
             const auto& entry = *iterator;
             const std::string filename = entry.path().filename().string();
-            if (
-                entry.is_regular_file(error)
-                && entry.path().extension() == ".bin"
-                && filename.find("-rx.") != std::string::npos
-            )
+            if (entry.is_regular_file(error) && entry.path().extension() == ".bin" &&
+                filename.find("-rx.") != std::string::npos)
             {
                 packets.push_back(entry.path());
             }
@@ -255,12 +229,9 @@ namespace
 
         MockTransport transport;
         MDRHeadphones* headphones = nullptr;
-        Check(
-            mdrHeadphonesCreate(
-                MDR_ABI_VERSION, &transport.connection, DetectProtocolVersion(packets), &headphones
-            ) == MDR_RESULT_OK,
-            "opaque headphones session opens"
-        );
+        Check(mdrHeadphonesCreate(MDR_ABI_VERSION, &transport.connection, DetectProtocolVersion(packets),
+                                  &headphones) == MDR_RESULT_OK,
+              "opaque headphones session opens");
         if (headphones == nullptr)
             return;
 
@@ -270,10 +241,7 @@ namespace
             const std::string filename = path.filename().string();
             const bool isAck = filename.find(".type-ACK-") != std::string::npos;
             const bool isData = filename.find(".type-DATA_MDR") != std::string::npos;
-            Check(
-                isAck || isData,
-                "packet is replayable RX data or ACK: " + path.string()
-            );
+            Check(isAck || isData, "packet is replayable RX data or ACK: " + path.string());
             if (!isAck && !isData)
                 continue;
 
@@ -284,30 +252,20 @@ namespace
             Check(dispatched, "packet dispatches: " + path.string());
             if (!dispatched)
             {
-                std::cerr
-                    << "  event: " << event
-                    << ", ready: " << mdrHeadphonesIsReady(headphones)
-                    << ", dirty: " << mdrHeadphonesIsDirty(headphones)
-                    << ", initialized: " << mdrHeadphonesIsInitialized(headphones)
-                    << ", last error: " << GetLastError(headphones)
-                    << '\n';
+                std::cerr << "  event: " << event << ", ready: " << mdrHeadphonesIsReady(headphones)
+                          << ", dirty: " << mdrHeadphonesIsDirty(headphones)
+                          << ", initialized: " << mdrHeadphonesIsInitialized(headphones)
+                          << ", last error: " << GetLastError(headphones) << '\n';
             }
             ++replayed;
         }
 
         MDRModel identity{};
-        Check(
-            mdrHeadphonesGetModel(headphones, &identity) == MDR_RESULT_OK,
-            "replayed session identity is readable"
-        );
-        Check(
-            identity.protocol_version != 0,
-            "capture selects an MDR protocol backend"
-        );
+        Check(mdrHeadphonesGetModel(headphones, &identity) == MDR_RESULT_OK, "replayed session identity is readable");
+        Check(identity.protocol_version != 0, "capture selects an MDR protocol backend");
 
         mdrHeadphonesDestroy(headphones);
-        std::cout << "Replayed " << replayed << " packet(s) from "
-                  << root.string() << '\n';
+        std::cout << "Replayed " << replayed << " packet(s) from " << root.string() << '\n';
     }
 }
 

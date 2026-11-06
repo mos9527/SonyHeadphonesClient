@@ -36,7 +36,7 @@ using namespace ABI::Windows::Storage::Streams;
     {                                                                                                                  \
         HRESULT hr = (expr);                                                                                           \
         if (FAILED(hr))                                                                                                \
-        { /*MDR_LOG("HRESULT 0x{:08X} at {}:{}", hr, __FILE__, __LINE__);*/                                      \
+        { /*MDR_LOG("HRESULT 0x{:08X} at {}:{}", hr, __FILE__, __LINE__);*/                                            \
             return hr;                                                                                                 \
         }                                                                                                              \
     }                                                                                                                  \
@@ -45,7 +45,7 @@ using namespace ABI::Windows::Storage::Streams;
     do                                                                                                                 \
     {                                                                                                                  \
         if ((ptr) == nullptr)                                                                                          \
-        { /*MDR_LOG("Out of memory at {}:{}", __FILE__, __LINE__);*/                                             \
+        { /*MDR_LOG("Out of memory at {}:{}", __FILE__, __LINE__);*/                                                   \
             return E_OUTOFMEMORY;                                                                                      \
         }                                                                                                              \
     }                                                                                                                  \
@@ -95,7 +95,10 @@ constexpr HRESULT HResultFromMdr(WORD code)
     return MAKE_HRESULT(code >= MDR_RESULT_ERROR_GENERAL, FACILITY_MDR, code);
 }
 
-constexpr bool IsMdrHResult(HRESULT hr) { return HRESULT_FACILITY(hr) == FACILITY_MDR; }
+constexpr bool IsMdrHResult(HRESULT hr)
+{
+    return HRESULT_FACILITY(hr) == FACILITY_MDR;
+}
 
 constexpr int HResultToMdrResult(HRESULT hr)
 {
@@ -179,7 +182,10 @@ struct MDRConnectionWindowsBLE
         HANDLE event{CreateEventW(nullptr, TRUE, FALSE, nullptr)};
         bool active{};
 
-        ~ReceiveState() { CloseHandle(event); }
+        ~ReceiveState()
+        {
+            CloseHandle(event);
+        }
     };
 
     std::shared_ptr<ReceiveState> receive{std::make_shared<ReceiveState>()};
@@ -217,27 +223,28 @@ struct MDRConnectionWindowsBLE
                                 .freeDevicesList = FreeDevicesList,
                                 .getLastError = GetLastError})
     {
-        worker = std::jthread([this](std::stop_token stop)
-        {
-            workerResult = cancelEvent && receive->event
-                ? CoInitializeEx(nullptr, COINIT_MULTITHREADED) : E_OUTOFMEMORY;
-            while (!stop.stop_requested())
+        worker = std::jthread(
+            [this](std::stop_token stop)
             {
-                std::function<void()> work;
+                workerResult =
+                    cancelEvent && receive->event ? CoInitializeEx(nullptr, COINIT_MULTITHREADED) : E_OUTOFMEMORY;
+                while (!stop.stop_requested())
                 {
-                    std::unique_lock lock(workMutex);
-                    workCondition.wait(lock, [&] { return stop.stop_requested() || !workQueue.empty(); });
-                    if (stop.stop_requested())
-                        break;
-                    work = std::move(workQueue.front());
-                    workQueue.pop_front();
+                    std::function<void()> work;
+                    {
+                        std::unique_lock lock(workMutex);
+                        workCondition.wait(lock, [&] { return stop.stop_requested() || !workQueue.empty(); });
+                        if (stop.stop_requested())
+                            break;
+                        work = std::move(workQueue.front());
+                        workQueue.pop_front();
+                    }
+                    work();
                 }
-                work();
-            }
-            DisconnectImpl(this);
-            if (SUCCEEDED(workerResult))
-                CoUninitialize();
-        });
+                DisconnectImpl(this);
+                if (SUCCEEDED(workerResult))
+                    CoUninitialize();
+            });
         MDR_LOG("MDRConnectionWindowsBLE created");
     }
 
@@ -265,7 +272,10 @@ struct MDRConnectionWindowsBLE
         workCondition.notify_one();
     }
 
-    bool Cancelled() const { return WaitForSingleObject(cancelEvent, 0) == WAIT_OBJECT_0; }
+    bool Cancelled() const
+    {
+        return WaitForSingleObject(cancelEvent, 0) == WAIT_OBJECT_0;
+    }
 
     template <typename F>
     HRESULT RunOnMTA(F&& func)
@@ -275,7 +285,8 @@ struct MDRConnectionWindowsBLE
 
     template <typename Result>
     HRESULT WaitForResults(IAsyncOperation<Result>* operation,
-        typename ABI::Windows::Foundation::Internal::GetAbiType<typename IAsyncOperation<Result>::TResult_complex>::type* result)
+                           typename ABI::Windows::Foundation::Internal::GetAbiType<
+                               typename IAsyncOperation<Result>::TResult_complex>::type* result)
     {
         return WaitForCompletionAndGetResults(operation, result, (COWAIT_FLAGS)-1, cancelEvent);
     }
@@ -300,31 +311,32 @@ struct MDRConnectionWindowsBLE
         {
             ptr->enumPending = true;
             const uint64_t generation = ptr->generation;
-            ptr->Enqueue([ptr, generation]
-            {
+            ptr->Enqueue(
+                [ptr, generation]
                 {
-                    std::scoped_lock stateLock(ptr->stateMutex);
-                    if (ptr->worker.get_stop_token().stop_requested() || ptr->generation != generation)
                     {
-                        ptr->enumPending = false;
-                        ptr->enumReady = true;
-                        ptr->enumResult = MDR_RESULT_ERROR_NO_CONNECTION;
-                        return;
+                        std::scoped_lock stateLock(ptr->stateMutex);
+                        if (ptr->worker.get_stop_token().stop_requested() || ptr->generation != generation)
+                        {
+                            ptr->enumPending = false;
+                            ptr->enumReady = true;
+                            ptr->enumResult = MDR_RESULT_ERROR_NO_CONNECTION;
+                            return;
+                        }
+                        ResetEvent(ptr->cancelEvent);
                     }
-                    ResetEvent(ptr->cancelEvent);
-                }
-                MDRDeviceInfo* devices{};
-                int count{};
-                const MDRResult result = GetDevicesListImpl(ptr, &devices, &count);
-                std::scoped_lock stateLock(ptr->stateMutex);
-                ptr->enumDevices = devices;
-                ptr->enumCount = count;
-                ptr->enumResult = result;
-                ptr->enumPending = false;
-                ptr->enumReady = true;
-                if (result != MDR_RESULT_OK && ptr->generation == generation)
-                    ptr->publishedError = ptr->lastError;
-            });
+                    MDRDeviceInfo* devices{};
+                    int count{};
+                    const MDRResult result = GetDevicesListImpl(ptr, &devices, &count);
+                    std::scoped_lock stateLock(ptr->stateMutex);
+                    ptr->enumDevices = devices;
+                    ptr->enumCount = count;
+                    ptr->enumResult = result;
+                    ptr->enumPending = false;
+                    ptr->enumReady = true;
+                    if (result != MDR_RESULT_OK && ptr->generation == generation)
+                        ptr->publishedError = ptr->lastError;
+                });
         }
         return MDR_RESULT_INPROGRESS;
     }
@@ -474,282 +486,278 @@ struct MDRConnectionWindowsBLE
         ptr->publishedError = "Connecting via BLE GATT...";
         SetEvent(ptr->cancelEvent);
         SetEvent(ptr->receive->event);
-        ptr->Enqueue([ptr, btAddr, svcUUID = mdr::String(serviceUUID), generation]
-        {
-            DisconnectImpl(ptr);
+        ptr->Enqueue(
+            [ptr, btAddr, svcUUID = mdr::String(serviceUUID), generation]
             {
-                std::scoped_lock stateLock(ptr->stateMutex);
-                if (ptr->generation != generation || ptr->worker.get_stop_token().stop_requested())
-                    return;
-                ResetEvent(ptr->cancelEvent);
-                SetEvent(ptr->receive->event);
-                ptr->receive = std::make_shared<ReceiveState>();
-                if (!ptr->receive->event)
+                DisconnectImpl(ptr);
                 {
-                    ptr->connectResult = MDR_RESULT_ERROR_NET;
-                    ptr->publishedError = "Unable to create BLE receive event";
-                    return;
+                    std::scoped_lock stateLock(ptr->stateMutex);
+                    if (ptr->generation != generation || ptr->worker.get_stop_token().stop_requested())
+                        return;
+                    ResetEvent(ptr->cancelEvent);
+                    SetEvent(ptr->receive->event);
+                    ptr->receive = std::make_shared<ReceiveState>();
+                    if (!ptr->receive->event)
+                    {
+                        ptr->connectResult = MDR_RESULT_ERROR_NET;
+                        ptr->publishedError = "Unable to create BLE receive event";
+                        return;
+                    }
+                    ptr->receive->active = true;
                 }
-                ptr->receive->active = true;
-            }
-            const MDRResult result = ConnectImpl(ptr, btAddr, svcUUID);
-            std::scoped_lock stateLock(ptr->stateMutex);
-            if (ptr->generation != generation)
-                return;
-            ptr->publishedError = ptr->lastError;
-            ptr->connectResult = result;
-            ptr->connected = result == MDR_RESULT_OK;
-            SetEvent(ptr->receive->event);
-        });
+                const MDRResult result = ConnectImpl(ptr, btAddr, svcUUID);
+                std::scoped_lock stateLock(ptr->stateMutex);
+                if (ptr->generation != generation)
+                    return;
+                ptr->publishedError = ptr->lastError;
+                ptr->connectResult = result;
+                ptr->connected = result == MDR_RESULT_OK;
+                SetEvent(ptr->receive->event);
+            });
         return MDR_RESULT_INPROGRESS;
     }
 
     static MDRResult ConnectImpl(MDRConnectionWindowsBLE* ptr, uint64_t btAddr, const mdr::String& svcUUID)
     {
         auto inner = [&]() -> HRESULT
+        {
+            ComPtr<IBluetoothLEDeviceStatics> spBluetoothLEDeviceStatics;
+            RETURN_IF_FAILED(GetActivationFactory(
+                Wrappers::HStringReference(RuntimeClass_Windows_Devices_Bluetooth_BluetoothLEDevice).Get(),
+                &spBluetoothLEDeviceStatics));
+
+            // Open BLE device by address
+            ComPtr<IAsyncOperation<BluetoothLEDevice*>> spBleDeviceOp;
+            RETURN_IF_FAILED(spBluetoothLEDeviceStatics->FromBluetoothAddressAsync(btAddr, &spBleDeviceOp));
+            RETURN_IF_FAILED(ptr->WaitForResults(spBleDeviceOp.Get(), &ptr->device));
+            if (ptr->device == nullptr)
+            {
+                ptr->lastError = "BLE device not found or not reachable";
+                MDR_LOG("FromBluetoothAddressAsync returned null");
+                return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
+            }
+
+            Wrappers::HString hstrName;
+            RETURN_IF_FAILED(ptr->device->get_Name(hstrName.GetAddressOf()));
+            MDR_LOG("BLE device opened: {}", hstrName);
+
+            if (ptr->Cancelled())
+                return E_ABORT;
+
+            // Parse service UUID and find matching GATT service
+            GUID svcGuid;
+            {
+                uint8_t uuidBytes[16];
+                if (serviceUUIDtoBytes(svcUUID.c_str(), uuidBytes) != 0)
                 {
+                    ptr->lastError = "Invalid service UUID format";
+                    MDR_LOG("Invalid service UUID: {}", svcUUID);
+                    return HResultFromMdr(MDR_RESULT_ERROR_BAD_ADDRESS);
+                }
+                std::memcpy(&svcGuid, uuidBytes, 16);
+            }
 
-                    ComPtr<IBluetoothLEDeviceStatics> spBluetoothLEDeviceStatics;
+            MDR_LOG("Looking for GATT service: {}", svcUUID);
+
+            ComPtr<IBluetoothLEDevice3> spBleDevice3;
+            RETURN_IF_FAILED(ptr->device.As(&spBleDevice3));
+
+            ComPtr<IAsyncOperation<GattDeviceServicesResult*>> spServicesOp;
+            RETURN_IF_FAILED(
+                spBleDevice3->GetGattServicesWithCacheModeAsync(BluetoothCacheMode_Uncached, &spServicesOp));
+
+            ComPtr<IGattDeviceServicesResult> spServicesResult;
+            RETURN_IF_FAILED(ptr->WaitForResults(spServicesOp.Get(), &spServicesResult));
+
+            GattCommunicationStatus status;
+            RETURN_IF_FAILED(spServicesResult->get_Status(&status));
+
+            ComPtr<IVectorView<GattDeviceService*>> spServices;
+            RETURN_IF_FAILED(spServicesResult->get_Services(&spServices));
+
+            uint32_t cServices;
+            RETURN_IF_FAILED(spServices->get_Size(&cServices));
+
+            MDR_LOG("GetGattServicesAsync status: {}, count: {}", (int)status, cServices);
+
+            if (status != GattCommunicationStatus_Success)
+            {
+                ptr->lastError = mdr::Format("GATT service discovery failed (status={})", (int)status);
+                MDR_LOG("{}", ptr->lastError);
+                return HResultFromMdr(MDR_RESULT_ERROR_NET);
+            }
+
+            if (ptr->Cancelled())
+                return E_ABORT;
+
+            // Find the target service by UUID string comparison
+            ComPtr<IGattDeviceService> spTargetService;
+            for (uint32_t i = 0; i < cServices; i++)
+            {
+                ComPtr<IGattDeviceService> spSvc;
+                RETURN_IF_FAILED(spServices->GetAt(i, &spSvc));
+
+                GUID uuid;
+                RETURN_IF_FAILED(spSvc->get_Uuid(&uuid));
+
+                mdr::String foundUUID = GuidToString(uuid);
+                MDR_LOG("  Found service: {}", foundUUID);
+                if (_stricmp(foundUUID.c_str(), svcUUID.c_str()) == 0)
+                {
+                    spTargetService = spSvc;
+                    MDR_LOG("  -> Matched target service!");
+                    break;
+                }
+            }
+
+            if (spTargetService == nullptr)
+            {
+                ptr->lastError = mdr::Format("GATT service {} not found on device", svcUUID);
+                MDR_LOG("{}", ptr->lastError);
+                return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
+            }
+
+            ptr->service = spTargetService;
+
+            // Enumerate characteristics to find Write and Notify ones
+            ComPtr<IGattDeviceService3> spService3;
+            RETURN_IF_FAILED(spTargetService.As(&spService3));
+
+            ComPtr<IAsyncOperation<GattCharacteristicsResult*>> spCharsOp;
+            RETURN_IF_FAILED(spService3->GetCharacteristicsWithCacheModeAsync(BluetoothCacheMode_Uncached, &spCharsOp));
+
+            ComPtr<IGattCharacteristicsResult> spCharsResult;
+            RETURN_IF_FAILED(ptr->WaitForResults(spCharsOp.Get(), &spCharsResult));
+
+            GattCommunicationStatus charsStatus;
+            RETURN_IF_FAILED(spCharsResult->get_Status(&charsStatus));
+
+            if (charsStatus != GattCommunicationStatus_Success)
+            {
+                ptr->lastError = "Failed to enumerate GATT characteristics";
+                MDR_LOG("GetCharacteristicsAsync failed: status={}", (int)charsStatus);
+                return HResultFromMdr(MDR_RESULT_ERROR_NET);
+            }
+
+            ComPtr<IVectorView<GattCharacteristic*>> spCharacteristics;
+            RETURN_IF_FAILED(spCharsResult->get_Characteristics(&spCharacteristics));
+
+            uint32_t cCharacteristics;
+            RETURN_IF_FAILED(spCharacteristics->get_Size(&cCharacteristics));
+
+            MDR_LOG("Found {} characteristic(s) in service", cCharacteristics);
+
+            // for (auto const& ch : charsResult.Characteristics())
+            for (uint32_t i = 0; i < cCharacteristics; i++)
+            {
+                ComPtr<IGattCharacteristic> spCh;
+                RETURN_IF_FAILED(spCharacteristics->GetAt(i, &spCh));
+
+                GattCharacteristicProperties props;
+                RETURN_IF_FAILED(spCh->get_CharacteristicProperties(&props));
+
+                GUID uuid;
+                RETURN_IF_FAILED(spCh->get_Uuid(&uuid));
+                MDR_LOG("  Characteristic: {} [{}]", GuidToString(uuid),
+                        PropertiesToString(PropertiesToBitmask(props)));
+
+                // Pick the first writable characteristic (prefer WriteWithoutResponse for lower latency)
+                if (ptr->writeChar == nullptr &&
+                    ((props & GattCharacteristicProperties_Write) != GattCharacteristicProperties_None ||
+                     (props & GattCharacteristicProperties_WriteWithoutResponse) != GattCharacteristicProperties_None))
+                {
+                    ptr->writeChar = spCh;
+                    ptr->useWriteWithoutResponse = (props & GattCharacteristicProperties_WriteWithoutResponse) !=
+                        GattCharacteristicProperties_None;
+                    MDR_LOG("  -> Selected as WRITE characteristic (writeNoResp={})",
+                            (int)ptr->useWriteWithoutResponse);
+                }
+
+                // Pick the first notifiable characteristic
+                if (ptr->notifyChar == nullptr &&
+                    ((props & GattCharacteristicProperties_Notify) != GattCharacteristicProperties_None ||
+                     (props & GattCharacteristicProperties_Indicate) != GattCharacteristicProperties_None))
+                {
+                    ptr->notifyChar = spCh;
+                    MDR_LOG("  -> Selected as NOTIFY characteristic");
+                }
+            }
+
+            if (ptr->writeChar == nullptr)
+            {
+                ptr->lastError = "No writable GATT characteristic found in service";
+                MDR_LOG("{}", ptr->lastError);
+                return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
+            }
+
+            if (ptr->notifyChar == nullptr)
+            {
+                ptr->lastError = "No notifiable GATT characteristic found in service";
+                MDR_LOG("{}", ptr->lastError);
+                return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
+            }
+
+            if (ptr->Cancelled())
+                return E_ABORT;
+
+            // Subscribe to notifications
+            ComPtr<IAsyncOperation<GattCommunicationStatus>> spCccdOp;
+            RETURN_IF_FAILED(ptr->notifyChar->WriteClientCharacteristicConfigurationDescriptorAsync(
+                GattClientCharacteristicConfigurationDescriptorValue_Notify, &spCccdOp));
+
+            GattCommunicationStatus cccdResult;
+            RETURN_IF_FAILED(ptr->WaitForResults(spCccdOp.Get(), &cccdResult));
+
+            if (cccdResult != GattCommunicationStatus_Success)
+            {
+                // Try Indicate if Notify fails
+                MDR_LOG("Notify subscription failed (status={}), trying Indicate", (int)cccdResult);
+                RETURN_IF_FAILED(ptr->notifyChar->WriteClientCharacteristicConfigurationDescriptorAsync(
+                    GattClientCharacteristicConfigurationDescriptorValue_Indicate, &spCccdOp));
+                RETURN_IF_FAILED(ptr->WaitForResults(spCccdOp.Get(), &cccdResult));
+            }
+
+            if (cccdResult != GattCommunicationStatus_Success)
+            {
+                ptr->lastError = mdr::Format("Failed to subscribe to notifications (status={})", (int)cccdResult);
+                MDR_LOG("{}", ptr->lastError);
+                return HResultFromMdr(MDR_RESULT_ERROR_NET);
+            }
+
+            MDR_LOG("Notification subscription OK");
+
+            // Register ValueChanged handler
+            auto callback = Callback<ITypedEventHandler<GattCharacteristic*, GattValueChangedEventArgs*>>(
+                [receive = ptr->receive](IGattCharacteristic*, IGattValueChangedEventArgs* args) -> HRESULT
+                {
+                    ComPtr<IBuffer> spBuffer;
+                    RETURN_IF_FAILED(args->get_CharacteristicValue(&spBuffer));
+
+                    ComPtr<IDataReaderStatics> spDataReaderStatics;
                     RETURN_IF_FAILED(GetActivationFactory(
-                        Wrappers::HStringReference(RuntimeClass_Windows_Devices_Bluetooth_BluetoothLEDevice).Get(),
-                        &spBluetoothLEDeviceStatics));
+                        Wrappers::HStringReference(RuntimeClass_Windows_Storage_Streams_DataReader).Get(),
+                        &spDataReaderStatics));
 
-                    // Open BLE device by address
-                    ComPtr<IAsyncOperation<BluetoothLEDevice*>> spBleDeviceOp;
-                    RETURN_IF_FAILED(spBluetoothLEDeviceStatics->FromBluetoothAddressAsync(btAddr, &spBleDeviceOp));
-                    RETURN_IF_FAILED(ptr->WaitForResults(spBleDeviceOp.Get(), &ptr->device));
-                    if (ptr->device == nullptr)
-                    {
-                        ptr->lastError = "BLE device not found or not reachable";
-                        MDR_LOG("FromBluetoothAddressAsync returned null");
-                        return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
-                    }
+                    ComPtr<IDataReader> spReader;
+                    RETURN_IF_FAILED(spDataReaderStatics->FromBuffer(spBuffer.Get(), &spReader));
 
-                    Wrappers::HString hstrName;
-                    RETURN_IF_FAILED(ptr->device->get_Name(hstrName.GetAddressOf()));
-                    MDR_LOG("BLE device opened: {}", hstrName);
+                    uint32_t len;
+                    RETURN_IF_FAILED(spReader->get_UnconsumedBufferLength(&len));
 
-                    if (ptr->Cancelled())
-                        return E_ABORT;
-
-                    // Parse service UUID and find matching GATT service
-                    GUID svcGuid;
-                    {
-                        uint8_t uuidBytes[16];
-                        if (serviceUUIDtoBytes(svcUUID.c_str(), uuidBytes) != 0)
-                        {
-                            ptr->lastError = "Invalid service UUID format";
-                            MDR_LOG("Invalid service UUID: {}", svcUUID);
-                            return HResultFromMdr(MDR_RESULT_ERROR_BAD_ADDRESS);
-                        }
-                        std::memcpy(&svcGuid, uuidBytes, 16);
-                    }
-
-                    MDR_LOG("Looking for GATT service: {}", svcUUID);
-
-                    ComPtr<IBluetoothLEDevice3> spBleDevice3;
-                    RETURN_IF_FAILED(ptr->device.As(&spBleDevice3));
-
-                    ComPtr<IAsyncOperation<GattDeviceServicesResult*>> spServicesOp;
-                    RETURN_IF_FAILED(
-                        spBleDevice3->GetGattServicesWithCacheModeAsync(BluetoothCacheMode_Uncached, &spServicesOp));
-
-                    ComPtr<IGattDeviceServicesResult> spServicesResult;
-                    RETURN_IF_FAILED(ptr->WaitForResults(spServicesOp.Get(), &spServicesResult));
-
-                    GattCommunicationStatus status;
-                    RETURN_IF_FAILED(spServicesResult->get_Status(&status));
-
-                    ComPtr<IVectorView<GattDeviceService*>> spServices;
-                    RETURN_IF_FAILED(spServicesResult->get_Services(&spServices));
-
-                    uint32_t cServices;
-                    RETURN_IF_FAILED(spServices->get_Size(&cServices));
-
-                    MDR_LOG("GetGattServicesAsync status: {}, count: {}", (int)status, cServices);
-
-                    if (status != GattCommunicationStatus_Success)
-                    {
-                        ptr->lastError = mdr::Format("GATT service discovery failed (status={})", (int)status);
-                        MDR_LOG("{}", ptr->lastError);
-                        return HResultFromMdr(MDR_RESULT_ERROR_NET);
-                    }
-
-                    if (ptr->Cancelled())
-                        return E_ABORT;
-
-                    // Find the target service by UUID string comparison
-                    ComPtr<IGattDeviceService> spTargetService;
-                    for (uint32_t i = 0; i < cServices; i++)
-                    {
-                        ComPtr<IGattDeviceService> spSvc;
-                        RETURN_IF_FAILED(spServices->GetAt(i, &spSvc));
-
-                        GUID uuid;
-                        RETURN_IF_FAILED(spSvc->get_Uuid(&uuid));
-
-                        mdr::String foundUUID = GuidToString(uuid);
-                        MDR_LOG("  Found service: {}", foundUUID);
-                        if (_stricmp(foundUUID.c_str(), svcUUID.c_str()) == 0)
-                        {
-                            spTargetService = spSvc;
-                            MDR_LOG("  -> Matched target service!");
-                            break;
-                        }
-                    }
-
-                    if (spTargetService == nullptr)
-                    {
-                        ptr->lastError = mdr::Format("GATT service {} not found on device", svcUUID);
-                        MDR_LOG("{}", ptr->lastError);
-                        return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
-                    }
-
-                    ptr->service = spTargetService;
-
-                    // Enumerate characteristics to find Write and Notify ones
-                    ComPtr<IGattDeviceService3> spService3;
-                    RETURN_IF_FAILED(spTargetService.As(&spService3));
-
-                    ComPtr<IAsyncOperation<GattCharacteristicsResult*>> spCharsOp;
-                    RETURN_IF_FAILED(
-                        spService3->GetCharacteristicsWithCacheModeAsync(BluetoothCacheMode_Uncached, &spCharsOp));
-
-                    ComPtr<IGattCharacteristicsResult> spCharsResult;
-                    RETURN_IF_FAILED(ptr->WaitForResults(spCharsOp.Get(), &spCharsResult));
-
-                    GattCommunicationStatus charsStatus;
-                    RETURN_IF_FAILED(spCharsResult->get_Status(&charsStatus));
-
-                    if (charsStatus != GattCommunicationStatus_Success)
-                    {
-                        ptr->lastError = "Failed to enumerate GATT characteristics";
-                        MDR_LOG("GetCharacteristicsAsync failed: status={}", (int)charsStatus);
-                        return HResultFromMdr(MDR_RESULT_ERROR_NET);
-                    }
-
-                    ComPtr<IVectorView<GattCharacteristic*>> spCharacteristics;
-                    RETURN_IF_FAILED(spCharsResult->get_Characteristics(&spCharacteristics));
-
-                    uint32_t cCharacteristics;
-                    RETURN_IF_FAILED(spCharacteristics->get_Size(&cCharacteristics));
-
-                    MDR_LOG("Found {} characteristic(s) in service", cCharacteristics);
-
-                    // for (auto const& ch : charsResult.Characteristics())
-                    for (uint32_t i = 0; i < cCharacteristics; i++)
-                    {
-                        ComPtr<IGattCharacteristic> spCh;
-                        RETURN_IF_FAILED(spCharacteristics->GetAt(i, &spCh));
-
-                        GattCharacteristicProperties props;
-                        RETURN_IF_FAILED(spCh->get_CharacteristicProperties(&props));
-
-                        GUID uuid;
-                        RETURN_IF_FAILED(spCh->get_Uuid(&uuid));
-                        MDR_LOG("  Characteristic: {} [{}]", GuidToString(uuid),
-                                PropertiesToString(PropertiesToBitmask(props)));
-
-                        // Pick the first writable characteristic (prefer WriteWithoutResponse for lower latency)
-                        if (ptr->writeChar == nullptr &&
-                            ((props & GattCharacteristicProperties_Write) != GattCharacteristicProperties_None ||
-                             (props & GattCharacteristicProperties_WriteWithoutResponse) !=
-                                 GattCharacteristicProperties_None))
-                        {
-                            ptr->writeChar = spCh;
-                            ptr->useWriteWithoutResponse =
-                                (props & GattCharacteristicProperties_WriteWithoutResponse) !=
-                                GattCharacteristicProperties_None;
-                            MDR_LOG("  -> Selected as WRITE characteristic (writeNoResp={})",
-                                    (int)ptr->useWriteWithoutResponse);
-                        }
-
-                        // Pick the first notifiable characteristic
-                        if (ptr->notifyChar == nullptr &&
-                            ((props & GattCharacteristicProperties_Notify) != GattCharacteristicProperties_None ||
-                             (props & GattCharacteristicProperties_Indicate) != GattCharacteristicProperties_None))
-                        {
-                            ptr->notifyChar = spCh;
-                            MDR_LOG("  -> Selected as NOTIFY characteristic");
-                        }
-                    }
-
-                    if (ptr->writeChar == nullptr)
-                    {
-                        ptr->lastError = "No writable GATT characteristic found in service";
-                        MDR_LOG("{}", ptr->lastError);
-                        return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
-                    }
-
-                    if (ptr->notifyChar == nullptr)
-                    {
-                        ptr->lastError = "No notifiable GATT characteristic found in service";
-                        MDR_LOG("{}", ptr->lastError);
-                        return HResultFromMdr(MDR_RESULT_ERROR_NOT_FOUND);
-                    }
-
-                    if (ptr->Cancelled())
-                        return E_ABORT;
-
-                    // Subscribe to notifications
-                    ComPtr<IAsyncOperation<GattCommunicationStatus>> spCccdOp;
-                    RETURN_IF_FAILED(ptr->notifyChar->WriteClientCharacteristicConfigurationDescriptorAsync(
-                        GattClientCharacteristicConfigurationDescriptorValue_Notify, &spCccdOp));
-
-                    GattCommunicationStatus cccdResult;
-                    RETURN_IF_FAILED(ptr->WaitForResults(spCccdOp.Get(), &cccdResult));
-
-                    if (cccdResult != GattCommunicationStatus_Success)
-                    {
-                        // Try Indicate if Notify fails
-                        MDR_LOG("Notify subscription failed (status={}), trying Indicate", (int)cccdResult);
-                        RETURN_IF_FAILED(ptr->notifyChar->WriteClientCharacteristicConfigurationDescriptorAsync(
-                            GattClientCharacteristicConfigurationDescriptorValue_Indicate, &spCccdOp));
-                        RETURN_IF_FAILED(ptr->WaitForResults(spCccdOp.Get(), &cccdResult));
-                    }
-
-                    if (cccdResult != GattCommunicationStatus_Success)
-                    {
-                        ptr->lastError =
-                            mdr::Format("Failed to subscribe to notifications (status={})", (int)cccdResult);
-                        MDR_LOG("{}", ptr->lastError);
-                        return HResultFromMdr(MDR_RESULT_ERROR_NET);
-                    }
-
-                    MDR_LOG("Notification subscription OK");
-
-                    // Register ValueChanged handler
-                    auto callback = Callback<ITypedEventHandler<GattCharacteristic*, GattValueChangedEventArgs*>>(
-                        [receive = ptr->receive](IGattCharacteristic*, IGattValueChangedEventArgs* args) -> HRESULT
-                        {
-                            ComPtr<IBuffer> spBuffer;
-                            RETURN_IF_FAILED(args->get_CharacteristicValue(&spBuffer));
-
-                            ComPtr<IDataReaderStatics> spDataReaderStatics;
-                            RETURN_IF_FAILED(GetActivationFactory(
-                                Wrappers::HStringReference(RuntimeClass_Windows_Storage_Streams_DataReader).Get(),
-                                &spDataReaderStatics));
-
-                            ComPtr<IDataReader> spReader;
-                            RETURN_IF_FAILED(spDataReaderStatics->FromBuffer(spBuffer.Get(), &spReader));
-
-                            uint32_t len;
-                            RETURN_IF_FAILED(spReader->get_UnconsumedBufferLength(&len));
-
-                            mdr::Vector<uint8_t> bytes(len);
-                            RETURN_IF_FAILED(spReader->ReadBytes(len, bytes.data()));
-                            std::scoped_lock lock(receive->mutex);
-                            if (!receive->active)
-                                return S_OK;
-                            receive->buffer.insert(receive->buffer.end(), bytes.begin(), bytes.end());
-                            SetEvent(receive->event);
-                            return S_OK;
-                        });
-                    RETURN_IF_NULL_ALLOC(callback);
-                    RETURN_IF_FAILED(ptr->notifyChar->add_ValueChanged(callback.Get(), &ptr->notifyToken));
-
+                    mdr::Vector<uint8_t> bytes(len);
+                    RETURN_IF_FAILED(spReader->ReadBytes(len, bytes.data()));
+                    std::scoped_lock lock(receive->mutex);
+                    if (!receive->active)
+                        return S_OK;
+                    receive->buffer.insert(receive->buffer.end(), bytes.begin(), bytes.end());
+                    SetEvent(receive->event);
                     return S_OK;
-                };
+                });
+            RETURN_IF_NULL_ALLOC(callback);
+            RETURN_IF_FAILED(ptr->notifyChar->add_ValueChanged(callback.Get(), &ptr->notifyToken));
+
+            return S_OK;
+        };
 
         const HRESULT hr = ptr->RunOnMTA(inner);
         if (FAILED(hr))
@@ -864,46 +872,50 @@ struct MDRConnectionWindowsBLE
         const uint64_t generation = ptr->generation;
         const auto* bytes = reinterpret_cast<const uint8_t*>(src);
         ptr->writePending = true;
-        ptr->Enqueue([ptr, data = mdr::Vector<uint8_t>(bytes, bytes + size), generation]() mutable
-        {
+        ptr->Enqueue(
+            [ptr, data = mdr::Vector<uint8_t>(bytes, bytes + size), generation]() mutable
             {
+                {
+                    std::scoped_lock stateLock(ptr->stateMutex);
+                    if (ptr->generation != generation)
+                        return;
+                }
+                const HRESULT hr = ptr->RunOnMTA(
+                    [&]() -> HRESULT
+                    {
+                        ComPtr<IDataWriter> writer;
+                        RETURN_IF_FAILED(ActivateInstance(
+                            Wrappers::HStringReference(RuntimeClass_Windows_Storage_Streams_DataWriter).Get(),
+                            &writer));
+                        RETURN_IF_FAILED(writer->WriteBytes(static_cast<uint32_t>(data.size()), data.data()));
+                        ComPtr<IBuffer> buffer;
+                        RETURN_IF_FAILED(writer->DetachBuffer(&buffer));
+                        ComPtr<IAsyncOperation<GattCommunicationStatus>> operation;
+                        const auto option = ptr->useWriteWithoutResponse ? GattWriteOption_WriteWithoutResponse
+                                                                         : GattWriteOption_WriteWithResponse;
+                        RETURN_IF_FAILED(ptr->writeChar->WriteValueWithOptionAsync(buffer.Get(), option, &operation));
+                        GattCommunicationStatus status;
+                        RETURN_IF_FAILED(ptr->WaitForResults(operation.Get(), &status));
+                        if (status != GattCommunicationStatus_Success)
+                        {
+                            ptr->lastError = mdr::Format("GATT write failed (status={})", (int)status);
+                            return HResultFromMdr(MDR_RESULT_ERROR_NET);
+                        }
+                        return S_OK;
+                    });
                 std::scoped_lock stateLock(ptr->stateMutex);
                 if (ptr->generation != generation)
                     return;
-            }
-            const HRESULT hr = ptr->RunOnMTA([&]() -> HRESULT
-            {
-                ComPtr<IDataWriter> writer;
-                RETURN_IF_FAILED(ActivateInstance(
-                    Wrappers::HStringReference(RuntimeClass_Windows_Storage_Streams_DataWriter).Get(), &writer));
-                RETURN_IF_FAILED(writer->WriteBytes(static_cast<uint32_t>(data.size()), data.data()));
-                ComPtr<IBuffer> buffer;
-                RETURN_IF_FAILED(writer->DetachBuffer(&buffer));
-                ComPtr<IAsyncOperation<GattCommunicationStatus>> operation;
-                const auto option = ptr->useWriteWithoutResponse
-                    ? GattWriteOption_WriteWithoutResponse : GattWriteOption_WriteWithResponse;
-                RETURN_IF_FAILED(ptr->writeChar->WriteValueWithOptionAsync(buffer.Get(), option, &operation));
-                GattCommunicationStatus status;
-                RETURN_IF_FAILED(ptr->WaitForResults(operation.Get(), &status));
-                if (status != GattCommunicationStatus_Success)
+                ptr->writePending = false;
+                if (FAILED(hr))
                 {
-                    ptr->lastError = mdr::Format("GATT write failed (status={})", (int)status);
-                    return HResultFromMdr(MDR_RESULT_ERROR_NET);
+                    ptr->writeResult = HResultToMdrResult(hr);
+                    ptr->publishedError = IsMdrHResult(hr)
+                        ? ptr->lastError
+                        : mdr::Format("Send failed with HRESULT 0x{:08X}", (uint32_t)hr);
                 }
-                return S_OK;
+                SetEvent(ptr->receive->event);
             });
-            std::scoped_lock stateLock(ptr->stateMutex);
-            if (ptr->generation != generation)
-                return;
-            ptr->writePending = false;
-            if (FAILED(hr))
-            {
-                ptr->writeResult = HResultToMdrResult(hr);
-                ptr->publishedError = IsMdrHResult(hr) ? ptr->lastError
-                    : mdr::Format("Send failed with HRESULT 0x{:08X}", (uint32_t)hr);
-            }
-            SetEvent(ptr->receive->event);
-        });
         *pSent = size;
         return MDR_RESULT_OK;
     }
@@ -980,7 +992,10 @@ MDR_API MDRConnectionWindowsBLE* mdrConnectionWindowsBLECreate()
     return mdr::Construct<MDRConnectionWindowsBLE>();
 }
 
-MDR_API MDRConnection* mdrConnectionWindowsBLEGet(MDRConnectionWindowsBLE* pConn) { return &pConn->mdrConn; }
+MDR_API MDRConnection* mdrConnectionWindowsBLEGet(MDRConnectionWindowsBLE* pConn)
+{
+    return &pConn->mdrConn;
+}
 
 MDR_API void mdrConnectionWindowsBLEDestroy(MDRConnectionWindowsBLE* pConn)
 {

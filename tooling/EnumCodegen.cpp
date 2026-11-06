@@ -14,19 +14,19 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
     case CXCursor_Namespace:
         return CXChildVisit_Recurse;
     case CXCursor_EnumDecl:
-        {
-            std::string parentStr = getFullParentName(parent);
-            if (parentStr != gNamespaceName)
-                return CXChildVisit_Continue;
-            CXString name = clang_getCursorSpelling(cursor);
-            if (!gPrevDeclName.empty() && gPrevDeclName != clang_getCString(name))
-                gVisitOut(cursor, parent, nullptr);
-            gVisitIn(cursor, parent, nullptr);
-            clang_visitChildren(cursor, gVisit, nullptr);
-            gPrevDeclName = clang_getCString(name);
-            clang_disposeString(name);
+    {
+        std::string parentStr = getFullParentName(parent);
+        if (parentStr != gNamespaceName)
             return CXChildVisit_Continue;
-        }
+        CXString name = clang_getCursorSpelling(cursor);
+        if (!gPrevDeclName.empty() && gPrevDeclName != clang_getCString(name))
+            gVisitOut(cursor, parent, nullptr);
+        gVisitIn(cursor, parent, nullptr);
+        clang_visitChildren(cursor, gVisit, nullptr);
+        gPrevDeclName = clang_getCString(name);
+        clang_disposeString(name);
+        return CXChildVisit_Continue;
+    }
     default:
         return CXChildVisit_Continue;
     }

@@ -111,10 +111,17 @@ namespace
         const char* suffix = "sc";
         switch (locale)
         {
-        case AppLocale::TRADITIONAL_CHINESE: suffix = "tc"; break;
-        case AppLocale::JAPANESE: suffix = "jp"; break;
-        case AppLocale::KOREAN: suffix = "kr"; break;
-        default: break;
+        case AppLocale::TRADITIONAL_CHINESE:
+            suffix = "tc";
+            break;
+        case AppLocale::JAPANESE:
+            suffix = "jp";
+            break;
+        case AppLocale::KOREAN:
+            suffix = "kr";
+            break;
+        default:
+            break;
         }
         if (normalized.find(mdr::String("sans") + suffix) != mdr::String::npos ||
             normalized.find(mdr::String("cjk") + suffix) != mdr::String::npos)
@@ -129,14 +136,20 @@ namespace
         std::u32string_view sample = U"中文电连接控制";
         switch (locale)
         {
-        case AppLocale::TRADITIONAL_CHINESE: sample = U"中文電連接聲音"; break;
-        case AppLocale::JAPANESE: sample = U"日本語あいうアイウ"; break;
-        case AppLocale::KOREAN: sample = U"한국어연결음량"; break;
-        default: break;
+        case AppLocale::TRADITIONAL_CHINESE:
+            sample = U"中文電連接聲音";
+            break;
+        case AppLocale::JAPANESE:
+            sample = U"日本語あいうアイウ";
+            break;
+        case AppLocale::KOREAN:
+            sample = U"한국어연결음량";
+            break;
+        default:
+            break;
         }
-        return std::all_of(sample.begin(), sample.end(), [&font](char32_t codepoint) {
-            return stbtt_FindGlyphIndex(&font, static_cast<int>(codepoint)) != 0;
-        });
+        return std::all_of(sample.begin(), sample.end(), [&font](char32_t codepoint)
+                           { return stbtt_FindGlyphIndex(&font, static_cast<int>(codepoint)) != 0; });
     }
 
     mdr::String FontFaceName(const stbtt_fontinfo& font)
@@ -265,14 +278,16 @@ namespace
         if (!Arguments(env, info, 3, arguments) || !Generation(env, arguments[0], id) || !id ||
             !Generation(env, arguments[1], result) ||
             (result != CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED && result != CLIENT_PLATFORM_SAVE_BLOB_CANCELLED &&
-             result != CLIENT_PLATFORM_SAVE_BLOB_FAILED) || !String(env, arguments[2], error))
+             result != CLIENT_PLATFORM_SAVE_BLOB_FAILED) ||
+            !String(env, arguments[2], error))
             return Throw(env, "completeShare expects a request ID, share result and error string");
         ShareRequest request;
         if (TakeShare(id, request))
         {
             if (result == CLIENT_PLATFORM_SAVE_BLOB_FAILED && error.empty())
                 error = "File sharing failed";
-            FinishShare(request, static_cast<ClientPlatformSaveBlobResult>(result), error.empty() ? nullptr : error.c_str());
+            FinishShare(request, static_cast<ClientPlatformSaveBlobResult>(result),
+                        error.empty() ? nullptr : error.c_str());
         }
         return Undefined(env);
     }
@@ -288,10 +303,9 @@ namespace
         napi_value refresh{};
         napi_value data{};
         void* bytes{};
-        if (napi_create_object(env, &result) != napi_ok ||
-            !Number(env, result, "generation", snapshot.generation) ||
-            !Number(env, result, "action", snapshot.action) ||
-            !Text(env, result, "address", snapshot.address) || !Text(env, result, "uuid", snapshot.uuid) ||
+        if (napi_create_object(env, &result) != napi_ok || !Number(env, result, "generation", snapshot.generation) ||
+            !Number(env, result, "action", snapshot.action) || !Text(env, result, "address", snapshot.address) ||
+            !Text(env, result, "uuid", snapshot.uuid) ||
             napi_get_boolean(env, snapshot.refreshDevices, &refresh) != napi_ok ||
             !Property(env, result, "refreshDevices", refresh) ||
             napi_create_arraybuffer(env, snapshot.data.size(), &bytes, &data) != napi_ok ||
@@ -353,8 +367,8 @@ namespace
         napi_value argument{};
         bool isArray{};
         uint32_t count{};
-        if (!Arguments(env, info, 1, &argument) || napi_is_array(env, argument, &isArray) != napi_ok ||
-            !isArray || napi_get_array_length(env, argument, &count) != napi_ok || count > 512)
+        if (!Arguments(env, info, 1, &argument) || napi_is_array(env, argument, &isArray) != napi_ok || !isArray ||
+            napi_get_array_length(env, argument, &count) != napi_ok || count > 512)
             return Throw(env, "setDevices expects at most 512 paired devices");
         mdr::Vector<MDRDeviceInfo> devices;
         devices.reserve(count);
@@ -389,8 +403,8 @@ namespace
     {
         napi_value argument{};
         double scale{};
-        if (!Arguments(env, info, 1, &argument) ||
-            napi_get_value_double(env, argument, &scale) != napi_ok || !std::isfinite(scale) || scale < 0.5 || scale > 8.0)
+        if (!Arguments(env, info, 1, &argument) || napi_get_value_double(env, argument, &scale) != napi_ok ||
+            !std::isfinite(scale) || scale < 0.5 || scale > 8.0)
             return Throw(env, "setScale expects a finite scale between 0.5 and 8");
         gDisplayScale.store(static_cast<float>(scale), std::memory_order_relaxed);
         return Undefined(env);
@@ -408,8 +422,7 @@ namespace
             {"transportFailed", nullptr, TransportFailed, nullptr, nullptr, nullptr, napi_default, nullptr},
             {"feedRx", nullptr, FeedRx, nullptr, nullptr, nullptr, napi_default, nullptr},
             {"setDevices", nullptr, SetDevices, nullptr, nullptr, nullptr, napi_default, nullptr},
-            {"stopTransport", nullptr, StopTransport, nullptr, nullptr, nullptr, napi_default, nullptr}
-        };
+            {"stopTransport", nullptr, StopTransport, nullptr, nullptr, nullptr, napi_default, nullptr}};
         if (napi_define_properties(env, exports, std::size(methods), methods) != napi_ok)
             return Throw(env, "Unable to register OHOS client transport");
         return exports;
@@ -500,8 +513,10 @@ void clientPlatformConnectionDestroy()
 
 int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSize)
 {
-    if (outAddr) *outAddr = nullptr;
-    if (outSize) *outSize = 0;
+    if (outAddr)
+        *outAddr = nullptr;
+    if (outSize)
+        *outSize = 0;
     if (!path || !outAddr || !outSize)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const int file = open(path, O_RDONLY | O_CLOEXEC);
@@ -554,16 +569,19 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
         {
             mdr::String name = entry->d_name;
             mdr::String lower = name;
-            std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char value) { return std::tolower(value); });
+            std::transform(lower.begin(), lower.end(), lower.begin(),
+                           [](unsigned char value) { return std::tolower(value); });
             if (lower.ends_with(".ttf") || lower.ends_with(".otf") || lower.ends_with(".ttc"))
                 candidates.push_back("/system/fonts/" + name);
         }
         closedir(directory);
-        std::sort(candidates.begin(), candidates.end(), [locale](const mdr::String& left, const mdr::String& right) {
-            const int leftScore = FontPreference(left, locale);
-            const int rightScore = FontPreference(right, locale);
-            return leftScore != rightScore ? leftScore > rightScore : left < right;
-        });
+        std::sort(candidates.begin(), candidates.end(),
+                  [locale](const mdr::String& left, const mdr::String& right)
+                  {
+                      const int leftScore = FontPreference(left, locale);
+                      const int rightScore = FontPreference(right, locale);
+                      return leftScore != rightScore ? leftScore > rightScore : left < right;
+                  });
         for (const auto& path : candidates)
         {
             void* data{};
@@ -604,14 +622,15 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
                 mapping.size = size;
                 mapping.face = bestFace;
                 OH_LOG_Print(LOG_APP, LOG_INFO, 0, "SHCFont",
-                    "Selected %{public}s, face %{public}d (%{public}s), locale %{public}d",
-                    path.c_str(), bestFace, bestName.c_str(), static_cast<int>(locale));
+                             "Selected %{public}s, face %{public}d (%{public}s), locale %{public}d", path.c_str(),
+                             bestFace, bestName.c_str(), static_cast<int>(locale));
                 break;
             }
             clientPlatformMemoryUnmapFile(data, size);
         }
         if (!mapping.data)
-            OH_LOG_Print(LOG_APP, LOG_ERROR, 0, "SHCFont", "No system font covers locale %{public}d", static_cast<int>(locale));
+            OH_LOG_Print(LOG_APP, LOG_ERROR, 0, "SHCFont", "No system font covers locale %{public}d",
+                         static_cast<int>(locale));
     }
     *outData = static_cast<const char*>(mapping.data);
     *outFaceIndex = mapping.face;
@@ -620,20 +639,26 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
 
 int clientPlatformIsLocalBluetoothAddress(const char*, int* outIsLocal)
 {
-    if (outIsLocal) *outIsLocal = 0;
+    if (outIsLocal)
+        *outIsLocal = 0;
     return MDR_RESULT_ERROR_NOT_SUPPORTED;
 }
 
-ClientMediaPause* clientPlatformMediaPause() { return nullptr; }
-void clientPlatformMediaResume(ClientMediaPause*) {}
+ClientMediaPause* clientPlatformMediaPause()
+{
+    return nullptr;
+}
+void clientPlatformMediaResume(ClientMediaPause*)
+{
+}
 
-int clientPlatformSaveBlob(
-    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window* window,
-    ClientPlatformSaveBlobCallback callback, void* userdata)
+int clientPlatformSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+                           SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
 {
     if (!filename || !*filename || std::strlen(filename) > 255 || std::strpbrk(filename, "/\\") ||
         std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize ||
-        dataSize > static_cast<size_t>(INT_MAX) || !mimeType || !*mimeType || std::strlen(mimeType) > 255 || !window || !callback)
+        dataSize > static_cast<size_t>(INT_MAX) || !mimeType || !*mimeType || std::strlen(mimeType) > 255 || !window ||
+        !callback)
     {
         SDL_SetError("Invalid file sharing arguments");
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;

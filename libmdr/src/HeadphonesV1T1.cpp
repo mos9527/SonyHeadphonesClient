@@ -386,14 +386,14 @@ namespace mdr
                 if (notify)
                 {
                     Deserialize(NotifySystemParamControlByWearingParam, result, cmd);
-                    self->mDetailsV1.mAutoPauseEnabled.overwrite(
-                        result.settingValue == ControlByWearingSettingValue::ON);
+                    self->mDetailsV1.mAutoPauseEnabled.overwrite(result.settingValue ==
+                                                                 ControlByWearingSettingValue::ON);
                 }
                 else
                 {
                     Deserialize(RetSystemParamControlByWearingParam, result, cmd);
-                    self->mDetailsV1.mAutoPauseEnabled.overwrite(
-                        result.settingValue == ControlByWearingSettingValue::ON);
+                    self->mDetailsV1.mAutoPauseEnabled.overwrite(result.settingValue ==
+                                                                 ControlByWearingSettingValue::ON);
                 }
                 return MDR_EVENT_POWER_CHANGED;
             case SystemInquiredType::AUTO_POWER_OFF:
@@ -426,14 +426,14 @@ namespace mdr
                     if (notify)
                     {
                         Deserialize(NotifySystemParamSmartTalkingModeSetNtfyParam, result, cmd);
-                        self->mDetailsV1.mSpeakToChatEnabled.overwrite(
-                            result.settingValue == SmartTalkingModeSettingValue::ON);
+                        self->mDetailsV1.mSpeakToChatEnabled.overwrite(result.settingValue ==
+                                                                       SmartTalkingModeSettingValue::ON);
                     }
                     else
                     {
                         Deserialize(RetSystemParamSmartTalkingModeRetParam, result, cmd);
-                        self->mDetailsV1.mSpeakToChatEnabled.overwrite(
-                            result.settingValue == SmartTalkingModeSettingValue::ON);
+                        self->mDetailsV1.mSpeakToChatEnabled.overwrite(result.settingValue ==
+                                                                       SmartTalkingModeSettingValue::ON);
                     }
                 }
                 else

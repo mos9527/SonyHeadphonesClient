@@ -29,7 +29,8 @@ inline BOOL SHProcessMessagesUpdateTimeout(DWORD dwStartTick, DWORD dwTimeoutTot
     return bRet;
 }
 
-inline BOOL PeekMessageWithWakeMask(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, BOOL bRemove, DWORD dwWakeMask)
+inline BOOL PeekMessageWithWakeMask(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, BOOL bRemove,
+                                    DWORD dwWakeMask)
 {
     BOOL bRet = FALSE;
     UINT wRemoveMsg = 0;
@@ -65,13 +66,13 @@ inline BOOL PeekMessageWithWakeMask(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, 
     return bRet;
 }
 
-inline DWORD SHProcessMessagesUntilEventsEx(HWND hwnd, HANDLE* pHandles, DWORD cHandles, DWORD dwTimeout, DWORD dwWakeMask, DWORD dwFlags)
+inline DWORD SHProcessMessagesUntilEventsEx(HWND hwnd, HANDLE* pHandles, DWORD cHandles, DWORD dwTimeout,
+                                            DWORD dwWakeMask, DWORD dwFlags)
 {
     APTTYPE aptType;
     APTTYPEQUALIFIER aptTypeQualifier;
-    BOOL fIsASTA = SUCCEEDED(CoGetApartmentType(&aptType, &aptTypeQualifier))
-        && aptTypeQualifier == APTTYPEQUALIFIER_APPLICATION_STA
-        && aptType == APTTYPE_STA;
+    BOOL fIsASTA = SUCCEEDED(CoGetApartmentType(&aptType, &aptTypeQualifier)) &&
+        aptTypeQualifier == APTTYPEQUALIFIER_APPLICATION_STA && aptType == APTTYPE_STA;
 
     DWORD dwStartTick = GetTickCount();
     DWORD dwTimeoutRemaining = dwTimeout;
@@ -89,10 +90,10 @@ inline DWORD SHProcessMessagesUntilEventsEx(HWND hwnd, HANDLE* pHandles, DWORD c
         {
             if (fIsASTA)
             {
-                HRESULT hrCoWait = CoWaitForMultipleHandles(
-                    ((dwFlags & MWMO_INPUTAVAILABLE) != 0 ? COWAIT_INPUTAVAILABLE : 0)
-                    | (COWAIT_DISPATCH_CALLS | COWAIT_DISPATCH_WINDOW_MESSAGES),
-                    dwTimeoutRemaining, cHandles, pHandles, &dwReturn);
+                HRESULT hrCoWait =
+                    CoWaitForMultipleHandles(((dwFlags & MWMO_INPUTAVAILABLE) != 0 ? COWAIT_INPUTAVAILABLE : 0) |
+                                                 (COWAIT_DISPATCH_CALLS | COWAIT_DISPATCH_WINDOW_MESSAGES),
+                                             dwTimeoutRemaining, cHandles, pHandles, &dwReturn);
                 if (hrCoWait == RPC_S_CALLPENDING)
                 {
                     dwReturn = WAIT_TIMEOUT;
@@ -171,17 +172,15 @@ inline DWORD SHProcessMessagesUntilEventsEx(HWND hwnd, HANDLE* pHandles, DWORD c
 }
 
 template <typename THandler, typename TOperation>
-HRESULT WaitForCompletion(TOperation* pOperation, COWAIT_FLAGS flags = (COWAIT_FLAGS)-1, HANDLE hEventCancelled = nullptr)
+HRESULT WaitForCompletion(TOperation* pOperation, COWAIT_FLAGS flags = (COWAIT_FLAGS)-1,
+                          HANDLE hEventCancelled = nullptr)
 {
-    class FTMEventDelegate : public Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>
-        , THandler
-        , Microsoft::WRL::FtmBase
-    >
+    class FTMEventDelegate
+        : public Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>, THandler,
+                                              Microsoft::WRL::FtmBase>
     {
     public:
-        FTMEventDelegate()
-            : _status(AsyncStatus::Started)
-            , _hEventCompleted(nullptr)
+        FTMEventDelegate() : _status(AsyncStatus::Started), _hEventCompleted(nullptr)
         {
         }
 
@@ -199,8 +198,14 @@ HRESULT WaitForCompletion(TOperation* pOperation, COWAIT_FLAGS flags = (COWAIT_F
             return S_OK;
         }
 
-        HANDLE GetEvent() const { return _hEventCompleted; }
-        AsyncStatus GetStatus() const { return _status; }
+        HANDLE GetEvent() const
+        {
+            return _hEventCompleted;
+        }
+        AsyncStatus GetStatus() const
+        {
+            return _status;
+        }
 
     private:
         ~FTMEventDelegate() override
@@ -220,12 +225,13 @@ HRESULT WaitForCompletion(TOperation* pOperation, COWAIT_FLAGS flags = (COWAIT_F
         hr = pOperation->put_Completed(spCallback.Get());
         if (SUCCEEDED(hr))
         {
-            HANDLE rgHandles[] = { spCallback->GetEvent(), hEventCancelled };
+            HANDLE rgHandles[] = {spCallback->GetEvent(), hEventCancelled};
             const DWORD handleCount = hEventCancelled ? 2 : 1;
             bool fCancelOp = false;
             if (flags == (COWAIT_FLAGS)-1)
             {
-                const DWORD result = SHProcessMessagesUntilEventsEx(nullptr, rgHandles, handleCount, INFINITE, QS_ALLINPUT, 0);
+                const DWORD result =
+                    SHProcessMessagesUntilEventsEx(nullptr, rgHandles, handleCount, INFINITE, QS_ALLINPUT, 0);
                 if (result == WAIT_OBJECT_0 + 1 && hEventCancelled)
                     fCancelOp = true;
                 else if (result != WAIT_OBJECT_0)
@@ -259,17 +265,15 @@ HRESULT WaitForCompletion(TOperation* pOperation, COWAIT_FLAGS flags = (COWAIT_F
     return hr;
 }
 
-inline HRESULT WaitForCompletion(
-    ABI::Windows::Foundation::IAsyncAction* pAction, COWAIT_FLAGS flags = (COWAIT_FLAGS)-1,
-    HANDLE hEventCancelled = nullptr)
+inline HRESULT WaitForCompletion(ABI::Windows::Foundation::IAsyncAction* pAction, COWAIT_FLAGS flags = (COWAIT_FLAGS)-1,
+                                 HANDLE hEventCancelled = nullptr)
 {
     return WaitForCompletion<ABI::Windows::Foundation::IAsyncActionCompletedHandler>(pAction, flags, hEventCancelled);
 }
 
 template <typename TOperationResult>
-HRESULT WaitForCompletion(
-    ABI::Windows::Foundation::IAsyncOperation<TOperationResult>* pOperation, COWAIT_FLAGS flags = (COWAIT_FLAGS)-1,
-    HANDLE hEventCancelled = nullptr)
+HRESULT WaitForCompletion(ABI::Windows::Foundation::IAsyncOperation<TOperationResult>* pOperation,
+                          COWAIT_FLAGS flags = (COWAIT_FLAGS)-1, HANDLE hEventCancelled = nullptr)
 {
     return WaitForCompletion<ABI::Windows::Foundation::IAsyncOperationCompletedHandler<TOperationResult>>(
         pOperation, flags, hEventCancelled);
@@ -279,7 +283,8 @@ HRESULT WaitForCompletion(
 template <typename TOperationResult>
 HRESULT WaitForCompletionAndGetResults(
     ABI::Windows::Foundation::IAsyncOperation<TOperationResult>* pOperation,
-    typename ABI::Windows::Foundation::Internal::GetAbiType<typename ABI::Windows::Foundation::IAsyncOperation<TOperationResult>::TResult_complex>::type* pResult,
+    typename ABI::Windows::Foundation::Internal::GetAbiType<
+        typename ABI::Windows::Foundation::IAsyncOperation<TOperationResult>::TResult_complex>::type* pResult,
     COWAIT_FLAGS flags = (COWAIT_FLAGS)-1, HANDLE hEventCancelled = nullptr)
 {
     HRESULT hr = WaitForCompletion(pOperation, flags, hEventCancelled);

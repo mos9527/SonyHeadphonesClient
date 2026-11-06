@@ -53,29 +53,33 @@ namespace
             return error;
         }
         pthread_t thread;
-        const int error = pthread_create(&thread, nullptr, [](void* userdata) -> void* {
-            FILE* input = static_cast<FILE*>(userdata);
-            char message[3073];
-            for (;;)
+        const int error = pthread_create(
+            &thread, nullptr,
+            [](void* userdata) -> void*
             {
-                if (!std::fgets(message, sizeof(message), input))
+                FILE* input = static_cast<FILE*>(userdata);
+                char message[3073];
+                for (;;)
                 {
-                    if (std::ferror(input) && errno == EINTR)
+                    if (!std::fgets(message, sizeof(message), input))
                     {
-                        std::clearerr(input);
-                        continue;
+                        if (std::ferror(input) && errno == EINTR)
+                        {
+                            std::clearerr(input);
+                            continue;
+                        }
+                        break;
                     }
-                    break;
+                    size_t size = std::strlen(message);
+                    while (size && (message[size - 1] == '\n' || message[size - 1] == '\r'))
+                        message[--size] = '\0';
+                    if (size)
+                        __android_log_write(ANDROID_LOG_INFO, kStderrLogTag, message);
                 }
-                size_t size = std::strlen(message);
-                while (size && (message[size - 1] == '\n' || message[size - 1] == '\r'))
-                    message[--size] = '\0';
-                if (size)
-                    __android_log_write(ANDROID_LOG_INFO, kStderrLogTag, message);
-            }
-            std::fclose(input);
-            return nullptr;
-        }, input);
+                std::fclose(input);
+                return nullptr;
+            },
+            input);
         if (error != 0)
         {
             std::fclose(input);
@@ -184,8 +188,8 @@ namespace
         for (jsize index = 0; index < size; ++index)
         {
             uint32_t codepoint = characters[index];
-            if (codepoint >= 0xd800 && codepoint <= 0xdbff && index + 1 < size &&
-                characters[index + 1] >= 0xdc00 && characters[index + 1] <= 0xdfff)
+            if (codepoint >= 0xd800 && codepoint <= 0xdbff && index + 1 < size && characters[index + 1] >= 0xdc00 &&
+                characters[index + 1] <= 0xdfff)
                 codepoint = 0x10000 + ((codepoint - 0xd800) << 10) + (characters[++index] - 0xdc00);
             else if (codepoint >= 0xd800 && codepoint <= 0xdfff)
                 codepoint = 0xfffd;
@@ -253,7 +257,7 @@ namespace
             return nullptr;
         if (!snapshot.data.empty())
             env->SetByteArrayRegion(data, 0, static_cast<jsize>(snapshot.data.size()),
-                                   reinterpret_cast<const jbyte*>(snapshot.data.data()));
+                                    reinterpret_cast<const jbyte*>(snapshot.data.data()));
         if (env->ExceptionCheck())
             return nullptr;
         return env->NewObject(gSnapshotClass, gSnapshotConstructor, static_cast<jlong>(snapshot.generation),
@@ -358,7 +362,8 @@ namespace
         if (dispatched != JNI_TRUE && error.empty())
             error = "File sharing failed";
         request.callback(request.userdata,
-                         dispatched == JNI_TRUE ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+                         dispatched == JNI_TRUE ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED
+                                                : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
                          request.filename.c_str(), error.empty() ? nullptr : error.c_str());
     }
 
@@ -367,22 +372,28 @@ namespace
         std::u32string_view sample = U"A0中文电连接控制";
         switch (locale)
         {
-        case AppLocale::TRADITIONAL_CHINESE: sample = U"A0中文電連接聲音"; break;
-        case AppLocale::JAPANESE: sample = U"A0日本語あいうアイウ"; break;
-        case AppLocale::KOREAN: sample = U"A0한국어연결음량"; break;
-        default: break;
+        case AppLocale::TRADITIONAL_CHINESE:
+            sample = U"A0中文電連接聲音";
+            break;
+        case AppLocale::JAPANESE:
+            sample = U"A0日本語あいうアイウ";
+            break;
+        case AppLocale::KOREAN:
+            sample = U"A0한국어연결음량";
+            break;
+        default:
+            break;
         }
-        return std::all_of(sample.begin(), sample.end(), [&font](char32_t codepoint) {
-            return stbtt_FindGlyphIndex(&font, static_cast<int>(codepoint)) != 0;
-        });
+        return std::all_of(sample.begin(), sample.end(), [&font](char32_t codepoint)
+                           { return stbtt_FindGlyphIndex(&font, static_cast<int>(codepoint)) != 0; });
     }
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
 {
     if (const int error = InitStderrLog(); error != 0)
-        __android_log_print(ANDROID_LOG_ERROR, kStderrLogTag,
-                            "Could not redirect stderr to Logcat: %s", std::strerror(error));
+        __android_log_print(ANDROID_LOG_ERROR, kStderrLogTag, "Could not redirect stderr to Logcat: %s",
+                            std::strerror(error));
     JNIEnv* env{};
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK)
         return JNI_ERR;
@@ -402,14 +413,18 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
     const mdr::String snapshotSignature = "(Z)L" + snapshotName + ";";
     JNINativeMethod methods[]{
         {const_cast<char*>("setScale"), const_cast<char*>("(F)V"), reinterpret_cast<void*>(SetScale)},
-        {const_cast<char*>("pollTransport"), const_cast<char*>(snapshotSignature.c_str()), reinterpret_cast<void*>(PollTransport)},
-        {const_cast<char*>("transportConnected"), const_cast<char*>("(J)V"), reinterpret_cast<void*>(TransportConnected)},
-        {const_cast<char*>("transportFailed"), const_cast<char*>("(JLjava/lang/String;)V"), reinterpret_cast<void*>(TransportFailed)},
+        {const_cast<char*>("pollTransport"), const_cast<char*>(snapshotSignature.c_str()),
+         reinterpret_cast<void*>(PollTransport)},
+        {const_cast<char*>("transportConnected"), const_cast<char*>("(J)V"),
+         reinterpret_cast<void*>(TransportConnected)},
+        {const_cast<char*>("transportFailed"), const_cast<char*>("(JLjava/lang/String;)V"),
+         reinterpret_cast<void*>(TransportFailed)},
         {const_cast<char*>("feedRx"), const_cast<char*>("(J[BI)Z"), reinterpret_cast<void*>(FeedRx)},
-        {const_cast<char*>("setDevices"), const_cast<char*>("([Ljava/lang/String;[Ljava/lang/String;)V"), reinterpret_cast<void*>(SetDevices)},
+        {const_cast<char*>("setDevices"), const_cast<char*>("([Ljava/lang/String;[Ljava/lang/String;)V"),
+         reinterpret_cast<void*>(SetDevices)},
         {const_cast<char*>("stopTransport"), const_cast<char*>("()V"), reinterpret_cast<void*>(StopTransport)},
-        {const_cast<char*>("shareCompleted"), const_cast<char*>("(JZLjava/lang/String;)V"), reinterpret_cast<void*>(ShareCompleted)}
-    };
+        {const_cast<char*>("shareCompleted"), const_cast<char*>("(JZLjava/lang/String;)V"),
+         reinterpret_cast<void*>(ShareCompleted)}};
     const jint result = env->RegisterNatives(client, methods, static_cast<jint>(std::size(methods)));
     env->DeleteLocalRef(client);
     env->DeleteLocalRef(snapshot);
@@ -477,8 +492,10 @@ void clientPlatformConnectionDestroy()
 
 int clientPlatformMemoryMapFile(const char* path, void** outAddr, size_t* outSize)
 {
-    if (outAddr) *outAddr = nullptr;
-    if (outSize) *outSize = 0;
+    if (outAddr)
+        *outAddr = nullptr;
+    if (outSize)
+        *outSize = 0;
     if (!path || !outAddr || !outSize)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const int file = open(path, O_RDONLY | O_CLOEXEC);
@@ -531,15 +548,20 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
                 candidates.push_back("/system/fonts/" + name);
         }
         closedir(directory);
-        std::sort(candidates.begin(), candidates.end(), [](const auto& left, const auto& right) {
-            const bool leftCJK = left.find("NotoSansCJK") != mdr::String::npos;
-            const bool rightCJK = right.find("NotoSansCJK") != mdr::String::npos;
-            return leftCJK != rightCJK ? leftCJK : left < right;
-        });
+        std::sort(candidates.begin(), candidates.end(),
+                  [](const auto& left, const auto& right)
+                  {
+                      const bool leftCJK = left.find("NotoSansCJK") != mdr::String::npos;
+                      const bool rightCJK = right.find("NotoSansCJK") != mdr::String::npos;
+                      return leftCJK != rightCJK ? leftCJK : left < right;
+                  });
         int preferredFace = 2;
-        if (locale == AppLocale::TRADITIONAL_CHINESE) preferredFace = 3;
-        if (locale == AppLocale::JAPANESE) preferredFace = 0;
-        if (locale == AppLocale::KOREAN) preferredFace = 1;
+        if (locale == AppLocale::TRADITIONAL_CHINESE)
+            preferredFace = 3;
+        if (locale == AppLocale::JAPANESE)
+            preferredFace = 0;
+        if (locale == AppLocale::KOREAN)
+            preferredFace = 1;
         for (const auto& path : candidates)
         {
             void* data{};
@@ -581,16 +603,21 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
 
 int clientPlatformIsLocalBluetoothAddress(const char*, int* outIsLocal)
 {
-    if (outIsLocal) *outIsLocal = 0;
+    if (outIsLocal)
+        *outIsLocal = 0;
     return MDR_RESULT_ERROR_NOT_SUPPORTED;
 }
 
-ClientMediaPause* clientPlatformMediaPause() { return nullptr; }
-void clientPlatformMediaResume(ClientMediaPause*) {}
+ClientMediaPause* clientPlatformMediaPause()
+{
+    return nullptr;
+}
+void clientPlatformMediaResume(ClientMediaPause*)
+{
+}
 
-int clientPlatformSaveBlob(
-    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window* window,
-    ClientPlatformSaveBlobCallback callback, void* userdata)
+int clientPlatformSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+                           SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
 {
     if (!filename || !*filename || std::strlen(filename) > 255 || std::strpbrk(filename, "/\\") ||
         std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize ||
@@ -607,17 +634,23 @@ int clientPlatformSaveBlob(
     }
     jobject activity = static_cast<jobject>(SDL_GetAndroidActivity());
     jclass type = activity ? env->GetObjectClass(activity) : nullptr;
-    jmethodID method = type ? env->GetMethodID(type, "shareBlob", "(JLjava/lang/String;[BLjava/lang/String;)V") : nullptr;
+    jmethodID method =
+        type ? env->GetMethodID(type, "shareBlob", "(JLjava/lang/String;[BLjava/lang/String;)V") : nullptr;
     jstring name = method ? JavaString(env, filename) : nullptr;
     jstring mime = name ? JavaString(env, mimeType) : nullptr;
     jbyteArray bytes = mime ? env->NewByteArray(static_cast<jsize>(dataSize)) : nullptr;
     const auto release = [&]
     {
-        if (bytes) env->DeleteLocalRef(bytes);
-        if (mime) env->DeleteLocalRef(mime);
-        if (name) env->DeleteLocalRef(name);
-        if (type) env->DeleteLocalRef(type);
-        if (activity) env->DeleteLocalRef(activity);
+        if (bytes)
+            env->DeleteLocalRef(bytes);
+        if (mime)
+            env->DeleteLocalRef(mime);
+        if (name)
+            env->DeleteLocalRef(name);
+        if (type)
+            env->DeleteLocalRef(type);
+        if (activity)
+            env->DeleteLocalRef(activity);
     };
     if (bytes)
         env->SetByteArrayRegion(bytes, 0, static_cast<jsize>(dataSize), reinterpret_cast<const jbyte*>(data));

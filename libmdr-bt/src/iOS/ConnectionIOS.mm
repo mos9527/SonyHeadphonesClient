@@ -67,7 +67,10 @@ struct MDRIOSState
     MDRDeviceInfo* devices{};
     int deviceCount{};
 
-    ~MDRIOSState() { mdr::MDRAllocator<MDRDeviceInfo>().deallocate(devices); }
+    ~MDRIOSState()
+    {
+        mdr::MDRAllocator<MDRDeviceInfo>().deallocate(devices);
+    }
 };
 
 @interface MDRAccessorySession : NSObject <NSStreamDelegate, EAAccessoryDelegate>
@@ -78,14 +81,13 @@ struct MDRIOSState
 @end
 
 @interface MDRAccessoryOwner : NSObject
-@property (nonatomic, strong) MDRAccessorySession* session;
+@property(nonatomic, strong) MDRAccessorySession* session;
 @end
 
 @implementation MDRAccessoryOwner
 @end
 
-@implementation MDRAccessorySession
-{
+@implementation MDRAccessorySession {
     std::shared_ptr<MDRIOSState> _state;
     uint64_t _generation;
     EASession* _session;
@@ -144,7 +146,7 @@ struct MDRIOSState
         return;
     }
     target.delegate = self;
-    for (NSStream* stream in @[_session.inputStream, _session.outputStream])
+    for (NSStream* stream in @[ _session.inputStream, _session.outputStream ])
     {
         stream.delegate = self;
         [stream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
@@ -158,7 +160,7 @@ struct MDRIOSState
         return;
     if (_session.accessory.delegate == self)
         _session.accessory.delegate = nil;
-    for (NSStream* stream in @[_session.inputStream, _session.outputStream])
+    for (NSStream* stream in @[ _session.inputStream, _session.outputStream ])
     {
         stream.delegate = nil;
         [stream close];
@@ -285,7 +287,7 @@ struct MDRConnectionIOS
             .getLastError = GetLastError,
         };
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[EAAccessoryManager sharedAccessoryManager] registerForLocalNotifications];
+          [[EAAccessoryManager sharedAccessoryManager] registerForLocalNotifications];
         });
     }
 
@@ -318,14 +320,14 @@ struct MDRConnectionIOS
             state->rx.clear();
             state->tx.clear();
             dispatch_async(dispatch_get_main_queue(), ^{
-                {
-                    std::scoped_lock stateLock(state->mutex);
-                    if (state->generation != generation)
-                        return;
-                }
-                [owner.session close];
-                owner.session = [[MDRAccessorySession alloc] initWithState:state generation:generation];
-                [owner.session openAddress:addressString protocol:protocol];
+              {
+                  std::scoped_lock stateLock(state->mutex);
+                  if (state->generation != generation)
+                      return;
+              }
+              [owner.session close];
+              owner.session = [[MDRAccessorySession alloc] initWithState:state generation:generation];
+              [owner.session openAddress:addressString protocol:protocol];
             });
             state->condition.notify_all();
             return MDR_RESULT_INPROGRESS;
@@ -344,13 +346,13 @@ struct MDRConnectionIOS
         state->tx.clear();
         state->condition.notify_all();
         dispatch_async(dispatch_get_main_queue(), ^{
-            {
-                std::scoped_lock stateLock(state->mutex);
-                if (state->generation != generation)
-                    return;
-            }
-            [owner.session close];
-            owner.session = nil;
+          {
+              std::scoped_lock stateLock(state->mutex);
+              if (state->generation != generation)
+                  return;
+          }
+          [owner.session close];
+          owner.session = nil;
         });
     }
 
@@ -389,12 +391,12 @@ struct MDRConnectionIOS
         state->tx.assign(bytes, bytes + count);
         const uint64_t generation = state->generation;
         dispatch_async(dispatch_get_main_queue(), ^{
-            {
-                std::scoped_lock stateLock(state->mutex);
-                if (state->generation != generation)
-                    return;
-            }
-            [owner.session flush];
+          {
+              std::scoped_lock stateLock(state->mutex);
+              if (state->generation != generation)
+                  return;
+          }
+          [owner.session flush];
         });
         *pSent = static_cast<int>(count);
         return MDR_RESULT_OK;
@@ -418,7 +420,8 @@ struct MDRConnectionIOS
         {
             @autoreleasepool
             {
-                const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(std::max(timeout, 0));
+                const auto deadline =
+                    std::chrono::steady_clock::now() + std::chrono::milliseconds(std::max(timeout, 0));
                 while (!ready())
                 {
                     const auto now = std::chrono::steady_clock::now();
@@ -427,7 +430,8 @@ struct MDRConnectionIOS
                     const auto interval = timeout < 0
                         ? std::chrono::steady_clock::duration(std::chrono::milliseconds(10))
                         : std::min(deadline - now, std::chrono::steady_clock::duration(std::chrono::milliseconds(10)));
-                    NSDate* limit = [NSDate dateWithTimeIntervalSinceNow:std::chrono::duration<double>(interval).count()];
+                    NSDate* limit =
+                        [NSDate dateWithTimeIntervalSinceNow:std::chrono::duration<double>(interval).count()];
                     lock.unlock();
                     [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:limit];
                     lock.lock();
@@ -460,15 +464,15 @@ struct MDRConnectionIOS
         {
             state->enumPending = true;
             dispatch_async(dispatch_get_main_queue(), ^{
-                MDRDeviceInfo* devices{};
-                int count{};
-                EnumerateDevices(&devices, &count);
-                std::scoped_lock stateLock(state->mutex);
-                mdr::MDRAllocator<MDRDeviceInfo>().deallocate(state->devices);
-                state->devices = devices;
-                state->deviceCount = count;
-                state->enumPending = false;
-                state->enumReady = true;
+              MDRDeviceInfo* devices{};
+              int count{};
+              EnumerateDevices(&devices, &count);
+              std::scoped_lock stateLock(state->mutex);
+              mdr::MDRAllocator<MDRDeviceInfo>().deallocate(state->devices);
+              state->devices = devices;
+              state->deviceCount = count;
+              state->enumPending = false;
+              state->enumReady = true;
             });
         }
         return MDR_RESULT_INPROGRESS;
@@ -517,6 +521,15 @@ struct MDRConnectionIOS
     }
 };
 
-MDR_API MDRConnectionIOS* mdrConnectionIOSCreate() { return mdr::Construct<MDRConnectionIOS>(); }
-MDR_API MDRConnection* mdrConnectionIOSGet(MDRConnectionIOS* self) { return &self->mdrConn; }
-MDR_API void mdrConnectionIOSDestroy(MDRConnectionIOS* self) { mdr::Destruct(self); }
+MDR_API MDRConnectionIOS* mdrConnectionIOSCreate()
+{
+    return mdr::Construct<MDRConnectionIOS>();
+}
+MDR_API MDRConnection* mdrConnectionIOSGet(MDRConnectionIOS* self)
+{
+    return &self->mdrConn;
+}
+MDR_API void mdrConnectionIOSDestroy(MDRConnectionIOS* self)
+{
+    mdr::Destruct(self);
+}

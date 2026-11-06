@@ -6,43 +6,43 @@
 #include "Property.hpp"
 
 // See also DetailsV2.hpp @ref _DETAILS_V2_PROPS_X
-#define _DETAILS_V1_PROPS_X(PROP, ARRAY) \
-    PROP(bool, mShutdown) \
-    PROP(bool, mNcAsmEnabled) \
-    PROP(bool, mNcAsmFocusOnVoice) \
-    PROP(int, mNcAsmLevel) \
-    PROP(bool, mNcAsmChangingLevel) \
-    PROP(v1::t1::NcAsmEffect, mNcAsmEffect) \
-    PROP(UInt8, mNcAsmButtonFunction) \
-    PROP(v1::t1::AutoPowerOffElementId, mPowerAutoOff) \
-    PROP(UInt8, mPowerAutoOffWearingDetection) \
-    PROP(int, mPlayVolume) \
-    PROP(v1::t1::PlaybackControl, mPlayControl) \
-    ARRAY(bool, mGsParamBool, 3) \
-    PROP(bool, mUpscalingEnabled) \
-    PROP(v1::t1::ConnectionModeSettingValue, mAudioPriorityMode) \
-    PROP(bool, mBGMModeEnabled) \
-    PROP(UInt8, mBGMModeRoomSize) \
-    PROP(bool, mUpmixCinemaEnabled) \
-    PROP(bool, mAutoPauseEnabled) \
-    PROP(Vector<v1::t1::AssignableSettingsPreset>, mAssignableSettingsPresets) \
-    PROP(bool, mSpeakToChatEnabled) \
-    PROP(v1::t1::DetectionSensitivity, mSpeakToChatDetectSensitivity) \
-    PROP(v1::t1::ModeOutTime, mSpeakToModeOutTime) \
-    PROP(bool, mHeadGestureEnabled) \
-    PROP(bool, mEqAvailable, {true, true, true}) \
-    PROP(v1::t1::EqPresetId, mEqPresetId) \
-    PROP(int, mEqClearBass) \
-    PROP(Vector<int>, mEqConfig) \
-    PROP(bool, mVoiceGuidanceEnabled) \
-    PROP(int, mVoiceGuidanceVolume) \
-    PROP(bool, mPairingMode) \
-    PROP(String, mMultipointDeviceMac) \
-    PROP(bool, mSourceSwitchControlEnabled) \
-    PROP(String, mPairedDeviceDisconnectMac) \
-    PROP(String, mPairedDeviceConnectMac) \
-    PROP(String, mPairedDeviceUnpairMac) \
-    PROP(bool, mSafeListeningPreviewMode) \
+#define _DETAILS_V1_PROPS_X(PROP, ARRAY)                                                                               \
+    PROP(bool, mShutdown)                                                                                              \
+    PROP(bool, mNcAsmEnabled)                                                                                          \
+    PROP(bool, mNcAsmFocusOnVoice)                                                                                     \
+    PROP(int, mNcAsmLevel)                                                                                             \
+    PROP(bool, mNcAsmChangingLevel)                                                                                    \
+    PROP(v1::t1::NcAsmEffect, mNcAsmEffect)                                                                            \
+    PROP(UInt8, mNcAsmButtonFunction)                                                                                  \
+    PROP(v1::t1::AutoPowerOffElementId, mPowerAutoOff)                                                                 \
+    PROP(UInt8, mPowerAutoOffWearingDetection)                                                                         \
+    PROP(int, mPlayVolume)                                                                                             \
+    PROP(v1::t1::PlaybackControl, mPlayControl)                                                                        \
+    ARRAY(bool, mGsParamBool, 3)                                                                                       \
+    PROP(bool, mUpscalingEnabled)                                                                                      \
+    PROP(v1::t1::ConnectionModeSettingValue, mAudioPriorityMode)                                                       \
+    PROP(bool, mBGMModeEnabled)                                                                                        \
+    PROP(UInt8, mBGMModeRoomSize)                                                                                      \
+    PROP(bool, mUpmixCinemaEnabled)                                                                                    \
+    PROP(bool, mAutoPauseEnabled)                                                                                      \
+    PROP(Vector<v1::t1::AssignableSettingsPreset>, mAssignableSettingsPresets)                                         \
+    PROP(bool, mSpeakToChatEnabled)                                                                                    \
+    PROP(v1::t1::DetectionSensitivity, mSpeakToChatDetectSensitivity)                                                  \
+    PROP(v1::t1::ModeOutTime, mSpeakToModeOutTime)                                                                     \
+    PROP(bool, mHeadGestureEnabled)                                                                                    \
+    PROP(bool, mEqAvailable, {true, true, true})                                                                       \
+    PROP(v1::t1::EqPresetId, mEqPresetId)                                                                              \
+    PROP(int, mEqClearBass)                                                                                            \
+    PROP(Vector<int>, mEqConfig)                                                                                       \
+    PROP(bool, mVoiceGuidanceEnabled)                                                                                  \
+    PROP(int, mVoiceGuidanceVolume)                                                                                    \
+    PROP(bool, mPairingMode)                                                                                           \
+    PROP(String, mMultipointDeviceMac)                                                                                 \
+    PROP(bool, mSourceSwitchControlEnabled)                                                                            \
+    PROP(String, mPairedDeviceDisconnectMac)                                                                           \
+    PROP(String, mPairedDeviceConnectMac)                                                                              \
+    PROP(String, mPairedDeviceUnpairMac)                                                                               \
+    PROP(bool, mSafeListeningPreviewMode)                                                                              \
     PROP(AlertResponse, mAlertResponse)
 
 namespace mdr

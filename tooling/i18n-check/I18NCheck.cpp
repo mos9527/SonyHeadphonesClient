@@ -54,7 +54,7 @@ int main(int argc, char** argv)
         size_t missed = 0;
         for (size_t i = 0; i < stringCount; i++)
             missed += missing(i);
-        
+
         cout << format_as(locale) << " has " << missed << " missing translation(s):\n\n";
         for (size_t i = 0, miss = 0; i < stringCount; i++)
         {
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
             cout << TextName(static_cast<i18n::TextId>(i));
             if (miss != missed)
                 cout << ",";
-        }        
+        }
         cout << "\n\n";
         total += missed;
     }

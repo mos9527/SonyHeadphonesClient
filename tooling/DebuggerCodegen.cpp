@@ -33,7 +33,10 @@ namespace
         }
     }
 
-    std::string Indent(int extra = 0) { return std::string(static_cast<size_t>(gIndent + extra) * 4, ' '); }
+    std::string Indent(int extra = 0)
+    {
+        return std::string(static_cast<size_t>(gIndent + extra) * 4, ' ');
+    }
 
     std::string CursorSpelling(CXCursor cursor)
     {
@@ -197,7 +200,10 @@ namespace
         return value;
     }
 
-    std::string EnumKey(CXCursor declaration) { return getFullParentName(declaration); }
+    std::string EnumKey(CXCursor declaration)
+    {
+        return getFullParentName(declaration);
+    }
 
     void CollectEnumsFromType(CXType type);
 
@@ -358,8 +364,8 @@ namespace
             return;
         }
 
-        if (normalized == "UInt16BE" || normalized == "Int16BE" || normalized == "Int24BE" ||
-            normalized == "Int32BE" || normalized == "UInt64BE")
+        if (normalized == "UInt16BE" || normalized == "Int16BE" || normalized == "Int24BE" || normalized == "Int32BE" ||
+            normalized == "UInt64BE")
         {
             println("{}changed |= DrawEndian({}, {});", Indent(), labelExpression, expression);
             return;

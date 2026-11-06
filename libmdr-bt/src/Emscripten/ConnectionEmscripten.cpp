@@ -6,7 +6,10 @@
 EM_JS(void, em_js_init, (void* user), {
     navigator.em_js_user = user;
     navigator.em_js_set_last_error = Module.cwrap('em_js_set_last_error', null, [ 'number', 'string' ]);
-    navigator.set_last_error = function(err) { navigator.em_js_set_last_error(navigator.em_js_user, err); };
+    navigator.set_last_error = function(err)
+    {
+        navigator.em_js_set_last_error(navigator.em_js_user, err);
+    };
     navigator.em_js_poll_result = 0; // OK
     navigator.em_js_port_send_promise = null;
     navigator.em_js_port_recv_promise = null;
@@ -16,8 +19,8 @@ EM_JS(void, em_js_init, (void* user), {
     navigator.em_js_port_writer = null;
 });
 EM_JS(int /* bytes sent */, em_js_send, (const char* src, int size), {
-
-    if (navigator.em_js_port_send_promise){
+    if (navigator.em_js_port_send_promise)
+    {
         return 0;
     }
     var buf = Module.HEAPU8.slice(src, src + size);
@@ -27,9 +30,10 @@ EM_JS(int /* bytes sent */, em_js_send, (const char* src, int size), {
         {
             await navigator.em_js_port_writer.write(buf);
             navigator.em_js_port_send_promise = null;
-        } catch (error)
+        }
+        catch (error)
         {
-            navigator.set_last_error(`${error}`);
+            navigator.set_last_error(`$ { error }`);
             navigator.em_js_poll_result = 5; // ERROR_NET
         }
     }
@@ -37,15 +41,15 @@ EM_JS(int /* bytes sent */, em_js_send, (const char* src, int size), {
     return size;
 });
 EM_JS(int /* bytes read */, em_js_read, (const char* dst, int size), {
-
-    if (navigator.em_js_recv_buffer.length == 0 && navigator.em_js_port_recv_promise != null){
+    if (navigator.em_js_recv_buffer.length == 0 && navigator.em_js_port_recv_promise != null)
+    {
         return 0;
     }
     async function async_recv()
     {
         try
         {
-            const { value, done } = await navigator.em_js_port_reader.read();
+            const {value, done} = await navigator.em_js_port_reader.read();
             if (!done && value && value.length)
             {
                 const prev = navigator.em_js_recv_buffer;
@@ -55,10 +59,10 @@ EM_JS(int /* bytes read */, em_js_read, (const char* dst, int size), {
                 navigator.em_js_recv_buffer = merged;
             }
             navigator.em_js_port_recv_promise = null;
-
-        } catch (error)
+        }
+        catch (error)
         {
-            navigator.set_last_error(`${error}`);
+            navigator.set_last_error(`$ { error }`);
             navigator.em_js_poll_result = 5; // ERROR_NET
         }
     }
@@ -75,31 +79,28 @@ EM_JS(void, em_js_connect, (const char* serviceUUID), {
     async function async_request_port()
     {
         const uuid = UTF8ToString(serviceUUID).toLowerCase();
-        navigator.set_last_error(`Requesting WebSerial interface on ${uuid}`);
+        navigator.set_last_error(`Requesting WebSerial interface on $ { uuid }`);
         navigator.em_js_poll_result = 1; // INPROGRESS
         try
         {
             if (!!!navigator.serial)
                 throw "Your browser does not support Web Serial API. Check README for more information.";
-            navigator.em_js_port = await navigator.serial.requestPort({
-                allowedBluetoothServiceClassIds: [uuid]
-            });
+            navigator.em_js_port = await navigator.serial.requestPort({allowedBluetoothServiceClassIds : [uuid]});
             navigator.set_last_error(`Opening Serial Port`);
-            await navigator.em_js_port.open({ baudRate: 9600 });
+            await navigator.em_js_port.open({baudRate : 9600});
             navigator.em_js_port_writer = navigator.em_js_port.writable.getWriter();
             navigator.em_js_port_reader = navigator.em_js_port.readable.getReader();
             navigator.em_js_poll_result = 0; // OK
-        } catch (error)
+        }
+        catch (error)
         {
-            navigator.set_last_error(`${error}`);
+            navigator.set_last_error(`$ { error }`);
             navigator.em_js_poll_result = 5; // ERROR_NET
         }
     }
     navigator.em_js_connect_promise = async_request_port();
 });
-EM_JS(int, em_js_poll, (), {
-    return navigator.em_js_poll_result;
-});
+EM_JS(int, em_js_poll, (), { return navigator.em_js_poll_result; });
 EM_JS(void, em_js_disconnect, (), {
     if (navigator.em_js_port != null)
     {
@@ -124,15 +125,16 @@ struct MDRConnectionEmscripten
 {
     MDRConnection mdrConn;
     mdr::String lastError;
-    MDRConnectionEmscripten() : mdrConn({.user = this,
-                                .connect = Connect,
-                                .disconnect = Disconnect,
-                                .recv = Recv,
-                                .send = Send,
-                                .poll = Poll,
-                                .getDevicesList = GetDevicesList,
-                                .freeDevicesList = FreeDevicesList,
-                                .getLastError = GetLastError})
+    MDRConnectionEmscripten() :
+        mdrConn({.user = this,
+                 .connect = Connect,
+                 .disconnect = Disconnect,
+                 .recv = Recv,
+                 .send = Send,
+                 .poll = Poll,
+                 .getDevicesList = GetDevicesList,
+                 .freeDevicesList = FreeDevicesList,
+                 .getLastError = GetLastError})
     {
         em_js_init(this);
     }
@@ -165,10 +167,7 @@ struct MDRConnectionEmscripten
     }
     static MDRResult GetDevicesList(void*, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
-        static MDRDeviceInfo sInfo{
-            .szDeviceName = "Web Serial API device",
-            .szDeviceMacAddress = "00:00:09:05:02:07"
-        };
+        static MDRDeviceInfo sInfo{.szDeviceName = "Web Serial API device", .szDeviceMacAddress = "00:00:09:05:02:07"};
         *ppList = &sInfo, *pCount = 1;
         return MDR_RESULT_OK;
     }
@@ -183,14 +182,23 @@ struct MDRConnectionEmscripten
         return ptr->lastError.c_str();
     }
 };
-extern "C"{
-    EMSCRIPTEN_KEEPALIVE
-    void em_js_set_last_error(void* user, const char* error)
-    {
-        auto* ptr = static_cast<MDRConnectionEmscripten*>(user);
-        ptr->lastError = error;
-    }
-    MDR_API MDRConnectionEmscripten* mdrConnectionEmscriptenCreate() { return mdr::Construct<MDRConnectionEmscripten>(); }
-    MDR_API MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* p) { return &p->mdrConn; }
-    MDR_API void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p) { mdr::Destruct(p); }
+extern "C" {
+EMSCRIPTEN_KEEPALIVE
+void em_js_set_last_error(void* user, const char* error)
+{
+    auto* ptr = static_cast<MDRConnectionEmscripten*>(user);
+    ptr->lastError = error;
+}
+MDR_API MDRConnectionEmscripten* mdrConnectionEmscriptenCreate()
+{
+    return mdr::Construct<MDRConnectionEmscripten>();
+}
+MDR_API MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* p)
+{
+    return &p->mdrConn;
+}
+MDR_API void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p)
+{
+    mdr::Destruct(p);
+}
 }

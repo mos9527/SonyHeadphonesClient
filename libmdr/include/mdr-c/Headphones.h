@@ -27,11 +27,11 @@ typedef uint32_t MDRFeatureAvailability;
 
 typedef uint32_t MDRTimeoutType;
 // In milliseconds
-#define MDR_TIMEOUT_DEFAULT ((MDRTimeoutType)0u) 
+#define MDR_TIMEOUT_DEFAULT ((MDRTimeoutType)0u)
 // In milliseconds
-#define MDR_TIMEOUT_ACK ((MDRTimeoutType)1u) 
+#define MDR_TIMEOUT_ACK ((MDRTimeoutType)1u)
 // No. of retries to perform before dropping the connection
-#define MDR_TIMEOUT_ACK_RETRIES ((MDRTimeoutType)2u) 
+#define MDR_TIMEOUT_ACK_RETRIES ((MDRTimeoutType)2u)
 
 typedef uint32_t MDRHeadphonesInitFlags;
 #define MDR_HEADPHONES_INIT_NONE ((MDRHeadphonesInitFlags)0u)
@@ -56,7 +56,8 @@ typedef uint32_t MDRHeadphonesInitFlags;
 #define MDR_HEADPHONES_INIT_LOG ((MDRHeadphonesInitFlags)(1u << 18u))
 #define MDR_HEADPHONES_INIT_VOICE_ASSISTANT ((MDRHeadphonesInitFlags)(1u << 19u))
 // Init for device identification (e.g. device model, supported features, etc.)
-#define MDR_HEADPHONES_INIT_DISCOVERY ((MDRHeadphonesInitFlags)(MDR_HEADPHONES_INIT_IDENTITY | MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS))
+#define MDR_HEADPHONES_INIT_DISCOVERY                                                                                  \
+    ((MDRHeadphonesInitFlags)(MDR_HEADPHONES_INIT_IDENTITY | MDR_HEADPHONES_INIT_SUPPORT_FUNCTIONS))
 // Full init across all features that a device may support
 #define MDR_HEADPHONES_INIT_DEFAULT ((MDRHeadphonesInitFlags)((MDR_HEADPHONES_INIT_VOICE_ASSISTANT << 1u) - 1u))
 
@@ -681,8 +682,7 @@ MDR_API MDRResult mdrHeadphonesGetBatteries(MDRHeadphones* headphones, MDRBatter
 /**
  * @brief Reads the playback status and the selected volume view.
  */
-MDR_API MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPropertyType type,
-                                           MDRPlayback* out_playback);
+MDR_API MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPropertyType type, MDRPlayback* out_playback);
 /**
  * @brief Stages a playback volume in the range 0..30 without changing playback status.
  * @note Applied only through @ref mdrHeadphonesRequestCommit.
@@ -721,8 +721,8 @@ MDR_API MDRResult mdrHeadphonesSetEqualizerPreset(MDRHeadphones* headphones, MDR
 MDR_API MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t clear_bass);
 MDR_API MDRResult mdrHeadphonesSetDSEE(MDRHeadphones* headphones, MDRBoolean enabled);
 /* Counts are element counts, not byte sizes. Five bands accept -10..10; ten accept -6..6. */
-MDR_API MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, MDRPropertyType type,
-                                                 int32_t* bands, uint32_t* inout_count);
+MDR_API MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, MDRPropertyType type, int32_t* bands,
+                                                 uint32_t* inout_count);
 MDR_API MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, const int32_t* bands, uint32_t count);
 
 /**
@@ -737,8 +737,7 @@ MDR_API MDRResult mdrHeadphonesGetEqualizerPresets(MDRHeadphones* headphones, MD
 MDR_API MDRResult mdrHeadphonesGetPairedDevices(MDRHeadphones* headphones, MDRPairedDevice* devices,
                                                 uint32_t* inout_count);
 MDR_API MDRResult mdrHeadphonesSetPairedDevice(MDRHeadphones* headphones, const MDRPairedDeviceAction* action);
-MDR_API MDRResult mdrHeadphonesGetPairing(MDRHeadphones* headphones, MDRPropertyType type,
-                                          MDRPairing* out_pairing);
+MDR_API MDRResult mdrHeadphonesGetPairing(MDRHeadphones* headphones, MDRPropertyType type, MDRPairing* out_pairing);
 MDR_API MDRResult mdrHeadphonesSetPairing(MDRHeadphones* headphones, const MDRPairing* pairing);
 
 /**
@@ -780,8 +779,8 @@ MDR_API MDRResult mdrHeadphonesSetAlertResponse(MDRHeadphones* headphones, MDRAl
 /* General settings and assignable controls. */
 MDR_API MDRResult mdrHeadphonesGetGeneralSettingInfo(MDRHeadphones* headphones, MDRGeneralSettingInfo* settings,
                                                      uint32_t* inout_count);
-MDR_API MDRResult mdrHeadphonesGetGeneralSetting(MDRHeadphones* headphones, MDRPropertyType type,
-                                                 uint32_t index, MDRGeneralSetting* out_setting);
+MDR_API MDRResult mdrHeadphonesGetGeneralSetting(MDRHeadphones* headphones, MDRPropertyType type, uint32_t index,
+                                                 MDRGeneralSetting* out_setting);
 MDR_API MDRResult mdrHeadphonesSetGeneralSetting(MDRHeadphones* headphones, const MDRGeneralSetting* setting);
 MDR_API MDRResult mdrHeadphonesGetAssignableControls(MDRHeadphones* headphones, MDRPropertyType type,
                                                      MDRAssignableControl* out_controls, uint32_t* inout_count);

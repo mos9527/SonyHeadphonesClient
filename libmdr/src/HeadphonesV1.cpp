@@ -44,7 +44,8 @@ namespace mdr
             int supportResult = MDR_RESULT_OK;
             SendCommandAwaitResult(t1::GetSupportFunction, AWAIT_SUPPORT_FUNCTION, supportResult);
             if (supportResult != MDR_RESULT_OK)
-                co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED, "Device failed to respond to support function request");
+                co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED,
+                                       "Device failed to respond to support function request");
         }
 
         /* Equalizer */
@@ -52,12 +53,11 @@ namespace mdr
             (state.mSupport.contains(t1::FunctionType::PRESET_EQ) ||
              state.mSupport.contains(t1::FunctionType::PRESET_EQ_NONCUSTOMIZABLE)))
         {
-            SendCommandACK(t1::GetEqEbbCapability, {
-                .type = state.mSupport.contains(t1::FunctionType::PRESET_EQ)
-                    ? t1::EqEbbInquiredType::PRESET_EQ
-                    : t1::EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE,
-                .language = t1::DisplayLanguage::ENGLISH
-            });
+            SendCommandACK(t1::GetEqEbbCapability,
+                           {.type = state.mSupport.contains(t1::FunctionType::PRESET_EQ)
+                                ? t1::EqEbbInquiredType::PRESET_EQ
+                                : t1::EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE,
+                            .language = t1::DisplayLanguage::ENGLISH});
         }
 
         if ((flags & MDR_HEADPHONES_INIT_NOISE_CONTROL) != 0u)
@@ -65,9 +65,8 @@ namespace mdr
             /* NC/AMB */
             if (state.mSupport.contains(t1::FunctionType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
-                SendCommandACK(t1::GetNcAsmCapability, {
-                    .type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
-                });
+                SendCommandACK(t1::GetNcAsmCapability,
+                               {.type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE});
             }
             else if (state.mSupport.contains(t1::FunctionType::NOISE_CANCELLING))
             {
@@ -81,9 +80,8 @@ namespace mdr
             /* Noise Canceling Optimizer */
             if (state.mSupport.contains(t1::FunctionType::NC_OPTIMIZER))
             {
-                SendCommandACK(t1::GetOptimizerCapability, {
-                    .optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER
-                });
+                SendCommandACK(t1::GetOptimizerCapability,
+                               {.optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER});
             }
         }
 
@@ -102,8 +100,7 @@ namespace mdr
         }
 
         /* DSEE */
-        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u &&
-            state.mSupport.contains(t1::FunctionType::UPSCALING))
+        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u && state.mSupport.contains(t1::FunctionType::UPSCALING))
         {
             SendCommandACK(t1::GetAudioCapability, {.inquiredType = t1::AudioInquiredType::UPSCALING});
         }
@@ -142,36 +139,28 @@ namespace mdr
             /* General Settings */
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING1))
             {
-                SendCommandACK(t1::GetGsCapability, {
-                    .type = t1::GsInquiredType::GENERAL_SETTING1,
-                    .displayLanguage = t1::DisplayLanguage::ENGLISH
-                });
+                SendCommandACK(
+                    t1::GetGsCapability,
+                    {.type = t1::GsInquiredType::GENERAL_SETTING1, .displayLanguage = t1::DisplayLanguage::ENGLISH});
             }
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING2))
             {
-                SendCommandACK(t1::GetGsCapability, {
-                    .type = t1::GsInquiredType::GENERAL_SETTING2,
-                    .displayLanguage = t1::DisplayLanguage::ENGLISH
-                });
+                SendCommandACK(
+                    t1::GetGsCapability,
+                    {.type = t1::GsInquiredType::GENERAL_SETTING2, .displayLanguage = t1::DisplayLanguage::ENGLISH});
             }
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING3))
             {
-                SendCommandACK(t1::GetGsCapability, {
-                    .type = t1::GsInquiredType::GENERAL_SETTING3,
-                    .displayLanguage = t1::DisplayLanguage::ENGLISH
-                });
+                SendCommandACK(
+                    t1::GetGsCapability,
+                    {.type = t1::GsInquiredType::GENERAL_SETTING3, .displayLanguage = t1::DisplayLanguage::ENGLISH});
             }
         }
 
-        if ((flags & MDR_HEADPHONES_INIT_PERIPHERALS) != 0u &&
-            state.mSupport.contains(t1::FunctionType::BLE_SETUP))
+        if ((flags & MDR_HEADPHONES_INIT_PERIPHERALS) != 0u && state.mSupport.contains(t1::FunctionType::BLE_SETUP))
         {
-            SendCommandACK(t1::GetBluetoothDeviceInfo, {
-                .type = t1::BluetoothDeviceInfoType::BLE_HASH_VALUE
-            });
-            SendCommandACK(t1::GetBluetoothDeviceInfo, {
-                .type = t1::BluetoothDeviceInfoType::BLUETOOTH_DEVICE_ADDRESS
-            });
+            SendCommandACK(t1::GetBluetoothDeviceInfo, {.type = t1::BluetoothDeviceInfoType::BLE_HASH_VALUE});
+            SendCommandACK(t1::GetBluetoothDeviceInfo, {.type = t1::BluetoothDeviceInfoType::BLUETOOTH_DEVICE_ADDRESS});
         }
 
         if (state.mProtocol.hasTable2)
@@ -180,69 +169,56 @@ namespace mdr
             if ((flags & MDR_HEADPHONES_INIT_PERIPHERALS) != 0u &&
                 state.mSupport.contains(t1::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
-                SendCommandACK(t2::GetPeripheralCapability, {
-                    .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
-                });
+                SendCommandACK(t2::GetPeripheralCapability,
+                               {.inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT});
             }
 
             /* Voice Guidance */
             if ((flags & MDR_HEADPHONES_INIT_VOICE_GUIDANCE) != 0u &&
                 state.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE))
             {
-                SendCommandACK(t2::GetVoiceGuidanceCapability, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING
-                });
-                SendCommandACK(t2::GetVoiceGuidanceParam, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .detailedDataType = t2::DetailedDataType::UPDATE_METHOD
-                });
+                SendCommandACK(t2::GetVoiceGuidanceCapability,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING});
+                SendCommandACK(t2::GetVoiceGuidanceParam,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .detailedDataType = t2::DetailedDataType::UPDATE_METHOD});
             }
         }
 
         /* Firmware Update */
-        if ((flags & MDR_HEADPHONES_INIT_FIRMWARE_UPDATE) != 0u &&
-            state.mSupport.contains(t1::FunctionType::FW_UPDATE))
+        if ((flags & MDR_HEADPHONES_INIT_FIRMWARE_UPDATE) != 0u && state.mSupport.contains(t1::FunctionType::FW_UPDATE))
         {
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::BLE_TX_POWER
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::BATTERY_POWER_THRESHOLD
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::UPDATE_METHOD
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::UNIQUE_ID_FOR_DEVICE_BINDING
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::CATEGORY_ID
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::SERVICE_ID
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::NATION_CODE
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::LANGUAGE
-            });
-            SendCommandACK(t1::GetUpdateParam, {
-                .command = t1::Command::UPDT_GET_PARAM,
-                .updateInquiredType = t1::UpdateInquiredType::SERIAL_NUMBER
-            });
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::BLE_TX_POWER});
+            SendCommandACK(t1::GetUpdateParam,
+                           {.command = t1::Command::UPDT_GET_PARAM,
+                            .updateInquiredType = t1::UpdateInquiredType::BATTERY_POWER_THRESHOLD});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::UPDATE_METHOD});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM,
+                 .updateInquiredType = t1::UpdateInquiredType::BATTERY_POWER_THRESHOLD_FOR_INTERRUPTIONG_FW_UPDATE});
+            SendCommandACK(t1::GetUpdateParam,
+                           {.command = t1::Command::UPDT_GET_PARAM,
+                            .updateInquiredType = t1::UpdateInquiredType::UNIQUE_ID_FOR_DEVICE_BINDING});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::CATEGORY_ID});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::SERVICE_ID});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::NATION_CODE});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::LANGUAGE});
+            SendCommandACK(
+                t1::GetUpdateParam,
+                {.command = t1::Command::UPDT_GET_PARAM, .updateInquiredType = t1::UpdateInquiredType::SERIAL_NUMBER});
         }
 
         if (state.mProtocol.hasTable2)
@@ -252,50 +228,41 @@ namespace mdr
                 state.mSupport.contains(t1::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
                 /* Pairing Mode */
-                SendCommandACK(t2::GetPeripheralStatus, {
-                    .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
-                });
+                SendCommandACK(t2::GetPeripheralStatus,
+                               {.inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT});
 
                 /* Connected Devices */
-                SendCommandACK(t2::GetPeripheralParam, {
-                    .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT
-                });
+                SendCommandACK(t2::GetPeripheralParam,
+                               {.inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT});
             }
 
             /* Voice Guidance */
             if ((flags & MDR_HEADPHONES_INIT_VOICE_GUIDANCE) != 0u &&
                 state.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE))
             {
-                SendCommandACK(t2::GetVoiceGuidanceStatus, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .statusType = t2::StatusType::ON_OFF
-                });
-                SendCommandACK(t2::GetVoiceGuidanceParam, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .detailedDataType = t2::DetailedDataType::ON_OFF
-                });
-                SendCommandACK(t2::GetVoiceGuidanceStatus, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .statusType = t2::StatusType::LANGUAGE
-                });
-                SendCommandACK(t2::GetVoiceGuidanceParam, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .detailedDataType = t2::DetailedDataType::LANGUAGE
-                });
-                SendCommandACK(t2::GetVoiceGuidanceParam, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .detailedDataType = t2::DetailedDataType::REQUIRED_TIME
-                });
-                SendCommandACK(t2::GetVoiceGuidanceParam, {
-                    .inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
-                    .detailedDataType = t2::DetailedDataType::DOWNLOAD_SERVER_METHOD
-                });
+                SendCommandACK(t2::GetVoiceGuidanceStatus,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .statusType = t2::StatusType::ON_OFF});
+                SendCommandACK(t2::GetVoiceGuidanceParam,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .detailedDataType = t2::DetailedDataType::ON_OFF});
+                SendCommandACK(t2::GetVoiceGuidanceStatus,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .statusType = t2::StatusType::LANGUAGE});
+                SendCommandACK(t2::GetVoiceGuidanceParam,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .detailedDataType = t2::DetailedDataType::LANGUAGE});
+                SendCommandACK(t2::GetVoiceGuidanceParam,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .detailedDataType = t2::DetailedDataType::REQUIRED_TIME});
+                SendCommandACK(t2::GetVoiceGuidanceParam,
+                               {.inquiredType = t2::VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING,
+                                .detailedDataType = t2::DetailedDataType::DOWNLOAD_SERVER_METHOD});
             }
         }
 
         /* Equalizer */
-        if ((flags & MDR_HEADPHONES_INIT_EQUALIZER) != 0u &&
-            state.mSupport.contains(t1::FunctionType::PRESET_EQ))
+        if ((flags & MDR_HEADPHONES_INIT_EQUALIZER) != 0u && state.mSupport.contains(t1::FunctionType::PRESET_EQ))
         {
             SendCommandACK(t1::GetEqEbbStatus, {.type = t1::EqEbbInquiredType::PRESET_EQ});
             SendCommandACK(t1::GetEqEbbParam, {.type = t1::EqEbbInquiredType::PRESET_EQ});
@@ -307,12 +274,10 @@ namespace mdr
             /* NC/AMB */
             if (state.mSupport.contains(t1::FunctionType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
-                SendCommandACK(t1::GetNcAsmStatus, {
-                    .type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
-                });
-                SendCommandACK(t1::GetNcAsmParam, {
-                    .type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE
-                });
+                SendCommandACK(t1::GetNcAsmStatus,
+                               {.type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE});
+                SendCommandACK(t1::GetNcAsmParam,
+                               {.type = t1::NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE});
             }
             else if (state.mSupport.contains(t1::FunctionType::NOISE_CANCELLING))
             {
@@ -328,15 +293,13 @@ namespace mdr
             /* Noise Canceling Optimizer */
             if (state.mSupport.contains(t1::FunctionType::NC_OPTIMIZER))
             {
-                SendCommandACK(t1::GetOptimizerStatus, {
-                    .command = t1::Command::OPT_GET_STATUS,
-                    .optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER
-                });
+                SendCommandACK(t1::GetOptimizerStatus,
+                               {.command = t1::Command::OPT_GET_STATUS,
+                                .optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER});
 
-                SendCommandACK(t1::GetOptimizerParam, {
-                    .command = t1::Command::OPT_GET_PARAM,
-                    .optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER
-                });
+                SendCommandACK(t1::GetOptimizerParam,
+                               {.command = t1::Command::OPT_GET_PARAM,
+                                .optimizerInquiredType = t1::OptimizerInquiredType::NC_OPTIMIZER});
             }
         }
 
@@ -348,28 +311,23 @@ namespace mdr
             SendCommandACK(t1::GetPlayStatus, {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER});
 
             /* Playback Volume */
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::VOLUME
-            });
+            SendCommandACK(
+                t1::GetPlayParam,
+                {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER, .dataType = t1::PlaybackDetailedDataType::VOLUME});
 
             /* Playback Metadata */
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::TRACK_NAME
-            });
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::ALBUM_NAME
-            });
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::ARTIST_NAME
-            });
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::GENRE_NAME
-            });
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::TRACK_NAME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::ALBUM_NAME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::ARTIST_NAME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::GENRE_NAME});
         }
 
         /* Sound Quality Mode */
@@ -381,8 +339,7 @@ namespace mdr
         }
 
         /* DSEE */
-        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u &&
-            state.mSupport.contains(t1::FunctionType::UPSCALING))
+        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u && state.mSupport.contains(t1::FunctionType::UPSCALING))
         {
             SendCommandACK(t1::GetAudioStatus, {.audioInquiredType = t1::AudioInquiredType::UPSCALING});
             SendCommandACK(t1::GetAudioParam, {.audioInquiredType = t1::AudioInquiredType::UPSCALING});
@@ -411,9 +368,7 @@ namespace mdr
         {
             SendCommandACK(t1::GetSystemStatus, {.systemInquiredType = t1::SystemInquiredType::SMART_TALKING_MODE});
             SendCommandACK(t1::GetSystemParam, {.systemInquiredType = t1::SystemInquiredType::SMART_TALKING_MODE});
-            SendCommandACK(t1::GetSystemExParam, {
-                .systemInquiredType = t1::SystemInquiredType::SMART_TALKING_MODE
-            });
+            SendCommandACK(t1::GetSystemExParam, {.systemInquiredType = t1::SystemInquiredType::SMART_TALKING_MODE});
         }
 
         /* WH: CUSTOM Button; WF: Touch Sensor */
@@ -425,15 +380,13 @@ namespace mdr
         }
 
         /* Battery level */
-        if ((flags & MDR_HEADPHONES_INIT_BATTERY) != 0u &&
-            state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL))
+        if ((flags & MDR_HEADPHONES_INIT_BATTERY) != 0u && state.mSupport.contains(t1::FunctionType::BATTERY_LEVEL))
         {
             SendCommandACK(t1::GetBatteryLevel, {.batteryInquiredType = t1::BatteryInquiredType::BATTERY});
         }
 
         /* Current DSEE */
-        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u &&
-            state.mSupport.contains(t1::FunctionType::UPSCALING_INDICATOR))
+        if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u && state.mSupport.contains(t1::FunctionType::UPSCALING_INDICATOR))
         {
             SendCommandACK(t1::GetUpscalingEffect);
         }
@@ -479,10 +432,8 @@ namespace mdr
         /* Receive alerts for certain operations like toggling multipoint */
         if ((flags & MDR_HEADPHONES_INIT_ALERT) != 0u)
         {
-            SendCommandACK(t1::SetAlertStatus, {
-                .type = t1::AlertInquiredType::FIXED_MESSAGE,
-                .status = CommonStatus::ENABLE
-            });
+            SendCommandACK(t1::SetAlertStatus,
+                           {.type = t1::AlertInquiredType::FIXED_MESSAGE, .status = CommonStatus::ENABLE});
         }
 
         mInitFlags |= flags;
@@ -495,26 +446,23 @@ namespace mdr
         auto& state = mDetailsV1;
 
         /* Playback metadata. Track changes are not always notified. */
-        if ((flags & MDR_HEADPHONES_SYNC_PLAYBACK) != 0u && state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
+        if ((flags & MDR_HEADPHONES_SYNC_PLAYBACK) != 0u &&
+            state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
         {
             SendCommandACK(t1::GetPlayStatus, {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER});
 
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::VOLUME
-            });
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::TRACK_NAME
-            });
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::ALBUM_NAME
-            });
-            SendCommandACK(t1::GetPlayParam, {
-                .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                .dataType = t1::PlaybackDetailedDataType::ARTIST_NAME
-            });
+            SendCommandACK(
+                t1::GetPlayParam,
+                {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER, .dataType = t1::PlaybackDetailedDataType::VOLUME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::TRACK_NAME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::ALBUM_NAME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::ARTIST_NAME});
         }
 
         co_return MDR_EVENT_SYNC_COMPLETE;
@@ -571,9 +519,8 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
             {
-                SendCommandACK(t1::SetPlayParamPlaybackControllerVolumeData, {
-                    .volumeValue = static_cast<UInt8>(std::clamp(state.mPlayVolume.mSubmitted, 0, 30))
-                });
+                SendCommandACK(t1::SetPlayParamPlaybackControllerVolumeData,
+                               {.volumeValue = static_cast<UInt8>(std::clamp(state.mPlayVolume.mSubmitted, 0, 30))});
             }
             state.mPlayVolume.commit();
         }
@@ -581,10 +528,9 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::PLAYBACK_CONTROLLER))
             {
-                SendCommandACK(t1::SetPlayStatus, {
-                    .type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
-                    .control = state.mPlayControl.mSubmitted
-                });
+                SendCommandACK(
+                    t1::SetPlayStatus,
+                    {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER, .control = state.mPlayControl.mSubmitted});
             }
             state.mPlayControl.commit();
         }
@@ -615,11 +561,9 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::UPSCALING))
             {
-                SendCommandACK(t1::SetAudioParamUpscalingParam, {
-                    .settingValue = state.mUpscalingEnabled.mSubmitted
-                        ? t1::UpscalingSettingValue::AUTO
-                        : t1::UpscalingSettingValue::OFF
-                });
+                SendCommandACK(t1::SetAudioParamUpscalingParam,
+                               {.settingValue = state.mUpscalingEnabled.mSubmitted ? t1::UpscalingSettingValue::AUTO
+                                                                                   : t1::UpscalingSettingValue::OFF});
             }
             state.mUpscalingEnabled.commit();
         }
@@ -628,9 +572,8 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::CONNECTION_MODE))
             {
-                SendCommandACK(t1::SetAudioParamConnectionModeParam, {
-                    .settingValue = state.mAudioPriorityMode.mSubmitted
-                });
+                SendCommandACK(t1::SetAudioParamConnectionModeParam,
+                               {.settingValue = state.mAudioPriorityMode.mSubmitted});
             }
             state.mAudioPriorityMode.commit();
         }
@@ -639,10 +582,9 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
             {
-                SendCommandACK(t1::SetSystemExParamAutoPowerOffParam, {
-                    .activeElementId = state.mPowerAutoOff.mSubmitted,
-                    .selectTimeElementId = state.mPowerAutoOff.mSubmitted
-                });
+                SendCommandACK(t1::SetSystemExParamAutoPowerOffParam,
+                               {.activeElementId = state.mPowerAutoOff.mSubmitted,
+                                .selectTimeElementId = state.mPowerAutoOff.mSubmitted});
             }
             state.mPowerAutoOff.commit();
         }
@@ -651,18 +593,17 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::CONTROL_BY_WEARING))
             {
-                SendCommandACK(t1::SetSystemExParamControlByWearingParam, {
-                    .settingValue = state.mAutoPauseEnabled.mSubmitted
-                        ? t1::ControlByWearingSettingValue::ON
-                        : t1::ControlByWearingSettingValue::OFF
-                });
+                SendCommandACK(t1::SetSystemExParamControlByWearingParam,
+                               {.settingValue = state.mAutoPauseEnabled.mSubmitted
+                                    ? t1::ControlByWearingSettingValue::ON
+                                    : t1::ControlByWearingSettingValue::OFF});
             }
             state.mAutoPauseEnabled.commit();
         }
 
         if (state.mHeadGestureEnabled.pending())
         {
-            // TODO @Amrsatrio            
+            // TODO @Amrsatrio
             state.mHeadGestureEnabled.commit();
             state.mHeadGestureEnabled.overwrite(state.mHeadGestureEnabled.mCurrent);
         }
@@ -682,11 +623,10 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE))
             {
-                SendCommandACK(t1::SetSystemParammartTalkingModeSetNtfyParam, {
-                    .settingValue = state.mSpeakToChatEnabled.mSubmitted
-                        ? t1::SmartTalkingModeSettingValue::ON
-                        : t1::SmartTalkingModeSettingValue::OFF
-                });
+                SendCommandACK(t1::SetSystemParammartTalkingModeSetNtfyParam,
+                               {.settingValue = state.mSpeakToChatEnabled.mSubmitted
+                                    ? t1::SmartTalkingModeSettingValue::ON
+                                    : t1::SmartTalkingModeSettingValue::OFF});
             }
             state.mSpeakToChatEnabled.commit();
         }
@@ -694,14 +634,12 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::SMART_TALKING_MODE))
             {
-                const UInt8 payload[] = {
-                    static_cast<UInt8>(t1::Command::SYSTEM_SET_EXTENDED_PARAM),
-                    static_cast<UInt8>(t1::SystemInquiredType::SMART_TALKING_MODE),
-                    0,
-                    static_cast<UInt8>(state.mSpeakToChatDetectSensitivity.mSubmitted),
-                    static_cast<UInt8>(state.mSpeakToChatVoiceFocus),
-                    static_cast<UInt8>(state.mSpeakToModeOutTime.mSubmitted)
-                };
+                const UInt8 payload[] = {static_cast<UInt8>(t1::Command::SYSTEM_SET_EXTENDED_PARAM),
+                                         static_cast<UInt8>(t1::SystemInquiredType::SMART_TALKING_MODE),
+                                         0,
+                                         static_cast<UInt8>(state.mSpeakToChatDetectSensitivity.mSubmitted),
+                                         static_cast<UInt8>(state.mSpeakToChatVoiceFocus),
+                                         static_cast<UInt8>(state.mSpeakToModeOutTime.mSubmitted)};
                 const uint64_t packetId = mPacketCounter;
                 SendCommandImpl(payload, MDRDataType::DATA_MDR, mSeqNumber);
                 const int result = co_await Await(AWAIT_ACK, packetId);
@@ -716,13 +654,12 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT))
             {
-                SendCommandACK(t2::SetPeripheralStatus, {
-                    .inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
-                    .bluetoothModeStatus = state.mPairingMode.mSubmitted
-                        ? t2::PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE
-                        : t2::PeripheralBluetoothModeStatus::NORMAL_MODE,
-                    .status = CommonStatus::ENABLE
-                });
+                SendCommandACK(t2::SetPeripheralStatus,
+                               {.inquiredType = t2::PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT,
+                                .bluetoothModeStatus = state.mPairingMode.mSubmitted
+                                    ? t2::PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE
+                                    : t2::PeripheralBluetoothModeStatus::NORMAL_MODE,
+                                .status = CommonStatus::ENABLE});
             }
             state.mPairingMode.commit();
         }
@@ -731,11 +668,10 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::VOICE_GUIDANCE))
             {
-                SendCommandACK(t2::SetVoiceGuidanceParamSettingOnOff, {
-                    .settingValue = state.mVoiceGuidanceEnabled.mSubmitted
-                        ? t2::VoiceGuidanceSettingValue::ON
-                        : t2::VoiceGuidanceSettingValue::OFF
-                });
+                SendCommandACK(t2::SetVoiceGuidanceParamSettingOnOff,
+                               {.settingValue = state.mVoiceGuidanceEnabled.mSubmitted
+                                    ? t2::VoiceGuidanceSettingValue::ON
+                                    : t2::VoiceGuidanceSettingValue::OFF});
             }
             state.mVoiceGuidanceEnabled.commit();
         }
@@ -744,11 +680,10 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING1))
             {
-                SendCommandACK(t1::SetGsParamGsBooleanTypeValue, {
-                    .type = t1::GsInquiredType::GENERAL_SETTING1,
-                    .settingValue = { state.mGsParamBool[0].mSubmitted
-                        ? t1::CommonOnOffSettingValue::ON : t1::CommonOnOffSettingValue::OFF }
-                });
+                SendCommandACK(t1::SetGsParamGsBooleanTypeValue,
+                               {.type = t1::GsInquiredType::GENERAL_SETTING1,
+                                .settingValue = {state.mGsParamBool[0].mSubmitted ? t1::CommonOnOffSettingValue::ON
+                                                                                  : t1::CommonOnOffSettingValue::OFF}});
             }
             state.mGsParamBool[0].commit();
         }
@@ -756,11 +691,10 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING2))
             {
-                SendCommandACK(t1::SetGsParamGsBooleanTypeValue, {
-                    .type = t1::GsInquiredType::GENERAL_SETTING2,
-                    .settingValue = { state.mGsParamBool[1].mSubmitted
-                        ? t1::CommonOnOffSettingValue::ON : t1::CommonOnOffSettingValue::OFF }
-                });
+                SendCommandACK(t1::SetGsParamGsBooleanTypeValue,
+                               {.type = t1::GsInquiredType::GENERAL_SETTING2,
+                                .settingValue = {state.mGsParamBool[1].mSubmitted ? t1::CommonOnOffSettingValue::ON
+                                                                                  : t1::CommonOnOffSettingValue::OFF}});
             }
             state.mGsParamBool[1].commit();
         }
@@ -768,22 +702,19 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING3))
             {
-                SendCommandACK(t1::SetGsParamGsBooleanTypeValue, {
-                    .type = t1::GsInquiredType::GENERAL_SETTING3,
-                    .settingValue = { state.mGsParamBool[2].mSubmitted
-                        ? t1::CommonOnOffSettingValue::ON : t1::CommonOnOffSettingValue::OFF }
-                });
+                SendCommandACK(t1::SetGsParamGsBooleanTypeValue,
+                               {.type = t1::GsInquiredType::GENERAL_SETTING3,
+                                .settingValue = {state.mGsParamBool[2].mSubmitted ? t1::CommonOnOffSettingValue::ON
+                                                                                  : t1::CommonOnOffSettingValue::OFF}});
             }
             state.mGsParamBool[2].commit();
         }
 
-        if (state.mPairedDeviceConnectMac.pending() ||
-            state.mPairedDeviceDisconnectMac.pending() ||
+        if (state.mPairedDeviceConnectMac.pending() || state.mPairedDeviceDisconnectMac.pending() ||
             state.mPairedDeviceUnpairMac.pending())
         {
-            co_return SetLastError(
-                MDR_RESULT_ERROR_NOT_SUPPORTED,
-                "V1 paired-device mutations require a capture-confirmed address layout");
+            co_return SetLastError(MDR_RESULT_ERROR_NOT_SUPPORTED,
+                                   "V1 paired-device mutations require a capture-confirmed address layout");
         }
 
         co_return MDR_EVENT_APPLY_COMPLETE;
@@ -796,14 +727,9 @@ namespace mdr
             return SetLastError(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "MDR V1 protocol info size is not valid");
         const auto result = (t1::RetProtocolInfo::Deserialize)(command.data(), command.size());
         if (!result)
-            return SetLastError(
-                result.error,
-                result.errMessage ? result.errMessage : "Unable to deserialize MDR V1 protocol info");
-        state.mProtocol = {
-            .version = result.value.protocolVersion,
-            .hasTable1 = true,
-            .hasTable2 = false
-        };
+            return SetLastError(result.error,
+                                result.errMessage ? result.errMessage : "Unable to deserialize MDR V1 protocol info");
+        state.mProtocol = {.version = result.value.protocolVersion, .hasTable1 = true, .hasTable2 = false};
         Awake(AWAIT_PROTOCOL_INFO);
         return MDR_EVENT_IDENTITY_CHANGED;
     }

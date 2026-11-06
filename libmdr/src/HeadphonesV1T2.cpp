@@ -18,8 +18,7 @@ namespace mdr
                     .macAddress = {device.btDeviceAddress.begin(), device.btDeviceAddress.end()},
                     .name = device.btFriendlyName.value,
                     .connected = device.connectedStatus != 0,
-                    .playbackDevice = device.connectedStatus == payload.playbackrightDevice
-                };
+                    .playbackDevice = device.connectedStatus == payload.playbackrightDevice};
                 if (state.playbackDevice)
                     self->mDetailsV1.mMultipointDeviceMac.overwrite(state.macAddress);
                 self->mDetailsV1.mPairedDevices.push_back(std::move(state));
@@ -35,16 +34,16 @@ namespace mdr
             if (static_cast<Command>(cmd[0]) == Command::PERIPHERAL_NTFY_STATUS)
             {
                 Deserialize(NotifyPeripheralStatusPairingDeviceManagementClassicBt, result, cmd);
-                self->mDetailsV1.mPairingMode.overwrite(
-                    result.status == v1::CommonStatus::ENABLE &&
-                    result.bluetoothModeStatus == PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
+                self->mDetailsV1.mPairingMode.overwrite(result.status == v1::CommonStatus::ENABLE &&
+                                                        result.bluetoothModeStatus ==
+                                                            PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
             }
             else
             {
                 Deserialize(RetPeripheralStatus, result, cmd);
-                self->mDetailsV1.mPairingMode.overwrite(
-                    result.status == v1::CommonStatus::ENABLE &&
-                    result.bluetoothModeStatus == PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
+                self->mDetailsV1.mPairingMode.overwrite(result.status == v1::CommonStatus::ENABLE &&
+                                                        result.bluetoothModeStatus ==
+                                                            PeripheralBluetoothModeStatus::INQUIRY_SCAN_MODE);
             }
             return MDR_EVENT_PAIRING_CHANGED;
         }
@@ -71,8 +70,8 @@ namespace mdr
         int HandleVoiceGuidance(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             const Command command = static_cast<Command>(cmd[0]);
-            const bool isParam = command == Command::VOICE_GUIDANCE_NTFY_PARAM
-                              || command == Command::VOICE_GUIDANCE_RET_PARAM;
+            const bool isParam =
+                command == Command::VOICE_GUIDANCE_NTFY_PARAM || command == Command::VOICE_GUIDANCE_RET_PARAM;
             // TODO: StatusType::LANGUAGE
             if (cmd.size() <= 2)
                 return MDR_EVENT_UNHANDLED;
@@ -83,14 +82,12 @@ namespace mdr
             if (command == Command::VOICE_GUIDANCE_NTFY_PARAM)
             {
                 Deserialize(NotifyVoiceGuidanceParamSettingOnOff, result, cmd);
-                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(
-                    result.settingValue == VoiceGuidanceSettingValue::ON);
+                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(result.settingValue == VoiceGuidanceSettingValue::ON);
             }
             else if (command == Command::VOICE_GUIDANCE_RET_PARAM)
             {
                 Deserialize(RetVoiceGuidanceParamSettingOnOff, result, cmd);
-                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(
-                    result.settingValue == VoiceGuidanceSettingValue::ON);
+                self->mDetailsV1.mVoiceGuidanceEnabled.overwrite(result.settingValue == VoiceGuidanceSettingValue::ON);
             }
             else if (command == Command::VOICE_GUIDANCE_NTFY_STATUS)
             {
