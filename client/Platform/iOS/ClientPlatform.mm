@@ -10,12 +10,12 @@
 #include <mutex>
 
 @interface SHCShareRequest : NSObject
-@property (nonatomic, copy) NSString* filename;
-@property (nonatomic, strong) NSData* data;
-@property (nonatomic, weak) UIWindow* window;
-@property (nonatomic, weak) UIActivityViewController* controller;
-@property (nonatomic, assign) ClientPlatformSaveBlobCallback callback;
-@property (nonatomic, assign) void* userdata;
+@property(nonatomic, copy) NSString* filename;
+@property(nonatomic, strong) NSData* data;
+@property(nonatomic, weak) UIWindow* window;
+@property(nonatomic, weak) UIActivityViewController* controller;
+@property(nonatomic, assign) ClientPlatformSaveBlobCallback callback;
+@property(nonatomic, assign) void* userdata;
 @end
 
 @implementation SHCShareRequest
@@ -47,7 +47,7 @@ namespace
         static dispatch_queue_t queue;
         static dispatch_once_t once;
         dispatch_once(&once, ^{
-            queue = dispatch_queue_create("com.mos9527.SonyHeadphonesClient.exports", DISPATCH_QUEUE_SERIAL);
+          queue = dispatch_queue_create("com.mos9527.SonyHeadphonesClient.exports", DISPATCH_QUEUE_SERIAL);
         });
         return queue;
     }
@@ -90,10 +90,10 @@ namespace
     void DiscardDirectory(NSURL* directory)
     {
         dispatch_async(FileQueue(), ^{
-            @autoreleasepool
-            {
-                RemoveDirectory(directory);
-            }
+          @autoreleasepool
+          {
+              RemoveDirectory(directory);
+          }
         });
     }
 
@@ -103,9 +103,11 @@ namespace
         if (cleaned)
             return;
         cleaned = true;
-        NSArray<NSURL*>* directories = [manager contentsOfDirectoryAtURL:root
-            includingPropertiesForKeys:@[NSURLIsDirectoryKey, NSURLIsSymbolicLinkKey, NSURLContentModificationDateKey]
-            options:NSDirectoryEnumerationSkipsHiddenFiles error:nullptr];
+        NSArray<NSURL*>* directories = [manager
+              contentsOfDirectoryAtURL:root
+            includingPropertiesForKeys:@[ NSURLIsDirectoryKey, NSURLIsSymbolicLinkKey, NSURLContentModificationDateKey ]
+                               options:NSDirectoryEnumerationSkipsHiddenFiles
+                                 error:nullptr];
         NSDate* cutoff = [NSDate dateWithTimeIntervalSinceNow:-kRetentionSeconds];
         for (NSURL* directory in directories)
         {
@@ -145,8 +147,8 @@ namespace
             DiscardDirectory(directory);
             return;
         }
-        UIActivityViewController* controller = [[UIActivityViewController alloc]
-            initWithActivityItems:@[file] applicationActivities:nil];
+        UIActivityViewController* controller = [[UIActivityViewController alloc] initWithActivityItems:@[ file ]
+                                                                                 applicationActivities:nil];
         if (!controller)
         {
             FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, @"Unable to create the share panel");
@@ -154,27 +156,31 @@ namespace
             return;
         }
         request.controller = controller;
-        controller.completionWithItemsHandler = ^(UIActivityType activityType, BOOL completed,
-                                                  NSArray* returnedItems, NSError* error) {
-            if (error)
-                FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, ErrorText(error));
-            else
-                FinishShare(request, completed ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_CANCELLED);
-        };
+        controller.completionWithItemsHandler =
+            ^(UIActivityType activityType, BOOL completed, NSArray* returnedItems, NSError* error) {
+              if (error)
+                  FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, ErrorText(error));
+              else
+                  FinishShare(request,
+                              completed ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_CANCELLED);
+            };
         controller.modalPresentationStyle = UIModalPresentationPopover;
         UIPopoverPresentationController* popover = controller.popoverPresentationController;
         popover.sourceView = presenter.view;
         const CGRect bounds = presenter.view.bounds;
         popover.sourceRect = CGRectMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds), 1, 1);
         popover.permittedArrowDirections = 0;
-        [presenter presentViewController:controller animated:YES completion:^{
-            if (IsCurrent(request) && !controller.presentingViewController)
-            {
-                controller.completionWithItemsHandler = nil;
-                FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, @"Unable to present the share panel");
-                DiscardDirectory(directory);
-            }
-        }];
+        [presenter presentViewController:controller
+                                animated:YES
+                              completion:^{
+                                if (IsCurrent(request) && !controller.presentingViewController)
+                                {
+                                    controller.completionWithItemsHandler = nil;
+                                    FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED,
+                                                @"Unable to present the share panel");
+                                    DiscardDirectory(directory);
+                                }
+                              }];
     }
 
     void PrepareShare(SHCShareRequest* request)
@@ -211,10 +217,10 @@ namespace
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            @autoreleasepool
-            {
-                PresentShare(request, file, directory);
-            }
+          @autoreleasepool
+          {
+              PresentShare(request, file, directory);
+          }
         });
     }
 }
@@ -256,21 +262,20 @@ bool clientPlatformWaitEventTimeout(int timeoutMS)
             if (timeoutMS == 0 || (timeoutMS > 0 && now >= deadline))
                 return false;
             const Uint64 waitNS = timeoutMS < 0 ? kEventWaitRecheckNS : std::min(kEventWaitRecheckNS, deadline - now);
-            const SInt32 result = CFRunLoopRunInMode(kCFRunLoopDefaultMode,
-                static_cast<double>(waitNS) / SDL_NS_PER_SECOND, true);
+            const SInt32 result =
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, static_cast<double>(waitNS) / SDL_NS_PER_SECOND, true);
             if (result == kCFRunLoopRunFinished || result == kCFRunLoopRunStopped)
                 return SDL_SetError("The iOS event run loop stopped");
         }
     }
 }
 
-int clientPlatformSaveBlob(
-    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType, SDL_Window* window,
-    ClientPlatformSaveBlobCallback callback, void* userdata)
+int clientPlatformSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+                           SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
 {
     if (!filename || !*filename || std::strlen(filename) > 255 || std::strpbrk(filename, "/\\") ||
-        std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize ||
-        !mimeType || !*mimeType || !window || !callback)
+        std::strcmp(filename, ".") == 0 || std::strcmp(filename, "..") == 0 || !data || !dataSize || !mimeType ||
+        !*mimeType || !window || !callback)
     {
         SDL_SetError("Invalid file sharing arguments");
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -311,10 +316,10 @@ int clientPlatformSaveBlob(
             gShare = request;
         }
         dispatch_async(FileQueue(), ^{
-            @autoreleasepool
-            {
-                PrepareShare(request);
-            }
+          @autoreleasepool
+          {
+              PrepareShare(request);
+          }
         });
     }
     return MDR_RESULT_OK;
@@ -341,10 +346,10 @@ extern "C" void clientIOSDestroy()
             return;
         FinishShare(request, CLIENT_PLATFORM_SAVE_BLOB_CANCELLED);
         dispatch_async(dispatch_get_main_queue(), ^{
-            UIActivityViewController* controller = request.controller;
-            controller.completionWithItemsHandler = nil;
-            if (controller.presentingViewController)
-                [controller dismissViewControllerAnimated:NO completion:nil];
+          UIActivityViewController* controller = request.controller;
+          controller.completionWithItemsHandler = nil;
+          if (controller.presentingViewController)
+              [controller dismissViewControllerAnimated:NO completion:nil];
         });
     }
 }

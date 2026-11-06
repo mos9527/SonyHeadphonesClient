@@ -274,7 +274,16 @@ Use it only when:
 
 ## Coding Style
 
-Respect `.clang-format` and `.clang-tidy` for formatting and linting. Furthermore, the following rules always apply.
+Respect `.clang-format` and `.clang-tidy` for formatting and linting, the formatting is checked in the CI. Furthermore, the following rules always apply.
+
+### Formatting
+
+Any clang-format **19 or newer** works (versions 19 through 23 produce identical output on this tree; older versions refuse to load the config). Your IDE's bundled one is usually fine, otherwise `pip install clang-format`.
+
+- Format only what you touched: `git clang-format` (staged changes) or your IDE's format-on-save.
+- Format everything: `git ls-files '*.c' '*.cpp' '*.h' '*.hpp' '*.mm' | xargs clang-format -i`
+- Generated sources (`*/Generated/*`) and embedded fonts are excluded via `.clang-format-ignore`. Regenerate those instead of editing them.
+- Non-C++ code embedded in C++ (e.g. JavaScript in `EM_JS(...)`) **MUST** be fenced with `// clang-format off` / `// clang-format on` or it WILL break.
 
 ### Exception Handling
 

@@ -134,10 +134,7 @@ mdr::Vector<mdr::String> dbus_list_adapters(DBusConnection* const connection)
 
     dbus_error_init(&error);
 
-    msg = dbus_message_new_method_call("org.bluez",
-                                       "/",
-                                       "org.freedesktop.DBus.ObjectManager",
-                                       "GetManagedObjects");
+    msg = dbus_message_new_method_call("org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects");
     if (NULL == msg)
     {
         MDR_LOG("Error: Could not obtain method call");
@@ -147,10 +144,7 @@ mdr::Vector<mdr::String> dbus_list_adapters(DBusConnection* const connection)
     /* No arguments */
 
     /* Invoke the method */
-    rsp = dbus_connection_send_with_reply_and_block(connection,
-                                                    msg,
-                                                    DBUS_TIMEOUT_USE_DEFAULT,
-                                                    &error);
+    rsp = dbus_connection_send_with_reply_and_block(connection, msg, DBUS_TIMEOUT_USE_DEFAULT, &error);
     if (dbus_error_is_set(&error))
     {
         MDR_LOG("Could not send dbus message\nError: {}", error.message);
@@ -216,10 +210,7 @@ mdr::String dbus_get_property(DBusConnection* const connection, const char* devi
 
     dbus_error_init(&error);
 
-    msg = dbus_message_new_method_call("org.bluez",
-                                       device_path,
-                                       "org.freedesktop.DBus.Properties",
-                                       "Get");
+    msg = dbus_message_new_method_call("org.bluez", device_path, "org.freedesktop.DBus.Properties", "Get");
     if (NULL == msg)
     {
         MDR_LOG("Error: Could not obtain method call");
@@ -227,19 +218,12 @@ mdr::String dbus_get_property(DBusConnection* const connection, const char* devi
     }
 
     /* arguments */
-    dbus_message_append_args(msg,
-                             DBUS_TYPE_STRING, &device_interface,
-                             DBUS_TYPE_INVALID);
+    dbus_message_append_args(msg, DBUS_TYPE_STRING, &device_interface, DBUS_TYPE_INVALID);
 
-    dbus_message_append_args(msg,
-                             DBUS_TYPE_STRING, &property,
-                             DBUS_TYPE_INVALID);
+    dbus_message_append_args(msg, DBUS_TYPE_STRING, &property, DBUS_TYPE_INVALID);
 
     /* Invoke the method */
-    rsp = dbus_connection_send_with_reply_and_block(connection,
-                                                    msg,
-                                                    DBUS_TIMEOUT_USE_DEFAULT,
-                                                    &error);
+    rsp = dbus_connection_send_with_reply_and_block(connection, msg, DBUS_TIMEOUT_USE_DEFAULT, &error);
     if (dbus_error_is_set(&error))
     {
         MDR_LOG("Could not send dbus message\nError: {}", error.message);
@@ -291,10 +275,7 @@ int sdp_poll(sdp_session* sess, int timeout)
 {
     auto session = reinterpret_cast<sdp_session_t*>(sess);
     int sock = sdp_get_socket(session);
-    pollfd pfd{
-        .fd = sock,
-        .events = POLLIN | POLLOUT
-    };
+    pollfd pfd{.fd = sock, .events = POLLIN | POLLOUT};
     return poll(&pfd, 1, timeout);
 }
 
@@ -312,8 +293,7 @@ uint8_t sdp_getServiceChannel(sdp_session* sess, const uint8_t* uuid128)
     attrid_list = sdp_list_append(0, &range);
     // get a list of service records that have UUID 0xabcd
     response_list = NULL;
-    status = sdp_service_search_attr_req(session, search_list,
-                                         SDP_ATTR_REQ_RANGE, attrid_list, &response_list);
+    status = sdp_service_search_attr_req(session, search_list, SDP_ATTR_REQ_RANGE, attrid_list, &response_list);
     if (status == 0)
     {
         sdp_list_t* proto_list = NULL;

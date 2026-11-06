@@ -14,12 +14,17 @@ int clientPlatformConnectionInit(int flags)
 
 void clientPlatformConnectionDestroy()
 {
-    if (gConn) { mdrConnectionIOSDestroy(gConn); gConn = nullptr; }
+    if (gConn)
+    {
+        mdrConnectionIOSDestroy(gConn);
+        gConn = nullptr;
+    }
 }
 
 MDRConnection* clientPlatformConnectionGet()
 {
-    if (gConn) return mdrConnectionIOSGet(gConn);
+    if (gConn)
+        return mdrConnectionIOSGet(gConn);
     [[unlikely]] return nullptr;
 }
 }

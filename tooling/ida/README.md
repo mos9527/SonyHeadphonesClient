@@ -70,12 +70,12 @@ python -m tooling.ida.j2objc.render
 This writes all production headers directly:
 
 ```text
-libmdr/include/mdr/ProtocolV1.hpp
-libmdr/include/mdr/ProtocolV1T1.hpp
-libmdr/include/mdr/ProtocolV1T2.hpp
-libmdr/include/mdr/ProtocolV2.hpp
-libmdr/include/mdr/ProtocolV2T1.hpp
-libmdr/include/mdr/ProtocolV2T2.hpp
+libmdr/include/mdr/Generated/ProtocolV1.hpp
+libmdr/include/mdr/Generated/ProtocolV1T1.hpp
+libmdr/include/mdr/Generated/ProtocolV1T2.hpp
+libmdr/include/mdr/Generated/ProtocolV2.hpp
+libmdr/include/mdr/Generated/ProtocolV2T1.hpp
+libmdr/include/mdr/Generated/ProtocolV2T2.hpp
 ```
 
 There is no staged-header or parity workflow: production protocol headers are

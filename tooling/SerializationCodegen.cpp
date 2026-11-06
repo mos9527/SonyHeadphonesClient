@@ -21,7 +21,8 @@ CXChildVisitResult macroVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         CXSourceLocation loc = clang_getCursorLocation(cursor);
         // Identify macros with line numbers. getLexicalParent doesn't work since we're still
         // in the preprocessor
-        CXFile file; unsigned line, col, offset;
+        CXFile file;
+        unsigned line, col, offset;
         clang_getSpellingLocation(loc, &file, &line, &col, &offset);
         CXString fileName = clang_getFileName(file);
         std::string fileStr = clang_getCString(fileName);
@@ -88,24 +89,32 @@ CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClie
         if (result.hasWrite && result.hasRead)
         {
             if (params->isSerialize)
-                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, &ptr, maxSize));", params->resultType, fieldTypeName, fieldName);
+                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, &ptr, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
             if (params->isWrite)
-                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, ppDstBuffer, maxSize));", params->resultType, fieldTypeName, fieldName);
+                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, ppDstBuffer, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
             if (params->isDeserialize)
-                println("        MDR_TRY_SIZE({}, ({}::Read)(&data, out.{}, maxSize));", params->resultType, fieldTypeName, fieldName);
+                println("        MDR_TRY_SIZE({}, ({}::Read)(&data, out.{}, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
             if (params->isRead)
-                println("        MDR_TRY_SIZE({}, ({}::Read)(ppSrcBuffer, out.{}, maxSize));", params->resultType, fieldTypeName, fieldName);
+                println("        MDR_TRY_SIZE({}, ({}::Read)(ppSrcBuffer, out.{}, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
         }
         else
         {
             if (params->isSerialize)
-                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, &ptr, maxSize));", params->resultType, fieldName);
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, &ptr, maxSize));", params->resultType,
+                        fieldName);
             if (params->isWrite)
-                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, ppDstBuffer, maxSize));", params->resultType, fieldName);
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, ppDstBuffer, maxSize));", params->resultType,
+                        fieldName);
             if (params->isDeserialize)
-                println("        MDR_TRY_SIZE({}, MDRPod::Read(&data, out.{}, maxSize));", params->resultType, fieldName);
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(&data, out.{}, maxSize));", params->resultType,
+                        fieldName);
             if (params->isRead)
-                println("        MDR_TRY_SIZE({}, MDRPod::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType, fieldName);
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType,
+                        fieldName);
         }
         clang_disposeString(name);
         clang_disposeString(typeName);
@@ -128,14 +137,17 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
         std::string structName = clang_getCString(name);
         /* Collect macros */
         auto [startLine, endLine] = getCursorExtents(cursor);
-        auto start = std::lower_bound(gMacros.begin(), gMacros.end(), MacroPair{startLine,""});
+        auto start = std::lower_bound(gMacros.begin(), gMacros.end(), MacroPair{startLine, ""});
         std::vector<std::string> macros;
         bool isExtern = false, isIgnored = false, isRWFieldStruct = false;
         for (auto it = start; it != gMacros.end() && it->first < endLine; ++it)
         {
-            if (it->second == kMDRIgnoredMacro) isIgnored = true;
-            if (it->second == kMDRExternMacro) isExtern = true;
-            if (it->second == kMDRRWMacro) isRWFieldStruct = true;
+            if (it->second == kMDRIgnoredMacro)
+                isIgnored = true;
+            if (it->second == kMDRExternMacro)
+                isExtern = true;
+            if (it->second == kMDRRWMacro)
+                isRWFieldStruct = true;
         }
         FieldSerializeVisitorParams params{};
         if (isRWFieldStruct)
@@ -145,7 +157,8 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
             if (!isIgnored)
             {
                 // Write
-                println("    MDRResult<size_t> {}::Write(const {}& data, UInt8** ppDstBuffer, size_t maxSize)", structName,structName);
+                println("    MDRResult<size_t> {}::Write(const {}& data, UInt8** ppDstBuffer, size_t maxSize)",
+                        structName, structName);
                 println("    {{");
                 println("        UInt8* ptr = *ppDstBuffer;");
                 params.resultType = "size_t";
@@ -153,7 +166,8 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
                 println("        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);");
                 println("    }}");
-                println("    MDRResult<size_t> {}::Read(const UInt8** ppSrcBuffer, {}& out, size_t maxSize)", structName,structName);
+                println("    MDRResult<size_t> {}::Read(const UInt8** ppSrcBuffer, {}& out, size_t maxSize)",
+                        structName, structName);
                 println("    {{");
                 println("        const UInt8* ptr = *ppSrcBuffer;");
                 params.resultType = "size_t";
@@ -162,12 +176,14 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 println("        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);");
                 println("    }}");
             }
-        } else
+        }
+        else
         {
             // Emit serialization bodies
             if (isExtern && !isIgnored)
             {
-                println("    MDRResult<size_t> {}::Serialize(const {}& data, UInt8* out, size_t maxSize)", structName,structName);
+                println("    MDRResult<size_t> {}::Serialize(const {}& data, UInt8* out, size_t maxSize)", structName,
+                        structName);
                 println("    {{");
                 println("        UInt8* ptr = out;");
                 println("        MDR_TRY(size_t, Validate(data));");
@@ -176,7 +192,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
                 clang_visitChildren(cursor, fieldValidateVisitor, &params);
                 println("        return MDRResult<size_t>::Success(ptr - out);");
                 println("    }}");
-                println("    MDRResult<{}> {}::Deserialize(const UInt8* data, size_t maxSize)", structName,structName);
+                println("    MDRResult<{}> {}::Deserialize(const UInt8* data, size_t maxSize)", structName, structName);
                 println("    {{");
                 println("        {} out{{}};", structName);
                 params.resultType = structName;
@@ -195,7 +211,7 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
     }
 }
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
     if (argc != 4)
     {
@@ -207,12 +223,8 @@ int main( int argc, char** argv )
     gSrc = argv[1];
     gNamespaceName = argv[2];
     CXIndex index = clang_createIndex(0, 0);
-    CXTranslationUnit unit = clang_parseTranslationUnit(
-        index,
-        gSrc.c_str(),
-        nullptr, 0,
-        nullptr, 0,
-        CXTranslationUnit_DetailedPreprocessingRecord);
+    CXTranslationUnit unit = clang_parseTranslationUnit(index, gSrc.c_str(), nullptr, 0, nullptr, 0,
+                                                        CXTranslationUnit_DetailedPreprocessingRecord);
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(cursor, macroVisitor, nullptr);
     std::sort(gMacros.begin(), gMacros.end());

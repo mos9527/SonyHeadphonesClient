@@ -54,11 +54,11 @@ void clientSetAppLocale(AppLocale locale)
 
 static mdr::String ImTextLabel(i18n::TextId id, const char* icon = "")
 {
-    return mdr::Format("{}{}{}###{}", icon, *icon ? " " : "",
-                       i18n::Translate(id, clientGetAppLocale()), i18n::Index(id));
+    return mdr::Format("{}{}{}###{}", icon, *icon ? " " : "", i18n::Translate(id, clientGetAppLocale()),
+                       i18n::Index(id));
 }
 
-#define TrLable(id, ...) (ImTextLabel(id __VA_OPT__(,) __VA_ARGS__).c_str())
+#define TrLable(id, ...) (ImTextLabel(id __VA_OPT__(, ) __VA_ARGS__).c_str())
 
 #ifdef MDR_CLIENT_DEBUGGER
 #include "Debugger.hpp"
@@ -455,7 +455,8 @@ uint8_t GetModelColor()
 {
     MDRModel identity{};
     return gDevice && mdrHeadphonesGetModel(gDevice, &identity) == MDR_RESULT_OK
-        ? static_cast<uint8_t>(identity.model_color) : 0;
+        ? static_cast<uint8_t>(identity.model_color)
+        : 0;
 }
 
 mdr::Vector<MDRBattery> GetBatteries()
@@ -578,7 +579,10 @@ static mdr::String gAlertMessage;
 static bool gPauseMediaOnRemove = false;
 static ClientMediaPause* gMediaPause = nullptr;
 
-void clientSetPauseMediaOnRemove(bool enabled) { gPauseMediaOnRemove = enabled; }
+void clientSetPauseMediaOnRemove(bool enabled)
+{
+    gPauseMediaOnRemove = enabled;
+}
 
 // True when the headphones' auto pause will go somewhere other than this computer: another
 // device, not one of our own adapters, is connected alongside us.
@@ -749,7 +753,7 @@ void ImScrollWhenDraggingAnywhere(const ImVec2& delta, ImGuiMouseButton mouse_bu
     g.HoveredIdAllowOverlap = true;
     ImScrollWhenDraggingOnVoid(delta, mouse_button);
     g.HoveredIdAllowOverlap = backup_hovered_id_allow_overlap; // As we know ScrollWhenDraggingOnVoid() doesn't changed
-                                                               // HoveredId we can unconditionally restore.
+    // HoveredId we can unconditionally restore.
 }
 // --
 
@@ -785,12 +789,12 @@ void ImTextCentered(const char* text, float fontSize = 0.0f)
         while (visibleEnd > line && (ImCharIsBlankA(visibleEnd[-1]) || visibleEnd[-1] == '\r'))
             --visibleEnd;
         const float textWidth = ImGui::CalcTextSize(line, visibleEnd).x;
-        ImGui::SetCursorPos({start.x + std::max(0.0f, (width - textWidth) * 0.5f),
-                             start.y + lineIndex * lineHeight});
+        ImGui::SetCursorPos({start.x + std::max(0.0f, (width - textWidth) * 0.5f), start.y + lineIndex * lineHeight});
         ImGui::TextUnformatted(line, visibleEnd);
         ++lineIndex;
         line = ImTextCalcWordWrapNextLineStart(lineEnd, textEnd);
-    } while (line < textEnd);
+    }
+    while (line < textEnd);
     ImGui::PopTextWrapPos();
     ImGui::EndGroup();
 }
@@ -922,7 +926,10 @@ void ImSetNextWindowCentered()
 }
 
 // Outer size of a bordered text badge: the text plus FramePadding / 2 on every side.
-ImVec2 ImBadgeSize(const char* text) { return ImGui::CalcTextSize(text) + ImGui::GetStyle().FramePadding; }
+ImVec2 ImBadgeSize(const char* text)
+{
+    return ImGui::CalcTextSize(text) + ImGui::GetStyle().FramePadding;
+}
 
 bool ImBadge(const char* text, ImVec2 pos, ImU32 borderColor, ImU32 textColor, float rounding = 0.0f,
              float thickness = 1.0f, bool* hovered = nullptr, const char* id = nullptr)
@@ -1064,7 +1071,8 @@ void RefreshDeviceList()
         mdrConnectionFreeDevicesList(conn, &gDiscoveryDevices);
     gDiscoveryDevices = nullptr;
     gDiscoveryDeviceCount = 0;
-    gDiscoveryPending = mdrConnectionGetDevicesList(conn, &gDiscoveryDevices, &gDiscoveryDeviceCount) == MDR_RESULT_INPROGRESS;
+    gDiscoveryPending =
+        mdrConnectionGetDevicesList(conn, &gDiscoveryDevices, &gDiscoveryDeviceCount) == MDR_RESULT_INPROGRESS;
 }
 
 void UpdateDeviceDiscovery()
@@ -1092,7 +1100,8 @@ const char* ConnectionAttemptName()
     if (connectionAttempt.ble)
         return Tr(i18n::TextId::BleName);
     if (connectionAttempt.serviceCount == 1)
-        return std::strcmp(connectionAttempt.services[0], MDR_SERVICE_UUID_V1) == 0 ? Tr(i18n::TextId::ProtocolV1) : Tr(i18n::TextId::ProtocolV2);
+        return std::strcmp(connectionAttempt.services[0], MDR_SERVICE_UUID_V1) == 0 ? Tr(i18n::TextId::ProtocolV1)
+                                                                                    : Tr(i18n::TextId::ProtocolV2);
     return connectionAttempt.serviceIndex == 0 ? Tr(i18n::TextId::ProtocolV2) : Tr(i18n::TextId::ProtocolV1);
 }
 
@@ -1175,10 +1184,11 @@ void DrawDeviceDiscovery()
         MDRDeviceInfo*& pDeviceInfo = gDiscoveryDevices;
         int& nDeviceInfo = gDiscoveryDeviceCount;
         ImTextCenteredFit(Tr(i18n::TextId::AppName), ImGui::GetContentRegionAvail().x * 0.05f);
-        ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::VersionInfo)), CLIENT_VERSION,
-                                   MDR_GIT_BRANCH_NAME, MDR_GIT_COMMIT_HASH, SDL_GetPlatform(),
-                                   clientPlatformGetProcessorArchitecture(), clientGetAppLocale())
-                           .c_str(), IM_FONTSIZE_CAPTION);
+        ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::VersionInfo)), CLIENT_VERSION, MDR_GIT_BRANCH_NAME,
+                                   MDR_GIT_COMMIT_HASH, SDL_GetPlatform(), clientPlatformGetProcessorArchitecture(),
+                                   clientGetAppLocale())
+                           .c_str(),
+                       IM_FONTSIZE_CAPTION);
         bool& usingBLE = gUsingBLE;
         bool& needSwitchClientPlatform = gBackendSwitchPending;
         static DEVICE_TYPE deviceType = DEVICE_TYPE_AUTO;
@@ -1211,7 +1221,8 @@ void DrawDeviceDiscovery()
             const std::array labels{ImTextLabel(i18n::TextId::Auto, PSI_PLUS_SIGN),
                                     ImTextLabel(i18n::TextId::ProtocolV2, PSI_FAST_FORWARD),
                                     ImTextLabel(i18n::TextId::ProtocolV1, PSI_FORWARD)};
-            const std::array tooltips{Tr(i18n::TextId::ProtocolAutoHelp), Tr(i18n::TextId::ProtocolV2Help), Tr(i18n::TextId::ProtocolV1Help)};
+            const std::array tooltips{Tr(i18n::TextId::ProtocolAutoHelp), Tr(i18n::TextId::ProtocolV2Help),
+                                      Tr(i18n::TextId::ProtocolV1Help)};
             for (int i = 0; i < static_cast<int>(labels.size()); ++i)
             {
                 ImStylesRAII buttonStyles;
@@ -1265,7 +1276,8 @@ void DrawDeviceDiscovery()
         if (gConnectionInitResult != MDR_RESULT_OK && gConnectionInitResult != MDR_RESULT_INPROGRESS)
         {
             ImTextCentered(mdr::Format(PSI_EXCLAMATION_SIGN " {}",
-                                       mdr::Format(fmt::runtime(Tr(i18n::TextId::ConnectionInitFailed)), mdrResultString(gConnectionInitResult)))
+                                       mdr::Format(fmt::runtime(Tr(i18n::TextId::ConnectionInitFailed)),
+                                                   mdrResultString(gConnectionInitResult)))
                                .c_str());
         }
         DrawDeviceList();
@@ -1382,8 +1394,7 @@ void UpdateDeviceConnecting()
                 clientDebuggerObservePacket(direction, packetId, frame, frameSize);
 #endif
             },
-            nullptr
-        );
+            nullptr);
 #ifdef MDR_CLIENT_DEBUGGER
         clientDebuggerAttach(gDevice);
 #endif
@@ -1412,7 +1423,8 @@ void DrawDeviceConnecting()
     {
         ImGui::NewLine();
         ImTextCentered(Tr(i18n::TextId::Connecting), IM_FONTSIZE_TITLE);
-        ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::DeviceType)), ConnectionAttemptName()).c_str(), IM_FONTSIZE_CAPTION);
+        ImTextCentered(mdr::Format(fmt::runtime(Tr(i18n::TextId::DeviceType)), ConnectionAttemptName()).c_str(),
+                       IM_FONTSIZE_CAPTION);
         ImGui::Dummy({0, 16.0f});
         ImSpinner(1400.0f, ImGui::GetContentRegionAvail().x - ImGui::GetStyle().WindowPadding.x * 2.0f,
                   MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::onSurface),
@@ -1438,7 +1450,8 @@ void DrawDeviceControlsHeader()
     MDRModel model{};
     const bool modelAvailable = mdrHeadphonesGetModel(gDevice, &model) == MDR_RESULT_OK;
     MDREqualizer equalizer{};
-    const bool equalizerAvailable = mdrHeadphonesGetEqualizer(gDevice, MDR_PROPERTY_CURRENT, &equalizer) == MDR_RESULT_OK;
+    const bool equalizerAvailable =
+        mdrHeadphonesGetEqualizer(gDevice, MDR_PROPERTY_CURRENT, &equalizer) == MDR_RESULT_OK;
     const auto batteries = GetBatteries();
     MDRWearingStatus wearingStatus{};
     const bool wearingStatusAvailable = FeatureAvailable(MDR_FEATURE_WEARING_STATUS) &&
@@ -1574,7 +1587,8 @@ void DrawDeviceControlsHeader()
                 ImGui::EndTable();
             }
             if (wearingStatusAvailable)
-                ImGui::TextUnformatted(mdr::Format(fmt::runtime(Tr(i18n::TextId::Wearing)), FormatWearingStatus(wearingStatus)).c_str());
+                ImGui::TextUnformatted(
+                    mdr::Format(fmt::runtime(Tr(i18n::TextId::Wearing)), FormatWearingStatus(wearingStatus)).c_str());
         }
         ImGui::TableSetColumnIndex(1);
         /* Now Playing */
@@ -1655,11 +1669,14 @@ void DrawDeviceControlsSound()
     MDRNoiseControl noise{};
     const bool noiseAvailable = mdrHeadphonesGetNoiseControl(gDevice, MDR_PROPERTY_DESIRED, &noise) == MDR_RESULT_OK;
     MDRSpeakToChat speakToChat{};
-    const bool speakToChatAvailable = mdrHeadphonesGetSpeakToChat(gDevice, MDR_PROPERTY_DESIRED, &speakToChat) == MDR_RESULT_OK;
+    const bool speakToChatAvailable =
+        mdrHeadphonesGetSpeakToChat(gDevice, MDR_PROPERTY_DESIRED, &speakToChat) == MDR_RESULT_OK;
     MDRListening listening{};
-    const bool listeningAvailable = mdrHeadphonesGetListening(gDevice, MDR_PROPERTY_DESIRED, &listening) == MDR_RESULT_OK;
+    const bool listeningAvailable =
+        mdrHeadphonesGetListening(gDevice, MDR_PROPERTY_DESIRED, &listening) == MDR_RESULT_OK;
     MDREqualizer equalizer{};
-    const bool equalizerAvailable = mdrHeadphonesGetEqualizer(gDevice, MDR_PROPERTY_DESIRED, &equalizer) == MDR_RESULT_OK;
+    const bool equalizerAvailable =
+        mdrHeadphonesGetEqualizer(gDevice, MDR_PROPERTY_DESIRED, &equalizer) == MDR_RESULT_OK;
     auto equalizerBands = GetEqualizerBands(MDR_PROPERTY_DESIRED);
     const auto equalizerPresets = GetEqualizerPresets();
     const bool supportNC = FeatureAvailable(MDR_FEATURE_NOISE_CANCELLING);
@@ -1686,18 +1703,22 @@ void DrawDeviceControlsSound()
                 // 1-20: Ambient Sound
                 bool sliderChanged;
                 int sliderLevel = noise.ambient_level == MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING
-                    ? -1 : static_cast<int>(noise.ambient_level);
+                    ? -1
+                    : static_cast<int>(noise.ambient_level);
                 if (sliderLevel == -1)
-                    sliderChanged = ImGui::SliderInt("##AmbStrength", &sliderLevel, -1, 20, Tr(i18n::TextId::NoiseCancelling));
+                    sliderChanged =
+                        ImGui::SliderInt("##AmbStrength", &sliderLevel, -1, 20, Tr(i18n::TextId::NoiseCancelling));
                 else if (sliderLevel == 0)
-                    sliderChanged = ImGui::SliderInt("##AmbStrength", &sliderLevel, -1, 20, Tr(i18n::TextId::WindNoiseReduction));
+                    sliderChanged =
+                        ImGui::SliderInt("##AmbStrength", &sliderLevel, -1, 20, Tr(i18n::TextId::WindNoiseReduction));
                 else
-                    sliderChanged = ImGui::SliderInt("##AmbStrength", &sliderLevel, -1, 20,
-                                                     mdr::Format(fmt::runtime(Tr(i18n::TextId::AmbientLevel)), sliderLevel).c_str());
+                    sliderChanged = ImGui::SliderInt(
+                        "##AmbStrength", &sliderLevel, -1, 20,
+                        mdr::Format(fmt::runtime(Tr(i18n::TextId::AmbientLevel)), sliderLevel).c_str());
                 if (sliderChanged)
                 {
                     noise.ambient_level = sliderLevel == -1 ? MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING
-                        : static_cast<uint32_t>(sliderLevel);
+                                                            : static_cast<uint32_t>(sliderLevel);
                     changed = true;
                 }
                 noise.changing_asm_level = sliderChanged && ImGui::IsItemActive();
@@ -1716,7 +1737,8 @@ void DrawDeviceControlsSound()
             {
                 if (supportNC)
                 {
-                    if (ImGui::RadioButton(TrLable(i18n::TextId::NoiseCancelling), noise.mode == MDR_NOISE_MODE_CANCELLING))
+                    if (ImGui::RadioButton(TrLable(i18n::TextId::NoiseCancelling),
+                                           noise.mode == MDR_NOISE_MODE_CANCELLING))
                     {
                         noise.mode = MDR_NOISE_MODE_CANCELLING;
                         changed = true;
@@ -1744,8 +1766,7 @@ void DrawDeviceControlsSound()
                     bool ambientChanged = false;
                     int ambientLevel = static_cast<int>(noise.ambient_level);
                     if (ImGui::SliderInt("##AmbStrength", &ambientLevel, 1, 20))
-                        noise.ambient_level = static_cast<uint32_t>(ambientLevel),
-                        ambientChanged = changed = true;
+                        noise.ambient_level = static_cast<uint32_t>(ambientLevel), ambientChanged = changed = true;
                     noise.changing_asm_level = ambientChanged && ImGui::IsItemActive();
                     if (ImGui::IsItemDeactivatedAfterEdit())
                         changed = true;
@@ -1786,12 +1807,12 @@ void DrawDeviceControlsSound()
             ImGui::BeginDisabled(!enabled);
             constexpr MDRSpeechSensitivity kSensitivity[] = {MDR_SPEECH_SENSITIVITY_AUTO, MDR_SPEECH_SENSITIVITY_HIGH,
                                                              MDR_SPEECH_SENSITIVITY_LOW};
-            changed |= ImComboBoxItems(TrLable(i18n::TextId::Sensitivity), std::span{kSensitivity}, speakToChat.sensitivity,
-                                       FormatSpeechSensitivity);
+            changed |= ImComboBoxItems(TrLable(i18n::TextId::Sensitivity), std::span{kSensitivity},
+                                       speakToChat.sensitivity, FormatSpeechSensitivity);
             constexpr MDRSpeakTimeout kTimeout[] = {MDR_SPEAK_TIMEOUT_SHORT, MDR_SPEAK_TIMEOUT_MEDIUM,
                                                     MDR_SPEAK_TIMEOUT_LONG, MDR_SPEAK_TIMEOUT_MANUAL};
-            changed |=
-                ImComboBoxItems(TrLable(i18n::TextId::ModeDuration), std::span{kTimeout}, speakToChat.timeout, FormatSpeakTimeout);
+            changed |= ImComboBoxItems(TrLable(i18n::TextId::ModeDuration), std::span{kTimeout}, speakToChat.timeout,
+                                       FormatSpeakTimeout);
             ImGui::EndDisabled();
             if (changed && speakToChatAvailable)
                 mdrHeadphonesSetSpeakToChat(gDevice, &speakToChat);
@@ -1850,7 +1871,7 @@ void DrawDeviceControlsSound()
                 ImGui::Indent();
                 for (const i18n::TextId reason : reasons)
                     ImGui::TextWrapped(PSI_INFO_SIGN_ALT " %s", Tr(reason));
-                ImGui::Unindent();                
+                ImGui::Unindent();
             };
             ListeningRadio(i18n::TextId::Standard, MDR_LISTENING_STANDARD);
 
@@ -1921,8 +1942,9 @@ void DrawDeviceControlsSound()
         ImGui::BeginDisabled(!equalizerUsable);
         // An empty list means the device has not answered yet, not that it has no presets.
         ImGui::BeginDisabled(selections.empty());
-        if (ImComboBoxItems<MDREqualizerPreset, std::dynamic_extent>(TrLable(i18n::TextId::Preset), std::span{selections},
-                                                                 equalizer.preset, formatPreset) && equalizerAvailable)
+        if (ImComboBoxItems<MDREqualizerPreset, std::dynamic_extent>(
+                TrLable(i18n::TextId::Preset), std::span{selections}, equalizer.preset, formatPreset) &&
+            equalizerAvailable)
             mdrHeadphonesSetEqualizerPreset(gDevice, equalizer.preset);
         ImGui::EndDisabled();
         if (Iequalizer(equalizerBands))
@@ -1940,7 +1962,8 @@ void DrawDeviceControlsSound()
         ImGui::BeginDisabled(!FeatureAvailable(MDR_FEATURE_DSEE) || !dseeUsable);
         if (ImGui::RadioButton(TrLable(i18n::TextId::Off), equalizer.dsee_enabled == MDR_FALSE) && equalizerAvailable)
             mdrHeadphonesSetDSEE(gDevice, MDR_FALSE);
-        if (ImGui::RadioButton(TrLable(i18n::TextId::OnAuto), equalizer.dsee_enabled != MDR_FALSE) && equalizerAvailable)
+        if (ImGui::RadioButton(TrLable(i18n::TextId::OnAuto), equalizer.dsee_enabled != MDR_FALSE) &&
+            equalizerAvailable)
             mdrHeadphonesSetDSEE(gDevice, MDR_TRUE);
         ImGui::EndDisabled();
         ImGui::TreePop();
@@ -2003,7 +2026,9 @@ void DrawDeviceControlsDevices()
                 if (ImModalButton(TrLable(i18n::TextId::SwitchPlayback, PSI_VOLUME_DOWN), 1, columns))
                     StageDeviceAction(MDR_PAIRED_DEVICE_SELECT_PLAYBACK, device.mac.c_str());
                 if (canFix &&
-                    ImModalButton(playbackFixed ? TrLable(i18n::TextId::UnfixPlayback, PSI_UNLOCK) : TrLable(i18n::TextId::FixPlayback, PSI_LOCK), 2, columns))
+                    ImModalButton(playbackFixed ? TrLable(i18n::TextId::UnfixPlayback, PSI_UNLOCK)
+                                                : TrLable(i18n::TextId::FixPlayback, PSI_LOCK),
+                                  2, columns))
                     mdrHeadphonesSetSourceSwitchControl(gDevice, playbackFixed ? MDR_TRUE : MDR_FALSE);
             }
             else
@@ -2174,8 +2199,8 @@ void DrawDeviceControlsSystem()
                     continue;
                 excluded |= option.available == MDR_FALSE;
                 ImGui::BeginDisabled(option.available == MDR_FALSE && !selected);
-                const mdr::String label = mdr::Format("{}###VoiceAssistant{}", FormatVoiceAssistant(option.assistant),
-                                                      option.assistant);
+                const mdr::String label =
+                    mdr::Format("{}###VoiceAssistant{}", FormatVoiceAssistant(option.assistant), option.assistant);
                 if (ImGui::RadioButton(label.c_str(), selected) && !selected)
                     mdrHeadphonesSetVoiceAssistant(gDevice, option.assistant);
                 ImGui::EndDisabled();
@@ -2216,7 +2241,8 @@ void DrawDeviceControlsSystem()
             constexpr MDRNoiseButtonMode kSelections[] = {MDR_NOISE_BUTTON_NONE, MDR_NOISE_BUTTON_NOISE_AMBIENT_OFF,
                                                           MDR_NOISE_BUTTON_NOISE_AMBIENT, MDR_NOISE_BUTTON_NOISE_OFF,
                                                           MDR_NOISE_BUTTON_AMBIENT_OFF};
-            if (ImComboBoxItems(TrLable(i18n::TextId::Function), std::span{kSelections}, noise.button_mode, FormatNoiseButtonMode))
+            if (ImComboBoxItems(TrLable(i18n::TextId::Function), std::span{kSelections}, noise.button_mode,
+                                FormatNoiseButtonMode))
                 mdrHeadphonesSetNoiseControl(gDevice, &noise);
         }
         ImGui::TreePop();
@@ -2224,7 +2250,8 @@ void DrawDeviceControlsSystem()
     MDRPower power{};
     const bool havePower = mdrHeadphonesGetPower(gDevice, MDR_PROPERTY_DESIRED, &power) == MDR_RESULT_OK;
     /* Head Gesture */
-    if (FeatureAvailable(MDR_FEATURE_HEAD_GESTURE) && ImHeadingTreeNode(TrLable(i18n::TextId::HeadGesture), ImGuiTreeNodeFlags_DefaultOpen))
+    if (FeatureAvailable(MDR_FEATURE_HEAD_GESTURE) &&
+        ImHeadingTreeNode(TrLable(i18n::TextId::HeadGesture), ImGuiTreeNodeFlags_DefaultOpen))
     {
         bool enabled = power.head_gesture != MDR_FALSE;
         if (ImGui::Checkbox(TrLable(i18n::TextId::Enabled), &enabled) && havePower)
@@ -2239,8 +2266,8 @@ void DrawDeviceControlsSystem()
         ImHeadingTreeNode(TrLable(i18n::TextId::AutoPowerOff), ImGuiTreeNodeFlags_DefaultOpen))
     {
         constexpr uint32_t kSelections[] = {0, 5, 15, 30, 60, 180};
-        bool changed =
-            ImComboBoxItems(TrLable(i18n::TextId::Time), std::span{kSelections}, power.auto_power_off_minutes, FormatAutoPowerOff);
+        bool changed = ImComboBoxItems(TrLable(i18n::TextId::Time), std::span{kSelections},
+                                       power.auto_power_off_minutes, FormatAutoPowerOff);
         if (FeatureAvailable(MDR_FEATURE_WEARING_DETECTION) && power.wearing_power != MDR_WEARING_POWER_UNAVAILABLE)
         {
             bool whenRemoved = power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED;
@@ -2271,7 +2298,8 @@ void DrawDeviceControlsSystem()
         ImGui::Checkbox(TrLable(i18n::TextId::Enabled), &gPauseMediaOnRemove);
         ImGui::SameLine();
         ImGui::TextDisabled("(%s, %s)", FormatWearingStatus(wearingStatus),
-                            HostMediaNeedsPausing() ? Tr(i18n::TextId::AnotherDeviceConnected) : Tr(i18n::TextId::HostPauseNotNeeded));
+                            HostMediaNeedsPausing() ? Tr(i18n::TextId::AnotherDeviceConnected)
+                                                    : Tr(i18n::TextId::HostPauseNotNeeded));
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("%s", Tr(i18n::TextId::HostPauseHelp));
         ImGui::TreePop();
@@ -2566,11 +2594,16 @@ void DrawDeviceDisconnect()
                   MaterialYouTheme::ArgbToImU32(MaterialYouTheme::FixedSurfaceColors::error),
                   ImGui::GetFontSize() * 0.25f, true);
         if (!connectionAttempt.lastError.empty())
-            ImGui::TextWrapped("%s", mdr::Format(fmt::runtime(Tr(i18n::TextId::ConnectionError)), connectionAttempt.lastError).c_str());
+            ImGui::TextWrapped(
+                "%s",
+                mdr::Format(fmt::runtime(Tr(i18n::TextId::ConnectionError)), connectionAttempt.lastError).c_str());
         else if (conn)
-            ImGui::TextWrapped("%s", mdr::Format(fmt::runtime(Tr(i18n::TextId::ConnectionError)), mdrConnectionGetLastError(conn)).c_str());
+            ImGui::TextWrapped(
+                "%s",
+                mdr::Format(fmt::runtime(Tr(i18n::TextId::ConnectionError)), mdrConnectionGetLastError(conn)).c_str());
         if (!gHeadphonesError.empty())
-            ImGui::TextWrapped("%s", mdr::Format(fmt::runtime(Tr(i18n::TextId::HeadphonesError)), gHeadphonesError).c_str());
+            ImGui::TextWrapped("%s",
+                               mdr::Format(fmt::runtime(Tr(i18n::TextId::HeadphonesError)), gHeadphonesError).c_str());
 #ifdef MDR_CLIENT_DEBUGGER
         ImGui::Separator();
         ImTextCentered(mdr::Format(PSI_INFO_SIGN " {}", Tr(i18n::TextId::DebuggerHelp)).c_str(), IM_FONTSIZE_CAPTION);

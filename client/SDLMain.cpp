@@ -294,7 +294,8 @@ namespace
                  "is removed when unsupported by OS otherwise.\n";
 #endif
 #ifdef _WIN32
-        if (!SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SonyHeadphonesClient - Help", usage.c_str(), gWindow))
+        if (!SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SonyHeadphonesClient - Help", usage.c_str(),
+                                      gWindow))
             MDR_LOG("Unable to show help dialog: {}", SDL_GetError());
 #else
         std::fputs(usage.c_str(), stderr);
@@ -525,7 +526,7 @@ int main(int argc, char** argv)
         {
             MDR_LOG("Error: SDL_CreateThread(): {}", SDL_GetError());
             break;
-        }        
+        }
 #endif
         result = 0;
 #ifdef __EMSCRIPTEN__
@@ -593,8 +594,8 @@ namespace
         return result;
     }
 
-    void CompleteSave(SaveRequest* request, ClientPlatformSaveBlobResult result,
-                      const char* path, const char* error = nullptr)
+    void CompleteSave(SaveRequest* request, ClientPlatformSaveBlobResult result, const char* path,
+                      const char* error = nullptr)
     {
         request->callback(request->userdata, result, path, error);
         mdr::Destruct(request);
@@ -607,8 +608,8 @@ namespace
         {
             const mdr::String dialogError = SDL_GetError();
             if (WriteBlobFile(request->filename.c_str(), request->data))
-                CompleteSave(request, CLIENT_PLATFORM_SAVE_BLOB_FALLBACK_SAVED,
-                             request->filename.c_str(), dialogError.c_str());
+                CompleteSave(request, CLIENT_PLATFORM_SAVE_BLOB_FALLBACK_SAVED, request->filename.c_str(),
+                             dialogError.c_str());
             else
                 CompleteSave(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, request->filename.c_str(), SDL_GetError());
         }
@@ -626,14 +627,13 @@ namespace
     void SDLCALL ShowSaveDialog(void* userdata)
     {
         auto* request = static_cast<SaveRequest*>(userdata);
-        SDL_ShowSaveFileDialog(SaveDialogCallback, request, request->window,
-                               &request->filter, 1, request->filename.c_str());
+        SDL_ShowSaveFileDialog(SaveDialogCallback, request, request->window, &request->filter, 1,
+                               request->filename.c_str());
     }
 }
 
-int clientSDLSaveBlob(
-    const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
-    SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
+int clientSDLSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+                      SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
 {
     if (!filename || !*filename || !data || !dataSize || !mimeType || !*mimeType || !window || !callback)
     {

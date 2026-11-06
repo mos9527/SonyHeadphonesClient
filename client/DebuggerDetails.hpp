@@ -107,7 +107,10 @@ namespace debugger
             return *this;
         }
 
-        ~PacketInstance() { Reset(); }
+        ~PacketInstance()
+        {
+            Reset();
+        }
 
         void Reset()
         {
@@ -117,10 +120,22 @@ namespace debugger
             mValue = nullptr;
         }
 
-        [[nodiscard]] explicit operator bool() const noexcept { return mValue != nullptr; }
-        [[nodiscard]] const PacketDescriptor& Descriptor() const { return *mDescriptor; }
-        [[nodiscard]] void* Value() { return mValue; }
-        [[nodiscard]] const void* Value() const { return mValue; }
+        [[nodiscard]] explicit operator bool() const noexcept
+        {
+            return mValue != nullptr;
+        }
+        [[nodiscard]] const PacketDescriptor& Descriptor() const
+        {
+            return *mDescriptor;
+        }
+        [[nodiscard]] void* Value()
+        {
+            return mValue;
+        }
+        [[nodiscard]] const void* Value() const
+        {
+            return mValue;
+        }
     };
 
     struct EnumOption
@@ -277,8 +292,8 @@ namespace debugger
     {
         bool changed = false;
         const std::string_view visible = VisibleLabel(label);
-        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]",
-                               static_cast<int>(visible.size()), visible.data(), sequence.size()))
+        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]", static_cast<int>(visible.size()),
+                               visible.data(), sequence.size()))
             return false;
 
         size_t removeIndex = std::numeric_limits<size_t>::max();
@@ -329,8 +344,8 @@ namespace debugger
     {
         bool changed = false;
         const std::string_view visible = VisibleLabel(label);
-        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]",
-                               static_cast<int>(visible.size()), visible.data(), entries.size()))
+        if (!ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen, "%.*s [%zu]", static_cast<int>(visible.size()),
+                               visible.data(), entries.size()))
             return false;
 
         size_t removeIndex = std::numeric_limits<size_t>::max();

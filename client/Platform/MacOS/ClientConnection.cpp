@@ -14,12 +14,17 @@ int clientPlatformConnectionInit(int flags)
 
 void clientPlatformConnectionDestroy()
 {
-    if (gConn) { mdrConnectionMacOSDestroy(gConn); gConn = nullptr; }
+    if (gConn)
+    {
+        mdrConnectionMacOSDestroy(gConn);
+        gConn = nullptr;
+    }
 }
 
 MDRConnection* clientPlatformConnectionGet()
 {
-    if (gConn) return mdrConnectionMacOSGet(gConn);
+    if (gConn)
+        return mdrConnectionMacOSGet(gConn);
     [[unlikely]] return nullptr;
 }
 }

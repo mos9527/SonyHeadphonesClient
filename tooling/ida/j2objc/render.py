@@ -365,7 +365,7 @@ def render_shared_header(
             raise ValueError("V2 requires function types for tables 1 and 2")
     lines = [
         "#pragma once",
-        '#include "Protocol.hpp"',
+        '#include "../Protocol.hpp"',
         "",
         GENERATED_BANNER,
         f"namespace mdr::v{version}",
@@ -382,7 +382,7 @@ def render_shared_header(
         [
             f"}} // namespace mdr::v{version}",
             "",
-            f'#include "Generated/ProtocolV{version}Enum.hpp"',
+            f'#include "ProtocolV{version}Enum.hpp"',
             "",
         ]
     )
@@ -449,8 +449,8 @@ def render_table_header(
             "",
             "#pragma pack(pop)",
             "",
-            f'#include "Generated/ProtocolV{version}T{number}Enum.hpp"',
-            f'#include "Generated/ProtocolV{version}T{number}Traits.hpp"',
+            f'#include "ProtocolV{version}T{number}Enum.hpp"',
+            f'#include "ProtocolV{version}T{number}Traits.hpp"',
             "",
         ]
     )
@@ -627,7 +627,7 @@ def main() -> None:
     parser.add_argument(
         "--include",
         type=Path,
-        default=repository / "libmdr" / "include" / "mdr",
+        default=repository / "libmdr" / "include" / "mdr" / "Generated",
     )
     parser.add_argument(
         "--overrides",

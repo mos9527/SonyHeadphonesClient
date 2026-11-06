@@ -14,22 +14,22 @@ target_include_directories(
 add_library(mdr_Includes INTERFACE
     mdr/Command.hpp
     mdr/Protocol.hpp
-    mdr/ProtocolV1.hpp
-    mdr/ProtocolV1T1.hpp
-    mdr/ProtocolV1T2.hpp
-    mdr/ProtocolV2.hpp
-    mdr/ProtocolV2T1.hpp
-    mdr/ProtocolV2T2.hpp
     mdr/Result.hpp
     mdr/Generated/Command.hpp
+    mdr/Generated/ProtocolV1.hpp
     mdr/Generated/ProtocolV1Enum.hpp
+    mdr/Generated/ProtocolV1T1.hpp
     mdr/Generated/ProtocolV1T1Enum.hpp
     mdr/Generated/ProtocolV1T1Traits.hpp
+    mdr/Generated/ProtocolV1T2.hpp
     mdr/Generated/ProtocolV1T2Enum.hpp
     mdr/Generated/ProtocolV1T2Traits.hpp
+    mdr/Generated/ProtocolV2.hpp
     mdr/Generated/ProtocolV2Enum.hpp
+    mdr/Generated/ProtocolV2T1.hpp
     mdr/Generated/ProtocolV2T1Enum.hpp
     mdr/Generated/ProtocolV2T1Traits.hpp
+    mdr/Generated/ProtocolV2T2.hpp
     mdr/Generated/ProtocolV2T2Enum.hpp
     mdr/Generated/ProtocolV2T2Traits.hpp
 )

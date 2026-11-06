@@ -129,10 +129,7 @@ namespace
         }
     }
 
-    bool RequestExport(
-        mdr::Span<const mdr::UInt8> data,
-        const char* defaultPath,
-        const char* filterExtension)
+    bool RequestExport(mdr::Span<const mdr::UInt8> data, const char* defaultPath, const char* filterExtension)
     {
         PollExportResult();
         if (gExportDialogActive)
@@ -147,12 +144,12 @@ namespace
         gExportStatus = gStatus = Tr(i18n::TextId::DebuggerChooseDestination);
         const char* mimeType =
             std::string_view(filterExtension) == "zip" ? "application/zip" : "application/octet-stream";
-        const int result = clientPlatformSaveBlob(
-            defaultPath, data.data(), data.size(), mimeType, gWindow, ExportCallback, request);
+        const int result =
+            clientPlatformSaveBlob(defaultPath, data.data(), data.size(), mimeType, gWindow, ExportCallback, request);
         if (result != MDR_RESULT_OK)
         {
-            const mdr::String error = result == MDR_RESULT_ERROR_NOT_SUPPORTED ? "File saving is not supported"
-                                                                             : SDL_GetError();
+            const mdr::String error =
+                result == MDR_RESULT_ERROR_NOT_SUPPORTED ? "File saving is not supported" : SDL_GetError();
             ExportCallback(request, CLIENT_PLATFORM_SAVE_BLOB_FAILED, defaultPath, error.c_str());
             PollExportResult();
             return false;
@@ -250,8 +247,8 @@ namespace
         ForEachDescriptor(
             [&](const PacketDescriptor& descriptor)
             {
-                if (!MatchesActiveProtocolFamily(descriptor) ||
-                    !SameProtocolTable(descriptor.dataType, packet.type) || descriptor.command != command)
+                if (!MatchesActiveProtocolFamily(descriptor) || !SameProtocolTable(descriptor.dataType, packet.type) ||
+                    descriptor.command != command)
                 {
                     return;
                 }
@@ -313,8 +310,8 @@ namespace
 
     void DrawHex(i18n::TextId label, mdr::Span<const mdr::UInt8> bytes)
     {
-        if (!ImGui::TreeNodeEx(TextLabel(label).c_str(), ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]",
-                               Tr(label), bytes.size()))
+        if (!ImGui::TreeNodeEx(TextLabel(label).c_str(), ImGuiTreeNodeFlags_DefaultOpen, "%s [%zu]", Tr(label),
+                               bytes.size()))
             return;
 
         constexpr size_t bytesPerLine = 8;
@@ -375,21 +372,24 @@ namespace
         return separator == std::string_view::npos ? qualifiedName : qualifiedName + separator + 2;
     }
 
-    bool IsAck(const CapturedPacket& packet) { return packet.unpacked && packet.type == mdr::MDRDataType::ACK; }
+    bool IsAck(const CapturedPacket& packet)
+    {
+        return packet.unpacked && packet.type == mdr::MDRDataType::ACK;
+    }
 
     mdr::String PacketSearchText(const CapturedPacket& packet)
     {
         const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
         if (IsAck(packet))
-            return mdr::Format("#{} {} ACK seq {:02X} {}", packet.id, direction, packet.sequence,
-                               mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)),
-                                           packet.id, direction, packet.sequence));
+            return mdr::Format(
+                "#{} {} ACK seq {:02X} {}", packet.id, direction, packet.sequence,
+                mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)), packet.id, direction, packet.sequence));
 
         const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
         const char* packetName =
             packet.candidates.empty() ? "Unknown packet" : ShortPacketName(packet.candidates.front()->name);
-        mdr::String text = mdr::Format("#{} {} {} type {:02X} cmd {:02X} seq {:02X} {} {}", packet.id, direction, packetName,
-                                       static_cast<mdr::UInt8>(packet.type), command, packet.sequence,
+        mdr::String text = mdr::Format("#{} {} {} type {:02X} cmd {:02X} seq {:02X} {} {}", packet.id, direction,
+                                       packetName, static_cast<mdr::UInt8>(packet.type), command, packet.sequence,
                                        packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket) : "",
                                        mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerPacketDetails)),
                                                    static_cast<mdr::UInt8>(packet.type), command, packet.sequence));
@@ -432,8 +432,8 @@ namespace
             const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
             if (IsAck(packet))
             {
-                const mdr::String ackLabel =
-                    mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)), packet.id, direction, packet.sequence);
+                const mdr::String ackLabel = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)), packet.id,
+                                                         direction, packet.sequence);
                 ImGui::BeginDisabled();
                 ImGui::TextUnformatted(ackLabel.c_str());
                 ImGui::EndDisabled();
@@ -456,13 +456,14 @@ namespace
             ImGui::PushStyleColor(ImGuiCol_HeaderHovered, hoveredColor);
             ImGui::PushStyleColor(ImGuiCol_HeaderActive, hoveredColor);
             const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
-            const char* packetName =
-                packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket) : ShortPacketName(packet.candidates.front()->name);
+            const char* packetName = packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket)
+                                                               : ShortPacketName(packet.candidates.front()->name);
             mdr::String details = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerPacketDetails)),
                                               static_cast<mdr::UInt8>(packet.type), command, packet.sequence);
             if (packet.candidates.size() > 1)
                 details += mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerLayoutCount)), packet.candidates.size());
-            const mdr::String label = mdr::Format("#{} {} - {}\n{}###capture", packet.id, direction, packetName, details);
+            const mdr::String label =
+                mdr::Format("#{} {} - {}\n{}###capture", packet.id, direction, packetName, details);
             const auto& style = ImGui::GetStyle();
             const float lineHeight = ImGui::GetTextLineHeight();
             const float rowPaddingY = lineHeight * 0.2f;
@@ -684,9 +685,9 @@ namespace
 
     void SendPacket()
     {
-        const MDRResult result = mdrDebugRequestCommand(
-            gHeadphones, gEncodedPayload.data(), static_cast<uint32_t>(gEncodedPayload.size()),
-            static_cast<uint32_t>(gEnvelopeType), gAwaitAck ? MDR_TRUE : MDR_FALSE);
+        const MDRResult result =
+            mdrDebugRequestCommand(gHeadphones, gEncodedPayload.data(), static_cast<uint32_t>(gEncodedPayload.size()),
+                                   static_cast<uint32_t>(gEnvelopeType), gAwaitAck ? MDR_TRUE : MDR_FALSE);
         gStatus = result == MDR_RESULT_OK ? Tr(i18n::TextId::DebuggerPacketQueued) : mdrResultString(result);
     }
 
@@ -710,15 +711,14 @@ namespace
         const ImGuiStyle& style = ImGui::GetStyle();
         const float scalarWidth = ImGui::CalcTextSize("255").x + style.FramePadding.x * 2.0f;
         const float sequenceWidth = gHeadphones ? ButtonWidth(Tr(i18n::TextId::Auto)) : scalarWidth;
-        return {
-            ButtonWidth(Tr(i18n::TextId::DebuggerCommand)),
-            ButtonWidth(Tr(i18n::TextId::DebuggerReset)),
-            scalarWidth + ImGui::GetFrameHeight() * 2.0f + style.ItemInnerSpacing.x * 3.0f +
-                ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerType)).x,
-            sequenceWidth + style.ItemInnerSpacing.x + ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x,
-            ImGui::GetFrameHeight() + style.ItemInnerSpacing.x + ImGui::CalcTextSize("ACK").x,
-            ButtonWidth(Tr(gHeadphones ? i18n::TextId::DebuggerExportCaptured : i18n::TextId::DebuggerExport)),
-            ButtonWidth(Tr(i18n::TextId::DebuggerSend))};
+        return {ButtonWidth(Tr(i18n::TextId::DebuggerCommand)),
+                ButtonWidth(Tr(i18n::TextId::DebuggerReset)),
+                scalarWidth + ImGui::GetFrameHeight() * 2.0f + style.ItemInnerSpacing.x * 3.0f +
+                    ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerType)).x,
+                sequenceWidth + style.ItemInnerSpacing.x + ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x,
+                ImGui::GetFrameHeight() + style.ItemInnerSpacing.x + ImGui::CalcTextSize("ACK").x,
+                ButtonWidth(Tr(gHeadphones ? i18n::TextId::DebuggerExportCaptured : i18n::TextId::DebuggerExport)),
+                ButtonWidth(Tr(i18n::TextId::DebuggerSend))};
     }
 
     float ComposerHeight(float width)
@@ -763,7 +763,8 @@ namespace
             if (ImGui::InputInt(TextLabel(i18n::TextId::DebuggerType).c_str(), &type))
                 gEnvelopeType = static_cast<mdr::MDRDataType>(type);
             NextToolbarItem(widths[3]);
-            ImGui::SetNextItemWidth(widths[3] - labelSpacing - ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x);
+            ImGui::SetNextItemWidth(widths[3] - labelSpacing -
+                                    ImGui::CalcTextSize(Tr(i18n::TextId::DebuggerSequence)).x);
             if (gHeadphones)
                 ImGui::LabelText(TextLabel(i18n::TextId::DebuggerSequence).c_str(), "%s", Tr(i18n::TextId::Auto));
             else
@@ -776,7 +777,9 @@ namespace
             const CapturedPacket* capture = FindCapture(gSelectedCaptureId);
             const bool canExport = gHeadphones ? capture != nullptr : encoded;
             ImGui::BeginDisabled(!canExport || clientDebuggerExportInProgress());
-            if (ImGui::Button(TextLabel(gHeadphones ? i18n::TextId::DebuggerExportCaptured : i18n::TextId::DebuggerExport).c_str()))
+            if (ImGui::Button(
+                    TextLabel(gHeadphones ? i18n::TextId::DebuggerExportCaptured : i18n::TextId::DebuggerExport)
+                        .c_str()))
             {
                 if (gHeadphones)
                     ExportPacket(capture->frame);
@@ -818,8 +821,8 @@ namespace
         packet.id = packetId;
         packet.direction = direction;
         packet.frame.assign(frame, frame + frameSize);
-        packet.unpacked =
-            mdr::MDRUnpackCommand(packet.frame, packet.payload, packet.type, packet.sequence) == mdr::MDRUnpackResult::OK;
+        packet.unpacked = mdr::MDRUnpackCommand(packet.frame, packet.payload, packet.type, packet.sequence) ==
+            mdr::MDRUnpackResult::OK;
         FindCandidates(packet);
         gHistory.push_back(std::move(packet));
         if (gHistory.size() > kMaximumHistory)
@@ -896,16 +899,9 @@ namespace
     {
         const char* directionName = packet.direction == MDR_PACKET_DIRECTION_RX ? "rx" : "tx";
         const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
-        return mdr::Format(
-            "mdr-packet-{}-{:06}-{}.type-{}-{:02x}.seq-{:02x}.cmd-{}-{:02x}.bin",
-            timestamp,
-            packet.id,
-            directionName,
-            packet.unpacked ? mdr::format_as(packet.type) : "INVALID",
-            static_cast<mdr::UInt8>(packet.type),
-            packet.sequence,
-            DumpCommandName(packet),
-            command);
+        return mdr::Format("mdr-packet-{}-{:06}-{}.type-{}-{:02x}.seq-{:02x}.cmd-{}-{:02x}.bin", timestamp, packet.id,
+                           directionName, packet.unpacked ? mdr::format_as(packet.type) : "INVALID",
+                           static_cast<mdr::UInt8>(packet.type), packet.sequence, DumpCommandName(packet), command);
     }
 
     mdr::MDRBuffer BuildHistoryZip(std::int64_t timestamp)
@@ -959,8 +955,7 @@ namespace
             AppendBytes(archive, entry.filename);
         }
 
-        const std::uint32_t centralDirectorySize =
-            static_cast<std::uint32_t>(archive.size()) - centralDirectoryOffset;
+        const std::uint32_t centralDirectorySize = static_cast<std::uint32_t>(archive.size()) - centralDirectoryOffset;
         AppendUInt32LE(archive, 0x06054b50u);
         AppendUInt16LE(archive, 0);
         AppendUInt16LE(archive, 0);
@@ -1017,36 +1012,33 @@ namespace
             return false;
         const std::string_view suffix = path.substr(path.size() - extension.size());
         return std::equal(
-            suffix.begin(), suffix.end(), extension.begin(),
-            [](char lhs, char rhs)
-            {
-                return std::tolower(static_cast<unsigned char>(lhs)) ==
-                    std::tolower(static_cast<unsigned char>(rhs));
-            });
+            suffix.begin(), suffix.end(), extension.begin(), [](char lhs, char rhs)
+            { return std::tolower(static_cast<unsigned char>(lhs)) == std::tolower(static_cast<unsigned char>(rhs)); });
     }
 
     void DrawHistoryToolbar(bool* open, bool replayMode)
     {
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted(Tr(gReplayHistory ? i18n::TextId::PacketReplayMode : i18n::TextId::DebuggerPackets));
-        const mdr::String followLabel = mdr::Format(
-            "{} {}###follow-messages", PSI_SIGNAL,
-            Tr(gFollowMessages ? i18n::TextId::DebuggerFollowOn : i18n::TextId::DebuggerFollowOff));
+        const mdr::String followLabel =
+            mdr::Format("{} {}###follow-messages", PSI_SIGNAL,
+                        Tr(gFollowMessages ? i18n::TextId::DebuggerFollowOn : i18n::TextId::DebuggerFollowOff));
         NextToolbarItem(ButtonWidth(followLabel.c_str()));
         if (ImGui::Button(followLabel.c_str()))
             gFollowMessages = !gFollowMessages;
 
         const mdr::String dumpLabel = TextLabel(i18n::TextId::ExportZip, PSI_SAVE);
         const mdr::String clearLabel = TextLabel(i18n::TextId::DebuggerClear, PSI_TRASH);
-        const mdr::String closeLabel = TextLabel(
-            replayMode ? i18n::TextId::DebuggerQuitReplay : i18n::TextId::DebuggerClose);
+        const mdr::String closeLabel =
+            TextLabel(replayMode ? i18n::TextId::DebuggerQuitReplay : i18n::TextId::DebuggerClose);
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
         const float rightButtons = ButtonWidth(dumpLabel.c_str()) + buttonSpacing + ButtonWidth(clearLabel.c_str()) +
             (open ? buttonSpacing + ButtonWidth(closeLabel.c_str()) : 0.0f);
         const float statusAvailable = ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionAvail().x -
             ImGui::GetItemRectMax().x - rightButtons - buttonSpacing * 2.0f;
-        const float statusWidth = gExportStatus.empty() ? 0.0f :
-            std::min(ImGui::CalcTextSize(gExportStatus.c_str()).x, std::max(0.0f, statusAvailable));
+        const float statusWidth = gExportStatus.empty()
+            ? 0.0f
+            : std::min(ImGui::CalcTextSize(gExportStatus.c_str()).x, std::max(0.0f, statusAvailable));
         const float toolbarWidth = rightButtons + (statusWidth > 0.0f ? statusWidth + buttonSpacing : 0.0f);
         NextToolbarItem(std::min(toolbarWidth, ImGui::GetContentRegionAvail().x), true);
         if (statusWidth > 0.0f)
@@ -1055,8 +1047,7 @@ namespace
             const float frameHeight = ImGui::GetFrameHeight();
             const ImVec4 clipRect(position.x, position.y, position.x + statusWidth, position.y + frameHeight);
             ImGui::GetWindowDrawList()->AddText(
-                ImGui::GetFont(), ImGui::GetFontSize(),
-                {position.x, position.y + ImGui::GetStyle().FramePadding.y},
+                ImGui::GetFont(), ImGui::GetFontSize(), {position.x, position.y + ImGui::GetStyle().FramePadding.y},
                 ImGui::GetColorU32(ImGuiCol_TextDisabled), gExportStatus.c_str(), nullptr, 0.0f, &clipRect);
             ImGui::Dummy({statusWidth, frameHeight});
             if (ImGui::IsItemHovered())
@@ -1091,9 +1082,15 @@ bool clientDebuggerWritePacketFile(const char* path, const unsigned char* frame,
     return WriteCaptureFile(path, {frame, frameSize});
 }
 
-void clientDebuggerSetMonospaceFont(ImFont* font) { gMonospaceFont = font; }
+void clientDebuggerSetMonospaceFont(ImFont* font)
+{
+    gMonospaceFont = font;
+}
 
-void clientDebuggerSetWindow(SDL_Window* window) { gWindow = window; }
+void clientDebuggerSetWindow(SDL_Window* window)
+{
+    gWindow = window;
+}
 
 void clientDebuggerAttach(MDRHeadphones* headphones)
 {
@@ -1101,9 +1098,13 @@ void clientDebuggerAttach(MDRHeadphones* headphones)
     gHeadphones = headphones;
 }
 
-void clientDebuggerDetach() { gHeadphones = nullptr; }
+void clientDebuggerDetach()
+{
+    gHeadphones = nullptr;
+}
 
-void clientDebuggerObservePacket(MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame, int frameSize)
+void clientDebuggerObservePacket(MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame,
+                                 int frameSize)
 {
     if (!packetId || !frame || frameSize <= 0)
         return;
@@ -1155,7 +1156,10 @@ bool clientDebuggerReplayPath(const char* path, size_t* packetCount)
     return true;
 }
 
-bool clientDebuggerHasPackets() { return !gHistory.empty(); }
+bool clientDebuggerHasPackets()
+{
+    return !gHistory.empty();
+}
 
 bool clientDebuggerExportInProgress()
 {
@@ -1169,8 +1173,7 @@ bool clientDebuggerExportLatestPacket()
         gExportStatus = gStatus = Tr(i18n::TextId::DebuggerNoPackets);
         return false;
     }
-    return RequestExport(
-        gHistory.back().frame, kDefaultPacketExportPath, "bin");
+    return RequestExport(gHistory.back().frame, kDefaultPacketExportPath, "bin");
 }
 
 bool clientDebuggerExportPacketCollection()
@@ -1313,7 +1316,8 @@ void clientDebuggerDraw(bool* open, bool replayMode)
     ImGui::Separator();
 
     const float composerHeight = ComposerHeight(ImGui::GetContentRegionAvail().x);
-    const float panelsHeight = std::max(1.0f, ImGui::GetContentRegionAvail().y - composerHeight - ImGui::GetStyle().ItemSpacing.y);
+    const float panelsHeight =
+        std::max(1.0f, ImGui::GetContentRegionAvail().y - composerHeight - ImGui::GetStyle().ItemSpacing.y);
     const float panelHeight = std::max(1.0f, panelsHeight - ImGui::GetStyle().CellPadding.y * 2.0f);
     if (ImGui::BeginTable("##debugger-panels", 2,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV |
@@ -1329,8 +1333,8 @@ void clientDebuggerDraw(bool* open, bool replayMode)
         {
             ImGui::SetNextItemWidth(-1.0f);
             const mdr::String filterHint = mdr::Format("{} {}", PSI_FILTER, Tr(i18n::TextId::DebuggerFilterPackets));
-            ImGui::InputTextWithHint("##history-filter", filterHint.c_str(),
-                                     gHistoryFilter.data(), gHistoryFilter.size());
+            ImGui::InputTextWithHint("##history-filter", filterHint.c_str(), gHistoryFilter.data(),
+                                     gHistoryFilter.size());
             ImGui::Separator();
             if (ImGui::BeginChild("##command-history", {0.0f, 0.0f}))
                 DrawHistory();

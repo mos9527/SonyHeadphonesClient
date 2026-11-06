@@ -47,8 +47,9 @@ namespace
     mdr::Vector<mdr::String> ListPlayers(DBusConnection* bus)
     {
         mdr::Vector<mdr::String> players;
-        DBusMessage* reply = Call(bus, dbus_message_new_method_call(
-            "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames"));
+        DBusMessage* reply = Call(bus,
+                                  dbus_message_new_method_call("org.freedesktop.DBus", "/org/freedesktop/DBus",
+                                                               "org.freedesktop.DBus", "ListNames"));
         if (!reply)
             return players;
         DBusMessageIter iter, names;
@@ -70,12 +71,13 @@ namespace
 
     mdr::String PlaybackStatus(DBusConnection* bus, const mdr::String& player)
     {
-        DBusMessage* request = dbus_message_new_method_call(
-            player.c_str(), kMprisPath, "org.freedesktop.DBus.Properties", "Get");
+        DBusMessage* request =
+            dbus_message_new_method_call(player.c_str(), kMprisPath, "org.freedesktop.DBus.Properties", "Get");
         if (!request)
             return {};
         const char* property = "PlaybackStatus";
-        dbus_message_append_args(request, DBUS_TYPE_STRING, &kPlayerInterface, DBUS_TYPE_STRING, &property, DBUS_TYPE_INVALID);
+        dbus_message_append_args(request, DBUS_TYPE_STRING, &kPlayerInterface, DBUS_TYPE_STRING, &property,
+                                 DBUS_TYPE_INVALID);
         DBusMessage* reply = Call(bus, request);
         if (!reply)
             return {};
@@ -98,7 +100,8 @@ namespace
 
     void CallPlayer(DBusConnection* bus, const mdr::String& player, const char* method)
     {
-        DBusMessage* reply = Call(bus, dbus_message_new_method_call(player.c_str(), kMprisPath, kPlayerInterface, method));
+        DBusMessage* reply =
+            Call(bus, dbus_message_new_method_call(player.c_str(), kMprisPath, kPlayerInterface, method));
         if (reply)
             dbus_message_unref(reply);
     }
@@ -107,8 +110,9 @@ namespace
     mdr::Vector<mdr::String> AdapterAddresses(DBusConnection* bus)
     {
         mdr::Vector<mdr::String> addresses;
-        DBusMessage* reply = Call(bus, dbus_message_new_method_call(
-            "org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects"));
+        DBusMessage* reply = Call(
+            bus,
+            dbus_message_new_method_call("org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects"));
         if (!reply)
             return addresses;
         DBusMessageIter iter, objects;
@@ -126,7 +130,8 @@ namespace
             if (dbus_message_iter_get_arg_type(&object) != DBUS_TYPE_ARRAY)
                 continue;
             dbus_message_iter_recurse(&object, &interfaces);
-            for (; dbus_message_iter_get_arg_type(&interfaces) == DBUS_TYPE_DICT_ENTRY; dbus_message_iter_next(&interfaces))
+            for (; dbus_message_iter_get_arg_type(&interfaces) == DBUS_TYPE_DICT_ENTRY;
+                 dbus_message_iter_next(&interfaces))
             {
                 DBusMessageIter interface, properties;
                 dbus_message_iter_recurse(&interfaces, &interface);
@@ -138,7 +143,8 @@ namespace
                 if (dbus_message_iter_get_arg_type(&interface) != DBUS_TYPE_ARRAY)
                     continue;
                 dbus_message_iter_recurse(&interface, &properties);
-                for (; dbus_message_iter_get_arg_type(&properties) == DBUS_TYPE_DICT_ENTRY; dbus_message_iter_next(&properties))
+                for (; dbus_message_iter_get_arg_type(&properties) == DBUS_TYPE_DICT_ENTRY;
+                     dbus_message_iter_next(&properties))
                 {
                     DBusMessageIter property, variant;
                     dbus_message_iter_recurse(&properties, &property);

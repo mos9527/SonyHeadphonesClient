@@ -55,7 +55,10 @@ void trimCommentString(std::string& s)
 }
 
 int gDepth = 0;
-std::string emitIndent() { return std::basic_string(gDepth * 4, ' '); }
+std::string emitIndent()
+{
+    return std::basic_string(gDepth * 4, ' ');
+}
 struct MethodVisitorResult
 {
     bool hasValidate = false;
@@ -99,18 +102,18 @@ CodegenFlags collectCodegenFlags(CXCursor, std::string const& check)
         switch (it->second)
         {
         case ValidationVerb::Ignore:
-            {
-                result.flags |= kValidationFlagIGNORE;
-                std::string reason;
-                std::getline(cin, reason);
-                while (!reason.empty() && (reason.front() == ' ' || reason.front() == '\t'))
-                    reason.erase(reason.begin());
-                while (!reason.empty() && (reason.back() == ' ' || reason.back() == '\r' || reason.back() == '\n'))
-                    reason.pop_back();
-                CHECK(!reason.empty(), "CODEGEN Ignore requires a reason");
-                result.ignoreReason = std::move(reason);
-                return result;
-            }
+        {
+            result.flags |= kValidationFlagIGNORE;
+            std::string reason;
+            std::getline(cin, reason);
+            while (!reason.empty() && (reason.front() == ' ' || reason.front() == '\t'))
+                reason.erase(reason.begin());
+            while (!reason.empty() && (reason.back() == ' ' || reason.back() == '\r' || reason.back() == '\n'))
+                reason.pop_back();
+            CHECK(!reason.empty(), "CODEGEN Ignore requires a reason");
+            result.ignoreReason = std::move(reason);
+            return result;
+        }
         default:
             break;
         }
@@ -131,33 +134,33 @@ void emitCodegenCheck(CXCursor cursor, std::string const& fieldName, std::string
         switch (verb)
         {
         case ValidationVerb::EnumRange:
+        {
+            std::ostringstream cout;
+            cin >> tok;
+            while (true)
             {
-                std::ostringstream cout;
-                cin >> tok;
-                while (true)
-                {
-                    cout << format("{} == {}", scopeFiledName, tok);
-                    if (cin >> tok)
-                        cout << " || ";
-                    else
-                        break;
-                }
-                println("{}MDR_VALIDATE({});", emitIndent(), cout.str());
-                break;
+                cout << format("{} == {}", scopeFiledName, tok);
+                if (cin >> tok)
+                    cout << " || ";
+                else
+                    break;
             }
+            println("{}MDR_VALIDATE({});", emitIndent(), cout.str());
+            break;
+        }
         case ValidationVerb::Range:
-            {
-                int mn, mx;
-                cin >> mn >> mx;
-                println("{}MDR_VALIDATE({} >= {} && {} <= {});", emitIndent(), scopeFiledName, mn, scopeFiledName, mx);
-                break;
-            }
+        {
+            int mn, mx;
+            cin >> mn >> mx;
+            println("{}MDR_VALIDATE({} >= {} && {} <= {});", emitIndent(), scopeFiledName, mn, scopeFiledName, mx);
+            break;
+        }
         case ValidationVerb::Field:
-            {
-                cin >> tok;
-                scopeFiledName = format("{}.{}", scopeFiledName, tok);
-                break;
-            }
+        {
+            cin >> tok;
+            scopeFiledName = format("{}.{}", scopeFiledName, tok);
+            break;
+        }
         default:
             break;
         }
@@ -224,12 +227,12 @@ CXChildVisitResult fieldValidateNestedVisitor(CXCursor cursor, CXCursor, CXClien
             break;
         }
         case CXCursor_StructDecl:
-            {
-                gVisitDepth++;
-                clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &CD);
-                gVisitDepth--;
-                break;
-            }
+        {
+            gVisitDepth++;
+            clang_visitChildren(typeDecl, fieldValidateNestedVisitor, &CD);
+            gVisitDepth--;
+            break;
+        }
         default:
             break;
         }
@@ -289,33 +292,33 @@ CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
     case CXCursor_Namespace:
         return CXChildVisit_Recurse;
     case CXCursor_StructDecl:
-        {
-            std::string parentStr = getFullParentName(parent);
-            if (parentStr != gNamespaceName)
-                return CXChildVisit_Continue;
-            CXString name = clang_getCursorSpelling(cursor);
-            const char* rawName = clang_getCString(name);
-            std::string structName = rawName ? rawName : "";
-            MethodVisitorResult methods;
-            clang_visitChildren(cursor, methodVisitor, &methods);
-            // Emit Validate bodies
-            if (methods.hasValidate)
-            {
-                gCodegenComments.clear();
-                // Collect comments
-                clang_visitChildren(cursor, fieldValidateVisitor, nullptr);
-                println("{}MDRResult<void> {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
-                gDepth++;
-                std::string firstParent = "data";
-                ValidateVisitorCD CD{&firstParent, kValidationFlagNONE};
-                clang_visitChildren(cursor, fieldValidateNestedVisitor, &CD);
-                println("{}return MDRResult<void>::Success();", emitIndent());
-                gDepth--;
-                println("{}}}", emitIndent());
-            }
-            clang_disposeString(name);
+    {
+        std::string parentStr = getFullParentName(parent);
+        if (parentStr != gNamespaceName)
             return CXChildVisit_Continue;
+        CXString name = clang_getCursorSpelling(cursor);
+        const char* rawName = clang_getCString(name);
+        std::string structName = rawName ? rawName : "";
+        MethodVisitorResult methods;
+        clang_visitChildren(cursor, methodVisitor, &methods);
+        // Emit Validate bodies
+        if (methods.hasValidate)
+        {
+            gCodegenComments.clear();
+            // Collect comments
+            clang_visitChildren(cursor, fieldValidateVisitor, nullptr);
+            println("{}MDRResult<void> {}::Validate(const {}& data) {{", emitIndent(), structName, structName);
+            gDepth++;
+            std::string firstParent = "data";
+            ValidateVisitorCD CD{&firstParent, kValidationFlagNONE};
+            clang_visitChildren(cursor, fieldValidateNestedVisitor, &CD);
+            println("{}return MDRResult<void>::Success();", emitIndent());
+            gDepth--;
+            println("{}}}", emitIndent());
         }
+        clang_disposeString(name);
+        return CXChildVisit_Continue;
+    }
     default:
         return CXChildVisit_Continue;
     }

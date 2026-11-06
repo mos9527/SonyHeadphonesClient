@@ -44,4 +44,4 @@ When adding support for new product colors:
    npm run generate
    ```
 3. The script writes directly to `client/MaterialYouThemeTable.inc`
-4. Update the `ModelColor` enum in `libmdr/include/mdr/ProtocolV2T1.hpp` if needed
+4. Update the `ModelColor` enum in `libmdr/include/mdr/Generated/ProtocolV2T1.hpp` if needed

@@ -18,15 +18,19 @@
 #if defined(MDR_ENABLE_LOG) && MDR_ENABLE_LOG
 #define MDR_LOG(str, ...)                                                                                              \
     {                                                                                                                  \
-        fprintf(stderr, "%s\n", mdr::Format((str)__VA_OPT__(, ) __VA_ARGS__).c_str());                         \
+        fprintf(stderr, "%s\n", mdr::Format((str)__VA_OPT__(, ) __VA_ARGS__).c_str());                                 \
     }
 #else
-#define MDR_LOG(str, ...) {}
+#define MDR_LOG(str, ...)                                                                                              \
+    {                                                                                                                  \
+    }
 #endif
 #ifdef MDR_DEBUG
 #define MDR_LOG_DEBUG(...) MDR_LOG(__VA_ARGS__);
 #else
-#define MDR_LOG_DEBUG(...) {}
+#define MDR_LOG_DEBUG(...)                                                                                             \
+    {                                                                                                                  \
+    }
 #endif
 
 namespace mdr
@@ -59,13 +63,23 @@ namespace mdr
     {
         int16_t value; // Big-endian
 
-        Int16BE() : value(0) {}
+        Int16BE() : value(0)
+        {
+        }
 
-        Int16BE(int16_t v) : value(Swap(v)) {}
+        Int16BE(int16_t v) : value(Swap(v))
+        {
+        }
 
-        static uint16_t Swap(uint16_t v) { return ((v & 0x000000FF) << 8) | ((v & 0x0000FF00) >> 8); }
+        static uint16_t Swap(uint16_t v)
+        {
+            return ((v & 0x000000FF) << 8) | ((v & 0x0000FF00) >> 8);
+        }
 
-        operator int16_t() const { return Swap(value); }
+        operator int16_t() const
+        {
+            return Swap(value);
+        }
 
         Int16BE& operator=(int16_t v)
         {
@@ -78,13 +92,23 @@ namespace mdr
     {
         uint16_t value; // Big-endian
 
-        UInt16BE() : value(0) {}
+        UInt16BE() : value(0)
+        {
+        }
 
-        UInt16BE(uint16_t v) : value(Swap(v)) {}
+        UInt16BE(uint16_t v) : value(Swap(v))
+        {
+        }
 
-        static uint16_t Swap(uint16_t v) { return static_cast<uint16_t>((v << 8u) | (v >> 8u)); }
+        static uint16_t Swap(uint16_t v)
+        {
+            return static_cast<uint16_t>((v << 8u) | (v >> 8u));
+        }
 
-        operator uint16_t() const { return Swap(value); }
+        operator uint16_t() const
+        {
+            return Swap(value);
+        }
 
         UInt16BE& operator=(uint16_t v)
         {
@@ -99,12 +123,20 @@ namespace mdr
         uint8_t mid;
         uint8_t low;
 
-        Int24BE() : high(0), mid(0), low(0) {}
+        Int24BE() : high(0), mid(0), low(0)
+        {
+        }
 
 
-        Int24BE(int32_t v) { this->operator=(v); }
+        Int24BE(int32_t v)
+        {
+            this->operator=(v);
+        }
 
-        operator int32_t() const { return high << 16u | mid << 8u | low; }
+        operator int32_t() const
+        {
+            return high << 16u | mid << 8u | low;
+        }
 
         Int24BE& operator=(int32_t v)
         {
@@ -119,9 +151,13 @@ namespace mdr
     {
         int32_t value; // Big-endian
 
-        Int32BE() : value(0) {}
+        Int32BE() : value(0)
+        {
+        }
 
-        Int32BE(int32_t v) : value(Swap(v)) {}
+        Int32BE(int32_t v) : value(Swap(v))
+        {
+        }
 
         static uint32_t Swap(uint32_t v) // Compiles into bswap
         {
@@ -129,7 +165,10 @@ namespace mdr
                 ((v & 0xFF000000) >> 24);
         }
 
-        operator int32_t() const { return Swap(value); }
+        operator int32_t() const
+        {
+            return Swap(value);
+        }
 
         Int32BE& operator=(int32_t v)
         {
@@ -142,9 +181,13 @@ namespace mdr
     {
         uint64_t value; // Big-endian
 
-        UInt64BE() : value(0) {}
+        UInt64BE() : value(0)
+        {
+        }
 
-        UInt64BE(uint64_t v) : value(Swap(v)) {}
+        UInt64BE(uint64_t v) : value(Swap(v))
+        {
+        }
 
         static uint64_t Swap(uint64_t v)
         {
@@ -154,7 +197,10 @@ namespace mdr
                 ((v & 0x00FF000000000000ull) >> 40) | ((v & 0xFF00000000000000ull) >> 56);
         }
 
-        operator uint64_t() const { return Swap(value); }
+        operator uint64_t() const
+        {
+            return Swap(value);
+        }
 
         UInt64BE& operator=(uint64_t v)
         {
@@ -251,10 +297,22 @@ namespace mdr
             MDR_CHECK(p != nullptr && "OOM");
             return p;
         }
-        void deallocate(pointer p, size_type) noexcept { deallocate(p); }
-        void deallocate(pointer p) noexcept { std::free(p); }
-        friend bool operator==(const MDRAllocator&, const MDRAllocator&) noexcept { return true; }
-        friend bool operator!=(const MDRAllocator&, const MDRAllocator&) noexcept { return false; }
+        void deallocate(pointer p, size_type) noexcept
+        {
+            deallocate(p);
+        }
+        void deallocate(pointer p) noexcept
+        {
+            std::free(p);
+        }
+        friend bool operator==(const MDRAllocator&, const MDRAllocator&) noexcept
+        {
+            return true;
+        }
+        friend bool operator!=(const MDRAllocator&, const MDRAllocator&) noexcept
+        {
+            return false;
+        }
         struct Deleter
         {
             void operator()(T* ptr) noexcept
@@ -411,11 +469,26 @@ namespace mdr
             return MDRResult<size_t>::Success(str.value.length() + 1);
         }
 
-        [[nodiscard]] auto begin() { return value.begin(); }
-        [[nodiscard]] auto end() { return value.end(); }
-        [[nodiscard]] auto begin() const { return value.begin(); }
-        [[nodiscard]] auto end() const { return value.end(); }
-        [[nodiscard]] constexpr size_t size() const { return value.size(); }
+        [[nodiscard]] auto begin()
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end()
+        {
+            return value.end();
+        }
+        [[nodiscard]] auto begin() const
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end() const
+        {
+            return value.end();
+        }
+        [[nodiscard]] constexpr size_t size() const
+        {
+            return value.size();
+        }
     };
 
     /**
@@ -456,11 +529,26 @@ namespace mdr
             return MDRResult<size_t>::Success(prefixSize + len);
         }
 
-        [[nodiscard]] auto begin() { return value.begin(); }
-        [[nodiscard]] auto end() { return value.end(); }
-        [[nodiscard]] auto begin() const { return value.begin(); }
-        [[nodiscard]] auto end() const { return value.end(); }
-        [[nodiscard]] constexpr size_t size() const { return value.size(); }
+        [[nodiscard]] auto begin()
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end()
+        {
+            return value.end();
+        }
+        [[nodiscard]] auto begin() const
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end() const
+        {
+            return value.end();
+        }
+        [[nodiscard]] constexpr size_t size() const
+        {
+            return value.size();
+        }
     };
 
     /**
@@ -500,11 +588,26 @@ namespace mdr
             return MDRResult<size_t>::Success(size + 1);
         }
 
-        [[nodiscard]] auto begin() { return value.begin(); }
-        [[nodiscard]] auto end() { return value.end(); }
-        [[nodiscard]] auto begin() const { return value.begin(); }
-        [[nodiscard]] auto end() const { return value.end(); }
-        [[nodiscard]] constexpr size_t size() const { return value.size(); }
+        [[nodiscard]] auto begin()
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end()
+        {
+            return value.end();
+        }
+        [[nodiscard]] auto begin() const
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end() const
+        {
+            return value.end();
+        }
+        [[nodiscard]] constexpr size_t size() const
+        {
+            return value.size();
+        }
     };
 
     /**
@@ -545,11 +648,26 @@ namespace mdr
             return MDRResult<size_t>::Success(*ppDstBuffer - begin);
         }
 
-        [[nodiscard]] auto begin() { return value.begin(); }
-        [[nodiscard]] auto end() { return value.end(); }
-        [[nodiscard]] auto begin() const { return value.begin(); }
-        [[nodiscard]] auto end() const { return value.end(); }
-        [[nodiscard]] constexpr size_t size() const { return value.size(); }
+        [[nodiscard]] auto begin()
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end()
+        {
+            return value.end();
+        }
+        [[nodiscard]] auto begin() const
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end() const
+        {
+            return value.end();
+        }
+        [[nodiscard]] constexpr size_t size() const
+        {
+            return value.size();
+        }
     };
 
     /**
@@ -579,11 +697,26 @@ namespace mdr
             return MDRResult<size_t>::Success(*ppDstBuffer - begin);
         }
 
-        [[nodiscard]] auto begin() { return value.begin(); }
-        [[nodiscard]] auto end() { return value.end(); }
-        [[nodiscard]] auto begin() const { return value.begin(); }
-        [[nodiscard]] auto end() const { return value.end(); }
-        [[nodiscard]] constexpr size_t size() const { return value.size(); }
+        [[nodiscard]] auto begin()
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end()
+        {
+            return value.end();
+        }
+        [[nodiscard]] auto begin() const
+        {
+            return value.begin();
+        }
+        [[nodiscard]] auto end() const
+        {
+            return value.end();
+        }
+        [[nodiscard]] constexpr size_t size() const
+        {
+            return value.size();
+        }
     };
 
     /**

@@ -10,24 +10,24 @@ set(CLIENT_DEBUGGER_GENERATED_SOURCES
 if (COMMAND mdr_add_codegen)
     mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T1Debugger.cpp"
         TOOL      tooling_DebuggerCodegen
-        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/ProtocolV1T1.hpp"
+        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/Generated/ProtocolV1T1.hpp"
         NAMESPACE "mdr::v1::t1"
-        INCLUDE   "mdr/ProtocolV1T1.hpp")
+        INCLUDE   "mdr/Generated/ProtocolV1T1.hpp")
     mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV1T2Debugger.cpp"
         TOOL      tooling_DebuggerCodegen
-        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/ProtocolV1T2.hpp"
+        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/Generated/ProtocolV1T2.hpp"
         NAMESPACE "mdr::v1::t2"
-        INCLUDE   "mdr/ProtocolV1T2.hpp")
+        INCLUDE   "mdr/Generated/ProtocolV1T2.hpp")
     mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T1Debugger.cpp"
         TOOL      tooling_DebuggerCodegen
-        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/ProtocolV2T1.hpp"
+        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/Generated/ProtocolV2T1.hpp"
         NAMESPACE "mdr::v2::t1"
-        INCLUDE   "mdr/ProtocolV2T1.hpp")
+        INCLUDE   "mdr/Generated/ProtocolV2T1.hpp")
     mdr_add_codegen(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/Generated/ProtocolV2T2Debugger.cpp"
         TOOL      tooling_DebuggerCodegen
-        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/ProtocolV2T2.hpp"
+        INPUT     "${CMAKE_CURRENT_SOURCE_DIR}/../libmdr/include/mdr/Generated/ProtocolV2T2.hpp"
         NAMESPACE "mdr::v2::t2"
-        INCLUDE   "mdr/ProtocolV2T2.hpp")
+        INCLUDE   "mdr/Generated/ProtocolV2T2.hpp")
     add_custom_target(mdr_codegen_debugger DEPENDS ${CLIENT_DEBUGGER_GENERATED_SOURCES})
 endif ()
 

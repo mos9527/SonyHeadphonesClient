@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include <mdr/ProtocolV2T1.hpp>
-#include <mdr/ProtocolV2T2.hpp>
+#include <mdr/Generated/ProtocolV2T1.hpp>
+#include <mdr/Generated/ProtocolV2T2.hpp>
 
 #include "Property.hpp"
 
@@ -22,49 +22,50 @@
 * - Declare Read-only fields
 * - Declare Functions.
 */
-#define _DETAILS_V2_PROPS_X(PROP, ARRAY) \
-    PROP(bool, mShutdown) \
-    PROP(bool, mNcAsmEnabled) \
-    PROP(bool, mNcAsmFocusOnVoice) \
-    PROP(int, mNcAsmAmbientLevel) \
-    PROP(bool, mNcAsmChangingAsmLevel) \
-    PROP(v2::t1::Function, mNcAsmButtonFunction) \
-    PROP(v2::t1::NcAsmMode, mNcAsmMode) \
-    PROP(bool, mNcAsmAutoAsmEnabled) \
-    PROP(v2::t1::NoiseAdaptiveSensitivity, mNcAsmNoiseAdaptiveSensitivity) \
-    PROP(v2::t1::AutoPowerOffElements, mPowerAutoOff) \
-    PROP(v2::t1::AutoPowerOffWearingDetectionElements, mPowerAutoOffWearingDetection) \
-    PROP(int, mPlayVolume) \
-    PROP(v2::t1::PlaybackControl, mPlayControl) \
-    ARRAY(bool, mGsParamBool, 4) \
-    PROP(bool, mUpscalingEnabled) \
-    PROP(v2::t1::PriorMode, mAudioPriorityMode) \
-    PROP(bool, mBGMModeEnabled) \
-    PROP(v2::t1::RoomSize, mBGMModeRoomSize) \
-    PROP(bool, mUpmixCinemaEnabled) \
-    PROP(bool, mVoiceContentsEnabled) \
-    PROP(bool, mSoundLeakageReductionEnabled) \
-    PROP(bool, mAutoPauseEnabled) \
-    PROP(Vector<v2::t1::Preset>, mAssignableSettingsPresets) \
-    PROP(bool, mSpeakToChatEnabled) \
-    PROP(v2::t1::DetectSensitivity, mSpeakToChatDetectSensitivity) \
-    PROP(v2::t1::ModeOutTime, mSpeakToModeOutTime) \
-    PROP(bool, mHeadGestureEnabled) \
-    PROP(bool, mEqAvailable, {true, true, true}) \
-    PROP(v2::t1::EqPresetId, mEqPresetId) \
-    PROP(int, mEqClearBass) \
-    PROP(Vector<int>, mEqConfig) \
-    PROP(bool, mVoiceGuidanceEnabled) \
-    PROP(int, mVoiceGuidanceVolume) \
-    PROP(bool, mPairingMode) \
-    PROP(String, mMultipointDeviceMac) \
-    PROP(bool, mSourceSwitchControlEnabled) \
-    PROP(String, mPairedDeviceDisconnectMac) \
-    PROP(String, mPairedDeviceConnectMac) \
-    PROP(String, mPairedDeviceUnpairMac) \
-    PROP(bool, mSafeListeningPreviewMode) \
-    PROP(v2::t1::VoiceAssistant, mVoiceAssistant, {v2::t1::VoiceAssistant::OUT_OF_RANGE, \
-         v2::t1::VoiceAssistant::OUT_OF_RANGE, v2::t1::VoiceAssistant::OUT_OF_RANGE}) \
+#define _DETAILS_V2_PROPS_X(PROP, ARRAY)                                                                               \
+    PROP(bool, mShutdown)                                                                                              \
+    PROP(bool, mNcAsmEnabled)                                                                                          \
+    PROP(bool, mNcAsmFocusOnVoice)                                                                                     \
+    PROP(int, mNcAsmAmbientLevel)                                                                                      \
+    PROP(bool, mNcAsmChangingAsmLevel)                                                                                 \
+    PROP(v2::t1::Function, mNcAsmButtonFunction)                                                                       \
+    PROP(v2::t1::NcAsmMode, mNcAsmMode)                                                                                \
+    PROP(bool, mNcAsmAutoAsmEnabled)                                                                                   \
+    PROP(v2::t1::NoiseAdaptiveSensitivity, mNcAsmNoiseAdaptiveSensitivity)                                             \
+    PROP(v2::t1::AutoPowerOffElements, mPowerAutoOff)                                                                  \
+    PROP(v2::t1::AutoPowerOffWearingDetectionElements, mPowerAutoOffWearingDetection)                                  \
+    PROP(int, mPlayVolume)                                                                                             \
+    PROP(v2::t1::PlaybackControl, mPlayControl)                                                                        \
+    ARRAY(bool, mGsParamBool, 4)                                                                                       \
+    PROP(bool, mUpscalingEnabled)                                                                                      \
+    PROP(v2::t1::PriorMode, mAudioPriorityMode)                                                                        \
+    PROP(bool, mBGMModeEnabled)                                                                                        \
+    PROP(v2::t1::RoomSize, mBGMModeRoomSize)                                                                           \
+    PROP(bool, mUpmixCinemaEnabled)                                                                                    \
+    PROP(bool, mVoiceContentsEnabled)                                                                                  \
+    PROP(bool, mSoundLeakageReductionEnabled)                                                                          \
+    PROP(bool, mAutoPauseEnabled)                                                                                      \
+    PROP(Vector<v2::t1::Preset>, mAssignableSettingsPresets)                                                           \
+    PROP(bool, mSpeakToChatEnabled)                                                                                    \
+    PROP(v2::t1::DetectSensitivity, mSpeakToChatDetectSensitivity)                                                     \
+    PROP(v2::t1::ModeOutTime, mSpeakToModeOutTime)                                                                     \
+    PROP(bool, mHeadGestureEnabled)                                                                                    \
+    PROP(bool, mEqAvailable, {true, true, true})                                                                       \
+    PROP(v2::t1::EqPresetId, mEqPresetId)                                                                              \
+    PROP(int, mEqClearBass)                                                                                            \
+    PROP(Vector<int>, mEqConfig)                                                                                       \
+    PROP(bool, mVoiceGuidanceEnabled)                                                                                  \
+    PROP(int, mVoiceGuidanceVolume)                                                                                    \
+    PROP(bool, mPairingMode)                                                                                           \
+    PROP(String, mMultipointDeviceMac)                                                                                 \
+    PROP(bool, mSourceSwitchControlEnabled)                                                                            \
+    PROP(String, mPairedDeviceDisconnectMac)                                                                           \
+    PROP(String, mPairedDeviceConnectMac)                                                                              \
+    PROP(String, mPairedDeviceUnpairMac)                                                                               \
+    PROP(bool, mSafeListeningPreviewMode)                                                                              \
+    PROP(v2::t1::VoiceAssistant, mVoiceAssistant,                                                                      \
+         {v2::t1::VoiceAssistant::OUT_OF_RANGE, v2::t1::VoiceAssistant::OUT_OF_RANGE,                                  \
+          v2::t1::VoiceAssistant::OUT_OF_RANGE})                                                                       \
     PROP(AlertResponse, mAlertResponse)
 
 namespace mdr
@@ -78,10 +79,14 @@ namespace mdr
         using enum v2::t1::AudioExclusiveFunctionType;
         switch (value)
         {
-        case v2::t1::VoiceAssistant::GOOGLE_ASSISTANT: return out = GOOGLE_ASSISTANT, true;
-        case v2::t1::VoiceAssistant::TENCENT_XIAOWEI: return out = TENCENT_XIAOWEI, true;
-        case v2::t1::VoiceAssistant::SONY_VOICE_ASSISTANT: return out = SONY_VOICE_ASSISTANT, true;
-        default: return false;
+        case v2::t1::VoiceAssistant::GOOGLE_ASSISTANT:
+            return out = GOOGLE_ASSISTANT, true;
+        case v2::t1::VoiceAssistant::TENCENT_XIAOWEI:
+            return out = TENCENT_XIAOWEI, true;
+        case v2::t1::VoiceAssistant::SONY_VOICE_ASSISTANT:
+            return out = SONY_VOICE_ASSISTANT, true;
+        default:
+            return false;
         }
     }
 
@@ -93,18 +98,23 @@ namespace mdr
         using enum v2::t1::StatusErrorCodeType;
         switch (value)
         {
-        case CALLING: return MDR_LISTENING_BLOCKER_CALL;
+        case CALLING:
+            return MDR_LISTENING_BLOCKER_CALL;
         case LE_AUDIO_CONNECTED:
         case LE_AUDION_MUSIC_PLAYING:
-        case TANDEM_OVER_GATT_CONNECTED: return MDR_LISTENING_BLOCKER_LE_AUDIO;
+        case TANDEM_OVER_GATT_CONNECTED:
+            return MDR_LISTENING_BLOCKER_LE_AUDIO;
         case VOICE_UI_GOOGLE:
         case VOICE_UI_SONY:
-        case VOICE_UI_TENCENT: return MDR_LISTENING_BLOCKER_VOICE_ASSISTANT;
+        case VOICE_UI_TENCENT:
+            return MDR_LISTENING_BLOCKER_VOICE_ASSISTANT;
         case UPMIX_CINEMA:
         case UPMIX_GAME:
         case UPMIX_MUSIC:
-        case LISTENING_MODE_IS_NOT_STANDARD: return MDR_LISTENING_BLOCKER_LISTENING_MODE;
-        default: return MDR_LISTENING_BLOCKER_OTHER;
+        case LISTENING_MODE_IS_NOT_STANDARD:
+            return MDR_LISTENING_BLOCKER_LISTENING_MODE;
+        default:
+            return MDR_LISTENING_BLOCKER_OTHER;
         }
     }
 
@@ -425,11 +435,14 @@ namespace mdr
             case BGM_MODE:
             case BGM_MODE_AND_ERRORCODE:
                 return bgmModeInquiredType(bgmType) && bgmType == type ? &mBGMModeStatus : nullptr;
-            case UPMIX_CINEMA: return mSupport.contains(T1::UPMIX_CINEMA) ? &mUpmixCinemaStatus : nullptr;
-            case VOICE_CONTENTS: return mSupport.contains(T1::VOICE_CONTENTS) ? &mVoiceContentsStatus : nullptr;
+            case UPMIX_CINEMA:
+                return mSupport.contains(T1::UPMIX_CINEMA) ? &mUpmixCinemaStatus : nullptr;
+            case VOICE_CONTENTS:
+                return mSupport.contains(T1::VOICE_CONTENTS) ? &mVoiceContentsStatus : nullptr;
             case SOUND_LEAKAGE_REDUCTION:
                 return mSupport.contains(T1::SOUND_LEAKAGE_REDUCTION) ? &mSoundLeakageReductionStatus : nullptr;
-            default: return nullptr;
+            default:
+                return nullptr;
             }
         }
 
@@ -442,9 +455,9 @@ namespace mdr
         {
             const auto& status = mode == MDR_LISTENING_STANDARD || mode == MDR_LISTENING_BACKGROUND_MUSIC
                 ? mBGMModeStatus
-                : mode == MDR_LISTENING_CINEMA ? mUpmixCinemaStatus
+                : mode == MDR_LISTENING_CINEMA      ? mUpmixCinemaStatus
                 : mode == MDR_LISTENING_VOICE_BOOST ? mVoiceContentsStatus
-                : mSoundLeakageReductionStatus;
+                                                    : mSoundLeakageReductionStatus;
             MDRListeningBlocker blockers = MDR_LISTENING_BLOCKER_NONE;
             for (const auto error : status.errors)
                 blockers |= ListeningBlockerOf(error);

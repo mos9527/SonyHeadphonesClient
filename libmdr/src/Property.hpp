@@ -49,7 +49,10 @@ namespace mdr
                 mState = State::SUBMITTED;
         }
 
-        [[nodiscard]] constexpr bool dirty() const noexcept { return mState != State::CLEAN; }
+        [[nodiscard]] constexpr bool dirty() const noexcept
+        {
+            return mState != State::CLEAN;
+        }
         [[nodiscard]] constexpr bool pending() const noexcept
         {
             return mState == State::SUBMITTED || mState == State::SUBMITTED_STAGED;
@@ -62,6 +65,5 @@ namespace mdr
             else if (mState == State::SUBMITTED_STAGED)
                 mState = State::STAGED;
         }
-
     };
 } // namespace mdr

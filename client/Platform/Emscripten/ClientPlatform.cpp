@@ -84,15 +84,21 @@ int clientPlatformConnectionInit(int flags)
 
 void clientPlatformConnectionDestroy()
 {
-    if (gConn) { mdrConnectionEmscriptenDestroy(gConn); gConn = nullptr; }
+    if (gConn)
+    {
+        mdrConnectionEmscriptenDestroy(gConn);
+        gConn = nullptr;
+    }
 }
 
 MDRConnection* clientPlatformConnectionGet()
 {
-    if (gConn) return mdrConnectionEmscriptenGet(gConn);
+    if (gConn)
+        return mdrConnectionEmscriptenGet(gConn);
     [[unlikely]] return nullptr;
 }
 
+// clang-format off
 EM_JS(void, clientPlatformDestroyFonts, (), {
     const fonts = globalThis.SonyHeadphonesClientFonts;
     if (!fonts) return;
@@ -105,6 +111,7 @@ EM_JS(void, clientPlatformDestroyFonts, (), {
         entry.state = 'unavailable';
     }
 });
+// clang-format on
 
 void clientPlatformDestroy()
 {
@@ -112,6 +119,7 @@ void clientPlatformDestroy()
     clientPlatformDestroyFonts();
 }
 
+// clang-format off
 EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData, int* outFaceIndex), {
     if (outData) setValue(outData, 0, '*');
     if (outFaceIndex) setValue(outFaceIndex, 0, 'i32');
@@ -140,18 +148,22 @@ EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData
     setValue(outData, entry.ptr, '*');
     return entry.size;
 });
+// clang-format on
 
 int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex)
 {
     if (locale <= AppLocale::DEFAULT || locale >= AppLocale::NUM_LOCALES)
     {
-        if (outData) *outData = nullptr;
-        if (outFaceIndex) *outFaceIndex = 0;
+        if (outData)
+            *outData = nullptr;
+        if (outFaceIndex)
+            *outFaceIndex = 0;
         return 0;
     }
     return clientPlatformLocateFontBinaryImpl(static_cast<int>(locale), outData, outFaceIndex);
 }
 
+// clang-format off
 EM_JS(int, clientPlatformSaveBlobImpl,
       (const char* filename, const unsigned char* data, int dataSize, const char* mimeType), {
     if (!filename || !data || dataSize <= 0 || !mimeType)
@@ -174,25 +186,20 @@ EM_JS(int, clientPlatformSaveBlobImpl,
         return 0;
     }
 });
+// clang-format on
 
-int clientPlatformSaveBlob(
-    const char* filename,
-    const unsigned char* data,
-    size_t dataSize,
-    const char* mimeType,
-    SDL_Window* window,
-    ClientPlatformSaveBlobCallback callback,
-    void* userdata)
+int clientPlatformSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
+                           SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
 {
-    if (!filename || !*filename || !data || !dataSize || dataSize > static_cast<size_t>(INT_MAX) ||
-        !mimeType || !*mimeType || !window || !callback)
+    if (!filename || !*filename || !data || !dataSize || dataSize > static_cast<size_t>(INT_MAX) || !mimeType ||
+        !*mimeType || !window || !callback)
     {
         SDL_SetError("Invalid blob save arguments");
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     }
     const bool started = clientPlatformSaveBlobImpl(filename, data, static_cast<int>(dataSize), mimeType) != 0;
-    callback(userdata, started ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_FAILED,
-             filename, started ? nullptr : "Browser download could not be started");
+    callback(userdata, started ? CLIENT_PLATFORM_SAVE_BLOB_DISPATCHED : CLIENT_PLATFORM_SAVE_BLOB_FAILED, filename,
+             started ? nullptr : "Browser download could not be started");
     return MDR_RESULT_OK;
 }
 
@@ -210,8 +217,10 @@ void __dont_touch_my_garbage_exclamation_marks__()
 extern "C" {
 int clientPlatformMemoryMapFile(const char*, void** outAddr, size_t* outSize)
 {
-    if (outAddr) *outAddr = nullptr;
-    if (outSize) *outSize = 0;
+    if (outAddr)
+        *outAddr = nullptr;
+    if (outSize)
+        *outSize = 0;
     return MDR_RESULT_ERROR_NOT_SUPPORTED;
 }
 

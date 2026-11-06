@@ -37,12 +37,21 @@ namespace mdr
         {
             std::coroutine_handle<> next;
             int result;
-            static std::suspend_always initial_suspend() noexcept { return {}; }
-            [[noreturn]] static void unhandled_exception() noexcept { std::terminate(); }
+            static std::suspend_always initial_suspend() noexcept
+            {
+                return {};
+            }
+            [[noreturn]] static void unhandled_exception() noexcept
+            {
+                std::terminate();
+            }
 
             struct final_awaiter
             {
-                static bool await_ready() noexcept { return false; }
+                static bool await_ready() noexcept
+                {
+                    return false;
+                }
 
                 std::coroutine_handle<> await_suspend(std::coroutine_handle<promise_type> other) noexcept
                 {
@@ -51,16 +60,27 @@ namespace mdr
                     return std::noop_coroutine();
                 }
 
-                static void await_resume() noexcept {}
+                static void await_resume() noexcept
+                {
+                }
             };
 
-            static final_awaiter final_suspend() noexcept { return final_awaiter{}; }
+            static final_awaiter final_suspend() noexcept
+            {
+                return final_awaiter{};
+            }
             MDRTask get_return_object();
 
-            void return_value(int v) { result = v; }
+            void return_value(int v)
+            {
+                result = v;
+            }
 
             // https://en.cppreference.com/w/cpp/language/coroutines#:~:text=the%20caller/resumer.-,Dynamic%20allocation,-Coroutine%20state
-            void* operator new(std::size_t n) noexcept { return mdr::MDRAllocator<char>().allocate(n); }
+            void* operator new(std::size_t n) noexcept
+            {
+                return mdr::MDRAllocator<char>().allocate(n);
+            }
             void operator delete(void* p, std::size_t n) noexcept
             {
                 mdr::MDRAllocator<char>().deallocate(static_cast<char*>(p), n);
@@ -92,8 +112,14 @@ namespace mdr
         }
 
         MDRTask& operator=(MDRTask const&) = delete;
-        MDRTask(MDRTask&& other) noexcept { *this = std::move(other); }
-        constexpr operator bool() const noexcept { return coroutine != nullptr; }
+        MDRTask(MDRTask&& other) noexcept
+        {
+            *this = std::move(other);
+        }
+        constexpr operator bool() const noexcept
+        {
+            return coroutine != nullptr;
+        }
 
         ~MDRTask()
         {
@@ -101,7 +127,10 @@ namespace mdr
                 coroutine.destroy();
         }
 
-        bool await_ready() const noexcept { return !coroutine || coroutine.done(); }
+        bool await_ready() const noexcept
+        {
+            return !coroutine || coroutine.done();
+        }
 
         std::coroutine_handle<> await_suspend(std::coroutine_handle<> next) noexcept
         {
@@ -109,7 +138,10 @@ namespace mdr
             return coroutine;
         }
 
-        int await_resume() const noexcept { return coroutine ? coroutine.promise().result : -1; }
+        int await_resume() const noexcept
+        {
+            return coroutine ? coroutine.promise().result : -1;
+        }
     };
 
     inline MDRTask MDRTask::promise_type::get_return_object()
@@ -162,7 +194,10 @@ namespace mdr
             uint64_t signaled{}; // the # which the waiter is awaken from
 
             // If the Awaiter has been signaled with a expected Awake
-            bool signal_ready() const noexcept { return signal > wait && signal > signaled; }
+            bool signal_ready() const noexcept
+            {
+                return signal > wait && signal > signaled;
+            }
 
             bool await_ready() noexcept
             {
@@ -180,9 +215,15 @@ namespace mdr
                     h = std::move(handle), tick = std::chrono::steady_clock::now();
             }
 
-            int await_resume() noexcept { return result; }
+            int await_resume() noexcept
+            {
+                return result;
+            }
 
-            constexpr operator bool() const { return h != nullptr; }
+            constexpr operator bool() const
+            {
+                return h != nullptr;
+            }
 
             void resume_now(int await_result)
             {
@@ -203,7 +244,9 @@ namespace mdr
                 mAwaiters[i] = Awaiter{this, static_cast<AwaitType>(i)};
         }
 
-        MDRHeadphones() : MDRHeadphones(nullptr, ProtocolFamily::UNKNOWN) {}
+        MDRHeadphones() : MDRHeadphones(nullptr, ProtocolFamily::UNKNOWN)
+        {
+        }
 
 
         // Move-only ctor
@@ -212,8 +255,14 @@ namespace mdr
         MDRHeadphones& operator=(MDRHeadphones const&) = delete;
         MDRHeadphones& operator=(MDRHeadphones&&) = default;
 
-        constexpr operator bool() const noexcept { return mConn != nullptr && !mFailed; }
-        [[nodiscard]] ::MDRResult GetFailure() const noexcept { return mFailed ? mLastErrorCode : MDR_RESULT_OK; }
+        constexpr operator bool() const noexcept
+        {
+            return mConn != nullptr && !mFailed;
+        }
+        [[nodiscard]] ::MDRResult GetFailure() const noexcept
+        {
+            return mFailed ? mLastErrorCode : MDR_RESULT_OK;
+        }
 
         /**
          * @brief Receive commands and process events. This is non-blocking, and should be
@@ -293,7 +342,10 @@ namespace mdr
         /**
          * @brief This does what you think it does.
          */
-        [[nodiscard]] const char* GetLastError() const { return mLastError.c_str(); }
+        [[nodiscard]] const char* GetLastError() const
+        {
+            return mLastError.c_str();
+        }
         /**
          * @brief Invalidate the instance, preserve the first fatal error, and signal it on the event channel.
          */
@@ -543,13 +595,13 @@ namespace mdr::detail
 /**
  * @brief Sends through @ref SendCommandACK, then stores the response wait result in @p OutResult.
  */
-#define SendCommandAwaitResult(Type, Response, OutResult, ...)                                                            \
+#define SendCommandAwaitResult(Type, Response, OutResult, ...)                                                         \
     do                                                                                                                 \
     {                                                                                                                  \
-        static_assert((Response) != AWAIT_ACK, "Use SendCommandACK for ACK-only requests");                              \
-        const uint64_t _responsePacketId = mPacketCounter;                                                              \
+        static_assert((Response) != AWAIT_ACK, "Use SendCommandACK for ACK-only requests");                            \
+        const uint64_t _responsePacketId = mPacketCounter;                                                             \
         SendCommandACK(Type, __VA_ARGS__);                                                                             \
-        (OutResult) = co_await Await(Response, _responsePacketId);                                                         \
+        (OutResult) = co_await Await(Response, _responsePacketId);                                                     \
     }                                                                                                                  \
     while (false)
 
@@ -561,7 +613,7 @@ namespace mdr::detail
     do                                                                                                                 \
     {                                                                                                                  \
         int _responseResult = MDR_RESULT_OK;                                                                           \
-        SendCommandAwaitResult(Type, Response, _responseResult, __VA_ARGS__);                                           \
+        SendCommandAwaitResult(Type, Response, _responseResult, __VA_ARGS__);                                          \
         if (_responseResult != MDR_RESULT_OK)                                                                          \
             co_return SetLastError(_responseResult, ErrorContext);                                                     \
     }                                                                                                                  \

@@ -24,7 +24,8 @@ namespace mdr
     int HandleSupportFunctionT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(ConnectRetSupportFunction, res, cmd);
-        std::fill(self->mDetailsV2.mSupport.table1Functions.begin(), self->mDetailsV2.mSupport.table1Functions.end(), false);
+        std::fill(self->mDetailsV2.mSupport.table1Functions.begin(), self->mDetailsV2.mSupport.table1Functions.end(),
+                  false);
         for (auto fun : res.supportFunctions)
             self->mDetailsV2.mSupport.table1Functions[static_cast<UInt8>(fun.functionType)] = true;
         self->mDetailsV2.mSupport.state = DetailsV2::SupportStates::ADVERTISED;
@@ -113,13 +114,13 @@ namespace mdr
         case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS:
         {
             if (self->mDetailsV2.mSupport.contains(
-                t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
+                    t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT))
             {
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
                     Deserialize(NcAsmNtfyParamModeNcDualModeSwitchAsmSeamless, res, cmd);
-                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
-                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(res.valueChangeStatus ==
+                                                                      ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -128,8 +129,8 @@ namespace mdr
                 else
                 {
                     Deserialize(NcAsmRetParamModeNcDualModeSwitchAsmSeamless, res, cmd);
-                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
-                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(res.valueChangeStatus ==
+                                                                      ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -142,13 +143,14 @@ namespace mdr
         case MODE_NC_ASM_DUAL_NC_MODE_SWITCH_AND_ASM_SEAMLESS_NA:
         {
             if (self->mDetailsV2.mSupport.contains(
-                t1::FunctionType::MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
+                    t1::FunctionType::
+                        MODE_NC_ASM_NOISE_CANCELLING_DUAL_AMBIENT_SOUND_MODE_LEVEL_ADJUSTMENT_NOISE_ADAPTATION))
             {
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
                     Deserialize(NcAsmNtfyParamModeNcDualModeSwitchAsmSeamlessNa, res, cmd);
-                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
-                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(res.valueChangeStatus ==
+                                                                      ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -159,8 +161,8 @@ namespace mdr
                 else
                 {
                     Deserialize(NcAsmRetParamModeNcDualModeSwitchAsmSeamlessNa, res, cmd);
-                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
-                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(res.valueChangeStatus ==
+                                                                      ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(res.ncAsmMode);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -179,8 +181,8 @@ namespace mdr
                 if (command == Command::NCASM_NTFY_PARAM)
                 {
                     Deserialize(NcAsmNtfyParamAsmSeamless, res, cmd);
-                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
-                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(res.valueChangeStatus ==
+                                                                      ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(NcAsmMode::ASM);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -189,8 +191,8 @@ namespace mdr
                 else
                 {
                     Deserialize(NcAsmRetParamAsmSeamless, res, cmd);
-                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(
-                        res.valueChangeStatus == ValueChangeStatus::UNDER_CHANGING);
+                    self->mDetailsV2.mNcAsmChangingAsmLevel.overwrite(res.valueChangeStatus ==
+                                                                      ValueChangeStatus::UNDER_CHANGING);
                     self->mDetailsV2.mNcAsmEnabled.overwrite(res.ncAsmTotalEffect == NcAsmOnOffValue::ON);
                     self->mDetailsV2.mNcAsmMode.overwrite(NcAsmMode::ASM);
                     self->mDetailsV2.mNcAsmFocusOnVoice.overwrite(res.ambientSoundMode == AmbientSoundMode::VOICE);
@@ -313,14 +315,18 @@ namespace mdr
                 if (command == Command::POWER_NTFY_STATUS)
                 {
                     Deserialize(PowerNotifyStatusLeftRightBatteryThreshold, res, cmd);
-                    self->mDetailsV2.mBatteryL = {res.leftBatteryLevel, res.leftBatteryThreshold, res.leftChargingStatus};
-                    self->mDetailsV2.mBatteryR = {res.rightBatteryLevel, res.rightBatteryThreshold, res.rightChargingStatus};
+                    self->mDetailsV2.mBatteryL = {res.leftBatteryLevel, res.leftBatteryThreshold,
+                                                  res.leftChargingStatus};
+                    self->mDetailsV2.mBatteryR = {res.rightBatteryLevel, res.rightBatteryThreshold,
+                                                  res.rightChargingStatus};
                 }
                 else
                 {
                     Deserialize(PowerRetStatusLeftRightBatteryThreshold, res, cmd);
-                    self->mDetailsV2.mBatteryL = {res.leftBatteryLevel, res.leftBatteryThreshold, res.leftChargingStatus};
-                    self->mDetailsV2.mBatteryR = {res.rightBatteryLevel, res.rightBatteryThreshold, res.rightChargingStatus};
+                    self->mDetailsV2.mBatteryL = {res.leftBatteryLevel, res.leftBatteryThreshold,
+                                                  res.leftChargingStatus};
+                    self->mDetailsV2.mBatteryR = {res.rightBatteryLevel, res.rightBatteryThreshold,
+                                                  res.rightChargingStatus};
                 }
                 return self->Sync(MDR_HEADPHONES_SYNC_BATTERY, MDR_EVENT_BATTERY_CHANGED);
             }
@@ -582,11 +588,16 @@ namespace mdr
         switch (type)
         {
         case BGM_MODE:
-        case BGM_MODE_AND_ERRORCODE: return store(AudioRetCapabilityBGMMode{});
-        case UPMIX_CINEMA: return store(AudioRetCapabilityUpmixCinema{});
-        case VOICE_CONTENTS: return store(AudioRetCapabilityVoiceContents{});
-        case SOUND_LEAKAGE_REDUCTION: return store(AudioRetCapabilitySoundLeakageReduction{});
-        default: return MDR_EVENT_UNHANDLED;
+        case BGM_MODE_AND_ERRORCODE:
+            return store(AudioRetCapabilityBGMMode{});
+        case UPMIX_CINEMA:
+            return store(AudioRetCapabilityUpmixCinema{});
+        case VOICE_CONTENTS:
+            return store(AudioRetCapabilityVoiceContents{});
+        case SOUND_LEAKAGE_REDUCTION:
+            return store(AudioRetCapabilitySoundLeakageReduction{});
+        default:
+            return MDR_EVENT_UNHANDLED;
         }
     }
 
@@ -674,8 +685,7 @@ namespace mdr
         {
         case CONNECTION_MODE:
         {
-            if (self->mDetailsV2.mSupport.contains(
-                t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
             {
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
@@ -773,12 +783,14 @@ namespace mdr
                 if (command == Command::AUDIO_NTFY_PARAM)
                 {
                     Deserialize(AudioNotifyParamSoundLeakageReduction, res, cmd);
-                    self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
+                    self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue ==
+                                                                             OnOffSettingValue::ON);
                 }
                 else
                 {
                     Deserialize(AudioRetParamSoundLeakageReduction, res, cmd);
-                    self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue == OnOffSettingValue::ON);
+                    self->mDetailsV2.mSoundLeakageReductionEnabled.overwrite(res.onOffSettingValue ==
+                                                                             OnOffSettingValue::ON);
                 }
                 return HandleAwakeListeningReply(self, command, type);
             }
@@ -841,7 +853,7 @@ namespace mdr
         case PLAYBACK_CONTROL_BY_WEARING:
         {
             if (self->mDetailsV2.mSupport.contains(
-                t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
+                    t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF))
             {
                 if (command == Command::SYSTEM_NTFY_PARAM)
                 {

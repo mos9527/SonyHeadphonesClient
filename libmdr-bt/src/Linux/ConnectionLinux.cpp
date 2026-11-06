@@ -21,19 +21,16 @@ struct MDRConnectionLinux
     int fd;
 
     MDRConnectionLinux() noexcept :
-        mdrConn({
-            .user = this,
-            .connect = Connect,
-            .disconnect = Disconnect,
-            .recv = Recv,
-            .send = Send,
-            .poll = Poll,
-            .getDevicesList = GetDevicesList,
-            .freeDevicesList = FreeDevicesList,
-            .getLastError = GetLastError
-        }),
-        lastError(""), dbusConn(dbus_open_system_bus()),
-        fd(-1)
+        mdrConn({.user = this,
+                 .connect = Connect,
+                 .disconnect = Disconnect,
+                 .recv = Recv,
+                 .send = Send,
+                 .poll = Poll,
+                 .getDevicesList = GetDevicesList,
+                 .freeDevicesList = FreeDevicesList,
+                 .getLastError = GetLastError}),
+        lastError(""), dbusConn(dbus_open_system_bus()), fd(-1)
     {
     }
 
@@ -144,10 +141,7 @@ struct MDRConnectionLinux
             sdp_close(ptr->sdpSession);
             ptr->sdpSession = nullptr;
             // Try to connect now
-            sockaddr_rc addr{
-                .rc_family = AF_BLUETOOTH,
-                .rc_channel = ch
-            };
+            sockaddr_rc addr{.rc_family = AF_BLUETOOTH, .rc_channel = ch};
             str2ba(ptr->macAddress.c_str(), &addr.rc_bdaddr);
             res = connect(ptr->fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
             if (res != 0 && errno != EINPROGRESS)
@@ -211,7 +205,16 @@ struct MDRConnectionLinux
 };
 
 extern "C" {
-MDR_API MDRConnectionLinux* mdrConnectionLinuxCreate() { return mdr::Construct<MDRConnectionLinux>(); }
-MDR_API void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance) { mdr::Destruct(instance); }
-MDR_API MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux* instance) { return &instance->mdrConn; }
+MDR_API MDRConnectionLinux* mdrConnectionLinuxCreate()
+{
+    return mdr::Construct<MDRConnectionLinux>();
+}
+MDR_API void mdrConnectionLinuxDestroy(MDRConnectionLinux* instance)
+{
+    mdr::Destruct(instance);
+}
+MDR_API MDRConnection* mdrConnectionLinuxGet(MDRConnectionLinux* instance)
+{
+    return &instance->mdrConn;
+}
 }

@@ -39,7 +39,7 @@ namespace mdr
      * @brief Unpacks an MDR packet, returning the contained data and outputting the type and sequence number
      **/
     MDRUnpackResult MDRUnpackCommand(Span<const UInt8> packedCommand, MDRBuffer& outData, MDRDataType& outType,
-                           MDRCommandSeqNumber& outSeq) noexcept;
+                                     MDRCommandSeqNumber& outSeq) noexcept;
 } // namespace mdr
 
 #include "Generated/Command.hpp"

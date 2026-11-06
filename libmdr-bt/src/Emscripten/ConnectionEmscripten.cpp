@@ -3,6 +3,7 @@
 #include <emscripten.h>
 
 #include "mdr/Protocol.hpp"
+// clang-format off
 EM_JS(void, em_js_init, (void* user), {
     navigator.em_js_user = user;
     navigator.em_js_set_last_error = Module.cwrap('em_js_set_last_error', null, [ 'number', 'string' ]);
@@ -15,6 +16,8 @@ EM_JS(void, em_js_init, (void* user), {
     navigator.em_js_port_reader = null;
     navigator.em_js_port_writer = null;
 });
+// clang-format on
+// clang-format off
 EM_JS(int /* bytes sent */, em_js_send, (const char* src, int size), {
 
     if (navigator.em_js_port_send_promise){
@@ -36,6 +39,8 @@ EM_JS(int /* bytes sent */, em_js_send, (const char* src, int size), {
     navigator.em_js_port_send_promise = async_send();
     return size;
 });
+// clang-format on
+// clang-format off
 EM_JS(int /* bytes read */, em_js_read, (const char* dst, int size), {
 
     if (navigator.em_js_recv_buffer.length == 0 && navigator.em_js_port_recv_promise != null){
@@ -71,6 +76,8 @@ EM_JS(int /* bytes read */, em_js_read, (const char* dst, int size), {
     navigator.em_js_recv_buffer = navigator.em_js_recv_buffer.subarray(size);
     return size;
 });
+// clang-format on
+// clang-format off
 EM_JS(void, em_js_connect, (const char* serviceUUID), {
     async function async_request_port()
     {
@@ -97,9 +104,13 @@ EM_JS(void, em_js_connect, (const char* serviceUUID), {
     }
     navigator.em_js_connect_promise = async_request_port();
 });
+// clang-format on
+// clang-format off
 EM_JS(int, em_js_poll, (), {
     return navigator.em_js_poll_result;
 });
+// clang-format on
+// clang-format off
 EM_JS(void, em_js_disconnect, (), {
     if (navigator.em_js_port != null)
     {
@@ -120,19 +131,21 @@ EM_JS(void, em_js_disconnect, (), {
         console.log('[em_js_disconnect] Disconencting');
     }
 });
+// clang-format on
 struct MDRConnectionEmscripten
 {
     MDRConnection mdrConn;
     mdr::String lastError;
-    MDRConnectionEmscripten() : mdrConn({.user = this,
-                                .connect = Connect,
-                                .disconnect = Disconnect,
-                                .recv = Recv,
-                                .send = Send,
-                                .poll = Poll,
-                                .getDevicesList = GetDevicesList,
-                                .freeDevicesList = FreeDevicesList,
-                                .getLastError = GetLastError})
+    MDRConnectionEmscripten() :
+        mdrConn({.user = this,
+                 .connect = Connect,
+                 .disconnect = Disconnect,
+                 .recv = Recv,
+                 .send = Send,
+                 .poll = Poll,
+                 .getDevicesList = GetDevicesList,
+                 .freeDevicesList = FreeDevicesList,
+                 .getLastError = GetLastError})
     {
         em_js_init(this);
     }
@@ -165,10 +178,7 @@ struct MDRConnectionEmscripten
     }
     static MDRResult GetDevicesList(void*, MDRDeviceInfo** ppList, int* pCount) noexcept
     {
-        static MDRDeviceInfo sInfo{
-            .szDeviceName = "Web Serial API device",
-            .szDeviceMacAddress = "00:00:09:05:02:07"
-        };
+        static MDRDeviceInfo sInfo{.szDeviceName = "Web Serial API device", .szDeviceMacAddress = "00:00:09:05:02:07"};
         *ppList = &sInfo, *pCount = 1;
         return MDR_RESULT_OK;
     }
@@ -183,14 +193,23 @@ struct MDRConnectionEmscripten
         return ptr->lastError.c_str();
     }
 };
-extern "C"{
-    EMSCRIPTEN_KEEPALIVE
-    void em_js_set_last_error(void* user, const char* error)
-    {
-        auto* ptr = static_cast<MDRConnectionEmscripten*>(user);
-        ptr->lastError = error;
-    }
-    MDR_API MDRConnectionEmscripten* mdrConnectionEmscriptenCreate() { return mdr::Construct<MDRConnectionEmscripten>(); }
-    MDR_API MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* p) { return &p->mdrConn; }
-    MDR_API void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p) { mdr::Destruct(p); }
+extern "C" {
+EMSCRIPTEN_KEEPALIVE
+void em_js_set_last_error(void* user, const char* error)
+{
+    auto* ptr = static_cast<MDRConnectionEmscripten*>(user);
+    ptr->lastError = error;
+}
+MDR_API MDRConnectionEmscripten* mdrConnectionEmscriptenCreate()
+{
+    return mdr::Construct<MDRConnectionEmscripten>();
+}
+MDR_API MDRConnection* mdrConnectionEmscriptenGet(MDRConnectionEmscripten* p)
+{
+    return &p->mdrConn;
+}
+MDR_API void mdrConnectionEmscriptenDestroy(MDRConnectionEmscripten* p)
+{
+    mdr::Destruct(p);
+}
 }
