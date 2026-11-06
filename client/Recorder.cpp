@@ -4,8 +4,8 @@
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_time.h>
 #include <mdr/Command.hpp>
-#include <mdr/ProtocolV2T1.hpp>
-#include <mdr/ProtocolV2T2.hpp>
+#include <mdr/Generated/ProtocolV2T1.hpp>
+#include <mdr/Generated/ProtocolV2T2.hpp>
 
 #include <string_view>
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "Protocol.hpp"
+#include "../Protocol.hpp"
 
 // Generated from Sound Connect iOS J2ObjC metadata. Do not edit by hand.
 namespace mdr::v1
@@ -59,4 +59,4 @@ namespace mdr::v1
     };
 } // namespace mdr::v1
 
-#include "Generated/ProtocolV1Enum.hpp"
+#include "ProtocolV1Enum.hpp"

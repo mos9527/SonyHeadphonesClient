@@ -1,4 +1,4 @@
-#include <mdr/ProtocolV1T2.hpp>
+#include <mdr/Generated/ProtocolV1T2.hpp>
 
 namespace mdr::v1::t2
 {

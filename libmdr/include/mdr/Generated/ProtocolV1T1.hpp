@@ -5400,5 +5400,5 @@ namespace mdr::v1::t1
 
 #pragma pack(pop)
 
-#include "Generated/ProtocolV1T1Enum.hpp"
-#include "Generated/ProtocolV1T1Traits.hpp"
+#include "ProtocolV1T1Enum.hpp"
+#include "ProtocolV1T1Traits.hpp"

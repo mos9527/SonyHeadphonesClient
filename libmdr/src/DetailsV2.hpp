@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include <mdr/ProtocolV2T1.hpp>
-#include <mdr/ProtocolV2T2.hpp>
+#include <mdr/Generated/ProtocolV2T1.hpp>
+#include <mdr/Generated/ProtocolV2T2.hpp>
 
 #include "Property.hpp"
 

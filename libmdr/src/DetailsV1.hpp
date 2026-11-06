@@ -1,7 +1,7 @@
 #pragma once
 
-#include <mdr/ProtocolV1T1.hpp>
-#include <mdr/ProtocolV1T2.hpp>
+#include <mdr/Generated/ProtocolV1T1.hpp>
+#include <mdr/Generated/ProtocolV1T2.hpp>
 
 #include "Property.hpp"
 

@@ -835,5 +835,5 @@ namespace mdr::v1::t2
 
 #pragma pack(pop)
 
-#include "Generated/ProtocolV1T2Enum.hpp"
-#include "Generated/ProtocolV1T2Traits.hpp"
+#include "ProtocolV1T2Enum.hpp"
+#include "ProtocolV1T2Traits.hpp"
