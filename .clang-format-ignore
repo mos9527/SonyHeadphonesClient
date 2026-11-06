@@ -1,0 +1,5 @@
+# NOTE: Generated files go here
+libmdr/include/mdr/Generated/*
+libmdr/src/Generated/*
+client/Generated/*
+client/Fonts/*

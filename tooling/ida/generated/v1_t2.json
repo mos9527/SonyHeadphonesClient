@@ -1,0 +1,5871 @@
+{
+  "binary_fingerprint": "d615ff298e1070328d5704eb54655bebe03ddf7fed512375ac3b388467dfe8f0",
+  "candidates": [
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2ActionType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315840740,
+        4315839608
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2Command",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315785252,
+        4315783500
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2DetailedDataType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315724836,
+        4315723916
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2DownloadServerMethod",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315717780,
+        4315716860
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2FileTransferInMultiConnection",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315847896,
+        4315846764
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetPeripheralCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315820132,
+        4315821624,
+        4315820728,
+        4315820884
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralCapability",
+      "source_addresses": [
+        4315820648,
+        4315820728,
+        4315820884,
+        4315821624,
+        4315822012
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralCapability",
+      "source_addresses": [
+        4315823320,
+        4315823364,
+        4315823408
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetPeripheralParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315833088,
+        4315834580,
+        4315833684,
+        4315833840
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralParam",
+      "source_addresses": [
+        4315833604,
+        4315833684,
+        4315833840,
+        4315834580,
+        4315834964
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralParam",
+      "source_addresses": [
+        4315836076,
+        4315836120,
+        4315836164
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315795088,
+        4315796580,
+        4315795684,
+        4315795840
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralStatus",
+      "source_addresses": [
+        4315795604,
+        4315795684,
+        4315795840,
+        4315796580,
+        4315796968
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetPeripheralStatus",
+      "source_addresses": [
+        4315798276,
+        4315798320,
+        4315798364
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315667044,
+        4315669164,
+        4315668168,
+        4315668744
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceCapability",
+      "source_addresses": [
+        4315668088,
+        4315668168,
+        4315668744,
+        4315669164,
+        4315669552
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceCapability",
+      "source_addresses": [
+        4315670860,
+        4315670904,
+        4315670948
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315772216,
+        4315774336,
+        4315773216,
+        4315773916
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceParam",
+      "source_addresses": [
+        4315773136,
+        4315773216,
+        4315773916,
+        4315774336,
+        4315774788
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceParam",
+      "source_addresses": [
+        4315776204,
+        4315776248,
+        4315776292
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315679080,
+        4315681004,
+        4315679884,
+        4315680584
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceStatus",
+      "source_addresses": [
+        4315679804,
+        4315679884,
+        4315680584,
+        4315681004,
+        4315681456
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2GetVoiceGuidanceStatus",
+      "source_addresses": [
+        4315682872,
+        4315682916,
+        4315682960
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315798872,
+        4315800288,
+        4315799468,
+        4315799808
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315852420,
+        4315853820,
+        4315853016,
+        4315853332
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315883640,
+        4315885068,
+        4315884444,
+        4315884600
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "source_addresses": [
+        4315884364,
+        4315884444,
+        4315884600,
+        4315885068,
+        4315885716
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        4315852936,
+        4315853016,
+        4315853332,
+        4315853820,
+        4315854044
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParam",
+      "source_addresses": [
+        4315799388,
+        4315799468,
+        4315799808,
+        4315800288,
+        4315800508
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralExParam",
+      "source_addresses": [
+        4315801816,
+        4315801860,
+        4315801904
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315816660,
+        4315818076,
+        4315817256,
+        4315817596
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315867420,
+        4315871152,
+        4315869388,
+        4315869544
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_1",
+      "reason": "non-wire class with no recoverable serialized fields",
+      "source_addresses": [
+        4315868708,
+        4315868752,
+        4315868908,
+        4315868948,
+        4315868996,
+        4315869052,
+        4315869100,
+        4315869148,
+        4315869196,
+        4315869244
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        4315869308,
+        4315869388,
+        4315869544,
+        4315871152,
+        4315872744
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralParam",
+      "source_addresses": [
+        4315817176,
+        4315817256,
+        4315817596,
+        4315818076,
+        4315818296
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralParam",
+      "source_addresses": [
+        4315819604,
+        4315819648,
+        4315819692
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315813120,
+        4315814536,
+        4315813716,
+        4315814056
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315788228,
+        4315790176,
+        4315789032,
+        4315789188
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        4315788952,
+        4315789032,
+        4315789188,
+        4315790176,
+        4315790628
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralStatus",
+      "source_addresses": [
+        4315813636,
+        4315813716,
+        4315814056,
+        4315814536,
+        4315814756
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyPeripheralStatus",
+      "source_addresses": [
+        4315816064,
+        4315816108,
+        4315816152
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315674876,
+        4315676496,
+        4315675256,
+        4315676072
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315760648,
+        4315762280,
+        4315761244,
+        4315761684
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff",
+      "source_addresses": [
+        4315761164,
+        4315761244,
+        4315761684,
+        4315762280,
+        4315762676,
+        4315763924
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceParam",
+      "source_addresses": [
+        4315675176,
+        4315675256,
+        4315676072,
+        4315676496,
+        4315676716,
+        4315676760
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceParam",
+      "source_addresses": [
+        4315678336,
+        4315678380,
+        4315678424
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315731280,
+        4315732808,
+        4315731660,
+        4315732384
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315764692,
+        4315766196,
+        4315765444,
+        4315765600
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage",
+      "source_addresses": [
+        4315765364,
+        4315765444,
+        4315765600,
+        4315766196,
+        4315766592,
+        4315767840
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315735416,
+        4315736764,
+        4315736012,
+        4315736168
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff",
+      "source_addresses": [
+        4315735932,
+        4315736012,
+        4315736168,
+        4315736764,
+        4315737160,
+        4315738408
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatus",
+      "source_addresses": [
+        4315731580,
+        4315731660,
+        4315732384,
+        4315732808,
+        4315733028,
+        4315733072
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2NotifyVoiceGuidanceStatus",
+      "source_addresses": [
+        4315734648,
+        4315734692,
+        4315734736
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T2Payload",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        4315778448,
+        4315779464,
+        4315779044,
+        4315779372
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2Payload_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2Payload",
+      "source_addresses": [
+        4315778976,
+        4315779044,
+        4315779372,
+        4315779464,
+        4315779572
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2PeripheralBluetoothModeStatus",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315842600,
+        4315841484
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2PeripheralDetailDataType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315844412,
+        4315843280
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T2PeripheralDeviceInfo",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        4315793232
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2PeripheralInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315846088,
+        4315844972
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RawPayload",
+      "reason": "non-wire class with no recoverable serialized fields",
+      "source_addresses": [
+        4315776464,
+        4315776560
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RawPayload_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RawPayload",
+      "source_addresses": [
+        4315776928,
+        4315777008,
+        4315777096,
+        4315777184
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2ResultType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315837980,
+        4315836848
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315848880,
+        4315850296,
+        4315849476,
+        4315849816
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315861540,
+        4315862900,
+        4315862316,
+        4315862472
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        4315862236,
+        4315862316,
+        4315862472,
+        4315862900,
+        4315863456
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralCapability",
+      "source_addresses": [
+        4315849396,
+        4315849476,
+        4315849816,
+        4315850296,
+        4315850516
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralCapability",
+      "source_addresses": [
+        4315851824,
+        4315851868,
+        4315851912
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315809580,
+        4315810996,
+        4315810176,
+        4315810516
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315826152,
+        4315829884,
+        4315828120,
+        4315828276
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_1",
+      "reason": "non-wire class with no recoverable serialized fields",
+      "source_addresses": [
+        4315827440,
+        4315827484,
+        4315827640,
+        4315827680,
+        4315827728,
+        4315827784,
+        4315827832,
+        4315827880,
+        4315827928,
+        4315827976
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        4315828040,
+        4315828120,
+        4315828276,
+        4315829884,
+        4315831476
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralParam",
+      "source_addresses": [
+        4315810096,
+        4315810176,
+        4315810516,
+        4315810996,
+        4315811216
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralParam",
+      "source_addresses": [
+        4315812524,
+        4315812568,
+        4315812612
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315874788,
+        4315877380,
+        4315875956,
+        4315876112
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralStatus",
+      "source_addresses": [
+        4315875876,
+        4315875956,
+        4315876112,
+        4315877380,
+        4315877896
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetPeripheralStatus",
+      "source_addresses": [
+        4315879432,
+        4315879476,
+        4315879520
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315696140,
+        4315699372,
+        4315697516,
+        4315697672
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceCapability",
+      "source_addresses": [
+        4315697436,
+        4315697516,
+        4315697672,
+        4315699372,
+        4315700824
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceCapability",
+      "source_addresses": [
+        4315702480,
+        4315702524,
+        4315702568
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315749568,
+        4315751288,
+        4315749948,
+        4315750864
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315685172,
+        4315691884,
+        4315688864,
+        4315689020
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic",
+      "source_addresses": [
+        4315688784,
+        4315688864,
+        4315689020,
+        4315691884,
+        4315693044,
+        4315694640
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation",
+      "reason": "serialized field helper",
+      "source_addresses": [
+        4315687328
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315738980,
+        4315740208,
+        4315739672,
+        4315739828
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingLanguage",
+      "source_addresses": [
+        4315739592,
+        4315739672,
+        4315739828,
+        4315740208,
+        4315740640,
+        4315741888
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315671432,
+        4315672748,
+        4315671928,
+        4315672368
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingOnOff",
+      "source_addresses": [
+        4315671848,
+        4315671928,
+        4315672368,
+        4315672748,
+        4315673180,
+        4315674428
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315742484,
+        4315743920,
+        4315742980,
+        4315743540
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime",
+      "source_addresses": [
+        4315742900,
+        4315742980,
+        4315743540,
+        4315743920,
+        4315744324,
+        4315745316
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315657028,
+        4315657524,
+        4315657928
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315757224,
+        4315758196,
+        4315757380,
+        4315758016
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr",
+      "source_addresses": [
+        4315757300,
+        4315757380,
+        4315758016,
+        4315758196,
+        4315758700,
+        4315760032
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315726524,
+        4315728864,
+        4315727220,
+        4315728196
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk",
+      "source_addresses": [
+        4315727140,
+        4315727220,
+        4315728196,
+        4315728864,
+        4315729388,
+        4315730832
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod",
+      "source_addresses": [
+        4315657444,
+        4315657524,
+        4315657928,
+        4315658308,
+        4315659092
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParam",
+      "source_addresses": [
+        4315749868,
+        4315749948,
+        4315750864,
+        4315751288,
+        4315751508,
+        4315751552
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceParam",
+      "source_addresses": [
+        4315752872,
+        4315752916,
+        4315752960
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315768288,
+        4315769888,
+        4315768668,
+        4315769464
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315653460,
+        4315654708,
+        4315653956,
+        4315654112
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatusSettingLanguage",
+      "source_addresses": [
+        4315653876,
+        4315653956,
+        4315654112,
+        4315654708,
+        4315655140,
+        4315656388
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315703204,
+        4315704452,
+        4315703700,
+        4315703856
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatusSettingOnOff",
+      "source_addresses": [
+        4315703620,
+        4315703700,
+        4315703856,
+        4315704452,
+        4315704884,
+        4315706132
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatus",
+      "source_addresses": [
+        4315768588,
+        4315768668,
+        4315769464,
+        4315769888,
+        4315770108,
+        4315770152
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2RetVoiceGuidanceStatus",
+      "source_addresses": [
+        4315771472,
+        4315771516,
+        4315771560
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralExParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315880028,
+        4315881444,
+        4315880624,
+        4315880964
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315802412,
+        4315803812,
+        4315803008,
+        4315803324
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315805752,
+        4315807180,
+        4315806556,
+        4315806712
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "source_addresses": [
+        4315806476,
+        4315806556,
+        4315806712,
+        4315807180,
+        4315807828
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+      "source_addresses": [
+        4315802928,
+        4315803008,
+        4315803324,
+        4315803812,
+        4315804036
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParam",
+      "source_addresses": [
+        4315880544,
+        4315880624,
+        4315880964,
+        4315881444,
+        4315881664
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralExParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralExParam",
+      "source_addresses": [
+        4315882972,
+        4315883016,
+        4315883060
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetPeripheralStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315856052,
+        4315858488,
+        4315857064,
+        4315857220
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralStatus",
+      "source_addresses": [
+        4315856984,
+        4315857064,
+        4315857220,
+        4315858488,
+        4315859000
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetPeripheralStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetPeripheralStatus",
+      "source_addresses": [
+        4315860536,
+        4315860580,
+        4315860624
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315753276,
+        4315754896,
+        4315753656,
+        4315754472
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParamSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315663152,
+        4315664784,
+        4315663816,
+        4315664188
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceParamSettingOnOff",
+      "source_addresses": [
+        4315663736,
+        4315663816,
+        4315664188,
+        4315664784,
+        4315665180,
+        4315666428
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceParam",
+      "source_addresses": [
+        4315753576,
+        4315753656,
+        4315754472,
+        4315754896,
+        4315755116,
+        4315755160
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceParam",
+      "source_addresses": [
+        4315756480,
+        4315756524,
+        4315756568
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315659468,
+        4315660996,
+        4315659848,
+        4315660572
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingLanguage",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315746128,
+        4315747476,
+        4315746792,
+        4315746880
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatusSettingLanguage",
+      "source_addresses": [
+        4315746712,
+        4315746792,
+        4315746880,
+        4315747476,
+        4315747872,
+        4315749120
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingOnOff",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315706944,
+        4315708292,
+        4315707608,
+        4315707696
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatusSettingOnOff",
+      "source_addresses": [
+        4315707528,
+        4315707608,
+        4315707696,
+        4315708292,
+        4315708688,
+        4315709936
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatus",
+      "source_addresses": [
+        4315659768,
+        4315659848,
+        4315660572,
+        4315660996,
+        4315661216,
+        4315661260
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus_Factory_LazyHolder",
+      "reason": "serializer/parser factory for THMSGV1T2SetVoiceGuidanceStatus",
+      "source_addresses": [
+        4315662580,
+        4315662624,
+        4315662668
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2StatusType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315711256,
+        4315710336
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2SupportsSwitch",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315714584,
+        4315713664
+      ]
+    },
+    {
+      "classification": "payload",
+      "objc_name": "THMSGV1T2UnknownCommand",
+      "reason": "command-bearing serialized payload",
+      "source_addresses": [
+        4315780932,
+        4315781288,
+        4315781056,
+        4315781212
+      ]
+    },
+    {
+      "classification": "alias",
+      "objc_name": "THMSGV1T2UnknownCommand_Factory",
+      "reason": "serializer/parser factory for THMSGV1T2UnknownCommand",
+      "source_addresses": [
+        4315780976,
+        4315781056,
+        4315781212,
+        4315781288,
+        4315781572,
+        4315782564
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2VoiceGuidanceInquiredType",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315716216,
+        4315715296
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2VoiceGuidanceLanguage",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315721120,
+        4315719256
+      ]
+    },
+    {
+      "classification": "enum",
+      "objc_name": "THMSGV1T2VoiceGuidanceSettingValue",
+      "reason": "byteCode accessor and translated enum initializer",
+      "source_addresses": [
+        4315712920,
+        4315712000
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "cpp_name": "ActionType",
+      "objc_name": "THMSGV1T2ActionType",
+      "sources": [
+        {
+          "address": 4315840740,
+          "symbol": "+[THMSGV1T2ActionType initialize]"
+        },
+        {
+          "address": 4315839608,
+          "symbol": "-[THMSGV1T2ActionType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "DISCONNECT",
+          "source_address": 4315840916,
+          "value": 0
+        },
+        {
+          "name": "CONNECT",
+          "source_address": 4315840992,
+          "value": 1
+        },
+        {
+          "name": "UNPAIR",
+          "source_address": 4315841060,
+          "value": 2
+        }
+      ]
+    },
+    {
+      "cpp_name": "Command",
+      "objc_name": "THMSGV1T2Command",
+      "sources": [
+        {
+          "address": 4315785252,
+          "symbol": "+[THMSGV1T2Command initialize]"
+        },
+        {
+          "address": 4315783500,
+          "symbol": "-[THMSGV1T2Command byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "PERIPHERAL_GET_CAPABILITY",
+          "source_address": 4315785448,
+          "value": 48
+        },
+        {
+          "name": "PERIPHERAL_RET_CAPABILITY",
+          "source_address": 4315785532,
+          "value": 49
+        },
+        {
+          "name": "PERIPHERAL_GET_STATUS",
+          "source_address": 4315785616,
+          "value": 50
+        },
+        {
+          "name": "PERIPHERAL_RET_STATUS",
+          "source_address": 4315785700,
+          "value": 51
+        },
+        {
+          "name": "PERIPHERAL_SET_STATUS",
+          "source_address": 4315785784,
+          "value": 52
+        },
+        {
+          "name": "PERIPHERAL_NTFY_STATUS",
+          "source_address": 4315785868,
+          "value": 53
+        },
+        {
+          "name": "PERIPHERAL_GET_PARAM",
+          "source_address": 4315785952,
+          "value": 54
+        },
+        {
+          "name": "PERIPHERAL_RET_PARAM",
+          "source_address": 4315786036,
+          "value": 55
+        },
+        {
+          "name": "PERIPHERAL_NTFY_PARAM",
+          "source_address": 4315786120,
+          "value": 57
+        },
+        {
+          "name": "PERIPHERAL_SET_EX_PARAM",
+          "source_address": 4315786204,
+          "value": 60
+        },
+        {
+          "name": "PERIPHERAL_NTFY_EX_PARAM",
+          "source_address": 4315786288,
+          "value": 61
+        },
+        {
+          "name": "VOICE_GUIDANCE_GET_CAPABILITY",
+          "source_address": 4315786372,
+          "value": 64
+        },
+        {
+          "name": "VOICE_GUIDANCE_RET_CAPABILITY",
+          "source_address": 4315786456,
+          "value": 65
+        },
+        {
+          "name": "VOICE_GUIDANCE_GET_STATUS",
+          "source_address": 4315786540,
+          "value": 66
+        },
+        {
+          "name": "VOICE_GUIDANCE_RET_STATUS",
+          "source_address": 4315786624,
+          "value": 67
+        },
+        {
+          "name": "VOICE_GUIDANCE_SET_STATUS",
+          "source_address": 4315786708,
+          "value": 68
+        },
+        {
+          "name": "VOICE_GUIDANCE_NTFY_STATUS",
+          "source_address": 4315786792,
+          "value": 69
+        },
+        {
+          "name": "VOICE_GUIDANCE_GET_PARAM",
+          "source_address": 4315786876,
+          "value": 70
+        },
+        {
+          "name": "VOICE_GUIDANCE_RET_PARAM",
+          "source_address": 4315786960,
+          "value": 71
+        },
+        {
+          "name": "VOICE_GUIDANCE_SET_PARAM",
+          "source_address": 4315787044,
+          "value": 72
+        },
+        {
+          "name": "VOICE_GUIDANCE_NTFY_PARAM",
+          "source_address": 4315787128,
+          "value": 73
+        },
+        {
+          "name": "UNKNOWN",
+          "source_address": 4315787212,
+          "value": 255
+        }
+      ]
+    },
+    {
+      "cpp_name": "CommonStatus",
+      "objc_name": "THMCommonStatus",
+      "sources": [
+        {
+          "address": 4320375884,
+          "symbol": "+[THMCommonStatus initialize]"
+        },
+        {
+          "address": 4320374316,
+          "symbol": "-[THMCommonStatus byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "ENABLE",
+          "source_address": 4320376060,
+          "value": 0
+        },
+        {
+          "name": "DISABLE",
+          "source_address": 4320376136,
+          "value": 1
+        },
+        {
+          "name": "OUT_OF_RANGE",
+          "source_address": 4320376204,
+          "value": 255
+        }
+      ]
+    },
+    {
+      "cpp_name": "DetailedDataType",
+      "objc_name": "THMSGV1T2DetailedDataType",
+      "sources": [
+        {
+          "address": 4315724836,
+          "symbol": "+[THMSGV1T2DetailedDataType initialize]"
+        },
+        {
+          "address": 4315723916,
+          "symbol": "-[THMSGV1T2DetailedDataType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NO_USE",
+          "source_address": 4315725012,
+          "value": 0
+        },
+        {
+          "name": "ON_OFF",
+          "source_address": 4315725088,
+          "value": 1
+        },
+        {
+          "name": "LANGUAGE",
+          "source_address": 4315725156,
+          "value": 2
+        },
+        {
+          "name": "REQUIRED_TIME",
+          "source_address": 4315725224,
+          "value": 3
+        },
+        {
+          "name": "DOWNLOAD_SERVER_METHOD",
+          "source_address": 4315725292,
+          "value": 4
+        },
+        {
+          "name": "UPDATE_METHOD",
+          "source_address": 4315725360,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "cpp_name": "DownloadServerMethod",
+      "objc_name": "THMSGV1T2DownloadServerMethod",
+      "sources": [
+        {
+          "address": 4315717780,
+          "symbol": "+[THMSGV1T2DownloadServerMethod initialize]"
+        },
+        {
+          "address": 4315716860,
+          "symbol": "-[THMSGV1T2DownloadServerMethod byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NO_USE",
+          "source_address": 4315717956,
+          "value": 0
+        },
+        {
+          "name": "AUTOMAGIC",
+          "source_address": 4315718032,
+          "value": 1
+        }
+      ]
+    },
+    {
+      "cpp_name": "FileTransferInMultiConnection",
+      "objc_name": "THMSGV1T2FileTransferInMultiConnection",
+      "sources": [
+        {
+          "address": 4315847896,
+          "symbol": "+[THMSGV1T2FileTransferInMultiConnection initialize]"
+        },
+        {
+          "address": 4315846764,
+          "symbol": "-[THMSGV1T2FileTransferInMultiConnection getByteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "POSSIBLE",
+          "source_address": 4315848072,
+          "value": 0
+        },
+        {
+          "name": "IMPOSSIBLE",
+          "source_address": 4315848148,
+          "value": 1
+        },
+        {
+          "name": "OUT_OF_RANGE",
+          "source_address": 4315848216,
+          "value": 255
+        }
+      ]
+    },
+    {
+      "cpp_name": "PeripheralBluetoothModeStatus",
+      "objc_name": "THMSGV1T2PeripheralBluetoothModeStatus",
+      "sources": [
+        {
+          "address": 4315842600,
+          "symbol": "+[THMSGV1T2PeripheralBluetoothModeStatus initialize]"
+        },
+        {
+          "address": 4315841484,
+          "symbol": "-[THMSGV1T2PeripheralBluetoothModeStatus getByteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NORMAL_MODE",
+          "source_address": 4315842776,
+          "value": 0
+        },
+        {
+          "name": "INQUIRY_SCAN_MODE",
+          "source_address": 4315842852,
+          "value": 1
+        },
+        {
+          "name": "OUT_OF_RANGE",
+          "source_address": 4315842920,
+          "value": 255
+        }
+      ]
+    },
+    {
+      "cpp_name": "PeripheralDetailDataType",
+      "objc_name": "THMSGV1T2PeripheralDetailDataType",
+      "sources": [
+        {
+          "address": 4315844412,
+          "symbol": "+[THMSGV1T2PeripheralDetailDataType initialize]"
+        },
+        {
+          "address": 4315843280,
+          "symbol": "-[THMSGV1T2PeripheralDetailDataType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "CONNECTION_CONTROL",
+          "source_address": 4315844580,
+          "value": 0
+        }
+      ]
+    },
+    {
+      "cpp_name": "PeripheralInquiredType",
+      "objc_name": "THMSGV1T2PeripheralInquiredType",
+      "sources": [
+        {
+          "address": 4315846088,
+          "symbol": "+[THMSGV1T2PeripheralInquiredType initialize]"
+        },
+        {
+          "address": 4315844972,
+          "symbol": "-[THMSGV1T2PeripheralInquiredType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NO_USE",
+          "source_address": 4315846264,
+          "value": 0
+        },
+        {
+          "name": "PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "source_address": 4315846340,
+          "value": 1
+        }
+      ]
+    },
+    {
+      "cpp_name": "ResultType",
+      "objc_name": "THMSGV1T2ResultType",
+      "sources": [
+        {
+          "address": 4315837980,
+          "symbol": "+[THMSGV1T2ResultType initialize]"
+        },
+        {
+          "address": 4315836848,
+          "symbol": "-[THMSGV1T2ResultType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "DISCONNECTION_SUCCESS",
+          "source_address": 4315838156,
+          "value": 0
+        },
+        {
+          "name": "DISCONNECTION_ERROR",
+          "source_address": 4315838232,
+          "value": 1
+        },
+        {
+          "name": "DISCONNECTION_IN_PROGRESS",
+          "source_address": 4315838300,
+          "value": 2
+        },
+        {
+          "name": "DISCONNECTION_BUSY",
+          "source_address": 4315838368,
+          "value": 3
+        },
+        {
+          "name": "CONNECTION_SUCCESS",
+          "source_address": 4315838436,
+          "value": 16
+        },
+        {
+          "name": "CONNECTION_ERROR",
+          "source_address": 4315838504,
+          "value": 17
+        },
+        {
+          "name": "CONNECTION_IN_PROGRESS",
+          "source_address": 4315838572,
+          "value": 18
+        },
+        {
+          "name": "CONNECTION_BUSY",
+          "source_address": 4315838640,
+          "value": 19
+        },
+        {
+          "name": "UNPAIRING_SUCCESS",
+          "source_address": 4315838708,
+          "value": 32
+        },
+        {
+          "name": "UNPAIRING_ERROR",
+          "source_address": 4315838776,
+          "value": 33
+        },
+        {
+          "name": "UNPAIRING_IN_PROGRESS",
+          "source_address": 4315838844,
+          "value": 34
+        },
+        {
+          "name": "UNPAIRING_BUSY",
+          "source_address": 4315838912,
+          "value": 35
+        },
+        {
+          "name": "PAIRING_SUCCESS",
+          "source_address": 4315838980,
+          "value": 48
+        },
+        {
+          "name": "PAIRING_ERROR",
+          "source_address": 4315839048,
+          "value": 49
+        },
+        {
+          "name": "PAIRING_IN_PROGRESS",
+          "source_address": 4315839116,
+          "value": 50
+        },
+        {
+          "name": "PAIRING_BUSY",
+          "source_address": 4315839184,
+          "value": 51
+        }
+      ]
+    },
+    {
+      "cpp_name": "StatusType",
+      "objc_name": "THMSGV1T2StatusType",
+      "sources": [
+        {
+          "address": 4315711256,
+          "symbol": "+[THMSGV1T2StatusType initialize]"
+        },
+        {
+          "address": 4315710336,
+          "symbol": "-[THMSGV1T2StatusType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NO_USE",
+          "source_address": 4315711432,
+          "value": 0
+        },
+        {
+          "name": "ON_OFF",
+          "source_address": 4315711508,
+          "value": 1
+        },
+        {
+          "name": "LANGUAGE",
+          "source_address": 4315711576,
+          "value": 2
+        }
+      ]
+    },
+    {
+      "cpp_name": "SupportsSwitch",
+      "objc_name": "THMSGV1T2SupportsSwitch",
+      "sources": [
+        {
+          "address": 4315714584,
+          "symbol": "+[THMSGV1T2SupportsSwitch initialize]"
+        },
+        {
+          "address": 4315713664,
+          "symbol": "-[THMSGV1T2SupportsSwitch byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NOT_SUPPORT",
+          "source_address": 4315714760,
+          "value": 0
+        },
+        {
+          "name": "SUPPORT",
+          "source_address": 4315714836,
+          "value": 1
+        },
+        {
+          "name": "OUT_OF_RANGE",
+          "source_address": 4315714904,
+          "value": 255
+        }
+      ]
+    },
+    {
+      "cpp_name": "UpdateMethod",
+      "objc_name": "THMUpdateMethod",
+      "sources": [
+        {
+          "address": 4320371500,
+          "symbol": "+[THMUpdateMethod initialize]"
+        },
+        {
+          "address": 4320369588,
+          "symbol": "-[THMUpdateMethod byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "TANDEM_METHOD",
+          "source_address": 4320371676,
+          "value": 0
+        },
+        {
+          "name": "CSR_METHOD",
+          "source_address": 4320371744,
+          "value": 16
+        },
+        {
+          "name": "CSR_RESUMABLE_METHOD",
+          "source_address": 4320371812,
+          "value": 17
+        },
+        {
+          "name": "CSR_TWS_METHOD",
+          "source_address": 4320371880,
+          "value": 18
+        },
+        {
+          "name": "CSR_TWS_RESUMABLE_METHOD",
+          "source_address": 4320371948,
+          "value": 19
+        },
+        {
+          "name": "MTK_METHOD",
+          "source_address": 4320372016,
+          "value": 32
+        },
+        {
+          "name": "MTK_RESUMABLE_METHOD",
+          "source_address": 4320372084,
+          "value": 33
+        },
+        {
+          "name": "MTK_TWS_RESUMABLE_METHOD",
+          "source_address": 4320372152,
+          "value": 35
+        },
+        {
+          "name": "MTK_BACKGROUND_RESUMABLE_METHOD",
+          "source_address": 4320372220,
+          "value": 37
+        },
+        {
+          "name": "MTK_TWS_BACKGROUND_RESUMABLE_METHOD",
+          "source_address": 4320372288,
+          "value": 39
+        }
+      ]
+    },
+    {
+      "cpp_name": "VoiceGuidanceInquiredType",
+      "objc_name": "THMSGV1T2VoiceGuidanceInquiredType",
+      "sources": [
+        {
+          "address": 4315716216,
+          "symbol": "+[THMSGV1T2VoiceGuidanceInquiredType initialize]"
+        },
+        {
+          "address": 4315715296,
+          "symbol": "-[THMSGV1T2VoiceGuidanceInquiredType byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "NO_USE",
+          "source_address": 4315716392,
+          "value": 0
+        },
+        {
+          "name": "VOICE_GUIDANCE_SETTING",
+          "source_address": 4315716468,
+          "value": 1
+        }
+      ]
+    },
+    {
+      "cpp_name": "VoiceGuidanceLanguage",
+      "objc_name": "THMSGV1T2VoiceGuidanceLanguage",
+      "sources": [
+        {
+          "address": 4315721120,
+          "symbol": "+[THMSGV1T2VoiceGuidanceLanguage initialize]"
+        },
+        {
+          "address": 4315719256,
+          "symbol": "-[THMSGV1T2VoiceGuidanceLanguage byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "UNDEFINED_LANGUAGE",
+          "source_address": 4315721356,
+          "value": 0
+        },
+        {
+          "name": "ENGLISH",
+          "source_address": 4315721492,
+          "value": 1
+        },
+        {
+          "name": "FRENCH",
+          "source_address": 4315721628,
+          "value": 2
+        },
+        {
+          "name": "GERMAN",
+          "source_address": 4315721764,
+          "value": 3
+        },
+        {
+          "name": "SPANISH",
+          "source_address": 4315721900,
+          "value": 4
+        },
+        {
+          "name": "ITALIAN",
+          "source_address": 4315722036,
+          "value": 5
+        },
+        {
+          "name": "PORTUGUESE",
+          "source_address": 4315722172,
+          "value": 6
+        },
+        {
+          "name": "DUTCH",
+          "source_address": 4315722308,
+          "value": 7
+        },
+        {
+          "name": "SWEDISH",
+          "source_address": 4315722444,
+          "value": 8
+        },
+        {
+          "name": "FINNISH",
+          "source_address": 4315722580,
+          "value": 9
+        },
+        {
+          "name": "RUSSIAN",
+          "source_address": 4315722716,
+          "value": 10
+        },
+        {
+          "name": "JAPANESE",
+          "source_address": 4315722852,
+          "value": 11
+        },
+        {
+          "name": "BRAZILIAN_PORTUGUESE",
+          "source_address": 4315722988,
+          "value": 12
+        },
+        {
+          "name": "KOREAN",
+          "source_address": 4315723124,
+          "value": 13
+        },
+        {
+          "name": "TURKISH",
+          "source_address": 4315723260,
+          "value": 14
+        },
+        {
+          "name": "CHINESE",
+          "source_address": 4315723396,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "cpp_name": "VoiceGuidanceSettingValue",
+      "objc_name": "THMSGV1T2VoiceGuidanceSettingValue",
+      "sources": [
+        {
+          "address": 4315712920,
+          "symbol": "+[THMSGV1T2VoiceGuidanceSettingValue initialize]"
+        },
+        {
+          "address": 4315712000,
+          "symbol": "-[THMSGV1T2VoiceGuidanceSettingValue byteCode]"
+        }
+      ],
+      "values": [
+        {
+          "name": "OFF",
+          "source_address": 4315713096,
+          "value": 0
+        },
+        {
+          "name": "ON",
+          "source_address": 4315713172,
+          "value": 1
+        },
+        {
+          "name": "OUT_OF_RANGE",
+          "source_address": 4315713240,
+          "value": 255
+        }
+      ]
+    }
+  ],
+  "namespace": "mdr::v1::t2",
+  "payloads": [
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_GET_CAPABILITY",
+      "cpp_name": "GetPeripheralCapability",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E2F8C getInquiredType reads bytes 1..1",
+        "0x103148EA8 THMSGV1T2GetPeripheralCapability.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetPeripheralCapability_Factory parseBytesWithByteArray:]"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_GET_CAPABILITY",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_GET_CAPABILITY"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2GetPeripheralCapability",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315820132,
+          "symbol": "+[THMSGV1T2GetPeripheralCapability __metadata]"
+        },
+        {
+          "address": 4315821624,
+          "symbol": "-[THMSGV1T2GetPeripheralCapability_Factory valueOfWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315820728,
+          "symbol": "-[THMSGV1T2GetPeripheralCapability_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315820884,
+          "symbol": "-[THMSGV1T2GetPeripheralCapability_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_GET_PARAM",
+      "cpp_name": "GetPeripheralParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E6228 getInquiredType reads bytes 1..1",
+        "0x103149188 THMSGV1T2GetPeripheralParam.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2GetPeripheralParam_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_GET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_GET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2GetPeripheralParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315833088,
+          "symbol": "+[THMSGV1T2GetPeripheralParam __metadata]"
+        },
+        {
+          "address": 4315834580,
+          "symbol": "-[THMSGV1T2GetPeripheralParam_Factory valueOfWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315833684,
+          "symbol": "-[THMSGV1T2GetPeripheralParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315833840,
+          "symbol": "-[THMSGV1T2GetPeripheralParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_GET_STATUS",
+      "cpp_name": "GetPeripheralStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013DCDB8 getInquiredType reads bytes 1..1",
+        "0x103148768 THMSGV1T2GetPeripheralStatus.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetPeripheralStatus_Factory parseBytesWithByteArray:]"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_GET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_GET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2GetPeripheralStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315795088,
+          "symbol": "+[THMSGV1T2GetPeripheralStatus __metadata]"
+        },
+        {
+          "address": 4315796580,
+          "symbol": "-[THMSGV1T2GetPeripheralStatus_Factory valueOfWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315795684,
+          "symbol": "-[THMSGV1T2GetPeripheralStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315795840,
+          "symbol": "-[THMSGV1T2GetPeripheralStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_GET_CAPABILITY",
+      "cpp_name": "GetVoiceGuidanceCapability",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013BD98C getInquiredType reads bytes 1..1",
+        "0x1031458B0 THMSGV1T2GetVoiceGuidanceCapability.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2GetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_GET_CAPABILITY",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_GET_CAPABILITY"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2GetVoiceGuidanceCapability",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315667044,
+          "symbol": "+[THMSGV1T2GetVoiceGuidanceCapability __metadata]"
+        },
+        {
+          "address": 4315669164,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceCapability_Factory valueOfWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315668168,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315668744,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceCapability_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_GET_PARAM",
+      "cpp_name": "GetVoiceGuidanceParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013D7388 getInquiredType reads bytes 1..1",
+        "0x1013D7460 getDetailedDataType reads bytes 2..2",
+        "0x103147E40 THMSGV1T2GetVoiceGuidanceParam.INDEX_INQUIRED_TYPE=1",
+        "0x103147E68 THMSGV1T2GetVoiceGuidanceParam.INDEX_DETAILED_DATA_TYPE=2",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;LTHMSGV1T2DetailedDataType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_GET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_GET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::NO_USE",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2GetVoiceGuidanceParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315772216,
+          "symbol": "+[THMSGV1T2GetVoiceGuidanceParam __metadata]"
+        },
+        {
+          "address": 4315774336,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceParam_Factory valueOfWithTHMSGV1T2VoiceGuidanceInquiredType:withTHMSGV1T2DetailedDataType:]"
+        },
+        {
+          "address": 4315773216,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315773916,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_GET_STATUS",
+      "cpp_name": "GetVoiceGuidanceStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013C07B8 getInquiredType reads bytes 1..1",
+        "0x1013C0890 getStatusType reads bytes 2..2",
+        "0x103145C80 THMSGV1T2GetVoiceGuidanceStatus.INDEX_INQUIRED_TYPE=1",
+        "0x103145CA8 THMSGV1T2GetVoiceGuidanceStatus.INDEX_STATUS_TYPE=2",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2GetVoiceGuidanceStatus_Factory parseBytesWithByteArray:]"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;LTHMSGV1T2StatusType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_GET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_GET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::NO_USE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2GetVoiceGuidanceStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315679080,
+          "symbol": "+[THMSGV1T2GetVoiceGuidanceStatus __metadata]"
+        },
+        {
+          "address": 4315681004,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceStatus_Factory valueOfWithTHMSGV1T2VoiceGuidanceInquiredType:withTHMSGV1T2StatusType:]"
+        },
+        {
+          "address": 4315679884,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315680584,
+          "symbol": "-[THMSGV1T2GetVoiceGuidanceStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_EX_PARAM",
+      "cpp_name": "NotifyPeripheralExParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013DDC80 getSettingType reads bytes 1..1",
+        "0x103148878 THMSGV1T2NotifyPeripheralExParam.INDEX_SETTING_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_EX_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_EX_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "settingType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralExParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315798872,
+          "symbol": "+[THMSGV1T2NotifyPeripheralExParam __metadata]"
+        },
+        {
+          "address": 4315800288,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315799468,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315799808,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_EX_PARAM",
+      "cpp_name": "NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013EADAC getDetailType reads bytes 2..2",
+        "-[THMSGV1T2NotifyPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "inherited wire layout from THMSGV1T2NotifyPeripheralExParam"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralDetailDataType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_EX_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_EX_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "name": "settingType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT"
+          ],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralDetailDataType",
+          "default": "PeripheralDetailDataType::CONNECTION_CONTROL",
+          "name": "detailType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralDetailDataType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315852420,
+          "symbol": "+[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt __metadata]"
+        },
+        {
+          "address": 4315853820,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory toStreamWithTHMSGV1T2PeripheralDetailDataType:]"
+        },
+        {
+          "address": 4315853016,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315853332,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_EX_PARAM",
+      "cpp_name": "NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013F2740 getResultType reads bytes 3..3",
+        "0x1013F2818 getBtDeviceAddress reads bytes 4..20",
+        "0x1013F2818 getBtDeviceAddress reads fixed 17-byte slice 4..20",
+        "0x10314A330 THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl.INDEX_RESULT_TYPE=3",
+        "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt_Factory toStreamWithTHMSGV1T2PeripheralDetailDataType:]",
+        "-[THMSGV1T2NotifyPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "writeWithByteArray:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBt",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMSGV1T2ResultType;LNSString;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_EX_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_EX_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralDetailDataType",
+          "default": "PeripheralDetailDataType::CONNECTION_CONTROL",
+          "name": "detailType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralDetailDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "ActionType",
+          "default": "ActionType::DISCONNECT",
+          "name": "actionType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2ActionType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "ResultType",
+          "default": "ResultType::DISCONNECTION_SUCCESS",
+          "name": "resultType",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2ResultType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
+          "name": "btDeviceAddress",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "helper"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315883640,
+          "symbol": "+[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl __metadata]"
+        },
+        {
+          "address": 4315885068,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory valueOfWithTHMSGV1T2ResultType:withNSString:]"
+        },
+        {
+          "address": 4315884444,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315884600,
+          "symbol": "-[THMSGV1T2NotifyPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_PARAM",
+      "cpp_name": "NotifyPeripheralParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E21FC getInquiredType reads bytes 1..1",
+        "0x103148D70 THMSGV1T2NotifyPeripheralParam.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315816660,
+          "symbol": "+[THMSGV1T2NotifyPeripheralParam __metadata]"
+        },
+        {
+          "address": 4315818076,
+          "symbol": "-[THMSGV1T2NotifyPeripheralParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315817256,
+          "symbol": "-[THMSGV1T2NotifyPeripheralParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315817596,
+          "symbol": "-[THMSGV1T2NotifyPeripheralParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_PARAM",
+      "cpp_name": "NotifyPeripheralParamPairingDeviceManagementClassicBt",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013EDF70 getDeviceInfo reads bytes 2..3",
+        "_JreThrowNullPointerException",
+        "_create_JavaLangIllegalArgumentException_initWithNSString_",
+        "_objc_exception_throw",
+        "-[THMSGV1T2NotifyPeripheralParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1025E7078",
+        "_memset",
+        "_objc_enumerationMutation",
+        "writeWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2NotifyPeripheralParam"
+      ],
+      "factory_signature": "(Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/NotifyPeripheralParamPairingDeviceManagementClassicBt;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT"
+          ],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRArray<PeripheralDeviceInfo>",
+          "default": null,
+          "name": "deviceInfo",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;",
+          "wire_kind": "array"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "playbackrightDevice",
+          "offset": null,
+          "semantic_rules": [
+            "Range 0 255"
+          ],
+          "source_type": "I",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315867420,
+          "symbol": "+[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt __metadata]"
+        },
+        {
+          "address": 4315871152,
+          "symbol": "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory valueOfWithJavaUtilList:withInt:]"
+        },
+        {
+          "address": 4315869388,
+          "symbol": "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315869544,
+          "symbol": "-[THMSGV1T2NotifyPeripheralParamPairingDeviceManagementClassicBt_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_STATUS",
+      "cpp_name": "NotifyPeripheralStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E1428 getInquiredType reads bytes 1..1",
+        "0x103148C60 THMSGV1T2NotifyPeripheralStatus.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315813120,
+          "symbol": "+[THMSGV1T2NotifyPeripheralStatus __metadata]"
+        },
+        {
+          "address": 4315814536,
+          "symbol": "-[THMSGV1T2NotifyPeripheralStatus_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315813716,
+          "symbol": "-[THMSGV1T2NotifyPeripheralStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315814056,
+          "symbol": "-[THMSGV1T2NotifyPeripheralStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_NTFY_STATUS",
+      "cpp_name": "NotifyPeripheralStatusPairingDeviceManagementClassicBt",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013DB214 getBluetoothModeStatus reads bytes 2..2",
+        "0x1013DB2EC getStatus reads bytes 3..3",
+        "0x1031485B8 THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt.INDEX_BLUETOOTH_MODE_STATUS=2",
+        "0x1031485E0 THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt.INDEX_STATUS=3",
+        "-[THMSGV1T2NotifyPeripheralStatus_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2NotifyPeripheralStatus"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_NTFY_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_NTFY_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT"
+          ],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralBluetoothModeStatus",
+          "default": "PeripheralBluetoothModeStatus::NORMAL_MODE",
+          "name": "bluetoothModeStatus",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralBluetoothModeStatus;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315788228,
+          "symbol": "+[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt __metadata]"
+        },
+        {
+          "address": 4315790176,
+          "symbol": "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory valueOfWithTHMSGV1T2PeripheralBluetoothModeStatus:withTHMCommonStatus:]"
+        },
+        {
+          "address": 4315789032,
+          "symbol": "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315789188,
+          "symbol": "-[THMSGV1T2NotifyPeripheralStatusPairingDeviceManagementClassicBt_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_NTFY_PARAM",
+      "cpp_name": "NotifyVoiceGuidanceParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315674876,
+          "symbol": "+[THMSGV1T2NotifyVoiceGuidanceParam __metadata]"
+        },
+        {
+          "address": 4315676496,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315675256,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315676072,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_NTFY_PARAM",
+      "cpp_name": "NotifyVoiceGuidanceParamSettingOnOff",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013D4730 getSettingValue reads bytes 3..3",
+        "0x103147AA8 THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff.INDEX_SETTING_VALUE=3",
+        "-[THMSGV1T2NotifyVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_NTFY_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_NTFY_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::ON_OFF",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceSettingValue",
+          "default": "VoiceGuidanceSettingValue::OFF",
+          "name": "settingValue",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2VoiceGuidanceSettingValue;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315760648,
+          "symbol": "+[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff __metadata]"
+        },
+        {
+          "address": 4315762280,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory valueOfWithTHMSGV1T2VoiceGuidanceSettingValue:]"
+        },
+        {
+          "address": 4315761244,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315761684,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceParamSettingOnOff_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_NTFY_STATUS",
+      "cpp_name": "NotifyVoiceGuidanceStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_NTFY_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315731280,
+          "symbol": "+[THMSGV1T2NotifyVoiceGuidanceStatus __metadata]"
+        },
+        {
+          "address": 4315732808,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315731660,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315732384,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_NTFY_STATUS",
+      "cpp_name": "NotifyVoiceGuidanceStatusSettingLanguage",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013D5650 getStatus reads bytes 3..3",
+        "0x103147BC8 THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage.INDEX_STATUS=3",
+        "-[THMSGV1T2NotifyVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_NTFY_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::LANGUAGE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315764692,
+          "symbol": "+[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage __metadata]"
+        },
+        {
+          "address": 4315766196,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory valueOfWithTHMCommonStatus:]"
+        },
+        {
+          "address": 4315765444,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315765600,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingLanguage_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_NTFY_STATUS",
+      "cpp_name": "NotifyVoiceGuidanceStatusSettingOnOff",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013CE3F4 getStatus reads bytes 3..3",
+        "0x103147190 THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff.INDEX_STATUS=3",
+        "-[THMSGV1T2NotifyVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2NotifyVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_NTFY_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_NTFY_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::ON_OFF",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315735416,
+          "symbol": "+[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff __metadata]"
+        },
+        {
+          "address": 4315736764,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory valueOfWithTHMCommonStatus:]"
+        },
+        {
+          "address": 4315736012,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315736168,
+          "symbol": "-[THMSGV1T2NotifyVoiceGuidanceStatusSettingOnOff_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "command": null,
+      "cpp_name": "Payload",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2Command;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_GET_CAPABILITY",
+          "name": "command2",
+          "offset": 0,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2Command;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2Payload",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315778448,
+          "symbol": "+[THMSGV1T2Payload __metadata]"
+        },
+        {
+          "address": 4315779464,
+          "symbol": "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]"
+        },
+        {
+          "address": 4315779044,
+          "symbol": "-[THMSGV1T2Payload_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315779372,
+          "symbol": "-[THMSGV1T2Payload_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "command": null,
+      "cpp_name": "PeripheralDeviceInfo",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "external serializer getter order: btDeviceAddress, connectedStatus, btFriendlyName"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Array<UInt8, 17>",
+          "default": null,
+          "name": "btDeviceAddress",
+          "offset": 0,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "helper"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "connectedStatus",
+          "offset": null,
+          "semantic_rules": [],
+          "source_type": "I",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRPrefixedString",
+          "default": null,
+          "name": "btFriendlyName",
+          "offset": null,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "string"
+        }
+      ],
+      "objc_name": "THMSGV1T2PeripheralDeviceInfo",
+      "parent": null,
+      "parser": null,
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315793232,
+          "symbol": "+[THMSGV1T2PeripheralDeviceInfo __metadata]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_RET_CAPABILITY",
+      "cpp_name": "RetPeripheralCapability",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E9FD8 getInquiredType reads bytes 1..1",
+        "0x103149A28 THMSGV1T2RetPeripheralCapability.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_RET_CAPABILITY",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_RET_CAPABILITY"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetPeripheralCapability",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315848880,
+          "symbol": "+[THMSGV1T2RetPeripheralCapability __metadata]"
+        },
+        {
+          "address": 4315850296,
+          "symbol": "-[THMSGV1T2RetPeripheralCapability_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315849476,
+          "symbol": "-[THMSGV1T2RetPeripheralCapability_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315849816,
+          "symbol": "-[THMSGV1T2RetPeripheralCapability_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_RET_CAPABILITY",
+      "cpp_name": "RetPeripheralCapabilityPairingDeviceManagementClassicBt",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013ECF9C getMaxOfPairedDevice reads bytes 2..2",
+        "0x1013ED074 getMaxOfConnectedDevice reads bytes 3..3",
+        "0x1013ED14C getFileTransferInMultiConnection reads bytes 4..4",
+        "0x103149D90 THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt.INDEX_MAX_OF_PAIRED_DEVICE=2",
+        "0x103149DB8 THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt.INDEX_MAX_OF_CONNECTED_DEVICE=3",
+        "0x103149DE0 THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt.INDEX_FILE_TRANSFER_IN_MULTI_CONNECTION=4",
+        "_create_JavaLangIllegalArgumentException_initWithNSString_",
+        "_objc_exception_throw",
+        "-[THMSGV1T2RetPeripheralCapability_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "sub_1025E7078",
+        "-[THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetPeripheralCapability"
+      ],
+      "factory_signature": "IILTHMSGV1T2FileTransferInMultiConnection;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_RET_CAPABILITY",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_RET_CAPABILITY"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT"
+          ],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "maxOfPairedDevice",
+          "offset": 2,
+          "semantic_rules": [
+            "Range 0 255"
+          ],
+          "source_type": "I",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "maxOfConnectedDevice",
+          "offset": 3,
+          "semantic_rules": [
+            "Range 0 255"
+          ],
+          "source_type": "I",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "FileTransferInMultiConnection",
+          "default": "FileTransferInMultiConnection::POSSIBLE",
+          "name": "fileTransferInMultiConnection",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2FileTransferInMultiConnection;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315861540,
+          "symbol": "+[THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt __metadata]"
+        },
+        {
+          "address": 4315862900,
+          "symbol": "-[THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory valueOfWithInt:withInt:withTHMSGV1T2FileTransferInMultiConnection:]"
+        },
+        {
+          "address": 4315862316,
+          "symbol": "-[THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315862472,
+          "symbol": "-[THMSGV1T2RetPeripheralCapabilityPairingDeviceManagementClassicBt_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_RET_PARAM",
+      "cpp_name": "RetPeripheralParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E0654 getInquiredType reads bytes 1..1",
+        "0x103148B50 THMSGV1T2RetPeripheralParam.INDEX_INQUIRED_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetPeripheralParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315809580,
+          "symbol": "+[THMSGV1T2RetPeripheralParam __metadata]"
+        },
+        {
+          "address": 4315810996,
+          "symbol": "-[THMSGV1T2RetPeripheralParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315810176,
+          "symbol": "-[THMSGV1T2RetPeripheralParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315810516,
+          "symbol": "-[THMSGV1T2RetPeripheralParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_RET_PARAM",
+      "cpp_name": "RetPeripheralParamPairingDeviceManagementClassicBt",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013E3E3C getDeviceInfo reads bytes 2..3",
+        "_JreThrowNullPointerException",
+        "_create_JavaLangIllegalArgumentException_initWithNSString_",
+        "_objc_exception_throw",
+        "-[THMSGV1T2RetPeripheralParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "writeWithInt:",
+        "sub_1025E7078",
+        "_memset",
+        "_objc_enumerationMutation",
+        "writeWithByteArray:",
+        "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetPeripheralParam"
+      ],
+      "factory_signature": "(Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;I)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/RetPeripheralParamPairingDeviceManagementClassicBt;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT"
+          ],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRArray<PeripheralDeviceInfo>",
+          "default": null,
+          "name": "deviceInfo",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/peripheral/PeripheralDeviceInfo;>;",
+          "wire_kind": "array"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "playbackrightDevice",
+          "offset": null,
+          "semantic_rules": [
+            "Range 0 255"
+          ],
+          "source_type": "I",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315826152,
+          "symbol": "+[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt __metadata]"
+        },
+        {
+          "address": 4315829884,
+          "symbol": "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory valueOfWithJavaUtilList:withInt:]"
+        },
+        {
+          "address": 4315828120,
+          "symbol": "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315828276,
+          "symbol": "-[THMSGV1T2RetPeripheralParamPairingDeviceManagementClassicBt_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_RET_STATUS",
+      "cpp_name": "RetPeripheralStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013F035C getInquiredType reads bytes 1..1",
+        "0x1013F0434 getBluetoothModeStatus reads bytes 2..2",
+        "0x1013F050C getStatus reads bytes 3..3",
+        "0x10314A078 THMSGV1T2RetPeripheralStatus.INDEX_INQUIRED_TYPE=1",
+        "0x10314A0A0 THMSGV1T2RetPeripheralStatus.INDEX_BLUETOOTH_MODE_STATUS=2",
+        "0x10314A0C8 THMSGV1T2RetPeripheralStatus.INDEX_STATUS=3",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2RetPeripheralStatus_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_RET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_RET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralBluetoothModeStatus",
+          "default": "PeripheralBluetoothModeStatus::NORMAL_MODE",
+          "name": "bluetoothModeStatus",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralBluetoothModeStatus;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetPeripheralStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315874788,
+          "symbol": "+[THMSGV1T2RetPeripheralStatus __metadata]"
+        },
+        {
+          "address": 4315877380,
+          "symbol": "-[THMSGV1T2RetPeripheralStatus_Factory valueOfWithTHMSGV1T2PeripheralInquiredType:withTHMSGV1T2PeripheralBluetoothModeStatus:withTHMCommonStatus:]"
+        },
+        {
+          "address": 4315875956,
+          "symbol": "-[THMSGV1T2RetPeripheralStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315876112,
+          "symbol": "-[THMSGV1T2RetPeripheralStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_CAPABILITY",
+      "cpp_name": "RetVoiceGuidanceCapability",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013C4794 getInquiredType reads bytes 1..1",
+        "0x1013C486C getSupportsOnOffSwitching reads bytes 2..2",
+        "0x1013C4944 getSupportsLanguageSwitching reads bytes 3..3",
+        "0x1013C4A1C getSupportLanguages reads bytes 4..5",
+        "0x1031460C8 THMSGV1T2RetVoiceGuidanceCapability.INDEX_INQUIRED_TYPE=1",
+        "0x1031460F0 THMSGV1T2RetVoiceGuidanceCapability.INDEX_SUPPORTS_ON_OFF_SWITCHING=2",
+        "0x103146118 THMSGV1T2RetVoiceGuidanceCapability.INDEX_SUPPORTS_LANGUAGE_SWITCHING=3",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]",
+        "_memset",
+        "_objc_enumerationMutation"
+      ],
+      "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/VoiceGuidanceInquiredType;Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/SupportsSwitch;Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/SupportsSwitch;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/VoiceGuidanceLanguage;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceCapability;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_CAPABILITY",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_CAPABILITY"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SupportsSwitch",
+          "default": "SupportsSwitch::NOT_SUPPORT",
+          "name": "supportsOnOffSwitching",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/SupportsSwitch;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "SupportsSwitch",
+          "default": "SupportsSwitch::NOT_SUPPORT",
+          "name": "supportsLanguageSwitching",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/SupportsSwitch;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRPodArray<VoiceGuidanceLanguage>",
+          "default": null,
+          "name": "supportLanguages",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/VoiceGuidanceLanguage;>;",
+          "wire_kind": "array"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceCapability",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315696140,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceCapability __metadata]"
+        },
+        {
+          "address": 4315699372,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceCapability_Factory valueOfWithTHMSGV1T2VoiceGuidanceInquiredType:withTHMSGV1T2SupportsSwitch:withTHMSGV1T2SupportsSwitch:withJavaUtilList:]"
+        },
+        {
+          "address": 4315697516,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceCapability_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315697672,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceCapability_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315749568,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParam __metadata]"
+        },
+        {
+          "address": 4315751288,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315749948,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315750864,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013C1970 getCategoryId reads bytes 4..4",
+        "0x103145DE0 THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic.INDEX_DOWNLOAD_SERVER_METHOD=3",
+        "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "sub_1025E7290",
+        "_memset",
+        "_objc_enumerationMutation",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "(Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;Ljava/lang/String;Ljava/lang/String;Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic$ServiceInformation;>;)Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::DOWNLOAD_SERVER_METHOD",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::DOWNLOAD_SERVER_METHOD"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DownloadServerMethod",
+          "default": "DownloadServerMethod::NO_USE",
+          "name": "downloadServerMethod",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/param/DownloadServerMethod;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRPrefixedString",
+          "default": null,
+          "name": "categoryId",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "Ljava/lang/String;",
+          "wire_kind": "string"
+        },
+        {
+          "cpp_type": "MDRPrefixedString",
+          "default": null,
+          "name": "serialNumber",
+          "offset": null,
+          "semantic_rules": [],
+          "source_type": "Ljava/lang/String;",
+          "wire_kind": "string"
+        },
+        {
+          "cpp_type": "MDRArray<RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation>",
+          "default": null,
+          "name": "serviceInformationList",
+          "offset": null,
+          "semantic_rules": [],
+          "source_type": "Ljava/util/List<Lcom/sony/songpal/tandemfamily/message/mdr/v1/table2/voiceguidance/RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic$ServiceInformation;>;",
+          "wire_kind": "array"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315685172,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic __metadata]"
+        },
+        {
+          "address": 4315691884,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory valueOfWithTHMSGV1T2DownloadServerMethod:withNSString:withNSString:withJavaUtilList:]"
+        },
+        {
+          "address": 4315688864,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315689020,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "field_helper",
+      "command": null,
+      "cpp_name": "RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "VoiceGuidanceLanguage",
+          "default": "VoiceGuidanceLanguage::UNDEFINED_LANGUAGE",
+          "name": "language",
+          "offset": 0,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2VoiceGuidanceLanguage;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRPrefixedString",
+          "default": null,
+          "name": "serviceId",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "string"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation",
+      "parent": null,
+      "parser": null,
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315687328,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingDownloadServerMethodAutomagic_ServiceInformation __metadata]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingLanguage",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013CF28C getCurrentLangauge reads bytes 3..3",
+        "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceLanguage;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::LANGUAGE",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceLanguage",
+          "default": "VoiceGuidanceLanguage::UNDEFINED_LANGUAGE",
+          "name": "currentLangauge",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2VoiceGuidanceLanguage;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingLanguage",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315738980,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingLanguage __metadata]"
+        },
+        {
+          "address": 4315740208,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory valueOfWithTHMSGV1T2VoiceGuidanceLanguage:]"
+        },
+        {
+          "address": 4315739672,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315739828,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingLanguage_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingOnOff",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013BEAB0 getSettingValue reads bytes 3..3",
+        "0x103145A08 THMSGV1T2RetVoiceGuidanceParamSettingOnOff.INDEX_SETTING_VALUE=3",
+        "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::ON_OFF",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceSettingValue",
+          "default": "VoiceGuidanceSettingValue::OFF",
+          "name": "settingValue",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2VoiceGuidanceSettingValue;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingOnOff",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315671432,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingOnOff __metadata]"
+        },
+        {
+          "address": 4315672748,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory valueOfWithTHMSGV1T2VoiceGuidanceSettingValue:]"
+        },
+        {
+          "address": 4315671928,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315672368,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingOnOff_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingRequiredTime",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013D003C getRequiredTime reads bytes 3..3",
+        "0x1031473F0 THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime.INDEX_REQUIRED_TIME=3",
+        "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "sub_1025E7078",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "I",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::REQUIRED_TIME",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::REQUIRED_TIME"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "requiredTime",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "I",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315742484,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime __metadata]"
+        },
+        {
+          "address": 4315743920,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory valueOfWithInt:]"
+        },
+        {
+          "address": 4315742980,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315743540,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingRequiredTime_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingUpdateMethod",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013BB26C getUpdateMethod reads bytes 3..3",
+        "0x103145518 THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod.INDEX_UPDATE_METHOD=3"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UpdateMethod",
+          "default": "UpdateMethod::TANDEM_METHOD",
+          "name": "updateMethod",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMUpdateMethod;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315657028,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod __metadata]"
+        },
+        {
+          "address": 4315657524,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315657928,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethod_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingUpdateMethodCsr",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013D38F8 getBleTxPower reads bytes 4..4",
+        "0x1013D39D0 getBatteryPowerThresh reads bytes 5..5",
+        "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "sub_1025E7078",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMUpdateMethod;II",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::UPDATE_METHOD",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::UPDATE_METHOD"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UpdateMethod",
+          "default": "UpdateMethod::TANDEM_METHOD",
+          "name": "updateMethod",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMUpdateMethod;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "bleTxPower",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "I",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "batteryPowerThresh",
+          "offset": 5,
+          "semantic_rules": [],
+          "source_type": "I",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315757224,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr __metadata]"
+        },
+        {
+          "address": 4315758196,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory valueOfWithTHMUpdateMethod:withInt:withInt:]"
+        },
+        {
+          "address": 4315757380,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315758016,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodCsr_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_PARAM",
+      "cpp_name": "RetVoiceGuidanceParamSettingUpdateMethodMtk",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013CBFD8 getBatteryPowerThresh reads bytes 4..4",
+        "0x1013CC0B0 getBatteryPowerThreshForInterrupting reads bytes 5..5",
+        "0x1013CC188 getUniqueId reads bytes 6..6",
+        "-[THMSGV1T2RetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "sub_1025E7078",
+        "sub_1025E7290",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMUpdateMethod;IILNSString;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::UPDATE_METHOD",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::UPDATE_METHOD"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UpdateMethod",
+          "default": "UpdateMethod::TANDEM_METHOD",
+          "name": "updateMethod",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMUpdateMethod;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "batteryPowerThresh",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "I",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "UInt8",
+          "default": "{}",
+          "name": "batteryPowerThreshForInterrupting",
+          "offset": 5,
+          "semantic_rules": [],
+          "source_type": "I",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "MDRPrefixedString",
+          "default": null,
+          "name": "uniqueId",
+          "offset": 6,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "string"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315726524,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk __metadata]"
+        },
+        {
+          "address": 4315728864,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory valueOfWithTHMUpdateMethod:withInt:withInt:withNSString:]"
+        },
+        {
+          "address": 4315727220,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315728196,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceParamSettingUpdateMethodMtk_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_STATUS",
+      "cpp_name": "RetVoiceGuidanceStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315768288,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceStatus __metadata]"
+        },
+        {
+          "address": 4315769888,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315768668,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315769464,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_STATUS",
+      "cpp_name": "RetVoiceGuidanceStatusSettingLanguage",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013BA3D0 getStatus reads bytes 3..3",
+        "0x103145400 THMSGV1T2RetVoiceGuidanceStatusSettingLanguage.INDEX_STATUS=3",
+        "-[THMSGV1T2RetVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::LANGUAGE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingLanguage",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315653460,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage __metadata]"
+        },
+        {
+          "address": 4315654708,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory valueOfWithTHMCommonStatus:]"
+        },
+        {
+          "address": 4315653956,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315654112,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatusSettingLanguage_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_RET_STATUS",
+      "cpp_name": "RetVoiceGuidanceStatusSettingOnOff",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013C6620 getStatus reads bytes 3..3",
+        "0x103146298 THMSGV1T2RetVoiceGuidanceStatusSettingOnOff.INDEX_STATUS=3",
+        "-[THMSGV1T2RetVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2RetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_RET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_RET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::ON_OFF",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2RetVoiceGuidanceStatusSettingOnOff",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315703204,
+          "symbol": "+[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff __metadata]"
+        },
+        {
+          "address": 4315704452,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory valueOfWithTHMCommonStatus:]"
+        },
+        {
+          "address": 4315703700,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315703856,
+          "symbol": "-[THMSGV1T2RetVoiceGuidanceStatusSettingOnOff_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_SET_EX_PARAM",
+      "cpp_name": "SetPeripheralExParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013F1984 getSettingType reads bytes 1..1",
+        "0x10314A1F8 THMSGV1T2SetPeripheralExParam.INDEX_SETTING_TYPE=1",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_SET_EX_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_SET_EX_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "settingType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetPeripheralExParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315880028,
+          "symbol": "+[THMSGV1T2SetPeripheralExParam __metadata]"
+        },
+        {
+          "address": 4315881444,
+          "symbol": "-[THMSGV1T2SetPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]"
+        },
+        {
+          "address": 4315880624,
+          "symbol": "-[THMSGV1T2SetPeripheralExParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315880964,
+          "symbol": "-[THMSGV1T2SetPeripheralExParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_SET_EX_PARAM",
+      "cpp_name": "SetPeripheralExParamPairingDeviceManagementClassicBt",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013DEA54 getDetailType reads bytes 2..2",
+        "-[THMSGV1T2SetPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "inherited wire layout from THMSGV1T2SetPeripheralExParam"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralDetailDataType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_SET_EX_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_SET_EX_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT",
+          "name": "settingType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange PeripheralInquiredType::PAIRING_DEVICE_MANAGEMENT_CLASSIC_BT"
+          ],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralDetailDataType",
+          "default": "PeripheralDetailDataType::CONNECTION_CONTROL",
+          "name": "detailType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralDetailDataType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315802412,
+          "symbol": "+[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt __metadata]"
+        },
+        {
+          "address": 4315803812,
+          "symbol": "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory toStreamWithTHMSGV1T2PeripheralDetailDataType:]"
+        },
+        {
+          "address": 4315803008,
+          "symbol": "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315803324,
+          "symbol": "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_SET_EX_PARAM",
+      "cpp_name": "SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013DF700 getActionType reads bytes 3..3",
+        "0x1013DF7D8 getBtDeviceAddress reads bytes 4..20",
+        "0x1013DF7D8 getBtDeviceAddress reads fixed 17-byte slice 4..20",
+        "0x103148A58 THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl.INDEX_ACTION_TYPE=3",
+        "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt_Factory toStreamWithTHMSGV1T2PeripheralDetailDataType:]",
+        "-[THMSGV1T2SetPeripheralExParam_Factory toStreamWithTHMSGV1T2PeripheralInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "writeWithByteArray:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBt",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMSGV1T2ActionType;LNSString;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_SET_EX_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_SET_EX_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralDetailDataType",
+          "default": "PeripheralDetailDataType::CONNECTION_CONTROL",
+          "name": "detailType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralDetailDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "ResultType",
+          "default": "ResultType::DISCONNECTION_SUCCESS",
+          "name": "resultType",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2ResultType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "ActionType",
+          "default": "ActionType::DISCONNECT",
+          "name": "actionType",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2ActionType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "Array<UInt8, 17>",
+          "default": "{}",
+          "name": "btDeviceAddress",
+          "offset": 4,
+          "semantic_rules": [],
+          "source_type": "LNSString;",
+          "wire_kind": "helper"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "external",
+      "sources": [
+        {
+          "address": 4315805752,
+          "symbol": "+[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl __metadata]"
+        },
+        {
+          "address": 4315807180,
+          "symbol": "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory valueOfWithTHMSGV1T2ActionType:withNSString:]"
+        },
+        {
+          "address": 4315806556,
+          "symbol": "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315806712,
+          "symbol": "-[THMSGV1T2SetPeripheralExParamPairingDeviceManagementClassicBtConnectionControl_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "PERIPHERAL_SET_STATUS",
+      "cpp_name": "SetPeripheralStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013EBA2C getInquiredType reads bytes 1..1",
+        "0x1013EBB04 getBluetoothModeStatus reads bytes 2..2",
+        "0x1013EBBDC getStatus reads bytes 3..3",
+        "0x103149C08 THMSGV1T2SetPeripheralStatus.INDEX_INQUIRED_TYPE=1",
+        "0x103149C58 THMSGV1T2SetPeripheralStatus.INDEX_STATUS=3",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2SetPeripheralStatus_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:"
+      ],
+      "factory_signature": "LTHMSGV1T2PeripheralInquiredType;LTHMSGV1T2PeripheralBluetoothModeStatus;LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::PERIPHERAL_SET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::PERIPHERAL_SET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralInquiredType",
+          "default": "PeripheralInquiredType::NO_USE",
+          "name": "inquiredType",
+          "offset": 1,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "PeripheralBluetoothModeStatus",
+          "default": "PeripheralBluetoothModeStatus::NORMAL_MODE",
+          "name": "bluetoothModeStatus",
+          "offset": 2,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2PeripheralBluetoothModeStatus;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetPeripheralStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315856052,
+          "symbol": "+[THMSGV1T2SetPeripheralStatus __metadata]"
+        },
+        {
+          "address": 4315858488,
+          "symbol": "-[THMSGV1T2SetPeripheralStatus_Factory valueOfWithTHMSGV1T2PeripheralInquiredType:withTHMSGV1T2PeripheralBluetoothModeStatus:withTHMCommonStatus:]"
+        },
+        {
+          "address": 4315857064,
+          "symbol": "-[THMSGV1T2SetPeripheralStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315857220,
+          "symbol": "-[THMSGV1T2SetPeripheralStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_SET_PARAM",
+      "cpp_name": "SetVoiceGuidanceParam",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_SET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_SET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParam",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315753276,
+          "symbol": "+[THMSGV1T2SetVoiceGuidanceParam __metadata]"
+        },
+        {
+          "address": 4315754896,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315753656,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceParam_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315754472,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceParam_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_SET_PARAM",
+      "cpp_name": "SetVoiceGuidanceParamSettingOnOff",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013BCA58 getSettingValue reads bytes 3..3",
+        "0x103145768 THMSGV1T2SetVoiceGuidanceParamSettingOnOff.INDEX_SETTING_VALUE=3",
+        "-[THMSGV1T2SetVoiceGuidanceParam_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2SetVoiceGuidanceParam",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceSettingValue;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_SET_PARAM",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_SET_PARAM"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "DetailedDataType",
+          "default": "DetailedDataType::ON_OFF",
+          "name": "detailedDataType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange DetailedDataType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2DetailedDataType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceSettingValue",
+          "default": "VoiceGuidanceSettingValue::OFF",
+          "name": "settingValue",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMSGV1T2VoiceGuidanceSettingValue;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetVoiceGuidanceParamSettingOnOff",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315663152,
+          "symbol": "+[THMSGV1T2SetVoiceGuidanceParamSettingOnOff __metadata]"
+        },
+        {
+          "address": 4315664784,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory valueOfWithTHMSGV1T2VoiceGuidanceSettingValue:]"
+        },
+        {
+          "address": 4315663816,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315664188,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceParamSettingOnOff_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_SET_STATUS",
+      "cpp_name": "SetVoiceGuidanceStatus",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:"
+      ],
+      "factory_signature": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_SET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_SET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatus",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315659468,
+          "symbol": "+[THMSGV1T2SetVoiceGuidanceStatus __metadata]"
+        },
+        {
+          "address": 4315660996,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]"
+        },
+        {
+          "address": 4315659848,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatus_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315660572,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatus_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_SET_STATUS",
+      "cpp_name": "SetVoiceGuidanceStatusSettingLanguage",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013D0DCC getStatus reads bytes 3..3",
+        "0x103147580 THMSGV1T2SetVoiceGuidanceStatusSettingLanguage.INDEX_STATUS=3",
+        "-[THMSGV1T2SetVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]",
+        "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_SET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_SET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::LANGUAGE",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::LANGUAGE"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingLanguage",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315746128,
+          "symbol": "+[THMSGV1T2SetVoiceGuidanceStatusSettingLanguage __metadata]"
+        },
+        {
+          "address": 4315747476,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory valueOfWithTHMCommonStatus:]"
+        },
+        {
+          "address": 4315746792,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315746880,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatusSettingLanguage_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "VOICE_GUIDANCE_SET_STATUS",
+      "cpp_name": "SetVoiceGuidanceStatusSettingOnOff",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "0x1013C74BC getStatus reads bytes 3..3",
+        "0x1031463D8 THMSGV1T2SetVoiceGuidanceStatusSettingOnOff.INDEX_STATUS=3",
+        "-[THMSGV1T2SetVoiceGuidanceStatus_Factory toStreamWithTHMSGV1T2VoiceGuidanceInquiredType:]",
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "-[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]",
+        "parseBytesWithByteArray:",
+        "inherited wire layout from THMSGV1T2SetVoiceGuidanceStatus",
+        "restored fields from proven absolute offsets"
+      ],
+      "factory_signature": "LTHMCommonStatus;",
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::VOICE_GUIDANCE_SET_STATUS",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::VOICE_GUIDANCE_SET_STATUS"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "VoiceGuidanceInquiredType",
+          "default": "VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING",
+          "name": "voiceGuidanceInquiredType",
+          "offset": 1,
+          "semantic_rules": [
+            "EnumRange VoiceGuidanceInquiredType::VOICE_GUIDANCE_SETTING"
+          ],
+          "source_type": "LTHMSGV1T2VoiceGuidanceInquiredType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "StatusType",
+          "default": "StatusType::ON_OFF",
+          "name": "statusType",
+          "offset": 2,
+          "semantic_rules": [
+            "EnumRange StatusType::ON_OFF"
+          ],
+          "source_type": "LTHMSGV1T2StatusType;",
+          "wire_kind": "pod"
+        },
+        {
+          "cpp_type": "CommonStatus",
+          "default": "CommonStatus::ENABLE",
+          "name": "status",
+          "offset": 3,
+          "semantic_rules": [],
+          "source_type": "LTHMCommonStatus;",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2SetVoiceGuidanceStatusSettingOnOff",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315706944,
+          "symbol": "+[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff __metadata]"
+        },
+        {
+          "address": 4315708292,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory valueOfWithTHMCommonStatus:]"
+        },
+        {
+          "address": 4315707608,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315707696,
+          "symbol": "-[THMSGV1T2SetVoiceGuidanceStatusSettingOnOff_Factory isValidWithByteArray:]"
+        }
+      ]
+    },
+    {
+      "classification": "payload",
+      "command": "UNKNOWN",
+      "cpp_name": "UnknownCommand",
+      "discriminator_field": null,
+      "discriminator_value": null,
+      "evidence": [
+        "-[THMSGV1T2Payload_Factory toStreamWithTHMSGV1T2Command:]",
+        "_create_JavaIoByteArrayOutputStream_init",
+        "_JreThrowNullPointerException",
+        "writeWithInt:",
+        "parseBytesWithByteArray:",
+        "-[THMSGV1T2UnknownCommand_Factory parseBytesWithByteArray:]"
+      ],
+      "factory_signature": null,
+      "fields": [
+        {
+          "cpp_type": "Command",
+          "default": "Command::UNKNOWN",
+          "name": "command",
+          "offset": 0,
+          "semantic_rules": [
+            "EnumRange Command::UNKNOWN"
+          ],
+          "source_type": "THMSGV1T2Command",
+          "wire_kind": "pod"
+        }
+      ],
+      "objc_name": "THMSGV1T2UnknownCommand",
+      "parent": null,
+      "parser": "parseBytesWithByteArray:",
+      "serialization": "trivial",
+      "sources": [
+        {
+          "address": 4315780932,
+          "symbol": "+[THMSGV1T2UnknownCommand __metadata]"
+        },
+        {
+          "address": 4315781288,
+          "symbol": "-[THMSGV1T2UnknownCommand_Factory valueOf]"
+        },
+        {
+          "address": 4315781056,
+          "symbol": "-[THMSGV1T2UnknownCommand_Factory parseBytesWithByteArray:]"
+        },
+        {
+          "address": 4315781212,
+          "symbol": "-[THMSGV1T2UnknownCommand_Factory isValidWithByteArray:]"
+        }
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "table": 2,
+  "version": 1
+}

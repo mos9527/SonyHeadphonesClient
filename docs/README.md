@@ -1,4 +1,10 @@
 docs
 ===
 
-Documents. It's what the folder name says.
+- [SHC Developer's Guide](../DEVELOPER.md)
+- [Contributing](../.github/CONTRIBUTING.md)
+- [Contributing to Tests](../tests/README.md)
+- [Contributing to Client Localization](../client/I18N/README.md)
+- [Device Support matrix](device-support/)
+
+    
