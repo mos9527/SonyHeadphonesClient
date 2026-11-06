@@ -98,22 +98,20 @@ MDRConnection* clientPlatformConnectionGet()
     [[unlikely]] return nullptr;
 }
 
+// clang-format off
 EM_JS(void, clientPlatformDestroyFonts, (), {
     const fonts = globalThis.SonyHeadphonesClientFonts;
-    if (!fonts)
-        return;
+    if (!fonts) return;
     fonts.destroyed = true;
-    for (const entry of fonts.entries.values())
-    {
-        entry.controller.abort(
-            new DOMException('Font loading cancelled because the application is shutting down', 'AbortError'));
-        if (entry.ptr)
-            _free(entry.ptr);
+    for (const entry of fonts.entries.values()) {
+        entry.controller.abort(new DOMException('Font loading cancelled because the application is shutting down', 'AbortError'));
+        if (entry.ptr) _free(entry.ptr);
         entry.ptr = entry.size = 0;
         entry.data = null;
         entry.state = 'unavailable';
     }
 });
+// clang-format on
 
 void clientPlatformDestroy()
 {
@@ -121,28 +119,22 @@ void clientPlatformDestroy()
     clientPlatformDestroyFonts();
 }
 
+// clang-format off
 EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData, int* outFaceIndex), {
-    if (outData)
-        setValue(outData, 0, '*');
-    if (outFaceIndex)
-        setValue(outFaceIndex, 0, 'i32');
+    if (outData) setValue(outData, 0, '*');
+    if (outFaceIndex) setValue(outFaceIndex, 0, 'i32');
     if (!outData || !outFaceIndex)
         return 0;
     const fonts = globalThis.SonyHeadphonesClientFonts;
-    if (!fonts || fonts.destroyed)
-        return 0;
+    if (!fonts || fonts.destroyed) return 0;
     fonts.load(locale);
     const entry = fonts.entries.get(locale);
-    if (entry?.state === 'loading')
-        return -1;
-    if (!entry || entry.state != = 'ready')
-        return 0;
-    if (entry.data)
-    {
+    if (entry?.state === 'loading') return -1;
+    if (!entry || entry.state !== 'ready') return 0;
+    if (entry.data) {
         const size = entry.data.byteLength;
         const ptr = _malloc(size);
-        if (!ptr)
-        {
+        if (!ptr) {
             entry.data = null;
             entry.state = 'unavailable';
             return 0;
@@ -152,11 +144,11 @@ EM_JS(int, clientPlatformLocateFontBinaryImpl, (int locale, const char** outData
         entry.size = size;
         entry.data = null;
     }
-    if (!entry.ptr || !entry.size)
-        return 0;
+    if (!entry.ptr || !entry.size) return 0;
     setValue(outData, entry.ptr, '*');
     return entry.size;
 });
+// clang-format on
 
 int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* outFaceIndex)
 {
@@ -171,35 +163,30 @@ int clientPlatformLocateFontBinary(AppLocale locale, const char** outData, int* 
     return clientPlatformLocateFontBinaryImpl(static_cast<int>(locale), outData, outFaceIndex);
 }
 
+// clang-format off
 EM_JS(int, clientPlatformSaveBlobImpl,
       (const char* filename, const unsigned char* data, int dataSize, const char* mimeType), {
-          if (!filename || !data || dataSize <= 0 || !mimeType)
-              return 0;
-          try
-          {
-              const bytes = HEAPU8.slice(data, data + dataSize);
-              const blob = new Blob([bytes],
-                                    {
-                                        type:
-                                            UTF8ToString(mimeType)
-                                    });
-              const url = URL.createObjectURL(blob);
-              const anchor = document.createElement('a');
-              anchor.href = url;
-              anchor.download = UTF8ToString(filename);
-              anchor.style.display = 'none';
-              document.body.appendChild(anchor);
-              anchor.click();
-              anchor.remove();
-              setTimeout(() = > URL.revokeObjectURL(url), 0);
-              return 1;
-          }
-          catch (error)
-          {
-              console.error('Unable to export file', error);
-              return 0;
-          }
-      });
+    if (!filename || !data || dataSize <= 0 || !mimeType)
+        return 0;
+    try {
+        const bytes = HEAPU8.slice(data, data + dataSize);
+        const blob = new Blob([bytes], {type: UTF8ToString(mimeType)});
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = UTF8ToString(filename);
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        return 1;
+    } catch (error) {
+        console.error('Unable to export file', error);
+        return 0;
+    }
+});
+// clang-format on
 
 int clientPlatformSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
                            SDL_Window* window, ClientPlatformSaveBlobCallback callback, void* userdata)
