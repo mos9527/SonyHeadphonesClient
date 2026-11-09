@@ -3784,7 +3784,7 @@ namespace mdr::v2::t1
     struct EqBandInformation
     {
         EqBandInformationType infoType{EqBandInformationType::NO_INFORMATION}; // 0x0
-        UInt8 valueAsFrequency{}; // 0x1
+        Int16BE valueAsFrequency{}; // 0x1
 
         MDR_DEFINE_EXTERN_READ_WRITE(EqBandInformation);
     };

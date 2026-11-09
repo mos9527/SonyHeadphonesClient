@@ -2,6 +2,7 @@
 
 #include <mdr-c/Base.h>
 
+#include <cstdlib>
 #include <type_traits>
 #include <utility>
 

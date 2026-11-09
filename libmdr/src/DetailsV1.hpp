@@ -10,7 +10,8 @@
     PROP(bool, mShutdown)                                                                                              \
     PROP(bool, mNcAsmEnabled)                                                                                          \
     PROP(bool, mNcAsmFocusOnVoice)                                                                                     \
-    PROP(int, mNcAsmLevel)                                                                                             \
+    PROP(v1::t1::NcDualSingleValue, mNcAsmNcValue)                                                                     \
+    PROP(int, mNcAsmAmbientLevel)                                                                                      \
     PROP(bool, mNcAsmChangingLevel)                                                                                    \
     PROP(v1::t1::NcAsmEffect, mNcAsmEffect)                                                                            \
     PROP(UInt8, mNcAsmButtonFunction)                                                                                  \
@@ -19,6 +20,7 @@
     PROP(int, mPlayVolume)                                                                                             \
     PROP(v1::t1::PlaybackControl, mPlayControl)                                                                        \
     ARRAY(bool, mGsParamBool, 3)                                                                                       \
+    ARRAY(int, mGsParamList, 3)                                                                                        \
     PROP(bool, mUpscalingEnabled)                                                                                      \
     PROP(v1::t1::ConnectionModeSettingValue, mAudioPriorityMode)                                                       \
     PROP(bool, mBGMModeEnabled)                                                                                        \
@@ -82,6 +84,7 @@ namespace mdr
         {
             v1::t1::GsSettingType type{};
             v1::t1::GsSettingInfo value{};
+            Vector<v1::t1::GsSettingInfo> options; // LIST_TYPE only
         };
 
         struct EqPresetInfo
@@ -175,6 +178,25 @@ namespace mdr
 
         Vector<EqPresetInfo> mEqPresets;
         UInt8 mSourceSwitchControlResult{};
+
+        UInt8 mPlayVolumeStep{};
+        UInt8 mEqCapabilityBands{};
+        UInt8 mEqCapabilityStep{};
+        Vector<v1::t1::EqBandInformation> mEqBandInfo; // From EQEBB_RET_EXTENDED_INFO, Clear Bass included
+        Vector<v1::t1::AutoPowerOffElementId> mAutoPowerOffCandidates;
+
+        // From NCASM_RET_CAPABILITY. DUAL_SINGLE_OFF means NC (dual) / Wind Noise Reduction (single) / off.
+        // Defaults to DUAL_SINGLE_OFF until the capability arrives.
+        v1::t1::NcAsmSettingType mNcSettingType{v1::t1::NcAsmSettingType::DUAL_SINGLE_OFF};
+        UInt8 mAsmStep{}; // Ambient level positions, e.g. WH-1000XM3: 20 for 1..20
+
+        // Half-width of the raw EQ/Clear Bass range: raw values are level + offset.
+        // WH-1000XM3 advertises step 21 which corresponds to -10..10 with offset 10.
+        // TODO @mos9527: Again does this apply to all V1 devices? See also @ref PlaybackVolumeRange
+        [[nodiscard]] int EqStepOffset() const
+        {
+            return mEqCapabilityStep >= 3 && (mEqCapabilityStep & 1) ? (mEqCapabilityStep - 1) / 2 : 10;
+        }
     };
 
 #undef _DETAILS_V1_PROPS_X

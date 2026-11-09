@@ -4,8 +4,11 @@
 
 #include <array>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <deque>
 #include <iterator>
+#include <memory>
 #include <span>
 #include <string>
 #include <string_view>

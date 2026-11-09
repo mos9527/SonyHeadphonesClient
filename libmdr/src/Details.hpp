@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <coroutine>
+#include <exception>
 #include <utility>
 
 namespace mdr

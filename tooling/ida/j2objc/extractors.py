@@ -497,10 +497,27 @@ class ProtocolExtractor:
         return result
 
     def _getter_byte_span(
-        self, getter: JavaMethod
+        self, getter: JavaMethod | MethodSymbol, depth: int = 2
     ) -> tuple[int, int] | None:
         """Recover a consecutive byte span read by a translated getter."""
         text = self._decompile_text(getter)
+        # Getters can be bare forwards to an outlined body, e.g. V2
+        # ``getValueAsFrequency`` is ``return sub_10144F540(self);`` and the
+        # ``(b[1] << 8) | b[2]`` read lives in the callee. Scanning only the
+        # stub finds no byte reads and the field falls back to UInt8.
+        forward = re.fullmatch(
+            r"[^{]*\{\s*return\s+(sub_[0-9A-Fa-f]+)\(\s*[A-Za-z_]\w*\s*\);\s*\}\s*",
+            text,
+        )
+        if forward is not None and depth > 0:
+            address = ida_name.get_name_ea(idaapi.BADADDR, forward.group(1))
+            if address != idaapi.BADADDR and ida_funcs.get_func(address) is not None:
+                return self._getter_byte_span(
+                    MethodSymbol(
+                        address, "", "", forward.group(1), forward.group(1)
+                    ),
+                    depth - 1,
+                )
         ranges = self._copyof_range_spans(text)
         if len(ranges) == 1:
             return next(iter(ranges))

@@ -7,13 +7,12 @@ namespace mdr
 
     namespace
     {
-        UInt8 V1NcValueForAmbientLevel(int level)
+        // See also @ref NormalizeNcValue
+        UInt8 EncodeNcValue(t1::NcAsmSettingType type, t1::NcDualSingleValue value)
         {
-            if (level <= -1)
-                return static_cast<UInt8>(t1::NcDualSingleValue::DUAL); // Noise Cancelling
-            if (level == 0)
-                return static_cast<UInt8>(t1::NcDualSingleValue::SINGLE); // Wind Noise Reduction
-            return static_cast<UInt8>(t1::NcDualSingleValue::OFF);
+            if (type == t1::NcAsmSettingType::DUAL_SINGLE_OFF)
+                return static_cast<UInt8>(value);
+            return value == t1::NcDualSingleValue::DUAL ? 1 : 0;
         }
     }
 
@@ -493,24 +492,36 @@ namespace mdr
             state.mShutdown.overwrite(false);
         }
 
-        if (state.mNcAsmEnabled.pending() || state.mNcAsmFocusOnVoice.pending() || state.mNcAsmLevel.pending() ||
-            state.mNcAsmChangingLevel.pending() || state.mNcAsmEffect.pending())
+        if (state.mNcAsmEnabled.pending() || state.mNcAsmFocusOnVoice.pending() || state.mNcAsmNcValue.pending() ||
+            state.mNcAsmAmbientLevel.pending() || state.mNcAsmChangingLevel.pending() || state.mNcAsmEffect.pending())
         {
             if (state.mSupport.contains(t1::FunctionType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE))
             {
+                // The ambient level only goes out in ambient mode; WH-1000XM3 reports 0 in NC/WNR.
+                const bool ambient = state.mNcAsmNcValue.mSubmitted == t1::NcDualSingleValue::OFF;
                 t1::SetNcAsmParamNcAsmParam payload;
                 payload.ncAsmEffect = state.mNcAsmEffect.mSubmitted;
-                payload.ncType = t1::NcAsmSettingType::LEVEL_ADJUSTMENT;
-                payload.ncValue = V1NcValueForAmbientLevel(state.mNcAsmLevel.mSubmitted);
+                payload.ncType = state.mNcSettingType;
+                payload.ncValue = EncodeNcValue(state.mNcSettingType, state.mNcAsmNcValue.mSubmitted);
                 payload.asmType = t1::AsmSettingType::LEVEL_ADJUSTMENT;
                 payload.asmId = state.mNcAsmFocusOnVoice.mSubmitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
-                payload.asmValue = static_cast<UInt8>(
-                    state.mNcAsmLevel.mSubmitted <= -1 ? 0 : std::clamp(state.mNcAsmLevel.mSubmitted, 0, 20));
+                payload.asmValue =
+                    static_cast<UInt8>(ambient ? std::clamp(state.mNcAsmAmbientLevel.mSubmitted, 0, 255) : 0);
                 SendCommandACK(t1::SetNcAsmParamNcAsmParam, payload);
+            }
+            else if (state.mSupport.contains(t1::FunctionType::AMBIENT_SOUND_MODE))
+            {
+                t1::SetNcAsmParamAsmParam payload;
+                payload.ncAsmEffect = state.mNcAsmEffect.mSubmitted;
+                payload.asmType = t1::AsmSettingType::LEVEL_ADJUSTMENT;
+                payload.asmId = state.mNcAsmFocusOnVoice.mSubmitted ? t1::AsmId::VOICE : t1::AsmId::NORMAL;
+                payload.asmValue = static_cast<UInt8>(std::clamp(state.mNcAsmAmbientLevel.mSubmitted, 0, 255));
+                SendCommandACK(t1::SetNcAsmParamAsmParam, payload);
             }
             state.mNcAsmEnabled.commit();
             state.mNcAsmFocusOnVoice.commit();
-            state.mNcAsmLevel.commit();
+            state.mNcAsmNcValue.commit();
+            state.mNcAsmAmbientLevel.commit();
             state.mNcAsmChangingLevel.commit();
             state.mNcAsmEffect.commit();
         }
@@ -547,10 +558,11 @@ namespace mdr
             {
                 t1::SetEqEbbParamEqParam payload;
                 payload.presetId = t1::EqPresetId::UNSPECIFIED;
+                const int offset = state.EqStepOffset();
                 payload.bandSteps.value.push_back(
-                    static_cast<UInt8>(std::clamp(state.mEqClearBass.mSubmitted, -10, 10) + 10));
+                    static_cast<UInt8>(std::clamp(state.mEqClearBass.mSubmitted, -offset, offset) + offset));
                 for (const int band : state.mEqConfig.mSubmitted)
-                    payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -10, 10) + 10));
+                    payload.bandSteps.value.push_back(static_cast<UInt8>(std::clamp(band, -offset, offset) + offset));
                 SendCommandACK(t1::SetEqEbbParamEqParam, payload);
             }
             state.mEqConfig.commit();
@@ -676,38 +688,37 @@ namespace mdr
             state.mVoiceGuidanceEnabled.commit();
         }
 
-        if (state.mGsParamBool[0].pending())
+        for (size_t i = 0; i < std::size(state.mGsCapability); ++i)
         {
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING1))
+            static constexpr t1::GsInquiredType kTypes[] = {t1::GsInquiredType::GENERAL_SETTING1,
+                                                            t1::GsInquiredType::GENERAL_SETTING2,
+                                                            t1::GsInquiredType::GENERAL_SETTING3};
+            static constexpr t1::FunctionType kFunctions[] = {t1::FunctionType::GENERAL_SETTING1,
+                                                              t1::FunctionType::GENERAL_SETTING2,
+                                                              t1::FunctionType::GENERAL_SETTING3};
+            const bool supported = state.mSupport.contains(kFunctions[i]);
+            if (state.mGsParamBool[i].pending())
             {
-                SendCommandACK(t1::SetGsParamGsBooleanTypeValue,
-                               {.type = t1::GsInquiredType::GENERAL_SETTING1,
-                                .settingValue = {state.mGsParamBool[0].mSubmitted ? t1::CommonOnOffSettingValue::ON
-                                                                                  : t1::CommonOnOffSettingValue::OFF}});
+                if (supported)
+                {
+                    SendCommandACK(
+                        t1::SetGsParamGsBooleanTypeValue,
+                        {.type = kTypes[i],
+                         .settingValue = {state.mGsParamBool[i].mSubmitted ? t1::CommonOnOffSettingValue::ON
+                                                                           : t1::CommonOnOffSettingValue::OFF}});
+                }
+                state.mGsParamBool[i].commit();
             }
-            state.mGsParamBool[0].commit();
-        }
-        if (state.mGsParamBool[1].pending())
-        {
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING2))
+            if (state.mGsParamList[i].pending())
             {
-                SendCommandACK(t1::SetGsParamGsBooleanTypeValue,
-                               {.type = t1::GsInquiredType::GENERAL_SETTING2,
-                                .settingValue = {state.mGsParamBool[1].mSubmitted ? t1::CommonOnOffSettingValue::ON
-                                                                                  : t1::CommonOnOffSettingValue::OFF}});
+                if (supported)
+                {
+                    SendCommandACK(t1::SetGsParamGsListTypeValue,
+                                   {.type = kTypes[i],
+                                    .currentElementIndex = {static_cast<UInt8>(state.mGsParamList[i].mSubmitted)}});
+                }
+                state.mGsParamList[i].commit();
             }
-            state.mGsParamBool[1].commit();
-        }
-        if (state.mGsParamBool[2].pending())
-        {
-            if (state.mSupport.contains(t1::FunctionType::GENERAL_SETTING3))
-            {
-                SendCommandACK(t1::SetGsParamGsBooleanTypeValue,
-                               {.type = t1::GsInquiredType::GENERAL_SETTING3,
-                                .settingValue = {state.mGsParamBool[2].mSubmitted ? t1::CommonOnOffSettingValue::ON
-                                                                                  : t1::CommonOnOffSettingValue::OFF}});
-            }
-            state.mGsParamBool[2].commit();
         }
 
         if (state.mPairedDeviceConnectMac.pending() || state.mPairedDeviceDisconnectMac.pending() ||

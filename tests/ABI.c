@@ -53,8 +53,8 @@ static_assert(sizeof(MDRDeviceInfo) == 274, "device info array stride must remai
     static_assert(_Generic(((type*)0)->field, scalar: 1, default: 0), #type "." #field " signedness");                 \
     static_assert(offsetof(type, field) == offset, #type "." #field " offset")
 MDR_ASSERT_FIELD(MDRModel, model_color, uint32_t, 8);
-MDR_ASSERT_FIELD(MDRBattery, level_percent, uint32_t, 8);
-MDR_ASSERT_FIELD(MDRBattery, update_threshold_percent, uint32_t, 12);
+MDR_ASSERT_FIELD(MDRBattery, level_percent, uint32_t, 4);
+MDR_ASSERT_FIELD(MDRBattery, update_threshold_percent, uint32_t, 8);
 MDR_ASSERT_FIELD(MDRPlayback, volume, uint32_t, 4);
 MDR_ASSERT_FIELD(MDRNoiseControl, ambient_level, uint32_t, 4);
 MDR_ASSERT_FIELD(MDREqualizer, clear_bass, int32_t, 4);
@@ -64,7 +64,7 @@ MDR_ASSERT_FIELD(MDRSafeListening, sound_pressure, uint32_t, 0);
 
 #define MDR_ASSERT_LAYOUT(type, size) static_assert(sizeof(type) == size && _Alignof(type) == 4, #type " ABI layout")
 MDR_ASSERT_LAYOUT(MDRModel, 12);
-MDR_ASSERT_LAYOUT(MDRBattery, 20);
+MDR_ASSERT_LAYOUT(MDRBattery, 16);
 MDR_ASSERT_LAYOUT(MDRPlayback, 8);
 MDR_ASSERT_LAYOUT(MDRNoiseControl, 28);
 MDR_ASSERT_LAYOUT(MDREqualizer, 28);
@@ -73,8 +73,14 @@ MDR_ASSERT_LAYOUT(MDRSafeListening, 8);
 MDR_ASSERT_LAYOUT(MDRListeningStatus, 8);
 MDR_ASSERT_LAYOUT(MDRVoiceAssistantSettings, 12);
 MDR_ASSERT_LAYOUT(MDRVoiceAssistantOption, 8);
+MDR_ASSERT_LAYOUT(MDRGeneralSettingInfo, 20);
+MDR_ASSERT_LAYOUT(MDRGeneralSetting, 12);
 #undef MDR_ASSERT_LAYOUT
-static_assert(offsetof(MDRBattery, charging) == 16, "battery charging offset");
+static_assert(offsetof(MDRGeneralSettingInfo, option_count) == 12 && offsetof(MDRGeneralSettingInfo, text_is_key) == 16,
+              "general setting info offsets");
+static_assert(offsetof(MDRGeneralSetting, list_value) == 8, "general setting list value offset");
+static_assert(MDR_GENERAL_SETTING_OPTION_INDEX(3, 2) == 0x203u, "general setting option text index");
+static_assert(offsetof(MDRBattery, charging) == 12, "battery charging offset");
 static_assert(offsetof(MDRNoiseControl, changing_asm_level) == 8, "noise changing level offset");
 static_assert(offsetof(MDREqualizer, band_count) == 8 && offsetof(MDREqualizer, dsee_available) == 24,
               "equalizer offsets");
@@ -1267,6 +1273,7 @@ static int selective_init_command_allowed(unsigned char table, unsigned char com
         case 0x50: /* EQEBB_GET_CAPABILITY */
         case 0x52: /* EQEBB_GET_STATUS */
         case 0x56: /* EQEBB_GET_PARAM */
+        case 0x5a: /* EQEBB_GET_EXTENDED_INFO */
         case 0xd0: /* GENERAL_SETTING_GET_CAPABILITY */
         case 0xd6: /* GENERAL_SETTING_GET_PARAM */
         case 0xe0: /* AUDIO_GET_CAPABILITY */
@@ -1377,6 +1384,7 @@ static void test_init_skips_unadvertised_functions(void)
     check(!device_requested(&device, 1, 0x50, -1), "no EQEBB_GET_CAPABILITY without an equalizer");
     check(!device_requested(&device, 1, 0x52, -1), "no EQEBB_GET_STATUS without an equalizer");
     check(!device_requested(&device, 1, 0x56, -1), "no EQEBB_GET_PARAM without an equalizer");
+    check(!device_requested(&device, 1, 0x5a, -1), "no EQEBB_GET_EXTENDED_INFO without an equalizer");
     check(!device_requested(&device, 1, 0xa6, -1), "no PLAY_GET_PARAM without a playback controller");
     check(!device_requested(&device, 1, 0xa2, -1), "no PLAY_GET_STATUS without a playback controller");
     check(!device_requested(&device, 1, 0xf6, 0x01), "no PLAYBACK_CONTROL_BY_WEARING without wearing control");
@@ -1420,6 +1428,7 @@ static void test_init_requests_advertised_functions(void)
 
     check(device_requested(&device, 1, 0x50, 0x00), "EQEBB_GET_CAPABILITY for an advertised equalizer");
     check(device_requested(&device, 1, 0x52, -1), "EQEBB_GET_STATUS for an advertised equalizer");
+    check(device_requested(&device, 1, 0x5a, 0x00), "EQEBB_GET_EXTENDED_INFO PRESET_EQ for an advertised equalizer");
     check(device_requested(&device, 1, 0xa6, -1), "PLAY_GET_PARAM for an advertised playback controller");
     check(device_requested(&device, 1, 0xa2, -1), "PLAY_GET_STATUS for an advertised playback controller");
     check(device_requested(&device, 1, 0xf6, 0x01), "PLAYBACK_CONTROL_BY_WEARING for advertised wearing control");
@@ -3371,6 +3380,440 @@ static void test_v1_assignable_controls(void)
     session_close(&session);
 }
 
+static void check_value(MDRHeadphones* headphones, MDRValue key, uint32_t index, int32_t expected, const char* message)
+{
+    int32_t value = INT32_MIN;
+    check_result(mdrHeadphonesGetValue(headphones, key, index, &value), MDR_RESULT_OK, message);
+    check(value == expected, message);
+}
+
+static void check_range(MDRHeadphones* headphones, MDRValue min_key, uint32_t index, int32_t min, int32_t max,
+                        const char* message)
+{
+    check_value(headphones, min_key, index, min, message);
+    check_value(headphones, min_key + 1, index, max, message);
+    check_value(headphones, min_key + 2, index, 1, message);
+}
+
+/*
+ * Device limits come from the capability replies where the device sends them, and from the protocol defaults
+ * until then. The Set* calls validate against the same values. The capability frames marked XM3 are verbatim from
+ * the WH-1000XM3-4.5.2 capture; the others change one field to show that the value is read, not assumed.
+ */
+static void test_v1_device_values(void)
+{
+    /* BATTERY_LEVEL, NC/ASM, PRESET_EQ, PLAYBACK_CONTROLLER, AUTO_POWER_OFF, from the XM3's own table */
+    static const unsigned char support[] = {0x07, 0, 5, 0x11, 0x62, 0x51, 0xa1, 0xf4};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    /* XM3: PRESET_EQ, 6 bands (Clear Bass + 5) of 21 steps, 12 unnamed presets */
+    static const unsigned char eq_xm3[] = {0x51, 0x01, 0x06, 0x15, 0x0c, 0x00, 0x00, 0x10, 0x00, 0x11,
+                                           0x00, 0x12, 0x00, 0x13, 0x00, 0x14, 0x00, 0x15, 0x00, 0x16,
+                                           0x00, 0x17, 0x00, 0xa0, 0x00, 0xa1, 0x00, 0xa2, 0x00};
+    /* 13 steps (-6..6), no presets */
+    static const unsigned char eq_13[] = {0x51, 0x01, 0x06, 0x0d, 0x00};
+    /* EQEBB_RET_PARAM: Clear Bass 0, bands +2 0 0 0 0 at offset 6 */
+    static const unsigned char eq_param[] = {0x57, 0x01, 0xa0, 0x06, 0x06, 0x08, 0x06, 0x06, 0x06, 0x06};
+    /* SetEqEbbParam for Clear Bass 6, bands 6 -6 0 0 0 at offset 6 */
+    static const unsigned char eq_write[] = {0x58, 0x01, 0xff, 0x06, 12, 12, 0, 6, 6, 6};
+    /* XM3: volumeStep 31 (0..30) */
+    static const unsigned char play_xm3[] = {0xa1, 0x01, 0x1f, 0x01, 0x01};
+    static const unsigned char play_16[] = {0xa1, 0x01, 0x10, 0x01, 0x01};
+    /* XM3: 5, 30, 60, 180 min and off; no 15 */
+    static const unsigned char power_xm3[] = {0xf1, 0x04, 0x05, 0x00, 0x01, 0x02, 0x03, 0x11};
+    /* 30 min, WHEN_REMOVED_FROM_EARS (no duration), and off */
+    static const unsigned char power_short[] = {0xf1, 0x04, 0x03, 0x01, 0x10, 0x11};
+    /* XM3: 100%, not charging */
+    static const unsigned char battery_xm3[] = {0x11, 0x00, 0x64, 0x00};
+    static const int32_t bands_ok[5] = {6, -6, 0, 0, 0};
+    static const int32_t bands_wide[5] = {7, 0, 0, 0, 0};
+    Session session;
+    Device device;
+    MDRBattery battery;
+    MDRPower power;
+    int32_t value = 0;
+    int32_t bands[5];
+    uint32_t count;
+    size_t offset;
+
+    if (!session_open_family(&session, MDR_PROTOCOL_V1))
+        return;
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_PLAYBACK_VOLUME_MAX, 0, &value),
+                 MDR_RESULT_INPROGRESS, "limits are not known before initialization");
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = 1;
+    device.table1 = support;
+    device.table1_size = sizeof(support);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+
+    check_result(mdrHeadphonesGetValue(NULL, MDR_VALUE_PLAYBACK_VOLUME_MAX, 0, &value),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "a null handle is refused");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_PLAYBACK_VOLUME_MAX, 0, NULL),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "a null output is refused");
+    check_result(mdrHeadphonesGetValue(session.headphones, 0, 0, &value), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "key 0 is not a key");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY + 1, 0, &value),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "a key past the last one is refused");
+
+    /* Defaults, before any capability reply */
+    check_range(session.headphones, MDR_VALUE_PLAYBACK_VOLUME_MIN, 0, 0, 30, "default volume range");
+    check_range(session.headphones, MDR_VALUE_AMBIENT_LEVEL_MIN, 0, 1, 20, "default ambient range");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 5, -10, 10, "default 5-band range");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 10, -6, 6, "default 10-band range");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 7, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "an unknown band count has no range");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, &value),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "no Clear Bass before the 5-band layout is known");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN, 0, &value),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "V1 has no voice guidance volume");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 5, "default V1 auto power off count");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, 30, "default V1 list has no 15 min");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 5, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "an option past the end is not found");
+
+    /* Battery */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, battery_xm3, sizeof(battery_xm3));
+    device_run(&session, &device, MDR_EVENT_BATTERY_CHANGED, "XM3 battery polls");
+    count = 1;
+    check_result(mdrHeadphonesGetBatteries(session.headphones, &battery, &count), MDR_RESULT_OK, "battery reads");
+    check(count == 1 && battery.part == MDR_BATTERY_MAIN && battery.level_percent == 100,
+          "XM3 battery decodes as one main part at 100%");
+
+    /* Playback volume */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, play_xm3, sizeof(play_xm3));
+    device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "XM3 play capability polls");
+    check_range(session.headphones, MDR_VALUE_PLAYBACK_VOLUME_MIN, 0, 0, 30, "XM3 volumeStep 31 is 0..30");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, play_16, sizeof(play_16));
+    device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "short play capability polls");
+    check_range(session.headphones, MDR_VALUE_PLAYBACK_VOLUME_MIN, 0, 0, 15, "volumeStep 16 is 0..15");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 16), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "volume past the advertised maximum is refused");
+    check_result(mdrHeadphonesSetPlaybackVolume(session.headphones, 15), MDR_RESULT_OK,
+                 "the advertised maximum is accepted");
+
+    /* Auto power off */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, power_xm3, sizeof(power_xm3));
+    device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "XM3 auto power off capability polls");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 5, "XM3 lists five choices");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 5, "XM3 lists 5 min first");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 4, 0, "XM3 lists off last");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, power_short, sizeof(power_short));
+    device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "short auto power off capability polls");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 2,
+                "elements without a duration are skipped");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 30, "30 min survives");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, 0, "off survives");
+    check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power), MDR_RESULT_OK, "power reads");
+    power.auto_power_off_minutes = 60;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "a duration the device didn't list is refused");
+    power.auto_power_off_minutes = 30;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "a listed duration is accepted");
+
+    /* Equalizer and Clear Bass */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_xm3, sizeof(eq_xm3));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "XM3 EQ capability polls");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 5, -10, 10, "XM3 step 21 is -10..10");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_13, sizeof(eq_13));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "13-step EQ capability polls");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 5, -6, 6, "step 13 is -6..6");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_param, sizeof(eq_param));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "EQ param polls");
+    count = 5;
+    check_result(mdrHeadphonesGetEqualizerBands(session.headphones, MDR_PROPERTY_CURRENT, bands, &count), MDR_RESULT_OK,
+                 "bands read");
+    check(count == 5 && bands[0] == 2 && bands[1] == 0, "bands decode at the advertised offset");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, -6, 6, "Clear Bass shares the EQ step");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 7), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "Clear Bass past the advertised range is refused");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_wide, 5), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "a band past the advertised range is refused");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 6), MDR_RESULT_OK, "Clear Bass 6 stages");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_ok, 5), MDR_RESULT_OK, "bands stage");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "EQ apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "EQ apply completes");
+    check_command_payload(&session, offset, eq_write, sizeof(eq_write));
+    session_close(&session);
+}
+
+/*
+ * V2 EQ layout comes from the device: band count and step from EQEBB_RET_CAPABILITY, frequencies from
+ * EQEBB_RET_EXTENDED_INFO. Frames marked XM6 are verbatim from a WH-1000XM6 3.1.5 debugger session (unescaped).
+ */
+static void test_v2_equalizer_layout(void)
+{
+    static const unsigned char table1[] = {0x07, 0x00, 0x01, 0x50, 0xff /* PRESET_EQ */};
+    static const unsigned char table2[] = {0x07, 0x00, 0x00};
+    /* XM6: answered as PRESET_EQ_AND_ERRORCODE, 10 bands, 13 steps, 9 unnamed presets */
+    static const unsigned char cap_xm6[] = {0x51, 0x04, 0x0a, 0x0d, 0x09, 0x00, 0x00, 0x30, 0x00, 0x31, 0x00, 0x32,
+                                            0x00, 0x33, 0x00, 0x20, 0x00, 0xa0, 0x00, 0xa1, 0x00, 0xa2, 0x00};
+    /* As XM6 with 15 steps */
+    static const unsigned char cap_15[] = {0x51, 0x04, 0x0a, 0x0f, 0x00};
+    /* XM6: preset OFF, all ten bands at 0 */
+    static const unsigned char param_xm6[] = {0x57, 0x00, 0x00, 0x0a, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+    /* XM6: 10 x HZ, 31 .. 16000 */
+    static const unsigned char info_xm6[] = {0x5b, 0x00, 0x0a, 0x01, 0x00, 0x1f, 0x01, 0x00, 0x3f, 0x01, 0x00,
+                                             0x7d, 0x01, 0x00, 0xfa, 0x01, 0x01, 0xf4, 0x01, 0x03, 0xe8, 0x01,
+                                             0x07, 0xd0, 0x01, 0x0f, 0xa0, 0x01, 0x1f, 0x40, 0x01, 0x3e, 0x80};
+    /* As XM6 with the first band at 32 Hz */
+    static const unsigned char info_32[] = {0x5b, 0x00, 0x0a, 0x01, 0x00, 0x20, 0x01, 0x00, 0x3f, 0x01, 0x00,
+                                            0x7d, 0x01, 0x00, 0xfa, 0x01, 0x01, 0xf4, 0x01, 0x03, 0xe8, 0x01,
+                                            0x07, 0xd0, 0x01, 0x0f, 0xa0, 0x01, 0x1f, 0x40, 0x01, 0x3e, 0x80};
+    /* -7, 0 x 8, 7 at the 15-step offset of 7 */
+    static const unsigned char eq_write[] = {0x58, 0x00, 0x00, 0x0a, 0, 7, 7, 7, 7, 7, 7, 7, 7, 14};
+    static const int32_t bands_ok[10] = {-7, 0, 0, 0, 0, 0, 0, 0, 0, 7};
+    static const int32_t bands_wide[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 8};
+    Session session;
+    Device device;
+    MDREqualizer equalizer;
+    int32_t value = 0;
+    size_t offset;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    check(device_requested(&device, 1, 0x5a, 0x00), "band info is requested as PRESET_EQ");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, cap_xm6, sizeof(cap_xm6));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "XM6 EQ capability polls");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 10, -6, 6, "XM6 13 steps is -6..6");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, param_xm6, sizeof(param_xm6));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "XM6 EQ param polls");
+    check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &equalizer), MDR_RESULT_OK,
+                 "equalizer reads");
+    check(equalizer.band_count == 10 && equalizer.clear_bass == 0, "XM6 has ten bands");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, &value),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "a ten-value param has no Clear Bass");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 0, 31,
+                "default 10-band layout before band info");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, info_xm6, sizeof(info_xm6));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "XM6 band info polls");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 9, 16000, "XM6 last band is 16 kHz");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 4, 500, "XM6 middle band is 500 Hz");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, info_32, sizeof(info_32));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "modified band info polls");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 0, 32, "band frequencies are read");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 10, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "a band past the layout has no frequency");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, param_xm6, sizeof(param_xm6));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "XM6 EQ param polls with band info");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, &value),
+                 MDR_RESULT_ERROR_NOT_SUPPORTED, "ten values over ten frequencies still have no Clear Bass");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, cap_15, sizeof(cap_15));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "15-step EQ capability polls");
+    check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 10, -7, 7, "15 steps is -7..7");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_wide, 10), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "a band past the advertised range is refused");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_ok, 10), MDR_RESULT_OK,
+                 "the advertised extremes stage");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "EQ apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "EQ apply completes");
+    check_command_payload(&session, offset, eq_write, sizeof(eq_write));
+    session_close(&session);
+}
+
+static void check_noise(MDRHeadphones* headphones, MDRNoiseMode mode, uint32_t level, MDRBoolean voice,
+                        const char* message)
+{
+    MDRNoiseControl noise;
+    check_result(mdrHeadphonesGetNoiseControl(headphones, MDR_PROPERTY_CURRENT, &noise), MDR_RESULT_OK, message);
+    check(noise.mode == mode && noise.ambient_level == level && noise.focus_on_voice == voice, message);
+}
+
+static void check_text(MDRHeadphones* headphones, MDRText text, uint32_t index, const char* expected,
+                       const char* message)
+{
+    char buffer[64] = {0};
+    uint32_t size = sizeof(buffer);
+    check_result(mdrHeadphonesGetText(headphones, text, index, buffer, &size), MDR_RESULT_OK, message);
+    check(strcmp(buffer, expected) == 0, message);
+}
+
+/*
+ * V1 noise control is reported in the V2 model: the V1 NC selector becomes the mode, wind noise reduction gets a
+ * mode of its own. EQ band frequencies and list-type general settings come from the device. Frames marked XM3 are
+ * verbatim from the WH-1000XM3-4.5.2 capture.
+ */
+static void test_v1_noise_eq_general_settings(void)
+{
+    /* NC/ASM, PRESET_EQ, GENERAL_SETTING1 */
+    static const unsigned char support[] = {0x07, 0, 3, 0x62, 0x51, 0xd1};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    /* XM3: DUAL_SINGLE_OFF, ambient NORMAL/VOICE with 20 steps */
+    static const unsigned char nc_cap_xm3[] = {0x61, 0x02, 0x02, 0x00, 0x01, 0x02, 0x00, 0x14, 0x01, 0x14};
+    /* ON_OFF NC, 10 ambient steps */
+    static const unsigned char nc_cap_on_off[] = {0x61, 0x02, 0x00, 0x00, 0x01, 0x02, 0x00, 0x0a, 0x01, 0x0a};
+    /* XM3: on, DUAL (NC), ambient 0 */
+    static const unsigned char nc_xm3[] = {0x67, 0x02, 0x01, 0x02, 0x02, 0x01, 0x00, 0x00};
+    static const unsigned char nc_wnr[] = {0x69, 0x02, 0x01, 0x02, 0x01, 0x01, 0x00, 0x00};
+    static const unsigned char nc_ambient[] = {0x69, 0x02, 0x01, 0x02, 0x00, 0x01, 0x01, 0x0f};
+    static const unsigned char nc_off[] = {0x69, 0x02, 0x00, 0x02, 0x02, 0x01, 0x00, 0x00};
+    static const unsigned char nc_write_wnr[] = {0x68, 0x02, 0x11, 0x02, 0x01, 0x01, 0x00, 0x00};
+    static const unsigned char nc_write_ambient[] = {0x68, 0x02, 0x11, 0x02, 0x00, 0x01, 0x01, 20};
+    static const unsigned char nc_write_on_off[] = {0x68, 0x02, 0x11, 0x00, 0x01, 0x01, 0x00, 0x00};
+    /* EQEBB_RET_PARAM: Clear Bass + 5 bands, all 0 at the default offset */
+    static const unsigned char eq_param[] = {0x57, 0x01, 0xa0, 0x06, 10, 10, 10, 10, 10, 10};
+    /* XM3: Clear Bass, then 400, 1000, 2500, 6300, 16000 Hz */
+    static const unsigned char eq_info_xm3[] = {0x5b, 0x01, 0x06, 0x10, 0x00, 0x01, 0x01, 0x01, 0x90, 0x01, 0x03,
+                                                0xe8, 0x01, 0x09, 0xc4, 0x01, 0x18, 0x9c, 0x01, 0x3e, 0x80};
+    /* First band at 100 Hz */
+    static const unsigned char eq_info_100[] = {0x5b, 0x01, 0x06, 0x10, 0x00, 0x01, 0x01, 0x00, 0x64, 0x01, 0x03,
+                                                0xe8, 0x01, 0x09, 0xc4, 0x01, 0x18, 0x9c, 0x01, 0x3e, 0x80};
+    /* GENERAL_SETTING1, ENUM_NAME "KEY", LIST_TYPE: {ENUM_NAME "A"}, {RAW_NAME "b" / "c"}; shaped like the XM3's
+     * ASSIGNABLE_KEY_SETTING */
+    static const unsigned char gs_list[] = {0xd1, 0xd1, 0x02, 3, 'K',  'E', 'Y', 0, 0x02, 2,
+                                            0x02, 1,    'A',  0, 0x01, 1,   'b', 1, 'c'};
+    static const unsigned char gs_param[] = {0xd7, 0xd1, 0x02, 0x01};
+    static const unsigned char gs_write[] = {0xd8, 0xd1, 0x02, 0x00};
+    Session session;
+    Device device;
+    MDRNoiseControl noise;
+    MDRFeatureAvailability availability;
+    MDRGeneralSettingInfo info;
+    MDRGeneralSetting setting;
+    int32_t value = 0;
+    uint32_t count;
+    size_t offset;
+
+    if (!session_open_family(&session, MDR_PROTOCOL_V1))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = 1;
+    device.table1 = support;
+    device.table1_size = sizeof(support);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+
+    /* Noise control */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_cap_xm3, sizeof(nc_cap_xm3));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "XM3 NC/ASM capability polls");
+    check(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_WIND_NOISE_REDUCTION, &availability) ==
+                  MDR_RESULT_OK &&
+              availability == MDR_AVAILABILITY_AVAILABLE,
+          "DUAL_SINGLE_OFF offers wind noise reduction");
+    check_range(session.headphones, MDR_VALUE_AMBIENT_LEVEL_MIN, 0, 1, 20, "XM3 ambient steps 20 is 1..20");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_xm3, sizeof(nc_xm3));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "XM3 NC param polls");
+    check_noise(session.headphones, MDR_NOISE_MODE_CANCELLING, 0, MDR_FALSE, "XM3 DUAL reads as noise cancelling");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_wnr, sizeof(nc_wnr));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "SINGLE notification polls");
+    check_noise(session.headphones, MDR_NOISE_MODE_WIND_NOISE_REDUCTION, 0, MDR_FALSE,
+                "SINGLE reads as wind noise reduction");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_ambient, sizeof(nc_ambient));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "ambient notification polls");
+    check_noise(session.headphones, MDR_NOISE_MODE_AMBIENT, 15, MDR_TRUE, "OFF selector reads as ambient");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_off, sizeof(nc_off));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "off notification polls");
+    check_noise(session.headphones, MDR_NOISE_MODE_OFF, 0, MDR_FALSE, "effect OFF reads as off");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_xm3, sizeof(nc_xm3));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "XM3 NC param polls again");
+
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    noise.mode = MDR_NOISE_MODE_WIND_NOISE_REDUCTION;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK,
+                 "wind noise reduction stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "WNR apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "WNR apply completes");
+    check_command_payload(&session, offset, nc_write_wnr, sizeof(nc_write_wnr));
+
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    noise.mode = MDR_NOISE_MODE_AMBIENT;
+    noise.ambient_level = 21;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "ambient past the advertised steps is refused");
+    noise.ambient_level = 20;
+    noise.focus_on_voice = MDR_TRUE;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "ambient stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "ambient apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "ambient apply completes");
+    check_command_payload(&session, offset, nc_write_ambient, sizeof(nc_write_ambient));
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, nc_cap_on_off, sizeof(nc_cap_on_off));
+    device_run(&session, &device, MDR_EVENT_NOISE_CONTROL_CHANGED, "ON_OFF NC/ASM capability polls");
+    check(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_WIND_NOISE_REDUCTION, &availability) ==
+                  MDR_RESULT_OK &&
+              availability == MDR_AVAILABILITY_UNAVAILABLE,
+          "ON_OFF NC has no wind noise reduction");
+    check_range(session.headphones, MDR_VALUE_AMBIENT_LEVEL_MIN, 0, 1, 10, "ambient steps 10 is 1..10");
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    noise.mode = MDR_NOISE_MODE_WIND_NOISE_REDUCTION;
+    noise.ambient_level = 0;
+    noise.focus_on_voice = MDR_FALSE;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "wind noise reduction is refused without the feature");
+    noise.mode = MDR_NOISE_MODE_CANCELLING;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "ON_OFF NC stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "ON_OFF NC apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "ON_OFF NC apply completes");
+    check_command_payload(&session, offset, nc_write_on_off, sizeof(nc_write_on_off));
+
+    /* EQ band frequencies */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_param, sizeof(eq_param));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "EQ param polls");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 0, 400, "default 5-band layout starts at 400");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_info_xm3, sizeof(eq_info_xm3));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "XM3 EQ extended info polls");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 4, 16000, "XM3 last band is 16 kHz");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, eq_info_100, sizeof(eq_info_100));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "modified EQ extended info polls");
+    check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 0, 100, "band frequencies are read");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 5, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "a band past the layout has no frequency");
+
+    /* List-type general setting */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, gs_list, sizeof(gs_list));
+    device_run(&session, &device, MDR_EVENT_GENERAL_SETTINGS_CHANGED, "list general setting capability polls");
+    count = 1;
+    check_result(mdrHeadphonesGetGeneralSettingInfo(session.headphones, &info, &count), MDR_RESULT_OK,
+                 "general setting info reads");
+    check(count == 1 && info.index == 0 && info.type == MDR_GENERAL_SETTING_LIST && info.option_count == 2 &&
+              info.writable == MDR_TRUE && info.text_is_key == MDR_TRUE,
+          "list setting reports its options and text kind");
+    check_text(session.headphones, MDR_TEXT_GENERAL_SETTING_SUBJECT, 0, "KEY", "setting subject reads");
+    check_text(session.headphones, MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT, MDR_GENERAL_SETTING_OPTION_INDEX(0, 0), "A",
+               "first option subject reads");
+    check_text(session.headphones, MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT, MDR_GENERAL_SETTING_OPTION_INDEX(0, 1), "b",
+               "second option subject reads");
+    check_text(session.headphones, MDR_TEXT_GENERAL_SETTING_OPTION_SUMMARY, MDR_GENERAL_SETTING_OPTION_INDEX(0, 1), "c",
+               "second option summary reads");
+    count = 0;
+    check_result(mdrHeadphonesGetText(session.headphones, MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT,
+                                      MDR_GENERAL_SETTING_OPTION_INDEX(0, 2), NULL, &count),
+                 MDR_RESULT_ERROR_NOT_FOUND, "an option past the list is not found");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, gs_param, sizeof(gs_param));
+    device_run(&session, &device, MDR_EVENT_GENERAL_SETTINGS_CHANGED, "list general setting param polls");
+    check_result(mdrHeadphonesGetGeneralSetting(session.headphones, MDR_PROPERTY_CURRENT, 0, &setting), MDR_RESULT_OK,
+                 "list setting reads");
+    check(setting.list_value == 1, "list setting decodes the current option");
+    setting.list_value = 2;
+    check_result(mdrHeadphonesSetGeneralSetting(session.headphones, &setting), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "an option past the list is refused");
+    setting.list_value = 0;
+    check_result(mdrHeadphonesSetGeneralSetting(session.headphones, &setting), MDR_RESULT_OK, "list option stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "list setting apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "list setting apply completes");
+    check_command_payload(&session, offset, gs_write, sizeof(gs_write));
+    session_close(&session);
+}
+
 static void test_property_getter_contracts(MDRProtocolVersion family)
 {
     Session session;
@@ -3489,12 +3932,13 @@ static void test_widened_inputs(MDRProtocolVersion family)
     noise.ambient_level = 21;
     check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "ambient range is still capped at 20");
-    if (family == MDR_PROTOCOL_V2)
-    {
-        noise.ambient_level = MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING;
-        check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
-                     "V2 rejects the V1 sentinel");
-    }
+    noise.ambient_level = 255;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "the old V1 sentinel is just an out-of-range level");
+    noise = noise_before;
+    noise.mode = MDR_NOISE_MODE_WIND_NOISE_REDUCTION + 1;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "unknown noise mode is rejected");
     for (i = 0; i < sizeof(signed_values) / sizeof(signed_values[0]); ++i)
     {
         check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, signed_values[i]),
@@ -3815,7 +4259,7 @@ static void test_unedited_property_is_not_submitted(MDRProtocolVersion family)
     device_run(&session, &device, MDR_EVENT_PLAYBACK_CHANGED, "initial unedited volume report polls");
     check_result(mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise), MDR_RESULT_OK,
                  "noise desired view reads");
-    noise.mode = v1 ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_AMBIENT;
+    noise.mode = MDR_NOISE_MODE_AMBIENT;
     noise.ambient_level = 10;
     check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "only noise stages");
     device.log_size = 0;
@@ -3873,7 +4317,7 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
 
     check_result(mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise), MDR_RESULT_OK,
                  "desired noise reads");
-    noise.mode = v1 ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_AMBIENT;
+    noise.mode = MDR_NOISE_MODE_AMBIENT;
     noise.ambient_level = 20;
     noise.changing_asm_level = MDR_TRUE;
     check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK,
@@ -3885,18 +4329,17 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
     mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_CURRENT, &current_noise);
     mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
     check(current_noise.mode == MDR_NOISE_MODE_OFF && current_noise.changing_asm_level == MDR_FALSE &&
-              noise.mode == (v1 ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_AMBIENT) && noise.ambient_level == 20 &&
+              noise.mode == MDR_NOISE_MODE_AMBIENT && noise.ambient_level == 20 &&
               noise.changing_asm_level == MDR_TRUE && noise.focus_on_voice == MDR_TRUE,
           "desired noise edits preserve mode, level and changing flag while current stays unchanged");
-    if (v1)
-    {
-        noise.ambient_level = MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING;
-        check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK,
-                     "V1 accepts sentinel 255");
-        mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
-        check(noise.ambient_level == 255u && noise.changing_asm_level == MDR_TRUE,
-              "V1 sentinel round-trips without losing changing flag");
-    }
+    noise.mode = MDR_NOISE_MODE_CANCELLING;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_OK, "NC mode stages");
+    mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
+    check(noise.mode == MDR_NOISE_MODE_CANCELLING && noise.changing_asm_level == MDR_TRUE,
+          "NC mode round-trips without losing changing flag");
+    noise.mode = MDR_NOISE_MODE_WIND_NOISE_REDUCTION;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "wind noise reduction needs the feature");
 
     mdrHeadphonesGetSpeakToChat(session.headphones, MDR_PROPERTY_DESIRED, &speak);
     speak.enabled = MDR_TRUE;
@@ -4383,6 +4826,9 @@ int main(void)
     test_v2_assignable_controls(0);
     test_v2_assignable_controls(1);
     test_v1_assignable_controls();
+    test_v1_device_values();
+    test_v1_noise_eq_general_settings();
+    test_v2_equalizer_layout();
 
     if (g_failures != 0)
         fprintf(stderr, "%d test assertion(s) failed\n", g_failures);

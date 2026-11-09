@@ -23318,7 +23318,7 @@ namespace debugger {
                     changed |= DrawTree(elementLabel, [&]() {
                         bool changed = false;
                         changed |= DrawEnum("infoType", element.infoType, kEnum_mdr__v2__t1__EqBandInformationType);
-                        changed |= DrawScalar("valueAsFrequency", element.valueAsFrequency);
+                        changed |= DrawEndian("valueAsFrequency", element.valueAsFrequency);
                         return changed;
                     });
                 }

@@ -37,6 +37,7 @@
     PROP(int, mPlayVolume)                                                                                             \
     PROP(v2::t1::PlaybackControl, mPlayControl)                                                                        \
     ARRAY(bool, mGsParamBool, 4)                                                                                       \
+    ARRAY(int, mGsParamList, 4)                                                                                        \
     PROP(bool, mUpscalingEnabled)                                                                                      \
     PROP(v2::t1::PriorMode, mAudioPriorityMode)                                                                        \
     PROP(bool, mBGMModeEnabled)                                                                                        \
@@ -153,6 +154,7 @@ namespace mdr
         {
             v2::t1::GsSettingType type{};
             v2::t1::GsSettingInfo value{};
+            Vector<v2::t1::GsSettingInfo> options; // LIST_TYPE only
         };
 
         struct EqPresetInfo
@@ -336,6 +338,11 @@ namespace mdr
         UInt8 mSpeakToChatVoiceFocus{};
 
         Vector<EqPresetInfo> mEqPresets;
+        UInt8 mEqCapabilityBands{};
+        UInt8 mEqCapabilityStep{};
+        Vector<v2::t1::EqBandInformation> mEqBandInfo;
+        bool mEqRawLayoutKnown{};
+        bool mEqRawClearBass{};
         v2::t2::SourceSwitchControlResult mSourceSwitchControlResult{v2::t2::SourceSwitchControlResult::SUCCESS};
 
         ListeningStatus mBGMModeStatus, mUpmixCinemaStatus, mVoiceContentsStatus, mSoundLeakageReductionStatus;
@@ -354,6 +361,46 @@ namespace mdr
                 (mSupport.contains(v2::t2::FunctionType::WEARING_STATUS_CHECKER) ||
                  mSupport.contains(v2::t1::FunctionType::WEARING_STATUS_DETECTOR) ||
                  mSupport.contains(v2::t1::FunctionType::PLAYBACK_CONTROL_BY_WEARING_REMOVING_HEADPHONE_ON_OFF));
+        }
+
+        /**
+         * @brief Offset of the raw EQ steps for a param with `rawBands` values (Clear Bass included).
+         *
+         * The capability's step counts positions, so 13 steps is -6..6 with offset 6. Without a matching
+         * capability, Sony's fixed layouts apply: Clear Bass + 5 bands at -10..10, 10 bands at -6..6.
+         */
+        int EqStepOffset(size_t rawBands) const
+        {
+            if (mEqCapabilityBands == rawBands && mEqCapabilityStep >= 3 && mEqCapabilityStep % 2 == 1)
+                return (mEqCapabilityStep - 1) / 2;
+            return rawBands == 6 ? 10 : 6;
+        }
+
+        /**
+         * @brief Whether a param with `rawBands` values leads with Clear Bass.
+         *
+         * Band info lists only real bands (WH-1000XM6 sends 10 for its 10-value param), so one value more than
+         * the band info means Clear Bass. Without band info, the 6-value layout is Clear Bass + 5.
+         */
+        bool EqHasClearBass(size_t rawBands) const
+        {
+            size_t frequencies = 0;
+            for (const auto& band : mEqBandInfo)
+                if (band.infoType == v2::t1::EqBandInformationType::HZ)
+                    ++frequencies;
+            if (frequencies != 0)
+                return rawBands == frequencies + 1;
+            return rawBands == 6;
+        }
+
+        /**
+         * @brief Whether the raw param for `bands` user bands leads with Clear Bass.
+         *
+         * Mirrors the device's last param; before one arrives, 5 bands means Clear Bass + 5.
+         */
+        bool EqClearBassInRaw(size_t bands) const
+        {
+            return mEqRawLayoutKnown ? mEqRawClearBass : bands == 5;
         }
 
         /**
