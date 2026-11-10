@@ -3454,7 +3454,7 @@ static void test_v1_device_values(void)
                  MDR_RESULT_ERROR_INVALID_ARGUMENT, "a null output is refused");
     check_result(mdrHeadphonesGetValue(session.headphones, 0, 0, &value), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "key 0 is not a key");
-    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY + 1, 0, &value),
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY + 1, 0, &value),
                  MDR_RESULT_ERROR_INVALID_ARGUMENT, "a key past the last one is refused");
 
     /* Defaults, before any capability reply */
@@ -3525,6 +3525,8 @@ static void test_v1_device_values(void)
     check_result(mdrHeadphonesGetEqualizerBands(session.headphones, MDR_PROPERTY_CURRENT, bands, &count), MDR_RESULT_OK,
                  "bands read");
     check(count == 5 && bands[0] == 2 && bands[1] == 0, "bands decode at the advertised offset");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 10, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "a default layout the device doesn't use has no range");
     check_range(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, -6, 6, "Clear Bass shares the EQ step");
     check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 7), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "Clear Bass past the advertised range is refused");
@@ -3613,6 +3615,10 @@ static void test_v2_equalizer_layout(void)
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, cap_15, sizeof(cap_15));
     device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "15-step EQ capability polls");
     check_range(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 10, -7, 7, "15 steps is -7..7");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_BAND_MIN, 5, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "a default layout the device doesn't use has no range");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_ok, 5), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "a band count off the device's layout is refused");
     check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_wide, 10), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "a band past the advertised range is refused");
     check_result(mdrHeadphonesSetEqualizerBands(session.headphones, bands_ok, 10), MDR_RESULT_OK,
@@ -3793,6 +3799,14 @@ static void test_v1_noise_eq_general_settings(void)
                "second option subject reads");
     check_text(session.headphones, MDR_TEXT_GENERAL_SETTING_OPTION_SUMMARY, MDR_GENERAL_SETTING_OPTION_INDEX(0, 1), "c",
                "second option summary reads");
+    check_value(session.headphones, MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY,
+                MDR_GENERAL_SETTING_OPTION_INDEX(0, 0), 1, "ENUM_NAME option text is a key");
+    check_value(session.headphones, MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY,
+                MDR_GENERAL_SETTING_OPTION_INDEX(0, 1), 0,
+                "RAW_NAME option text is display text under an ENUM_NAME setting");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY,
+                                       MDR_GENERAL_SETTING_OPTION_INDEX(0, 2), &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "an option past the list has no text format");
     count = 0;
     check_result(mdrHeadphonesGetText(session.headphones, MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT,
                                       MDR_GENERAL_SETTING_OPTION_INDEX(0, 2), NULL, &count),
@@ -4016,6 +4030,8 @@ static void test_eq_array_views(MDRProtocolVersion family)
     static const unsigned char table2[] = {0x07, 0, 0};
     static const unsigned char flat_v1[] = {0x57, 1, 0, 6, 10, 10, 10, 10, 10, 10};
     static const unsigned char flat_v2[] = {0x57, 0, 0, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+    static const unsigned char other_v1[] = {0x57, 1, 0, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+    static const unsigned char other_v2[] = {0x57, 0, 0, 6, 10, 10, 10, 10, 10, 10};
     static const int32_t flat[10] = {0};
     static const int32_t five[5] = {-10, -1, 0, 1, 10};
     static const int32_t ten[10] = {-6, -1, 0, 1, 6, -6, -1, 0, 1, 6};
@@ -4037,18 +4053,23 @@ static void test_eq_array_views(MDRProtocolVersion family)
     device.table2 = table2;
     device.table2_size = sizeof(table2);
     device_run_init(&session, &device);
-    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    /* The views can only differ in size when the device changes layout under a local edit. */
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? other_v1 : other_v2, v1 ? sizeof(other_v1) : sizeof(other_v2));
     device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "initial EQ array polls");
-    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, current_count);
-    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, flat, current_count);
+    check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, desired_count);
+    check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, flat, desired_count);
     check_result(mdrHeadphonesSetEqualizerBands(session.headphones, edited, desired_count), MDR_RESULT_OK,
-                 "different sized desired EQ array stages");
+                 "desired EQ array stages");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "EQ layout change with a local edit polls");
     check_eq_bands(session.headphones, MDR_PROPERTY_CURRENT, flat, current_count);
     check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, edited, desired_count);
     mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_CURRENT, &current);
     mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &desired);
     check(current.band_count == current_count && desired.band_count == desired_count,
           "equalizer band_count corresponds to the selected config");
+    check_result(mdrHeadphonesSetEqualizerBands(session.headphones, edited, desired_count),
+                 MDR_RESULT_ERROR_INVALID_ARGUMENT, "a band count off the device's layout is refused");
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
     device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "EQ notification with a local edit polls");
     check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, edited, desired_count);

@@ -173,6 +173,7 @@ typedef uint32_t MDRText;
 // Text index of option `option` of general setting `setting` (@ref MDRGeneralSettingInfo.index).
 #define MDR_GENERAL_SETTING_OPTION_INDEX(setting, option) ((((uint32_t)(option)) << 8u) | ((uint32_t)(setting) & 0xffu))
 
+// `index` is ignored unless the key documents it.
 typedef uint32_t MDRValue;
 #define MDR_VALUE_PLAYBACK_VOLUME_MIN ((MDRValue)1u)
 #define MDR_VALUE_PLAYBACK_VOLUME_MAX ((MDRValue)2u)
@@ -180,6 +181,8 @@ typedef uint32_t MDRValue;
 #define MDR_VALUE_AMBIENT_LEVEL_MIN ((MDRValue)4u)
 #define MDR_VALUE_AMBIENT_LEVEL_MAX ((MDRValue)5u)
 #define MDR_VALUE_AMBIENT_LEVEL_STEP ((MDRValue)6u)
+// `index` is the band count (@ref MDREqualizer.band_count), not a band. It must match the layout the device reported;
+// before the first report, only the default 5- and 10-band layouts exist. Anything else is MDR_RESULT_ERROR_NOT_FOUND.
 #define MDR_VALUE_EQUALIZER_BAND_MIN ((MDRValue)7u)
 #define MDR_VALUE_EQUALIZER_BAND_MAX ((MDRValue)8u)
 #define MDR_VALUE_EQUALIZER_BAND_STEP ((MDRValue)9u)
@@ -190,9 +193,14 @@ typedef uint32_t MDRValue;
 #define MDR_VALUE_VOICE_GUIDANCE_VOLUME_MAX ((MDRValue)14u)
 #define MDR_VALUE_VOICE_GUIDANCE_VOLUME_STEP ((MDRValue)15u)
 #define MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT ((MDRValue)16u)
+// Minutes of option `index` (< MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT); 0 means never.
 #define MDR_VALUE_AUTO_POWER_OFF_OPTION ((MDRValue)17u)
 // Centre frequency in Hz of band `index` in the desired layout (see @ref MDREqualizer.band_count).
 #define MDR_VALUE_EQUALIZER_BAND_FREQUENCY ((MDRValue)18u)
+// 1 if the option's texts are identifiers for the caller to localize, 0 if they're display text. Options are encoded
+// independently of their setting's @ref MDRGeneralSettingInfo.text_is_key. Indexed with
+// @ref MDR_GENERAL_SETTING_OPTION_INDEX.
+#define MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY ((MDRValue)19u)
 
 typedef uint32_t MDRAudioCodec;
 #define MDR_AUDIO_CODEC_UNKNOWN ((MDRAudioCodec)0u)
@@ -519,6 +527,7 @@ typedef struct MDRGeneralSettingInfo
     uint32_t option_count;
     // MDR_TRUE: the subject/summary texts are identifiers (e.g. "SIDETONE_SETTING") for the caller to localize,
     // MDR_FALSE: they're display text already.
+    // @ref MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY.
     MDRBoolean text_is_key;
 } MDRGeneralSettingInfo;
 
@@ -709,7 +718,7 @@ MDR_API MDRResult mdrHeadphonesGetFeature(MDRHeadphones* headphones, MDRFeature 
 MDR_API MDRResult mdrHeadphonesGetText(MDRHeadphones* headphones, MDRText text, uint32_t index, char* buffer,
                                        uint32_t* inout_size);
 /**
- * @brief Reads one device limit; see @ref MDRValue for the keys and what index means for each.
+ * @brief Reads one device value; see @ref MDRValue for the keys and what index means for each.
  * @return MDR_RESULT_INPROGRESS before initialization completes, MDR_RESULT_ERROR_NOT_SUPPORTED when the
  *         device lacks the feature, MDR_RESULT_ERROR_NOT_FOUND for an out-of-range index, and
  *         MDR_RESULT_ERROR_INVALID_ARGUMENT for an unknown key.

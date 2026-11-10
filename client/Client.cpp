@@ -2185,9 +2185,13 @@ void DrawDeviceControlsSystem()
             {
                 mdr::Vector<mdr::String> options;
                 for (uint32_t i = 0; i < info.option_count; ++i)
-                    options.push_back(subjectText(GetText(MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT,
-                                                          MDR_GENERAL_SETTING_OPTION_INDEX(info.index, i)),
-                                                  isKey));
+                {
+                    const uint32_t optionIndex = MDR_GENERAL_SETTING_OPTION_INDEX(info.index, i);
+                    const bool optionIsKey =
+                        GetValue(MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY, optionIndex).value_or(0) != 0;
+                    options.push_back(
+                        subjectText(GetText(MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT, optionIndex), optionIsKey));
+                }
                 const char* preview = setting.list_value < options.size() ? options[setting.list_value].c_str() : "";
                 if (ImGui::BeginCombo(subjectLabel.c_str(), preview))
                 {

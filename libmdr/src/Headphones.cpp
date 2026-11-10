@@ -1970,8 +1970,18 @@ namespace
         return true;
     }
 
+    template <typename State>
+    bool MatchesEqualizerLayout(const State& state, uint32_t count)
+    {
+        // mCurrent is only written from device reports and stays empty until the first one.
+        const auto& layout = state.mEqConfig.mCurrent;
+        return layout.empty() || layout.size() == count;
+    }
+
     bool EqualizerBandRange(const mdr::DetailsV1& state, uint32_t count, ValueRange& out)
     {
+        if (!MatchesEqualizerLayout(state, count))
+            return false;
         // The advertised band count includes Clear Bass (raw band 0).
         if (state.mEqCapabilityStep == 0 || state.mEqCapabilityBands != count + 1)
             return DefaultEqualizerBandRange(count, out);
@@ -1982,6 +1992,8 @@ namespace
 
     bool EqualizerBandRange(const mdr::DetailsV2& state, uint32_t count, ValueRange& out)
     {
+        if (!MatchesEqualizerLayout(state, count))
+            return false;
         // The advertised band count is the raw count: WH-1000XM6 sends 10 bands / 13 steps for -6..6.
         const size_t rawBands = count + (state.EqClearBassInRaw(count) ? 1 : 0);
         if (state.mEqCapabilityStep == 0 || state.mEqCapabilityBands != rawBands)
@@ -2130,6 +2142,14 @@ namespace
             if (!SupportsFeature(state, MDR_FEATURE_EQUALIZER))
                 return MDR_RESULT_ERROR_NOT_SUPPORTED;
             return EqualizerBandFrequency(state, index, out) ? MDR_RESULT_OK : MDR_RESULT_ERROR_NOT_FOUND;
+        case MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY:
+        {
+            const uint32_t setting = index & 0xffu, option = index >> 8u;
+            if (setting >= std::size(state.mGsCapability) || option >= state.mGsCapability[setting].options.size())
+                return MDR_RESULT_ERROR_NOT_FOUND;
+            out = IsGeneralSettingTextKey(state.mGsCapability[setting].options[option]) ? 1 : 0;
+            return MDR_RESULT_OK;
+        }
         default:
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
         }
@@ -2525,7 +2545,7 @@ MDRResult mdrHeadphonesGetValue(MDRHeadphones* headphones, MDRValue value, uint3
 {
     if (!headphones || !outValue)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    if (value < MDR_VALUE_PLAYBACK_VOLUME_MIN || value > MDR_VALUE_EQUALIZER_BAND_FREQUENCY)
+    if (value < MDR_VALUE_PLAYBACK_VOLUME_MIN || value > MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     const auto& h = *Impl(headphones);
     if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
