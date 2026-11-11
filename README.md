@@ -7,6 +7,8 @@ There's no [Release](https://github.com/mos9527/SonyHeadphonesClient/releases) b
 [![Build](https://github.com/mos9527/sonyheadphonesclient/actions/workflows/cmake.yml/badge.svg)](https://github.com/mos9527/SonyHeadphonesClient/actions/workflows/cmake.yml)
 [![Nightly Builds](https://img.shields.io/badge/v1compat-builds-cyan)](https://nightly.link/mos9527/SonyHeadphonesClient/workflows/cmake/v1-compat?preview)
 
+![Hero](./docs/images/sc-readme-hero.png)
+
 ## Roadmap
 
 This branch is expected to be merged/released once general support for *all* legacy (`v1` protocol) devices is reached.
