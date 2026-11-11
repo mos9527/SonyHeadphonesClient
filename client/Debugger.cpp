@@ -69,6 +69,8 @@ namespace
         mdr::String result;
     };
 
+    // Only exports initiated inside Protocol Debugger may opt out of sanitization.
+    bool gSanitizeExports{true};
     bool gExportDialogActive{};
     bool gExportResultReady{};
     mdr::String gExportResult;
@@ -186,6 +188,170 @@ namespace
             }
         };
         return table(lhs) != 0 && table(lhs) == table(rhs);
+    }
+
+    class CaptureScrubber
+    {
+        using Address = std::array<mdr::UInt8, 17>;
+        mdr::Vector<Address> mAddresses;
+
+        static void ReplaceText(mdr::Span<mdr::UInt8> value, std::string_view placeholder)
+        {
+            for (size_t index = 0; index < value.size(); ++index)
+                value[index] = index < placeholder.size() ? static_cast<mdr::UInt8>(placeholder[index]) : '-';
+        }
+
+        void ReplaceAddress(mdr::Span<mdr::UInt8> value)
+        {
+            Address address{};
+            std::transform(value.begin(), value.end(), address.begin(),
+                           [](mdr::UInt8 byte) { return static_cast<mdr::UInt8>(std::toupper(byte)); });
+            auto found = std::find(mAddresses.begin(), mAddresses.end(), address);
+            const size_t identifier = static_cast<size_t>(found - mAddresses.begin()) + 1;
+            if (found == mAddresses.end())
+                mAddresses.push_back(address);
+            // Stable within an export, including connection-control references to paired devices.
+            const mdr::String placeholder =
+                mdr::Format("02:00:{:02X}:{:02X}:{:02X}:{:02X}", (identifier >> 24) & 0xff, (identifier >> 16) & 0xff,
+                            (identifier >> 8) & 0xff, identifier & 0xff);
+            ReplaceText(value, placeholder);
+        }
+
+        void SweepAddresses(mdr::Span<mdr::UInt8> payload)
+        {
+            for (size_t offset = 0; offset + 17 <= payload.size(); ++offset)
+            {
+                const auto address = payload.subspan(offset, 17);
+                bool matches = true;
+                for (size_t index = 0; index < address.size(); ++index)
+                    matches &= index % 3 == 2 ? address[index] == ':' : std::isxdigit(address[index]) != 0;
+                if (matches)
+                {
+                    ReplaceAddress(address);
+                    offset += 16;
+                }
+            }
+        }
+
+        struct NameSpan
+        {
+            size_t offset{};
+            size_t length{};
+        };
+
+        static bool FindNames(mdr::Span<const mdr::UInt8> payload, size_t offset, size_t count,
+                              std::array<NameSpan, 4>& names)
+        {
+            for (size_t index = 0; index < count; ++index)
+            {
+                if (offset + 2 > payload.size())
+                    return false;
+                const size_t length = payload[offset + 1];
+                if (payload[offset] > 2 || length > payload.size() - offset - 2)
+                    return false;
+                names[index] = {offset + 2, length};
+                offset += 2 + length;
+            }
+            return offset == payload.size();
+        }
+
+        static bool ScrubPlayback(mdr::Span<mdr::UInt8> payload)
+        {
+            // V2 carries four names; V1 carries a detail type followed by one name.
+            // Short packets are volume values or name-change notifications, not text.
+            if (payload.size() <= 4)
+                return true;
+            constexpr std::array<std::string_view, 4> placeholders{"Example Track", "Example Album", "Example Artist",
+                                                                   "Example Genre"};
+            std::array<NameSpan, 4> names{};
+            if (FindNames(payload, 2, 4, names))
+            {
+                for (size_t index = 0; index < names.size(); ++index)
+                    ReplaceText(payload.subspan(names[index].offset, names[index].length), placeholders[index]);
+                return true;
+            }
+            const mdr::UInt8 detail = payload[2];
+            if (detail == 0x20) // V1 volume
+                return true;
+            if ((detail > 3 && detail != 0x10) || !FindNames(payload, 3, 1, names))
+                return false;
+            ReplaceText(payload.subspan(names[0].offset, names[0].length),
+                        detail == 0x10 ? "Example Player" : placeholders[detail]);
+            return true;
+        }
+
+        static bool ScrubPeripherals(mdr::Span<mdr::UInt8> payload)
+        {
+            // V1 uses inquiry 1; V2 uses 0 (classic BT) or 2 (with class-of-device).
+            // V2 inquiry 1 is source-switch control and contains no device names.
+            if (payload.size() <= 4)
+                return true;
+            if (payload[1] > 2)
+                return true;
+            size_t offset = 3;
+            const size_t nameLengthOffset = payload[1] == 2 ? 21 : 18;
+            for (size_t index = 0; index < payload[2]; ++index)
+            {
+                if (offset + nameLengthOffset + 1 > payload.size())
+                    return false;
+                const size_t length = payload[offset + nameLengthOffset];
+                const size_t nameOffset = offset + nameLengthOffset + 1;
+                if (length > payload.size() - nameOffset)
+                    return false;
+                // Scrub all encodings, including non-printable names; do not leave binary names untouched.
+                ReplaceText(payload.subspan(nameOffset, length), mdr::Format("Paired Device {}", index + 1));
+                offset = nameOffset + length;
+            }
+            // One final byte identifies the device with playback rights.
+            return offset + 1 == payload.size();
+        }
+
+    public:
+        bool Frame(mdr::Span<const mdr::UInt8> original, mdr::MDRBuffer& output)
+        {
+            mdr::MDRBuffer payload;
+            mdr::MDRDataType type{};
+            mdr::MDRCommandSeqNumber sequence{};
+            if (mdr::MDRUnpackCommand(original, payload, type, sequence) != mdr::MDRUnpackResult::OK)
+                return false;
+            const mdr::MDRBuffer originalPayload = payload;
+            if (payload.size() >= 2)
+            {
+                if (SameProtocolTable(type, mdr::MDRDataType::DATA_MDR) &&
+                    (payload[0] == 0xa7 || payload[0] == 0xa8 || payload[0] == 0xa9) && payload[1] == 1)
+                {
+                    if (!ScrubPlayback(payload))
+                        return false;
+                }
+                if (SameProtocolTable(type, mdr::MDRDataType::DATA_MDR_NO2) &&
+                    (payload[0] == 0x37 || payload[0] == 0x39) && !ScrubPeripherals(payload))
+                    return false;
+            }
+            // Include the headphones' own address and addresses in otherwise unmodelled packets.
+            SweepAddresses(payload);
+            if (payload == originalPayload)
+                output.assign(original.begin(), original.end());
+            else
+                output = mdr::MDRPackCommand(type, sequence, payload);
+            return true;
+        }
+    };
+
+    bool SanitizationFailed()
+    {
+        // Never silently fall back to exporting personal data when a frame cannot be scrubbed.
+        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerSanitizationFailed);
+        return SDL_SetError("%s", gExportStatus.c_str());
+    }
+
+    bool RequestPacketExport(mdr::Span<const mdr::UInt8> frame, bool sanitize)
+    {
+        mdr::MDRBuffer sanitized;
+        CaptureScrubber scrubber;
+        if (sanitize && !scrubber.Frame(frame, sanitized))
+            return SanitizationFailed();
+        return RequestExport(sanitize ? mdr::Span<const mdr::UInt8>{sanitized} : frame, kDefaultPacketExportPath,
+                             "bin");
     }
 
     bool ContainsCaseInsensitive(std::string_view value, std::string_view query)
@@ -677,7 +843,7 @@ namespace
 
     void ExportPacket(const mdr::MDRBuffer& frame)
     {
-        RequestExport(frame, kDefaultPacketExportPath, "bin");
+        RequestPacketExport(frame, gSanitizeExports);
     }
 
     void DrawPacketEditor()
@@ -969,17 +1135,22 @@ namespace
                            static_cast<mdr::UInt8>(packet.type), packet.sequence, DumpCommandName(packet), command);
     }
 
-    mdr::MDRBuffer BuildHistoryZip(std::int64_t timestamp)
+    bool BuildHistoryZip(std::int64_t timestamp, bool sanitize, mdr::MDRBuffer& archive)
     {
-        mdr::MDRBuffer archive;
+        archive.clear();
+        CaptureScrubber scrubber;
         mdr::Vector<ZipEntry> entries;
         entries.reserve(gHistory.size());
         for (const CapturedPacket& packet : gHistory)
         {
+            mdr::MDRBuffer sanitized;
+            if (sanitize && !scrubber.Frame(packet.frame, sanitized))
+                return SanitizationFailed();
+            const mdr::Span<const mdr::UInt8> frame = sanitize ? sanitized : packet.frame;
             ZipEntry& entry = entries.emplace_back();
             entry.filename = CaptureFilename(packet, timestamp);
-            entry.crc = Crc32(packet.frame);
-            entry.size = static_cast<std::uint32_t>(packet.frame.size());
+            entry.crc = Crc32(frame);
+            entry.size = static_cast<std::uint32_t>(frame.size());
             entry.localHeaderOffset = static_cast<std::uint32_t>(archive.size());
 
             AppendUInt32LE(archive, 0x04034b50u);
@@ -994,7 +1165,7 @@ namespace
             AppendUInt16LE(archive, static_cast<std::uint16_t>(entry.filename.size()));
             AppendUInt16LE(archive, 0);
             AppendBytes(archive, entry.filename);
-            archive.insert(archive.end(), packet.frame.begin(), packet.frame.end());
+            archive.insert(archive.end(), frame.begin(), frame.end());
         }
 
         const std::uint32_t centralDirectoryOffset = static_cast<std::uint32_t>(archive.size());
@@ -1029,7 +1200,7 @@ namespace
         AppendUInt32LE(archive, centralDirectorySize);
         AppendUInt32LE(archive, centralDirectoryOffset);
         AppendUInt16LE(archive, 0);
-        return archive;
+        return true;
     }
 
     bool ExportTimestamp(std::int64_t& timestamp)
@@ -1039,6 +1210,27 @@ namespace
             return false;
         timestamp = now / 1'000'000;
         return true;
+    }
+
+    bool RequestPacketCollectionExport(bool sanitize)
+    {
+        if (gHistory.empty())
+        {
+            gExportStatus = gStatus = Tr(i18n::TextId::DebuggerNoPackets);
+            return false;
+        }
+        std::int64_t timestamp{};
+        if (!ExportTimestamp(timestamp))
+        {
+            gExportStatus = gStatus =
+                mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerTimestampFailed)), SDL_GetError());
+            return false;
+        }
+        mdr::MDRBuffer archive;
+        if (!BuildHistoryZip(timestamp, sanitize, archive))
+            return false;
+        const mdr::String defaultPath = mdr::Format("mdr-debugger-packets-{}.zip", timestamp);
+        return RequestExport(archive, defaultPath.c_str(), "zip");
     }
 
     struct ReplayCapture
@@ -1092,12 +1284,17 @@ namespace
         if (ImGui::Button(followLabel.c_str()))
             gFollowMessages = !gFollowMessages;
 
+        const mdr::String sanitizeLabel =
+            mdr::Format("{}###sanitize-exports",
+                        Tr(gSanitizeExports ? i18n::TextId::DebuggerSanitizeOn : i18n::TextId::DebuggerSanitizeOff));
+
         const mdr::String dumpLabel = TextLabel(i18n::TextId::ExportZip, PSI_SAVE);
         const mdr::String clearLabel = TextLabel(i18n::TextId::DebuggerClear, PSI_TRASH);
         const mdr::String closeLabel =
             TextLabel(replayMode ? i18n::TextId::DebuggerQuitReplay : i18n::TextId::DebuggerClose);
         const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
-        const float rightButtons = ButtonWidth(dumpLabel.c_str()) + buttonSpacing + ButtonWidth(clearLabel.c_str()) +
+        const float rightButtons = ButtonWidth(sanitizeLabel.c_str()) + buttonSpacing + ButtonWidth(dumpLabel.c_str()) +
+            buttonSpacing + ButtonWidth(clearLabel.c_str()) +
             (open ? buttonSpacing + ButtonWidth(closeLabel.c_str()) : 0.0f);
         const float statusAvailable = ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionAvail().x -
             ImGui::GetItemRectMax().x - rightButtons - buttonSpacing * 2.0f;
@@ -1119,9 +1316,16 @@ namespace
                 ImGui::SetTooltip("%s", gExportStatus.c_str());
             ImGui::SameLine();
         }
+        ImGui::BeginDisabled(clientDebuggerExportInProgress());
+        if (ImGui::Button(sanitizeLabel.c_str()))
+            gSanitizeExports = !gSanitizeExports;
+        ImGui::EndDisabled();
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            ImGui::SetTooltip("%s", Tr(i18n::TextId::DebuggerSanitizeExportsHint));
+        NextToolbarItem(ButtonWidth(dumpLabel.c_str()));
         ImGui::BeginDisabled(gHistory.empty() || clientDebuggerExportInProgress());
         if (ImGui::Button(dumpLabel.c_str()))
-            clientDebuggerExportPacketCollection();
+            RequestPacketCollectionExport(gSanitizeExports);
         ImGui::EndDisabled();
         NextToolbarItem(ButtonWidth(clearLabel.c_str()));
         if (ImGui::Button(clearLabel.c_str()))
@@ -1144,7 +1348,11 @@ bool clientDebuggerWritePacketFile(const char* path, const unsigned char* frame,
 {
     if (!path || !*path || !frame || frameSize == 0)
         return SDL_SetError("%s", Tr(i18n::TextId::DebuggerInvalidExportArguments));
-    return WriteCaptureFile(path, {frame, frameSize});
+    mdr::MDRBuffer sanitized;
+    CaptureScrubber scrubber;
+    if (!scrubber.Frame({frame, frameSize}, sanitized))
+        return SanitizationFailed();
+    return WriteCaptureFile(path, sanitized);
 }
 
 void clientDebuggerSetMonospaceFont(ImFont* font)
@@ -1240,25 +1448,12 @@ bool clientDebuggerExportLatestPacket()
         gExportStatus = gStatus = Tr(i18n::TextId::DebuggerNoPackets);
         return false;
     }
-    return RequestExport(gHistory.back().frame, kDefaultPacketExportPath, "bin");
+    return RequestPacketExport(gHistory.back().frame, true);
 }
 
 bool clientDebuggerExportPacketCollection()
 {
-    if (gHistory.empty())
-    {
-        gExportStatus = gStatus = Tr(i18n::TextId::DebuggerNoPackets);
-        return false;
-    }
-    std::int64_t timestamp{};
-    if (!ExportTimestamp(timestamp))
-    {
-        gExportStatus = gStatus = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerTimestampFailed)), SDL_GetError());
-        return false;
-    }
-    const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
-    const mdr::String defaultPath = mdr::Format("mdr-debugger-packets-{}.zip", timestamp);
-    return RequestExport(archive, defaultPath.c_str(), "zip");
+    return RequestPacketCollectionExport(true);
 }
 
 bool clientDebuggerWritePacketCollectionFile(const char* path)
@@ -1270,7 +1465,9 @@ bool clientDebuggerWritePacketCollectionFile(const char* path)
     std::int64_t timestamp{};
     if (!ExportTimestamp(timestamp))
         return false;
-    const mdr::MDRBuffer archive = BuildHistoryZip(timestamp);
+    mdr::MDRBuffer archive;
+    if (!BuildHistoryZip(timestamp, true, archive))
+        return false;
     return WriteCaptureFile(path, archive);
 }
 
@@ -1361,7 +1558,10 @@ void clientDebuggerDraw(bool* open, bool replayMode)
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     const ImVec2 workSize = viewport->WorkSize;
     if (!ImGui::IsPopupOpen("Debugger"))
+    {
+        gSanitizeExports = true;
         ImGui::OpenPopup("Debugger");
+    }
     ImGui::SetNextWindowSize({workSize.x, workSize.y * 0.8f}, ImGuiCond_Appearing);
     ImGui::SetNextWindowSizeConstraints({workSize.x, 0.0f}, workSize);
     ImGui::SetNextWindowPos(viewport->GetWorkCenter(), ImGuiCond_Always, {0.5f, 0.5f});

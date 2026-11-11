@@ -16,6 +16,7 @@ void clientDebuggerObservePacket(MDRPacketDirection direction, uint64_t packetId
                                  int frameSize);
 bool clientDebuggerReplayPath(const char* path, size_t* packetCount = nullptr);
 bool clientDebuggerReplayDirectory(const char* directory, size_t* packetCount = nullptr);
+// File/export entry points always sanitize; only the Protocol Debugger UI can export original data.
 bool clientDebuggerWritePacketFile(const char* path, const unsigned char* frame, size_t frameSize);
 bool clientDebuggerHasPackets();
 bool clientDebuggerExportInProgress();

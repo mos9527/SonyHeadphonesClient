@@ -262,7 +262,6 @@ namespace
 
     struct Options
     {
-        const char* replayPath{};
         const char* fontPath{};
         bool showHelp{};
         bool pauseMediaOnRemove{};
@@ -278,9 +277,6 @@ namespace
         usage += i18n::kLocaleOptionString;
         usage += "] Override application locale selected from the system\n"
                  "    [--font <font-file>] Load an external font without changing application locale\n";
-#ifdef MDR_CLIENT_DEBUGGER
-        usage += "    [--replay <packet-file-or-folder>] Replays devices packets from folder\n";
-#endif
         // Windows specific
 #ifdef _WIN32
         usage += "    [-con | --con] Opens a separate console for diagnostic logs\n";
@@ -340,9 +336,7 @@ namespace
                 continue;
             }
 
-            const bool replay = std::strcmp(argument, "--replay") == 0;
-            const bool font = std::strcmp(argument, "--font") == 0;
-            if (replay || font)
+            if (std::strcmp(argument, "--font") == 0)
             {
                 if (index + 1 >= argc)
                 {
@@ -350,13 +344,12 @@ namespace
                     return false;
                 }
                 const char* path = argv[++index];
-                const char*& destination = font ? options.fontPath : options.replayPath;
-                if (destination)
+                if (options.fontPath)
                 {
                     MDR_LOG("{} may only be specified once.", argument);
                     return false;
                 }
-                destination = path;
+                options.fontPath = path;
                 continue;
             }
 
@@ -420,14 +413,6 @@ int main(int argc, char** argv)
             result = 0;
             break;
         }
-#ifndef MDR_CLIENT_DEBUGGER
-        if (options.replayPath)
-        {
-            MDR_LOG("Packet replay is unavailable because this client was built without the debugger.");
-            result = 2;
-            break;
-        }
-#endif
 
         if (!SDL_Init(SDL_INIT_VIDEO))
         {
@@ -437,19 +422,6 @@ int main(int argc, char** argv)
         if (!options.localeSpecified)
             clientSetAppLocale(GetPreferredAppLocale());
         MDR_LOG("Selected locale: {}", clientGetAppLocale());
-#ifdef MDR_CLIENT_DEBUGGER
-        if (options.replayPath)
-        {
-            size_t replayed{};
-            if (!clientDebuggerReplayPath(options.replayPath, &replayed))
-            {
-                MDR_LOG("Unable to replay packet path {}: {}", options.replayPath, SDL_GetError());
-                break;
-            }
-            clientEnterDebuggerReplayMode();
-            MDR_LOG("Replayed {} packet(s) from {} in debugger-only mode.", replayed, options.replayPath);
-        }
-#endif
         const float displayScale = clientPlatformGetDisplayScale();
         const SDL_WindowFlags windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         if (!clientPlatformInitGraphics(nullptr))

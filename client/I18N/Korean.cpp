@@ -316,6 +316,14 @@ namespace i18n
         _Def(DebuggerType, "유형")
         _Def(DebuggerSequence, "순번")
         _Def(DebuggerExport, "내보내기")
+        _Def(DebuggerSanitizeOn, "익명화: 켜짐")
+        _Def(DebuggerSanitizeOff, "익명화: 꺼짐")
+        _Def(
+            DebuggerSanitizeExportsHint,
+            "내보낼 때 Bluetooth MAC 주소(헤드폰 자체 주소 포함), 페어링된 기기 이름, 현재 재생 중인 곡 정보를 대체합니다. 디버깅에 원본 데이터가 필요한 경우에만 익명화를 끄세요. 연결 끊김 대화 상자에서는 항상 개인 정보를 제거합니다.")
+        _Def(
+            DebuggerSanitizationFailed,
+            "이 캡처에서 개인 정보를 안전하게 제거할 수 없습니다. 원본을 내보내려면 프로토콜 디버거에서 익명화를 끄세요.")
         _Def(DebuggerSend, "전송")
         _Def(DebuggerLayoutCount, "  레이아웃 {0}개")
         _Def(DebuggerPacketDetails, "유형 {0:02X}  명령 {1:02X}  순번 {2:02X}")

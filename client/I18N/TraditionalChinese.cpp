@@ -304,6 +304,13 @@ namespace i18n
         _Def(DebuggerType, "類型")
         _Def(DebuggerSequence, "序號")
         _Def(DebuggerExport, "匯出")
+        _Def(DebuggerSanitizeOn, "去識別化：開")
+        _Def(DebuggerSanitizeOff, "去識別化：關")
+        _Def(
+            DebuggerSanitizeExportsHint,
+            "匯出時替換藍牙 MAC 位址（包括耳機本身）、已配對裝置名稱及目前播放的文字資訊。僅在偵錯需要原始資料時關閉去識別化。中斷連線對話框的匯出一律移除個人資料。")
+        _Def(DebuggerSanitizationFailed,
+             "無法安全移除此擷取資料中的個人資料。若需匯出原始資料，請在通訊協定偵錯工具中關閉去識別化。")
         _Def(DebuggerSend, "傳送")
         _Def(DebuggerLayoutCount, "  {0} 種配置")
         _Def(DebuggerPacketDetails, "類型 {0:02X}  命令 {1:02X}  序號 {2:02X}")

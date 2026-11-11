@@ -321,6 +321,14 @@ namespace i18n
         _Def(DebuggerType, "型")
         _Def(DebuggerSequence, "連番")
         _Def(DebuggerExport, "エクスポート")
+        _Def(DebuggerSanitizeOn, "匿名化：オン")
+        _Def(DebuggerSanitizeOff, "匿名化：オフ")
+        _Def(
+            DebuggerSanitizeExportsHint,
+            "エクスポート時に Bluetooth MAC アドレス（ヘッドホン自身を含む）、ペアリング済みデバイス名、再生中の曲情報を置き換えます。デバッグに元のデータが必要な場合のみ匿名化をオフにしてください。切断ダイアログからのエクスポートでは常に個人情報を削除します。")
+        _Def(
+            DebuggerSanitizationFailed,
+            "このキャプチャから個人情報を安全に削除できません。元のデータをエクスポートするには、プロトコルデバッガーで匿名化をオフにしてください。")
         _Def(DebuggerSend, "送信")
         _Def(DebuggerLayoutCount, "  {0} レイアウト")
         _Def(DebuggerPacketDetails, "型 {0:02X}  コマンド {1:02X}  連番 {2:02X}")

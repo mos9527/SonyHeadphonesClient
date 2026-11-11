@@ -305,7 +305,13 @@ namespace i18n
         _Def(DebuggerType, "类型")
         _Def(DebuggerSequence, "序号")
         _Def(DebuggerExport, "导出")
-        _Def(DebuggerExportCaptured, "导出原始帧")
+        _Def(DebuggerExportCaptured, "导出捕获帧")
+        _Def(DebuggerSanitizeOn, "脱敏：开")
+        _Def(DebuggerSanitizeOff, "脱敏：关")
+        _Def(
+            DebuggerSanitizeExportsHint,
+            "导出时替换蓝牙 MAC 地址（包括耳机自身）、已配对设备名称及当前播放的文本信息。仅在调试需要原始数据时关闭脱敏。断开连接对话框的导出始终移除个人数据。")
+        _Def(DebuggerSanitizationFailed, "无法安全移除此捕获中的个人数据。若需导出原始数据，请在协议调试器中关闭脱敏。")
         _Def(DebuggerSend, "发送")
         _Def(DebuggerLayoutCount, "  {0} 种布局")
         _Def(DebuggerPacketDetails, "类型 {0:02X}  命令 {1:02X}  序号 {2:02X}")

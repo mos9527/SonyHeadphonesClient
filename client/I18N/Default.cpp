@@ -333,6 +333,14 @@ namespace i18n
             _Def(DebuggerSequence, "Seq")
             _Def(DebuggerExport, "Export")
             _Def(DebuggerExportCaptured, "Export captured")
+            _Def(DebuggerSanitizeOn, "Sanitize: On")
+            _Def(DebuggerSanitizeOff, "Sanitize: Off")
+            _Def(
+                DebuggerSanitizeExportsHint,
+                "Replace Bluetooth MAC addresses (including the headphones'), paired-device names, and now-playing text in exported packets. Turn Sanitize off only if you need the original data for debugging. Disconnect-dialog exports always remove personal data.")
+            _Def(
+                DebuggerSanitizationFailed,
+                "Cannot safely remove personal data from this capture. To export the original, turn Sanitize off in Protocol Debugger.")
             _Def(DebuggerSend, "Send")
             _Def(DebuggerLayoutCount, "  {0} layouts")
             _Def(DebuggerPacketDetails, "type {0:02X}  cmd {1:02X}  seq {2:02X}")
