@@ -3618,7 +3618,7 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
     {
         auto& state = h->mDetailsV1;
         if (const auto result = stageAutoPower(state.mPowerAutoOff, state.mAutoPowerOffCandidates,
-                                              !state.mAutoPowerOffCandidates.empty());
+                                               !state.mAutoPowerOffCandidates.empty());
             result != MDR_RESULT_OK)
             return result;
     }
@@ -3628,16 +3628,16 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         using T1 = mdr::v2::t1::FunctionType;
         if (state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
         {
-            if (const auto result = stageAutoPower(state.mPowerAutoOffWearingDetection,
-                                                  state.mAutoPowerOffWearingDetectionCandidates,
-                                                  state.mAutoPowerOffWearingDetectionCapabilityKnown);
+            if (const auto result =
+                    stageAutoPower(state.mPowerAutoOffWearingDetection, state.mAutoPowerOffWearingDetectionCandidates,
+                                   state.mAutoPowerOffWearingDetectionCapabilityKnown);
                 result != MDR_RESULT_OK)
                 return result;
         }
         else if (state.mSupport.contains(T1::AUTO_POWER_OFF))
         {
             if (const auto result = stageAutoPower(state.mPowerAutoOff, state.mAutoPowerOffCandidates,
-                                                  state.mAutoPowerOffCapabilityKnown);
+                                                   state.mAutoPowerOffCapabilityKnown);
                 result != MDR_RESULT_OK)
                 return result;
         }

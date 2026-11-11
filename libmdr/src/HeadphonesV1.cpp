@@ -594,7 +594,7 @@ namespace mdr
         {
             if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
             {
-                SendCommandACK(t1::SetSystemExParamAutoPowerOffParam,
+                SendCommandACK(t1::SetSystemParamAutoPowerOffParam,
                                {.activeElementId = state.mPowerAutoOff.mSubmitted,
                                 .selectTimeElementId = t1::AutoPowerOffElementId::POWER_OFF_IN_5_MIN});
             }

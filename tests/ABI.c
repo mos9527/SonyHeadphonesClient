@@ -3588,8 +3588,7 @@ static void test_power_wearing_capability(MDRProtocolVersion family)
     check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 0, "disabled is the only numeric option");
     check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, &value),
                  MDR_RESULT_ERROR_NOT_FOUND, "wearing-only list has no second numeric option");
-    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? param_v1 : param_v2,
-                v1 ? sizeof(param_v1) : sizeof(param_v2));
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? param_v1 : param_v2, v1 ? sizeof(param_v1) : sizeof(param_v2));
     device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "when-removed power setting polls");
     check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_CURRENT, &power), MDR_RESULT_OK,
                  "when-removed power reads");
@@ -3615,8 +3614,7 @@ static void test_power_wearing_capability(MDRProtocolVersion family)
     offset = session.transport.tx_size;
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "power disable starts");
     device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "power disable completes");
-    check_command_payload(&session, offset, v1 ? disable_v1 : disable_v2,
-                          v1 ? sizeof(disable_v1) : sizeof(disable_v2));
+    check_command_payload(&session, offset, v1 ? disable_v1 : disable_v2, v1 ? sizeof(disable_v1) : sizeof(disable_v2));
     power.wearing_power = MDR_WEARING_POWER_WHEN_REMOVED;
     check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "wearing power enable stages");
     offset = session.transport.tx_size;
@@ -3673,9 +3671,12 @@ static void test_v2_timed_power_capability(void)
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, capability, sizeof(capability));
     device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "timed power capability polls");
     check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 3, "duplicate durations are omitted");
-    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 15, "V2 15-minute option follows capability order");
-    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, 30, "V2 30-minute option follows capability order");
-    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 2, 0, "V2 disabled option follows capability order");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 15,
+                "V2 15-minute option follows capability order");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, 30,
+                "V2 30-minute option follows capability order");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 2, 0,
+                "V2 disabled option follows capability order");
     check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power), MDR_RESULT_OK,
                  "timed power reads");
     power.auto_power_off_minutes = 60;
@@ -4298,8 +4299,8 @@ static void test_grouped_staging_during_apply(MDRProtocolVersion family)
     check_eq_bands(session.headphones, MDR_PROPERTY_DESIRED, next, count);
     check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer), MDR_RESULT_OK,
                  "group reads after old ACK");
-    check(equalizer.clear_bass == 2 && mdrHeadphonesIsDirty(session.headphones),
-          "group commit preserves both submitted-staged array and purely staged members");
+    check(equalizer.clear_bass == (v1 ? 2 : 0), "group commit retains staged bass only for the Clear Bass layout");
+    check(mdrHeadphonesIsDirty(session.headphones), "group commit preserves the submitted-staged array");
 
     offset = session.transport.tx_size;
     check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "next grouped batch starts");
