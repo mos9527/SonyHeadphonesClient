@@ -45,7 +45,7 @@ target_link_libraries(mdr_core PRIVATE mdr_Includes)
 
 add_library(mdr STATIC Headphones.cpp $<TARGET_OBJECTS:mdr_core>)
 target_link_libraries(mdr PUBLIC mdr_Includes)
-target_include_directories(mdr PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(mdr PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if (MDR_BUILD_SHARED)
     add_library(mdr_shared SHARED Headphones.cpp $<TARGET_OBJECTS:mdr_core>)

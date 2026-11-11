@@ -57,9 +57,9 @@ Paste relevant log output here
 ```
 
 **Packet capture (optional)**
-If the bug involves communication with your headphones, a packet capture helps a lot:
-- After a disconnect error, use **Export ZIP** in the **Device Disconnected** dialog (also reachable via **Trigger disconnect error** in the top-left drop-down menu), or
-- Launch the Client with `--record <capture-folder>` and reproduce the problem.
+If the bug involves communication with your headphones, a packet capture helps a lot. Reproduce the problem, then
+use **Export ZIP** in the **Device Disconnected** dialog. If the Client did not disconnect on its own, open that dialog
+via **Trigger disconnect error** in the top-left drop-down menu.
 
 See the [packet capture guide](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tests/README.md) for details,
 then attach the capture as a `.zip` file. Include the headphone model and firmware version in the archive name.

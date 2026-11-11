@@ -1,7 +1,6 @@
 #include "Debugger.hpp"
 
 #include "DebuggerDetails.hpp"
-#include "../libmdr/src/Details.hpp"
 
 #include "Fonts/PlexSansIcon.h"
 #include "Platform/Platform.hpp"
@@ -28,8 +27,6 @@ namespace
 {
     using namespace debugger;
 
-    constexpr size_t kMaximumHistory = 512;
-
     ImFont* gMonospaceFont{};
 
     struct CapturedPacket
@@ -45,6 +42,7 @@ namespace
     };
 
     MDRHeadphones* gHeadphones{};
+    MDRProtocolVersion gProtocolVersion{};
     mdr::Deque<CapturedPacket> gHistory;
     bool gReplayHistory{};
     std::uint64_t gSelectedCaptureId{};
@@ -224,11 +222,11 @@ namespace
         if (!gHeadphones)
             return true;
 
-        switch (mdr::detail::HeadphonesImpl(gHeadphones)->mProtocolFamily)
+        switch (gProtocolVersion)
         {
-        case mdr::MDRHeadphones::ProtocolFamily::V1:
+        case MDR_PROTOCOL_V1:
             return descriptor.family == ProtocolFamily::V1;
-        case mdr::MDRHeadphones::ProtocolFamily::V2:
+        case MDR_PROTOCOL_V2:
             return descriptor.family == ProtocolFamily::V2;
         default:
             return true;
@@ -825,12 +823,6 @@ namespace
             mdr::MDRUnpackResult::OK;
         FindCandidates(packet);
         gHistory.push_back(std::move(packet));
-        if (gHistory.size() > kMaximumHistory)
-        {
-            if (gSelectedCaptureId == gHistory.front().id)
-                gSelectedCaptureId = 0;
-            gHistory.pop_front();
-        }
         if (gFollowMessages)
         {
             gScrollToLatest = true;
@@ -1092,15 +1084,17 @@ void clientDebuggerSetWindow(SDL_Window* window)
     gWindow = window;
 }
 
-void clientDebuggerAttach(MDRHeadphones* headphones)
+void clientDebuggerAttach(MDRHeadphones* headphones, MDRProtocolVersion protocolVersion)
 {
     ClearHistory();
     gHeadphones = headphones;
+    gProtocolVersion = protocolVersion;
 }
 
 void clientDebuggerDetach()
 {
     gHeadphones = nullptr;
+    gProtocolVersion = {};
 }
 
 void clientDebuggerObservePacket(MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame,

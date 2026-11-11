@@ -9,7 +9,8 @@ struct SDL_Window;
 
 void clientDebuggerSetMonospaceFont(ImFont* font);
 void clientDebuggerSetWindow(SDL_Window* window);
-void clientDebuggerAttach(MDRHeadphones* headphones);
+// protocolVersion: the same value passed to mdrHeadphonesCreate for this instance.
+void clientDebuggerAttach(MDRHeadphones* headphones, MDRProtocolVersion protocolVersion);
 void clientDebuggerDetach();
 void clientDebuggerObservePacket(MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame,
                                  int frameSize);

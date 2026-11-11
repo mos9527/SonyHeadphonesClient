@@ -86,8 +86,8 @@ Paste or screenshot the **Features** list from the **About** tab.
 
 **Packet capture (optional, but very welcome)**
 Captures let us add your device to the replay tests (`tests/<model>-<firmware version>/`).
-Launch the Client with `--record <capture-folder>`, connect, and exercise the features above - or use
-**Export ZIP** in the **Device Disconnected** dialog. See the
+Connect, exercise the features above, then select **Trigger disconnect error** in the top-left drop-down menu
+and use **Export ZIP** in the **Device Disconnected** dialog. See the
 [packet capture guide](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tests/README.md).
 
 Captures may contain paired device names, Bluetooth addresses and media metadata. Run

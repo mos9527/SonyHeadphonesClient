@@ -61,7 +61,6 @@ add_library(main SHARED
     ClientPlatform.cpp
     "${SHC_ROOT}/client/SDLMain.cpp"
     "${SHC_ROOT}/client/Client.cpp"
-    "${SHC_ROOT}/client/Recorder.cpp"
     "${SHC_ROOT}/client/Fonts/PlexSansIcon.c"
     "${imgui_SOURCE_DIR}/imgui.cpp"
     "${imgui_SOURCE_DIR}/imgui_draw.cpp"

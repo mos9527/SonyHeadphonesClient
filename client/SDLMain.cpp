@@ -26,7 +26,6 @@
 
 #include "I18N/Strings.hpp"
 #include "Platform/Platform.hpp"
-#include "Recorder.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -263,7 +262,6 @@ namespace
 
     struct Options
     {
-        const char* recordDirectory{};
         const char* replayPath{};
         const char* fontPath{};
         bool showHelp{};
@@ -276,7 +274,6 @@ namespace
     {
         mdr::String usage = "Usage: SonyHeadphonesClient\n"
                             "    [-h | --help] Shows this help\n"
-                            "    [--record <capture-folder>] Records device packets automatically to folder\n"
                             "    [--locale ";
         usage += i18n::kLocaleOptionString;
         usage += "] Override application locale selected from the system\n"
@@ -343,10 +340,9 @@ namespace
                 continue;
             }
 
-            const bool record = std::strcmp(argument, "--record") == 0;
             const bool replay = std::strcmp(argument, "--replay") == 0;
             const bool font = std::strcmp(argument, "--font") == 0;
-            if (record || replay || font)
+            if (replay || font)
             {
                 if (index + 1 >= argc)
                 {
@@ -354,8 +350,7 @@ namespace
                     return false;
                 }
                 const char* path = argv[++index];
-                const char*& destination =
-                    font ? options.fontPath : (record ? options.recordDirectory : options.replayPath);
+                const char*& destination = font ? options.fontPath : options.replayPath;
                 if (destination)
                 {
                     MDR_LOG("{} may only be specified once.", argument);
@@ -366,12 +361,6 @@ namespace
             }
 
             MDR_LOG("Ignoring unknown argument: {}", argument);
-        }
-
-        if (options.recordDirectory && options.replayPath)
-        {
-            MDR_LOG("--record and --replay cannot be used together.");
-            return false;
         }
         return true;
     }
@@ -448,17 +437,6 @@ int main(int argc, char** argv)
         if (!options.localeSpecified)
             clientSetAppLocale(GetPreferredAppLocale());
         MDR_LOG("Selected locale: {}", clientGetAppLocale());
-        if (options.recordDirectory)
-        {
-            if (!clientPayloadRecorderConfigure(options.recordDirectory))
-            {
-                MDR_LOG("Unable to prepare capture folder {}: {}", options.recordDirectory, SDL_GetError());
-                break;
-            }
-            MDR_LOG("Recording MDR packets to {}. Existing mdr-packet-*.bin files were cleared. Captures may contain "
-                    "device addresses, names, and playback metadata.",
-                    options.recordDirectory);
-        }
 #ifdef MDR_CLIENT_DEBUGGER
         if (options.replayPath)
         {

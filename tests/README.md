@@ -11,17 +11,16 @@ On-device packet captures for tests are always welcome. This guide also provides
 
 ## Capture a session
 
-When the device is disconnected with an error, you will be *prompted* to dump either the last packet or your entire session to a folder, regardless of the `--record` option.
+Captures are taken by the protocol debugger, which is included in official release builds and in any build configured
+with `-DMDR_CLIENT_DEBUGGER=ON` (always on for Debug builds).
 
-You can manually trigger this by selecting **Trigger disconnect error** in the top-left drop-down menu.
+When the device is disconnected with an error, the **Device Disconnected** dialog lets you export either the latest
+packet (**Export latest**) or the session (**Export ZIP**). To capture on demand, exercise the features you're
+interested in, then select **Trigger disconnect error** in the top-left drop-down menu.
 
-Furthermore, the Client always includes the functionality to record a session. Run the client with the `--record` option:
-
-```powershell
-.\SonyHeadphonesClient.exe --record capture-folder
-```
-
-**NOTE:** Existing captures within the same folder are always overwritten.
+You can also export from the **Protocol Debugger** window (same drop-down menu) at any time. The whole session is
+kept from the moment the device connects, so exports always include the connection handshake the replay tests start
+from. **Clear** in the debugger window discards it.
 
 ## Replay Test Usage
 

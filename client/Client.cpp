@@ -23,7 +23,6 @@
 #include <mdr/Protocol.hpp>
 #include "Fonts/PlexSansIcon.h"
 #include "MaterialYouTheme.hpp"
-#include "Recorder.hpp"
 #include "Platform/Platform.hpp"
 #include "I18N/Strings.hpp"
 
@@ -548,10 +547,10 @@ struct ValueRange
     int min, max;
 };
 
-// Reads the *_MIN key and the *_MAX key that follows it. nullopt means "don't draw the control".
-std::optional<ValueRange> GetRange(MDRValue minKey, uint32_t index = 0)
+// Reads a [min, max] pair from two explicit MDRValue keys. nullopt means "don't draw the control".
+std::optional<ValueRange> GetRange(MDRValue minKey, MDRValue maxKey, uint32_t index = 0)
 {
-    const auto lo = GetValue(minKey, index), hi = GetValue(minKey + 1, index);
+    const auto lo = GetValue(minKey, index), hi = GetValue(maxKey, index);
     if (!lo || !hi || *lo > *hi)
         return std::nullopt;
     return ValueRange{*lo, *hi};
@@ -1003,7 +1002,8 @@ mdr::String FormatFrequency(int32_t hz)
 bool Iequalizer(std::span<int32_t> bands)
 {
     const int numBands = static_cast<int>(bands.size());
-    const auto range = GetRange(MDR_VALUE_EQUALIZER_BAND_MIN, static_cast<uint32_t>(numBands));
+    const auto range =
+        GetRange(MDR_VALUE_EQUALIZER_BAND_MIN, MDR_VALUE_EQUALIZER_BAND_MAX, static_cast<uint32_t>(numBands));
     if (numBands == 0 || !range)
     {
         ImGui::TextUnformatted(mdr::Format(fmt::runtime(Tr(i18n::TextId::EqUnavailable)), numBands).c_str());
@@ -1407,31 +1407,34 @@ void UpdateDeviceConnecting()
     switch (pollResult)
     {
     case MDR_RESULT_OK:
+    {
         connState = CONN_STATE_CONNECTED;
         connectionAttempt.lastError.clear();
         CloseDevice();
-        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, ConnectionProtocolVersion(), &gDevice) != MDR_RESULT_OK)
+        const MDRProtocolVersion protocolVersion = ConnectionProtocolVersion();
+        if (mdrHeadphonesCreate(MDR_ABI_VERSION, conn, protocolVersion, &gDevice) != MDR_RESULT_OK)
         {
             DisconnectWithModal();
             return;
         }
         mdrDebugSetPacketCallback(
             gDevice,
-            [](void*, MDRPacketDirection direction, uint64_t packetId, const unsigned char* frame, int frameSize)
+            [](void*, [[maybe_unused]] MDRPacketDirection direction, [[maybe_unused]] uint64_t packetId,
+               [[maybe_unused]] const unsigned char* frame, [[maybe_unused]] int frameSize)
             {
                 gWantRedraw = true;
-                clientPayloadRecorderObserve(direction, packetId, frame, frameSize);
 #ifdef MDR_CLIENT_DEBUGGER
                 clientDebuggerObservePacket(direction, packetId, frame, frameSize);
 #endif
             },
             nullptr);
 #ifdef MDR_CLIENT_DEBUGGER
-        clientDebuggerAttach(gDevice);
+        clientDebuggerAttach(gDevice, protocolVersion);
 #endif
         if (mdrHeadphonesRequestInit(gDevice, MDR_HEADPHONES_INIT_DEFAULT) != MDR_RESULT_OK)
             DisconnectWithModal();
         break;
+    }
     case MDR_RESULT_ERROR_TIMEOUT:
     case MDR_RESULT_INPROGRESS:
         break;
@@ -1655,7 +1658,7 @@ void DrawDeviceControlsPlayback()
 {
     MDRPlayback playback{};
     mdrHeadphonesGetPlayback(gDevice, MDR_PROPERTY_DESIRED, &playback);
-    if (const auto range = GetRange(MDR_VALUE_PLAYBACK_VOLUME_MIN))
+    if (const auto range = GetRange(MDR_VALUE_PLAYBACK_VOLUME_MIN, MDR_VALUE_PLAYBACK_VOLUME_MAX))
     {
         ImHeading(Tr(i18n::TextId::Volume));
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -1741,7 +1744,7 @@ void DrawDeviceControlsSound()
                     }
                     ImGui::SameLine();
                 }
-                const auto ambientRange = GetRange(MDR_VALUE_AMBIENT_LEVEL_MIN);
+                const auto ambientRange = GetRange(MDR_VALUE_AMBIENT_LEVEL_MIN, MDR_VALUE_AMBIENT_LEVEL_MAX);
                 if (supportASM)
                 {
                     if (ImGui::RadioButton(TrLable(i18n::TextId::AmbientSound), noise.mode == MDR_NOISE_MODE_AMBIENT))
@@ -1951,7 +1954,8 @@ void DrawDeviceControlsSound()
         if (Iequalizer(equalizerBands))
             SetEqualizerBands(equalizerBands);
         // NOT_SUPPORTED (no range) when the current layout has no Clear Bass, e.g. 10 bands.
-        if (const auto clearBassRange = GetRange(MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN))
+        if (const auto clearBassRange =
+                GetRange(MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, MDR_VALUE_EQUALIZER_CLEAR_BASS_MAX))
         {
             ImHeading(Tr(i18n::TextId::ClearBass), IM_FONTSIZE_SUBHEADING);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -2388,7 +2392,7 @@ void DrawDeviceControlsSystem()
             bool enabled = voice.enabled != MDR_FALSE;
             if (ImGui::Checkbox(TrLable(i18n::TextId::Enabled), &enabled))
                 voice.enabled = enabled ? MDR_TRUE : MDR_FALSE, changed = true;
-            if (const auto range = GetRange(MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN))
+            if (const auto range = GetRange(MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN, MDR_VALUE_VOICE_GUIDANCE_VOLUME_MAX))
             {
                 ImHeading(Tr(i18n::TextId::Volume), IM_FONTSIZE_SUBHEADING);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
