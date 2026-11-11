@@ -28,6 +28,8 @@
 
 static AppLocale gAppLocale = AppLocale::DEFAULT;
 static bool gPlatformFontLoaded = false;
+static ImFont* gEmbeddedFont = nullptr;
+static bool gDefaultFontFallbackPrepared = false;
 static bool gWantAnimate = false;
 static bool gWantRedraw = false;
 static char* gFontFallbackData = nullptr;
@@ -2797,9 +2799,47 @@ void clientEnterDebuggerReplayMode()
 }
 #endif
 
+static bool PrepareDefaultFontFallback()
+{
+    if (gDefaultFontFallbackPrepared)
+        return true;
+    // Prefer Japanese for kana and kanji in media metadata. Other CJK fonts may still
+    // provide useful coverage if unavailable. Keep Plex Sans (including its icons) first.
+    static constexpr AppLocale candidates[] = {AppLocale::JAPANESE, AppLocale::SIMPLIFIED_CHINESE,
+                                               AppLocale::TRADITIONAL_CHINESE, AppLocale::KOREAN};
+    for (const AppLocale locale : candidates)
+    {
+        const char* fontData{};
+        int faceIndex{};
+        const int fontSize = clientPlatformLocateFontBinary(locale, &fontData, &faceIndex);
+        if (fontSize < 0)
+            return false; // Asynchronous IO: keep rendering English and retry next frame.
+        if (fontSize == 0 || !fontData || faceIndex < 0)
+            continue;
+        ImFontConfig config{};
+        config.FontDataOwnedByAtlas = false;
+        config.FontNo = static_cast<ImU32>(faceIndex);
+        config.MergeMode = true;
+        config.DstFont = gEmbeddedFont;
+        config.GlyphExcludeRanges = gIconGlyphRanges;
+        if (ImGui::GetIO().Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontData), fontSize, 15.0f, &config))
+        {
+            MDR_LOG("Loaded English fallback font: locale {}, {} bytes, face {}", locale, fontSize, faceIndex);
+            gDefaultFontFallbackPrepared = true;
+            return true;
+        }
+        MDR_LOG("Unable to load English fallback font: locale {}, face {}", locale, faceIndex);
+    }
+    MDR_LOG("No usable English fallback font; keeping the embedded font only.");
+    gDefaultFontFallbackPrepared = true;
+    return true;
+}
+
 bool clientInit(float displayScale, const char* fontPath)
 {
     gPlatformFontLoaded = false;
+    gEmbeddedFont = nullptr;
+    gDefaultFontFallbackPrepared = false;
     if (fontPath)
     {
         void* fontData{};
@@ -2840,7 +2880,8 @@ bool clientInit(float displayScale, const char* fontPath)
 #ifdef MDR_CLIENT_DEBUGGER
     ImFont* monospaceFont = io.Fonts->AddFontDefault();
 #endif
-    io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+    gEmbeddedFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(kEmbedFontPlexSansIcon, 15.0f);
+    io.FontDefault = gEmbeddedFont;
 #ifdef MDR_CLIENT_DEBUGGER
     clientDebuggerSetMonospaceFont(monospaceFont);
 #endif
@@ -2861,7 +2902,8 @@ bool clientOnFrame(SDL_Window* window)
         const AppLocale locale = gAppLocale;
         if (!useFontFallback && locale == AppLocale::DEFAULT)
         {
-            gPlatformFontLoaded = true;
+            io.FontDefault = gEmbeddedFont;
+            gPlatformFontLoaded = PrepareDefaultFontFallback();
             break;
         }
         const char* fontData = gFontFallbackData;
@@ -2908,6 +2950,9 @@ bool clientOnFrame(SDL_Window* window)
             // which the embedded font always covers.
             MDR_LOG("No usable font for locale {}, falling back to {}.", gAppLocale, AppLocale::DEFAULT);
             gAppLocale = AppLocale::DEFAULT;
+            io.FontDefault = gEmbeddedFont;
+            if (!useFontFallback)
+                continue;
         }
         gPlatformFontLoaded = true;
     }
@@ -2951,4 +2996,6 @@ void clientDestroy()
     ImGui::DestroyContext();
     DestroyFontFallback();
     gPlatformFontLoaded = false;
+    gEmbeddedFont = nullptr;
+    gDefaultFontFallbackPrepared = false;
 }
