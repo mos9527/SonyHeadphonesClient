@@ -401,93 +401,165 @@ namespace
         return ContainsAllTokens(PacketSearchText(packet), gHistoryFilter.data());
     }
 
+    /**
+     * Packets matching the current history filter, maintained incrementally so that drawing doesn't re-format
+     * and re-filter the whole session every frame. Rebuilt when the filter or locale changes, or on Clear.
+     */
+    struct HistoryView
+    {
+        mdr::Vector<size_t> rows; // Indices into gHistory, in order
+        mdr::Vector<size_t> ackPrefix{0}; // ackPrefix[k]: number of ACK rows in rows[0, k)
+        size_t scanned{}; // gHistory entries already considered
+        mdr::String filter;
+        AppLocale locale{};
+        bool valid{};
+    } gHistoryView;
+
+    void InvalidateHistoryView()
+    {
+        gHistoryView.valid = false;
+    }
+
+    void UpdateHistoryView()
+    {
+        const AppLocale locale = clientGetAppLocale();
+        if (!gHistoryView.valid || gHistoryView.locale != locale || gHistoryView.filter != gHistoryFilter.data())
+        {
+            gHistoryView.rows.clear();
+            gHistoryView.ackPrefix.assign(1, 0);
+            gHistoryView.scanned = 0;
+            gHistoryView.filter = gHistoryFilter.data();
+            gHistoryView.locale = locale;
+            gHistoryView.valid = true;
+        }
+        for (; gHistoryView.scanned < gHistory.size(); ++gHistoryView.scanned)
+        {
+            const CapturedPacket& packet = gHistory[gHistoryView.scanned];
+            if (!MatchesHistoryFilter(packet))
+                continue;
+            gHistoryView.rows.push_back(gHistoryView.scanned);
+            gHistoryView.ackPrefix.push_back(gHistoryView.ackPrefix.back() + (IsAck(packet) ? 1u : 0u));
+        }
+    }
+
+    float HistoryCardHeight()
+    {
+        const float lineHeight = ImGui::GetTextLineHeight();
+        const float rowPaddingY = lineHeight * 0.2f;
+        return lineHeight * 2.0f + rowPaddingY * 2.0f;
+    }
+
+    void DrawHistoryRow(CapturedPacket& packet, const ImVec4& accent)
+    {
+        const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
+        if (IsAck(packet))
+        {
+            const mdr::String ackLabel =
+                mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)), packet.id, direction, packet.sequence);
+            ImGui::BeginDisabled();
+            ImGui::TextUnformatted(ackLabel.c_str());
+            ImGui::EndDisabled();
+            return;
+        }
+
+        const bool selected = packet.id == gSelectedCaptureId;
+        ImVec4 cardColor = accent;
+        cardColor.w = selected ? 0.55f : 0.28f;
+
+        ImGui::PushID(static_cast<int>(packet.id));
+        ImVec4 hoveredColor = cardColor;
+        hoveredColor.w = std::min(1.0f, cardColor.w + 0.18f);
+        ImGui::PushStyleColor(ImGuiCol_Header, cardColor);
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, hoveredColor);
+        ImGui::PushStyleColor(ImGuiCol_HeaderActive, hoveredColor);
+        const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
+        const char* packetName = packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket)
+                                                           : ShortPacketName(packet.candidates.front()->name);
+        mdr::String details = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerPacketDetails)),
+                                          static_cast<mdr::UInt8>(packet.type), command, packet.sequence);
+        if (packet.candidates.size() > 1)
+            details += mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerLayoutCount)), packet.candidates.size());
+        const mdr::String label = mdr::Format("#{} {} - {}\n{}###capture", packet.id, direction, packetName, details);
+        const auto& style = ImGui::GetStyle();
+        ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, {style.SelectableTextAlign.x, 0.5f});
+        if (ImGui::Selectable(label.c_str(), selected, ImGuiSelectableFlags_None,
+                              {ImGui::GetContentRegionAvail().x, HistoryCardHeight()}))
+            SelectCapture(packet);
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor(3);
+        ImGui::PopID();
+    }
+
+    void DrawCenteredPlaceholder(const char* placeholder)
+    {
+        const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
+        ImGui::SetCursorPos({std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f),
+                             std::max(0.0f, (ImGui::GetContentRegionAvail().y - textSize.y) * 0.5f)});
+        ImGui::TextDisabled("%s", placeholder);
+    }
+
     void DrawHistory()
     {
         if (gHistory.empty())
         {
-            const char* placeholder = Tr(i18n::TextId::DebuggerHistoryEmpty);
-            const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
-            ImGui::SetCursorPos({std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f),
-                                 std::max(0.0f, (ImGui::GetContentRegionAvail().y - textSize.y) * 0.5f)});
-            ImGui::TextDisabled("%s", placeholder);
+            gScrollToLatest = false;
+            DrawCenteredPlaceholder(Tr(i18n::TextId::DebuggerHistoryEmpty));
             return;
         }
 
-        bool drewPacket = false;
-        const ImVec4 accent = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-        for (auto iterator = gHistory.begin(); iterator != gHistory.end(); ++iterator)
+        UpdateHistoryView();
+        const mdr::Vector<size_t>& rows = gHistoryView.rows;
+        const mdr::Vector<size_t>& ackPrefix = gHistoryView.ackPrefix;
+        if (rows.empty())
         {
-            CapturedPacket& packet = *iterator;
-            const bool isLatest = std::next(iterator) == gHistory.end();
-            if (!MatchesHistoryFilter(packet))
-            {
-                if (gScrollToLatest && isLatest)
-                    gScrollToLatest = false;
-                continue;
-            }
-
-            drewPacket = true;
-            const char* direction = packet.direction == MDR_PACKET_DIRECTION_RX ? "RX" : "TX";
-            if (IsAck(packet))
-            {
-                const mdr::String ackLabel = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerAckSummary)), packet.id,
-                                                         direction, packet.sequence);
-                ImGui::BeginDisabled();
-                ImGui::TextUnformatted(ackLabel.c_str());
-                ImGui::EndDisabled();
-                if (gScrollToLatest && isLatest)
-                {
-                    ImGui::SetScrollHereY(1.0f);
-                    gScrollToLatest = false;
-                }
-                continue;
-            }
-
-            const bool selected = packet.id == gSelectedCaptureId;
-            ImVec4 cardColor = accent;
-            cardColor.w = selected ? 0.55f : 0.28f;
-
-            ImGui::PushID(static_cast<int>(packet.id));
-            ImVec4 hoveredColor = cardColor;
-            hoveredColor.w = std::min(1.0f, cardColor.w + 0.18f);
-            ImGui::PushStyleColor(ImGuiCol_Header, cardColor);
-            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, hoveredColor);
-            ImGui::PushStyleColor(ImGuiCol_HeaderActive, hoveredColor);
-            const mdr::UInt8 command = packet.payload.empty() ? 0 : packet.payload.front();
-            const char* packetName = packet.candidates.empty() ? Tr(i18n::TextId::DebuggerUnknownPacket)
-                                                               : ShortPacketName(packet.candidates.front()->name);
-            mdr::String details = mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerPacketDetails)),
-                                              static_cast<mdr::UInt8>(packet.type), command, packet.sequence);
-            if (packet.candidates.size() > 1)
-                details += mdr::Format(fmt::runtime(Tr(i18n::TextId::DebuggerLayoutCount)), packet.candidates.size());
-            const mdr::String label =
-                mdr::Format("#{} {} - {}\n{}###capture", packet.id, direction, packetName, details);
-            const auto& style = ImGui::GetStyle();
-            const float lineHeight = ImGui::GetTextLineHeight();
-            const float rowPaddingY = lineHeight * 0.2f;
-            const float rowHeight = lineHeight * 2.0f + rowPaddingY * 2.0f;
-            ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, {style.SelectableTextAlign.x, 0.5f});
-            if (ImGui::Selectable(label.c_str(), selected, ImGuiSelectableFlags_None,
-                                  {ImGui::GetContentRegionAvail().x, rowHeight}))
-                SelectCapture(packet);
-            ImGui::PopStyleVar();
-            ImGui::PopStyleColor(3);
-            ImGui::PopID();
-
-            if (gScrollToLatest && isLatest)
-            {
-                ImGui::SetScrollHereY(1.0f);
-                gScrollToLatest = false;
-            }
+            gScrollToLatest = false;
+            DrawCenteredPlaceholder(Tr(i18n::TextId::DebuggerFilterEmpty));
+            return;
         }
 
-        if (!drewPacket)
+        // Rows come in two heights (one-line ACKs, two-line cards), so ImGuiListClipper's uniform-height model
+        // doesn't fit. Row offsets are instead derived from the ACK prefix counts, which stay exact across font
+        // and DPI changes, and the visible range is found by binary search.
+        const float spacing = ImGui::GetStyle().ItemSpacing.y;
+        const float ackHeight = ImGui::GetTextLineHeight() + spacing;
+        const float cardHeight = HistoryCardHeight() + spacing;
+        const auto rowTop = [&](size_t k)
         {
-            const char* placeholder = Tr(i18n::TextId::DebuggerFilterEmpty);
-            const ImVec2 textSize = ImGui::CalcTextSize(placeholder);
-            ImGui::SetCursorPos({std::max(0.0f, (ImGui::GetContentRegionAvail().x - textSize.x) * 0.5f),
-                                 std::max(0.0f, (ImGui::GetContentRegionAvail().y - textSize.y) * 0.5f)});
-            ImGui::TextDisabled("%s", placeholder);
+            const size_t acks = ackPrefix[k];
+            return static_cast<float>(acks) * ackHeight + static_cast<float>(k - acks) * cardHeight;
+        };
+
+        const size_t count = rows.size();
+        const float baseY = ImGui::GetCursorPosY();
+        const float viewTop = ImGui::GetScrollY() - baseY;
+        const float viewBottom = viewTop + ImGui::GetWindowHeight();
+
+        // First row whose bottom edge is below the top of the view.
+        size_t first = 0, high = count;
+        while (first < high)
+        {
+            const size_t middle = first + (high - first) / 2;
+            if (rowTop(middle + 1) <= viewTop)
+                first = middle + 1;
+            else
+                high = middle;
+        }
+
+        const ImVec4 accent = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        ImGui::SetCursorPosY(baseY + rowTop(first));
+        for (size_t k = first; k < count && rowTop(k) < viewBottom; ++k)
+            DrawHistoryRow(gHistory[rows[k]], accent);
+
+        // Reserve the full content height so the scrollbar reflects the whole (filtered) session.
+        ImGui::SetCursorPosY(baseY + rowTop(count) - spacing);
+        ImGui::Dummy({0.0f, 0.0f});
+
+        if (gScrollToLatest)
+        {
+            // Only follow when the newest packet is actually shown under the current filter.
+            if (rows.back() + 1 == gHistory.size())
+                ImGui::SetScrollHereY(1.0f);
+            gScrollToLatest = false;
         }
     }
 
@@ -802,6 +874,7 @@ namespace
     void ClearHistory()
     {
         gHistory.clear();
+        InvalidateHistoryView();
         gReplayHistory = false;
         if (gSelectedCaptureId)
             gPacket.Reset();
