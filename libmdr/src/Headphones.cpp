@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstring>
 #include <limits>
+#include <span>
 #include <string_view>
 #include "Details.hpp"
 
@@ -393,6 +394,10 @@ namespace
         case MDR_FEATURE_AMBIENT_SOUND:
             return state.mSupport.contains(F::AMBIENT_SOUND_MODE) ||
                 state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE);
+        case MDR_FEATURE_WIND_NOISE_REDUCTION:
+            // DUAL_SINGLE_OFF: SINGLE is wind noise reduction (e.g. WH-1000XM3). Assumed until the capability says otherwise.
+            return state.mSupport.contains(F::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE) &&
+                state.mNcSettingType == mdr::v1::t1::NcAsmSettingType::DUAL_SINGLE_OFF;
         case MDR_FEATURE_SPEAK_TO_CHAT:
             return state.mSupport.contains(F::SMART_TALKING_MODE);
         case MDR_FEATURE_EQUALIZER:
@@ -596,6 +601,29 @@ namespace
     bool IsBooleanGeneralSetting(const Capability& capability)
     {
         return capability.type == decltype(capability.type)::BOOLEAN_TYPE;
+    }
+
+    template <typename Capability>
+    bool IsListGeneralSetting(const Capability& capability)
+    {
+        return capability.type == decltype(capability.type)::LIST_TYPE && !capability.options.empty();
+    }
+
+    template <typename Capability>
+    MDRGeneralSettingType GeneralSettingType(const Capability& capability)
+    {
+        if (IsBooleanGeneralSetting(capability))
+            return MDR_GENERAL_SETTING_BOOLEAN;
+        if (IsListGeneralSetting(capability))
+            return MDR_GENERAL_SETTING_LIST;
+        return MDR_GENERAL_SETTING_UNKNOWN;
+    }
+
+    // ENUM_NAME strings are identifiers like "SIDETONE_SETTING"; RAW_NAME strings are display text.
+    template <typename Info>
+    bool IsGeneralSettingTextKey(const Info& info)
+    {
+        return info.stringFormat == decltype(info.stringFormat)::ENUM_NAME;
     }
 
     std::string_view ModelSeriesText(const mdr::DetailsV1& state)
@@ -1864,6 +1892,305 @@ namespace
         }
     }
 
+    struct ValueRange
+    {
+        int32_t min, max, step;
+    };
+
+    constexpr ValueRange kPlaybackVolumeRange{0, 30, 1};
+    constexpr ValueRange kAmbientLevelRange{1, 20, 1};
+    constexpr ValueRange kEqualizer5BandRange{-10, 10, 1};
+    constexpr ValueRange kEqualizer10BandRange{-6, 6, 1};
+    constexpr ValueRange kClearBassRange{-10, 10, 1};
+    constexpr ValueRange kVoiceGuidanceVolumeRange{-2, 2, 1}; // CODEGEN Range -2 2.
+
+    ValueRange PlaybackVolumeRange(const mdr::DetailsV1& state)
+    {
+        // volumeStep counts positions: WH-1000XM3 sends 31 for 0..30.
+        // TODO @mos9527: verify if this quirk is present in all of V1 devices
+        if (state.mPlayVolumeStep >= 2)
+            return {0, state.mPlayVolumeStep - 1, 1};
+        return kPlaybackVolumeRange;
+    }
+
+    ValueRange PlaybackVolumeRange(const mdr::DetailsV2&)
+    {
+        return kPlaybackVolumeRange;
+    }
+
+    ValueRange AmbientLevelRange(const mdr::DetailsV1& state)
+    {
+        // E.g. WH-1000XM3 advertises 20 steps for levels 1..20.
+        // TODO @mos9527: verify on other V1 devices
+        if (state.mAsmStep >= 1)
+            return {1, state.mAsmStep, 1};
+        return kAmbientLevelRange;
+    }
+
+    ValueRange AmbientLevelRange(const mdr::DetailsV2&)
+    {
+        return kAmbientLevelRange;
+    }
+
+    template <typename State>
+    bool EqualizerBandFrequency(const State& state, uint32_t index, int32_t& out)
+    {
+        // EQEBB_RET_EXTENDED_INFO, both protocols: Clear Bass (if any) as SPECIFIC_INFORMATION, then the bands in Hz.
+        // e.g. WH-1000XM3 (V1): {CB, 400 .. 16000}; WH-1000XM6 (V2): {31 .. 16000}.
+        const size_t count = state.mEqConfig.mDesired.size();
+        mdr::Vector<int32_t> frequencies;
+        for (const auto& band : state.mEqBandInfo)
+            if (band.infoType == decltype(band.infoType)::HZ)
+                frequencies.push_back(static_cast<int32_t>(band.valueAsFrequency));
+        if (frequencies.size() != count)
+        {
+            // No (matching) band info yet: fall back to the protocol's well-known 5/10-band layouts.
+            static constexpr int32_t kDefault5[] = {400, 1000, 2500, 6300, 16000};
+            static constexpr int32_t kDefault10[] = {31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000};
+            frequencies.clear();
+            if (count == 5)
+                frequencies.assign(std::begin(kDefault5), std::end(kDefault5));
+            else if (count == 10)
+                frequencies.assign(std::begin(kDefault10), std::end(kDefault10));
+        }
+        if (index >= frequencies.size())
+            return false;
+        out = frequencies[index];
+        return true;
+    }
+
+    bool DefaultEqualizerBandRange(uint32_t count, ValueRange& out)
+    {
+        if (count == 5)
+            out = kEqualizer5BandRange;
+        else if (count == 10)
+            out = kEqualizer10BandRange;
+        else
+            return false;
+        return true;
+    }
+
+    template <typename State>
+    bool MatchesEqualizerLayout(const State& state, uint32_t count)
+    {
+        // mCurrent is only written from device reports and stays empty until the first one.
+        const auto& layout = state.mEqConfig.mCurrent;
+        return layout.empty() || layout.size() == count;
+    }
+
+    bool EqualizerBandRange(const mdr::DetailsV1& state, uint32_t count, ValueRange& out)
+    {
+        if (!MatchesEqualizerLayout(state, count))
+            return false;
+        // The advertised band count includes Clear Bass (raw band 0).
+        if (state.mEqCapabilityStep == 0 || state.mEqCapabilityBands != count + 1)
+            return DefaultEqualizerBandRange(count, out);
+        const int offset = state.EqStepOffset();
+        out = {-offset, offset, 1};
+        return true;
+    }
+
+    bool EqualizerBandRange(const mdr::DetailsV2& state, uint32_t count, ValueRange& out)
+    {
+        if (!MatchesEqualizerLayout(state, count))
+            return false;
+        // The advertised band count is the raw count: WH-1000XM6 sends 10 bands / 13 steps for -6..6.
+        const size_t rawBands = count + (state.EqClearBassInRaw(count) ? 1 : 0);
+        if (state.mEqCapabilityStep == 0 || state.mEqCapabilityBands != rawBands)
+            return DefaultEqualizerBandRange(count, out);
+        const int offset = state.EqStepOffset(rawBands);
+        out = {-offset, offset, 1};
+        return true;
+    }
+
+    ValueRange ClearBassRange(const mdr::DetailsV1& state)
+    {
+        // Clear Bass shares the raw EQ encoding as band 0.
+        const int offset = state.EqStepOffset();
+        return {-offset, offset, 1};
+    }
+
+    ValueRange ClearBassRange(const mdr::DetailsV2& state)
+    {
+        // Clear Bass shares the raw EQ encoding as band 0.
+        const size_t bands = state.mEqConfig.mDesired.size();
+        if (!state.EqClearBassInRaw(bands))
+            return kClearBassRange;
+        const int offset = state.EqStepOffset(bands + 1);
+        return {-offset, offset, 1};
+    }
+
+    bool ClearBassAvailable(const mdr::DetailsV1& state)
+    {
+        // Clear Bass only exists in the 6-band (Clear Bass + 5) layout; the 10-band layout has none.
+        return SupportsFeature(state, MDR_FEATURE_EQUALIZER) && state.mEqConfig.mDesired.size() == 5;
+    }
+
+    bool ClearBassAvailable(const mdr::DetailsV2& state)
+    {
+        // Follows the device's own param layout once it has sent one.
+        return SupportsFeature(state, MDR_FEATURE_EQUALIZER) &&
+            state.EqClearBassInRaw(state.mEqConfig.mDesired.size()) && !state.mEqConfig.mDesired.empty();
+    }
+
+    bool WearingPowerAvailable(const mdr::DetailsV1& state)
+    {
+        return SupportsFeature(state, MDR_FEATURE_AUTO_POWER_OFF) &&
+            std::ranges::find(state.mAutoPowerOffCandidates,
+                              mdr::v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS) !=
+            state.mAutoPowerOffCandidates.end();
+    }
+
+    bool WearingPowerAvailable(const mdr::DetailsV2& state)
+    {
+        return state.mSupport.contains(mdr::v2::t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION) &&
+            (!state.mAutoPowerOffWearingDetectionCapabilityKnown ||
+             std::ranges::find(state.mAutoPowerOffWearingDetectionCandidates,
+                               mdr::v2::t1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS) !=
+                 state.mAutoPowerOffWearingDetectionCandidates.end());
+    }
+
+    template <typename State>
+    ValueRange VoiceGuidanceVolumeRange(const State&)
+    {
+        return kVoiceGuidanceVolumeRange;
+    }
+
+    template <typename Element>
+    bool AutoPowerRoundTrips(Element element, uint32_t& minutes)
+    {
+        // AutoPowerMinutes maps unknown elements to 0, so only accept elements that map back to themselves.
+        minutes = AutoPowerMinutes(element);
+        Element back{};
+        return AutoPowerFromMinutes(minutes, back) && back == element;
+    }
+
+    mdr::Vector<uint32_t> AutoPowerOffOptions(const mdr::DetailsV1& state)
+    {
+        using enum mdr::v1::t1::AutoPowerOffElementId;
+        static constexpr mdr::v1::t1::AutoPowerOffElementId kDefault[] = {
+            POWER_OFF_IN_5_MIN, POWER_OFF_IN_30_MIN, POWER_OFF_IN_60_MIN, POWER_OFF_IN_180_MIN, POWER_OFF_DISABLE};
+        mdr::Vector<uint32_t> out;
+        const auto append = [&](auto element)
+        {
+            uint32_t minutes = 0;
+            if (AutoPowerRoundTrips(element, minutes) && std::ranges::find(out, minutes) == out.end())
+                out.push_back(minutes);
+        };
+        if (!state.mAutoPowerOffCandidates.empty())
+            std::ranges::for_each(state.mAutoPowerOffCandidates, append);
+        else
+            std::ranges::for_each(kDefault, append);
+        return out;
+    }
+
+    mdr::Vector<uint32_t> AutoPowerOffOptions(const mdr::DetailsV2& state)
+    {
+        mdr::Vector<uint32_t> out;
+        const auto append = [&](auto element)
+        {
+            uint32_t minutes = 0;
+            // "When removed" is exposed separately as wearing_power, not as a time option.
+            if (AutoPowerRoundTrips(element, minutes) && std::ranges::find(out, minutes) == out.end())
+                out.push_back(minutes);
+        };
+        if (state.mSupport.contains(mdr::v2::t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        {
+            if (!state.mAutoPowerOffWearingDetectionCapabilityKnown)
+                return {5, 15, 30, 60, 180, 0};
+            std::ranges::for_each(state.mAutoPowerOffWearingDetectionCandidates, append);
+        }
+        else
+        {
+            if (!state.mAutoPowerOffCapabilityKnown)
+                return {5, 15, 30, 60, 180, 0};
+            std::ranges::for_each(state.mAutoPowerOffCandidates, append);
+        }
+        return out;
+    }
+
+    bool InRange(const ValueRange& range, int64_t value)
+    {
+        return value >= range.min && value <= range.max;
+    }
+
+    MDRResult ReadRange(const ValueRange& range, MDRValue key, MDRValue minKey, int32_t& out)
+    {
+        out = key == minKey ? range.min : key == minKey + 1 ? range.max : range.step;
+        return MDR_RESULT_OK;
+    }
+
+    template <typename State>
+    MDRResult ReadValue(const State& state, MDRValue key, uint32_t index, int32_t& out)
+    {
+        switch (key)
+        {
+        case MDR_VALUE_PLAYBACK_VOLUME_MIN:
+        case MDR_VALUE_PLAYBACK_VOLUME_MAX:
+        case MDR_VALUE_PLAYBACK_VOLUME_STEP:
+            if (!SupportsFeature(state, MDR_FEATURE_PLAYBACK_VOLUME))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            return ReadRange(PlaybackVolumeRange(state), key, MDR_VALUE_PLAYBACK_VOLUME_MIN, out);
+        case MDR_VALUE_AMBIENT_LEVEL_MIN:
+        case MDR_VALUE_AMBIENT_LEVEL_MAX:
+        case MDR_VALUE_AMBIENT_LEVEL_STEP:
+            if (!SupportsFeature(state, MDR_FEATURE_AMBIENT_SOUND))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            return ReadRange(AmbientLevelRange(state), key, MDR_VALUE_AMBIENT_LEVEL_MIN, out);
+        case MDR_VALUE_EQUALIZER_BAND_MIN:
+        case MDR_VALUE_EQUALIZER_BAND_MAX:
+        case MDR_VALUE_EQUALIZER_BAND_STEP:
+        {
+            if (!SupportsFeature(state, MDR_FEATURE_EQUALIZER))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            ValueRange range{};
+            if (!EqualizerBandRange(state, index, range))
+                return MDR_RESULT_ERROR_NOT_FOUND;
+            return ReadRange(range, key, MDR_VALUE_EQUALIZER_BAND_MIN, out);
+        }
+        case MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN:
+        case MDR_VALUE_EQUALIZER_CLEAR_BASS_MAX:
+        case MDR_VALUE_EQUALIZER_CLEAR_BASS_STEP:
+            if (!ClearBassAvailable(state))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            return ReadRange(ClearBassRange(state), key, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, out);
+        case MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN:
+        case MDR_VALUE_VOICE_GUIDANCE_VOLUME_MAX:
+        case MDR_VALUE_VOICE_GUIDANCE_VOLUME_STEP:
+            if (!SupportsFeature(state, MDR_FEATURE_VOICE_GUIDANCE_VOLUME))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            return ReadRange(VoiceGuidanceVolumeRange(state), key, MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN, out);
+        case MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT:
+        case MDR_VALUE_AUTO_POWER_OFF_OPTION:
+        {
+            if (!SupportsFeature(state, MDR_FEATURE_AUTO_POWER_OFF))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            const auto options = AutoPowerOffOptions(state);
+            if (key == MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT)
+                out = static_cast<int32_t>(options.size());
+            else if (index < options.size())
+                out = static_cast<int32_t>(options[index]);
+            else
+                return MDR_RESULT_ERROR_NOT_FOUND;
+            return MDR_RESULT_OK;
+        }
+        case MDR_VALUE_EQUALIZER_BAND_FREQUENCY:
+            if (!SupportsFeature(state, MDR_FEATURE_EQUALIZER))
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            return EqualizerBandFrequency(state, index, out) ? MDR_RESULT_OK : MDR_RESULT_ERROR_NOT_FOUND;
+        case MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY:
+        {
+            const uint32_t setting = index & 0xffu, option = index >> 8u;
+            if (setting >= std::size(state.mGsCapability) || option >= state.mGsCapability[setting].options.size())
+                return MDR_RESULT_ERROR_NOT_FOUND;
+            out = IsGeneralSettingTextKey(state.mGsCapability[setting].options[option]) ? 1 : 0;
+            return MDR_RESULT_OK;
+        }
+        default:
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
     MDRResult ValidateDeviceId(const MDRPairedDeviceAction& action, std::string_view& out)
     {
         if (!action.device_id || action.device_id_size == 0)
@@ -2225,6 +2552,17 @@ MDRResult mdrHeadphonesGetText(MDRHeadphones* headphones, MDRText text, uint32_t
                     : state.mGsCapability[index].value.summary.value;
                 return CopyText({value.data(), value.size()}, buffer, inoutSize);
             }
+            case MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT:
+            case MDR_TEXT_GENERAL_SETTING_OPTION_SUMMARY:
+            {
+                const uint32_t setting = index & 0xffu, option = index >> 8u;
+                if (setting >= std::size(state.mGsCapability) || option >= state.mGsCapability[setting].options.size())
+                    return MDR_RESULT_ERROR_NOT_FOUND;
+                const auto& info = state.mGsCapability[setting].options[option];
+                const auto& value =
+                    text == MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT ? info.subject.value : info.summary.value;
+                return CopyText({value.data(), value.size()}, buffer, inoutSize);
+            }
             case MDR_TEXT_LAST_ALERT:
                 return CopyText(format_as(state.mLastAlertMessage), buffer, inoutSize);
             case MDR_TEXT_LAST_INTERACTION:
@@ -2237,6 +2575,20 @@ MDRResult mdrHeadphonesGetText(MDRHeadphones* headphones, MDRText text, uint32_t
                 return MDR_RESULT_ERROR_INVALID_ARGUMENT;
             }
         });
+}
+
+MDRResult mdrHeadphonesGetValue(MDRHeadphones* headphones, MDRValue value, uint32_t index, int32_t* outValue)
+{
+    if (!headphones || !outValue)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    if (value < MDR_VALUE_PLAYBACK_VOLUME_MIN || value > MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const auto& h = *Impl(headphones);
+    if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
+        return failure;
+    if (!h.mInitialized)
+        return MDR_RESULT_INPROGRESS;
+    return WithDetails(h, [&](const auto& state) { return ReadValue(state, value, index, *outValue); });
 }
 
 MDRResult mdrHeadphonesGetModel(MDRHeadphones* headphones, MDRModel* outIdentity)
@@ -2286,7 +2638,6 @@ MDRResult mdrHeadphonesGetBatteries(MDRHeadphones* headphones, MDRBattery* batte
                            const auto write = [&](MDRBatteryPart part, const auto& battery)
                            {
                                batteries[out++] = {.part = part,
-                                                   .present = MDR_TRUE,
                                                    .level_percent = battery.level,
                                                    .update_threshold_percent = battery.threshold,
                                                    .charging = from_protocol(battery.charging)};
@@ -2323,9 +2674,11 @@ MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPropertyType ty
 
 MDRResult mdrHeadphonesSetPlaybackVolume(MDRHeadphones* headphones, uint32_t volume)
 {
-    if (!headphones || volume > 30)
+    if (!headphones)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!InRange(WithDetails(h, [](const auto& state) { return PlaybackVolumeRange(state); }), volume))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
         return failure;
     if (!h.mInitialized && !h.IsReady())
@@ -2368,11 +2721,17 @@ MDRResult mdrHeadphonesGetNoiseControl(MDRHeadphones* headphones, MDRPropertyTyp
         return failure;
     if (h.mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
+        using mdr::v1::t1::NcDualSingleValue;
         const auto& state = h.mDetailsV1;
-        const auto level = ReadProperty(state.mNcAsmLevel, type);
+        // V1 has an on/off switch plus an NC selector: DUAL is NC, SINGLE is wind noise reduction, OFF is ambient.
+        const auto nc = ReadProperty(state.mNcAsmNcValue, type);
+        const MDRNoiseMode mode = !ReadProperty(state.mNcAsmEnabled, type) ? MDR_NOISE_MODE_OFF
+            : nc == NcDualSingleValue::DUAL                                ? MDR_NOISE_MODE_CANCELLING
+            : nc == NcDualSingleValue::SINGLE                              ? MDR_NOISE_MODE_WIND_NOISE_REDUCTION
+                                                                           : MDR_NOISE_MODE_AMBIENT;
         *outNoiseControl = {
-            .mode = ReadProperty(state.mNcAsmEnabled, type) ? MDR_NOISE_MODE_V1_ON : MDR_NOISE_MODE_OFF,
-            .ambient_level = level == -1 ? MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING : static_cast<uint32_t>(level),
+            .mode = mode,
+            .ambient_level = static_cast<uint32_t>(std::max(ReadProperty(state.mNcAsmAmbientLevel, type), 0)),
             .changing_asm_level = static_cast<MDRBoolean>(ReadProperty(state.mNcAsmChangingLevel, type)),
             .focus_on_voice = static_cast<MDRBoolean>(ReadProperty(state.mNcAsmFocusOnVoice, type)),
             .button_mode = MDR_NOISE_BUTTON_NONE,
@@ -2396,7 +2755,7 @@ MDRResult mdrHeadphonesGetNoiseControl(MDRHeadphones* headphones, MDRPropertyTyp
 
 MDRResult mdrHeadphonesSetNoiseControl(MDRHeadphones* headphones, const MDRNoiseControl* noiseControl)
 {
-    if (!headphones || !noiseControl || noiseControl->mode > MDR_NOISE_MODE_AMBIENT ||
+    if (!headphones || !noiseControl || noiseControl->mode > MDR_NOISE_MODE_WIND_NOISE_REDUCTION ||
         !ValidBoolean(noiseControl->changing_asm_level) || !ValidBoolean(noiseControl->focus_on_voice) ||
         !ValidBoolean(noiseControl->adaptive_ambient))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
@@ -2405,11 +2764,18 @@ MDRResult mdrHeadphonesSetNoiseControl(MDRHeadphones* headphones, const MDRNoise
         return failure;
     if (!h->mInitialized && !h->IsReady())
         return MDR_RESULT_INPROGRESS;
+    // Outside ambient mode the device reports, and accepts, level 0.
+    const auto ambientRange = WithDetails(*h, [](const auto& state) { return AmbientLevelRange(state); });
+    const int64_t ambientLevel = noiseControl->ambient_level;
+    if (ambientLevel > ambientRange.max ||
+        (noiseControl->mode == MDR_NOISE_MODE_AMBIENT && ambientLevel < ambientRange.min))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    if (noiseControl->mode == MDR_NOISE_MODE_WIND_NOISE_REDUCTION &&
+        !WithDetails(*h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_WIND_NOISE_REDUCTION); }))
+        return MDR_RESULT_ERROR_NOT_SUPPORTED;
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
-        if (noiseControl->ambient_level != MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING &&
-            noiseControl->ambient_level > 20)
-            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        using mdr::v1::t1::NcDualSingleValue;
         if (noiseControl->button_mode != MDR_NOISE_BUTTON_NONE || noiseControl->adaptive_ambient != MDR_FALSE ||
             noiseControl->adaptive_sensitivity != MDR_ADAPTIVE_SENSITIVITY_UNKNOWN)
             return MDR_RESULT_ERROR_NOT_SUPPORTED;
@@ -2420,17 +2786,19 @@ MDRResult mdrHeadphonesSetNoiseControl(MDRHeadphones* headphones, const MDRNoise
             : changingLevel                ? mdr::v1::t1::NcAsmEffect::ADJUSTMENT_IN_PROGRESS
             : state.mNcAsmEnabled.mDesired ? mdr::v1::t1::NcAsmEffect::ADJUSTMENT_COMPLETION
                                            : mdr::v1::t1::NcAsmEffect::ON;
+        // OFF keeps the previous NC selection so turning it back on restores it.
+        const auto nc = noiseControl->mode == MDR_NOISE_MODE_CANCELLING ? NcDualSingleValue::DUAL
+            : noiseControl->mode == MDR_NOISE_MODE_WIND_NOISE_REDUCTION ? NcDualSingleValue::SINGLE
+            : noiseControl->mode == MDR_NOISE_MODE_AMBIENT              ? NcDualSingleValue::OFF
+                                                                        : state.mNcAsmNcValue.mDesired;
         state.mNcAsmEffect.stage(effect);
         state.mNcAsmEnabled.stage(enabled);
-        state.mNcAsmLevel.stage(noiseControl->ambient_level == MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING
-                                    ? -1
-                                    : static_cast<int>(noiseControl->ambient_level));
+        state.mNcAsmNcValue.stage(nc);
+        state.mNcAsmAmbientLevel.stage(static_cast<int>(noiseControl->ambient_level));
         state.mNcAsmChangingLevel.stage(noiseControl->changing_asm_level != MDR_FALSE);
         state.mNcAsmFocusOnVoice.stage(noiseControl->focus_on_voice != MDR_FALSE);
         return MDR_RESULT_OK;
     }
-    if (noiseControl->ambient_level > 20)
-        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& state = h->mDetailsV2;
     mdr::v2::t1::Function button{};
     auto sensitivity = state.mNcAsmNoiseAdaptiveSensitivity.mDesired;
@@ -2620,9 +2988,11 @@ MDRResult mdrHeadphonesSetEqualizerPreset(MDRHeadphones* headphones, MDREqualize
 
 MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t clearBass)
 {
-    if (!headphones || clearBass < -10 || clearBass > 10)
+    if (!headphones)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto& h = *Impl(headphones);
+    if (!InRange(WithDetails(h, [](const auto& state) { return ClearBassRange(state); }), clearBass))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
         return failure;
     if (!h.mInitialized && !h.IsReady())
@@ -2630,6 +3000,8 @@ MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t 
     return WithDetails(h,
                        [&](auto& state) -> MDRResult
                        {
+                           if (!ClearBassAvailable(state))
+                               return MDR_RESULT_ERROR_NOT_SUPPORTED;
                            state.mEqClearBass.stage(static_cast<int>(clearBass));
                            return MDR_RESULT_OK;
                        });
@@ -2686,19 +3058,20 @@ MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, MDRPropertyT
 
 MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, const int32_t* bands, uint32_t count)
 {
-    if (!headphones || !bands || (count != 5 && count != 10))
+    if (!headphones || !bands)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    const int32_t minimum = count == 5 ? -10 : -6;
-    const int32_t maximum = count == 5 ? 10 : 6;
+    auto& h = *Impl(headphones);
+    ValueRange range{};
+    if (!WithDetails(h, [&](const auto& state) { return EqualizerBandRange(state, count, range); }))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     mdr::Vector<int> values;
     values.reserve(count);
     for (uint32_t i = 0; i < count; ++i)
     {
-        if (bands[i] < minimum || bands[i] > maximum)
+        if (!InRange(range, bands[i]))
             return MDR_RESULT_ERROR_INVALID_ARGUMENT;
         values.push_back(static_cast<int>(bands[i]));
     }
-    auto& h = *Impl(headphones);
     if (const auto failure = h.GetFailure(); failure != MDR_RESULT_OK)
         return failure;
     if (!h.mInitialized && !h.IsReady())
@@ -2951,12 +3324,16 @@ MDRResult mdrHeadphonesGetGeneralSettingInfo(MDRHeadphones* headphones, MDRGener
                            {
                                if (!SupportsGeneralSetting(h, i))
                                    continue;
-                               settings[out++] = {.index = i,
-                                                  .type = IsBooleanGeneralSetting(state.mGsCapability[i])
-                                                      ? MDR_GENERAL_SETTING_BOOLEAN
-                                                      : MDR_GENERAL_SETTING_UNKNOWN,
-                                                  .writable = static_cast<MDRBoolean>(
-                                                      IsBooleanGeneralSetting(state.mGsCapability[i]))};
+                               const auto& capability = state.mGsCapability[i];
+                               const auto settingType = GeneralSettingType(capability);
+                               settings[out++] = {
+                                   .index = i,
+                                   .type = settingType,
+                                   .writable = static_cast<MDRBoolean>(settingType != MDR_GENERAL_SETTING_UNKNOWN),
+                                   .option_count = settingType == MDR_GENERAL_SETTING_LIST
+                                       ? static_cast<uint32_t>(capability.options.size())
+                                       : 0u,
+                                   .text_is_key = static_cast<MDRBoolean>(IsGeneralSettingTextKey(capability.value))};
                            }
                            *inoutCount = required;
                            return MDR_RESULT_OK;
@@ -2973,16 +3350,27 @@ MDRResult mdrHeadphonesGetGeneralSetting(MDRHeadphones* headphones, MDRPropertyT
         return failure;
     if (!SupportsGeneralSetting(h, index)) // This also checks index
         return MDR_RESULT_ERROR_NOT_FOUND;
-    return WithDetails(h,
-                       [&](const auto& state) -> MDRResult
-                       {
-                           if (!IsBooleanGeneralSetting(state.mGsCapability[index]))
-                               return MDR_RESULT_ERROR_NOT_SUPPORTED;
-                           *outSetting = {.index = index,
-                                          .boolean_value =
-                                              static_cast<MDRBoolean>(ReadProperty(state.mGsParamBool[index], type))};
-                           return MDR_RESULT_OK;
-                       });
+    return WithDetails(
+        h,
+        [&](const auto& state) -> MDRResult
+        {
+            switch (GeneralSettingType(state.mGsCapability[index]))
+            {
+            case MDR_GENERAL_SETTING_BOOLEAN:
+                *outSetting = {.index = index,
+                               .boolean_value = static_cast<MDRBoolean>(ReadProperty(state.mGsParamBool[index], type)),
+                               .list_value = 0};
+                return MDR_RESULT_OK;
+            case MDR_GENERAL_SETTING_LIST:
+                *outSetting = {.index = index,
+                               .boolean_value = MDR_FALSE,
+                               .list_value =
+                                   static_cast<uint32_t>(std::max(ReadProperty(state.mGsParamList[index], type), 0))};
+                return MDR_RESULT_OK;
+            default:
+                return MDR_RESULT_ERROR_NOT_SUPPORTED;
+            }
+        });
 }
 
 MDRResult mdrHeadphonesSetGeneralSetting(MDRHeadphones* headphones, const MDRGeneralSetting* setting)
@@ -2999,10 +3387,20 @@ MDRResult mdrHeadphonesSetGeneralSetting(MDRHeadphones* headphones, const MDRGen
     return WithDetails(h,
                        [&](auto& state) -> MDRResult
                        {
-                           if (!IsBooleanGeneralSetting(state.mGsCapability[setting->index]))
+                           const auto& capability = state.mGsCapability[setting->index];
+                           switch (GeneralSettingType(capability))
+                           {
+                           case MDR_GENERAL_SETTING_BOOLEAN:
+                               state.mGsParamBool[setting->index].stage(setting->boolean_value != MDR_FALSE);
+                               return MDR_RESULT_OK;
+                           case MDR_GENERAL_SETTING_LIST:
+                               if (setting->list_value >= capability.options.size())
+                                   return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+                               state.mGsParamList[setting->index].stage(static_cast<int>(setting->list_value));
+                               return MDR_RESULT_OK;
+                           default:
                                return MDR_RESULT_ERROR_NOT_SUPPORTED;
-                           state.mGsParamBool[setting->index].stage(setting->boolean_value != MDR_FALSE);
-                           return MDR_RESULT_OK;
+                           }
                        });
 }
 
@@ -3148,8 +3546,12 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type,
     if (h.mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
         const auto& state = h.mDetailsV1;
-        *outPower = {.auto_power_off_minutes = AutoPowerMinutes(ReadProperty(state.mPowerAutoOff, type)),
-                     .wearing_power = MDR_WEARING_POWER_UNAVAILABLE,
+        const auto value = ReadProperty(state.mPowerAutoOff, type);
+        *outPower = {.auto_power_off_minutes = AutoPowerMinutes(value),
+                     .wearing_power = !WearingPowerAvailable(state) ? MDR_WEARING_POWER_UNAVAILABLE
+                         : value == mdr::v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS
+                         ? MDR_WEARING_POWER_WHEN_REMOVED
+                         : MDR_WEARING_POWER_DISABLED,
                      .auto_pause = static_cast<MDRBoolean>(ReadProperty(state.mAutoPauseEnabled, type)),
                      .head_gesture = static_cast<MDRBoolean>(ReadProperty(state.mHeadGestureEnabled, type)),
                      .shutdown_requested = static_cast<MDRBoolean>(ReadProperty(state.mShutdown, type))};
@@ -3161,7 +3563,7 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type,
     const auto wearingValue = ReadProperty(state.mPowerAutoOffWearingDetection, type);
     *outPower = {.auto_power_off_minutes = wearing ? AutoPowerMinutes(wearingValue)
                                                    : AutoPowerMinutes(ReadProperty(state.mPowerAutoOff, type)),
-                 .wearing_power = !wearing ? MDR_WEARING_POWER_UNAVAILABLE
+                 .wearing_power = !WearingPowerAvailable(state) ? MDR_WEARING_POWER_UNAVAILABLE
                      : wearingValue ==
                          mdr::v2::t1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS
                      ? MDR_WEARING_POWER_WHEN_REMOVED
@@ -3183,38 +3585,71 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         return failure;
     if (!h->mInitialized && !h->IsReady())
         return MDR_RESULT_INPROGRESS;
+    MDRPower current{};
+    if (const auto result = mdrHeadphonesGetPower(headphones, MDR_PROPERTY_DESIRED, &current); result != MDR_RESULT_OK)
+        return result;
+    const auto autoPowerOptions = WithDetails(*h, [](const auto& state) { return AutoPowerOffOptions(state); });
+    if (std::ranges::find(autoPowerOptions, power->auto_power_off_minutes) == autoPowerOptions.end() &&
+        current.auto_power_off_minutes != power->auto_power_off_minutes)
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    if (power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED &&
+        !WithDetails(*h, [](const auto& state) { return WearingPowerAvailable(state); }))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const bool unchanged = current.auto_power_off_minutes == power->auto_power_off_minutes &&
+        current.wearing_power == power->wearing_power;
+    const auto stageAutoPower = [&](auto& property, const auto& candidates, bool capabilityKnown) -> MDRResult
+    {
+        auto value = property.mDesired;
+        // Preserve the raw setting when writing back its projection, including unrecognized device values.
+        if (!unchanged)
+        {
+            if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value))
+                return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+            if constexpr (requires { decltype(value)::POWER_OFF_WHEN_REMOVED_FROM_EARS; })
+                if (power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
+                    value = decltype(value)::POWER_OFF_WHEN_REMOVED_FROM_EARS;
+        }
+        if (capabilityKnown && value != property.mDesired && std::ranges::find(candidates, value) == candidates.end())
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        property.stage(value);
+        return MDR_RESULT_OK;
+    };
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
-        auto value = h->mDetailsV1.mPowerAutoOff.mDesired;
-        if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value) ||
-            power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
-            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-        h->mDetailsV1.mPowerAutoOff.stage(value);
-        h->mDetailsV1.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
-        h->mDetailsV1.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
-        h->mDetailsV1.mShutdown.stage(power->shutdown_requested != MDR_FALSE);
-        return MDR_RESULT_OK;
+        auto& state = h->mDetailsV1;
+        if (const auto result = stageAutoPower(state.mPowerAutoOff, state.mAutoPowerOffCandidates,
+                                               !state.mAutoPowerOffCandidates.empty());
+            result != MDR_RESULT_OK)
+            return result;
     }
-    auto& state = h->mDetailsV2;
-    mdr::v2::t1::AutoPowerOffElements autoPower{};
-    mdr::v2::t1::AutoPowerOffWearingDetectionElements wearingPower{};
-    if (!AutoPowerFromMinutes(power->auto_power_off_minutes, autoPower) ||
-        !AutoPowerFromMinutes(power->auto_power_off_minutes, wearingPower))
-        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    using T1 = mdr::v2::t1::FunctionType;
-    if (state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+    else
     {
-        state.mPowerAutoOffWearingDetection.stage(
-            power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED
-                ? mdr::v2::t1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS
-                : wearingPower);
+        auto& state = h->mDetailsV2;
+        using T1 = mdr::v2::t1::FunctionType;
+        if (state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        {
+            if (const auto result =
+                    stageAutoPower(state.mPowerAutoOffWearingDetection, state.mAutoPowerOffWearingDetectionCandidates,
+                                   state.mAutoPowerOffWearingDetectionCapabilityKnown);
+                result != MDR_RESULT_OK)
+                return result;
+        }
+        else if (state.mSupport.contains(T1::AUTO_POWER_OFF))
+        {
+            if (const auto result = stageAutoPower(state.mPowerAutoOff, state.mAutoPowerOffCandidates,
+                                                   state.mAutoPowerOffCapabilityKnown);
+                result != MDR_RESULT_OK)
+                return result;
+        }
     }
-    else if (state.mSupport.contains(T1::AUTO_POWER_OFF) || SupportsFeature(state, MDR_FEATURE_AUTO_POWER_OFF))
-        state.mPowerAutoOff.stage(autoPower);
-    state.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
-    state.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
-    state.mShutdown.stage(power->shutdown_requested != MDR_FALSE);
-    return MDR_RESULT_OK;
+    return WithDetails(*h,
+                       [&](auto& state) -> MDRResult
+                       {
+                           state.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
+                           state.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
+                           state.mShutdown.stage(power->shutdown_requested != MDR_FALSE);
+                           return MDR_RESULT_OK;
+                       });
 }
 
 MDRResult mdrHeadphonesGetVoiceGuidance(MDRHeadphones* headphones, MDRPropertyType type,
@@ -3237,10 +3672,12 @@ MDRResult mdrHeadphonesGetVoiceGuidance(MDRHeadphones* headphones, MDRPropertyTy
 
 MDRResult mdrHeadphonesSetVoiceGuidance(MDRHeadphones* headphones, const MDRVoiceGuidance* voiceGuidance)
 {
-    if (!headphones || !voiceGuidance || !ValidBoolean(voiceGuidance->enabled) || voiceGuidance->volume < -2 ||
-        voiceGuidance->volume > 2)
+    if (!headphones || !voiceGuidance || !ValidBoolean(voiceGuidance->enabled))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     auto* h = Impl(headphones);
+    if (!InRange(WithDetails(*h, [](const auto& state) { return VoiceGuidanceVolumeRange(state); }),
+                 voiceGuidance->volume))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (const auto failure = h->GetFailure(); failure != MDR_RESULT_OK)
         return failure;
     if (!h->mInitialized && !h->IsReady())

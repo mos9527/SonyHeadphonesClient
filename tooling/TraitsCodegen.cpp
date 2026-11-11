@@ -1,4 +1,3 @@
-// TODO: Response commands? Do we still need those?
 #include <map>
 #include "Codegen.hpp"
 

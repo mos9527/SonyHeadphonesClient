@@ -2514,85 +2514,91 @@ namespace debugger {
         }
         bool DrawErased_NotifyBatteryLevelBatteryParam(void* value) { return Draw_NotifyBatteryLevelBatteryParam(*static_cast<NotifyBatteryLevelBatteryParam*>(value)); }
 
-        bool Draw_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam& value)
+        bool Draw_NotifyBatteryLevelCradleBatteryParam(NotifyBatteryLevelCradleBatteryParam& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawEnum("updateInquiredType", value.updateInquiredType, kEnum_mdr__v1__t1__UpdateInquiredType);
-            changed |= DrawScalar("threshold", value.threshold);
+            changed |= DrawScalar("level", value.level);
+            changed |= DrawEnum("chargingStatus", value.chargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifyBatteryLevelCradleBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(storage);
+            auto& value = *static_cast<NotifyBatteryLevelCradleBatteryParam*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.updateInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.threshold, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.level, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.chargingStatus, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifyBatteryLevelCradleBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(storage);
+            const auto& value = *static_cast<const NotifyBatteryLevelCradleBatteryParam*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.updateInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.threshold, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.level, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.chargingStatus, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam() { return Construct<NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam>(); }
-        void Destroy_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(void* value) { Destruct(static_cast<NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(const void* value)
+        void* Create_NotifyBatteryLevelCradleBatteryParam() { return Construct<NotifyBatteryLevelCradleBatteryParam>(); }
+        void Destroy_NotifyBatteryLevelCradleBatteryParam(void* value) { Destruct(static_cast<NotifyBatteryLevelCradleBatteryParam*>(value)); }
+        mdr::MDRResult<void> Validate_NotifyBatteryLevelCradleBatteryParam(const void* value)
         {
-            return NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam::Validate(*static_cast<const NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(value));
+            return NotifyBatteryLevelCradleBatteryParam::Validate(*static_cast<const NotifyBatteryLevelCradleBatteryParam*>(value));
         }
-        bool DrawErased_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(void* value) { return Draw_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(*static_cast<NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(value)); }
+        bool DrawErased_NotifyBatteryLevelCradleBatteryParam(void* value) { return Draw_NotifyBatteryLevelCradleBatteryParam(*static_cast<NotifyBatteryLevelCradleBatteryParam*>(value)); }
 
-        bool Draw_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(NotifyBatteryLevelUpdateBatteryPowerThresholdParam& value)
+        bool Draw_NotifyBatteryLevelLeftRightBatteryParam(NotifyBatteryLevelLeftRightBatteryParam& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawEnum("updateInquiredType", value.updateInquiredType, kEnum_mdr__v1__t1__UpdateInquiredType);
-            changed |= DrawScalar("threshold", value.threshold);
+            changed |= DrawScalar("leftLevel", value.leftLevel);
+            changed |= DrawEnum("leftChargingStatus", value.leftChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
+            changed |= DrawScalar("rightLevel", value.rightLevel);
+            changed |= DrawEnum("rightChargingStatus", value.rightChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_NotifyBatteryLevelLeftRightBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<NotifyBatteryLevelUpdateBatteryPowerThresholdParam*>(storage);
+            auto& value = *static_cast<NotifyBatteryLevelLeftRightBatteryParam*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.updateInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.threshold, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftLevel, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftChargingStatus, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightLevel, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightChargingStatus, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_NotifyBatteryLevelLeftRightBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const NotifyBatteryLevelUpdateBatteryPowerThresholdParam*>(storage);
+            const auto& value = *static_cast<const NotifyBatteryLevelLeftRightBatteryParam*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.updateInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.threshold, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftLevel, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftChargingStatus, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightLevel, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightChargingStatus, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_NotifyBatteryLevelUpdateBatteryPowerThresholdParam() { return Construct<NotifyBatteryLevelUpdateBatteryPowerThresholdParam>(); }
-        void Destroy_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(void* value) { Destruct(static_cast<NotifyBatteryLevelUpdateBatteryPowerThresholdParam*>(value)); }
-        mdr::MDRResult<void> Validate_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(const void* value)
+        void* Create_NotifyBatteryLevelLeftRightBatteryParam() { return Construct<NotifyBatteryLevelLeftRightBatteryParam>(); }
+        void Destroy_NotifyBatteryLevelLeftRightBatteryParam(void* value) { Destruct(static_cast<NotifyBatteryLevelLeftRightBatteryParam*>(value)); }
+        mdr::MDRResult<void> Validate_NotifyBatteryLevelLeftRightBatteryParam(const void* value)
         {
-            return NotifyBatteryLevelUpdateBatteryPowerThresholdParam::Validate(*static_cast<const NotifyBatteryLevelUpdateBatteryPowerThresholdParam*>(value));
+            return NotifyBatteryLevelLeftRightBatteryParam::Validate(*static_cast<const NotifyBatteryLevelLeftRightBatteryParam*>(value));
         }
-        bool DrawErased_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(void* value) { return Draw_NotifyBatteryLevelUpdateBatteryPowerThresholdParam(*static_cast<NotifyBatteryLevelUpdateBatteryPowerThresholdParam*>(value)); }
+        bool DrawErased_NotifyBatteryLevelLeftRightBatteryParam(void* value) { return Draw_NotifyBatteryLevelLeftRightBatteryParam(*static_cast<NotifyBatteryLevelLeftRightBatteryParam*>(value)); }
 
         bool Draw_NotifyConnectionStatusLeftRightConnectionStatusParam(NotifyConnectionStatusLeftRightConnectionStatusParam& value)
         {
@@ -4348,85 +4354,91 @@ namespace debugger {
         }
         bool DrawErased_RetBatteryLevelBatteryParam(void* value) { return Draw_RetBatteryLevelBatteryParam(*static_cast<RetBatteryLevelBatteryParam*>(value)); }
 
-        bool Draw_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam& value)
+        bool Draw_RetBatteryLevelCradleBatteryParam(RetBatteryLevelCradleBatteryParam& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawEnum("updateInquiredType", value.updateInquiredType, kEnum_mdr__v1__t1__UpdateInquiredType);
-            changed |= DrawScalar("threshold", value.threshold);
+            changed |= DrawScalar("level", value.level);
+            changed |= DrawEnum("chargingStatus", value.chargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetBatteryLevelCradleBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(storage);
+            auto& value = *static_cast<RetBatteryLevelCradleBatteryParam*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.updateInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.threshold, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.level, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.chargingStatus, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetBatteryLevelCradleBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(storage);
+            const auto& value = *static_cast<const RetBatteryLevelCradleBatteryParam*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.updateInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.threshold, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.level, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.chargingStatus, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam() { return Construct<RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam>(); }
-        void Destroy_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(void* value) { Destruct(static_cast<RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(const void* value)
+        void* Create_RetBatteryLevelCradleBatteryParam() { return Construct<RetBatteryLevelCradleBatteryParam>(); }
+        void Destroy_RetBatteryLevelCradleBatteryParam(void* value) { Destruct(static_cast<RetBatteryLevelCradleBatteryParam*>(value)); }
+        mdr::MDRResult<void> Validate_RetBatteryLevelCradleBatteryParam(const void* value)
         {
-            return RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam::Validate(*static_cast<const RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(value));
+            return RetBatteryLevelCradleBatteryParam::Validate(*static_cast<const RetBatteryLevelCradleBatteryParam*>(value));
         }
-        bool DrawErased_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(void* value) { return Draw_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam(*static_cast<RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam*>(value)); }
+        bool DrawErased_RetBatteryLevelCradleBatteryParam(void* value) { return Draw_RetBatteryLevelCradleBatteryParam(*static_cast<RetBatteryLevelCradleBatteryParam*>(value)); }
 
-        bool Draw_RetBatteryLevelUpdateBatteryPowerThresholdParam(RetBatteryLevelUpdateBatteryPowerThresholdParam& value)
+        bool Draw_RetBatteryLevelLeftRightBatteryParam(RetBatteryLevelLeftRightBatteryParam& value)
         {
             bool changed = false;
             changed |= DrawEnum("command", value.command, kEnum_mdr__v1__t1__Command);
             changed |= DrawEnum("type", value.type, kEnum_mdr__v1__t1__BatteryInquiredType);
-            changed |= DrawEnum("updateInquiredType", value.updateInquiredType, kEnum_mdr__v1__t1__UpdateInquiredType);
-            changed |= DrawScalar("threshold", value.threshold);
+            changed |= DrawScalar("leftLevel", value.leftLevel);
+            changed |= DrawEnum("leftChargingStatus", value.leftChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
+            changed |= DrawScalar("rightLevel", value.rightLevel);
+            changed |= DrawEnum("rightChargingStatus", value.rightChargingStatus, kEnum_mdr__v1__t1__BatteryChargingStatus);
             return changed;
         }
-        mdr::MDRResult<void> Decode_RetBatteryLevelUpdateBatteryPowerThresholdParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
+        mdr::MDRResult<void> Decode_RetBatteryLevelLeftRightBatteryParam(void* storage, mdr::Span<const mdr::UInt8> bytes)
         {
-            auto& value = *static_cast<RetBatteryLevelUpdateBatteryPowerThresholdParam*>(storage);
+            auto& value = *static_cast<RetBatteryLevelLeftRightBatteryParam*>(storage);
             const UInt8* ptr = bytes.data();
             size_t remaining = bytes.size();
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.command, remaining));
             MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.type, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.updateInquiredType, remaining));
-            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.threshold, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftLevel, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.leftChargingStatus, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightLevel, remaining));
+            MDR_DEBUGGER_TRY_READ(void, MDRPod::Read(&ptr, value.rightChargingStatus, remaining));
             if (remaining != 0) return mdr::MDRResult<void>::Failure(MDR_RESULT_ERROR_MALFORMED_PAYLOAD, "Trailing packet bytes");
             return mdr::MDRResult<void>::Success();
         }
-        mdr::MDRResult<size_t> Encode_RetBatteryLevelUpdateBatteryPowerThresholdParam(const void* storage, mdr::UInt8* output, size_t maxSize)
+        mdr::MDRResult<size_t> Encode_RetBatteryLevelLeftRightBatteryParam(const void* storage, mdr::UInt8* output, size_t maxSize)
         {
-            const auto& value = *static_cast<const RetBatteryLevelUpdateBatteryPowerThresholdParam*>(storage);
+            const auto& value = *static_cast<const RetBatteryLevelLeftRightBatteryParam*>(storage);
             UInt8* ptr = output;
             size_t remaining = maxSize;
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.command, &ptr, remaining));
             MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.type, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.updateInquiredType, &ptr, remaining));
-            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.threshold, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftLevel, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.leftChargingStatus, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightLevel, &ptr, remaining));
+            MDR_DEBUGGER_TRY_WRITE(size_t, MDRPod::Write(value.rightChargingStatus, &ptr, remaining));
             return mdr::MDRResult<size_t>::Success(ptr - output);
         }
-        void* Create_RetBatteryLevelUpdateBatteryPowerThresholdParam() { return Construct<RetBatteryLevelUpdateBatteryPowerThresholdParam>(); }
-        void Destroy_RetBatteryLevelUpdateBatteryPowerThresholdParam(void* value) { Destruct(static_cast<RetBatteryLevelUpdateBatteryPowerThresholdParam*>(value)); }
-        mdr::MDRResult<void> Validate_RetBatteryLevelUpdateBatteryPowerThresholdParam(const void* value)
+        void* Create_RetBatteryLevelLeftRightBatteryParam() { return Construct<RetBatteryLevelLeftRightBatteryParam>(); }
+        void Destroy_RetBatteryLevelLeftRightBatteryParam(void* value) { Destruct(static_cast<RetBatteryLevelLeftRightBatteryParam*>(value)); }
+        mdr::MDRResult<void> Validate_RetBatteryLevelLeftRightBatteryParam(const void* value)
         {
-            return RetBatteryLevelUpdateBatteryPowerThresholdParam::Validate(*static_cast<const RetBatteryLevelUpdateBatteryPowerThresholdParam*>(value));
+            return RetBatteryLevelLeftRightBatteryParam::Validate(*static_cast<const RetBatteryLevelLeftRightBatteryParam*>(value));
         }
-        bool DrawErased_RetBatteryLevelUpdateBatteryPowerThresholdParam(void* value) { return Draw_RetBatteryLevelUpdateBatteryPowerThresholdParam(*static_cast<RetBatteryLevelUpdateBatteryPowerThresholdParam*>(value)); }
+        bool DrawErased_RetBatteryLevelLeftRightBatteryParam(void* value) { return Draw_RetBatteryLevelLeftRightBatteryParam(*static_cast<RetBatteryLevelLeftRightBatteryParam*>(value)); }
 
         bool Draw_RetBluetoothDeviceInfo(RetBluetoothDeviceInfo& value)
         {
@@ -11067,8 +11079,8 @@ namespace debugger {
             {"mdr::v1::t1::NotifyAudioParamUpscalingParam", ProtocolFamily::V1, MDRTraits<NotifyAudioParamUpscalingParam>::kDataType, static_cast<UInt8>(NotifyAudioParamUpscalingParam{}.command), &Create_NotifyAudioParamUpscalingParam, &Destroy_NotifyAudioParamUpscalingParam, &Decode_NotifyAudioParamUpscalingParam, &Encode_NotifyAudioParamUpscalingParam, &Validate_NotifyAudioParamUpscalingParam, &DrawErased_NotifyAudioParamUpscalingParam},
             {"mdr::v1::t1::NotifyAudioStatus", ProtocolFamily::V1, MDRTraits<NotifyAudioStatus>::kDataType, static_cast<UInt8>(NotifyAudioStatus{}.command), &Create_NotifyAudioStatus, &Destroy_NotifyAudioStatus, &Decode_NotifyAudioStatus, &Encode_NotifyAudioStatus, &Validate_NotifyAudioStatus, &DrawErased_NotifyAudioStatus},
             {"mdr::v1::t1::NotifyBatteryLevelBatteryParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelBatteryParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelBatteryParam{}.command), &Create_NotifyBatteryLevelBatteryParam, &Destroy_NotifyBatteryLevelBatteryParam, &Decode_NotifyBatteryLevelBatteryParam, &Encode_NotifyBatteryLevelBatteryParam, &Validate_NotifyBatteryLevelBatteryParam, &DrawErased_NotifyBatteryLevelBatteryParam},
-            {"mdr::v1::t1::NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam{}.command), &Create_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Destroy_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Decode_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Encode_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Validate_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &DrawErased_NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam},
-            {"mdr::v1::t1::NotifyBatteryLevelUpdateBatteryPowerThresholdParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelUpdateBatteryPowerThresholdParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelUpdateBatteryPowerThresholdParam{}.command), &Create_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Destroy_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Decode_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Encode_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &Validate_NotifyBatteryLevelUpdateBatteryPowerThresholdParam, &DrawErased_NotifyBatteryLevelUpdateBatteryPowerThresholdParam},
+            {"mdr::v1::t1::NotifyBatteryLevelCradleBatteryParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelCradleBatteryParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelCradleBatteryParam{}.command), &Create_NotifyBatteryLevelCradleBatteryParam, &Destroy_NotifyBatteryLevelCradleBatteryParam, &Decode_NotifyBatteryLevelCradleBatteryParam, &Encode_NotifyBatteryLevelCradleBatteryParam, &Validate_NotifyBatteryLevelCradleBatteryParam, &DrawErased_NotifyBatteryLevelCradleBatteryParam},
+            {"mdr::v1::t1::NotifyBatteryLevelLeftRightBatteryParam", ProtocolFamily::V1, MDRTraits<NotifyBatteryLevelLeftRightBatteryParam>::kDataType, static_cast<UInt8>(NotifyBatteryLevelLeftRightBatteryParam{}.command), &Create_NotifyBatteryLevelLeftRightBatteryParam, &Destroy_NotifyBatteryLevelLeftRightBatteryParam, &Decode_NotifyBatteryLevelLeftRightBatteryParam, &Encode_NotifyBatteryLevelLeftRightBatteryParam, &Validate_NotifyBatteryLevelLeftRightBatteryParam, &DrawErased_NotifyBatteryLevelLeftRightBatteryParam},
             {"mdr::v1::t1::NotifyConnectionStatusLeftRightConnectionStatusParam", ProtocolFamily::V1, MDRTraits<NotifyConnectionStatusLeftRightConnectionStatusParam>::kDataType, static_cast<UInt8>(NotifyConnectionStatusLeftRightConnectionStatusParam{}.command), &Create_NotifyConnectionStatusLeftRightConnectionStatusParam, &Destroy_NotifyConnectionStatusLeftRightConnectionStatusParam, &Decode_NotifyConnectionStatusLeftRightConnectionStatusParam, &Encode_NotifyConnectionStatusLeftRightConnectionStatusParam, &Validate_NotifyConnectionStatusLeftRightConnectionStatusParam, &DrawErased_NotifyConnectionStatusLeftRightConnectionStatusParam},
             {"mdr::v1::t1::NotifyEqEbbParamEbbParam", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamEbbParam>::kDataType, static_cast<UInt8>(NotifyEqEbbParamEbbParam{}.command), &Create_NotifyEqEbbParamEbbParam, &Destroy_NotifyEqEbbParamEbbParam, &Decode_NotifyEqEbbParamEbbParam, &Encode_NotifyEqEbbParamEbbParam, &Validate_NotifyEqEbbParamEbbParam, &DrawErased_NotifyEqEbbParamEbbParam},
             {"mdr::v1::t1::NotifyEqEbbParamEqParam", ProtocolFamily::V1, MDRTraits<NotifyEqEbbParamEqParam>::kDataType, static_cast<UInt8>(NotifyEqEbbParamEqParam{}.command), &Create_NotifyEqEbbParamEqParam, &Destroy_NotifyEqEbbParamEqParam, &Decode_NotifyEqEbbParamEqParam, &Encode_NotifyEqEbbParamEqParam, &Validate_NotifyEqEbbParamEqParam, &DrawErased_NotifyEqEbbParamEqParam},
@@ -11113,8 +11125,8 @@ namespace debugger {
             {"mdr::v1::t1::RetAudioParamUpscalingParam", ProtocolFamily::V1, MDRTraits<RetAudioParamUpscalingParam>::kDataType, static_cast<UInt8>(RetAudioParamUpscalingParam{}.command), &Create_RetAudioParamUpscalingParam, &Destroy_RetAudioParamUpscalingParam, &Decode_RetAudioParamUpscalingParam, &Encode_RetAudioParamUpscalingParam, &Validate_RetAudioParamUpscalingParam, &DrawErased_RetAudioParamUpscalingParam},
             {"mdr::v1::t1::RetAudioStatus", ProtocolFamily::V1, MDRTraits<RetAudioStatus>::kDataType, static_cast<UInt8>(RetAudioStatus{}.command), &Create_RetAudioStatus, &Destroy_RetAudioStatus, &Decode_RetAudioStatus, &Encode_RetAudioStatus, &Validate_RetAudioStatus, &DrawErased_RetAudioStatus},
             {"mdr::v1::t1::RetBatteryLevelBatteryParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelBatteryParam>::kDataType, static_cast<UInt8>(RetBatteryLevelBatteryParam{}.command), &Create_RetBatteryLevelBatteryParam, &Destroy_RetBatteryLevelBatteryParam, &Decode_RetBatteryLevelBatteryParam, &Encode_RetBatteryLevelBatteryParam, &Validate_RetBatteryLevelBatteryParam, &DrawErased_RetBatteryLevelBatteryParam},
-            {"mdr::v1::t1::RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam>::kDataType, static_cast<UInt8>(RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam{}.command), &Create_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Destroy_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Decode_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Encode_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &Validate_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam, &DrawErased_RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam},
-            {"mdr::v1::t1::RetBatteryLevelUpdateBatteryPowerThresholdParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelUpdateBatteryPowerThresholdParam>::kDataType, static_cast<UInt8>(RetBatteryLevelUpdateBatteryPowerThresholdParam{}.command), &Create_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Destroy_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Decode_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Encode_RetBatteryLevelUpdateBatteryPowerThresholdParam, &Validate_RetBatteryLevelUpdateBatteryPowerThresholdParam, &DrawErased_RetBatteryLevelUpdateBatteryPowerThresholdParam},
+            {"mdr::v1::t1::RetBatteryLevelCradleBatteryParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelCradleBatteryParam>::kDataType, static_cast<UInt8>(RetBatteryLevelCradleBatteryParam{}.command), &Create_RetBatteryLevelCradleBatteryParam, &Destroy_RetBatteryLevelCradleBatteryParam, &Decode_RetBatteryLevelCradleBatteryParam, &Encode_RetBatteryLevelCradleBatteryParam, &Validate_RetBatteryLevelCradleBatteryParam, &DrawErased_RetBatteryLevelCradleBatteryParam},
+            {"mdr::v1::t1::RetBatteryLevelLeftRightBatteryParam", ProtocolFamily::V1, MDRTraits<RetBatteryLevelLeftRightBatteryParam>::kDataType, static_cast<UInt8>(RetBatteryLevelLeftRightBatteryParam{}.command), &Create_RetBatteryLevelLeftRightBatteryParam, &Destroy_RetBatteryLevelLeftRightBatteryParam, &Decode_RetBatteryLevelLeftRightBatteryParam, &Encode_RetBatteryLevelLeftRightBatteryParam, &Validate_RetBatteryLevelLeftRightBatteryParam, &DrawErased_RetBatteryLevelLeftRightBatteryParam},
             {"mdr::v1::t1::RetBluetoothDeviceInfo", ProtocolFamily::V1, MDRTraits<RetBluetoothDeviceInfo>::kDataType, static_cast<UInt8>(RetBluetoothDeviceInfo{}.command), &Create_RetBluetoothDeviceInfo, &Destroy_RetBluetoothDeviceInfo, &Decode_RetBluetoothDeviceInfo, &Encode_RetBluetoothDeviceInfo, &Validate_RetBluetoothDeviceInfo, &DrawErased_RetBluetoothDeviceInfo},
             {"mdr::v1::t1::RetCapabilityInfo", ProtocolFamily::V1, MDRTraits<RetCapabilityInfo>::kDataType, static_cast<UInt8>(RetCapabilityInfo{}.command), &Create_RetCapabilityInfo, &Destroy_RetCapabilityInfo, &Decode_RetCapabilityInfo, &Encode_RetCapabilityInfo, &Validate_RetCapabilityInfo, &DrawErased_RetCapabilityInfo},
             {"mdr::v1::t1::RetConciergeData", ProtocolFamily::V1, MDRTraits<RetConciergeData>::kDataType, static_cast<UInt8>(RetConciergeData{}.command), &Create_RetConciergeData, &Destroy_RetConciergeData, &Decode_RetConciergeData, &Encode_RetConciergeData, &Validate_RetConciergeData, &DrawErased_RetConciergeData},

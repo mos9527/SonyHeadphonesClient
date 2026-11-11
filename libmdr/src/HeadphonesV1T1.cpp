@@ -160,13 +160,61 @@ namespace mdr
             return MDR_EVENT_PLAYBACK_CHANGED;
         }
 
+        // ncValue reads per ncType: DUAL_SINGLE_OFF is NC / Wind Noise Reduction / off; ON_OFF is NC on / off.
+        NcDualSingleValue NormalizeNcValue(NcAsmSettingType type, UInt8 value)
+        {
+            switch (type)
+            {
+            case NcAsmSettingType::DUAL_SINGLE_OFF:
+                if (value == static_cast<UInt8>(NcDualSingleValue::DUAL))
+                    return NcDualSingleValue::DUAL;
+                if (value == static_cast<UInt8>(NcDualSingleValue::SINGLE))
+                    return NcDualSingleValue::SINGLE;
+                return NcDualSingleValue::OFF;
+            default:
+                return value != 0 ? NcDualSingleValue::DUAL : NcDualSingleValue::OFF;
+            }
+        }
+
         template <typename T>
         void ApplyNcAsm(MDRHeadphones* self, const T& result)
         {
             self->mDetailsV1.mNcAsmEnabled.overwrite(result.ncAsmEffect == NcAsmEffect::ON);
             self->mDetailsV1.mNcAsmFocusOnVoice.overwrite(result.asmId == AsmId::VOICE);
-            self->mDetailsV1.mNcAsmLevel.overwrite(
-                result.ncValue == static_cast<UInt8>(NcDualSingleValue::DUAL) ? -1 : result.asmValue);
+            self->mDetailsV1.mNcAsmNcValue.overwrite(NormalizeNcValue(result.ncType, result.ncValue));
+            self->mDetailsV1.mNcAsmAmbientLevel.overwrite(result.asmValue);
+        }
+
+        int HandleNcAsmCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            NcAsmInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type))
+                return MDR_EVENT_UNHANDLED;
+            const auto readAsmStep = [&](const auto& list)
+            {
+                for (const auto& entry : list)
+                    if (entry.id == AsmId::NORMAL)
+                        self->mDetailsV1.mAsmStep = entry.step;
+            };
+            switch (type)
+            {
+            case NcAsmInquiredType::NOISE_CANCELLING_AND_AMBIENT_SOUND_MODE:
+            {
+                // e.g. WH-1000XM3: DUAL_SINGLE_OFF, ambient {NORMAL, VOICE} with 20 steps each
+                Deserialize(RetNcAsmCapability_NcAsmCapability, res, cmd);
+                self->mDetailsV1.mNcSettingType = res.ncSettingType;
+                readAsmStep(res.asmList.value);
+                return MDR_EVENT_NOISE_CONTROL_CHANGED;
+            }
+            case NcAsmInquiredType::AMBIENT_SOUND_MODE:
+            {
+                Deserialize(RetNcAsmCapability_AsmCapability, res, cmd);
+                readAsmStep(res.asmList.value);
+                return MDR_EVENT_NOISE_CONTROL_CHANGED;
+            }
+            default:
+                return MDR_EVENT_UNHANDLED;
+            }
         }
 
         int HandleNcAsm(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -196,14 +244,16 @@ namespace mdr
                     Deserialize(NotifyNcAsmParamAsmParam, result, cmd);
                     self->mDetailsV1.mNcAsmEnabled.overwrite(result.ncAsmEffect == NcAsmEffect::ON);
                     self->mDetailsV1.mNcAsmFocusOnVoice.overwrite(result.asmId == AsmId::VOICE);
-                    self->mDetailsV1.mNcAsmLevel.overwrite(result.asmValue);
+                    self->mDetailsV1.mNcAsmNcValue.overwrite(NcDualSingleValue::OFF);
+                    self->mDetailsV1.mNcAsmAmbientLevel.overwrite(result.asmValue);
                 }
                 else
                 {
                     Deserialize(RetNcAsmParamAsmParam, result, cmd);
                     self->mDetailsV1.mNcAsmEnabled.overwrite(result.ncAsmEffect == NcAsmEffect::ON);
                     self->mDetailsV1.mNcAsmFocusOnVoice.overwrite(result.asmId == AsmId::VOICE);
-                    self->mDetailsV1.mNcAsmLevel.overwrite(result.asmValue);
+                    self->mDetailsV1.mNcAsmNcValue.overwrite(NcDualSingleValue::OFF);
+                    self->mDetailsV1.mNcAsmAmbientLevel.overwrite(result.asmValue);
                 }
                 return MDR_EVENT_NOISE_CONTROL_CHANGED;
             }
@@ -217,10 +267,31 @@ namespace mdr
                 (type != EqEbbInquiredType::PRESET_EQ && type != EqEbbInquiredType::PRESET_EQ_NONCUSTOMIZABLE))
                 return MDR_EVENT_UNHANDLED;
             Deserialize(RetEqEbbCapability_EqCapability, res, cmd);
+            self->mDetailsV1.mEqCapabilityBands = res.band;
+            self->mDetailsV1.mEqCapabilityStep = res.step;
             self->mDetailsV1.mEqPresets.clear();
             for (const auto& preset : res.presetList)
                 self->mDetailsV1.mEqPresets.push_back({preset.presetId, preset.name.value});
             return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+
+        int HandleEqExtendedInfo(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            EqEbbInquiredType type{};
+            if (!detail::ReadEnumTag(cmd, type) || type != EqEbbInquiredType::PRESET_EQ)
+                return MDR_EVENT_UNHANDLED;
+            // e.g. WH-1000XM3: {SPECIFIC_INFORMATION 1 (Clear Bass), 400, 1000, 2500, 6300, 16000 Hz}
+            Deserialize(RetEqEbbExtendedInfoEqExtendedInfo, res, cmd);
+            self->mDetailsV1.mEqBandInfo = std::move(res.bandInfos.value);
+            return MDR_EVENT_EQUALIZER_CHANGED;
+        }
+
+        int HandlePlayCapability(MDRHeadphones* self, Span<const UInt8> cmd)
+        {
+            Deserialize(RetPlayCapability, res, cmd);
+            // e.g. WH-1000XM3: volumeStep 31, i.e. 0..30
+            self->mDetailsV1.mPlayVolumeStep = res.volumeStep;
+            return MDR_EVENT_PLAYBACK_CHANGED;
         }
 
         int HandleEq(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -235,10 +306,11 @@ namespace mdr
                 self->mDetailsV1.mEqPresetId.overwrite(result.presetId);
                 if (!result.bandSteps.value.empty())
                 {
-                    self->mDetailsV1.mEqClearBass.overwrite(static_cast<int>(result.bandSteps.value[0]) - 10);
+                    const int offset = self->mDetailsV1.EqStepOffset();
+                    self->mDetailsV1.mEqClearBass.overwrite(static_cast<int>(result.bandSteps.value[0]) - offset);
                     Vector<int> bands;
                     for (size_t i = 1; i < result.bandSteps.size(); ++i)
-                        bands.push_back(static_cast<int>(result.bandSteps.value[i]) - 10);
+                        bands.push_back(static_cast<int>(result.bandSteps.value[i]) - offset);
                     self->mDetailsV1.mEqConfig.overwrite(std::move(bands));
                 }
             }
@@ -248,10 +320,11 @@ namespace mdr
                 self->mDetailsV1.mEqPresetId.overwrite(result.presetId);
                 if (!result.bandSteps.value.empty())
                 {
-                    self->mDetailsV1.mEqClearBass.overwrite(static_cast<int>(result.bandSteps.value[0]) - 10);
+                    const int offset = self->mDetailsV1.EqStepOffset();
+                    self->mDetailsV1.mEqClearBass.overwrite(static_cast<int>(result.bandSteps.value[0]) - offset);
                     Vector<int> bands;
                     for (size_t i = 1; i < result.bandSteps.size(); ++i)
-                        bands.push_back(static_cast<int>(result.bandSteps.value[i]) - 10);
+                        bands.push_back(static_cast<int>(result.bandSteps.value[i]) - offset);
                     self->mDetailsV1.mEqConfig.overwrite(std::move(bands));
                 }
             }
@@ -296,62 +369,71 @@ namespace mdr
             return MDR_EVENT_UNHANDLED;
         }
 
+        int GsSlot(GsInquiredType type)
+        {
+            switch (type)
+            {
+            case GsInquiredType::GENERAL_SETTING1:
+                return 0;
+            case GsInquiredType::GENERAL_SETTING2:
+                return 1;
+            case GsInquiredType::GENERAL_SETTING3:
+                return 2;
+            default:
+                return -1;
+            }
+        }
+
         int HandleGsCapability(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             Deserialize(RetGsCapabilityGsSettingInfo, res, cmd);
-            using enum GsInquiredType;
-            switch (res.type)
+            const int slot = GsSlot(res.type);
+            if (slot < 0)
+                return MDR_EVENT_UNHANDLED;
+            auto& capability = self->mDetailsV1.mGsCapability[slot];
+            capability = {res.settingType, res.title, {}};
+            if (res.settingType == GsSettingType::LIST_TYPE)
             {
-            case GENERAL_SETTING1:
-            {
-                self->mDetailsV1.mGsCapability[0] = {res.settingType, res.title};
-                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+                // e.g. WH-1000XM3 GENERAL_SETTING1: ASSIGNABLE_KEY_SETTING {NCASM, GOOGLE_ASSISTANT, AMAZON_ALEXA}
+                Deserialize(RetGsCapabilityGsCandidateElementList, list, cmd);
+                capability.options = std::move(list.listTypeCapability.elements.value);
             }
-            case GENERAL_SETTING2:
-            {
-                self->mDetailsV1.mGsCapability[1] = {res.settingType, res.title};
-                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
-            }
-            case GENERAL_SETTING3:
-            {
-                self->mDetailsV1.mGsCapability[2] = {res.settingType, res.title};
-                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
-            }
-            default:
-                break;
-            }
-            return MDR_EVENT_UNHANDLED;
+            return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
 
         int HandleGsParam(MDRHeadphones* self, Span<const UInt8> cmd)
         {
             GsInquiredType type{};
-            if (!detail::ReadEnumTag(cmd, type))
+            GsSettingType settingType{};
+            if (!detail::ReadEnumTag(cmd, type) || !detail::ReadEnumTag(cmd, settingType, 2))
                 return MDR_EVENT_UNHANDLED;
-            MDRProperty<bool>* property;
-            switch (type)
+            const int slot = GsSlot(type);
+            if (slot < 0)
+                return MDR_EVENT_UNHANDLED;
+            const bool notify = static_cast<Command>(cmd[0]) == Command::GENERAL_SETTING_NTNY_PARAM;
+            if (settingType == GsSettingType::LIST_TYPE)
             {
-            case GsInquiredType::GENERAL_SETTING1:
-                property = &self->mDetailsV1.mGsParamBool[0];
-                break;
-            case GsInquiredType::GENERAL_SETTING2:
-                property = &self->mDetailsV1.mGsParamBool[1];
-                break;
-            case GsInquiredType::GENERAL_SETTING3:
-                property = &self->mDetailsV1.mGsParamBool[2];
-                break;
-            default:
-                return MDR_EVENT_UNHANDLED;
+                if (notify)
+                {
+                    Deserialize(NotifyGsParamGsListTypeValue, result, cmd);
+                    self->mDetailsV1.mGsParamList[slot].overwrite(result.currentElementIndex);
+                }
+                else
+                {
+                    Deserialize(RetGsParamGsListTypeValue, result, cmd);
+                    self->mDetailsV1.mGsParamList[slot].overwrite(result.currentElementIndex);
+                }
+                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
             }
-            if (static_cast<Command>(cmd[0]) == Command::GENERAL_SETTING_NTNY_PARAM)
+            if (notify)
             {
                 Deserialize(NotifyGsParamGsBooleanTypeValue, result, cmd);
-                property->overwrite(result.settingValue == CommonOnOffSettingValue::ON);
+                self->mDetailsV1.mGsParamBool[slot].overwrite(result.settingValue == CommonOnOffSettingValue::ON);
             }
             else
             {
                 Deserialize(RetGsParamGsBooleanTypeValue, result, cmd);
-                property->overwrite(result.settingValue == CommonOnOffSettingValue::ON);
+                self->mDetailsV1.mGsParamBool[slot].overwrite(result.settingValue == CommonOnOffSettingValue::ON);
             }
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
         }
@@ -368,6 +450,13 @@ namespace mdr
                 Deserialize(RetSystemCapability_AssignableSettingsCapability, result, cmd);
                 self->mDetailsV1.mAssignableSettingsKeys = std::move(result.assignableSettingKeyList.elements.value);
                 return MDR_EVENT_ASSIGNABLE_CONTROLS_CHANGED;
+            }
+            case SystemInquiredType::AUTO_POWER_OFF:
+            {
+                // e.g. WH-1000XM3: {5, 30, 60, 180 min, disabled}, no 15 min
+                Deserialize(RetSystemCapability_AutoPowerOffCapability, result, cmd);
+                self->mDetailsV1.mAutoPowerOffCandidates = std::move(result.candidateElements.value);
+                return MDR_EVENT_POWER_CHANGED;
             }
             default:
                 return MDR_EVENT_UNHANDLED;
@@ -518,14 +607,20 @@ namespace mdr
         case Command::PLAY_RET_PARAM:
         case Command::PLAY_NTFY_PARAM:
             return HandlePlayParam(self, cmd);
+        case Command::PLAY_RET_CAPABILITY:
+            return HandlePlayCapability(self, cmd);
         case Command::PLAY_RET_STATUS:
         case Command::PLAY_NTFY_STATUS:
             return HandlePlayStatus(self, cmd);
+        case Command::NCASM_RET_CAPABILITY:
+            return HandleNcAsmCapability(self, cmd);
         case Command::NCASM_RET_PARAM:
         case Command::NCASM_NTFY_PARAM:
             return HandleNcAsm(self, cmd);
         case Command::EQEBB_RET_CAPABILITY:
             return HandleEqCapability(self, cmd);
+        case Command::EQEBB_RET_EXTENDED_INFO:
+            return HandleEqExtendedInfo(self, cmd);
         case Command::EQEBB_RET_PARAM:
         case Command::EQEBB_NTFY_PARAM:
             return HandleEq(self, cmd);

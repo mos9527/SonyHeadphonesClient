@@ -401,6 +401,38 @@ namespace mdr
         }
         return MDR_EVENT_UNHANDLED;
     }
+    int HandlePowerCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        PowerInquiredType type{};
+        if (!detail::ReadEnumTag(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        auto& state = self->mDetailsV2;
+        switch (type)
+        {
+        case PowerInquiredType::AUTO_POWER_OFF:
+        {
+            PowerRetCapabilityAutoPowerOff res;
+            if (!state.mSupport.contains(FunctionType::AUTO_POWER_OFF) || !DeserializeCapability(cmd, res))
+                return MDR_EVENT_UNHANDLED;
+            state.mAutoPowerOffCandidates = std::move(res.candidateElements.value);
+            state.mAutoPowerOffCapabilityKnown = true;
+            return MDR_EVENT_POWER_CHANGED;
+        }
+        case PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION:
+        {
+            PowerRetCapabilityAutoPowerOffWithWearingDetection res;
+            if (!state.mSupport.contains(FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION) ||
+                !DeserializeCapability(cmd, res))
+                return MDR_EVENT_UNHANDLED;
+            state.mAutoPowerOffWearingDetectionCandidates = std::move(res.candidateElements.value);
+            state.mAutoPowerOffWearingDetectionCapabilityKnown = true;
+            return MDR_EVENT_POWER_CHANGED;
+        }
+        default:
+            return MDR_EVENT_UNHANDLED;
+        }
+    }
+
     int HandlePowerParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PowerInquiredType type{};
@@ -481,79 +513,75 @@ namespace mdr
         return MDR_EVENT_UNHANDLED;
     }
 
+    int GsSlotT1(GsInquiredType type)
+    {
+        switch (type)
+        {
+        case GsInquiredType::GENERAL_SETTING1:
+            return 0;
+        case GsInquiredType::GENERAL_SETTING2:
+            return 1;
+        case GsInquiredType::GENERAL_SETTING3:
+            return 2;
+        case GsInquiredType::GENERAL_SETTING4:
+            return 3;
+        default:
+            return -1;
+        }
+    }
+
     int HandleGsCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         Deserialize(GsRetCapability, res, cmd);
-        using enum GsInquiredType;
-        switch (res.type)
+        const int slot = GsSlotT1(res.type);
+        if (slot < 0)
+            return MDR_EVENT_UNHANDLED;
+        auto& capability = self->mDetailsV2.mGsCapability[slot];
+        capability = {res.settingType, {res.gsStringFormat, res.value3, res.value4}, {}};
+        if (res.settingType == GsSettingType::LIST_TYPE)
         {
-        case GENERAL_SETTING1:
-        {
-            self->mDetailsV2.mGsCapability[0] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
-            return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+            // e.g. WF-LC900 GENERAL_SETTING3: TAP_SENSITIVITY_SETTING {LOW, HIGH}
+            Deserialize(GsRetCapabilityList, list, cmd);
+            capability.options = std::move(list.elements.value);
         }
-        case GENERAL_SETTING2:
-        {
-            self->mDetailsV2.mGsCapability[1] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
-            return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
-        }
-        case GENERAL_SETTING3:
-        {
-            self->mDetailsV2.mGsCapability[2] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
-            return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
-        }
-        case GENERAL_SETTING4:
-        {
-            self->mDetailsV2.mGsCapability[3] = {res.settingType, {res.gsStringFormat, res.value3, res.value4}};
-            return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
-        }
-        default:
-            break;
-        }
-        return MDR_EVENT_UNHANDLED;
+        return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
     }
 
     int HandleGsParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         GsInquiredType type{};
-        if (!detail::ReadEnumTag(cmd, type))
+        GsSettingType settingType{};
+        if (!detail::ReadEnumTag(cmd, type) || !detail::ReadEnumTag(cmd, settingType, 2))
             return MDR_EVENT_UNHANDLED;
-        const auto command = static_cast<Command>(cmd[0]);
-        using enum GsInquiredType;
-        auto Write = [&](MDRProperty<bool>& dstBool) -> int
+        const int slot = GsSlotT1(type);
+        if (slot < 0)
+            return MDR_EVENT_UNHANDLED;
+        const bool notify = static_cast<Command>(cmd[0]) == Command::GENERAL_SETTING_NTNY_PARAM;
+        if (settingType == GsSettingType::LIST_TYPE)
         {
-            if (command == Command::GENERAL_SETTING_NTNY_PARAM)
+            if (notify)
             {
-                Deserialize(GsNotifyParamBoolean, res, cmd);
-                dstBool.overwrite(res.value == GsSettingValue::ON);
-                return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
+                Deserialize(GsNotifyParamList, res, cmd);
+                self->mDetailsV2.mGsParamList[slot].overwrite(res.currentElementIndex);
             }
-            Deserialize(GsRetParamBoolean, res, cmd);
-            dstBool.overwrite(res.value == GsSettingValue::ON);
+            else
+            {
+                Deserialize(GsRetParamList, res, cmd);
+                self->mDetailsV2.mGsParamList[slot].overwrite(res.currentElementIndex);
+            }
             return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
-        };
-        switch (type)
-        {
-        case GENERAL_SETTING1:
-        {
-            return Write(self->mDetailsV2.mGsParamBool[0]);
         }
-        case GENERAL_SETTING2:
+        if (notify)
         {
-            return Write(self->mDetailsV2.mGsParamBool[1]);
+            Deserialize(GsNotifyParamBoolean, res, cmd);
+            self->mDetailsV2.mGsParamBool[slot].overwrite(res.value == GsSettingValue::ON);
         }
-        case GENERAL_SETTING3:
+        else
         {
-            return Write(self->mDetailsV2.mGsParamBool[2]);
+            Deserialize(GsRetParamBoolean, res, cmd);
+            self->mDetailsV2.mGsParamBool[slot].overwrite(res.value == GsSettingValue::ON);
         }
-        case GENERAL_SETTING4:
-        {
-            return Write(self->mDetailsV2.mGsParamBool[3]);
-        }
-        default:
-            break;
-        }
-        return MDR_EVENT_UNHANDLED;
+        return MDR_EVENT_GENERAL_SETTINGS_CHANGED;
     }
 
     int HandleAudioCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -1041,10 +1069,12 @@ namespace mdr
         EqEbbInquiredType type{};
         if (!detail::ReadEnumTag(cmd, type))
             return MDR_EVENT_UNHANDLED;
-        auto Store = [&](const auto& presets)
+        auto Store = [&](const auto& res)
         {
+            self->mDetailsV2.mEqCapabilityBands = res.band;
+            self->mDetailsV2.mEqCapabilityStep = res.step;
             self->mDetailsV2.mEqPresets.clear();
-            for (const auto& preset : presets)
+            for (const auto& preset : res.eqPresets)
                 self->mDetailsV2.mEqPresets.push_back({preset.presetId, preset.name.value});
         };
         using enum EqEbbInquiredType;
@@ -1054,14 +1084,15 @@ namespace mdr
         case PRESET_EQ_NONCUSTOMIZABLE:
         case PRESET_EQ_AND_ERRORCODE:
         {
+            // e.g. WH-1000XM6 answers PRESET_EQ_AND_ERRORCODE: 10 bands, 13 steps, 9 presets
             Deserialize(EqEbbRetCapabilityEq, res, cmd);
-            Store(res.eqPresets);
+            Store(res);
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
         case PRESET_EQ_AND_ULT_MODE:
         {
             Deserialize(EqEbbRetCapabilityEqAndUltMode, res, cmd);
-            Store(res.eqPresets);
+            Store(res);
             return MDR_EVENT_EQUALIZER_CHANGED;
         }
         default:
@@ -1070,96 +1101,53 @@ namespace mdr
         return MDR_EVENT_UNHANDLED;
     }
 
+    int HandleEqEbbExtendedInfoT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        EqEbbInquiredType type{};
+        if (!detail::ReadEnumTag(cmd, type) || type != EqEbbInquiredType::PRESET_EQ)
+            return MDR_EVENT_UNHANDLED;
+        // e.g. WH-1000XM6: 10 x HZ {31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000}
+        Deserialize(EqEbbRetExtendedInfoEq, res, cmd);
+        self->mDetailsV2.mEqBandInfo = std::move(res.bandInfos.value);
+        return MDR_EVENT_EQUALIZER_CHANGED;
+    }
+
+    // Raw steps -> Clear Bass + bands. The layout comes from the capability and band info; see DetailsV2.
+    void ApplyEqBandSteps(MDRHeadphones* self, const Vector<UInt8>& steps)
+    {
+        auto& state = self->mDetailsV2;
+        if (steps.empty())
+            return;
+        const int offset = state.EqStepOffset(steps.size());
+        const bool clearBass = state.EqHasClearBass(steps.size());
+        state.mEqRawLayoutKnown = true;
+        state.mEqRawClearBass = clearBass;
+        Vector<int> bands;
+        bands.reserve(steps.size());
+        for (size_t i = clearBass ? 1 : 0; i < steps.size(); ++i)
+            bands.push_back(static_cast<int>(steps[i]) - offset);
+        state.mEqClearBass.overwrite(clearBass ? static_cast<int>(steps[0]) - offset : 0);
+        state.mEqConfig.overwrite(std::move(bands));
+    }
+
     int HandleEqEbbParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         EqEbbInquiredType type{};
-        if (!detail::ReadEnumTag(cmd, type))
+        if (!detail::ReadEnumTag(cmd, type) || type != EqEbbInquiredType::PRESET_EQ)
             return MDR_EVENT_UNHANDLED;
-        using enum EqEbbInquiredType;
-        switch (type)
+        if (static_cast<Command>(cmd[0]) == Command::EQEBB_NTFY_PARAM)
         {
-        case PRESET_EQ:
+            Deserialize(EqEbbNtfyParamEq, res, cmd);
+            self->mDetailsV2.mEqPresetId.overwrite(res.parameter.presetId);
+            ApplyEqBandSteps(self, res.parameter.bandSteps.value);
+        }
+        else
         {
-            const auto command = static_cast<Command>(cmd[0]);
-            if (command == Command::EQEBB_NTFY_PARAM)
-            {
-                Deserialize(EqEbbNtfyParamEq, res, cmd);
-                self->mDetailsV2.mEqPresetId.overwrite(res.parameter.presetId);
-                switch (res.parameter.bandSteps.size())
-                {
-                case 0:
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 6:
-                    self->mDetailsV2.mEqClearBass.overwrite(res.parameter.bandSteps.value[0] - 10);
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[1] - 10, // 400
-                        res.parameter.bandSteps.value[2] - 10, // 1k
-                        res.parameter.bandSteps.value[3] - 10, // 2.5k
-                        res.parameter.bandSteps.value[4] - 10, // 6.3k
-                        res.parameter.bandSteps.value[5] - 10, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 10:
-                    self->mDetailsV2.mEqClearBass.overwrite(0); // Unavailable
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[0] - 6, // 31
-                        res.parameter.bandSteps.value[1] - 6, // 63
-                        res.parameter.bandSteps.value[2] - 6, // 125
-                        res.parameter.bandSteps.value[3] - 6, // 250
-                        res.parameter.bandSteps.value[4] - 6, // 500
-                        res.parameter.bandSteps.value[5] - 6, // 1k
-                        res.parameter.bandSteps.value[6] - 6, // 2k
-                        res.parameter.bandSteps.value[7] - 6, // 4k
-                        res.parameter.bandSteps.value[8] - 6, // 8k
-                        res.parameter.bandSteps.value[9] - 6, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                default:
-                    break;
-                }
-            }
-            else
-            {
-                Deserialize(EqEbbRetParamEq, res, cmd);
-                self->mDetailsV2.mEqPresetId.overwrite(res.parameter.presetId);
-                switch (res.parameter.bandSteps.size())
-                {
-                case 0:
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 6:
-                    self->mDetailsV2.mEqClearBass.overwrite(res.parameter.bandSteps.value[0] - 10);
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[1] - 10, // 400
-                        res.parameter.bandSteps.value[2] - 10, // 1k
-                        res.parameter.bandSteps.value[3] - 10, // 2.5k
-                        res.parameter.bandSteps.value[4] - 10, // 6.3k
-                        res.parameter.bandSteps.value[5] - 10, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                case 10:
-                    self->mDetailsV2.mEqClearBass.overwrite(0); // Unavailable
-                    self->mDetailsV2.mEqConfig.overwrite({
-                        res.parameter.bandSteps.value[0] - 6, // 31
-                        res.parameter.bandSteps.value[1] - 6, // 63
-                        res.parameter.bandSteps.value[2] - 6, // 125
-                        res.parameter.bandSteps.value[3] - 6, // 250
-                        res.parameter.bandSteps.value[4] - 6, // 500
-                        res.parameter.bandSteps.value[5] - 6, // 1k
-                        res.parameter.bandSteps.value[6] - 6, // 2k
-                        res.parameter.bandSteps.value[7] - 6, // 4k
-                        res.parameter.bandSteps.value[8] - 6, // 8k
-                        res.parameter.bandSteps.value[9] - 6, // 16k
-                    });
-                    return MDR_EVENT_EQUALIZER_CHANGED;
-                default:
-                    break;
-                }
-            }
+            Deserialize(EqEbbRetParamEq, res, cmd);
+            self->mDetailsV2.mEqPresetId.overwrite(res.parameter.presetId);
+            ApplyEqBandSteps(self, res.parameter.bandSteps.value);
         }
-        default:
-            break;
-        }
-        return MDR_EVENT_UNHANDLED;
+        return MDR_EVENT_EQUALIZER_CHANGED;
     }
 
     int HandleAlertParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
@@ -1254,6 +1242,8 @@ namespace mdr
         case PLAY_RET_PARAM:
         case PLAY_NTFY_PARAM:
             return HandlePlayParamT1(self, cmd);
+        case POWER_RET_CAPABILITY:
+            return HandlePowerCapabilityT1(self, cmd);
         case POWER_RET_PARAM:
         case POWER_NTFY_PARAM:
             return HandlePowerParamT1(self, cmd);
@@ -1286,6 +1276,8 @@ namespace mdr
             return HandleSystemExtParamT1(self, cmd);
         case EQEBB_RET_CAPABILITY:
             return HandleEqEbbCapabilityT1(self, cmd);
+        case EQEBB_RET_EXTENDED_INFO:
+            return HandleEqEbbExtendedInfoT1(self, cmd);
         case EQEBB_RET_STATUS:
         case EQEBB_NTFY_STATUS:
             return HandleEqEbbStatusT1(self, cmd);

@@ -106,7 +106,8 @@ typedef uint32_t MDRFeature;
 #define MDR_FEATURE_LISTENING_SOUND_LEAKAGE_REDUCTION ((MDRFeature)33u)
 #define MDR_FEATURE_WEARING_STATUS ((MDRFeature)34u)
 #define MDR_FEATURE_VOICE_ASSISTANT ((MDRFeature)35u)
-#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_VOICE_ASSISTANT
+#define MDR_FEATURE_WIND_NOISE_REDUCTION ((MDRFeature)36u)
+#define MDR_FEATURE_MAX_VALUE MDR_FEATURE_WIND_NOISE_REDUCTION
 
 typedef uint32_t MDREvent;
 #define MDR_EVENT_NONE ((MDREvent)0u)
@@ -165,6 +166,41 @@ typedef uint32_t MDRText;
 #define MDR_TEXT_LAST_DEVICE_MESSAGE ((MDRText)16u)
 // Indexed like @ref mdrHeadphonesGetEqualizerPresets.
 #define MDR_TEXT_EQUALIZER_PRESET_NAME ((MDRText)17u)
+// Indexed with @ref MDR_GENERAL_SETTING_OPTION_INDEX.
+#define MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT ((MDRText)18u)
+#define MDR_TEXT_GENERAL_SETTING_OPTION_SUMMARY ((MDRText)19u)
+
+// Text index of option `option` of general setting `setting` (@ref MDRGeneralSettingInfo.index).
+#define MDR_GENERAL_SETTING_OPTION_INDEX(setting, option) ((((uint32_t)(option)) << 8u) | ((uint32_t)(setting) & 0xffu))
+
+// `index` is ignored unless the key documents it.
+typedef uint32_t MDRValue;
+#define MDR_VALUE_PLAYBACK_VOLUME_MIN ((MDRValue)1u)
+#define MDR_VALUE_PLAYBACK_VOLUME_MAX ((MDRValue)2u)
+#define MDR_VALUE_PLAYBACK_VOLUME_STEP ((MDRValue)3u)
+#define MDR_VALUE_AMBIENT_LEVEL_MIN ((MDRValue)4u)
+#define MDR_VALUE_AMBIENT_LEVEL_MAX ((MDRValue)5u)
+#define MDR_VALUE_AMBIENT_LEVEL_STEP ((MDRValue)6u)
+// `index` is the band count (@ref MDREqualizer.band_count), not a band. It must match the layout the device reported;
+// before the first report, only the default 5- and 10-band layouts exist. Anything else is MDR_RESULT_ERROR_NOT_FOUND.
+#define MDR_VALUE_EQUALIZER_BAND_MIN ((MDRValue)7u)
+#define MDR_VALUE_EQUALIZER_BAND_MAX ((MDRValue)8u)
+#define MDR_VALUE_EQUALIZER_BAND_STEP ((MDRValue)9u)
+#define MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN ((MDRValue)10u)
+#define MDR_VALUE_EQUALIZER_CLEAR_BASS_MAX ((MDRValue)11u)
+#define MDR_VALUE_EQUALIZER_CLEAR_BASS_STEP ((MDRValue)12u)
+#define MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN ((MDRValue)13u)
+#define MDR_VALUE_VOICE_GUIDANCE_VOLUME_MAX ((MDRValue)14u)
+#define MDR_VALUE_VOICE_GUIDANCE_VOLUME_STEP ((MDRValue)15u)
+#define MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT ((MDRValue)16u)
+// Minutes of option `index` (< MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT); 0 means never.
+#define MDR_VALUE_AUTO_POWER_OFF_OPTION ((MDRValue)17u)
+// Centre frequency in Hz of band `index` in the desired layout (see @ref MDREqualizer.band_count).
+#define MDR_VALUE_EQUALIZER_BAND_FREQUENCY ((MDRValue)18u)
+// 1 if the option's texts are identifiers for the caller to localize, 0 if they're display text. Options are encoded
+// independently of their setting's @ref MDRGeneralSettingInfo.text_is_key. Indexed with
+// @ref MDR_GENERAL_SETTING_OPTION_INDEX.
+#define MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY ((MDRValue)19u)
 
 typedef uint32_t MDRAudioCodec;
 #define MDR_AUDIO_CODEC_UNKNOWN ((MDRAudioCodec)0u)
@@ -207,14 +243,12 @@ typedef uint32_t MDRSourceSwitchControlResult;
 #define MDR_SOURCE_SWITCH_CONTROL_FAILED_NOT_CONNECTED ((MDRSourceSwitchControlResult)3u)
 #define MDR_SOURCE_SWITCH_CONTROL_FAILED_VOICE_ASSISTANT ((MDRSourceSwitchControlResult)4u)
 
-// TODO @mos9527 Do not expose V1/V2 details here
 typedef uint32_t MDRNoiseMode;
 #define MDR_NOISE_MODE_OFF ((MDRNoiseMode)0u)
 #define MDR_NOISE_MODE_CANCELLING ((MDRNoiseMode)1u)
-#define MDR_NOISE_MODE_V1_ON ((MDRNoiseMode)1u)
 #define MDR_NOISE_MODE_AMBIENT ((MDRNoiseMode)2u)
-// V1 ambient_level: noise cancelling (-1 internally); otherwise 0..20. V2 accepts only 0..20. */
-#define MDR_NOISE_AMBIENT_LEVEL_V1_NOISE_CANCELLING ((uint32_t)255u)
+// Requires @ref MDR_FEATURE_WIND_NOISE_REDUCTION.
+#define MDR_NOISE_MODE_WIND_NOISE_REDUCTION ((MDRNoiseMode)3u)
 
 typedef uint32_t MDRAdaptiveSensitivity;
 #define MDR_ADAPTIVE_SENSITIVITY_UNKNOWN ((MDRAdaptiveSensitivity)0u)
@@ -333,6 +367,8 @@ typedef uint32_t MDRAlertAction;
 typedef uint32_t MDRGeneralSettingType;
 #define MDR_GENERAL_SETTING_UNKNOWN ((MDRGeneralSettingType)0u)
 #define MDR_GENERAL_SETTING_BOOLEAN ((MDRGeneralSettingType)1u)
+// One of @ref MDRGeneralSettingInfo.option_count options; see @ref MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT.
+#define MDR_GENERAL_SETTING_LIST ((MDRGeneralSettingType)2u)
 
 typedef uint32_t MDRAssignableAction;
 #define MDR_ASSIGNABLE_NONE ((MDRAssignableAction)0u)
@@ -392,7 +428,6 @@ typedef struct MDRModel
 typedef struct MDRBattery
 {
     MDRBatteryPart part;
-    MDRBoolean present;
     uint32_t level_percent;
     uint32_t update_threshold_percent;
     MDRChargingState charging;
@@ -455,7 +490,7 @@ typedef struct MDRVoiceAssistantOption
 typedef struct MDREqualizer
 {
     MDREqualizerPreset preset;
-    int32_t clear_bass; // [-10,10]
+    int32_t clear_bass; // MDR_VALUE_EQUALIZER_CLEAR_BASS_*
     uint32_t band_count;
     MDRBoolean dsee_enabled;
     MDRDSEEType dsee_type;
@@ -488,12 +523,19 @@ typedef struct MDRGeneralSettingInfo
     uint32_t index;
     MDRGeneralSettingType type;
     MDRBoolean writable;
+    // MDR_GENERAL_SETTING_LIST only; 0 otherwise.
+    uint32_t option_count;
+    // MDR_TRUE: the subject/summary texts are identifiers (e.g. "SIDETONE_SETTING") for the caller to localize,
+    // MDR_FALSE: they're display text already.
+    // @ref MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY.
+    MDRBoolean text_is_key;
 } MDRGeneralSettingInfo;
 
 typedef struct MDRGeneralSetting
 {
     uint32_t index;
-    MDRBoolean boolean_value;
+    MDRBoolean boolean_value; // MDR_GENERAL_SETTING_BOOLEAN
+    uint32_t list_value; // MDR_GENERAL_SETTING_LIST: option index, < option_count
 } MDRGeneralSetting;
 
 typedef uint32_t MDRAssignableActionKeyLocation;
@@ -530,7 +572,7 @@ typedef struct MDRPower
 typedef struct MDRVoiceGuidance
 {
     MDRBoolean enabled;
-    int32_t volume; // [-2,2]
+    int32_t volume; // MDR_VALUE_VOICE_GUIDANCE_VOLUME_*
 } MDRVoiceGuidance;
 
 typedef struct MDRConnectionMode
@@ -675,6 +717,13 @@ MDR_API MDRResult mdrHeadphonesGetFeature(MDRHeadphones* headphones, MDRFeature 
                                           MDRFeatureAvailability* out_availability);
 MDR_API MDRResult mdrHeadphonesGetText(MDRHeadphones* headphones, MDRText text, uint32_t index, char* buffer,
                                        uint32_t* inout_size);
+/**
+ * @brief Reads one device value; see @ref MDRValue for the keys and what index means for each.
+ * @return MDR_RESULT_INPROGRESS before initialization completes, MDR_RESULT_ERROR_NOT_SUPPORTED when the
+ *         device lacks the feature, MDR_RESULT_ERROR_NOT_FOUND for an out-of-range index, and
+ *         MDR_RESULT_ERROR_INVALID_ARGUMENT for an unknown key.
+ */
+MDR_API MDRResult mdrHeadphonesGetValue(MDRHeadphones* headphones, MDRValue value, uint32_t index, int32_t* out_value);
 
 /* Model, battery, and playback. */
 MDR_API MDRResult mdrHeadphonesGetModel(MDRHeadphones* headphones, MDRModel* out_identity);
@@ -684,7 +733,7 @@ MDR_API MDRResult mdrHeadphonesGetBatteries(MDRHeadphones* headphones, MDRBatter
  */
 MDR_API MDRResult mdrHeadphonesGetPlayback(MDRHeadphones* headphones, MDRPropertyType type, MDRPlayback* out_playback);
 /**
- * @brief Stages a playback volume in the range 0..30 without changing playback status.
+ * @brief Stages a playback volume within MDR_VALUE_PLAYBACK_VOLUME_* without changing playback status.
  * @note Applied only through @ref mdrHeadphonesRequestCommit.
  */
 MDR_API MDRResult mdrHeadphonesSetPlaybackVolume(MDRHeadphones* headphones, uint32_t volume);
@@ -720,7 +769,7 @@ MDR_API MDRResult mdrHeadphonesGetEqualizer(MDRHeadphones* headphones, MDRProper
 MDR_API MDRResult mdrHeadphonesSetEqualizerPreset(MDRHeadphones* headphones, MDREqualizerPreset preset);
 MDR_API MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t clear_bass);
 MDR_API MDRResult mdrHeadphonesSetDSEE(MDRHeadphones* headphones, MDRBoolean enabled);
-/* Counts are element counts, not byte sizes. Five bands accept -10..10; ten accept -6..6. */
+/* Counts are element counts, not byte sizes. Band ranges: MDR_VALUE_EQUALIZER_BAND_*. */
 MDR_API MDRResult mdrHeadphonesGetEqualizerBands(MDRHeadphones* headphones, MDRPropertyType type, int32_t* bands,
                                                  uint32_t* inout_count);
 MDR_API MDRResult mdrHeadphonesSetEqualizerBands(MDRHeadphones* headphones, const int32_t* bands, uint32_t count);

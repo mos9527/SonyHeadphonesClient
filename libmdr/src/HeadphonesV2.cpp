@@ -204,6 +204,7 @@ namespace mdr
             if (state.eqPresetInquiredType(eqType))
                 SendCommandACK(t1::EqEbbGetCapabilityLanguage,
                                {.eqEbbInquiredType = eqType, .language = t1::DisplayLanguage::ENGLISH});
+            SendCommandACK(t1::EqEbbGetExtendedInfo, {.type = t1::EqEbbInquiredType::PRESET_EQ});
             SendCommandACK(t1::EqEbbGetStatus, {.type = t1::EqEbbInquiredType::PRESET_EQ});
             SendCommandACK(t1::EqEbbGetParam);
         }
@@ -255,10 +256,13 @@ namespace mdr
             /* Auto Power Off */
             if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
             {
+                SendCommandACK(t1::PowerGetCapability, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
                 SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
             }
-            else if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+            if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
             {
+                SendCommandACK(t1::PowerGetCapability,
+                               {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
                 SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
             }
 
@@ -756,40 +760,24 @@ namespace mdr
             res.command = Command::EQEBB_SET_PARAM;
             res.type = EqEbbInquiredType::PRESET_EQ;
             res.parameter.presetId = state.mEqPresetId.mSubmitted;
-            int eqBands = state.mEqConfig.mSubmitted.size(), eqOffset = 0;
-            if (eqBands == 0)
+            const auto& bands = state.mEqConfig.mSubmitted;
+            if (bands.empty())
             {
                 state.mEqConfig.commit(), state.mEqClearBass.commit();
             }
             else
             {
-                auto& bands = state.mEqConfig.mSubmitted;
-                if (eqBands == 5)
-                {
-                    res.parameter.bandSteps.value = Vector<UInt8>{{
-                        static_cast<UInt8>(state.mEqClearBass.mSubmitted + 10),
-                        static_cast<UInt8>(bands[0] + 10),
-                        static_cast<UInt8>(bands[1] + 10),
-                        static_cast<UInt8>(bands[2] + 10),
-                        static_cast<UInt8>(bands[3] + 10),
-                        static_cast<UInt8>(bands[4] + 10),
-                    }};
-                }
-                else if (eqBands == 10)
-                    res.parameter.bandSteps.value = Vector<UInt8>{{
-                        static_cast<UInt8>(bands[0] + 6),
-                        static_cast<UInt8>(bands[1] + 6),
-                        static_cast<UInt8>(bands[2] + 6),
-                        static_cast<UInt8>(bands[3] + 6),
-                        static_cast<UInt8>(bands[4] + 6),
-                        static_cast<UInt8>(bands[5] + 6),
-                        static_cast<UInt8>(bands[6] + 6),
-                        static_cast<UInt8>(bands[7] + 6),
-                        static_cast<UInt8>(bands[8] + 6),
-                        static_cast<UInt8>(bands[9] + 6),
-                    }};
-                else
-                    co_return SetLastError(MDR_RESULT_ERROR_INVALID_ARGUMENT, "mEqConfig size must be 0, 5, or 10");
+                // See also @ref ApplyEqBandSteps
+                const bool clearBass = state.EqClearBassInRaw(bands.size());
+                const size_t rawBands = bands.size() + (clearBass ? 1 : 0);
+                const int offset = state.EqStepOffset(rawBands);
+                Vector<UInt8> steps;
+                steps.reserve(rawBands);
+                if (clearBass)
+                    steps.push_back(static_cast<UInt8>(state.mEqClearBass.mSubmitted + offset));
+                for (const int band : bands)
+                    steps.push_back(static_cast<UInt8>(band + offset));
+                res.parameter.bandSteps.value = std::move(steps);
                 SendCommandACK(EqEbbSetParamEq, res);
                 state.mEqConfig.commit();
                 state.mEqClearBass.commit();
@@ -943,53 +931,39 @@ namespace mdr
         /* General Settings */
         {
             using namespace t1;
-            if (state.mGsParamBool[0].pending())
+            static constexpr GsInquiredType kTypes[] = {
+                GsInquiredType::GENERAL_SETTING1, GsInquiredType::GENERAL_SETTING2, GsInquiredType::GENERAL_SETTING3,
+                GsInquiredType::GENERAL_SETTING4};
+            static constexpr FunctionType kFunctions[] = {
+                FunctionType::GENERAL_SETTING_1, FunctionType::GENERAL_SETTING_2, FunctionType::GENERAL_SETTING_3,
+                FunctionType::GENERAL_SETTING_4};
+            for (size_t i = 0; i < std::size(kTypes); ++i)
             {
-                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_1))
+                const bool supported = state.mSupport.contains(kFunctions[i]);
+                if (state.mGsParamBool[i].pending())
                 {
-                    GsSetParamBoolean res;
-                    res.command = Command::GENERAL_SETTING_SET_PARAM;
-                    res.type = GsInquiredType::GENERAL_SETTING1;
-                    res.value = state.mGsParamBool[0].mSubmitted ? GsSettingValue::ON : GsSettingValue::OFF;
-                    SendCommandACK(GsSetParamBoolean, res);
+                    if (supported)
+                    {
+                        GsSetParamBoolean res;
+                        res.command = Command::GENERAL_SETTING_SET_PARAM;
+                        res.type = kTypes[i];
+                        res.value = state.mGsParamBool[i].mSubmitted ? GsSettingValue::ON : GsSettingValue::OFF;
+                        SendCommandACK(GsSetParamBoolean, res);
+                    }
+                    state.mGsParamBool[i].commit();
                 }
-                state.mGsParamBool[0].commit();
-            }
-            if (state.mGsParamBool[1].pending())
-            {
-                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_2))
+                if (state.mGsParamList[i].pending())
                 {
-                    GsSetParamBoolean res;
-                    res.command = Command::GENERAL_SETTING_SET_PARAM;
-                    res.type = GsInquiredType::GENERAL_SETTING2;
-                    res.value = state.mGsParamBool[1].mSubmitted ? GsSettingValue::ON : GsSettingValue::OFF;
-                    SendCommandACK(GsSetParamBoolean, res);
+                    if (supported)
+                    {
+                        GsSetParamList res;
+                        res.command = Command::GENERAL_SETTING_SET_PARAM;
+                        res.type = kTypes[i];
+                        res.currentElementIndex = static_cast<UInt8>(state.mGsParamList[i].mSubmitted);
+                        SendCommandACK(GsSetParamList, res);
+                    }
+                    state.mGsParamList[i].commit();
                 }
-                state.mGsParamBool[1].commit();
-            }
-            if (state.mGsParamBool[2].pending())
-            {
-                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_3))
-                {
-                    GsSetParamBoolean res;
-                    res.command = Command::GENERAL_SETTING_SET_PARAM;
-                    res.type = GsInquiredType::GENERAL_SETTING3;
-                    res.value = state.mGsParamBool[2].mSubmitted ? GsSettingValue::ON : GsSettingValue::OFF;
-                    SendCommandACK(GsSetParamBoolean, res);
-                }
-                state.mGsParamBool[2].commit();
-            }
-            if (state.mGsParamBool[3].pending())
-            {
-                if (state.mSupport.contains(FunctionType::GENERAL_SETTING_4))
-                {
-                    GsSetParamBoolean res;
-                    res.command = Command::GENERAL_SETTING_SET_PARAM;
-                    res.type = GsInquiredType::GENERAL_SETTING4;
-                    res.value = state.mGsParamBool[3].mSubmitted ? GsSettingValue::ON : GsSettingValue::OFF;
-                    SendCommandACK(GsSetParamBoolean, res);
-                }
-                state.mGsParamBool[3].commit();
             }
         }
 

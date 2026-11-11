@@ -159,6 +159,7 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> CradleBatteryParam::Write(const CradleBatteryParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.level, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.chargingStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -166,6 +167,7 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> CradleBatteryParam::Read(const UInt8** ppSrcBuffer, CradleBatteryParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.level, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.chargingStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
@@ -347,24 +349,27 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> LeftRightBatteryParam::Write(const LeftRightBatteryParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftLevel, ppDstBuffer, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightLevel, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftChargingStatus, ppDstBuffer, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightLevel, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightChargingStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
     }
     MDRResult<size_t> LeftRightBatteryParam::Read(const UInt8** ppSrcBuffer, LeftRightBatteryParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftLevel, maxSize));
-        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightLevel, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftChargingStatus, maxSize));
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightLevel, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightChargingStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);
     }
     MDRResult<size_t> LeftRightConnectionStatusParam::Write(const LeftRightConnectionStatusParam& data, UInt8** ppDstBuffer, size_t maxSize)
     {
         UInt8* ptr = *ppDstBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Write(data.type, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.leftConnectionStatus, ppDstBuffer, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Write(data.rightConnectionStatus, ppDstBuffer, maxSize));
         return MDRResult<size_t>::Success(*ppDstBuffer - ptr);
@@ -372,6 +377,7 @@ namespace mdr::v1::t1 {
     MDRResult<size_t> LeftRightConnectionStatusParam::Read(const UInt8** ppSrcBuffer, LeftRightConnectionStatusParam& out, size_t maxSize)
     {
         const UInt8* ptr = *ppSrcBuffer;
+        MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.type, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.leftConnectionStatus, maxSize));
         MDR_TRY_SIZE(size_t, MDRPod::Read(ppSrcBuffer, out.rightConnectionStatus, maxSize));
         return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);

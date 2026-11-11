@@ -224,10 +224,10 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::NotifyBatteryLevelBatteryParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
-    template<> struct MDRTraits<v1::t1::NotifyBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam> {
+    template<> struct MDRTraits<v1::t1::NotifyBatteryLevelCradleBatteryParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
-    template<> struct MDRTraits<v1::t1::NotifyBatteryLevelUpdateBatteryPowerThresholdParam> {
+    template<> struct MDRTraits<v1::t1::NotifyBatteryLevelLeftRightBatteryParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::NotifyConnectionStatusLeftRightConnectionStatusParam> {
@@ -383,10 +383,10 @@ namespace mdr {
     template<> struct MDRTraits<v1::t1::RetBatteryLevelBatteryParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
-    template<> struct MDRTraits<v1::t1::RetBatteryLevelUpdateBatteryPowerThresholdForInterruptiongUpdtParam> {
+    template<> struct MDRTraits<v1::t1::RetBatteryLevelCradleBatteryParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
-    template<> struct MDRTraits<v1::t1::RetBatteryLevelUpdateBatteryPowerThresholdParam> {
+    template<> struct MDRTraits<v1::t1::RetBatteryLevelLeftRightBatteryParam> {
         static constexpr MDRDataType kDataType = MDRDataType::DATA_MDR;
     };
     template<> struct MDRTraits<v1::t1::RetBluetoothDeviceInfo> {
