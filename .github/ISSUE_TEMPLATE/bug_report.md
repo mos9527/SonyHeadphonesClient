@@ -64,9 +64,5 @@ via **Trigger disconnect error** in the top-left drop-down menu.
 See the [packet capture guide](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tests/README.md) for details,
 then attach the capture as a `.zip` file. Include the headphone model and firmware version in the archive name.
 
-Captures may contain paired device names, Bluetooth addresses and media metadata. Run
-[`tooling/scrub-capture.py`](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tooling/scrub-capture.py)
-over the capture and review what is left before uploading; do not attach a capture if you are unsure what it contains.
-
 **Additional context**
 Add any other context about the problem here.
