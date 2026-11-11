@@ -596,7 +596,7 @@ namespace mdr
             {
                 SendCommandACK(t1::SetSystemExParamAutoPowerOffParam,
                                {.activeElementId = state.mPowerAutoOff.mSubmitted,
-                                .selectTimeElementId = state.mPowerAutoOff.mSubmitted});
+                                .selectTimeElementId = t1::AutoPowerOffElementId::POWER_OFF_IN_5_MIN});
             }
             state.mPowerAutoOff.commit();
         }

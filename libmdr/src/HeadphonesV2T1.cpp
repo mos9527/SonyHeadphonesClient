@@ -401,6 +401,38 @@ namespace mdr
         }
         return MDR_EVENT_UNHANDLED;
     }
+    int HandlePowerCapabilityT1(MDRHeadphones* self, Span<const UInt8> cmd)
+    {
+        PowerInquiredType type{};
+        if (!detail::ReadEnumTag(cmd, type))
+            return MDR_EVENT_UNHANDLED;
+        auto& state = self->mDetailsV2;
+        switch (type)
+        {
+        case PowerInquiredType::AUTO_POWER_OFF:
+        {
+            PowerRetCapabilityAutoPowerOff res;
+            if (!state.mSupport.contains(FunctionType::AUTO_POWER_OFF) || !DeserializeCapability(cmd, res))
+                return MDR_EVENT_UNHANDLED;
+            state.mAutoPowerOffCandidates = std::move(res.candidateElements.value);
+            state.mAutoPowerOffCapabilityKnown = true;
+            return MDR_EVENT_POWER_CHANGED;
+        }
+        case PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION:
+        {
+            PowerRetCapabilityAutoPowerOffWithWearingDetection res;
+            if (!state.mSupport.contains(FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION) ||
+                !DeserializeCapability(cmd, res))
+                return MDR_EVENT_UNHANDLED;
+            state.mAutoPowerOffWearingDetectionCandidates = std::move(res.candidateElements.value);
+            state.mAutoPowerOffWearingDetectionCapabilityKnown = true;
+            return MDR_EVENT_POWER_CHANGED;
+        }
+        default:
+            return MDR_EVENT_UNHANDLED;
+        }
+    }
+
     int HandlePowerParamT1(MDRHeadphones* self, Span<const UInt8> cmd)
     {
         PowerInquiredType type{};
@@ -1210,6 +1242,8 @@ namespace mdr
         case PLAY_RET_PARAM:
         case PLAY_NTFY_PARAM:
             return HandlePlayParamT1(self, cmd);
+        case POWER_RET_CAPABILITY:
+            return HandlePowerCapabilityT1(self, cmd);
         case POWER_RET_PARAM:
         case POWER_NTFY_PARAM:
             return HandlePowerParamT1(self, cmd);

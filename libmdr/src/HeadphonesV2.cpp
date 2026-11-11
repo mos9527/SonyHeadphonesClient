@@ -256,10 +256,13 @@ namespace mdr
             /* Auto Power Off */
             if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF))
             {
+                SendCommandACK(t1::PowerGetCapability, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
                 SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF});
             }
-            else if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+            if (state.mSupport.contains(t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
             {
+                SendCommandACK(t1::PowerGetCapability,
+                               {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
                 SendCommandACK(t1::PowerGetParam, {.type = t1::PowerInquiredType::AUTO_POWER_OFF_WEARING_DETECTION});
             }
 

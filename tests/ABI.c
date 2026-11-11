@@ -3466,6 +3466,8 @@ static void test_v1_device_values(void)
                  MDR_RESULT_ERROR_NOT_FOUND, "an unknown band count has no range");
     check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, &value),
                  MDR_RESULT_ERROR_NOT_SUPPORTED, "no Clear Bass before the 5-band layout is known");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 0), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "Clear Bass setter also requires a known supported layout");
     check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN, 0, &value),
                  MDR_RESULT_ERROR_NOT_SUPPORTED, "V1 has no voice guidance volume");
     check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 5, "default V1 auto power off count");
@@ -3541,6 +3543,157 @@ static void test_v1_device_values(void)
     session_close(&session);
 }
 
+static void test_power_wearing_capability(MDRProtocolVersion family)
+{
+    static const unsigned char support_v1[] = {0x07, 0, 2, 0xf4, 0xf3};
+    static const unsigned char support_v2[] = {0x07, 0, 2, 0x25, 0xff, 0xf1, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    /* XM4 (V1) and XM6 (V2): when removed and disabled, no timed options. */
+    static const unsigned char cap_v1[] = {0xf1, 0x04, 2, 0x10, 0x11};
+    static const unsigned char cap_v2[] = {0x21, 0x05, 2, 0x10, 0x11};
+    static const unsigned char param_v1[] = {0xf7, 0x04, 0x01, 0x10, 0x00};
+    static const unsigned char param_v2[] = {0x27, 0x05, 0x10, 0x00};
+    static const unsigned char write_v1[] = {0xf8, 0x04, 0x01, 0x10, 0x00};
+    static const unsigned char write_v2[] = {0x28, 0x05, 0x10, 0x00};
+    static const unsigned char disable_v1[] = {0xf8, 0x04, 0x01, 0x11, 0x00};
+    static const unsigned char disable_v2[] = {0x28, 0x05, 0x11, 0x00};
+    static const unsigned char disabled_only_v1[] = {0xf1, 0x04, 1, 0x11};
+    static const unsigned char disabled_only_v2[] = {0x21, 0x05, 1, 0x11};
+    static const unsigned char empty_v2[] = {0x21, 0x05, 0};
+    Session session;
+    Device device;
+    MDRPower power;
+    int32_t value;
+    size_t offset;
+    int v1 = family == MDR_PROTOCOL_V1;
+
+    if (!session_open_family(&session, family))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.protocol_v1 = v1;
+    device.table1 = v1 ? support_v1 : support_v2;
+    device.table1_size = v1 ? sizeof(support_v1) : sizeof(support_v2);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    check(device_requested(&device, 1, v1 ? 0xf0 : 0x20, v1 ? 0x04 : 0x05),
+          "power initialization asks for the supported capability");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, v1 ? 5 : 6,
+                "missing capability retains the protocol fallback");
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? cap_v1 : cap_v2, v1 ? sizeof(cap_v1) : sizeof(cap_v2));
+    device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "wearing power capability polls");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 1, "wearing-only list has no timers");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 0, "disabled is the only numeric option");
+    check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, &value),
+                 MDR_RESULT_ERROR_NOT_FOUND, "wearing-only list has no second numeric option");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? param_v1 : param_v2,
+                v1 ? sizeof(param_v1) : sizeof(param_v2));
+    device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "when-removed power setting polls");
+    check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_CURRENT, &power), MDR_RESULT_OK,
+                 "when-removed power reads");
+    check(power.auto_power_off_minutes == 0 && power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED,
+          "when-removed state is not confused with disabled");
+    power.auto_power_off_minutes = 5;
+    power.auto_pause = MDR_TRUE;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "unadvertised timer is rejected even while when-removed is selected");
+    check(!mdrHeadphonesIsDirty(session.headphones), "invalid power request does not stage auto pause");
+    power.auto_power_off_minutes = 0;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "auto pause edit stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "power write-back starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "power write-back completes");
+    check_command_payload(&session, offset, v1 ? write_v1 : write_v2, v1 ? sizeof(write_v1) : sizeof(write_v2));
+    check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power), MDR_RESULT_OK,
+                 "power after write-back reads");
+    check(power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED, "auto pause edit retains when-removed power");
+
+    power.wearing_power = MDR_WEARING_POWER_DISABLED;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "wearing power disable stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "power disable starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "power disable completes");
+    check_command_payload(&session, offset, v1 ? disable_v1 : disable_v2,
+                          v1 ? sizeof(disable_v1) : sizeof(disable_v2));
+    power.wearing_power = MDR_WEARING_POWER_WHEN_REMOVED;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "wearing power enable stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "power enable starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "power enable completes");
+    check_command_payload(&session, offset, v1 ? write_v1 : write_v2, v1 ? sizeof(write_v1) : sizeof(write_v2));
+
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? disabled_only_v1 : disabled_only_v2,
+                v1 ? sizeof(disabled_only_v1) : sizeof(disabled_only_v2));
+    device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "capability without when-removed polls");
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "when-removed is refused if absent from the capability");
+    check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power), MDR_RESULT_OK,
+                 "power with unadvertised current state reads");
+    check(power.wearing_power == MDR_WEARING_POWER_UNAVAILABLE, "unadvertised wearing option is hidden");
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK,
+                 "unchanged unadvertised raw state can be written back");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "unadvertised write-back starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "unadvertised write-back completes");
+    check_command_payload(&session, offset, v1 ? write_v1 : write_v2, v1 ? sizeof(write_v1) : sizeof(write_v2));
+    if (!v1)
+    {
+        device_send(&device, MDR_DATA_TYPE_DATA_MDR, empty_v2, sizeof(empty_v2));
+        device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "empty V2 power capability polls");
+        check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 0,
+                    "empty advertised list does not restore hardcoded timers");
+    }
+    session_close(&session);
+}
+
+static void test_v2_timed_power_capability(void)
+{
+    static const unsigned char table1[] = {0x07, 0, 1, 0x24, 0xff};
+    static const unsigned char table2[] = {0x07, 0, 0};
+    static const unsigned char capability[] = {0x21, 0x04, 4, 0x04, 0x01, 0x04, 0x11};
+    static const unsigned char write[] = {0x28, 0x04, 0x04, 0x00};
+    Session session;
+    Device device;
+    MDRPower power;
+    size_t offset;
+
+    if (!session_open(&session))
+        return;
+    memset(&device, 0, sizeof(device));
+    device.transport = &session.transport;
+    device.table1 = table1;
+    device.table1_size = sizeof(table1);
+    device.table2 = table2;
+    device.table2_size = sizeof(table2);
+    device_run_init(&session, &device);
+    check(device_requested(&device, 1, 0x20, 0x04), "timed power capability is requested");
+    check(!device_requested(&device, 1, 0x20, 0x05), "unadvertised wearing variant is not requested");
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, capability, sizeof(capability));
+    device_run(&session, &device, MDR_EVENT_POWER_CHANGED, "timed power capability polls");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION_COUNT, 0, 3, "duplicate durations are omitted");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 0, 15, "V2 15-minute option follows capability order");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 1, 30, "V2 30-minute option follows capability order");
+    check_value(session.headphones, MDR_VALUE_AUTO_POWER_OFF_OPTION, 2, 0, "V2 disabled option follows capability order");
+    check_result(mdrHeadphonesGetPower(session.headphones, MDR_PROPERTY_DESIRED, &power), MDR_RESULT_OK,
+                 "timed power reads");
+    power.auto_power_off_minutes = 60;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "unadvertised timed power option is refused");
+    power.auto_power_off_minutes = 15;
+    power.wearing_power = MDR_WEARING_POWER_WHEN_REMOVED;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "timed-only device refuses when-removed power");
+    power.wearing_power = MDR_WEARING_POWER_UNAVAILABLE;
+    check_result(mdrHeadphonesSetPower(session.headphones, &power), MDR_RESULT_OK, "advertised 15-minute timer stages");
+    offset = session.transport.tx_size;
+    check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "timed power apply starts");
+    device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "timed power apply completes");
+    check_command_payload(&session, offset, write, sizeof(write));
+    session_close(&session);
+}
+
 /*
  * V2 EQ layout comes from the device: band count and step from EQEBB_RET_CAPABILITY, frequencies from
  * EQEBB_RET_EXTENDED_INFO. Frames marked XM6 are verbatim from a WH-1000XM6 3.1.5 debugger session (unescaped).
@@ -3595,6 +3748,9 @@ static void test_v2_equalizer_layout(void)
     check(equalizer.band_count == 10 && equalizer.clear_bass == 0, "XM6 has ten bands");
     check_result(mdrHeadphonesGetValue(session.headphones, MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, 0, &value),
                  MDR_RESULT_ERROR_NOT_SUPPORTED, "a ten-value param has no Clear Bass");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 1), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "a ten-value layout refuses Clear Bass writes");
+    check(!mdrHeadphonesIsDirty(session.headphones), "unsupported Clear Bass does not stage an EQ resend");
     check_value(session.headphones, MDR_VALUE_EQUALIZER_BAND_FREQUENCY, 0, 31,
                 "default 10-band layout before band info");
 
@@ -3739,6 +3895,10 @@ static void test_v1_noise_eq_general_settings(void)
 
     mdrHeadphonesGetNoiseControl(session.headphones, MDR_PROPERTY_DESIRED, &noise);
     noise.mode = MDR_NOISE_MODE_AMBIENT;
+    noise.ambient_level = 0;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "ambient mode refuses level zero");
+    check(!mdrHeadphonesIsDirty(session.headphones), "invalid ambient minimum leaves noise control unstaged");
     noise.ambient_level = 21;
     check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "ambient past the advertised steps is refused");
@@ -3950,6 +4110,10 @@ static void test_widened_inputs(MDRProtocolVersion family)
     check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "the old V1 sentinel is just an out-of-range level");
     noise = noise_before;
+    noise.mode = MDR_NOISE_MODE_AMBIENT;
+    noise.ambient_level = 0;
+    check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
+                 "ambient minimum applies to both protocol families");
     noise.mode = MDR_NOISE_MODE_WIND_NOISE_REDUCTION + 1;
     check_result(mdrHeadphonesSetNoiseControl(session.headphones, &noise), MDR_RESULT_ERROR_INVALID_ARGUMENT,
                  "unknown noise mode is rejected");
@@ -4119,8 +4283,9 @@ static void test_grouped_staging_during_apply(MDRProtocolVersion family)
                  "grouped batch starts with volume in flight");
     check_result(mdrHeadphonesGetEqualizer(session.headphones, MDR_PROPERTY_DESIRED, &equalizer), MDR_RESULT_OK,
                  "group reads");
-    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 2), MDR_RESULT_OK,
-                 "previously clean Clear Bass stages after the batch snapshot");
+    check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, 2),
+                 v1 ? MDR_RESULT_OK : MDR_RESULT_ERROR_NOT_SUPPORTED,
+                 "only the Clear Bass layout can stage bass after the batch snapshot");
     check_result(mdrHeadphonesSetEqualizerBands(session.headphones, next, count), MDR_RESULT_OK,
                  "new array stages before the old EQ command has run");
     device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? flat_v1 : flat_v2, v1 ? sizeof(flat_v1) : sizeof(flat_v2));
@@ -4309,6 +4474,8 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
     static const unsigned char gs_v2[] = {0xd1, 0xd4, 0, 0, 0, 0};
     static const unsigned char measurement[] = {0x5b, 0, 85, 0};
     static const unsigned char eq_off[] = {0x55, 0, 1};
+    static const unsigned char eq_v1[] = {0x57, 1, 0, 6, 10, 10, 10, 10, 10, 10};
+    static const unsigned char eq_v2[] = {0x57, 0, 0, 6, 10, 10, 10, 10, 10, 10};
     Session session;
     Device device;
     MDRNoiseControl noise, current_noise;
@@ -4376,6 +4543,8 @@ static void test_editable_property_views(MDRProtocolVersion family, int wearing)
               speak.sensitivity == MDR_SPEECH_SENSITIVITY_LOW && speak.timeout == MDR_SPEAK_TIMEOUT_LONG,
           "speech desired timeout edit retains pending enable and sensitivity");
 
+    device_send(&device, MDR_DATA_TYPE_DATA_MDR, v1 ? eq_v1 : eq_v2, v1 ? sizeof(eq_v1) : sizeof(eq_v2));
+    device_run(&session, &device, MDR_EVENT_EQUALIZER_CHANGED, "Clear Bass layout for property edits polls");
     check_result(mdrHeadphonesSetEqualizerPreset(session.headphones, MDR_EQ_BRIGHT), MDR_RESULT_OK, "preset stages");
     check_result(mdrHeadphonesSetEqualizerClearBass(session.headphones, -10), MDR_RESULT_OK,
                  "negative clear bass stages");
@@ -4849,6 +5018,9 @@ int main(void)
     test_v1_assignable_controls();
     test_v1_device_values();
     test_v1_noise_eq_general_settings();
+    test_power_wearing_capability(MDR_PROTOCOL_V1);
+    test_power_wearing_capability(MDR_PROTOCOL_V2);
+    test_v2_timed_power_capability();
     test_v2_equalizer_layout();
 
     if (g_failures != 0)

@@ -2033,6 +2033,23 @@ namespace
             state.EqClearBassInRaw(state.mEqConfig.mDesired.size()) && !state.mEqConfig.mDesired.empty();
     }
 
+    bool WearingPowerAvailable(const mdr::DetailsV1& state)
+    {
+        return SupportsFeature(state, MDR_FEATURE_AUTO_POWER_OFF) &&
+            std::ranges::find(state.mAutoPowerOffCandidates,
+                              mdr::v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS) !=
+            state.mAutoPowerOffCandidates.end();
+    }
+
+    bool WearingPowerAvailable(const mdr::DetailsV2& state)
+    {
+        return state.mSupport.contains(mdr::v2::t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION) &&
+            (!state.mAutoPowerOffWearingDetectionCapabilityKnown ||
+             std::ranges::find(state.mAutoPowerOffWearingDetectionCandidates,
+                               mdr::v2::t1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS) !=
+                 state.mAutoPowerOffWearingDetectionCandidates.end());
+    }
+
     template <typename State>
     ValueRange VoiceGuidanceVolumeRange(const State&)
     {
@@ -2062,15 +2079,34 @@ namespace
         };
         if (!state.mAutoPowerOffCandidates.empty())
             std::ranges::for_each(state.mAutoPowerOffCandidates, append);
-        if (out.empty())
+        else
             std::ranges::for_each(kDefault, append);
         return out;
     }
 
-    mdr::Vector<uint32_t> AutoPowerOffOptions(const mdr::DetailsV2&)
+    mdr::Vector<uint32_t> AutoPowerOffOptions(const mdr::DetailsV2& state)
     {
-        // NOTE: Simply per protocol. This shouldn't be device-dependent (V2)
-        return {5, 15, 30, 60, 180, 0};
+        mdr::Vector<uint32_t> out;
+        const auto append = [&](auto element)
+        {
+            uint32_t minutes = 0;
+            // "When removed" is exposed separately as wearing_power, not as a time option.
+            if (AutoPowerRoundTrips(element, minutes) && std::ranges::find(out, minutes) == out.end())
+                out.push_back(minutes);
+        };
+        if (state.mSupport.contains(mdr::v2::t1::FunctionType::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        {
+            if (!state.mAutoPowerOffWearingDetectionCapabilityKnown)
+                return {5, 15, 30, 60, 180, 0};
+            std::ranges::for_each(state.mAutoPowerOffWearingDetectionCandidates, append);
+        }
+        else
+        {
+            if (!state.mAutoPowerOffCapabilityKnown)
+                return {5, 15, 30, 60, 180, 0};
+            std::ranges::for_each(state.mAutoPowerOffCandidates, append);
+        }
+        return out;
     }
 
     bool InRange(const ValueRange& range, int64_t value)
@@ -2728,9 +2764,11 @@ MDRResult mdrHeadphonesSetNoiseControl(MDRHeadphones* headphones, const MDRNoise
         return failure;
     if (!h->mInitialized && !h->IsReady())
         return MDR_RESULT_INPROGRESS;
-    // Only the upper bound is enforced: outside ambient mode the device reports, and accepts, level 0.
-    const int64_t ambientMax = WithDetails(*h, [](const auto& state) { return AmbientLevelRange(state).max; });
-    if (noiseControl->ambient_level > ambientMax)
+    // Outside ambient mode the device reports, and accepts, level 0.
+    const auto ambientRange = WithDetails(*h, [](const auto& state) { return AmbientLevelRange(state); });
+    const int64_t ambientLevel = noiseControl->ambient_level;
+    if (ambientLevel > ambientRange.max ||
+        (noiseControl->mode == MDR_NOISE_MODE_AMBIENT && ambientLevel < ambientRange.min))
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
     if (noiseControl->mode == MDR_NOISE_MODE_WIND_NOISE_REDUCTION &&
         !WithDetails(*h, [](const auto& state) { return SupportsFeature(state, MDR_FEATURE_WIND_NOISE_REDUCTION); }))
@@ -2962,6 +3000,8 @@ MDRResult mdrHeadphonesSetEqualizerClearBass(MDRHeadphones* headphones, int32_t 
     return WithDetails(h,
                        [&](auto& state) -> MDRResult
                        {
+                           if (!ClearBassAvailable(state))
+                               return MDR_RESULT_ERROR_NOT_SUPPORTED;
                            state.mEqClearBass.stage(static_cast<int>(clearBass));
                            return MDR_RESULT_OK;
                        });
@@ -3506,8 +3546,12 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type,
     if (h.mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
         const auto& state = h.mDetailsV1;
-        *outPower = {.auto_power_off_minutes = AutoPowerMinutes(ReadProperty(state.mPowerAutoOff, type)),
-                     .wearing_power = MDR_WEARING_POWER_UNAVAILABLE,
+        const auto value = ReadProperty(state.mPowerAutoOff, type);
+        *outPower = {.auto_power_off_minutes = AutoPowerMinutes(value),
+                     .wearing_power = !WearingPowerAvailable(state) ? MDR_WEARING_POWER_UNAVAILABLE
+                         : value == mdr::v1::t1::AutoPowerOffElementId::POWER_OFF_WHEN_REMOVED_FROM_EARS
+                         ? MDR_WEARING_POWER_WHEN_REMOVED
+                         : MDR_WEARING_POWER_DISABLED,
                      .auto_pause = static_cast<MDRBoolean>(ReadProperty(state.mAutoPauseEnabled, type)),
                      .head_gesture = static_cast<MDRBoolean>(ReadProperty(state.mHeadGestureEnabled, type)),
                      .shutdown_requested = static_cast<MDRBoolean>(ReadProperty(state.mShutdown, type))};
@@ -3519,7 +3563,7 @@ MDRResult mdrHeadphonesGetPower(MDRHeadphones* headphones, MDRPropertyType type,
     const auto wearingValue = ReadProperty(state.mPowerAutoOffWearingDetection, type);
     *outPower = {.auto_power_off_minutes = wearing ? AutoPowerMinutes(wearingValue)
                                                    : AutoPowerMinutes(ReadProperty(state.mPowerAutoOff, type)),
-                 .wearing_power = !wearing ? MDR_WEARING_POWER_UNAVAILABLE
+                 .wearing_power = !WearingPowerAvailable(state) ? MDR_WEARING_POWER_UNAVAILABLE
                      : wearingValue ==
                          mdr::v2::t1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS
                      ? MDR_WEARING_POWER_WHEN_REMOVED
@@ -3541,44 +3585,71 @@ MDRResult mdrHeadphonesSetPower(MDRHeadphones* headphones, const MDRPower* power
         return failure;
     if (!h->mInitialized && !h->IsReady())
         return MDR_RESULT_INPROGRESS;
+    MDRPower current{};
+    if (const auto result = mdrHeadphonesGetPower(headphones, MDR_PROPERTY_DESIRED, &current); result != MDR_RESULT_OK)
+        return result;
     const auto autoPowerOptions = WithDetails(*h, [](const auto& state) { return AutoPowerOffOptions(state); });
-    if (MDRPower current{};
-        std::ranges::find(autoPowerOptions, power->auto_power_off_minutes) == autoPowerOptions.end() &&
-        (mdrHeadphonesGetPower(headphones, MDR_PROPERTY_DESIRED, &current) != MDR_RESULT_OK ||
-         current.auto_power_off_minutes != power->auto_power_off_minutes))
+    if (std::ranges::find(autoPowerOptions, power->auto_power_off_minutes) == autoPowerOptions.end() &&
+        current.auto_power_off_minutes != power->auto_power_off_minutes)
         return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    if (power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED &&
+        !WithDetails(*h, [](const auto& state) { return WearingPowerAvailable(state); }))
+        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+    const bool unchanged = current.auto_power_off_minutes == power->auto_power_off_minutes &&
+        current.wearing_power == power->wearing_power;
+    const auto stageAutoPower = [&](auto& property, const auto& candidates, bool capabilityKnown) -> MDRResult
+    {
+        auto value = property.mDesired;
+        // Preserve the raw setting when writing back its projection, including unrecognized device values.
+        if (!unchanged)
+        {
+            if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value))
+                return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+            if constexpr (requires { decltype(value)::POWER_OFF_WHEN_REMOVED_FROM_EARS; })
+                if (power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
+                    value = decltype(value)::POWER_OFF_WHEN_REMOVED_FROM_EARS;
+        }
+        if (capabilityKnown && value != property.mDesired && std::ranges::find(candidates, value) == candidates.end())
+            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
+        property.stage(value);
+        return MDR_RESULT_OK;
+    };
     if (h->mProtocolFamily == Headphones::ProtocolFamily::V1)
     {
-        auto value = h->mDetailsV1.mPowerAutoOff.mDesired;
-        if (!AutoPowerFromMinutes(power->auto_power_off_minutes, value) ||
-            power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED)
-            return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-        h->mDetailsV1.mPowerAutoOff.stage(value);
-        h->mDetailsV1.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
-        h->mDetailsV1.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
-        h->mDetailsV1.mShutdown.stage(power->shutdown_requested != MDR_FALSE);
-        return MDR_RESULT_OK;
+        auto& state = h->mDetailsV1;
+        if (const auto result = stageAutoPower(state.mPowerAutoOff, state.mAutoPowerOffCandidates,
+                                              !state.mAutoPowerOffCandidates.empty());
+            result != MDR_RESULT_OK)
+            return result;
     }
-    auto& state = h->mDetailsV2;
-    mdr::v2::t1::AutoPowerOffElements autoPower{};
-    mdr::v2::t1::AutoPowerOffWearingDetectionElements wearingPower{};
-    if (!AutoPowerFromMinutes(power->auto_power_off_minutes, autoPower) ||
-        !AutoPowerFromMinutes(power->auto_power_off_minutes, wearingPower))
-        return MDR_RESULT_ERROR_INVALID_ARGUMENT;
-    using T1 = mdr::v2::t1::FunctionType;
-    if (state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+    else
     {
-        state.mPowerAutoOffWearingDetection.stage(
-            power->wearing_power == MDR_WEARING_POWER_WHEN_REMOVED
-                ? mdr::v2::t1::AutoPowerOffWearingDetectionElements::POWER_OFF_WHEN_REMOVED_FROM_EARS
-                : wearingPower);
+        auto& state = h->mDetailsV2;
+        using T1 = mdr::v2::t1::FunctionType;
+        if (state.mSupport.contains(T1::AUTO_POWER_OFF_WITH_WEARING_DETECTION))
+        {
+            if (const auto result = stageAutoPower(state.mPowerAutoOffWearingDetection,
+                                                  state.mAutoPowerOffWearingDetectionCandidates,
+                                                  state.mAutoPowerOffWearingDetectionCapabilityKnown);
+                result != MDR_RESULT_OK)
+                return result;
+        }
+        else if (state.mSupport.contains(T1::AUTO_POWER_OFF))
+        {
+            if (const auto result = stageAutoPower(state.mPowerAutoOff, state.mAutoPowerOffCandidates,
+                                                  state.mAutoPowerOffCapabilityKnown);
+                result != MDR_RESULT_OK)
+                return result;
+        }
     }
-    else if (state.mSupport.contains(T1::AUTO_POWER_OFF) || SupportsFeature(state, MDR_FEATURE_AUTO_POWER_OFF))
-        state.mPowerAutoOff.stage(autoPower);
-    state.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
-    state.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
-    state.mShutdown.stage(power->shutdown_requested != MDR_FALSE);
-    return MDR_RESULT_OK;
+    return WithDetails(*h,
+                       [&](auto& state) -> MDRResult
+                       {
+                           state.mAutoPauseEnabled.stage(power->auto_pause != MDR_FALSE);
+                           state.mHeadGestureEnabled.stage(power->head_gesture != MDR_FALSE);
+                           state.mShutdown.stage(power->shutdown_requested != MDR_FALSE);
+                           return MDR_RESULT_OK;
+                       });
 }
 
 MDRResult mdrHeadphonesGetVoiceGuidance(MDRHeadphones* headphones, MDRPropertyType type,

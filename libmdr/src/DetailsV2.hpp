@@ -334,6 +334,12 @@ namespace mdr
 
         Vector<v2::t1::AssignableSettingsKey> mAssignableSettingsKeys;
 
+        // From POWER_RET_CAPABILITY. Keep an empty reply distinct from no reply (legacy fallback).
+        Vector<v2::t1::AutoPowerOffElements> mAutoPowerOffCandidates;
+        Vector<v2::t1::AutoPowerOffWearingDetectionElements> mAutoPowerOffWearingDetectionCandidates;
+        bool mAutoPowerOffCapabilityKnown{};
+        bool mAutoPowerOffWearingDetectionCapabilityKnown{};
+
         GsCapability mGsCapability[4];
         UInt8 mSpeakToChatVoiceFocus{};
 

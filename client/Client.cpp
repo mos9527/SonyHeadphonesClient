@@ -2337,9 +2337,11 @@ void DrawDeviceControlsSystem()
         ImHeadingTreeNode(TrLable(i18n::TextId::AutoPowerOff), ImGuiTreeNodeFlags_DefaultOpen))
     {
         const mdr::Vector<uint32_t> selections = GetAutoPowerOffOptions();
-        bool changed = ImComboBoxItems<uint32_t, std::dynamic_extent>(
-            TrLable(i18n::TextId::Time), std::span{selections}, power.auto_power_off_minutes, FormatAutoPowerOff);
-        if (FeatureAvailable(MDR_FEATURE_WEARING_DETECTION) && power.wearing_power != MDR_WEARING_POWER_UNAVAILABLE)
+        bool changed = false;
+        if (selections.size() > 1)
+            changed = ImComboBoxItems<uint32_t, std::dynamic_extent>(
+                TrLable(i18n::TextId::Time), std::span{selections}, power.auto_power_off_minutes, FormatAutoPowerOff);
+        if (power.wearing_power != MDR_WEARING_POWER_UNAVAILABLE)
         {
             bool whenRemoved = power.wearing_power == MDR_WEARING_POWER_WHEN_REMOVED;
             if (ImGui::Checkbox(TrLable(i18n::TextId::PowerOffRemoved), &whenRemoved))
