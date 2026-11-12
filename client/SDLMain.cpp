@@ -80,6 +80,60 @@ namespace
     bool gClientRedraw{};
 #endif
 
+#ifdef _WIN32
+    // Windows DWM backdrop (11: system backdrop, Vista/7: Aero glass). See clientPlatformInitGraphics
+    // ---
+    // Overrides on top of whatever theme the client applies:
+    // - WindowBg: clear, the top-most window is the backdrop itself
+    // - ModalWindowDimBg: clear, the client's full-screen modals would otherwise darken the backdrop
+    // - PopupBg: translucent, modals read as a card over the backdrop. Note this applies to combos/tooltips too.
+    // - MenuBarBg: translucent tint, still distinguishable from the content below
+    struct BackdropOverride
+    {
+        ImGuiCol col;
+        float alpha;
+        float themeAlpha; // Last alpha the client's theme set, restored when the backdrop goes away
+    };
+    BackdropOverride gBackdropOverrides[] = {
+        {ImGuiCol_WindowBg, 0.0f, 1.0f},
+        {ImGuiCol_ModalWindowDimBg, 0.0f, 1.0f},
+        {ImGuiCol_PopupBg, 0.6f, 1.0f},
+        {ImGuiCol_MenuBarBg, 0.3f, 1.0f},
+    };
+    bool gBackdropApplied{};
+
+    /**
+     * Applies or reverts the overrides following @ref clientPlatformWindowsBackdropEnabled
+     * @return true if the style was changed. The client re-applies its theme right before ImGui::NewFrame(),
+     *         so this being true after clientOnFrame() means that frame was drawn with the wrong backgrounds.
+     */
+    bool SyncBackdropStyle()
+    {
+        const bool enabled = clientPlatformWindowsBackdropEnabled();
+        if (!enabled && !gBackdropApplied)
+            return false;
+        ImVec4* colors = ImGui::GetStyle().Colors;
+        bool changed = false;
+        for (BackdropOverride& entry : gBackdropOverrides)
+        {
+            float& alpha = colors[entry.col].w;
+            if (enabled && alpha != entry.alpha)
+            {
+                // Theme (re-)applied: remember its value before overriding
+                entry.themeAlpha = alpha;
+                alpha = entry.alpha, changed = true;
+            }
+            else if (!enabled && alpha == entry.alpha)
+            {
+                // Still ours (the theme would have overwritten it otherwise): put the theme's back
+                alpha = entry.themeAlpha, changed = true;
+            }
+        }
+        gBackdropApplied = enabled;
+        return changed;
+    }
+#endif
+
     bool PollEvents(SDL_Event& event, Uint32 minType = SDL_EVENT_FIRST, Uint32 maxType = SDL_EVENT_LAST)
     {
         const int result = SDL_PeepEvents(&event, 1, SDL_GETEVENT, minType, maxType);
@@ -208,6 +262,12 @@ void mainLoop()
             ImGui_ImplSDL3_NewFrame();
             if (clientOnFrame(gWindow))
                 gRedrawFrames = kRedrawFrames;
+#ifdef _WIN32
+            // Theme was re-applied (or the backdrop toggled) this frame, so it was drawn with the wrong backgrounds.
+            // Drop it instead of flashing; gRedrawFrames is still > 0, so the next (correct) frame follows.
+            if (SyncBackdropStyle())
+                present = false;
+#endif
         }
     }
     if (present)
@@ -429,7 +489,12 @@ int main(int argc, char** argv)
             clientSetAppLocale(GetPreferredAppLocale());
         MDR_LOG("Selected locale: {}", clientGetAppLocale());
         const float displayScale = clientPlatformGetDisplayScale();
-        const SDL_WindowFlags windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+        SDL_WindowFlags windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#ifdef _WIN32
+        // DWM backdrop: the window must be created transparent. See clientPlatformInitGraphics
+        if (clientPlatformWindowsSupportsBackdrop())
+            windowFlags |= SDL_WINDOW_TRANSPARENT;
+#endif
         if (!clientPlatformInitGraphics(nullptr))
         {
             MDR_LOG("Error: clientPlatformInitGraphics() before device creation: {}", SDL_GetError());
@@ -468,6 +533,9 @@ int main(int argc, char** argv)
         if (!clientInit(displayScale, options.fontPath))
             break;
         gClientInitialized = true;
+#ifdef _WIN32
+        SyncBackdropStyle();
+#endif
         gAppliedDisplayScale = displayScale;
         gPlatformBackendInitialized = ImGui_ImplSDL3_InitForSDLRenderer(gWindow, gRenderer);
         if (!gPlatformBackendInitialized)

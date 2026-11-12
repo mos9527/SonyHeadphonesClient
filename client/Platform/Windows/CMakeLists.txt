@@ -13,4 +13,5 @@ target_link_libraries(Client_PlatformWindows
         ws2_32
         rpcrt4
         gdi32
+        dwmapi
 )

@@ -35,8 +35,22 @@ extern const char* clientPlatformGetProcessorArchitecture();
  * Currently:
  * - Apple platforms: This requests double-buffering instead of triple-buffering
  * - GL platforms (Web/Android/OHOS/Linux): This disables useless depth FBO allocation
+ * - Windows 11 22H2+, Vista/7: This applies the DWM backdrop (window must be created with SDL_WINDOW_TRANSPARENT)
  */
 extern bool clientPlatformInitGraphics(SDL_Renderer* renderer);
+#ifdef _WIN32
+/**
+ * @brief Whether the OS has a usable DWM backdrop: Windows 11 22H2+ system backdrops, or Vista/7 Aero glass.
+ * Since SDL_WINDOW_TRANSPARENT cannot be toggled after creation, this is queried before SDL_CreateWindow.
+ */
+extern bool clientPlatformWindowsSupportsBackdrop();
+/**
+ * @brief Whether the backdrop is currently in effect. May change at runtime (e.g. Aero toggled on Vista/7).
+ * When true, ImGui backgrounds should be (partially) transparent for the backdrop to show through.
+ * When false, they must be opaque: a transparent clear would show up black.
+ */
+extern bool clientPlatformWindowsBackdropEnabled();
+#endif
 /**
  * @brief Initialize platform resources before command-line parsing and SDL video initialization.
  */

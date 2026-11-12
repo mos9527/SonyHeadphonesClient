@@ -8,7 +8,9 @@
 #include <cwchar>
 #include <mdr/Protocol.hpp>
 #include <mdr-bt/ConnectionWindows.h>
+#include <dwmapi.h>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 
 int clientPlatformSaveBlob(const char* filename, const unsigned char* data, size_t dataSize, const char* mimeType,
@@ -23,8 +25,162 @@ float clientPlatformGetDisplayScale()
     return scale > 0.0f ? scale : 1.0f;
 }
 
-bool clientPlatformInitGraphics(SDL_Renderer*)
+namespace
 {
+    // Window backdrops (DWM)
+    // ---
+    // - Windows 11 22H2+: System backdrop, see https://learn.microsoft.com/en-us/windows/apps/design/style/mica
+    // - Windows Vista/7: Aero glass.
+    //   Windows 8/8.1/10 are skipped on purpose: there's no frame transparency to extend.
+    // - XP: Never attempted. YY-Thunks stubs dwmapi out anyway.
+    // Both extend the frame into the whole client area. See ExtendFrameIntoClientArea
+    // The window must be created with SDL_WINDOW_TRANSPARENT: this keeps SDL's D3D11 swap chain on the bitblt model,
+    // since DWM ignores alpha from flip-model HWND swap chains.
+    // Values are spelled out here since DWMWA_SYSTEMBACKDROP_TYPE and co. only exist in recent (22621+) SDKs.
+    constexpr DWORD kDwmUseImmersiveDarkMode = 20; // DWMWA_USE_IMMERSIVE_DARK_MODE
+    constexpr DWORD kDwmSystemBackdropType = 38; // DWMWA_SYSTEMBACKDROP_TYPE
+    // DWM_SYSTEMBACKDROP_TYPE: 2 = DWMSBT_MAINWINDOW (Mica), 3 = DWMSBT_TRANSIENTWINDOW (Acrylic), 4 = DWMSBT_TABBEDWINDOW
+    constexpr DWORD kDwmSystemBackdropMainWindow = 3;
+    constexpr DWORD kSystemBackdropMinimumBuild = 22523; // First build accepting DWMWA_SYSTEMBACKDROP_TYPE
+
+    enum class BackdropKind
+    {
+        None,
+        AeroGlass,
+        SystemBackdrop,
+    };
+
+    WNDPROC gPrevWndProc{};
+    bool gBackdropEnabled{};
+
+    const OSVERSIONINFOW& GetWindowsVersion()
+    {
+        using RtlGetVersion_t = LONG(WINAPI*)(OSVERSIONINFOW*);
+        static const OSVERSIONINFOW info = []
+        {
+            // GetVersionEx lies to unmanifested processes; RtlGetVersion doesn't. Present since NT 5.0.
+            OSVERSIONINFOW result{};
+            result.dwOSVersionInfoSize = sizeof(result);
+            HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+            auto fn = ntdll ? reinterpret_cast<RtlGetVersion_t>(GetProcAddress(ntdll, "RtlGetVersion")) : nullptr;
+            if (!fn || fn(&result) != 0)
+                result = {};
+            return result;
+        }();
+        return info;
+    }
+
+    BackdropKind GetBackdropKind()
+    {
+        const OSVERSIONINFOW& version = GetWindowsVersion();
+        if (version.dwBuildNumber >= kSystemBackdropMinimumBuild)
+            return BackdropKind::SystemBackdrop;
+        if (version.dwMajorVersion == 6 && version.dwMinorVersion <= 1) // Vista (6.0), 7 (6.1)
+            return BackdropKind::AeroGlass;
+        return BackdropKind::None;
+    }
+
+    /**
+     * @return true if the backdrop is in effect, i.e. ImGui backgrounds may go transparent.
+     */
+    // "Sheet of glass": the frame extends over the entire client area, so DWM composites the frame's material
+    // (Aero glass on Vista/7, the system backdrop on 11) underneath our pixels, honoring their alpha.
+    // Must be re-applied on WM_DWMCOMPOSITIONCHANGED.
+    bool ExtendFrameIntoClientArea(HWND hwnd)
+    {
+        const MARGINS margins{-1, -1, -1, -1};
+        return SUCCEEDED(DwmExtendFrameIntoClientArea(hwnd, &margins));
+    }
+
+    bool ApplyBackdrop(HWND hwnd)
+    {
+        switch (GetBackdropKind())
+        {
+        case BackdropKind::SystemBackdrop:
+        {
+            // The client UI is always dark (Sony's fixed dark surfaces), so the backdrop has to be dark too.
+            // Otherwise a light system theme would get us a light backdrop under light text.
+            const BOOL dark = TRUE;
+            DwmSetWindowAttribute(hwnd, kDwmUseImmersiveDarkMode, &dark, sizeof(dark));
+            if (!ExtendFrameIntoClientArea(hwnd))
+                return false;
+            const DWORD backdrop = kDwmSystemBackdropMainWindow;
+            return SUCCEEDED(DwmSetWindowAttribute(hwnd, kDwmSystemBackdropType, &backdrop, sizeof(backdrop)));
+        }
+        case BackdropKind::AeroGlass:
+        {
+            // Without composition (Basic/Classic themes) DWM ignores alpha, and a transparent clear shows as black.
+            BOOL composition = FALSE;
+            if (FAILED(DwmIsCompositionEnabled(&composition)) || !composition)
+                return false;
+            return ExtendFrameIntoClientArea(hwnd);
+        }
+        default:
+            return false;
+        }
+    }
+
+    // Subclassed since these messages are *sent*, not posted, so SDL_SetWindowsMessageHook never sees them.
+    // - WM_SETTINGCHANGE("ImmersiveColorSet"): SDL resets immersive dark mode to match the system theme;
+    //   put ours back after SDL is done with it.
+    // - WM_DWMCOMPOSITIONCHANGED: Aero toggled (Vista/7 theme change, or some fullscreen apps). The extended frame
+    //   needs re-applying, and the ImGui backgrounds need to follow suit.
+    LRESULT CALLBACK BackdropWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    {
+        const LRESULT result = CallWindowProcW(gPrevWndProc, hwnd, msg, wParam, lParam);
+        bool reapply = false;
+        if (msg == WM_SETTINGCHANGE && lParam &&
+            std::wcscmp(reinterpret_cast<LPCWSTR>(lParam), L"ImmersiveColorSet") == 0)
+            reapply = GetBackdropKind() == BackdropKind::SystemBackdrop;
+        if (msg == WM_DWMCOMPOSITIONCHANGED)
+            reapply = true;
+        if (reapply)
+        {
+            const bool enabled = ApplyBackdrop(hwnd);
+            if (enabled != gBackdropEnabled)
+            {
+                gBackdropEnabled = enabled;
+                MDR_LOG("Window backdrop: {}", enabled ? "enabled" : "disabled");
+                // Wake the main loop up for a redraw, it may be idling
+                SDL_Event wake{};
+                wake.type = SDL_EVENT_USER;
+                SDL_PushEvent(&wake);
+            }
+        }
+        return result;
+    }
+} // namespace
+
+bool clientPlatformWindowsSupportsBackdrop()
+{
+    return GetBackdropKind() != BackdropKind::None;
+}
+
+bool clientPlatformWindowsBackdropEnabled()
+{
+    return gBackdropEnabled;
+}
+
+bool clientPlatformInitGraphics(SDL_Renderer* renderer)
+{
+    if (!renderer || !clientPlatformWindowsSupportsBackdrop())
+        return true;
+    SDL_Window* window = SDL_GetRenderWindow(renderer);
+    if (!window || !(SDL_GetWindowFlags(window) & SDL_WINDOW_TRANSPARENT))
+        return true;
+    auto hwnd = static_cast<HWND>(
+        SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+    if (!hwnd)
+        return true;
+    // If DWM refuses, the ImGui backgrounds stay opaque so we don't end up with a see-through (or black) window.
+    gBackdropEnabled = ApplyBackdrop(hwnd);
+    // Hooked regardless, since composition may come on later (Vista/7)
+    if (!gPrevWndProc)
+        gPrevWndProc = reinterpret_cast<WNDPROC>(
+            SetWindowLongPtrW(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(BackdropWndProc)));
+    MDR_LOG("Window backdrop ({}): {}",
+            GetBackdropKind() == BackdropKind::SystemBackdrop ? "system backdrop" : "Aero glass",
+            gBackdropEnabled ? "enabled" : "unavailable");
     return true;
 }
 
