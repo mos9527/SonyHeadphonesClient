@@ -131,6 +131,12 @@ void mainLoop()
         gRedrawFrames = std::max(gRedrawFrames, 1);
 #endif
     SDL_PumpEvents();
+#ifdef __EMSCRIPTEN__
+    int timingMode{}, timingValue{};
+    emscripten_get_main_loop_timing(&timingMode, &timingValue);
+    if (timingMode != EM_TIMING_SETTIMEOUT || timingValue != kClientPollIntervalMS)
+        emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, kClientPollIntervalMS);
+#endif
     SDL_Event event;
     bool redraw = false;
     bool present = false;
@@ -452,7 +458,13 @@ int main(int argc, char** argv)
             MDR_LOG("Error: clientPlatformInitGraphics(): {}", SDL_GetError());
             break;
         }
+#ifdef __EMSCRIPTEN__
+        // Web vsync changes the scheduler for the entire main loop, including I/O.
+        // mainLoop restores our 25 ms timer after SDL's deferred setting is applied.
+        SDL_SetRenderVSync(gRenderer, 0);
+#else
         SDL_SetRenderVSync(gRenderer, 1);
+#endif
         if (!clientInit(displayScale, options.fontPath))
             break;
         gClientInitialized = true;
@@ -480,6 +492,7 @@ int main(int argc, char** argv)
 #endif
         result = 0;
 #ifdef __EMSCRIPTEN__
+        // Fixed poll interval here. TODO Maybe we can consider using workers...
         emscripten_set_main_loop(
             []
             {
@@ -490,7 +503,7 @@ int main(int argc, char** argv)
                     Shutdown();
                 }
             },
-            0, 1);
+            1000 / kClientPollIntervalMS, 1);
 #else
         while (!gShouldClose)
             mainLoop();
