@@ -1831,9 +1831,8 @@ void DrawDeviceControlsSound()
         if (ImHeadingTreeNode(TrLable(i18n::TextId::ListeningMode), ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool changed = false;
-            // Listening mode changes may be conditional, e.g. unavailable due to Voice Assistant enablement
-            // and may actually cause some *headphones* themselves to crash (https://github.com/mos9527/SonyHeadphonesClient/issues/76)
-            // Note that in the ABI libmdr will not let you enable it anyways. This is only for prompting.
+            // Applying a mode the device refuses can crash it (#76); libmdr enforces availability.
+            // Display reported blockers only, with a generic message when the reason is unknown.
             const auto ListeningRadio = [&](i18n::TextId label, MDRListeningMode mode)
             {
                 MDRListeningStatus status{MDR_TRUE, MDR_LISTENING_BLOCKER_NONE};
@@ -1844,16 +1843,7 @@ void DrawDeviceControlsSound()
                 ImGui::EndDisabled();
                 if (status.available != MDR_FALSE)
                     return;
-                MDRVoiceAssistantSettings assistant{};
-                const bool haveAssistant = FeatureAvailable(MDR_FEATURE_VOICE_ASSISTANT) &&
-                    mdrHeadphonesGetVoiceAssistant(gDevice, MDR_PROPERTY_CURRENT, &assistant) == MDR_RESULT_OK;
-                const bool voiceUi = haveAssistant &&
-                    (assistant.assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL ||
-                     assistant.assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT ||
-                     assistant.assistant == MDR_VOICE_ASSISTANT_TENCENT_XIAOWEI);
-                MDRListeningBlocker blockers = status.blockers;
-                if (blockers == MDR_LISTENING_BLOCKER_NONE && mode == MDR_LISTENING_BACKGROUND_MUSIC && voiceUi)
-                    blockers = MDR_LISTENING_BLOCKER_VOICE_ASSISTANT;
+                const MDRListeningBlocker blockers = status.blockers;
 
                 mdr::Vector<i18n::TextId> reasons;
                 if (blockers & MDR_LISTENING_BLOCKER_CALL)
@@ -1861,12 +1851,7 @@ void DrawDeviceControlsSound()
                 if (blockers & MDR_LISTENING_BLOCKER_LE_AUDIO)
                     reasons.push_back(i18n::TextId::ListeningBlockedLeAudio);
                 if (blockers & MDR_LISTENING_BLOCKER_VOICE_ASSISTANT)
-                    reasons.push_back(!voiceUi ? i18n::TextId::ListeningBlockedVoiceAssistant
-                                          : assistant.assistant == MDR_VOICE_ASSISTANT_SONY_VOICE_CONTROL
-                                          ? i18n::TextId::ListeningBlockedVoiceControl
-                                          : assistant.assistant == MDR_VOICE_ASSISTANT_GOOGLE_ASSISTANT
-                                          ? i18n::TextId::ListeningBlockedGoogleAssistant
-                                          : i18n::TextId::ListeningBlockedTencent);
+                    reasons.push_back(i18n::TextId::ListeningBlockedVoiceAssistant);
                 if (blockers & MDR_LISTENING_BLOCKER_LISTENING_MODE)
                     reasons.push_back(i18n::TextId::ListeningEqUnavailable);
                 if (reasons.empty() || (blockers & MDR_LISTENING_BLOCKER_OTHER))
