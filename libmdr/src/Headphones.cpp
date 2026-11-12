@@ -2527,6 +2527,8 @@ MDRResult mdrHeadphonesGetText(MDRHeadphones* headphones, MDRText text, uint32_t
                 return CopyText({state.mPlayTrackAlbum.data(), state.mPlayTrackAlbum.size()}, buffer, inoutSize);
             case MDR_TEXT_TRACK_ARTIST:
                 return CopyText({state.mPlayTrackArtist.data(), state.mPlayTrackArtist.size()}, buffer, inoutSize);
+            case MDR_TEXT_TRACK_GENRE:
+                return CopyText({state.mPlayTrackGenre.data(), state.mPlayTrackGenre.size()}, buffer, inoutSize);
             case MDR_TEXT_PAIRED_DEVICE_ID:
             case MDR_TEXT_PAIRED_DEVICE_NAME:
                 if (index >= state.mPairedDevices.size())

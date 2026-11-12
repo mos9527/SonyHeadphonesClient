@@ -166,6 +166,7 @@ namespace mdr
         String mPlayTrackTitle;
         String mPlayTrackAlbum;
         String mPlayTrackArtist;
+        String mPlayTrackGenre;
         v1::t1::PlaybackStatus mPlayPause{};
 
         v1::t1::UpscalingType mUpscalingType{};

@@ -140,6 +140,7 @@ namespace i18n
         _Def(Title, "曲目")
         _Def(Album, "专辑")
         _Def(Artist, "艺术家")
+        _Def(Genre, "流派")
         _Def(Volume, "音量")
         _Def(Controls, "播放控制")
         _Def(Previous, "上一首")

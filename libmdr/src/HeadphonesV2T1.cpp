@@ -372,6 +372,7 @@ namespace mdr
                 self->mDetailsV2.mPlayTrackTitle = res.playbackNames.value[0].name.value;
                 self->mDetailsV2.mPlayTrackAlbum = res.playbackNames.value[1].name.value;
                 self->mDetailsV2.mPlayTrackArtist = res.playbackNames.value[2].name.value;
+                self->mDetailsV2.mPlayTrackGenre = res.playbackNames.value[3].name.value;
             }
             else
             {
@@ -379,6 +380,7 @@ namespace mdr
                 self->mDetailsV2.mPlayTrackTitle = res.playbackNames.value[0].name.value;
                 self->mDetailsV2.mPlayTrackAlbum = res.playbackNames.value[1].name.value;
                 self->mDetailsV2.mPlayTrackArtist = res.playbackNames.value[2].name.value;
+                self->mDetailsV2.mPlayTrackGenre = res.playbackNames.value[3].name.value;
             }
             return self->Sync(MDR_HEADPHONES_SYNC_PLAYBACK, MDR_EVENT_PLAYBACK_CHANGED);
         }

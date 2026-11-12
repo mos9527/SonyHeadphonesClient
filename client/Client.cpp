@@ -1634,21 +1634,21 @@ void DrawDeviceControlsHeader()
             }
             if (ImGui::BeginTable("##NowPlaying", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerH))
             {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted(Tr(i18n::TextId::Title));
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", GetText(MDR_TEXT_TRACK_TITLE).c_str());
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted(Tr(i18n::TextId::Album));
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", GetText(MDR_TEXT_TRACK_ALBUM).c_str());
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted(Tr(i18n::TextId::Artist));
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", GetText(MDR_TEXT_TRACK_ARTIST).c_str());
+                const auto drawMetadataRow = [](i18n::TextId label, MDRText text)
+                {
+                    const auto value = GetText(text);
+                    if (value.empty())
+                        return;
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::TextUnformatted(Tr(label));
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::TextUnformatted(value.c_str());
+                };
+                drawMetadataRow(i18n::TextId::Title, MDR_TEXT_TRACK_TITLE);
+                drawMetadataRow(i18n::TextId::Album, MDR_TEXT_TRACK_ALBUM);
+                drawMetadataRow(i18n::TextId::Artist, MDR_TEXT_TRACK_ARTIST);
+                drawMetadataRow(i18n::TextId::Genre, MDR_TEXT_TRACK_GENRE);
                 ImGui::EndTable();
             }
         }

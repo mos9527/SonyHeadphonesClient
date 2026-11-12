@@ -155,6 +155,7 @@ namespace i18n
             _Def(Title, "Title")
             _Def(Album, "Album")
             _Def(Artist, "Artist")
+            _Def(Genre, "Genre")
             _Def(Volume, "Volume")
             _Def(Controls, "Controls")
             _Def(Previous, "Prev")

@@ -326,6 +326,7 @@ namespace mdr
         String mPlayTrackTitle;
         String mPlayTrackAlbum;
         String mPlayTrackArtist;
+        String mPlayTrackGenre;
         v2::t1::PlaybackStatus mPlayPause{};
         v2::t2::WearingStatusCode mWearingStatus{v2::t2::WearingStatusCode::OUT_OF_RANGE};
 

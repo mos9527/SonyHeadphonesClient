@@ -120,7 +120,8 @@ namespace mdr
             }
             if (detailedDataType == PlaybackDetailedDataType::TRACK_NAME ||
                 detailedDataType == PlaybackDetailedDataType::ALBUM_NAME ||
-                detailedDataType == PlaybackDetailedDataType::ARTIST_NAME)
+                detailedDataType == PlaybackDetailedDataType::ARTIST_NAME ||
+                detailedDataType == PlaybackDetailedDataType::GENRE_NAME)
             {
                 String value;
                 if (command == Command::PLAY_NTFY_PARAM)
@@ -138,8 +139,10 @@ namespace mdr
                     self->mDetailsV1.mPlayTrackTitle = std::move(value);
                 else if (detailedDataType == PlaybackDetailedDataType::ALBUM_NAME)
                     self->mDetailsV1.mPlayTrackAlbum = std::move(value);
-                else
+                else if (detailedDataType == PlaybackDetailedDataType::ARTIST_NAME)
                     self->mDetailsV1.mPlayTrackArtist = std::move(value);
+                else
+                    self->mDetailsV1.mPlayTrackGenre = std::move(value);
                 return self->Sync(MDR_HEADPHONES_SYNC_PLAYBACK, MDR_EVENT_PLAYBACK_CHANGED);
             }
             return MDR_EVENT_UNHANDLED;

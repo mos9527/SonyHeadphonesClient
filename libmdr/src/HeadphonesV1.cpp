@@ -462,6 +462,9 @@ namespace mdr
             SendCommandACK(t1::GetPlayParam,
                            {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
                             .dataType = t1::PlaybackDetailedDataType::ARTIST_NAME});
+            SendCommandACK(t1::GetPlayParam,
+                           {.type = t1::PlayInquiredType::PLAYBACK_CONTROLLER,
+                            .dataType = t1::PlaybackDetailedDataType::GENRE_NAME});
         }
 
         co_return MDR_EVENT_SYNC_COMPLETE;

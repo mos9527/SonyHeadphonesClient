@@ -192,6 +192,7 @@ namespace i18n
         Title,
         Album,
         Artist,
+        Genre,
         Volume,
         Controls,
         Previous,

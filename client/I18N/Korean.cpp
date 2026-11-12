@@ -147,6 +147,7 @@ namespace i18n
         _Def(Title, "제목")
         _Def(Album, "앨범")
         _Def(Artist, "아티스트")
+        _Def(Genre, "장르")
         _Def(Volume, "볼륨")
         _Def(Controls, "컨트롤")
         _Def(Previous, "이전")
