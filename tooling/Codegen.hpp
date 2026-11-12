@@ -28,12 +28,13 @@ inline std::string getFullParentName(CXCursor c)
     return s;
 }
 
-inline std::pair<unsigned,unsigned> getCursorExtents(CXCursor cursor)
+inline std::pair<unsigned, unsigned> getCursorExtents(CXCursor cursor)
 {
     CXSourceRange range = clang_getCursorExtent(cursor);
     CXSourceLocation startLoc = clang_getRangeStart(range);
     CXSourceLocation endLoc = clang_getRangeEnd(range);
-    CXFile file; unsigned startLine, endLine, col, offset;
+    CXFile file;
+    unsigned startLine, endLine, col, offset;
     clang_getSpellingLocation(startLoc, &file, &startLine, &col, &offset);
     clang_getSpellingLocation(endLoc, &file, &endLine, &col, &offset);
     return {startLine, endLine};

@@ -1,6 +1,6 @@
 # Codegen.cmake
 # Provides mdr_add_codegen() when LLVM is available.
-# If codegen is explicitly enabled (MDR_ENABLE_CODEGEN=ON) but LLVM was not
+# If codegen is explicitly enabled (MDR_BUILD_CODEGEN=ON) but LLVM was not
 # found at configure time, a fatal error is raised. If codegen is disabled,
 # the function is simply not defined — callers guard on (COMMAND mdr_add_codegen).
 #
@@ -15,16 +15,16 @@
 
 set(MDR_CODEGEN_RUNNER "${CMAKE_CURRENT_LIST_DIR}/RunCodegen.cmake")
 
-if (NOT MDR_ENABLE_CODEGEN)
-    message(STATUS "Codegen disabled (MDR_ENABLE_CODEGEN=OFF).")
+if (NOT MDR_BUILD_CODEGEN)
+    message(STATUS "Codegen disabled (MDR_BUILD_CODEGEN=OFF).")
     return()
 endif ()
 
 if (NOT MDR_LLVM_FOUND)
     message(FATAL_ERROR
         "LLVM/libclang not found — codegen was explicitly enabled "
-        "(MDR_ENABLE_CODEGEN=ON) but required dependencies are missing. "
-        "Install LLVM/libclang or set MDR_ENABLE_CODEGEN=OFF. "
+        "(MDR_BUILD_CODEGEN=ON) but required dependencies are missing. "
+        "Install LLVM/libclang or set MDR_BUILD_CODEGEN=OFF. "
         "See tooling/README.md for setup instructions.")
 endif ()
 
@@ -48,7 +48,8 @@ function(mdr_add_codegen)
     add_custom_command(
         OUTPUT  "${ARG_OUTPUT}"
         COMMAND "${CMAKE_COMMAND}" ${_cmake_args} -P "${MDR_CODEGEN_RUNNER}"
-        DEPENDS "${ARG_TOOL}" "${ARG_INPUT}"
+        DEPENDS "${ARG_TOOL}" "${ARG_INPUT}" "${MDR_CODEGEN_RUNNER}"
+        DEPENDS_EXPLICIT_ONLY
         COMMENT "Codegen: ${ARG_TOOL} -> ${ARG_OUTPUT} (${_cmake_args})"
         CODEGEN
         VERBATIM
