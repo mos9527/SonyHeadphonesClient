@@ -714,22 +714,29 @@ namespace mdr
         switch (type)
         {
         case CONNECTION_MODE:
+        case CONNECTION_MODE_WITH_LDAC_STATUS:
+        case CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO:
         {
-            if (self->mDetailsV2.mSupport.contains(t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+            auto& state = self->mDetailsV2;
+            AudioInquiredType expected{};
+            if (!state.connectionModeInquiredType(expected) || type != expected)
+                return MDR_EVENT_UNHANDLED;
+            if (command == Command::AUDIO_NTFY_PARAM && type == CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
             {
-                if (command == Command::AUDIO_NTFY_PARAM)
-                {
-                    Deserialize(AudioNtfyParamConnection, res, cmd);
-                    self->mDetailsV2.mAudioPriorityMode.overwrite(res.settingValue);
-                }
-                else
-                {
-                    Deserialize(AudioRetParamConnection, res, cmd);
-                    self->mDetailsV2.mAudioPriorityMode.overwrite(res.settingValue);
-                }
-                return MDR_EVENT_CONNECTION_MODE_CHANGED;
+                Deserialize(AudioNtfyParamConnectionModeClassicAudioLeAudio, res, cmd);
+                state.mAudioPriorityMode.overwrite(res.settingValue);
             }
-            return MDR_EVENT_UNHANDLED;
+            else if (command == Command::AUDIO_NTFY_PARAM)
+            {
+                Deserialize(AudioNtfyParamConnection, res, cmd);
+                state.mAudioPriorityMode.overwrite(res.settingValue);
+            }
+            else
+            {
+                Deserialize(AudioRetParamConnection, res, cmd);
+                state.mAudioPriorityMode.overwrite(res.settingValue);
+            }
+            return MDR_EVENT_CONNECTION_MODE_CHANGED;
         }
         case UPSCALING:
         {

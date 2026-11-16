@@ -208,6 +208,14 @@ namespace mdr
                     contains(F::BGM_MODE_SMALL_MIDDLE_LARGE_AND_ERRORCODE);
             }
 
+            [[nodiscard]] constexpr bool containsConnectionMode() const
+            {
+                using F = v2::t1::FunctionType;
+                return contains(F::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY) ||
+                    contains(F::CONNECTION_MODE_SOUND_QUALITY_SOUND_WITH_LDAC_STATUS_QUALITY_CONNECTION_QUALITY) ||
+                    contains(F::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO);
+            }
+
             [[nodiscard]] constexpr bool containsPlaybackController() const
             {
                 using F = v2::t1::FunctionType;
@@ -319,7 +327,7 @@ namespace mdr
 
         Vector<PeripheralDevice> mPairedDevices;
         UInt8 mPairedDevicesPlaybackDeviceID{};
-        int mSafeListeningSoundPressure{};
+        int mSafeListeningSoundPressure{0xff}; // N/A until the device reports a reading.
 
         BatteryState mBatteryL, mBatteryR, mBatteryCase;
 
@@ -426,6 +434,22 @@ namespace mdr
                 return out = PRESET_EQ_AND_ULT_MODE, true;
             if (mSupport.contains(T1::PRESET_EQ_AND_ERRORCODE))
                 return out = PRESET_EQ_AND_ERRORCODE, true;
+            return false;
+        }
+
+        /**
+         * @brief The advertised connection-priority variant; prefer newer variants if more than one is listed.
+         */
+        bool connectionModeInquiredType(v2::t1::AudioInquiredType& out) const
+        {
+            using T1 = v2::t1::FunctionType;
+            using enum v2::t1::AudioInquiredType;
+            if (mSupport.contains(T1::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO))
+                return out = CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO, true;
+            if (mSupport.contains(T1::CONNECTION_MODE_SOUND_QUALITY_SOUND_WITH_LDAC_STATUS_QUALITY_CONNECTION_QUALITY))
+                return out = CONNECTION_MODE_WITH_LDAC_STATUS, true;
+            if (mSupport.contains(T1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+                return out = CONNECTION_MODE, true;
             return false;
         }
 

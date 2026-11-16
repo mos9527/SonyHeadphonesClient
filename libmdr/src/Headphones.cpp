@@ -503,7 +503,7 @@ namespace
         case MDR_FEATURE_SHUTDOWN:
             return state.mSupport.contains(T1::POWER_OFF);
         case MDR_FEATURE_CONNECTION_MODE:
-            return state.mSupport.contains(T1::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY);
+            return state.mSupport.containsConnectionMode();
         case MDR_FEATURE_SAFE_LISTENING:
             return state.mSupport.contains(T2::SAFE_LISTENING_HBS_1) ||
                 state.mSupport.contains(T2::SAFE_LISTENING_HBS_2) ||

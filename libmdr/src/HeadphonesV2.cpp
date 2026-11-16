@@ -210,9 +210,12 @@ namespace mdr
         }
 
         /* Connection Quality */
-        if ((flags & MDR_HEADPHONES_INIT_CONNECTION) != 0u &&
-            state.mSupport.contains(t1::FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
-            SendCommandACK(t1::AudioGetParam, {.type = t1::AudioInquiredType::CONNECTION_MODE});
+        if ((flags & MDR_HEADPHONES_INIT_CONNECTION) != 0u)
+        {
+            t1::AudioInquiredType type{};
+            if (state.connectionModeInquiredType(type))
+                SendCommandACK(t1::AudioGetParam, {.type = type});
+        }
 
         /* DSEE */
         if ((flags & MDR_HEADPHONES_INIT_DSEE) != 0u && state.mSupport.contains(t1::FunctionType::UPSCALING_AUTO_OFF))
@@ -790,14 +793,25 @@ namespace mdr
         if (state.mAudioPriorityMode.pending())
         {
             using namespace t1;
-            if (state.mSupport.contains(FunctionType::CONNECTION_MODE_SOUND_QUALITY_CONNECTION_QUALITY))
+            AudioInquiredType type{};
+            if (state.connectionModeInquiredType(type))
             {
-                AudioSetParamConnection res;
-                res.command = Command::AUDIO_SET_PARAM;
-                // The struct defaults to CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO.
-                res.type = AudioInquiredType::CONNECTION_MODE;
-                res.settingValue = state.mAudioPriorityMode.mSubmitted;
-                SendCommandACK(AudioSetParamConnection, res);
+                if (type == AudioInquiredType::CONNECTION_MODE_CLASSIC_AUDIO_LE_AUDIO)
+                {
+                    AudioSetParamConnectionModeClassicAudioLeAudio res;
+                    res.type = type;
+                    res.settingValue = state.mAudioPriorityMode.mSubmitted;
+                    // TODO @mos9527: What's value2?
+                    res.value2 = EnableDisable::DISABLE;
+                    SendCommandACK(AudioSetParamConnectionModeClassicAudioLeAudio, res);
+                }
+                else
+                {
+                    AudioSetParamConnection res;
+                    res.type = type;
+                    res.settingValue = state.mAudioPriorityMode.mSubmitted;
+                    SendCommandACK(AudioSetParamConnection, res);
+                }
             }
             state.mAudioPriorityMode.commit();
         }

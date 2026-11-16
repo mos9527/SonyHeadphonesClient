@@ -546,16 +546,16 @@ std::optional<int32_t> GetValue(MDRValue value, uint32_t index = 0)
 
 struct ValueRange
 {
-    int min, max;
+    int min, max, step;
 };
 
-// Reads a [min, max] pair from two explicit MDRValue keys. nullopt means "don't draw the control".
-std::optional<ValueRange> GetRange(MDRValue minKey, MDRValue maxKey, uint32_t index = 0)
+// Returns nullopt when the range is invalid
+std::optional<ValueRange> GetRange(MDRValue minKey, MDRValue maxKey, MDRValue stepKey, uint32_t index = 0)
 {
-    const auto lo = GetValue(minKey, index), hi = GetValue(maxKey, index);
-    if (!lo || !hi || *lo > *hi)
+    const auto lo = GetValue(minKey, index), hi = GetValue(maxKey, index), step = GetValue(stepKey, index);
+    if (!lo || !hi || !step || *lo > *hi || *step <= 0 || (static_cast<int64_t>(*hi) - *lo) / *step > INT_MAX)
         return std::nullopt;
-    return ValueRange{*lo, *hi};
+    return ValueRange{*lo, *hi, *step};
 }
 
 mdr::Vector<uint32_t> GetAutoPowerOffOptions()
@@ -1001,11 +1001,37 @@ mdr::String FormatFrequency(int32_t hz)
     return mdr::Format("{:.1f}k", hz / 1000.0);
 }
 
+bool ImSliderIntRange(const char* label, int* value, const ValueRange& range, ImVec2 size = {})
+{
+    const bool vertical = size.y > 0;
+    if (range.step == 1)
+        return vertical ? ImGui::VSliderInt(label, size, value, range.min, range.max)
+                        : ImGui::SliderInt(label, value, range.min, range.max);
+
+    const int last = static_cast<int>((static_cast<int64_t>(range.max) - range.min) / range.step);
+    int index = static_cast<int>(std::clamp<int64_t>(
+        (static_cast<int64_t>(std::clamp(*value, range.min, range.max)) - range.min + range.step / 2) / range.step, 0,
+        last));
+    const float width = vertical ? size.x : ImGui::CalcItemWidth();
+    const bool changed = vertical ? ImGui::VSliderInt(label, size, &index, 0, last, "", ImGuiSliderFlags_NoInput)
+                                  : ImGui::SliderInt(label, &index, 0, last, "", ImGuiSliderFlags_NoInput);
+    if (changed)
+        *value = static_cast<int>(static_cast<int64_t>(range.min) + static_cast<int64_t>(index) * range.step);
+    if (ImGui::IsItemVisible())
+    {
+        const ImVec2 min = ImGui::GetItemRectMin(), max = {min.x + width, ImGui::GetItemRectMax().y};
+        const mdr::String text = mdr::Format("{}", *value);
+        ImGui::RenderTextClipped(min + ImGui::GetStyle().FramePadding, max - ImGui::GetStyle().FramePadding,
+                                 text.c_str(), nullptr, nullptr, {0.5f, vertical ? 0.0f : 0.5f});
+    }
+    return changed;
+}
+
 bool Iequalizer(std::span<int32_t> bands)
 {
     const int numBands = static_cast<int>(bands.size());
-    const auto range =
-        GetRange(MDR_VALUE_EQUALIZER_BAND_MIN, MDR_VALUE_EQUALIZER_BAND_MAX, static_cast<uint32_t>(numBands));
+    const auto range = GetRange(MDR_VALUE_EQUALIZER_BAND_MIN, MDR_VALUE_EQUALIZER_BAND_MAX,
+                                MDR_VALUE_EQUALIZER_BAND_STEP, static_cast<uint32_t>(numBands));
     if (numBands == 0 || !range)
     {
         ImGui::TextUnformatted(mdr::Format(fmt::runtime(Tr(i18n::TextId::EqUnavailable)), numBands).c_str());
@@ -1030,7 +1056,7 @@ bool Iequalizer(std::span<int32_t> bands)
         ImGui::BeginGroup();
         ImGui::PushID(i);
         int value = static_cast<int>(bands[i]);
-        if (ImGui::VSliderInt("##v", ImVec2{bandWidth, bandHeight}, &value, range->min, range->max))
+        if (ImSliderIntRange("##v", &value, *range, ImVec2{bandWidth, bandHeight}))
         {
             bands[i] = static_cast<int32_t>(value);
             changed = true;
@@ -1660,12 +1686,13 @@ void DrawDeviceControlsPlayback()
 {
     MDRPlayback playback{};
     mdrHeadphonesGetPlayback(gDevice, MDR_PROPERTY_DESIRED, &playback);
-    if (const auto range = GetRange(MDR_VALUE_PLAYBACK_VOLUME_MIN, MDR_VALUE_PLAYBACK_VOLUME_MAX))
+    if (const auto range =
+            GetRange(MDR_VALUE_PLAYBACK_VOLUME_MIN, MDR_VALUE_PLAYBACK_VOLUME_MAX, MDR_VALUE_PLAYBACK_VOLUME_STEP))
     {
         ImHeading(Tr(i18n::TextId::Volume));
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         int volume = static_cast<int>(playback.volume);
-        if (ImGui::SliderInt("##Volume", &volume, range->min, range->max))
+        if (ImSliderIntRange("##Volume", &volume, *range))
             mdrHeadphonesSetPlaybackVolume(gDevice, static_cast<uint32_t>(volume));
     }
     ImHeading(Tr(i18n::TextId::Controls));
@@ -1746,7 +1773,8 @@ void DrawDeviceControlsSound()
                     }
                     ImGui::SameLine();
                 }
-                const auto ambientRange = GetRange(MDR_VALUE_AMBIENT_LEVEL_MIN, MDR_VALUE_AMBIENT_LEVEL_MAX);
+                const auto ambientRange =
+                    GetRange(MDR_VALUE_AMBIENT_LEVEL_MIN, MDR_VALUE_AMBIENT_LEVEL_MAX, MDR_VALUE_AMBIENT_LEVEL_STEP);
                 if (supportASM)
                 {
                     if (ImGui::RadioButton(TrLable(i18n::TextId::AmbientSound), noise.mode == MDR_NOISE_MODE_AMBIENT))
@@ -1770,7 +1798,7 @@ void DrawDeviceControlsSound()
                         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
                         bool ambientChanged = false;
                         int ambientLevel = static_cast<int>(noise.ambient_level);
-                        if (ImGui::SliderInt("##AmbStrength", &ambientLevel, ambientRange->min, ambientRange->max))
+                        if (ImSliderIntRange("##AmbStrength", &ambientLevel, *ambientRange))
                             noise.ambient_level = static_cast<uint32_t>(ambientLevel), ambientChanged = changed = true;
                         noise.changing_asm_level = ambientChanged && ImGui::IsItemActive();
                         if (ImGui::IsItemDeactivatedAfterEdit())
@@ -1912,6 +1940,51 @@ void DrawDeviceControlsSound()
             ImGui::TreePop();
         }
     }
+    /* Connection priority */
+    if (FeatureAvailable(MDR_FEATURE_CONNECTION_MODE) &&
+        ImHeadingTreeNode(TrLable(i18n::TextId::ConnectionMode), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        MDRConnectionMode mode{};
+        if (mdrHeadphonesGetConnectionMode(gDevice, MDR_PROPERTY_DESIRED, &mode) == MDR_RESULT_OK)
+        {
+            if (ImGui::RadioButton(TrLable(i18n::TextId::PrioritySoundQuality),
+                                   mode.audio_priority == MDR_AUDIO_PRIORITY_QUALITY) &&
+                mode.audio_priority != MDR_AUDIO_PRIORITY_QUALITY)
+            {
+                mode.audio_priority = MDR_AUDIO_PRIORITY_QUALITY;
+                mdrHeadphonesSetConnectionMode(gDevice, &mode);
+            }
+            if (ImGui::RadioButton(TrLable(i18n::TextId::PriorityConnectionStability),
+                                   mode.audio_priority == MDR_AUDIO_PRIORITY_STABILITY) &&
+                mode.audio_priority != MDR_AUDIO_PRIORITY_STABILITY)
+            {
+                mode.audio_priority = MDR_AUDIO_PRIORITY_STABILITY;
+                mdrHeadphonesSetConnectionMode(gDevice, &mode);
+            }
+            ImStylesRAII scope;
+            scope.PushFont(IM_FONTSIZE_CAPTION);
+            ImGui::TextWrapped("%s", Tr(i18n::TextId::ConnectionModeHelp));
+        }
+        ImGui::TreePop();
+    }
+    /* Safe Listening */
+    if (FeatureAvailable(MDR_FEATURE_SAFE_LISTENING) &&
+        ImHeadingTreeNode(TrLable(i18n::TextId::SafeListening), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        MDRSafeListening safe{};
+        if (mdrHeadphonesGetSafeListening(gDevice, MDR_PROPERTY_CURRENT, &safe) == MDR_RESULT_OK)
+        {
+            if (safe.sound_pressure != 0xffu)
+                ImGui::TextUnformatted(
+                    mdr::Format(fmt::runtime(Tr(i18n::TextId::SoundPressure)), safe.sound_pressure).c_str());
+            else
+                ImGui::TextUnformatted(Tr(i18n::TextId::SoundPressureUnavailable));
+            ImStylesRAII scope;
+            scope.PushFont(IM_FONTSIZE_CAPTION);
+            ImGui::TextWrapped("%s", Tr(i18n::TextId::SafeListeningHelp));
+        }
+        ImGui::TreePop();
+    }
     /* EQ & DSEE */
     if (ImHeadingTreeNode(TrLable(i18n::TextId::EqualizerDsee), ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -1941,13 +2014,13 @@ void DrawDeviceControlsSound()
         if (Iequalizer(equalizerBands))
             SetEqualizerBands(equalizerBands);
         // NOT_SUPPORTED (no range) when the current layout has no Clear Bass, e.g. 10 bands.
-        if (const auto clearBassRange =
-                GetRange(MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, MDR_VALUE_EQUALIZER_CLEAR_BASS_MAX))
+        if (const auto clearBassRange = GetRange(MDR_VALUE_EQUALIZER_CLEAR_BASS_MIN, MDR_VALUE_EQUALIZER_CLEAR_BASS_MAX,
+                                                 MDR_VALUE_EQUALIZER_CLEAR_BASS_STEP))
         {
             ImHeading(Tr(i18n::TextId::ClearBass), IM_FONTSIZE_SUBHEADING);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             int clearBass = static_cast<int>(equalizer.clear_bass);
-            if (ImGui::SliderInt("##", &clearBass, clearBassRange->min, clearBassRange->max) && equalizerAvailable)
+            if (ImSliderIntRange("##", &clearBass, *clearBassRange) && equalizerAvailable)
                 mdrHeadphonesSetEqualizerClearBass(gDevice, static_cast<int32_t>(clearBass));
         }
         ImGui::EndDisabled();
@@ -2118,6 +2191,8 @@ void DrawDeviceControlsSystem()
             return mdr::String{i18n::Translate(it->second, clientGetAppLocale())};
         };
         // "TAP_SENSITIVITY_SETTING_ELEM_LOW" -> "Low", "TAP_SENSITIVITY_SETTING" -> "Tap Sensitivity Setting"
+        // TODO @mos9527: We may want to translate these with some kind of dictionary. Note that these are *string* keys
+        //                and there's no exhaustive list of them *yet*.
         const auto humanize = [](std::string_view key) -> mdr::String
         {
             if (const auto elem = key.rfind("_ELEM_"); elem != std::string_view::npos)
@@ -2138,7 +2213,7 @@ void DrawDeviceControlsSystem()
             }
             return out;
         };
-        // Keys are translated or humanized; summaries we can't translate are dropped rather than humanized.
+        // TODO @mos9527: See @ref humanize
         const auto subjectText = [&](const mdr::String& text, bool isKey) -> mdr::String
         {
             if (text.empty())
@@ -2149,9 +2224,9 @@ void DrawDeviceControlsSystem()
         };
         const auto summaryText = [&](const mdr::String& text, bool isKey) -> mdr::String
         {
-            if (!isKey)
+            if (text.empty() || !isKey)
                 return text;
-            return translate(text).value_or(mdr::String{});
+            return translate(text).value_or(humanize(text));
         };
         for (auto& [info, setting] : generalSettings)
         {
@@ -2174,7 +2249,7 @@ void DrawDeviceControlsSystem()
             }
             else
             {
-                mdr::Vector<mdr::String> options;
+                mdr::Vector<mdr::String> options, summaries;
                 for (uint32_t i = 0; i < info.option_count; ++i)
                 {
                     const uint32_t optionIndex = MDR_GENERAL_SETTING_OPTION_INDEX(info.index, i);
@@ -2182,6 +2257,8 @@ void DrawDeviceControlsSystem()
                         GetValue(MDR_VALUE_GENERAL_SETTING_OPTION_TEXT_IS_KEY, optionIndex).value_or(0) != 0;
                     options.push_back(
                         subjectText(GetText(MDR_TEXT_GENERAL_SETTING_OPTION_SUBJECT, optionIndex), optionIsKey));
+                    summaries.push_back(
+                        summaryText(GetText(MDR_TEXT_GENERAL_SETTING_OPTION_SUMMARY, optionIndex), optionIsKey));
                 }
                 const char* preview = setting.list_value < options.size() ? options[setting.list_value].c_str() : "";
                 if (ImGui::BeginCombo(subjectLabel.c_str(), preview))
@@ -2195,10 +2272,18 @@ void DrawDeviceControlsSystem()
                             setting.list_value = i;
                             mdrHeadphonesSetGeneralSetting(gDevice, &setting);
                         }
+                        if (ImGui::IsItemHovered() && !summaries[i].empty())
+                            ImGui::SetTooltip("%s", summaries[i].c_str());
                         if (selected)
                             ImGui::SetItemDefaultFocus();
                     }
                     ImGui::EndCombo();
+                }
+                if (setting.list_value < summaries.size() && !summaries[setting.list_value].empty())
+                {
+                    ImStylesRAII scope;
+                    scope.PushFont(IM_FONTSIZE_CAPTION);
+                    ImGui::TextWrapped("%s", summaries[setting.list_value].c_str());
                 }
             }
             if (!summary.empty())
@@ -2379,12 +2464,13 @@ void DrawDeviceControlsSystem()
             bool enabled = voice.enabled != MDR_FALSE;
             if (ImGui::Checkbox(TrLable(i18n::TextId::Enabled), &enabled))
                 voice.enabled = enabled ? MDR_TRUE : MDR_FALSE, changed = true;
-            if (const auto range = GetRange(MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN, MDR_VALUE_VOICE_GUIDANCE_VOLUME_MAX))
+            if (const auto range = GetRange(MDR_VALUE_VOICE_GUIDANCE_VOLUME_MIN, MDR_VALUE_VOICE_GUIDANCE_VOLUME_MAX,
+                                            MDR_VALUE_VOICE_GUIDANCE_VOLUME_STEP))
             {
                 ImHeading(Tr(i18n::TextId::Volume), IM_FONTSIZE_SUBHEADING);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
                 int volume = static_cast<int>(voice.volume);
-                if (ImGui::SliderInt("##Volume", &volume, range->min, range->max))
+                if (ImSliderIntRange("##Volume", &volume, *range))
                     voice.volume = static_cast<int32_t>(volume), changed = true;
             }
             if (changed)

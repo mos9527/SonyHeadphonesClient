@@ -1010,6 +1010,11 @@ typedef struct Device
     unsigned char bgm_room;
     /* When set, AUDIO_SET_PARAM is followed by the AUDIO_NTFY_PARAM a device sends. */
     int notify_listening;
+    /* Connection-priority variants: only answer the advertised tag, and retain the extra setter byte. */
+    int answer_connection_mode;
+    unsigned char connection_mode_type;
+    unsigned char connection_priority;
+    unsigned char connection_set_extra;
     /* When set, the device answers voice assistant requests with these. */
     const unsigned char* va_capability;
     size_t va_capability_size;
@@ -1142,6 +1147,31 @@ static void device_pump(Device* device)
                     memcpy(answer + size, device->bgm_errors, count), size += count;
             }
             device_send(device, MDR_DATA_TYPE_DATA_MDR, answer, size);
+        }
+        else if (table == 1 && device->answer_connection_mode && frame.payload_size > 1 &&
+                 frame.payload[1] == device->connection_mode_type &&
+                 (frame.payload[0] == 0xe6 || frame.payload[0] == 0xe8))
+        {
+            unsigned char answer[4];
+            const int setting = frame.payload[0] == 0xe8;
+            if (setting)
+            {
+                const size_t expected_size = device->connection_mode_type == 0x05 ? 4u : 3u;
+                check(frame.payload_size == expected_size, "connection setter uses the variant's full layout");
+                if (frame.payload_size != expected_size)
+                    continue;
+                device->connection_priority = frame.payload[2];
+                if (expected_size == 4u)
+                    device->connection_set_extra = frame.payload[3];
+            }
+            answer[0] = (unsigned char)(setting ? 0xe9 : 0xe7);
+            answer[1] = device->connection_mode_type;
+            answer[2] = device->connection_priority;
+            /* The LDAC variant may append a status byte; Classic/LE notifications carry SwitchingStream::NONE. */
+            answer[3] = device->connection_mode_type == 0x02 ? 0x01 : 0x00;
+            device_send(device, MDR_DATA_TYPE_DATA_MDR, answer,
+                        device->connection_mode_type == 0x02 || (setting && device->connection_mode_type == 0x05) ? 4u
+                                                                                                                  : 3u);
         }
         else if (table == 1 && (frame.payload[0] == 0xe6 || frame.payload[0] == 0xe8) && frame.payload_size > 1 &&
                  is_listening_type(frame.payload[1]))
@@ -2646,6 +2676,110 @@ static void test_connection_mode_names_its_inquired_type(void)
     session_close(&session);
 }
 
+/* XM6's 0xe7 flag is not the old 0xe1 flag: feature detection, reads and writes must agree on the variant. */
+static void test_connection_mode_variants(void)
+{
+    static const unsigned char functions[] = {0xe1, 0xe3, 0xe7};
+    static const struct
+    {
+        unsigned int mask;
+        unsigned char type;
+    } variants[] = {{1, 0x00}, {2, 0x02}, {4, 0x05}, {3, 0x02}, {5, 0x05}, {6, 0x05}, {7, 0x05}, {0, 0xff}};
+    static const unsigned char table2[] = {0x07, 0x00, 0x00};
+    size_t variant;
+
+    for (variant = 0; variant < sizeof(variants) / sizeof(variants[0]); ++variant)
+    {
+        unsigned char table1[9] = {0x07, 0x00, 0x00};
+        size_t table1_size = 3, i;
+        Session session;
+        Device device = {0};
+        MDRConnectionMode mode = {MDR_AUDIO_PRIORITY_QUALITY};
+        MDRFeatureAvailability availability = MDR_AVAILABILITY_UNKNOWN;
+
+        if (!session_open(&session))
+            return;
+        for (i = 0; i < sizeof(functions); ++i)
+            if (variants[variant].mask & (1u << i))
+            {
+                table1[table1_size++] = functions[i];
+                table1[table1_size++] = 0xff;
+                ++table1[2];
+            }
+        device.transport = &session.transport;
+        device.table1 = table1;
+        device.table1_size = table1_size;
+        device.table2 = table2;
+        device.table2_size = sizeof(table2);
+        device.answer_connection_mode = variants[variant].mask != 0;
+        device.connection_mode_type = variants[variant].type;
+        device.connection_priority = 0x01; /* CONNECTION_QUALITY_PRIOR */
+        device.connection_set_extra = 0xff;
+        device.reply_before_ack = 1;
+        device_run_init(&session, &device);
+
+        check_result(mdrHeadphonesGetFeature(session.headphones, MDR_FEATURE_CONNECTION_MODE, &availability),
+                     MDR_RESULT_OK, "connection feature availability is readable");
+        check(availability ==
+                  (device.answer_connection_mode ? MDR_AVAILABILITY_AVAILABLE : MDR_AVAILABILITY_UNAVAILABLE),
+              "all advertised connection variants enable the feature, and no flag leaves it unavailable");
+        for (i = 0; i < device.log_size; ++i)
+            if (device.log[i].table == 1 && device.log[i].command == 0xe6)
+                check(device.answer_connection_mode && device.log[i].inquired == device.connection_mode_type,
+                      "initialization reads only the selected advertised connection type");
+        if (!device.answer_connection_mode)
+        {
+            check_result(mdrHeadphonesSetConnectionMode(session.headphones, &mode), MDR_RESULT_ERROR_NOT_SUPPORTED,
+                         "a device with no connection flag rejects the setter");
+            session_close(&session);
+            continue;
+        }
+        check(device_requested(&device, 1, 0xe6, device.connection_mode_type), "connection priority is queried");
+        check_result(mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_CURRENT, &mode), MDR_RESULT_OK,
+                     "variant readback is readable");
+        check(mode.audio_priority == MDR_AUDIO_PRIORITY_STABILITY, "variant readback updates the current priority");
+
+        mode.audio_priority = MDR_AUDIO_PRIORITY_QUALITY;
+        check_result(mdrHeadphonesSetConnectionMode(session.headphones, &mode), MDR_RESULT_OK,
+                     "connection priority stages for every variant");
+        device.log_size = 0;
+        check_result(mdrHeadphonesRequestCommit(session.headphones), MDR_RESULT_OK, "variant commit starts");
+        device_run(&session, &device, MDR_EVENT_APPLY_COMPLETE, "variant commit completes");
+        check(device_requested(&device, 1, 0xe8, device.connection_mode_type),
+              "commit uses the advertised connection tag");
+        check(device.connection_priority == 0x00, "device receives the requested priority");
+        if (device.connection_mode_type == 0x05)
+            check(device.connection_set_extra == 0x01,
+                  "Classic/LE setter explicitly sends false for its extra boolean");
+        check_result(mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_CURRENT, &mode), MDR_RESULT_OK,
+                     "variant notification is readable");
+        check(mode.audio_priority == MDR_AUDIO_PRIORITY_QUALITY, "variant notification updates current priority");
+        check(!mdrHeadphonesIsDirty(session.headphones), "connection priority commit consumes the staged edit");
+
+        /* A reply for a different connection variant must not overwrite this device's state. */
+        {
+            const unsigned char unrelated[] = {0xe9, device.connection_mode_type == 0x00 ? 0x02 : 0x00, 0x01};
+            device_send(&device, MDR_DATA_TYPE_DATA_MDR, unrelated, sizeof(unrelated));
+            device_run(&session, &device, MDR_EVENT_UNHANDLED, "an unselected connection variant is ignored");
+            check_result(mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_CURRENT, &mode), MDR_RESULT_OK,
+                         "priority remains readable after an unrelated variant");
+            check(mode.audio_priority == MDR_AUDIO_PRIORITY_QUALITY, "unrelated variant does not change priority");
+        }
+
+        /* Subsequent RET_PARAM reports use the same variant and update state independently of a setter. */
+        {
+            const unsigned char reply[] = {0xe7, device.connection_mode_type, 0x01, 0x01};
+            device_send(&device, MDR_DATA_TYPE_DATA_MDR, reply, device.connection_mode_type == 0x02 ? 4u : 3u);
+            device_run(&session, &device, MDR_EVENT_CONNECTION_MODE_CHANGED, "subsequent priority readback polls");
+            check_result(mdrHeadphonesGetConnectionMode(session.headphones, MDR_PROPERTY_CURRENT, &mode), MDR_RESULT_OK,
+                         "subsequent variant readback is readable");
+            check(mode.audio_priority == MDR_AUDIO_PRIORITY_STABILITY,
+                  "readback updates the device's changed priority");
+        }
+        session_close(&session);
+    }
+}
+
 /*
  * A voice-guidance reply says which detail it carries, and only one of them is the on/off
  * switch. Initialization asks about the language, the required time and the download server
@@ -3003,6 +3137,55 @@ static void test_v2_sync_asks_for_the_track_names(void)
     check(device_requested_after(&device, 1, 0xa6, after_init), /* PLAY_GET_PARAM */
           "a V2 sync asks for the playback state again");
     session_close(&session);
+}
+
+/* The shared manual Sync reads sound pressure without enabling preview or writing device settings. */
+static void test_safe_listening_sync_without_preview(void)
+{
+    static const unsigned char table1[] = {0x07, 0x00, 0x00};
+    static const unsigned char levels[] = {85, 0, 0xff};
+    unsigned char type;
+
+    for (type = 0; type < 4; ++type)
+    {
+        const unsigned char table2[] = {0x07, 0x00, 0x01, (unsigned char)(0x50 + type), 0xff};
+        Session session;
+        Device device = {0};
+        MDRSafeListening safe = {0};
+        size_t i;
+
+        if (!session_open(&session))
+            return;
+        device.transport = &session.transport;
+        device.table1 = table1;
+        device.table1_size = sizeof(table1);
+        device.table2 = table2;
+        device.table2_size = sizeof(table2);
+        device_run_init(&session, &device);
+        check_result(mdrHeadphonesGetSafeListening(session.headphones, MDR_PROPERTY_CURRENT, &safe), MDR_RESULT_OK,
+                     "sound pressure is readable before the first report");
+        check(safe.sound_pressure == 0xff && safe.preview == MDR_FALSE,
+              "sound pressure starts unavailable, not a fabricated zero reading");
+
+        for (i = 0; i < sizeof(levels); ++i)
+        {
+            const unsigned char reply[] = {0x5b, type, levels[i], 0x00};
+            device.log_size = 0;
+            check_result(mdrHeadphonesRequestSync(session.headphones, MDR_HEADPHONES_SYNC_DEFAULT), MDR_RESULT_OK,
+                         "shared manual sync starts without enabling preview");
+            device_run(&session, &device, MDR_EVENT_SYNC_COMPLETE, "manual sync completes");
+            check(device_requested(&device, 2, 0x5a, type), "manual sync requests the advertised sound-pressure type");
+            check(!device_requested(&device, 2, 0x58, -1), "manual sync does not send a Safe Listening setter");
+            device_send(&device, MDR_DATA_TYPE_DATA_MDR_NO2, reply, sizeof(reply));
+            device_run(&session, &device, MDR_EVENT_SAFE_LISTENING_CHANGED, "sound-pressure report polls");
+            check_result(mdrHeadphonesGetSafeListening(session.headphones, MDR_PROPERTY_CURRENT, &safe), MDR_RESULT_OK,
+                         "synced sound pressure is readable");
+            check(safe.sound_pressure == levels[i] && safe.preview == MDR_FALSE,
+                  "sound-pressure readbacks, including zero and N/A, do not require preview");
+            check(!mdrHeadphonesIsDirty(session.headphones), "read-only sound-pressure sync stages no settings");
+        }
+        session_close(&session);
+    }
 }
 
 /*
@@ -4994,6 +5177,7 @@ int main(void)
     test_staging_during_apply(MDR_PROTOCOL_V1);
     test_staging_during_apply(MDR_PROTOCOL_V2);
     test_connection_mode_names_its_inquired_type();
+    test_connection_mode_variants();
     test_v1_voice_guidance_detail_is_not_the_switch();
     test_v1_reply_before_ack();
     test_packet_counter();
@@ -5013,6 +5197,7 @@ int main(void)
     test_support_reply_timeout(MDR_PROTOCOL_V2);
     test_v1_sync_asks_for_the_track_names();
     test_v2_sync_asks_for_the_track_names();
+    test_safe_listening_sync_without_preview();
     test_wearing_status();
     test_v2_assignable_controls(0);
     test_v2_assignable_controls(1);
