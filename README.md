@@ -15,7 +15,7 @@ This branch is expected to be merged/released once general support for *all* leg
 
 These legacy devices are currently being verified against:
 
-- [ ] [WH-1000XM2](https://github.com/mos9527/SonyHeadphonesClient/issues/61), pending retest
+- [x] [WH-1000XM2 (support matrix pending)](https://github.com/mos9527/SonyHeadphonesClient/issues/61)
 - [x] [WH-1000XM3](./docs/device-support/WH-1000XM3.md)
 - [x] WH-1000XM4 (tested by [@Amrsatrio](https://github.com/Amrsatrio))
 
