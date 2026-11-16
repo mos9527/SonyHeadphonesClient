@@ -116,7 +116,14 @@ This mostly occurs with multipoint setups, and is mostly an implementation probl
   - <https://github.com/bluez/bluez/issues/868>
   - [#65](https://github.com/mos9527/SonyHeadphonesClient/pull/65)
 - Alternatively, the Linux Client App can be used as a fallback. This was introduced in [#63](https://github.com/mos9527/SonyHeadphonesClient/pull/63), where the wearing status of the device is used to control the host player status, thus bypassing AVRCP controls.
-- This is disabled by default. You can enable it via the `--pause-media-on-remove` flag when launching the Client App. Thanks @phedoreanu for the implementation!
+- This is disabled by default. You can enable it via the `--pause-media-on-remove` flag when launching the Client App. Thanks [@phedoreanu](https://github.com/phedoreanu) for the implementation!
+
+
+## See also
+
+- [libmdr-py - offical Python bindings](https://github.com/mos9527/libmdr-py) for `libmdr` and `libmdr-bt`, also providing a dedicated **command-line interface (CLI)**.
+- [Lauscher - a Sailfish OS app for Sony Headphones using libmdr](https://github.com/Wunderfitz/harbour-lauscher) by [@Wunderfitz](https://github.com/Wunderfitz)
+- Feel free to promote yours in [the Discussion page](https://github.com/mos9527/SonyHeadphonesClient/discussions/79)!
 
 ---
 
