@@ -10,6 +10,7 @@ namespace i18n
         {
             StringTable strings{};
             _Def(Unknown, "Unknown")
+            _Def(HelpMarker, "•")
             _Def(Unsettled, "<unsettled>")
             _Def(DseeUnknown, "DSEE Unknown")
             _Def(Dsee, "DSEE")

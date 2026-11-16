@@ -740,6 +740,19 @@ bool ImHeadingTreeNode(const char* label, ImGuiTreeNodeFlags flags = ImGuiTreeNo
     return ImGui::TreeNodeEx(label, flags);
 }
 
+void ImHelpText(const char* text)
+{
+    ImStylesRAII scope;
+    scope.PushFont(IM_FONTSIZE_CAPTION);
+    scope.PushCol(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+    ImGui::TextUnformatted(Tr(i18n::TextId::HelpMarker));
+    ImGui::SameLine();
+    // Keep wrapped lines aligned with the text rather than the marker.
+    ImGui::BeginGroup();
+    ImGui::TextWrapped("%s", text);
+    ImGui::EndGroup();
+}
+
 constexpr ImGuiWindowFlags kImWindowFlagsTopMost =
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
 
@@ -1961,9 +1974,7 @@ void DrawDeviceControlsSound()
                 mode.audio_priority = MDR_AUDIO_PRIORITY_STABILITY;
                 mdrHeadphonesSetConnectionMode(gDevice, &mode);
             }
-            ImStylesRAII scope;
-            scope.PushFont(IM_FONTSIZE_CAPTION);
-            ImGui::TextWrapped("%s", Tr(i18n::TextId::ConnectionModeHelp));
+            ImHelpText(Tr(i18n::TextId::ConnectionModeHelp));
         }
         ImGui::TreePop();
     }
@@ -1979,9 +1990,7 @@ void DrawDeviceControlsSound()
                     mdr::Format(fmt::runtime(Tr(i18n::TextId::SoundPressure)), safe.sound_pressure).c_str());
             else
                 ImGui::TextUnformatted(Tr(i18n::TextId::SoundPressureUnavailable));
-            ImStylesRAII scope;
-            scope.PushFont(IM_FONTSIZE_CAPTION);
-            ImGui::TextWrapped("%s", Tr(i18n::TextId::SafeListeningHelp));
+            ImHelpText(Tr(i18n::TextId::SafeListeningHelp));
         }
         ImGui::TreePop();
     }
@@ -2280,20 +2289,10 @@ void DrawDeviceControlsSystem()
                     ImGui::EndCombo();
                 }
                 if (setting.list_value < summaries.size() && !summaries[setting.list_value].empty())
-                {
-                    ImStylesRAII scope;
-                    scope.PushFont(IM_FONTSIZE_CAPTION);
-                    ImGui::TextWrapped("%s", summaries[setting.list_value].c_str());
-                }
+                    ImHelpText(summaries[setting.list_value].c_str());
             }
             if (!summary.empty())
-            {
-                ImStylesRAII scope;
-                scope.PushFont(IM_FONTSIZE_CAPTION);
-                ImGui::Bullet();
-                ImGui::SameLine();
-                ImGui::TextWrapped("%s", summary.c_str());
-            }
+                ImHelpText(summary.c_str());
             ImGui::EndDisabled();
             ImGui::PopID();
         }
@@ -2330,11 +2329,7 @@ void DrawDeviceControlsSystem()
         MDRVoiceAssistantSettings assistant{};
         if (mdrHeadphonesGetVoiceAssistant(gDevice, MDR_PROPERTY_DESIRED, &assistant) == MDR_RESULT_OK)
         {
-            {
-                ImStylesRAII scope;
-                scope.PushFont(IM_FONTSIZE_CAPTION);
-                ImGui::TextWrapped("%s", Tr(i18n::TextId::VoiceAssistantDescription));
-            }
+            ImHelpText(Tr(i18n::TextId::VoiceAssistantDescription));
             const auto options = GetVoiceAssistantOptions();
             bool excluded = false;
             ImGui::BeginDisabled(assistant.available == MDR_FALSE);

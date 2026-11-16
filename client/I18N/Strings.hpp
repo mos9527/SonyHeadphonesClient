@@ -58,6 +58,7 @@ namespace i18n
     enum class TextId
     {
         Unknown,
+        HelpMarker,
         Unsettled,
         DseeUnknown,
         Dsee,

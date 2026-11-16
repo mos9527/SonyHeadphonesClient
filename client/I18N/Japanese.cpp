@@ -6,6 +6,7 @@ namespace i18n
     {
         StringTable strings{};
         _Def(Unknown, "不明")
+        _Def(HelpMarker, "※")
         _Def(Unsettled, "<未確定>")
         _Def(DseeUnknown, "不明な DSEE")
         _Def(Dsee, "DSEE")
