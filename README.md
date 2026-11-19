@@ -47,11 +47,12 @@ Besides the broad [native platform support](#platform-support), the client is al
 
 **Live version is available** at: <https://mos9527.com/SonyHeadphonesClient/>
 
-A [Web Serial](https://caniuse.com/web-serial)-supporting browser is required. You can expect the app to work on:
+A browser with [Web Serial](https://caniuse.com/web-serial) support for Bluetooth RFCOMM services is required. You can expect the app to work on:
 
-- Desktop Chrome (89+), and Chromium derivatives (also 89+, e.g. Edge, Opera)
+- [Desktop Chrome (117+)](https://developer.chrome.com/blog/serial-over-bluetooth), and Chromium derivatives (e.g. Edge, Opera)
 - [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
-- [Desktop Firefox (151+)](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/)
+
+**Firefox is currently unsupported.** Although [Firefox 151+ supports Web Serial](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/), it only exposes serial ports already created by the operating system (e.g. COM ports on Windows) and does not open Bluetooth RFCOMM connections itself. Use a Chromium-based browser or a [native build](#platform-support) instead.
 
 ## Running Compatibility Builds
 
