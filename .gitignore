@@ -64,6 +64,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+out/
 
 
 # Installer logs
@@ -535,3 +536,28 @@ cmake-build*/
 # Visual Studio Generator files
 *.sln
 *.vcxproj
+
+captures/
+/tests/*/*-tx.*.bin
+tooling/ida/input/
+*.ipa
+*.idb
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+
+build-*/
+
+/client/Platform/OpenHarmony/.hvigor/
+/client/Platform/OpenHarmony/.appanalyzer/
+/client/Platform/OpenHarmony/oh_modules/
+/client/Platform/OpenHarmony/entry/oh_modules/
+/client/Platform/OpenHarmony/entry/.cxx/
+/client/Platform/OpenHarmony/local.properties
+
+/client/Platform/Android/.gradle/
+/client/Platform/Android/app/.cxx/
+/client/Platform/Android/local.properties

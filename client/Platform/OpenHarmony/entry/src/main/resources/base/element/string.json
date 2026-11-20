@@ -1,0 +1,6 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "Experimental RFCOMM transport probe" },
+    { "name": "bluetooth_permission_reason", "value": "用于读取已配对设备并验证耳机 RFCOMM 控制通道。" }
+  ]
+}

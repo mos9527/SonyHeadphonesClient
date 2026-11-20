@@ -1,6 +1,6 @@
 # From https://github.com/libsdl-org/SDL/blob/main/cmake/sdlplatform.cmake
 # sans some platforms that we'll NEVER support
-# Sets MDR_PLATFORM_OS to one of WIN32, MACOS, IOS, LINUX, ANDROID, EMSCRIPTEN
+# Sets MDR_PLATFORM_OS to one of WIN32, MACOS, IOS, LINUX, ANDROID, OHOS, EMSCRIPTEN
 # And dies on unsupported ones.
 function(MDR_DetectPlatform)
     set(MDR_PLATFORM_OS "UNKNOWN")
@@ -18,6 +18,8 @@ function(MDR_DetectPlatform)
         set(MDR_PLATFORM_OS "LINUX")
     elseif(CMAKE_SYSTEM_NAME MATCHES "Android.*")
         set(MDR_PLATFORM_OS "ANDROID")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "OHOS")
+        set(MDR_PLATFORM_OS "OHOS")
     elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten.*")
         set(MDR_PLATFORM_OS "EMSCRIPTEN")
     endif()

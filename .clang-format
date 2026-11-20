@@ -1,14 +1,14 @@
-# Generated from CLion C/C++ Code Style settings
+# clang-format 19+
 ---
-Language: Cpp
 BasedOnStyle: LLVM
 AccessModifierOffset: -4
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
-AlignOperands: false
-AlignTrailingComments: false
-AlwaysBreakTemplateDeclarations: Yes
-BraceWrapping: 
+AlignOperands: DontAlign
+AlignTrailingComments:
+  Kind: Never
+AllowShortFunctionsOnASingleLine: None
+BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true
   AfterControlStatement: true
@@ -26,30 +26,27 @@ BraceWrapping:
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
 BreakBeforeBraces: Custom
+BreakStringLiterals: false # Keeps logs searchable
 BreakConstructorInitializers: AfterColon
-BreakConstructorInitializersBeforeComma: false
+BreakTemplateDeclarations: Yes
 ColumnLimit: 120
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-IncludeCategories: 
-  - Regex: '^<.*'
-    Priority: 1
-  - Regex: '^".*'
-    Priority: 2
-  - Regex: '.*'
-    Priority: 3
-IncludeIsMainRegex: '([-_](test|unittest))?$'
-IndentCaseBlocks: true
+FixNamespaceComments: false
+IndentCaseBlocks: false
 IndentWidth: 4
 InsertNewlineAtEOF: true
-MacroBlockBegin: ''
-MacroBlockEnd: ''
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: true
+  AtStartOfFile: true
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
+PackConstructorInitializers: BinPack
 PointerAlignment: Left
-SpaceInEmptyParentheses: false
-SpacesInAngles: false
-SpacesInConditionalStatement: false
-SpacesInCStyleCastParentheses: false
-SpacesInParentheses: false
+ReflowComments: false # Keeps Doxygen comment formatting
+SortIncludes: Never # You don't want to do this with Windows.h or some Apple headers
+SpacesInAngles: Never
+SpacesInParens: Never
+StatementMacros:
+  - _Def # client/I18N
 TabWidth: 4
 ...

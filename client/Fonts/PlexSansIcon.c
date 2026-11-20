@@ -1,4 +1,4 @@
-// Generated with tooling/BinaryEmbed.cpp
+// Generated with tooling/codegen/BinaryEmbed.cpp
 const char kEmbedFontPlexSansIcon[74385+1] =
     "7])#######773i*'/###I),##c'ChLYqH##$@;*>PtpBe&J<D<9g>11fY;99%6=E$X7WP&]Q4U%1.-h<7__Jjs(?>#@O)##@1)e=4MS'r]K>>#p9%##AYte=021@S5:*##).s92;vA0F"
     "NdNq^),+##O:$##%i:'IbvB]tp5+##Mbh--lSX-GWb(W?Lv$##:]9<0aYv<BuO_`*84;kFhl+)#+-0%Jn.V'j)%(,)-+DulI-d<B:@en$CcDE-2S<^-TT$=(dr0F$n*m<-QWN$5<_[FH"

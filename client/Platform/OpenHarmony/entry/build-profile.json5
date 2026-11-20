@@ -1,0 +1,15 @@
+{
+  "apiType": "stageMode",
+  "buildOption": {
+    "externalNativeOptions": {
+      "path": "./src/main/cpp/CMakeLists.txt",
+      "arguments": "-DOHOS_COMPATIBLE_SDK_VERSION=6.0.0(20) -DMDR_CLIENT_DEBUGGER=ON",
+      "cppFlags": "-std=c++20",
+      "abiFilters": ["arm64-v8a"],
+      "targets": ["main", "SDL3-shared"]
+    }
+  },
+  "targets": [
+    { "name": "default" }
+  ]
+}

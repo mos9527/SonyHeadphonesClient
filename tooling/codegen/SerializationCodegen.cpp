@@ -1,0 +1,242 @@
+#include <vector>
+#include <algorithm>
+#include <unordered_set>
+#include "Codegen.hpp"
+const char* kMDRExternMacro = "MDR_DEFINE_EXTERN_SERIALIZATION";
+const char* kMDRIgnoredMacro = "MDR_CODEGEN_IGNORE_SERIALIZATION";
+const char* kMDRRWMacro = "MDR_DEFINE_EXTERN_READ_WRITE";
+const char* kMDRReservedRWStructs[] = {"MDRPodArray", "MDRPrefixedString16BE", "MDRPrefixedString",
+                                       "MDRArray",    "MDRFixedArray",         "MDRMap"};
+std::string gSrc = "libmdr/ProtocolV2T1Enums.hpp";
+std::string gNamespaceName = "mdr::v2::t1";
+using MacroPair = std::pair<unsigned, std::string>; // Line, Name
+std::vector<MacroPair> gMacros;
+std::unordered_set<std::string> gReadWriteTypes;
+CXChildVisitResult macroVisitor(CXCursor cursor, CXCursor parent, CXClientData)
+{
+    CXCursorKind kind = clang_getCursorKind(cursor);
+    if (kind == CXCursor_MacroExpansion)
+    {
+        CXString name = clang_getCursorSpelling(cursor);
+        CXSourceLocation loc = clang_getCursorLocation(cursor);
+        // Identify macros with line numbers. getLexicalParent doesn't work since we're still
+        // in the preprocessor
+        CXFile file;
+        unsigned line, col, offset;
+        clang_getSpellingLocation(loc, &file, &line, &col, &offset);
+        CXString fileName = clang_getFileName(file);
+        std::string fileStr = clang_getCString(fileName);
+        if (fileStr == gSrc)
+            gMacros.emplace_back(line, clang_getCString(name));
+        clang_disposeString(name);
+        clang_disposeString(fileName);
+    }
+    return CXChildVisit_Continue;
+}
+struct MethodVisitorResult
+{
+    bool hasRead = false;
+    bool hasWrite = false;
+};
+CXChildVisitResult methodVisitor(CXCursor cursor, CXCursor parent, CXClientData pResult)
+{
+    CXString parentName = clang_getCursorSpelling(parent);
+    clang_disposeString(parentName);
+    CXCursorKind kind = clang_getCursorKind(cursor);
+    auto* p = static_cast<MethodVisitorResult*>(pResult);
+    if (kind == CXCursor_CXXMethod)
+    {
+        CXString name = clang_getCursorSpelling(cursor);
+        std::string methodName = clang_getCString(name);
+        if (methodName == "Read")
+            p->hasRead = true;
+        if (methodName == "Write")
+            p->hasWrite = true;
+        clang_disposeString(name);
+    }
+    return CXChildVisit_Continue;
+}
+struct FieldSerializeVisitorParams
+{
+    bool isSerialize = false;
+    bool isDeserialize = false;
+    bool isRead = false;
+    bool isWrite = false;
+    std::string resultType;
+};
+CXChildVisitResult fieldValidateVisitor(CXCursor cursor, CXCursor parent, CXClientData pParams)
+{
+    const auto* params = static_cast<const FieldSerializeVisitorParams*>(pParams);
+    CXCursorKind kind = clang_getCursorKind(cursor);
+    if (kind == CXCursor_FieldDecl)
+    {
+        CXString name = clang_getCursorSpelling(cursor);
+        CXType type = clang_getCursorType(cursor);
+        CXString typeName = clang_getTypeSpelling(type);
+        const char* rawName = clang_getCString(name);
+        const char* rawTypeName = clang_getCString(typeName);
+        const std::string fieldName = rawName ? rawName : "";
+        const std::string fieldTypeName = rawTypeName ? rawTypeName : "";
+        // Custom RW? Or POD
+        MethodVisitorResult result{};
+        // Reserved ones always do custom RW
+        std::string_view typeNameStr = fieldTypeName;
+        for (const char* reserved : kMDRReservedRWStructs)
+            if (typeNameStr.starts_with(reserved))
+                result.hasRead = result.hasWrite = true;
+        if (gReadWriteTypes.contains(std::string(typeNameStr)))
+            result.hasRead = result.hasWrite = true;
+        if (result.hasWrite && result.hasRead)
+        {
+            if (params->isSerialize)
+                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, &ptr, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
+            if (params->isWrite)
+                println("        MDR_TRY_SIZE({}, ({}::Write)(data.{}, ppDstBuffer, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
+            if (params->isDeserialize)
+                println("        MDR_TRY_SIZE({}, ({}::Read)(&data, out.{}, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
+            if (params->isRead)
+                println("        MDR_TRY_SIZE({}, ({}::Read)(ppSrcBuffer, out.{}, maxSize));", params->resultType,
+                        fieldTypeName, fieldName);
+        }
+        else
+        {
+            if (params->isSerialize)
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, &ptr, maxSize));", params->resultType,
+                        fieldName);
+            if (params->isWrite)
+                println("        MDR_TRY_SIZE({}, MDRPod::Write(data.{}, ppDstBuffer, maxSize));", params->resultType,
+                        fieldName);
+            if (params->isDeserialize)
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(&data, out.{}, maxSize));", params->resultType,
+                        fieldName);
+            if (params->isRead)
+                println("        MDR_TRY_SIZE({}, MDRPod::Read(ppSrcBuffer, out.{}, maxSize));", params->resultType,
+                        fieldName);
+        }
+        clang_disposeString(name);
+        clang_disposeString(typeName);
+    }
+    return CXChildVisit_Continue;
+}
+CXChildVisitResult structVisitor(CXCursor cursor, CXCursor parent, CXClientData)
+{
+    CXCursorKind kind = clang_getCursorKind(cursor);
+    switch (kind)
+    {
+    case CXCursor_Namespace:
+        return CXChildVisit_Recurse;
+    case CXCursor_StructDecl:
+    {
+        std::string parentStr = getFullParentName(parent);
+        if (parentStr != gNamespaceName)
+            return CXChildVisit_Continue;
+        CXString name = clang_getCursorSpelling(cursor);
+        std::string structName = clang_getCString(name);
+        /* Collect macros */
+        auto [startLine, endLine] = getCursorExtents(cursor);
+        auto start = std::lower_bound(gMacros.begin(), gMacros.end(), MacroPair{startLine, ""});
+        std::vector<std::string> macros;
+        bool isExtern = false, isIgnored = false, isRWFieldStruct = false;
+        for (auto it = start; it != gMacros.end() && it->first < endLine; ++it)
+        {
+            if (it->second == kMDRIgnoredMacro)
+                isIgnored = true;
+            if (it->second == kMDRExternMacro)
+                isExtern = true;
+            if (it->second == kMDRRWMacro)
+                isRWFieldStruct = true;
+        }
+        FieldSerializeVisitorParams params{};
+        if (isRWFieldStruct)
+        {
+            gReadWriteTypes.insert(structName);
+            // Emit field RW bodies
+            if (!isIgnored)
+            {
+                // Write
+                println("    MDRResult<size_t> {}::Write(const {}& data, UInt8** ppDstBuffer, size_t maxSize)",
+                        structName, structName);
+                println("    {{");
+                println("        UInt8* ptr = *ppDstBuffer;");
+                params.resultType = "size_t";
+                params.isRead = false, params.isWrite = true;
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
+                println("        return MDRResult<size_t>::Success(*ppDstBuffer - ptr);");
+                println("    }}");
+                println("    MDRResult<size_t> {}::Read(const UInt8** ppSrcBuffer, {}& out, size_t maxSize)",
+                        structName, structName);
+                println("    {{");
+                println("        const UInt8* ptr = *ppSrcBuffer;");
+                params.resultType = "size_t";
+                params.isRead = true, params.isWrite = false;
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
+                println("        return MDRResult<size_t>::Success(*ppSrcBuffer - ptr);");
+                println("    }}");
+            }
+        }
+        else
+        {
+            // Emit serialization bodies
+            if (isExtern && !isIgnored)
+            {
+                println("    MDRResult<size_t> {}::Serialize(const {}& data, UInt8* out, size_t maxSize)", structName,
+                        structName);
+                println("    {{");
+                println("        UInt8* ptr = out;");
+                println("        MDR_TRY(size_t, Validate(data));");
+                params.resultType = "size_t";
+                params.isSerialize = true, params.isDeserialize = false;
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
+                println("        return MDRResult<size_t>::Success(ptr - out);");
+                println("    }}");
+                println("    MDRResult<{}> {}::Deserialize(const UInt8* data, size_t maxSize)", structName, structName);
+                println("    {{");
+                println("        {} out{{}};", structName);
+                params.resultType = structName;
+                params.isSerialize = false, params.isDeserialize = true;
+                clang_visitChildren(cursor, fieldValidateVisitor, &params);
+                println("        MDR_TRY({}, Validate(out));", structName);
+                println("        return MDRResult<{}>::Success(std::move(out));", structName);
+                println("    }}");
+            }
+            clang_disposeString(name);
+        }
+        return CXChildVisit_Continue;
+    }
+    default:
+        return CXChildVisit_Continue;
+    }
+}
+
+int main(int argc, char** argv)
+{
+    if (argc != 4)
+    {
+        println("usage: {} <source-file> <namespace-name> <include-name>", argv[0]);
+        println("\tGenerate MDR_DEFINE_EXTERN_SERIALIZATION bodies for the given source file and namespace name.");
+        println("\tOutput is printed to stdout.");
+        return 1;
+    }
+    gSrc = argv[1];
+    gNamespaceName = argv[2];
+    CXIndex index = clang_createIndex(0, 0);
+    CXTranslationUnit unit = clang_parseTranslationUnit(index, gSrc.c_str(), nullptr, 0, nullptr, 0,
+                                                        CXTranslationUnit_DetailedPreprocessingRecord);
+    CXCursor cursor = clang_getTranslationUnitCursor(unit);
+    clang_visitChildren(cursor, macroVisitor, nullptr);
+    std::sort(gMacros.begin(), gMacros.end());
+    println("/* This file is auto-generated by tooling/codegen/SerializationCodegen.cpp */");
+    println("#include <{}>", argv[3]);
+    println("");
+    println("namespace {} {{", gNamespaceName);
+    clang_visitChildren(cursor, structVisitor, nullptr);
+    println("}}");
+    std::fflush(stdout);
+
+    clang_disposeTranslationUnit(unit);
+    clang_disposeIndex(index);
+    return 0;
+}

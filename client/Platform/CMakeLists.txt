@@ -4,8 +4,7 @@ add_library(Client_Platform INTERFACE)
 target_link_libraries(
         Client_Platform
         INTERFACE
-        mdr        
-)
+        mdr mdr::bt)
 if (MDR_PLATFORM_OS STREQUAL "LINUX")
     message(STATUS "Configuring for Linux platform")
     add_subdirectory(Linux)
@@ -18,6 +17,10 @@ elseif (MDR_PLATFORM_OS STREQUAL "MACOS")
     message(STATUS "Configuring for MacOS platform")
     add_subdirectory(MacOS)
     target_link_libraries(Client_Platform INTERFACE Client_PlatformMacOS)
+elseif (MDR_PLATFORM_OS STREQUAL "IOS")
+    message(STATUS "Configuring for iOS platform")
+    add_subdirectory(iOS)
+    target_link_libraries(Client_Platform INTERFACE Client_PlatformIOS)
 elseif (MDR_PLATFORM_OS STREQUAL "EMSCRIPTEN")
     message(STATUS "Configuring for Emscripten platform")
     add_subdirectory(Emscripten)

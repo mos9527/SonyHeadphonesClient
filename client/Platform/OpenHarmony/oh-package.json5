@@ -1,0 +1,8 @@
+{
+  "modelVersion": "6.1.1",
+  "name": "sony-headphones-rfcomm-probe",
+  "version": "0.1.0",
+  "description": "OpenHarmony RFCOMM transport probe for SonyHeadphonesClient",
+  "dependencies": {},
+  "devDependencies": {}
+}

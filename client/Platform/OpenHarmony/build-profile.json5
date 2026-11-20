@@ -1,0 +1,57 @@
+{
+  "app": {
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "runtimeOS": "HarmonyOS",
+        "compileSdkVersion": "6.1.1(24)",
+        "compatibleSdkVersion": "6.0.0(20)",
+        "targetSdkVersion": "6.1.1(24)"
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "capabilities": [
+      {
+        "bundleName": "com.mos9527.SonyHeadphonesClient",
+        "config": []
+      }
+    ],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\komahuang\\.ohos\\config\\default_OpenHarmony__hvNe72Ua_d8cc2H0OG1bR8bvcow1QmiCj-CrwoDfy4=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BE45FA191CC18AA176F4AFE4A05A7038DA7DDA5E0EBA5AE03AF2CD8B6F73678503451338E0393DB",
+          "profile": "C:\\Users\\komahuang\\.ohos\\config\\default_OpenHarmony__hvNe72Ua_d8cc2H0OG1bR8bvcow1QmiCj-CrwoDfy4=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\komahuang\\.ohos\\config\\default_OpenHarmony__hvNe72Ua_d8cc2H0OG1bR8bvcow1QmiCj-CrwoDfy4=.p12",
+          "storePassword": "0000001B63BCAE9D0E07ADAA52AD08A22C6A813484F6E3E170BF7D43005EF6318CE05015530EFBB874D98B"
+        }
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
