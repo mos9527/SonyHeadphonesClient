@@ -91,5 +91,5 @@ and use **Export ZIP** in the **Device Disconnected** dialog. See the
 [packet capture guide](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tests/README.md).
 
 Captures may contain paired device names, Bluetooth addresses and media metadata. Run
-[`tooling/scrub-capture.py`](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tooling/scrub-capture.py)
+[`tooling/scripts/scrub-capture.py`](https://github.com/mos9527/SonyHeadphonesClient/blob/v1-compat/tooling/scripts/scrub-capture.py)
 over the capture and review what is left before attaching it as a `.zip` file.

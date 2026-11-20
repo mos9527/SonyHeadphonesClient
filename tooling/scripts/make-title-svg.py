@@ -12,7 +12,7 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.ttLib import TTFont
 
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ICON = ROOT / "client" / "Platform" / "Emscripten" / "icon-512.png"
 DEFAULT_FONT = ROOT / "client" / "Fonts" / "PlexSansIcon.ttf"
 DEFAULT_OUTPUT = ROOT / "docs" / "readme_title.svg"

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PIL import Image
 
-PLATFORM = Path(__file__).resolve().parent.parent / "client" / "Platform"
+PLATFORM = Path(__file__).resolve().parents[2] / "client" / "Platform"
 WINDOWS_ICO_SIZES = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256]
 MACOS_ICNS_SIZES = [32, 64, 128, 256, 512, 1024]
 

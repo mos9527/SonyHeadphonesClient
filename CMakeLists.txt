@@ -167,7 +167,7 @@ add_subdirectory(contrib)
 # mdr_add_codegen() is only defined when LLVM was detected and codegen is not disabled;
 # libmdr guards on (COMMAND mdr_add_codegen).
 if (MDR_BUILD_CODEGEN)
-    add_subdirectory(tooling)
+    add_subdirectory(tooling/codegen)
 endif()
 if (MDR_BUILD_CLIENT)
     add_subdirectory(client/I18N)
@@ -182,7 +182,7 @@ if (MDR_BUILD_TESTING AND NOT MDR_BUILD_SHARED)
     message(FATAL_ERROR "MDR_BUILD_TESTING requires MDR_BUILD_SHARED=ON; set MDR_BUILD_TESTING=OFF to build without shared libraries")
 endif ()
 
-include(tooling/Codegen.cmake)
+include(tooling/codegen/Codegen.cmake)
 add_subdirectory(libmdr)
 if (MDR_BUILD_BT)
     add_subdirectory(libmdr-bt)

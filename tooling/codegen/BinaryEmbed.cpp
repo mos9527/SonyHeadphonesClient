@@ -42,7 +42,7 @@ int main(int argc, char** argv)
         return 1;
     }
     fprintf(fout, "#pragma once\n");
-    fprintf(fout, "// Generated with tooling/BinaryEmbed.cpp\n");
+    fprintf(fout, "// Generated with tooling/codegen/BinaryEmbed.cpp\n");
     fprintf(fout, "#ifdef __cplusplus\n");
     fprintf(fout, "// Q: Why do we need yet another linkage declaration here?\n");
     fprintf(fout, "// A: MSVC. It's ALWAYS MSVC.\n");
@@ -92,7 +92,7 @@ bool binary_to_compressed_c(const char* filename, const char* symbol, FILE* out,
 
     // Output as Base85 encoded
     array_size = (compressed_sz + 3) / 4 * 5;
-    fprintf(out, "// Generated with tooling/BinaryEmbed.cpp\n");
+    fprintf(out, "// Generated with tooling/codegen/BinaryEmbed.cpp\n");
     fprintf(out, "extern const char %s[%d+1] =\n    \"", symbol, array_size);
     char prev_c = 0;
     for (int src_i = 0; src_i < compressed_sz; src_i += 4)

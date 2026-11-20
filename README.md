@@ -52,7 +52,20 @@ A browser with [Web Serial](https://caniuse.com/web-serial) support for Bluetoot
 - [Desktop Chrome (117+)](https://developer.chrome.com/blog/serial-over-bluetooth), and Chromium derivatives (e.g. Edge, Opera)
 - [Android Chrome (148+)](https://chromestatus.com/feature/6043992171085824)
 
-**Firefox is currently unsupported.** Although [Firefox 151+ supports Web Serial](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/), it only exposes serial ports already created by the operating system (e.g. COM ports on Windows) and does not open Bluetooth RFCOMM connections itself. Use a Chromium-based browser or a [native build](#platform-support) instead.
+### Running on Firefox
+
+**Firefox is unsupported by default:** Although [Firefox 151+ supports Web Serial](https://hacks.mozilla.org/2026/05/web-serial-support-in-firefox/), it only exposes serial ports already created by the operating system (e.g. COM ports on Windows) and does not open Bluetooth RFCOMM connections itself. Some workarounds are available, however:
+
+- On Windows, with the headphones paired, run [`tooling/scripts/bluetoothcom-win32.py`](tooling/scripts/bluetoothcom-win32.py) from an Administrator prompt. For example with the XM6:
+
+  ```powershell
+  # usage: python tooling/scripts/bluetoothcom-win32.py --help
+  python tooling/scripts/bluetoothcom-win32.py bind "WH-1000XM6"
+  ```
+
+  This installs Windows' built-in `Standard Serial over Bluetooth link` driver for the headphones' RFCOMM interface, and a COM port will be created afterwards.
+
+**NOTE:** The workarounds may apply to other browsers with WebSerial support only as well.
 
 ## Running Compatibility Builds
 

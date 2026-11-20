@@ -148,7 +148,7 @@ These apply to `libmdr`, `libmdr-bt`, their shared libraries and the `client`.
 | --- | --- | --- |
 | `MDR_BUILD_TESTING` | `ON` | Build and register the C ABI and [replay tests](./tests/) with CTest. Requires `MDR_BUILD_SHARED=ON`. |
 | `MDR_BUILD_SHARED` | Platform-dependent | Also build the `mdr_shared` target and, with `MDR_BUILD_BT=ON`, the `mdr-bt_shared` target. Outputs to `mdr-shared` and `mdr-bt-shared`. Defaults to `ON` where shared libraries are supported (i.e. **not** Emscripten). Required by the tests. |
-| `MDR_BUILD_CODEGEN` | `OFF` | Build [codegen](./tooling/) tools and targets, including `mdr_codegen` for all generated protocol and debugger files. Requires a native toolchain and LLVM/libclang. Leave `OFF` to use the checked-in generated sources. |
+| `MDR_BUILD_CODEGEN` | `OFF` | Build [codegen](./tooling/codegen/) tools and targets, including `mdr_codegen` for all generated protocol and debugger files. Requires a native toolchain and LLVM/libclang. Leave `OFF` to use the checked-in generated sources. |
 | `MDR_BUILD_WITH_ASAN` | `OFF` | Build with AddressSanitizer enabled. |
 | `MDR_BUILD_WITH_IPO` | `ON` | Build with Interprocedural Optimization enabled. |
 | `MDR_MSVC_STATIC_CRT` | `ON` | **MSVC only.** Statically link the MSVC runtime (`/MT`). Ignored if `CMAKE_MSVC_RUNTIME_LIBRARY` is set. |
@@ -409,7 +409,7 @@ Thanks for reading it all the way to this paragraph. We certainly hope you can *
 
 ## Payload Struct Implementation Details (libmdr)
 
-**NOTE:** This section is for informative purposes only, as `libmdr` now generates the struct details via [codegen](./tooling/) deterministically, and the structs themselves are generated from IR via [tooling/ida](./tooling/ida/).
+**NOTE:** This section is for informative purposes only, as `libmdr` now generates the struct details via [codegen](./tooling/codegen/) deterministically, and the structs themselves are generated from IR via [tooling/ida](./tooling/ida/).
 
 To regenerate after modifying a source header, configure with `-DMDR_BUILD_CODEGEN=ON` and run `cmake --build <build-dir> --target mdr_codegen`. See [Running codegen](./tooling/README.md#running-codegen).
 

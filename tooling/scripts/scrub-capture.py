@@ -11,8 +11,8 @@ each frame's size field still hold; only the checksum and the escaping change. T
 address the device reports for itself in `CONNECT_RET_CAPABILITY_INFO` is kept, as
 it identifies the captured hardware - pass --scrub-device-address to drop it too.
 
-    tooling/scrub-capture.py --dry-run tests/WF-1000XM5-6.1.0
-    tooling/scrub-capture.py tests/WF-1000XM5-6.1.0
+    tooling/scripts/scrub-capture.py --dry-run tests/WF-1000XM5-6.1.0
+    tooling/scripts/scrub-capture.py tests/WF-1000XM5-6.1.0
 
 Run it before `git add`, and check the result with
 `cat <dir>/*.bin | strings -n 4`.

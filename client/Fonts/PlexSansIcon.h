@@ -272,7 +272,7 @@
 #define PSI_BLUETOOTH "\uF293"
 #define PSI_BLUETOOTH_ALT "\uF294"
 
-// Generated with tooling/BinaryEmbed.cpp
+// Generated with tooling/codegen/BinaryEmbed.cpp
 #ifdef __cplusplus
 // Q: Why do we need yet another linkage declaration here?
 // A: MSVC. It's ALWAYS MSVC.
